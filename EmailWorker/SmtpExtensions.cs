@@ -57,6 +57,18 @@ class SmtpClientWithTelemetry(SmtpClient client, SmtpTelemetry smtpTelemetry) : 
         {
             await client.SendMailAsync(message);
         }
+        catch (Exception ex)
+        {
+            if (activity is not null)
+            {
+                activity.AddTag("exception.message", ex.Message);
+                activity.AddTag("exception.stacktrace", ex.ToString());
+                activity.AddTag("exception.type", ex.GetType().FullName);
+                activity.SetStatus(ActivityStatusCode.Error);
+            }
+            
+            throw;
+        }
         finally
         {
             activity?.Stop();

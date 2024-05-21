@@ -2,6 +2,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var identityDb = builder.AddSqlServer("sql", port: 1433)
                         .WithDataVolume()
+                        .PublishAsAzureSqlDatabase()
                         .AddDatabase("identityDb");
 
 var smtpServer = builder.ExecutionContext.IsRunMode

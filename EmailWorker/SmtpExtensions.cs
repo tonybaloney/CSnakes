@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net;
 using System.Net.Mail;
 
 internal static class SmtpExtensions
@@ -11,6 +12,10 @@ internal static class SmtpExtensions
         {
             var smtpUri = new UriBuilder(builder.Configuration.GetConnectionString(connectionName) ?? throw new InvalidOperationException($"Connection string '{connectionName}' not found."));
             var smtpClient = new SmtpClient(smtpUri.Host, smtpUri.Port);
+            if (smtpUri.UserName != null)
+            {
+                smtpClient.Credentials = new NetworkCredential(smtpUri.UserName, smtpUri.Password);
+            }
             return smtpClient;
         });
 

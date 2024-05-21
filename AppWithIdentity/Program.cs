@@ -37,16 +37,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 
 builder.AddAzureServiceBusClient("sb");
 
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-
-//builder.Services.AddSingleton(_ =>
-//{
-//    var smtpUri = new Uri(builder.Configuration.GetConnectionString("mailserver") ?? throw new InvalidOperationException("Connection string 'mailserver' not found."));
-//    var smtpClient = new SmtpClient(smtpUri.Host, smtpUri.Port);
-//    return smtpClient;
-//});
-
-// builder.Services.AddSingleton<IEmailSender<ApplicationUser>, SmtpEmailSender>();
+// builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, ServiceBusEmailSender>();
 
 var app = builder.Build();

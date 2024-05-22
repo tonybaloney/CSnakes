@@ -1,8 +1,8 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var identityDb = builder.AddSqlServer("sql", port: 1433)
+var identityDb = builder.AddPostgres("pg", port: 5432)
                         .WithDataVolume()
-                        .PublishAsAzureSqlDatabase()
+                        .PublishAsAzurePostgresFlexibleServer()
                         .AddDatabase("identityDb");
 
 var smtpServer = builder.ExecutionContext.IsRunMode
@@ -13,7 +13,7 @@ var sb = builder.AddAzureServiceBus("sb")
                 .AddQueue("emails");
 
 builder.AddProject<Projects.AppWithIdentity>("webapp")
-       .WithReference(identityDb, "DefaultConnection")
+       .WithReference(identityDb)
        .WithReference(sb)
        .WithExternalHttpEndpoints()
        .WithAzureTracing();

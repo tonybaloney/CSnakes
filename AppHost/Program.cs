@@ -1,6 +1,8 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var identityDb = builder.AddPostgres("pg", port: 5432)
+var postgresPassword = builder.AddParameter("postgrespass", secret: true);
+
+var identityDb = builder.AddPostgres("pg", port: 5432, password: postgresPassword)
                         .WithDataVolume()
                         .PublishAsAzurePostgresFlexibleServer()
                         .AddDatabase("identityDb");

@@ -1,5 +1,7 @@
 ﻿namespace Aspire.Hosting;
 
+// See https://learn.microsoft.com/en-us/dotnet/aspire/extensibility/custom-resources for more information
+
 public static class MailDevResourceBuilderExtensions
 {
     public static IResourceBuilder<MailDevResource> AddMailDev(

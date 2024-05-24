@@ -1,5 +1,7 @@
 ﻿namespace Aspire.Hosting.ApplicationModel;
 
+// See https://learn.microsoft.com/en-us/dotnet/aspire/extensibility/custom-resources for more information
+
 public sealed class MailDevResource(string name) : ContainerResource(name), IResourceWithConnectionString
 {
     internal const string SmtpEndpointName = "smtp";

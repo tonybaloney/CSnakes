@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Mail;
+using Microsoft.Extensions.ObjectPool;
 
 internal static class SmtpExtensions
 {
@@ -8,9 +9,17 @@ internal static class SmtpExtensions
     {
         builder.Services.AddSingleton<ISmtpClient, SmtpClientWithTelemetry>();
 
-        builder.Services.AddSingleton(_ =>
+        // SmtpClient isn't thread safe. We're going to pool them
+        builder.Services.AddSingleton(sp =>
         {
-            var smtpUri = new UriBuilder(builder.Configuration.GetConnectionString(connectionName) ?? throw new InvalidOperationException($"Connection string '{connectionName}' not found."));
+            return ObjectPool.Create(new DependencyInjectionObjectPoolPolicy<SmtpClient>(sp));
+        });
+
+        // This is the factory for creating SmtpClient instances, the pool will call this when it needs a new instance
+        UriBuilder? smtpUri = null;
+        builder.Services.AddTransient(_ =>
+        {
+            smtpUri ??= new UriBuilder(builder.Configuration.GetConnectionString(connectionName) ?? throw new InvalidOperationException($"Connection string '{connectionName}' not found."));
             var smtpClient = new SmtpClient(smtpUri.Host, smtpUri.Port);
 
             if (smtpUri.Host != "localhost")
@@ -26,18 +35,20 @@ internal static class SmtpExtensions
         });
 
         builder.Services.AddOpenTelemetry()
-            .WithTracing(t => t.AddSource(SmtpTelemetry.ActivitySourceName));
-
-        builder.Services.AddSingleton<SmtpTelemetry>();
+            .WithTracing(t => t.AddSource(SmtpClientWithTelemetry.ActivitySourceName));
 
         return builder;
     }
 }
 
-internal class SmtpTelemetry
+
+// This is a simple object pool policy that uses the service provider to create new instances of T
+// T should be a transient service
+class DependencyInjectionObjectPoolPolicy<T>(IServiceProvider sp) : IPooledObjectPolicy<T> where T : class, new()
 {
-    public const string ActivitySourceName = "Smtp";
-    public ActivitySource ActivitySource { get; } = new(ActivitySourceName);
+    public T Create() => sp.GetRequiredService<T>();
+
+    public bool Return(T obj) => true;
 }
 
 public interface ISmtpClient
@@ -45,11 +56,16 @@ public interface ISmtpClient
     Task SendMailAsync(MailMessage message);
 }
 
-class SmtpClientWithTelemetry(SmtpClient client, SmtpTelemetry smtpTelemetry) : ISmtpClient
+class SmtpClientWithTelemetry(ObjectPool<SmtpClient> pool) : ISmtpClient
 {
+    public const string ActivitySourceName = "Smtp";
+    private ActivitySource ActivitySource { get; } = new(ActivitySourceName);
+
     public async Task SendMailAsync(MailMessage message)
     {
-        var activity = smtpTelemetry.ActivitySource.StartActivity("SendMail", ActivityKind.Client);
+        var activity = ActivitySource.StartActivity("SendMail", ActivityKind.Client);
+
+        var client = pool.Get();
 
         if (activity is not null)
         {
@@ -72,12 +88,14 @@ class SmtpClientWithTelemetry(SmtpClient client, SmtpTelemetry smtpTelemetry) : 
                 activity.AddTag("exception.type", ex.GetType().FullName);
                 activity.SetStatus(ActivityStatusCode.Error);
             }
-            
+
             throw;
         }
         finally
         {
             activity?.Stop();
+
+            pool.Return(client);
         }
     }
 }

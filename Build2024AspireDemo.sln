@@ -16,6 +16,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExamplePythonDependency", "ExamplePythonDependency\ExamplePythonDependency.csproj", "{8F8FEA93-4913-4410-9A70-E7E518682C2B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuickConsoleTest", "QuickConsoleTest\QuickConsoleTest.csproj", "{F2EDE89A-5233-4C56-ADFB-735B668C47FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PythonSourceGenerator", "PythonSourceGenerator\PythonSourceGenerator.csproj", "{3912E0F4-493B-4B26-A44D-B095F6CF7538}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PythonEnvironments", "PythonEnvironments\PythonEnvironments.csproj", "{9BAB43D1-017F-4470-B898-42022328D17F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +46,22 @@ Global
 		{89201C58-5286-4798-94D0-253235AF9EAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89201C58-5286-4798-94D0-253235AF9EAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89201C58-5286-4798-94D0-253235AF9EAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F8FEA93-4913-4410-9A70-E7E518682C2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F8FEA93-4913-4410-9A70-E7E518682C2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F8FEA93-4913-4410-9A70-E7E518682C2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F8FEA93-4913-4410-9A70-E7E518682C2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2EDE89A-5233-4C56-ADFB-735B668C47FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2EDE89A-5233-4C56-ADFB-735B668C47FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2EDE89A-5233-4C56-ADFB-735B668C47FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2EDE89A-5233-4C56-ADFB-735B668C47FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3912E0F4-493B-4B26-A44D-B095F6CF7538}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3912E0F4-493B-4B26-A44D-B095F6CF7538}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3912E0F4-493B-4B26-A44D-B095F6CF7538}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3912E0F4-493B-4B26-A44D-B095F6CF7538}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BAB43D1-017F-4470-B898-42022328D17F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BAB43D1-017F-4470-B898-42022328D17F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BAB43D1-017F-4470-B898-42022328D17F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BAB43D1-017F-4470-B898-42022328D17F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

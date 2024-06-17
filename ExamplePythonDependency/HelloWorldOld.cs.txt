@@ -1,0 +1,27 @@
+﻿using Python.Runtime;
+using PythonEnvironments;
+
+namespace ExamplePythonDependency
+{
+    public class HelloWorldOld
+    {
+        public static string FormatName(string name, int? max_len = 25)
+        {
+            // TODO : See PythonEnvironment for actions on venv's and paths. 
+            // TODO : Mark Python environments as resources/build artifacts
+            var env = new PythonEnvironment("C:\\Users\\anthonyshaw\\projects\\Build2024AspireDemo\\ExamplePythonDependency\\");
+            var mod = Py.Import("hello_world");
+            using (Py.GIL())
+            {
+                // convert the Person object to a PyObject
+                PyObject pyArg1Name = name.ToPython();
+                PyObject pyArg2MaxLen = max_len.ToPython(); // TODO : work out PyNone
+
+                var func = mod.GetAttr("format_name");
+
+                var result = func.Invoke(pyArg1Name, pyArg2MaxLen);
+                return result.ToString()!;
+            }
+        }
+    }
+}

@@ -28,14 +28,14 @@ namespace PythonSourceGenerator.Tests
             var code = @"def hello_world(name: str) -> str:
     return f'Hello, {name}'
 ";
-            File.WriteAllText(Path.Combine(tempDir.FullName, "test.py"), code);
+            File.WriteAllText(Path.Combine(tempDir.FullName, "test_r11.py"), code);
 
             using (Py.GIL())
             {
                 // create a Python scope
                 using (PyModule scope = Py.CreateScope())
                 {
-                    var testObject = scope.Import("test");
+                    var testObject = scope.Import("test_r11");
                     var module = ModuleReflection.FromModule(testObject, scope);
                     Assert.Contains(module, "public string HelloWorld(string name)");
                 }

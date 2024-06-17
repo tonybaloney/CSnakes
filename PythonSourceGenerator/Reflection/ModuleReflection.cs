@@ -11,8 +11,9 @@ namespace PythonSourceGenerator.Reflection
             // Get methods
             var moduleDir = moduleObject.Dir();
             var callables = new List<string>();
-            foreach (PyObject attr in moduleDir)
+            foreach (PyObject attrName in moduleDir)
             {
+                var attr = moduleObject.GetAttr(attrName);
                 if (attr.IsCallable() && attr.HasAttr("__name__"))
                 {
                     scope.Import("inspect");

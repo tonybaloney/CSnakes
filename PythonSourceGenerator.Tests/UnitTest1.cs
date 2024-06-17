@@ -36,8 +36,10 @@ namespace PythonSourceGenerator.Tests
                 using (PyModule scope = Py.CreateScope())
                 {
                     var testObject = scope.Import("test_r11");
-                    var module = ModuleReflection.FromModule(testObject, scope);
-                    Assert.Contains(module, "public string HelloWorld(string name)");
+                    var module = ModuleReflection.MethodsFromModule(testObject, scope);
+                    Assert.Single(module);
+                    var method = module[0];
+                    Assert.Equal("HelloWorld", method.Identifier.Text);
                 }
             }
         }

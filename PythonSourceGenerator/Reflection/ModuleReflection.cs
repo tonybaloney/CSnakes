@@ -17,7 +17,8 @@ namespace PythonSourceGenerator.Reflection
                 if (attr.IsCallable() && attr.HasAttr("__name__"))
                 {
                     scope.Import("inspect");
-                    scope.Exec($"signature = inspect.signature({attr})");
+                    string x = $"signature = inspect.signature({moduleObject.GetAttr("__name__")}.{attrName})";
+                    scope.Exec(x);
                     var signature = scope.Get("signature");
                     var name = attr.GetAttr("__name__").ToString();
                     @classBody += MethodReflection.FromMethod(signature, name).ToFullString();

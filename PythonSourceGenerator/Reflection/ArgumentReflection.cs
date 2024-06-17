@@ -16,11 +16,11 @@ namespace PythonSourceGenerator.Reflection
         public static ParameterListSyntax ParameterListSyntax(PyObject signature)
         {
             var parameterListSyntax = new List<ParameterSyntax>();
-            var pythonParameters = signature.GetAttr("parameters");
-            for (int i = 0; i < pythonParameters.Length(); i++)
+            var pythonParameters = signature.GetAttr("parameters").As<PyDict>();
+            foreach (var pythonParameter in pythonParameters.Items())
             {
-                var name = pythonParameters[i].GetAttr("name").ToString();
-                var type = pythonParameters[i].GetAttr("annotation").ToString();
+                var name = pythonParameters[0].GetAttr("name").ToString();
+                var type = pythonParameters[1].GetAttr("annotation").ToString();
                 var convertor = "";
                 parameterListSyntax.Add(ArgumentSyntax(name, type, out convertor));
             }

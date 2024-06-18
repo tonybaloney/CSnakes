@@ -22,7 +22,9 @@ namespace PythonSourceGenerator.Reflection
                 SyntaxFactory.Identifier(name.ToPascalCase()))
                 .WithModifiers(
                     SyntaxFactory.TokenList(
-                        SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                        SyntaxFactory.Token(SyntaxKind.PublicKeyword),
+                        SyntaxFactory.Token(SyntaxKind.StaticKeyword))
+                    )
                 .WithBody(
                     SyntaxFactory.Block())
                 .WithParameterList(parameterList);

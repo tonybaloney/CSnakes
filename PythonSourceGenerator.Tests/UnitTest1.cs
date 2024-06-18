@@ -26,7 +26,7 @@ namespace PythonSourceGenerator.Tests
         public void TestHelloWorld()
         {
             var code = @"def hello_world(name: str) -> str:
-    return f'Hello, {name}'
+    ...
 ";
             File.WriteAllText(Path.Combine(tempDir.FullName, "test_r11.py"), code);
 
@@ -40,6 +40,9 @@ namespace PythonSourceGenerator.Tests
                     Assert.Single(module);
                     var method = module[0];
                     Assert.Equal("HelloWorld", method.Identifier.Text);
+
+                    var csharp = module.Compile();
+                    Assert.Contains("public static string HelloWorld(string name)", csharp);
                 }
             }
         }

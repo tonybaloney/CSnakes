@@ -1,6 +1,10 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Python.Runtime;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace PythonSourceGenerator.Reflection
 {
@@ -27,6 +31,16 @@ namespace PythonSourceGenerator.Reflection
                 }
             }
             return methods;
+        }
+
+        public static string Compile(this List<MethodDeclarationSyntax> methods)
+        {
+            StringWriter sw = new StringWriter();
+            foreach (var method in methods)
+            {
+                method.NormalizeWhitespace().WriteTo(sw);
+            }
+            return sw.ToString();
         }
     }
 }

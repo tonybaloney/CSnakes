@@ -11,9 +11,9 @@
     <None Remove="HelloWorldOld.cs.txt" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="pythonnet" Version="3.0.3" />
-  </ItemGroup>
+  <!--<ItemGroup>
+    <PackageReference Include="pythonnet" Version="3.0.3" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+  </ItemGroup>-->
 
   <ItemGroup>
     <AdditionalFiles Include="hello_world.py">
@@ -25,6 +25,7 @@
   </ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\PythonEnvironments\PythonEnvironments.csproj" />
 		<ProjectReference Include="..\PythonSourceGenerator\PythonSourceGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
 	</ItemGroup>
 	

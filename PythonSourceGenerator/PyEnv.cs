@@ -23,11 +23,9 @@ namespace PythonSourceGenerator
                 return;
             }
 
-#pragma warning disable RS1035
-            string dllPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-#pragma warning restore RS1035
-            dllPath = Path.Combine(dllPath, "Programs", "Python", "Python" + versionPath);
-            Runtime.PythonDLL = Path.Combine(dllPath, string.Format("python{0}.dll", versionPath));
+            string dllPath = @"C:\Users\aapowell\.nuget\packages\python\3.12.4\tools";
+            //dllPath = Path.Combine(dllPath, "Programs", "Python", "Python" + versionPath);
+            Runtime.PythonDLL =  Path.Combine(dllPath, string.Format("python{0}.dll", versionPath));
 
             if (!string.IsNullOrEmpty(home))
             {

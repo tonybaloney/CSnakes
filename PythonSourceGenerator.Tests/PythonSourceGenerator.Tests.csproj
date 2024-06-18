@@ -7,6 +7,7 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+	  <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PythonEnvironments\PythonEnvironments.csproj" />
     <ProjectReference Include="..\PythonSourceGenerator\PythonSourceGenerator.csproj" />
   </ItemGroup>
 

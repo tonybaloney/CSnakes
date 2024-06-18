@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace PythonSourceGenerator
 {
-    internal class PyEnv : IDisposable
+    public class PyEnv : IDisposable
     {
-        private static string MapVersion(string version)
+        private static string MapVersion(string version, string sep = "")
         {
             // split on . then take the first two segments and join them without spaces
             var versionParts = version.Split('.');
@@ -22,8 +22,6 @@ namespace PythonSourceGenerator
                 // Raise exception?
                 return;
             }
-
-            //dllPath = Path.Combine(dllPath, "Programs", "Python", "Python" + versionPath);
             Runtime.PythonDLL =  Path.Combine(pythonLocation, string.Format("python{0}.dll", versionPath));
 
             if (!string.IsNullOrEmpty(home))
@@ -49,6 +47,26 @@ namespace PythonSourceGenerator
         public void Dispose()
         {
             PythonEngine.Shutdown();
+        }
+
+        public static string TryLocatePython(string version)
+        {
+            var versionPath = MapVersion(version);
+            var windowsStorePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Python", "Python" + versionPath);
+            var officialInstallerPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Python", MapVersion(version, "."));
+            if (Directory.Exists(windowsStorePath))
+            {
+                return windowsStorePath;
+            }
+            else if (Directory.Exists(officialInstallerPath))
+            {
+                return officialInstallerPath;
+            }
+            else
+            {
+                // TODO : Use nuget package path?
+                throw new Exception("Python not found");
+            }
         }
     }
 }

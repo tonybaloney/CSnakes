@@ -12,8 +12,13 @@ namespace PythonSourceGenerator.Reflection
 
             // Step 2: Determine the return type of the method
             var returnConvertor = "";
-            var returnType = TypeReflection.AnnotationAsTypename(signature.GetAttr("return_annotation"));
-            var returnSyntax = TypeReflection.AsPredefinedType(returnType, out returnConvertor);
+            var returnPythonType = signature.GetAttr("return_annotation");
+
+            // No specified return type (inspect._empty) is treated as object
+            // Explicitly returning None is treated as void
+            string returnType = TypeReflection.AnnotationAsTypename(returnPythonType);
+            var returnSyntax = returnType == "NoneType" ? SyntaxFactory.PredefinedType(
+                        SyntaxFactory.Token(SyntaxKind.VoidKeyword)) : TypeReflection.AsPredefinedType(returnType, out returnConvertor);
 
             // Step 3: Build arguments
             var parameterList = ArgumentReflection.ParameterListSyntax(signature);

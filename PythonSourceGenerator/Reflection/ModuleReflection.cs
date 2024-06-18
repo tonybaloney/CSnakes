@@ -22,11 +22,13 @@ namespace PythonSourceGenerator.Reflection
                 if (attr.IsCallable() && attr.HasAttr("__name__"))
                 {
                     scope.Import("inspect");
-                    string x = $"signature = inspect.signature({moduleObject.GetAttr("__name__")}.{attrName})";
+                    var moduleName = moduleObject.GetAttr("__name__");
+                    // TODO: Review fragile namespacing
+                    string x = $"signature = inspect.signature({moduleName}.{attrName})";
                     scope.Exec(x);
                     var signature = scope.Get("signature");
                     var name = attr.GetAttr("__name__").ToString();
-                    methods.Add(MethodReflection.FromMethod(signature, name));
+                    methods.Add(MethodReflection.FromMethod(signature, name, moduleName.ToString()));
                     callables.Add(attr.ToString());
                 }
             }

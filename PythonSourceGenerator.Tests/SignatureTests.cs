@@ -15,6 +15,7 @@ namespace PythonSourceGenerator.Tests
         [Theory]
         [InlineData("def hello_world():\n    ...\n", "object HelloWorld()")]
         [InlineData("def hello_world() -> None:\n    ...\n", "void HelloWorld()")]
+        [InlineData("def hello_world(name): \n    ...\n", "object HelloWorld(object name)")]
         [InlineData("def hello_world(name: str) -> str:\n    ...\n", "string HelloWorld(string name)")]
         [InlineData("def hello_world(name: str, age: int) -> str:\n    ...\n", "string HelloWorld(string name, long age)")]
         public void TestGeneratedSignature(string code, string expected)

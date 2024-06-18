@@ -10,7 +10,7 @@ namespace PythonSourceGenerator.Reflection
     {
         public static ParameterSyntax ArgumentSyntax(string name, string type, out string convertor)
         {
-            return SyntaxFactory.Parameter(SyntaxFactory.Identifier(name.ToPascalCase()))
+            return SyntaxFactory.Parameter(SyntaxFactory.Identifier(name.ToLowerPascalCase()))
                 .WithType(TypeReflection.AsPredefinedType(type, out convertor));
         }
 

@@ -1,5 +1,4 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Python.Runtime;
 using PythonSourceGenerator.Reflection;
@@ -18,17 +17,23 @@ namespace PythonSourceGenerator
             System.Diagnostics.Debugger.Launch();
             if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.PythonVersion", out string pythonVersion))
             {
-                System.Console.WriteLine("Testing");
-                pythonVersion = "3.12";
+                pythonVersion = "3.12.4";
             }
 
-            //var home = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), $"PythonSourceGenerator_{Guid.NewGuid()}"));
+            if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.PythonLocation", out string pythonLocation))
+            {
+                pythonLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Python", pythonVersion);
+            }
 
-            var pyFiles = context.AdditionalFiles.Where(f => f.Path.EndsWith(".py", System.StringComparison.OrdinalIgnoreCase));
+            var pyFiles = context.AdditionalFiles
+                .Where(f => Path.GetExtension(f.Path) == ".py");
             int count = 0;
             foreach (var file in pyFiles)
             {
-                using var environment = new PyEnv(Path.GetDirectoryName(file.Path), pythonVersion);
+                using var environment = new PyEnv(
+                    Path.GetDirectoryName(file.Path),
+                    pythonLocation,
+                    pythonVersion);
 
                 // Add environment path
                 var @namespace = "Python.Generated"; // TODO : Infer from project
@@ -36,16 +41,12 @@ namespace PythonSourceGenerator
                 var fileName = Path.GetFileNameWithoutExtension(file.Path);
                 // Convert snakecase to pascal case
                 var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
-                var pythonSource = file.GetText(context.CancellationToken);
-
-                //File.WriteAllText(Path.Combine(home.FullName, $"test_{count}.py"), pythonSource.ToString());
 
                 List<MethodDeclarationSyntax> methods;
                 using (Py.GIL())
                 {
                     // create a Python scope
                     using PyModule scope = Py.CreateScope();
-                    //var pythonModule = scope.Import($"test_{count}");
                     var pythonModule = scope.Import(fileName);
                     methods = ModuleReflection.MethodsFromModule(pythonModule, scope);
                 }

@@ -1,6 +1,7 @@
 ﻿using Python.Runtime;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace PythonSourceGenerator
 {
@@ -8,10 +9,12 @@ namespace PythonSourceGenerator
     {
         private static string MapVersion(string version)
         {
-            return version.Replace(".", "");
+            // split on . then take the first two segments and join them without spaces
+            var versionParts = version.Split('.');
+            return string.Join("", versionParts.Take(2));
         }
 
-        public PyEnv(string home, string version = "3.10")
+        public PyEnv(string home, string pythonLocation, string version = "3.10.0")
         {
             string versionPath = MapVersion(version);
             if (PythonEngine.IsInitialized)
@@ -20,19 +23,18 @@ namespace PythonSourceGenerator
                 return;
             }
 
-            string dllPath = $@"{Environment.GetEnvironmentVariable("USERPROFILE")}\.nuget\packages\python\3.12.4\tools";
             //dllPath = Path.Combine(dllPath, "Programs", "Python", "Python" + versionPath);
-            Runtime.PythonDLL =  Path.Combine(dllPath, string.Format("python{0}.dll", versionPath));
+            Runtime.PythonDLL =  Path.Combine(pythonLocation, string.Format("python{0}.dll", versionPath));
 
             if (!string.IsNullOrEmpty(home))
             {
                 PythonEngine.PythonHome = home;
                 // TODO : Path sep is : on Unix
-                PythonEngine.PythonPath = Path.Combine(dllPath, "Lib") + ";" + home;
+                PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + ";" + home;
             }
             else
             {
-                PythonEngine.PythonPath = Path.Combine(dllPath, "Lib");
+                PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib");
             }
 
             // TODO : Add virtual env paths

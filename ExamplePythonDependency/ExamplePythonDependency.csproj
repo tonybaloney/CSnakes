@@ -5,6 +5,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+
+        <PythonVersion>3.12.4</PythonVersion>
+        <PythonLocation>$(USERPROFILE)\.nuget\packages\python\3.12.4\tools</PythonLocation>
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,5 +31,11 @@
         <ProjectReference Include="..\PythonEnvironments\PythonEnvironments.csproj" />
         <ProjectReference Include="..\PythonSourceGenerator\PythonSourceGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     </ItemGroup>
+
+    <ItemGroup>
+        <CompilerVisibleProperty Include="PythonLocation" />
+        <CompilerVisibleProperty Include="PythonVersion" />
+    </ItemGroup>
+
 
 </Project>

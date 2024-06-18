@@ -20,7 +20,7 @@ namespace PythonSourceGenerator
                 return;
             }
 
-            string dllPath = @"C:\Users\aapowell\.nuget\packages\python\3.12.4\tools";
+            string dllPath = $@"{Environment.GetEnvironmentVariable("USERPROFILE")}\.nuget\packages\python\3.12.4\tools";
             //dllPath = Path.Combine(dllPath, "Programs", "Python", "Python" + versionPath);
             Runtime.PythonDLL =  Path.Combine(dllPath, string.Format("python{0}.dll", versionPath));
 

@@ -12,7 +12,7 @@ namespace PythonSourceGenerator.Reflection
 
             // Step 2: Determine the return type of the method
             var returnConvertor = "";
-            var returnType = signature.GetAttr("return_annotation").ToString();
+            var returnType = TypeReflection.AnnotationAsTypename(signature.GetAttr("return_annotation"));
             var returnSyntax = TypeReflection.AsPredefinedType(returnType, out returnConvertor);
 
             // Step 3: Build arguments

@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Python.Runtime;
+using PythonSourceGenerator.Types;
 using System.Collections.Generic;
 
 namespace PythonSourceGenerator.Reflection
@@ -16,11 +17,11 @@ namespace PythonSourceGenerator.Reflection
         public static ParameterListSyntax ParameterListSyntax(PyObject signature)
         {
             var parameterListSyntax = new List<ParameterSyntax>();
-            var pythonParameters = signature.GetAttr("parameters").As<PyDict>();
-            foreach (var pythonParameter in pythonParameters.Items())
+            var parameters = signature.GetAttr("parameters");
+            foreach (var pythonParameter in parameters.Items())
             {
-                var name = pythonParameters[0].GetAttr("name").ToString();
-                var type = pythonParameters[1].GetAttr("annotation").ToString();
+                var name = pythonParameter[0].ToString();
+                var type = TypeReflection.AnnotationAsTypename(pythonParameter[1].GetAttr("annotation"));
                 var convertor = "";
                 parameterListSyntax.Add(ArgumentSyntax(name, type, out convertor));
             }

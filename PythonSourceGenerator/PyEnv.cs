@@ -1,14 +1,11 @@
 ﻿using Python.Runtime;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace PythonSourceGenerator
 {
-    internal class PyEnv
+    internal class PyEnv : IDisposable
     {
-        private readonly List<string> paths = new List<string>();
-
         private static string MapVersion(string version)
         {
             return version.Replace(".", "");
@@ -32,13 +29,10 @@ namespace PythonSourceGenerator
                 PythonEngine.PythonHome = home;
                 // TODO : Path sep is : on Unix
                 PythonEngine.PythonPath = Path.Combine(dllPath, "Lib") + ";" + home;
-                paths.Add(Path.Combine(dllPath, "Lib"));
-                paths.Add(home);
             }
             else
             {
                 PythonEngine.PythonPath = Path.Combine(dllPath, "Lib");
-                paths.Add(Path.Combine(dllPath, "Lib"));
             }
 
             // TODO : Add virtual env paths
@@ -50,12 +44,9 @@ namespace PythonSourceGenerator
             return Py.Import(module);
         }
 
-        public void AddPath(string path)
+        public void Dispose()
         {
-            if (paths.Contains(path))
-                return;
-            paths.Add(path);
-            PythonEngine.PythonPath = string.Join(";", paths);
+            PythonEngine.Shutdown();
         }
     }
 }

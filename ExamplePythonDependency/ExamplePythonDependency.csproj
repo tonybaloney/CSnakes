@@ -1,32 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-	  <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="HelloWorldOld.cs.txt" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove="HelloWorldOld.cs.txt" />
+    </ItemGroup>
 
-  <!--<ItemGroup>
+    <!--<ItemGroup>
     <PackageReference Include="pythonnet" Version="3.0.3" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>-->
 
-  <ItemGroup>
-    <AdditionalFiles Include="hello_world.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-	  <AdditionalFiles Include="mistral_demo.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-  </ItemGroup>
+    <ItemGroup>
+        <AdditionalFiles Include="hello_world.py">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </AdditionalFiles>
+        <!--<AdditionalFiles Include="mistral_demo.py">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </AdditionalFiles>-->
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\PythonEnvironments\PythonEnvironments.csproj" />
-		<ProjectReference Include="..\PythonSourceGenerator\PythonSourceGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
-	</ItemGroup>
-	
+    <ItemGroup>
+        <ProjectReference Include="..\PythonEnvironments\PythonEnvironments.csproj" />
+        <ProjectReference Include="..\PythonSourceGenerator\PythonSourceGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    </ItemGroup>
+
 </Project>

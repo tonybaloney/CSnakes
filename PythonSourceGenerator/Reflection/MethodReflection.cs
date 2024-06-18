@@ -16,7 +16,6 @@ namespace PythonSourceGenerator.Reflection
             var returnSyntax = TypeReflection.AsPredefinedType(returnType, out returnConvertor);
 
             // Step 3: Build arguments
-            System.Diagnostics.Debugger.Launch();
             var parameterList = ArgumentReflection.ParameterListSyntax(signature);
             return SyntaxFactory.MethodDeclaration(
                 returnSyntax,

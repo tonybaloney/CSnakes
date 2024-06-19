@@ -13,6 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmailWorker", "EmailWorker\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{24D80700-8F01-41C7-B858-2C1B242C4EE0}"
 	ProjectSection(SolutionItems) = preProject
+		AutoUpdateAssemblyName.txt = AutoUpdateAssemblyName.txt
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -24,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PythonSourceGenerator", "Py
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PythonEnvironments", "PythonEnvironments\PythonEnvironments.csproj", "{9BAB43D1-017F-4470-B898-42022328D17F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PythonSourceGenerator.Tests", "PythonSourceGenerator.Tests\PythonSourceGenerator.Tests.csproj", "{E01D5C27-CB38-4A0D-B297-33E1E10C1A82}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PythonSourceGenerator.Tests", "PythonSourceGenerator.Tests\PythonSourceGenerator.Tests.csproj", "{E01D5C27-CB38-4A0D-B297-33E1E10C1A82}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,6 +1,9 @@
 ﻿using Python.Generated;
+using PythonEnvironments;
 
 // See https://aka.ms/new-console-template for more information
 Console.WriteLine("Hello, World!");
-
-//Console.WriteLine(HelloWorld.);
+using (new PythonEnvironment("C:\\Users\\anthonyshaw\\projects\\Build2024AspireDemo\\ExamplePythonDependency", "3.10"))
+{
+    Console.WriteLine(QuickDemo.Scream("a", 99));
+}

@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ExamplePythonDependency\ExamplePythonDependency.csproj" />
+    <ProjectReference Include="..\PythonEnvironments\PythonEnvironments.csproj" />
   </ItemGroup>
 
 </Project>

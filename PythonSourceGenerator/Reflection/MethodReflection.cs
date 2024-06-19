@@ -18,7 +18,7 @@ namespace PythonSourceGenerator.Reflection
             // No specified return type (inspect._empty) is treated as object
             // Explicitly returning None is treated as void
             string returnType = TypeReflection.AnnotationAsTypename(returnPythonType);
-            var returnSyntax = returnType == "NoneType" ? SyntaxFactory.PredefinedType(
+            var returnSyntax = returnType == "None" ? SyntaxFactory.PredefinedType(
                         SyntaxFactory.Token(SyntaxKind.VoidKeyword)) : TypeReflection.AsPredefinedType(returnType, out returnConvertor);
 
             // Step 3: Build arguments

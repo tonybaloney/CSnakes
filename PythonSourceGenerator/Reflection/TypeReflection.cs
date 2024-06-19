@@ -2,13 +2,37 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Python.Runtime;
 using System;
+using System.Text.RegularExpressions;
 
 namespace PythonSourceGenerator.Reflection
 {
     public static class TypeReflection
     {
-        public static PredefinedTypeSyntax AsPredefinedType(string pythonType, out string convertor)
+        public static TypeSyntax AsPredefinedType(string pythonType, out string convertor)
         {
+            // If type is an alias, e.g. "list[int]", "list[float]", etc.
+            if (pythonType.Contains("["))
+            {
+                var alias = pythonType.Split('[');
+                var innerType = alias[1].Replace("]", "");
+                var innerTypeSyntax = AsPredefinedType(innerType, out _);
+                switch (alias[0])
+                {
+                    case "list":
+                        convertor = "AsList<" + innerTypeSyntax.ToString() + ">";
+                        return SyntaxFactory.GenericName(
+                            SyntaxFactory.Identifier("List"))
+                            .WithTypeArgumentList(
+                                SyntaxFactory.TypeArgumentList(
+                                    SyntaxFactory.SingletonSeparatedList<TypeSyntax>(
+                                        innerTypeSyntax)));
+                    // Todo more types...
+                    default:
+                        convertor = "AsManagedObject";
+                        return SyntaxFactory.PredefinedType(
+                            SyntaxFactory.Token(SyntaxKind.ObjectKeyword)); // TODO : Should be nullable
+                }
+            }
             switch (pythonType)
             {
                 case "int":
@@ -37,23 +61,17 @@ namespace PythonSourceGenerator.Reflection
 
         internal static string AnnotationAsTypename(PyObject pyObject)
         {
-            // If pyObject is a class object or type object
-            if (pyObject.HasAttr("__name__"))
+            var typeName = pyObject.GetPythonType().Name;
+            // Is class?
+            switch (typeName)
             {
-                return pyObject.GetAttr("__name__").ToString();
+                case "type":
+                case "class":
+                    return pyObject.GetAttr("__name__").ToString();
+                default:
+                    return pyObject.Repr().ToString();
             }
-            // If pyObject is a string
-            if (PyString.IsStringType(pyObject))
-            {
-                return pyObject.ToString();
-            }
-            // If pyObject is a type
-            if (pyObject.HasAttr("__class__"))
-            {
-                return pyObject.GetAttr("__class__").GetAttr("__name__").ToString();
-            }
-            // Just return the string representation of the object
-            return pyObject.ToString();
+            
         }
     }
 }

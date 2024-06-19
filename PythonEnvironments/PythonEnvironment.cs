@@ -1,21 +1,28 @@
 ﻿using Python.Runtime;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace PythonEnvironments
 {
-    public class PythonEnvironment
+    public class PythonEnvironment : IDisposable
     {
-        private List<string> paths = new List<string>();
-
-        private static string MapVersion(string version)
+        private static string MapVersion(string version, string sep = "")
         {
-            return version.Replace(".", "");
+            // split on . then take the first two segments and join them without spaces
+            var versionParts = version.Split('.');
+            return string.Join("", versionParts.Take(2));
         }
 
-        public PythonEnvironment(string home, string version = "3.10")
+        public PythonEnvironment(string version = "3.10") : this("", TryLocatePython(version), version)
+        {
+        }
+
+        public PythonEnvironment(string home, string version = "3.10") : this(home, TryLocatePython(version), version)
+        {
+        }
+
+        public PythonEnvironment(string home, string pythonLocation, string version = "3.10.0")
         {
             string versionPath = MapVersion(version);
             if (PythonEngine.IsInitialized)
@@ -23,40 +30,51 @@ namespace PythonEnvironments
                 // Raise exception?
                 return;
             }
+            Runtime.PythonDLL = Path.Combine(pythonLocation, string.Format("python{0}.dll", versionPath));
 
-            string dllPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            dllPath = Path.Combine(dllPath, "Programs", "Python", "Python" + versionPath);
-            Runtime.PythonDLL = Path.Combine(dllPath, string.Format("python{0}.dll", versionPath));
-
-            if (!String.IsNullOrEmpty(home))
+            if (!string.IsNullOrEmpty(home))
             {
                 PythonEngine.PythonHome = home;
                 // TODO : Path sep is : on Unix
-                PythonEngine.PythonPath = Path.Combine(dllPath, "Lib") + ";" + home;
-                paths.Add(Path.Combine(dllPath, "Lib"));
-                paths.Add(home);
+                PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + ";" + home;
             }
             else
             {
-                PythonEngine.PythonPath = Path.Combine(dllPath, "Lib");
-                paths.Add(Path.Combine(dllPath, "Lib"));
+                PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib");
             }
 
             // TODO : Add virtual env paths
             PythonEngine.Initialize();
         }
 
-        //public PyObject LoadModule (string module)
-        //{
-        //    return Py.Import(module);
-        //}
+        public PyObject LoadModule(string module)
+        {
+            return Py.Import(module);
+        }
 
-        //public void AddPath(string path)
-        //{
-        //    if (paths.Contains(path))
-        //        return;
-        //    paths.Add(path);
-        //    PythonEngine.PythonPath = string.Join(";", paths);
-        //}
+        public void Dispose()
+        {
+            PythonEngine.Shutdown();
+        }
+
+        public static string TryLocatePython(string version)
+        {
+            var versionPath = MapVersion(version);
+            var windowsStorePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Python", "Python" + versionPath);
+            var officialInstallerPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Python", MapVersion(version, "."));
+            if (Directory.Exists(windowsStorePath))
+            {
+                return windowsStorePath;
+            }
+            else if (Directory.Exists(officialInstallerPath))
+            {
+                return officialInstallerPath;
+            }
+            else
+            {
+                // TODO : Use nuget package path?
+                throw new Exception("Python not found");
+            }
+        }
     }
 }

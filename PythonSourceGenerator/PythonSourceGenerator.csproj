@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+    <!--AutoUpdateAssemblyName-->
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
@@ -29,4 +29,7 @@
             <TargetPathWithTargetPlatformMoniker Include="$(PKGpythonnet)\lib\netstandard2.0\Python.Runtime.dll" IncludeRuntimeDependency="false" />
         </ItemGroup>
     </Target>
+    <PropertyGroup>
+		<AssemblyName>PythonSourceGenerator.$(AutoIncrementedAssemblyRevision)</AssemblyName>
+	</PropertyGroup>
 </Project>

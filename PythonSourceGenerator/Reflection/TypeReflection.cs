@@ -26,6 +26,20 @@ namespace PythonSourceGenerator.Reflection
                                 SyntaxFactory.TypeArgumentList(
                                     SyntaxFactory.SingletonSeparatedList<TypeSyntax>(
                                         innerTypeSyntax)));
+                    case "tuple":
+                        var tupleTypes = innerType.Split(',');
+                        var tupleTypeSyntax = new TypeSyntax[tupleTypes.Length];
+                        for (int i = 0; i < tupleTypes.Length; i++)
+                        {
+                            tupleTypeSyntax[i] = AsPredefinedType(tupleTypes[i].Trim(), out _);
+                        }
+                        convertor = "AsTuple<" + string.Join<TypeSyntax>(", ", tupleTypeSyntax) + ">";
+                        return SyntaxFactory.GenericName(
+                            SyntaxFactory.Identifier("Tuple"))
+                            .WithTypeArgumentList(
+                                SyntaxFactory.TypeArgumentList(
+                                    SyntaxFactory.SeparatedList<TypeSyntax>(
+                                        tupleTypeSyntax)));
                     // Todo more types...
                     default:
                         convertor = "AsManagedObject";

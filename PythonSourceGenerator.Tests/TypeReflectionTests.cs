@@ -14,6 +14,11 @@ namespace PythonSourceGenerator.Tests
         [InlineData("list[float]", "List<double>", "AsList<double>")]
         [InlineData("list[bool]", "List<bool>", "AsList<bool>")]
         [InlineData("list[object]", "List<object>", "AsList<object>")]
+        [InlineData("tuple[int, int]", "Tuple<long,long>", "AsTuple<long, long>")]
+        [InlineData("tuple[str, str]", "Tuple<string,string>", "AsTuple<string, string>")]
+        [InlineData("tuple[float, float]", "Tuple<double,double>", "AsTuple<double, double>")]
+        [InlineData("tuple[bool, bool]", "Tuple<bool,bool>", "AsTuple<bool, bool>")]
+        [InlineData("tuple[str, Any]", "Tuple<string,object>", "AsTuple<string, object>")]
         public void AsPredefinedType(string pythonType, string expectedType, string expectedConvertor)
         {
             var actualType = TypeReflection.AsPredefinedType(pythonType, out var actualConvertor).ToString();

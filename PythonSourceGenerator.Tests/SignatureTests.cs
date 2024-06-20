@@ -1,3 +1,5 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Python.Runtime;
 using PythonSourceGenerator.Reflection;
 
@@ -33,6 +35,19 @@ namespace PythonSourceGenerator.Tests
                 var module = ModuleReflection.MethodsFromModule(testObject, scope);
                 var csharp = module.Compile();
                 Assert.Contains(expected, csharp);
+
+                // Check that the sample C# code compiles
+                var tree = CSharpSyntaxTree.ParseText(PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module));
+                var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(List<>).Assembly.Location))
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location))
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(Py).Assembly.Location))
+                    .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "netstandard").Location)) // TODO: Ensure 2.0
+
+                    .AddSyntaxTrees(tree);
+                var result = compilation.Emit(testEnv.TempDir + "/HelloWorld.dll");
+                Assert.True(result.Success, string.Join("\n", result.Diagnostics));
             }
         }
 

@@ -6,4 +6,5 @@ Console.WriteLine("Hello, World!");
 using (new PythonEnvironment("C:\\Users\\anthonyshaw\\projects\\Build2024AspireDemo\\ExamplePythonDependency", "3.10"))
 {
     Console.WriteLine(QuickDemo.Scream("a", 99));
+    Console.WriteLine(", ".Join(QuickDemo.ScreamNames(new List<string> { "a", "b", "c" }, 3)));
 }

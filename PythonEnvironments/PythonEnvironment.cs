@@ -1,12 +1,16 @@
 ﻿using Python.Runtime;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace PythonEnvironments
 {
-    public class PythonEnvironment : IDisposable
+    public class PythonEnvironment(string home, string pythonLocation, string version = "3.10.0")
     {
+        private readonly string versionPath = MapVersion(version);
+        private PythonEnvironmentInternal env;
+
         private static string MapVersion(string version, string sep = "")
         {
             // split on . then take the first two segments and join them without spaces
@@ -22,29 +26,16 @@ namespace PythonEnvironments
         {
         }
 
-        public PythonEnvironment(string home, string pythonLocation, string version = "3.10.0")
+        public IPythonEnvironment Build()
         {
-            string versionPath = MapVersion(version);
             if (PythonEngine.IsInitialized)
             {
                 // Raise exception?
-                return;
+                return env;
             }
-            Runtime.PythonDLL = Path.Combine(pythonLocation, string.Format("python{0}.dll", versionPath));
+            env = new PythonEnvironmentInternal(pythonLocation, versionPath, home);
 
-            if (!string.IsNullOrEmpty(home))
-            {
-                PythonEngine.PythonHome = home;
-                // TODO : Path sep is : on Unix
-                PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + ";" + home;
-            }
-            else
-            {
-                PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib");
-            }
-
-            // TODO : Add virtual env paths
-            PythonEngine.Initialize();
+            return env;
         }
 
         public PyObject LoadModule(string module)
@@ -52,12 +43,7 @@ namespace PythonEnvironments
             return Py.Import(module);
         }
 
-        public void Dispose()
-        {
-            PythonEngine.Shutdown();
-        }
-
-        public static string TryLocatePython(string version)
+        private static string TryLocatePython(string version)
         {
             var versionPath = MapVersion(version);
             var windowsStorePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Python", "Python" + versionPath);
@@ -76,5 +62,51 @@ namespace PythonEnvironments
                 throw new Exception("Python not found");
             }
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is PythonEnvironment environment &&
+                   versionPath == environment.versionPath;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 955711454;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(versionPath);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(home);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(pythonLocation);
+            return hashCode;
+        }
+
+        internal class PythonEnvironmentInternal : IPythonEnvironment
+        {
+            public PythonEnvironmentInternal(string pythonLocation, string versionPath, string home)
+            {
+                Runtime.PythonDLL = Path.Combine(pythonLocation, string.Format("python{0}.dll", versionPath));
+
+                if (!string.IsNullOrEmpty(home))
+                {
+                    PythonEngine.PythonHome = home;
+                    // TODO : Path sep is : on Unix
+                    PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + ";" + home;
+                }
+                else
+                {
+                    PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib");
+                }
+
+                // TODO : Add virtual env paths
+                PythonEngine.Initialize();
+            }
+
+            public void Dispose()
+            {
+                PythonEngine.Shutdown();
+            }
+        }
+    }
+
+    public interface IPythonEnvironment : IDisposable
+    {
     }
 }

@@ -14,7 +14,7 @@ namespace PythonSourceGenerator
     {
         public void Execute(GeneratorExecutionContext context)
         {
-            //System.Diagnostics.Debugger.Launch();
+            System.Diagnostics.Debugger.Launch();
             if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.PythonVersion", out string pythonVersion))
             {
                 pythonVersion = "3.12.4";
@@ -68,9 +68,21 @@ using System.Collections.Generic;
 
 namespace {@namespace}
 {{
-    public static class {pascalFileName}
+    public static class {pascalFileName}Extensions
     {{
-        {methods.Compile()}
+        public static I{pascalFileName} {pascalFileName}(this IPythonEnvironment env)
+        {{
+            return new {pascalFileName}Internal();
+        }}
+
+        private class {pascalFileName}Internal : I{pascalFileName}
+        {{
+            {methods.Compile()}
+        }}
+    }}
+    public interface I{pascalFileName}
+    {{
+        {string.Join(Environment.NewLine, methods.Select(m => $"{m.ReturnType.NormalizeWhitespace()} {m.Identifier.Text}{m.ParameterList.NormalizeWhitespace()};"))}
     }}
 }}
 ";

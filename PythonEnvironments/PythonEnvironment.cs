@@ -33,7 +33,7 @@ namespace PythonEnvironments
                 // Raise exception?
                 return env;
             }
-            env = new PythonEnvironmentInternal(pythonLocation, versionPath, home);
+            env = new PythonEnvironmentInternal(pythonLocation, versionPath, home, this);
 
             return env;
         }
@@ -80,7 +80,9 @@ namespace PythonEnvironments
 
         internal class PythonEnvironmentInternal : IPythonEnvironment
         {
-            public PythonEnvironmentInternal(string pythonLocation, string versionPath, string home)
+            private readonly PythonEnvironment pythonEnvironment;
+
+            public PythonEnvironmentInternal(string pythonLocation, string versionPath, string home, PythonEnvironment pythonEnvironment)
             {
                 Runtime.PythonDLL = Path.Combine(pythonLocation, string.Format("python{0}.dll", versionPath));
 
@@ -97,12 +99,19 @@ namespace PythonEnvironments
 
                 // TODO : Add virtual env paths
                 PythonEngine.Initialize();
+                this.pythonEnvironment = pythonEnvironment;
             }
 
             public void Dispose()
             {
                 PythonEngine.Shutdown();
+                pythonEnvironment.Destroy();
             }
+        }
+
+        private void Destroy()
+        {
+            env = null;
         }
     }
 

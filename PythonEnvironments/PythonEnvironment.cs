@@ -10,6 +10,7 @@ namespace PythonEnvironments
     {
         private readonly string versionPath = MapVersion(version);
         private PythonEnvironmentInternal env;
+        private string[] extraPaths = [];
 
         private static string MapVersion(string version, string sep = "")
         {
@@ -26,6 +27,12 @@ namespace PythonEnvironments
         {
         }
 
+        public PythonEnvironment WithVirtualEnvironment(string path)
+        {
+            extraPaths = [.. extraPaths, path];
+            return this;
+        }
+
         public IPythonEnvironment Build()
         {
             if (PythonEngine.IsInitialized)
@@ -33,7 +40,7 @@ namespace PythonEnvironments
                 // Raise exception?
                 return env;
             }
-            env = new PythonEnvironmentInternal(pythonLocation, versionPath, home, this);
+            env = new PythonEnvironmentInternal(pythonLocation, versionPath, home, this, this.extraPaths);
 
             return env;
         }
@@ -82,22 +89,26 @@ namespace PythonEnvironments
         {
             private readonly PythonEnvironment pythonEnvironment;
 
-            public PythonEnvironmentInternal(string pythonLocation, string versionPath, string home, PythonEnvironment pythonEnvironment)
+            public PythonEnvironmentInternal(string pythonLocation, string versionPath, string home, PythonEnvironment pythonEnvironment, string[] extraPath)
             {
                 Runtime.PythonDLL = Path.Combine(pythonLocation, string.Format("python{0}.dll", versionPath));
-
+                string sep = ";";
                 if (!string.IsNullOrEmpty(home))
                 {
                     PythonEngine.PythonHome = home;
                     // TODO : Path sep is : on Unix
-                    PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + ";" + home;
+                    PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + sep + home;
                 }
                 else
                 {
                     PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib");
                 }
 
-                // TODO : Add virtual env paths
+                if (extraPath.Length > 0)
+                {
+                    PythonEngine.PythonPath = PythonEngine.PythonPath + sep + string.Join(sep, extraPath);
+                }
+
                 PythonEngine.Initialize();
                 this.pythonEnvironment = pythonEnvironment;
             }

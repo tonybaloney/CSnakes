@@ -64,6 +64,8 @@ namespace PythonSourceGenerator
 using Python.Runtime;
 using PythonEnvironments;
 
+using System.Collections.Generic;
+
 namespace {@namespace}
 {{
     public static class {pascalFileName}

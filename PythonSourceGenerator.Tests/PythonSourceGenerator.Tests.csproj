@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PythonEnvironments\PythonEnvironments.csproj" />
     <ProjectReference Include="..\PythonSourceGenerator\PythonSourceGenerator.csproj" />
   </ItemGroup>
 

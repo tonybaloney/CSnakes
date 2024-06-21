@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Python.Runtime;
 using System.Collections.Generic;
+using System.Data;
 
 namespace PythonSourceGenerator.Reflection
 {
@@ -64,7 +65,25 @@ namespace PythonSourceGenerator.Reflection
                                                     SyntaxFactory.IdentifierName("ToPython")))));
             }
 
-
+            ReturnStatementSyntax returnExpression;
+            if (returnType == "None")
+            {
+                returnExpression = SyntaxFactory.ReturnStatement(null);
+            } else if (returnConvertor == null)
+            {
+                returnExpression = SyntaxFactory.ReturnStatement(
+                            SyntaxFactory.IdentifierName("result"));
+            } else
+            {
+                returnExpression = SyntaxFactory.ReturnStatement(
+                            SyntaxFactory.InvocationExpression(
+                                SyntaxFactory.MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    SyntaxFactory.IdentifierName("result"),
+                                    SyntaxFactory.IdentifierName(returnConvertor)))
+                            .WithArgumentList(
+                                SyntaxFactory.ArgumentList()));
+            }
             var body = SyntaxFactory.Block(
                 moduleLoad,
                 SyntaxFactory.UsingStatement(
@@ -111,15 +130,9 @@ namespace PythonSourceGenerator.Reflection
                                                     SyntaxFactory.IdentifierName("Invoke")),
                                                 SyntaxFactory.ArgumentList(
                                                     SyntaxFactory.SeparatedList(pythonCastArguments)))))))),
-                        SyntaxFactory.ReturnStatement(
-                            SyntaxFactory.InvocationExpression(
-                                SyntaxFactory.MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    SyntaxFactory.IdentifierName("result"),
-                                    SyntaxFactory.IdentifierName(returnConvertor)))
-                            .WithArgumentList(
-                                SyntaxFactory.ArgumentList())))
-                        
+                        returnExpression
+                        )
+
                     ));
 
             return SyntaxFactory.MethodDeclaration(

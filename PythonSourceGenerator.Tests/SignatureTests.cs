@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Python.Runtime;
+using PythonEnvironments;
 using PythonSourceGenerator.Reflection;
 
 namespace PythonSourceGenerator.Tests
@@ -15,9 +16,9 @@ namespace PythonSourceGenerator.Tests
         }
 
         [Theory]
-        [InlineData("def hello_world():\n    ...\n", "object HelloWorld()")]
+        [InlineData("def hello_world():\n    ...\n", "PyObject HelloWorld()")]
         [InlineData("def hello_world() -> None:\n    ...\n", "void HelloWorld()")]
-        [InlineData("def hello_world(name): \n    ...\n", "object HelloWorld(object name)")]
+        [InlineData("def hello_world(name): \n    ...\n", "PyObject HelloWorld(PyObject name)")]
         [InlineData("def hello_world(name: str) -> str:\n    ...\n", "string HelloWorld(string name)")]
         [InlineData("def hello_world(name: str, age: int) -> str:\n    ...\n", "string HelloWorld(string name, long age)")]
         [InlineData("def hello_world(numbers: list[float]) -> list[int]:\n    ...\n", "List<long> HelloWorld(List<double> numbers)")]
@@ -37,22 +38,27 @@ namespace PythonSourceGenerator.Tests
                 Assert.Contains(expected, csharp);
 
                 // Check that the sample C# code compiles
-                var tree = CSharpSyntaxTree.ParseText(PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module));
+                string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module);
+                var tree = CSharpSyntaxTree.ParseText(compiledCode);
                 var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
                     .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
                     .AddReferences(MetadataReference.CreateFromFile(typeof(List<>).Assembly.Location))
                     .AddReferences(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location))
                     .AddReferences(MetadataReference.CreateFromFile(typeof(Py).Assembly.Location))
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(PythonEnvironment).Assembly.Location))
                     .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "netstandard").Location)) // TODO: Ensure 2.0
+                    .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Runtime").Location)) 
+                    .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Collections").Location)) 
+                    .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Linq.Expressions").Location)) 
 
                     .AddSyntaxTrees(tree);
                 var result = compilation.Emit(testEnv.TempDir + "/HelloWorld.dll");
-                Assert.True(result.Success, string.Join("\n", result.Diagnostics));
+                Assert.True(result.Success, compiledCode + "\n" + string.Join("\n", result.Diagnostics));
             }
         }
 
         [Theory]
-        [InlineData("from decimal import Decimal\ndef hello_world(dec: Decimal) -> Decimal:\n    ...\n", "object HelloWorld(object dec)")]
+        [InlineData("from decimal import Decimal\ndef hello_world(dec: Decimal) -> Decimal:\n    ...\n", "PyObject HelloWorld(PyObject dec)")]
         public void TestGeneratedSignatureFromModule(string code, string expected)
         {
 

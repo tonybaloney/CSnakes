@@ -1,8 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Python.Runtime;
-using System;
-using System.Text.RegularExpressions;
 
 namespace PythonSourceGenerator.Reflection
 {
@@ -29,6 +27,10 @@ namespace PythonSourceGenerator.Reflection
                     case "tuple":
                         var tupleTypes = innerType.Split(',');
                         var tupleTypeSyntax = new TypeSyntax[tupleTypes.Length];
+                        if (tupleTypes.Length > 8) // TODO: Implement up to 21
+                        {
+                            break; // Not supported.
+                        }
                         for (int i = 0; i < tupleTypes.Length; i++)
                         {
                             tupleTypeSyntax[i] = AsPredefinedType(tupleTypes[i].Trim(), out _);
@@ -40,11 +42,10 @@ namespace PythonSourceGenerator.Reflection
                                 SyntaxFactory.TypeArgumentList(
                                     SyntaxFactory.SeparatedList<TypeSyntax>(
                                         tupleTypeSyntax)));
-                    // Todo more types...
+                    // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
                     default:
-                        convertor = "AsManagedObject";
-                        return SyntaxFactory.PredefinedType(
-                            SyntaxFactory.Token(SyntaxKind.ObjectKeyword)); // TODO : Should be nullable
+                        convertor = null;
+                        return SyntaxFactory.ParseTypeName("PyObject"); // TODO : Should be nullable?
                 }
             }
             switch (pythonType)
@@ -67,9 +68,8 @@ namespace PythonSourceGenerator.Reflection
                         SyntaxFactory.Token(SyntaxKind.BoolKeyword));
                 // Todo more types...
                 default:
-                    convertor = "AsManagedObject";
-                    return SyntaxFactory.PredefinedType(
-                        SyntaxFactory.Token(SyntaxKind.ObjectKeyword)); // TODO : Should be nullable
+                    convertor = null;
+                    return SyntaxFactory.ParseTypeName("PyObject");  // TODO : Should be nullable?
             }
         }
 

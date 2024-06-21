@@ -5,6 +5,7 @@ namespace PythonEnvironments
 {
     public static class PythonTuples
     {
+        public const ushort MAX_ITEMS = 8; // Update when you implement up to 21.
         public static Tuple<T1, T2> AsTuple<T1, T2>(this PyObject obj)
         {
             var item1 = obj[0].As<T1>();

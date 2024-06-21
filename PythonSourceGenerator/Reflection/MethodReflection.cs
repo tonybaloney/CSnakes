@@ -140,8 +140,7 @@ namespace PythonSourceGenerator.Reflection
                 SyntaxFactory.Identifier(methodName.ToPascalCase()))
                 .WithModifiers(
                     SyntaxFactory.TokenList(
-                        SyntaxFactory.Token(SyntaxKind.PublicKeyword),
-                        SyntaxFactory.Token(SyntaxKind.StaticKeyword))
+                        SyntaxFactory.Token(SyntaxKind.PublicKeyword))
                     )
                 .WithBody(body)
                 .WithParameterList(parameterList);

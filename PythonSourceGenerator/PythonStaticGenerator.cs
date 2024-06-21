@@ -14,7 +14,7 @@ namespace PythonSourceGenerator
     {
         public void Execute(GeneratorExecutionContext context)
         {
-            System.Diagnostics.Debugger.Launch();
+            /// System.Diagnostics.Debugger.Launch();
             if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.PythonVersion", out string pythonVersion))
             {
                 pythonVersion = "3.12.4";

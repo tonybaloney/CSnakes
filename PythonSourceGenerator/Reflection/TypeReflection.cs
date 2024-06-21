@@ -9,14 +9,15 @@ namespace PythonSourceGenerator.Reflection
         public static TypeSyntax AsPredefinedType(string pythonType, out string convertor)
         {
             // If type is an alias, e.g. "list[int]", "list[float]", etc.
-            if (pythonType.Contains("["))
+            if (pythonType.Contains("[") && pythonType.Contains("]"))
             {
-                var alias = pythonType.Split('[');
-                var innerType = alias[1].Replace("]", "");
-                var innerTypeSyntax = AsPredefinedType(innerType, out _);
-                switch (alias[0])
+                var genericName = pythonType.Split('[')[0];
+                // Get last occurence of ] in pythonType
+                var genericOf = pythonType.Substring(pythonType.IndexOf('[') + 1, pythonType.LastIndexOf(']') - pythonType.IndexOf('[') - 1); 
+                switch (genericName)
                 {
                     case "list":
+                        var innerTypeSyntax = AsPredefinedType(genericOf.Trim(), out _);
                         convertor = "AsList<" + innerTypeSyntax.ToString() + ">";
                         return SyntaxFactory.GenericName(
                             SyntaxFactory.Identifier("List"))
@@ -25,7 +26,7 @@ namespace PythonSourceGenerator.Reflection
                                     SyntaxFactory.SingletonSeparatedList<TypeSyntax>(
                                         innerTypeSyntax)));
                     case "tuple":
-                        var tupleTypes = innerType.Split(',');
+                        var tupleTypes = genericOf.Split(',');
                         var tupleTypeSyntax = new TypeSyntax[tupleTypes.Length];
                         if (tupleTypes.Length > 8) // TODO: Implement up to 21
                         {

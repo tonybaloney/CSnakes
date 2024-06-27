@@ -12,7 +12,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
         <PackageReference Include="pythonnet" Version="3.0.3">
             <GeneratePathProperty>true</GeneratePathProperty>
             <PrivateAssets>all</PrivateAssets>
@@ -29,7 +29,4 @@
             <TargetPathWithTargetPlatformMoniker Include="$(PKGpythonnet)\lib\netstandard2.0\Python.Runtime.dll" IncludeRuntimeDependency="false" />
         </ItemGroup>
     </Target>
-    <PropertyGroup>
-		<AssemblyName>PythonSourceGenerator.$(AutoIncrementedAssemblyRevision)</AssemblyName>
-	</PropertyGroup>
 </Project>

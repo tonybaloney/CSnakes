@@ -9,88 +9,99 @@ using System.Linq;
 
 namespace PythonSourceGenerator
 {
-    [Generator]
-    public class PythonStaticGenerator : ISourceGenerator
+    [Generator(LanguageNames.CSharp)]
+    public class PythonStaticGenerator : IIncrementalGenerator
     {
-        public void Execute(GeneratorExecutionContext context)
+        public void Initialize(IncrementalGeneratorInitializationContext context)
         {
             /// System.Diagnostics.Debugger.Launch();
-            if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.PythonVersion", out string pythonVersion))
+            var pythonFilesPipeline = context.AdditionalTextsProvider
+                .Where(static text => Path.GetExtension(text.Path) == ".py")
+                .Collect();
+
+            var optionsPipeline = context.AnalyzerConfigOptionsProvider.Select(static (options, ct) =>
             {
-                pythonVersion = "3.12.4";
-            }
-
-            if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.PythonLocation", out string pythonLocation))
-            {
-                pythonLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Python", pythonVersion);
-            }
-
-            var pyFiles = context.AdditionalFiles
-                .Where(f => Path.GetExtension(f.Path) == ".py");
-            int count = 0;
-            foreach (var file in pyFiles)
-            {
-                using var environment = new PyEnv(
-                    Path.GetDirectoryName(file.Path),
-                    pythonLocation,
-                    pythonVersion);
-
-                // Add environment path
-                var @namespace = "Python.Generated"; // TODO : Infer from project
-
-                var fileName = Path.GetFileNameWithoutExtension(file.Path);
-                // Convert snakecase to pascal case
-                var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
-
-                List<MethodDeclarationSyntax> methods;
-                using (Py.GIL())
+                var globalOptions = options.GlobalOptions;
+                if (!globalOptions.TryGetValue("build_property.PythonVersion", out string pythonVersion))
                 {
-                    // create a Python scope
-                    using PyModule scope = Py.CreateScope();
-                    var pythonModule = scope.Import(fileName);
-                    methods = ModuleReflection.MethodsFromModule(pythonModule, scope);
+                    pythonVersion = "3.12.4";
                 }
-                string source = FormatClassFromMethods(@namespace, pascalFileName, methods);
-                context.AddSource($"{pascalFileName}.py.cs", source);
-                context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Warning, true), Location.None));
 
-                count++;
-            }
+                if (!globalOptions.TryGetValue("build_property.PythonLocation", out string pythonLocation))
+                {
+                    pythonLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Python", pythonVersion);
+                }
+
+                return (pythonVersion, pythonLocation);
+            });
+
+            context.RegisterSourceOutput(pythonFilesPipeline.Combine(optionsPipeline), static (sourceContext, pair) =>
+            {
+                var pyFiles = pair.Left;
+                var pythonLocation = pair.Right.pythonLocation;
+                var pythonVersion = pair.Right.pythonVersion;
+
+                foreach (var file in pyFiles)
+                {
+                    using var environment = new PyEnv(
+                        Path.GetDirectoryName(file.Path),
+                        pythonLocation,
+                        pythonVersion);
+
+                    // Add environment path
+                    var @namespace = "Python.Generated"; // TODO : Infer from project
+
+                    var fileName = Path.GetFileNameWithoutExtension(file.Path);
+
+                    // Convert snakecase to pascal case
+                    var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
+
+                    List<MethodDeclarationSyntax> methods;
+                    using (Py.GIL())
+                    {
+                        // create a Python scope
+                        using PyModule scope = Py.CreateScope();
+                        var pythonModule = scope.Import(fileName);
+                        methods = ModuleReflection.MethodsFromModule(pythonModule, scope);
+                    }
+
+                    string source = FormatClassFromMethods(@namespace, pascalFileName, methods);
+                    sourceContext.AddSource($"{pascalFileName}.py.cs", source);
+                    //context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Warning, true), Location.None));
+                }
+            });
         }
 
         public static string FormatClassFromMethods(string @namespace, string pascalFileName, List<MethodDeclarationSyntax> methods)
         {
-            return $@"// <auto-generated/>
-using Python.Runtime;
-using PythonEnvironments;
+            return $$"""
+                // <auto-generated/>
+                using Python.Runtime;
+                using PythonEnvironments;
 
-using System.Collections.Generic;
+                using System.Collections.Generic;
 
-namespace {@namespace}
-{{
-    public static class {pascalFileName}Extensions
-    {{
-        public static I{pascalFileName} {pascalFileName}(this IPythonEnvironment env)
-        {{
-            return new {pascalFileName}Internal();
-        }}
+                namespace {{@namespace}}
+                {
+                    public static class {{pascalFileName}}Extensions
+                    {
+                        public static I{{pascalFileName}} {{pascalFileName}}(this IPythonEnvironment env)
+                        {
+                            return new {{pascalFileName}}Internal();
+                        }
 
-        private class {pascalFileName}Internal : I{pascalFileName}
-        {{
-            {methods.Compile()}
-        }}
-    }}
-    public interface I{pascalFileName}
-    {{
-        {string.Join(Environment.NewLine, methods.Select(m => $"{m.ReturnType.NormalizeWhitespace()} {m.Identifier.Text}{m.ParameterList.NormalizeWhitespace()};"))}
-    }}
-}}
-";
+                        private class {{pascalFileName}}Internal : I{{pascalFileName}}
+                        {
+                            {{methods.Compile()}}
+                        }
+                    }
+                    public interface I{{pascalFileName}}
+                    {
+                        {{string.Join(Environment.NewLine, methods.Select(m => $"{m.ReturnType.NormalizeWhitespace()} {m.Identifier.Text}{m.ParameterList.NormalizeWhitespace()};"))}}
+                    }
+                }
+                """;
         }
 
-        public void Initialize(GeneratorInitializationContext context)
-        {
-            // TODO
-        }
     }
 }

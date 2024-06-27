@@ -1,17 +1,18 @@
 ﻿
+using PythonSourceGenerator;
+
 namespace PythonSourceGenerator.Tests
 {
     public class TestEnvironment : IDisposable
     {
-        private readonly string pythonLocation = PyEnv.TryLocatePython("3.10");
-        private PyEnv env;
+        private IPythonEnvironment env;
         private DirectoryInfo tempDir;
 
         public TestEnvironment()
         {
             tempDir = Directory.CreateTempSubdirectory("PythonSourceGenerator");
             tempDir.Create();
-            env = new PyEnv(tempDir.FullName, pythonLocation);
+            env = new PythonEnvironment(tempDir.FullName, "3.10").Build();
         }
 
         public void Dispose()

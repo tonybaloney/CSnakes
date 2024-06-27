@@ -4,9 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
-namespace PythonEnvironments
+namespace PythonSourceGenerator
 {
+    // This is a copy of PythonEnvironments/PythonEnvironment.cs
     public class PythonEnvironment(string home, string pythonLocation, string version = "3.10.0")
     {
         private readonly string versionPath = MapVersion(version);
@@ -88,6 +91,23 @@ namespace PythonEnvironments
             return hashCode;
         }
 
+        internal class PythonFormatter : IFormatter
+        {
+            public SerializationBinder Binder { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+            public StreamingContext Context { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+            public ISurrogateSelector SurrogateSelector { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+            public object Deserialize(Stream serializationStream)
+            {
+                return null; // TODO: Aaron dark magic we need a PythonNetState object.
+            }
+
+            public void Serialize(Stream serializationStream, object graph)
+            {
+                return;
+            }
+        }
+
         internal class PythonEnvironmentInternal : IPythonEnvironment
         {
             private readonly PythonEnvironment pythonEnvironment;
@@ -98,15 +118,14 @@ namespace PythonEnvironments
                 // See https://github.com/pythonnet/pythonnet/issues/2282
                 RuntimeData.FormatterFactory = () =>
                 {
-                    return new NoopFormatter();
+                    return new PythonFormatter();
                 };
                 var dllPath = Path.Combine(pythonLocation, string.Format("python{0}.dll", versionPath));
                 if (!File.Exists(dllPath))
                 {
                     throw new FileNotFoundException("Python DLL not found", dllPath);
                 }
-                Runtime.PythonDLL = dllPath;
-                string sep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":";
+                Runtime.PythonDLL = dllPath; string sep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":";
                 if (!string.IsNullOrEmpty(home))
                 {
                     PythonEngine.PythonHome = home;
@@ -120,10 +139,6 @@ namespace PythonEnvironments
                 if (extraPath.Length > 0)
                 {
                     PythonEngine.PythonPath = PythonEngine.PythonPath + sep + string.Join(sep, extraPath);
-                }
-                if (RuntimeData.HasStashData())
-                {
-                    RuntimeData.ClearStash();
                 }
                 PythonEngine.Initialize();
                 this.pythonEnvironment = pythonEnvironment;

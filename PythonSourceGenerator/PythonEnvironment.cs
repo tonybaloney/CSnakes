@@ -140,7 +140,13 @@ namespace PythonSourceGenerator
                 {
                     PythonEngine.PythonPath = PythonEngine.PythonPath + sep + string.Join(sep, extraPath);
                 }
-                PythonEngine.Initialize();
+                try
+                {
+                    PythonEngine.Initialize();
+                } catch (NullReferenceException)
+                {
+
+                }
                 this.pythonEnvironment = pythonEnvironment;
             }
 

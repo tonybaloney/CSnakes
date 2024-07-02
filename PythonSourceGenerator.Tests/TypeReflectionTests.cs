@@ -1,4 +1,5 @@
-﻿using PythonSourceGenerator.Reflection;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using PythonSourceGenerator.Reflection;
 
 namespace PythonSourceGenerator.Tests
 {
@@ -23,9 +24,10 @@ namespace PythonSourceGenerator.Tests
         [InlineData("dict[str, int]", "Dictionary<string,long>", "AsDictionary<string, long>")]
         public void AsPredefinedType(string pythonType, string expectedType, string expectedConvertor)
         {
-            var actualType = TypeReflection.AsPredefinedType(pythonType, out var actualConvertor).ToString();
+            (string convertor, TypeSyntax syntax) = TypeReflection.AsPredefinedType(pythonType);
+            string actualType = syntax.ToString();
             Assert.Equal(expectedType, actualType);
-            Assert.Equal(expectedConvertor, actualConvertor);
+            Assert.Equal(expectedConvertor, convertor);
         }
     }
 }

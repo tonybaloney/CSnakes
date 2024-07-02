@@ -18,9 +18,9 @@ namespace PythonSourceGenerator.Reflection
                 {
                     case "list":
                         var innerTypeSyntax = AsPredefinedType(genericOf.Trim(), out _);
-                        convertor = "AsList<" + innerTypeSyntax.ToString() + ">";
+                        convertor = "AsEnumerable<" + innerTypeSyntax.ToString() + ">";
                         return SyntaxFactory.GenericName(
-                            SyntaxFactory.Identifier("List"))
+                            SyntaxFactory.Identifier("IEnumerable"))
                             .WithTypeArgumentList(
                                 SyntaxFactory.TypeArgumentList(
                                     SyntaxFactory.SingletonSeparatedList<TypeSyntax>(

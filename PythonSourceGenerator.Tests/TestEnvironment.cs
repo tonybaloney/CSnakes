@@ -12,7 +12,7 @@ namespace PythonSourceGenerator.Tests
         {
             tempDir = Directory.CreateTempSubdirectory("PythonSourceGenerator");
             tempDir.Create();
-            env = new PythonEnvironment(tempDir.FullName, "3.10").Build(tempDir.FullName);
+            env = new PythonEnvironment("3.10").Build(tempDir.FullName);
         }
 
         public void Dispose()

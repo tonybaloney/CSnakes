@@ -8,7 +8,7 @@
 
         <PythonVersion>3.12.4</PythonVersion>
         <PythonLocation>$(USERPROFILE)\.nuget\packages\python\3.12.4\tools</PythonLocation>
-		<PythonVirtualEnvironment>C:\Users\anthonyshaw\projects\Build2024AspireDemo\ExamplePythonDependency\.venv</PythonVirtualEnvironment>
+        <PythonVirtualEnvironment>$(MSBuildProjectDirectory)\.venv</PythonVirtualEnvironment>
     </PropertyGroup>
 
     <ItemGroup>

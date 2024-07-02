@@ -45,11 +45,6 @@ namespace PythonSourceGenerator
             return env;
         }
 
-        public PyObject LoadModule(string module)
-        {
-            return Py.Import(module);
-        }
-
         private static string TryLocatePython(string version)
         {
             var versionPath = MapVersion(version);

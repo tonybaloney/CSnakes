@@ -46,11 +46,6 @@ namespace PythonEnvironments
             return env;
         }
 
-        public PyObject LoadModule(string module)
-        {
-            return Py.Import(module);
-        }
-
         private static string TryLocatePython(string version)
         {
             var versionPath = MapVersion(version);
@@ -121,11 +116,14 @@ namespace PythonEnvironments
                 {
                     PythonEngine.PythonPath = PythonEngine.PythonPath + sep + string.Join(sep, extraPath);
                 }
-                if (RuntimeData.HasStashData())
+                try
                 {
-                    RuntimeData.ClearStash();
+                    PythonEngine.Initialize();
                 }
-                PythonEngine.Initialize();
+                catch (NullReferenceException)
+                {
+
+                }
                 this.pythonEnvironment = pythonEnvironment;
             }
 
@@ -133,7 +131,7 @@ namespace PythonEnvironments
             {
                 try
                 {
-                    PythonEngine.Shutdown();
+                    //PythonEngine.Shutdown();
                 }
                 catch (NotImplementedException) // Thrown from NoopFormatter
                 {

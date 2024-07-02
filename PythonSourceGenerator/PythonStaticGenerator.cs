@@ -97,9 +97,11 @@ public class PythonStaticGenerator : IIncrementalGenerator
             {
                 public static class {{pascalFileName}}Extensions
                 {
+                    private static readonly I{{pascalFileName}} instance = new {{pascalFileName}}Internal();
+
                     public static I{{pascalFileName}} {{pascalFileName}}(this IPythonEnvironment env)
                     {
-                        return new {{pascalFileName}}Internal();
+                        return instance;
                     }
 
                     private class {{pascalFileName}}Internal : I{{pascalFileName}}

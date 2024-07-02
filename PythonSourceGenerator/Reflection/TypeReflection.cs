@@ -2,6 +2,8 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Python.Runtime;
 using System;
+using System.Collections.Generic;
+using System.Net.Http.Headers;
 
 namespace PythonSourceGenerator.Reflection;
 
@@ -19,6 +21,7 @@ public static class TypeReflection
             {
                 "list" => CreateListType(genericOf),
                 "tuple" => CreateTupleType(genericOf),
+                "dict" => CreateDictionaryType(genericOf),
                 // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
                 _ => (null, SyntaxFactory.ParseTypeName("PyObject")),// TODO : Should be nullable?
             };
@@ -32,40 +35,60 @@ public static class TypeReflection
             // Todo more types...
             _ => (null, SyntaxFactory.ParseTypeName("PyObject")),// TODO : Should be nullable?
         };
+    }
 
-        static (string convertor, TypeSyntax syntax) CreateListType(string genericOf)
+    private static (string convertor, TypeSyntax syntax) CreateDictionaryType(string genericOf)
+    {
+        var types = genericOf.Split(',');
+
+        var genericArgs = new List<TypeSyntax>();
+        foreach (var t in types)
         {
-            var (_, innerTypeSyntax) = AsPredefinedType(genericOf.Trim());
-            var convertor = "AsEnumerable<" + innerTypeSyntax.ToString() + ">";
-            return (convertor, SyntaxFactory.GenericName(
-                SyntaxFactory.Identifier("IEnumerable"))
-                .WithTypeArgumentList(
-                    SyntaxFactory.TypeArgumentList(
-                        SyntaxFactory.SingletonSeparatedList<TypeSyntax>(
-                            innerTypeSyntax))));
+            var (_, innerTypeSyntax) = AsPredefinedType(t.Trim());
+            genericArgs.Add(innerTypeSyntax);
         }
 
-        static (string convertor, TypeSyntax syntax) CreateTupleType(string genericOf)
+        var convertor = $"AsDictionary<{string.Join(", ", genericArgs)}>";
+        return (convertor, SyntaxFactory.GenericName(
+            SyntaxFactory.Identifier("IReadyOnlyDictionary"))
+            .WithTypeArgumentList(
+                SyntaxFactory.TypeArgumentList(
+                    SyntaxFactory.SeparatedList(
+                        genericArgs))));
+    }
+
+    private static (string convertor, TypeSyntax syntax) CreateTupleType(string genericOf)
+    {
+        var tupleTypes = genericOf.Split(',');
+        var tupleTypeSyntax = new TypeSyntax[tupleTypes.Length];
+        if (tupleTypes.Length > 8) // TODO: Implement up to 21
         {
-            var tupleTypes = genericOf.Split(',');
-            var tupleTypeSyntax = new TypeSyntax[tupleTypes.Length];
-            if (tupleTypes.Length > 8) // TODO: Implement up to 21
-            {
-                throw new NotSupportedException("Maximum tuple items is 8");
-            }
-            for (int i = 0; i < tupleTypes.Length; i++)
-            {
-                var (_, innerTypeSyntax) = AsPredefinedType(tupleTypes[i].Trim());
-                tupleTypeSyntax[i] = innerTypeSyntax;
-            }
-            var convertor = "AsTuple<" + string.Join<TypeSyntax>(", ", tupleTypeSyntax) + ">";
-            return (convertor, SyntaxFactory.GenericName(
-                SyntaxFactory.Identifier("Tuple"))
-                .WithTypeArgumentList(
-                    SyntaxFactory.TypeArgumentList(
-                        SyntaxFactory.SeparatedList<TypeSyntax>(
-                            tupleTypeSyntax))));
+            throw new NotSupportedException("Maximum tuple items is 8");
         }
+        for (int i = 0; i < tupleTypes.Length; i++)
+        {
+            var (_, innerTypeSyntax) = AsPredefinedType(tupleTypes[i].Trim());
+            tupleTypeSyntax[i] = innerTypeSyntax;
+        }
+        var convertor = "AsTuple<" + string.Join<TypeSyntax>(", ", tupleTypeSyntax) + ">";
+        return (convertor, SyntaxFactory.GenericName(
+            SyntaxFactory.Identifier("Tuple"))
+            .WithTypeArgumentList(
+                SyntaxFactory.TypeArgumentList(
+                    SyntaxFactory.SeparatedList<TypeSyntax>(
+                        tupleTypeSyntax))));
+    }
+
+    private static (string convertor, TypeSyntax syntax) CreateListType(string genericOf)
+    {
+        var (_, innerTypeSyntax) = AsPredefinedType(genericOf.Trim());
+        var convertor = "AsEnumerable<" + innerTypeSyntax.ToString() + ">";
+        return (convertor, SyntaxFactory.GenericName(
+            SyntaxFactory.Identifier("IEnumerable"))
+            .WithTypeArgumentList(
+                SyntaxFactory.TypeArgumentList(
+                    SyntaxFactory.SingletonSeparatedList<TypeSyntax>(
+                        innerTypeSyntax))));
     }
 
     internal static string AnnotationAsTypeName(PyObject pyObject)

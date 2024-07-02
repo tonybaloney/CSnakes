@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Python.Runtime;
 using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
 
 namespace PythonSourceGenerator.Reflection;
 
@@ -50,7 +49,7 @@ public static class TypeReflection
 
         var convertor = $"AsDictionary<{string.Join(", ", genericArgs)}>";
         return (convertor, SyntaxFactory.GenericName(
-            SyntaxFactory.Identifier("IReadyOnlyDictionary"))
+            SyntaxFactory.Identifier("IReadOnlyDictionary"))
             .WithTypeArgumentList(
                 SyntaxFactory.TypeArgumentList(
                     SyntaxFactory.SeparatedList(

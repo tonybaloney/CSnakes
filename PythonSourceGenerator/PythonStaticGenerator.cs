@@ -14,7 +14,7 @@ namespace PythonSourceGenerator
     {
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            // System.Diagnostics.Debugger.Launch();
+            //System.Diagnostics.Debugger.Launch();
             var pythonFilesPipeline = context.AdditionalTextsProvider
                 .Where(static text => Path.GetExtension(text.Path) == ".py")
                 .Collect();
@@ -41,35 +41,34 @@ namespace PythonSourceGenerator
                 var pythonLocation = pair.Right.pythonLocation;
                 var pythonVersion = pair.Right.pythonVersion;
 
+                var builder = new PythonEnvironment(
+                        pythonLocation,
+                        pythonVersion);
+
                 foreach (var file in pyFiles)
                 {
-                    using (var env = new PythonEnvironment(
-                        Path.GetDirectoryName(file.Path),
-                        pythonLocation,
-                        pythonVersion).Build())
+                    using var env = builder.Build(Path.GetDirectoryName(file.Path));
+
+                    // Add environment path
+                    var @namespace = "Python.Generated"; // TODO : Infer from project
+
+                    var fileName = Path.GetFileNameWithoutExtension(file.Path);
+
+                    // Convert snakecase to pascal case
+                    var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
+
+                    List<MethodDeclarationSyntax> methods;
+                    using (Py.GIL())
                     {
-
-                        // Add environment path
-                        var @namespace = "Python.Generated"; // TODO : Infer from project
-
-                        var fileName = Path.GetFileNameWithoutExtension(file.Path);
-
-                        // Convert snakecase to pascal case
-                        var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
-
-                        List<MethodDeclarationSyntax> methods;
-                        using (Py.GIL())
-                        {
-                            // create a Python scope
-                            using PyModule scope = Py.CreateScope();
-                            var pythonModule = scope.Import(fileName);
-                            methods = ModuleReflection.MethodsFromModule(pythonModule, scope);
-                        }
-
-                        string source = FormatClassFromMethods(@namespace, pascalFileName, methods);
-                        sourceContext.AddSource($"{pascalFileName}.py.cs", source);
-                        sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Warning, true), Location.None));
+                        // create a Python scope
+                        using PyModule scope = Py.CreateScope();
+                        var pythonModule = scope.Import(fileName);
+                        methods = ModuleReflection.MethodsFromModule(pythonModule, scope);
                     }
+
+                    string source = FormatClassFromMethods(@namespace, pascalFileName, methods);
+                    sourceContext.AddSource($"{pascalFileName}.py.cs", source);
+                    sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Warning, true), Location.None));
                 }
             });
         }

@@ -5,16 +5,16 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using System.Xml.Serialization;
 
 namespace PythonSourceGenerator
 {
     // This is a copy of PythonEnvironments/PythonEnvironment.cs
-    public class PythonEnvironment(string home, string pythonLocation, string version = "3.10.0")
+    public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
     {
         private readonly string versionPath = MapVersion(version);
         private PythonEnvironmentInternal env;
         private string[] extraPaths = [];
+        private readonly IFormatter formatter = new PythonFormatter();
 
         private static string MapVersion(string version, string sep = "")
         {
@@ -23,11 +23,7 @@ namespace PythonSourceGenerator
             return string.Join("", versionParts.Take(2));
         }
 
-        public PythonEnvironment(string version = "3.10") : this("", TryLocatePython(version), version)
-        {
-        }
-
-        public PythonEnvironment(string home, string version = "3.10") : this(home, TryLocatePython(version), version)
+        public PythonEnvironment(string version = "3.10") : this(TryLocatePython(version), version)
         {
         }
 
@@ -37,14 +33,14 @@ namespace PythonSourceGenerator
             return this;
         }
 
-        public IPythonEnvironment Build()
+        public IPythonEnvironment Build(string home)
         {
             if (PythonEngine.IsInitialized)
             {
                 // Raise exception?
                 return env;
             }
-            env = new PythonEnvironmentInternal(pythonLocation, versionPath, home, this, this.extraPaths);
+            env = new PythonEnvironmentInternal(pythonLocation, versionPath, home, this, this.extraPaths, formatter);
 
             return env;
         }
@@ -86,7 +82,6 @@ namespace PythonSourceGenerator
         {
             int hashCode = 955711454;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(versionPath);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(home);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(pythonLocation);
             return hashCode;
         }
@@ -97,29 +92,22 @@ namespace PythonSourceGenerator
             public StreamingContext Context { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
             public ISurrogateSelector SurrogateSelector { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-            public object Deserialize(Stream serializationStream)
-            {
-                return null; // TODO: Aaron dark magic we need a PythonNetState object.
-            }
+            private object cachedGraph;
 
-            public void Serialize(Stream serializationStream, object graph)
-            {
-                return;
-            }
+            public object Deserialize(Stream serializationStream) => cachedGraph;
+
+            public void Serialize(Stream serializationStream, object graph) => cachedGraph = graph;
         }
 
         internal class PythonEnvironmentInternal : IPythonEnvironment
         {
             private readonly PythonEnvironment pythonEnvironment;
 
-            public PythonEnvironmentInternal(string pythonLocation, string versionPath, string home, PythonEnvironment pythonEnvironment, string[] extraPath)
+            public PythonEnvironmentInternal(string pythonLocation, string versionPath, string home, PythonEnvironment pythonEnvironment, string[] extraPath, IFormatter formatter)
             {
                 // Don't use BinaryFormatter by default as it's deprecated in .NET 8
                 // See https://github.com/pythonnet/pythonnet/issues/2282
-                RuntimeData.FormatterFactory = () =>
-                {
-                    return new PythonFormatter();
-                };
+                RuntimeData.FormatterFactory = () => formatter;
                 var dllPath = Path.Combine(pythonLocation, string.Format("python{0}.dll", versionPath));
                 if (!File.Exists(dllPath))
                 {
@@ -143,7 +131,8 @@ namespace PythonSourceGenerator
                 try
                 {
                     PythonEngine.Initialize();
-                } catch (NullReferenceException)
+                }
+                catch (NullReferenceException)
                 {
 
                 }
@@ -154,7 +143,7 @@ namespace PythonSourceGenerator
             {
                 try
                 {
-                    PythonEngine.Shutdown();
+                    //PythonEngine.Shutdown();
                 }
                 catch (NotImplementedException) // Thrown from NoopFormatter
                 {

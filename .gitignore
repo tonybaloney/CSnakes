@@ -484,3 +484,5 @@ $RECYCLE.BIN/
 *.swp
 
 *.orig
+
+.venv

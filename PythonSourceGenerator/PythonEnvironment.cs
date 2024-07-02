@@ -28,8 +28,8 @@ namespace PythonSourceGenerator
         }
 
         public PythonEnvironment WithVirtualEnvironment(string path)
-        {
-            extraPaths = [.. extraPaths, path];
+        { 
+            extraPaths = [.. extraPaths, path, Path.Combine(path, "Lib", "site-packages")];
             return this;
         }
 
@@ -111,12 +111,20 @@ namespace PythonSourceGenerator
                 Runtime.PythonDLL = dllPath; string sep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":";
                 if (!string.IsNullOrEmpty(home))
                 {
-                    PythonEngine.PythonHome = home;
+                    //PythonEngine.PythonHome = home;
                     PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + sep + home;
                 }
                 else
                 {
                     PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib");
+                }
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    PythonEngine.PythonPath = PythonEngine.PythonPath + sep + Path.Combine(pythonLocation, "DLLs");
+                } else
+                {
+                    // TODO: C extension path for linux/macos
                 }
 
                 if (extraPath.Length > 0)

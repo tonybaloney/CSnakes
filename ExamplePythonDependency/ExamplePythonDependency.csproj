@@ -8,6 +8,7 @@
 
         <PythonVersion>3.12.4</PythonVersion>
         <PythonLocation>$(USERPROFILE)\.nuget\packages\python\3.12.4\tools</PythonLocation>
+		<PythonVirtualEnvironment>C:\Users\anthonyshaw\projects\Build2024AspireDemo\ExamplePythonDependency\.venv</PythonVirtualEnvironment>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,9 +27,9 @@
         <AdditionalFiles Include="quick_demo.py">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
-        <!--<AdditionalFiles Include="mistral_demo.py">
+        <AdditionalFiles Include="kmeans_example.py">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </AdditionalFiles>-->
+        </AdditionalFiles>
     </ItemGroup>
 
     <ItemGroup>
@@ -39,6 +40,7 @@
     <ItemGroup>
         <CompilerVisibleProperty Include="PythonLocation" />
         <CompilerVisibleProperty Include="PythonVersion" />
+        <CompilerVisibleProperty Include="PythonVirtualEnvironment" />
     </ItemGroup>
 
     <ItemGroup>

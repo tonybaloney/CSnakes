@@ -20,6 +20,7 @@ namespace PythonSourceGenerator.Tests
         [InlineData("def hello_world() -> None:\n    ...\n", "void HelloWorld()")]
         [InlineData("def hello_world(name): \n    ...\n", "PyObject HelloWorld(PyObject name)")]
         [InlineData("def hello_world(name: str) -> str:\n    ...\n", "string HelloWorld(string name)")]
+        [InlineData("def hello_world(name: str) -> float:\n    ...\n", "double HelloWorld(string name)")]
         [InlineData("def hello_world(name: str, age: int) -> str:\n    ...\n", "string HelloWorld(string name, long age)")]
         [InlineData("def hello_world(numbers: list[float]) -> list[int]:\n    ...\n", "List<long> HelloWorld(List<double> numbers)")]
         public void TestGeneratedSignature(string code, string expected)

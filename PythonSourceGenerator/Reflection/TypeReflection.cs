@@ -1,8 +1,10 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using Python.Runtime;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PythonSourceGenerator.Reflection;
 
@@ -56,9 +58,55 @@ public static class TypeReflection
                         genericArgs))));
     }
 
+    public static string[] SplitTypeArgs(string input)
+    {
+        if (!input.Contains(","))
+        {
+            return [input];
+        }
+
+        List<string> args = [];
+        int cursor = 0;
+        while (cursor < input.Length)
+        {
+            // Get next ,
+            var nextComma = input.IndexOf(',', cursor);
+            if (nextComma == -1)
+            {
+                // No more items, stuff last one
+                args.Add(input.Substring(cursor).Trim());
+                break;
+            }
+            var nextBracket = input.IndexOf('[', cursor);
+
+            // Is there a [ before the next comma? then it's likely a nested type
+            if (nextBracket != -1 && nextBracket < nextComma)
+            {
+                // Next arg contains [] (and possibly a ,)
+                var closingBracket = input.IndexOf(']', cursor);
+                if (closingBracket == -1)
+                {
+                    throw new Exception("Type annotation does not have closing bracket");
+                }
+                nextComma = input.IndexOf(',', closingBracket);
+                if (nextComma == -1)
+                {
+                    args.Add(input.Substring(cursor).Trim());
+                    break;
+                }
+            }
+
+            // push substring
+            args.Add(input.Substring(cursor, nextComma - cursor).Trim());
+            cursor = nextComma + 1;
+        }
+
+        return [.. args];
+    }
+
     private static (string convertor, TypeSyntax syntax) CreateTupleType(string genericOf)
     {
-        var tupleTypes = genericOf.Split(',');
+        var tupleTypes = SplitTypeArgs(genericOf);
         var tupleTypeSyntax = new TypeSyntax[tupleTypes.Length];
         if (tupleTypes.Length > 8) // TODO: Implement up to 21
         {

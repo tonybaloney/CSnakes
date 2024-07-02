@@ -22,11 +22,29 @@ public class TypeReflectionTests
     [InlineData("tuple[str, Any]", "Tuple<string,PyObject>", "AsTuple<string, PyObject>")]
     [InlineData("tuple[str, list[int]]", "Tuple<string,IEnumerable<long>>", "AsTuple<string, IEnumerable<long>>")]
     [InlineData("dict[str, int]", "IReadOnlyDictionary<string,long>", "AsDictionary<string, long>")]
+    [InlineData("tuple[int, int, tuple[int, int]]", "Tuple<long,long,Tuple<long,long>>", "AsTuple<long, long, Tuple<long, long>>")]
     public void AsPredefinedType(string pythonType, string expectedType, string expectedConvertor)
     {
         (string convertor, TypeSyntax syntax) = TypeReflection.AsPredefinedType(pythonType);
         string actualType = syntax.ToString();
         Assert.Equal(expectedType, actualType);
         Assert.Equal(expectedConvertor, convertor);
+    }
+
+
+    [Fact]
+    public void TestSplitTypeArgs()
+    {
+        Assert.Equal(TypeReflection.SplitTypeArgs("a"), ["a"]);
+        Assert.Equal(TypeReflection.SplitTypeArgs("a,b"), ["a", "b"]);
+        Assert.Equal(TypeReflection.SplitTypeArgs("a,   b, c"), ["a", "b", "c"]);
+    }
+
+    [Fact]
+    public void TestSplitNestedTypeArgs()
+    {
+        Assert.Equal(TypeReflection.SplitTypeArgs("a"), ["a"]);
+        Assert.Equal(TypeReflection.SplitTypeArgs("str, list[x]"), ["str", "list[x]"]);
+        Assert.Equal(TypeReflection.SplitTypeArgs("str, int, int, tuple[str, str], str"), ["str", "int", "int", "tuple[str, str]", "str"]);
     }
 }

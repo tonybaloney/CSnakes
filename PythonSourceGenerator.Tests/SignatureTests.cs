@@ -24,6 +24,7 @@ namespace PythonSourceGenerator.Tests
         [InlineData("def hello_world(name: str) -> int:\n    ...\n", "long HelloWorld(string name)")]
         [InlineData("def hello_world(name: str, age: int) -> str:\n    ...\n", "string HelloWorld(string name, long age)")]
         [InlineData("def hello_world(numbers: list[float]) -> list[int]:\n    ...\n", "IEnumerable<long> HelloWorld(IEnumerable<double> numbers)")]
+        [InlineData("def hello_world(a: bool, b: str, c: list[tuple[int, float]]) -> bool: \n ...\n", "bool HelloWorld(bool a, string b, IEnumerable<Tuple<long, bool>> c)")]
         public void TestGeneratedSignature(string code, string expected)
         {
             

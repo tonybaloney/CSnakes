@@ -23,7 +23,7 @@ namespace PythonSourceGenerator.Tests
         [InlineData("def hello_world(name: str) -> float:\n    ...\n", "double HelloWorld(string name)")]
         [InlineData("def hello_world(name: str) -> int:\n    ...\n", "long HelloWorld(string name)")]
         [InlineData("def hello_world(name: str, age: int) -> str:\n    ...\n", "string HelloWorld(string name, long age)")]
-        [InlineData("def hello_world(numbers: list[float]) -> list[int]:\n    ...\n", "IEnumerable<long> HelloWorld(List<double> numbers)")]
+        [InlineData("def hello_world(numbers: list[float]) -> list[int]:\n    ...\n", "IEnumerable<long> HelloWorld(IEnumerable<double> numbers)")]
         public void TestGeneratedSignature(string code, string expected)
         {
             

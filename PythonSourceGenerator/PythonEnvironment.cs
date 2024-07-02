@@ -108,7 +108,8 @@ namespace PythonSourceGenerator
                 {
                     throw new FileNotFoundException("Python DLL not found", dllPath);
                 }
-                Runtime.PythonDLL = dllPath; string sep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":";
+                Runtime.PythonDLL = dllPath; 
+                string sep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":";
                 if (!string.IsNullOrEmpty(home))
                 {
                     //PythonEngine.PythonHome = home;

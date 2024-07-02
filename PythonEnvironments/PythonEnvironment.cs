@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 namespace PythonEnvironments
 {
-    public class PythonEnvironment(string home, string pythonLocation, string version = "3.10.0")
+    public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
     {
         private readonly string versionPath = MapVersion(version);
         private PythonEnvironmentInternal env;
@@ -20,21 +20,17 @@ namespace PythonEnvironments
             return string.Join("", versionParts.Take(2));
         }
 
-        public PythonEnvironment(string version = "3.10") : this("", TryLocatePython(version), version)
-        {
-        }
-
-        public PythonEnvironment(string home, string version = "3.10") : this(home, TryLocatePython(version), version)
+        public PythonEnvironment(string version = "3.10") : this(TryLocatePython(version), version)
         {
         }
 
         public PythonEnvironment WithVirtualEnvironment(string path)
         {
-            extraPaths = [.. extraPaths, path];
+            extraPaths = [.. extraPaths, path, Path.Combine(path, "Lib", "site-packages")];
             return this;
         }
 
-        public IPythonEnvironment Build()
+        public IPythonEnvironment Build(string home)
         {
             if (PythonEngine.IsInitialized)
             {
@@ -78,7 +74,6 @@ namespace PythonEnvironments
         {
             int hashCode = 955711454;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(versionPath);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(home);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(pythonLocation);
             return hashCode;
         }
@@ -104,12 +99,21 @@ namespace PythonEnvironments
                 string sep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":";
                 if (!string.IsNullOrEmpty(home))
                 {
-                    PythonEngine.PythonHome = home;
+                    //PythonEngine.PythonHome = home;
                     PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + sep + home;
                 }
                 else
                 {
                     PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib");
+                }
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    PythonEngine.PythonPath = PythonEngine.PythonPath + sep + Path.Combine(pythonLocation, "DLLs");
+                }
+                else
+                {
+                    // TODO: C extension path for linux/macos
                 }
 
                 if (extraPath.Length > 0)

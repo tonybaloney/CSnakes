@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Python.Runtime;
 using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
 
 namespace PythonSourceGenerator.Reflection;
 

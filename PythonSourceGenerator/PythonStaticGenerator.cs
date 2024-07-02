@@ -32,7 +32,12 @@ namespace PythonSourceGenerator
                     pythonLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Python", pythonVersion);
                 }
 
-                return (pythonVersion, pythonLocation);
+                if (!globalOptions.TryGetValue("build_property.PythonVirtualEnvironment", out string pythonVirtualEnvironment))
+                {
+                    pythonVirtualEnvironment = null;
+                }
+
+                return (pythonVersion, pythonLocation, pythonVirtualEnvironment);
             });
 
             context.RegisterSourceOutput(pythonFilesPipeline.Combine(optionsPipeline), static (sourceContext, pair) =>
@@ -40,11 +45,17 @@ namespace PythonSourceGenerator
                 var pyFiles = pair.Left;
                 var pythonLocation = pair.Right.pythonLocation;
                 var pythonVersion = pair.Right.pythonVersion;
+                var pythonVirtualEnvironment = pair.Right.pythonVirtualEnvironment;
 
                 var builder = new PythonEnvironment(
                         pythonLocation,
                         pythonVersion);
 
+                if (!string.IsNullOrEmpty(pythonVirtualEnvironment))
+                {
+                    builder.WithVirtualEnvironment(pythonVirtualEnvironment);
+                    sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG001", "PythonStaticGenerator", $"Using virtual environment {pythonVirtualEnvironment}", "PythonStaticGenerator", DiagnosticSeverity.Warning, true), Location.None));
+                }
                 foreach (var file in pyFiles)
                 {
                     using var env = builder.Build(Path.GetDirectoryName(file.Path));

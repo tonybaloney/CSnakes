@@ -26,9 +26,9 @@ public static class MethodReflection
         }
         else
         {
-            (string convertor, TypeSyntax syntax) = TypeReflection.AsPredefinedType(returnType);
-            returnConvertor = convertor;
-            returnSyntax = syntax;
+            var reflectedType = TypeReflection.AsPredefinedType(returnType);
+            returnConvertor = reflectedType.Convertor;
+            returnSyntax = reflectedType.Syntax;
         }
 
         // Step 3: Build arguments

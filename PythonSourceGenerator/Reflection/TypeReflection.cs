@@ -8,9 +8,16 @@ using System.Linq;
 
 namespace PythonSourceGenerator.Reflection;
 
+public class ReflectedType(string convertor, TypeSyntax syntax, IEnumerable<TypeSyntax> genericArguments = null)
+{
+    public string Convertor => convertor;
+    public TypeSyntax Syntax => syntax;
+    public IEnumerable<TypeSyntax> GenericArguments => genericArguments;
+}
+
 public static class TypeReflection
 {
-    public static (string convertor, TypeSyntax syntax) AsPredefinedType(string pythonType)
+    public static ReflectedType AsPredefinedType(string pythonType)
     {
         // If type is an alias, e.g. "list[int]", "list[float]", etc.
         if (pythonType.Contains("[") && pythonType.Contains("]"))
@@ -24,38 +31,35 @@ public static class TypeReflection
                 "tuple" => CreateTupleType(genericOf),
                 "dict" => CreateDictionaryType(genericOf),
                 // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
-                _ => (null, SyntaxFactory.ParseTypeName("PyObject")),// TODO : Should be nullable?
+                _ => new(null, SyntaxFactory.ParseTypeName("PyObject")),// TODO : Should be nullable?
             };
         }
         return pythonType switch
         {
-            "int" => ((string convertor, TypeSyntax syntax))("ToInt64", SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword))),
-            "str" => ((string convertor, TypeSyntax syntax))("ToString", SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword))),
-            "float" => ((string convertor, TypeSyntax syntax))("ToDouble", SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DoubleKeyword))),
-            "bool" => ((string convertor, TypeSyntax syntax))("ToBoolean", SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword))),
+            "int" => new("ToInt64", SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword))),
+            "str" => new("ToString", SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword))),
+            "float" => new("ToDouble", SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DoubleKeyword))),
+            "bool" => new("ToBoolean", SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword))),
             // Todo more types...
-            _ => (null, SyntaxFactory.ParseTypeName("PyObject")),// TODO : Should be nullable?
+            _ => new(null, SyntaxFactory.ParseTypeName("PyObject")),// TODO : Should be nullable?
         };
     }
 
-    private static (string convertor, TypeSyntax syntax) CreateDictionaryType(string genericOf)
+    private static ReflectedType CreateDictionaryType(string genericOf)
     {
         var types = genericOf.Split(',');
 
         var genericArgs = new List<TypeSyntax>();
         foreach (var t in types)
         {
-            var (_, innerTypeSyntax) = AsPredefinedType(t.Trim());
-            genericArgs.Add(innerTypeSyntax);
+            var innerType = AsPredefinedType(t.Trim());
+            genericArgs.Add(innerType.Syntax);
         }
 
         var convertor = $"AsDictionary<{string.Join(", ", genericArgs)}>";
-        return (convertor, SyntaxFactory.GenericName(
-            SyntaxFactory.Identifier("IReadOnlyDictionary"))
-            .WithTypeArgumentList(
-                SyntaxFactory.TypeArgumentList(
-                    SyntaxFactory.SeparatedList(
-                        genericArgs))));
+        var syntax = CreateGenericType("IReadOnlyDictionary", genericArgs);
+
+        return new(convertor, syntax, genericArgs);
     }
 
     public static string[] SplitTypeArgs(string input)
@@ -104,7 +108,7 @@ public static class TypeReflection
         return [.. args];
     }
 
-    private static (string convertor, TypeSyntax syntax) CreateTupleType(string genericOf)
+    private static ReflectedType CreateTupleType(string genericOf)
     {
         var tupleTypes = SplitTypeArgs(genericOf);
         var tupleTypeSyntax = new TypeSyntax[tupleTypes.Length];
@@ -114,28 +118,22 @@ public static class TypeReflection
         }
         for (int i = 0; i < tupleTypes.Length; i++)
         {
-            var (_, innerTypeSyntax) = AsPredefinedType(tupleTypes[i].Trim());
-            tupleTypeSyntax[i] = innerTypeSyntax;
+            var innerType = AsPredefinedType(tupleTypes[i].Trim());
+            tupleTypeSyntax[i] = innerType.Syntax;
         }
-        var convertor = "AsTuple<" + string.Join<TypeSyntax>(", ", tupleTypeSyntax) + ">";
-        return (convertor, SyntaxFactory.GenericName(
-            SyntaxFactory.Identifier("Tuple"))
-            .WithTypeArgumentList(
-                SyntaxFactory.TypeArgumentList(
-                    SyntaxFactory.SeparatedList<TypeSyntax>(
-                        tupleTypeSyntax))));
+        var convertor = $"AsTuple<{string.Join<TypeSyntax>(", ", tupleTypeSyntax)}>";
+        var syntax = CreateGenericType("Tuple", tupleTypeSyntax);
+
+        return new(convertor, syntax, tupleTypeSyntax);
     }
 
-    private static (string convertor, TypeSyntax syntax) CreateListType(string genericOf)
+    private static ReflectedType CreateListType(string genericOf)
     {
-        var (_, innerTypeSyntax) = AsPredefinedType(genericOf.Trim());
-        var convertor = "AsEnumerable<" + innerTypeSyntax.ToString() + ">";
-        return (convertor, SyntaxFactory.GenericName(
-            SyntaxFactory.Identifier("IEnumerable"))
-            .WithTypeArgumentList(
-                SyntaxFactory.TypeArgumentList(
-                    SyntaxFactory.SingletonSeparatedList<TypeSyntax>(
-                        innerTypeSyntax))));
+        var innerType = AsPredefinedType(genericOf.Trim());
+        var convertor = $"AsEnumerable<{innerType.Syntax.ToString()}>";
+        var syntax = CreateGenericType("IEnumerable", [innerType.Syntax]);
+
+        return new(convertor, syntax, [innerType.Syntax]);
     }
 
     internal static string AnnotationAsTypeName(PyObject pyObject)
@@ -148,4 +146,12 @@ public static class TypeReflection
             _ => pyObject.Repr().ToString(),
         };
     }
+
+    internal static TypeSyntax CreateGenericType(string typeName, IEnumerable<TypeSyntax> genericArguments) =>
+        SyntaxFactory.GenericName(
+            SyntaxFactory.Identifier(typeName))
+            .WithTypeArgumentList(
+                SyntaxFactory.TypeArgumentList(
+                    SyntaxFactory.SeparatedList(
+                        genericArguments)));
 }

@@ -10,9 +10,9 @@ public class ArgumentReflection
 {
     public static ParameterSyntax ArgumentSyntax(string name, string type)
     {
-        (string _, TypeSyntax syntax) = TypeReflection.AsPredefinedType(type);
+        var reflectedType = TypeReflection.AsPredefinedType(type);
         return SyntaxFactory.Parameter(SyntaxFactory.Identifier(name.ToLowerPascalCase()))
-            .WithType(syntax);
+            .WithType(reflectedType.Syntax);
             // TODO: Add withdefault
     }
 

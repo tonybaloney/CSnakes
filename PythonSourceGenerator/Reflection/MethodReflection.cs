@@ -5,9 +5,16 @@ using System.Collections.Generic;
 
 namespace PythonSourceGenerator.Reflection;
 
+public class MethodDefinition(MethodDeclarationSyntax syntax, IEnumerable<GenericNameSyntax> parameterGenericArgs = null)
+{
+    public MethodDeclarationSyntax Syntax { get; } = syntax;
+
+    public IEnumerable<GenericNameSyntax> ParameterGenericArgs { get; } = parameterGenericArgs;
+}
+
 public static class MethodReflection
 {
-    public static MethodDeclarationSyntax FromMethod(PyObject signature, string methodName, string moduleName)
+    public static MethodDefinition FromMethod(PyObject signature, string methodName, string moduleName)
     {
         // Step 1: Create a method declaration
 
@@ -33,6 +40,15 @@ public static class MethodReflection
 
         // Step 3: Build arguments
         var parameterList = ArgumentReflection.ParameterListSyntax(signature);
+
+        List<GenericNameSyntax> parameterGenericArgs = [];
+        foreach (var genericType in parameterList.Parameters)
+        {
+            if (genericType.Type is GenericNameSyntax g)
+            {
+                parameterGenericArgs.Add(g);
+            }
+        }
 
         // Import module
         // var mod = Py.Import("hello_world");
@@ -81,8 +97,7 @@ public static class MethodReflection
         }
         else if (returnConvertor == null)
         {
-            returnExpression = SyntaxFactory.ReturnStatement(
-                        SyntaxFactory.IdentifierName("result"));
+            returnExpression = SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName("result"));
         }
         else
         {
@@ -146,7 +161,7 @@ public static class MethodReflection
 
                 ));
 
-        return SyntaxFactory.MethodDeclaration(
+        var syntax = SyntaxFactory.MethodDeclaration(
             returnSyntax,
             SyntaxFactory.Identifier(methodName.ToPascalCase()))
             .WithModifiers(
@@ -155,5 +170,7 @@ public static class MethodReflection
                 )
             .WithBody(body)
             .WithParameterList(parameterList);
+
+        return new(syntax, parameterGenericArgs);
     }
 }

@@ -7,7 +7,7 @@ var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
 var builder = new PythonEnvironment(
     Environment.GetEnvironmentVariable("USERPROFILE") + "\\.nuget\\packages\\python\\3.12.4\\tools",
     "3.12.4")
-    .WithVirtualEnvironment("C:\\Users\\aapowell\\source\\repos\\PythonCode\\.venv");
+    .WithVirtualEnvironment(Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency", ".venv"));
 
 using var env = builder.Build(Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency"));
 

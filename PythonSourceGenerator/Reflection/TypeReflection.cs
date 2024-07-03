@@ -130,7 +130,7 @@ public static class TypeReflection
     private static ReflectedType CreateListType(string genericOf)
     {
         var innerType = AsPredefinedType(genericOf.Trim());
-        var convertor = $"AsEnumerable<{innerType.Syntax.ToString()}>";
+        var convertor = $"AsEnumerable<{innerType.Syntax}>";
         var syntax = CreateGenericType("IEnumerable", [innerType.Syntax]);
 
         return new(convertor, syntax, [innerType.Syntax]);

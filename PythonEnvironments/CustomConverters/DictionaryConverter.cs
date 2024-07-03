@@ -1,20 +1,22 @@
 ﻿using Python.Runtime;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace PythonEnvironments.CustomConverters;
 
-internal class DictionaryConverter<TKey, TValue> : IPyObjectEncoder, IPyObjectDecoder
+public sealed class DictionaryConverter<TKey, TValue> : IPyObjectEncoder, IPyObjectDecoder
 {
     public bool CanDecode(PyType objectType, Type targetType)
     {
-        throw new NotImplementedException();
+        if (targetType.IsGenericType && typeof(IReadOnlyDictionary<TKey, TValue>).IsAssignableFrom(targetType))
+        {
+            return true;
+        }
+        return false;
     }
 
     public bool CanEncode(Type type)
     {
-        //if (type.IsGenericType && type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>)))
         if (type.IsGenericType && typeof(IReadOnlyDictionary<TKey, TValue>).IsAssignableFrom(type))
         {
             return true;

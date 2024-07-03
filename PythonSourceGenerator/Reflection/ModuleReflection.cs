@@ -9,9 +9,9 @@ namespace PythonSourceGenerator.Reflection;
 
 public static class ModuleReflection
 {
-    public static List<MethodDeclarationSyntax> MethodsFromModule(PyObject moduleObject, PyModule scope)
+    public static List<MethodDefinition> MethodsFromModule(PyObject moduleObject, PyModule scope)
     {
-        var methods = new List<MethodDeclarationSyntax>();
+        var methods = new List<MethodDefinition>();
         // Get methods
         var moduleDir = moduleObject.Dir();
         var callables = new List<string>();
@@ -34,12 +34,12 @@ public static class ModuleReflection
         return methods;
     }
 
-    public static string Compile(this List<MethodDeclarationSyntax> methods)
+    public static string Compile(this IEnumerable<MethodDeclarationSyntax> methods)
     {
         using StringWriter sw = new();
         foreach (var method in methods)
         {
-            method.NormalizeWhitespace(indentation: "            ").WriteTo(sw);
+            method.NormalizeWhitespace().WriteTo(sw);
         }
         return sw.ToString();
     }

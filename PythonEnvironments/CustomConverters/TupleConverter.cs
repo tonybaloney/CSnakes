@@ -20,7 +20,7 @@ public class TupleConverter : IPyObjectEncoder, IPyObjectDecoder
 
     public bool TryDecode<T>(PyObject pyObj, out T? value)
     {
-        var values = pyObj.AsEnumerable<object>().ToArray();
+        var values = EnumeratePyObject<object>(pyObj).ToArray();
 
         var creates = typeof(Tuple).GetMethods().Where(m => m.Name == "Create");
 
@@ -45,4 +45,7 @@ public class TupleConverter : IPyObjectEncoder, IPyObjectDecoder
 
         return new PyTuple([.. pyObjects]);
     }
+
+    static IEnumerable<T> EnumeratePyObject<T>(PyObject obj) =>
+        new PyIterable(obj.GetIterator()).Select(item => item.As<T>());
 }

@@ -19,7 +19,6 @@ public static class MethodReflection
         // Step 1: Create a method declaration
 
         // Step 2: Determine the return type of the method
-        var returnConvertor = "";
         var returnPythonType = signature.GetAttr("return_annotation");
 
         // No specified return type (inspect._empty) is treated as object
@@ -34,7 +33,6 @@ public static class MethodReflection
         else
         {
             var reflectedType = TypeReflection.AsPredefinedType(returnType);
-            returnConvertor = reflectedType.Convertor;
             returnSyntax = reflectedType.Syntax;
         }
 
@@ -90,26 +88,13 @@ public static class MethodReflection
                                                 SyntaxFactory.IdentifierName("ToPython")))));
         }
 
-        ReturnStatementSyntax returnExpression;
-        if (returnType == "None")
+        ReturnStatementSyntax returnExpression = returnSyntax switch
         {
-            returnExpression = SyntaxFactory.ReturnStatement(null);
-        }
-        else if (returnConvertor == null)
-        {
-            returnExpression = SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName("result"));
-        }
-        else
-        {
-            returnExpression = SyntaxFactory.ReturnStatement(
-                        SyntaxFactory.InvocationExpression(
-                            SyntaxFactory.MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                SyntaxFactory.IdentifierName("result"),
-                                SyntaxFactory.IdentifierName(returnConvertor)))
-                        .WithArgumentList(
-                            SyntaxFactory.ArgumentList()));
-        }
+            TypeSyntax s when s is PredefinedTypeSyntax p && p.Keyword.Kind() == SyntaxKind.VoidKeyword => SyntaxFactory.ReturnStatement(null),
+            TypeSyntax s when s is IdentifierNameSyntax => SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName("result")),
+            _ => ProcessMethodWithReturnType(returnSyntax, parameterGenericArgs)
+        };
+
         var body = SyntaxFactory.Block(
             moduleLoad,
             SyntaxFactory.UsingStatement(
@@ -172,5 +157,31 @@ public static class MethodReflection
             .WithParameterList(parameterList);
 
         return new(syntax, parameterGenericArgs);
+    }
+
+    private static ReturnStatementSyntax ProcessMethodWithReturnType(TypeSyntax returnSyntax, List<GenericNameSyntax> parameterGenericArgs)
+    {
+        ReturnStatementSyntax returnExpression;
+        if (returnSyntax is GenericNameSyntax rg)
+        {
+            parameterGenericArgs.Add(rg);
+        }
+
+        var converter = SyntaxFactory
+            .GenericName(
+                SyntaxFactory.Identifier("As"))
+            .WithTypeArgumentList(
+                SyntaxFactory.TypeArgumentList(
+                    SyntaxFactory.SeparatedList([returnSyntax])));
+
+        returnExpression = SyntaxFactory.ReturnStatement(
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.IdentifierName("result"),
+                            converter))
+                    .WithArgumentList(
+                        SyntaxFactory.ArgumentList()));
+        return returnExpression;
     }
 }

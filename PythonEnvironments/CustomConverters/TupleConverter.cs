@@ -22,13 +22,16 @@ public class TupleConverter : IPyObjectEncoder, IPyObjectDecoder
     {
         var values = EnumeratePyObject<object>(pyObj).ToArray();
 
-        var creates = typeof(Tuple).GetMethods().Where(m => m.Name == "Create");
+        var ctor = typeof(T).GetConstructors().First(c => c.GetParameters().Count() == values.Length);
+        value = (T)ctor.Invoke(values);
 
-        var create = creates.First(m => m.GetParameters().Count() == values.Length);
+        //var creates = typeof(Tuple).GetMethods().Where(m => m.Name == "Create");
 
-        var method = create.MakeGenericMethod(values.Select(v => v.GetType()).ToArray());
+        //var create = creates.First(m => m.GetParameters().Count() == values.Length);
 
-        value = (T)method.Invoke(null, [.. values]);
+        //var method = create.MakeGenericMethod(values.Select(v => v.GetType()).ToArray());
+
+        //value = (T)method.Invoke(null, [.. values]);
         return true;
     }
 

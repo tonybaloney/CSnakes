@@ -18,6 +18,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive; compile</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Superpower" Version="3.0.0" />
     </ItemGroup>
 
     <PropertyGroup>

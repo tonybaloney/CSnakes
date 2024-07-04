@@ -33,16 +33,13 @@ public static class PythonSignatureParser
         from closeParen in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.CloseParenthesis)
         select parameters;
 
-    //static TokenListParser<PythonSignatureTokens.PythonSignatureToken, object?> PythonFunctionDefinition { get; } = 
-    //    from def in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Def)
-    //    from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
-    //    from parameters in PythonParameterList
-    //    from arrow in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Arrow)
-    //    from returnType in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
-    //    from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon)
-    //    select new { Name = name, Parameters = parameters, ReturnType = returnType };
-
-    // static TokenListParser<PythonSignatureTokens.PythonSignatureToken, object?> PythonStatement { get; } = 
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionDefinition> PythonFunctionDefinition { get; } =
+        from def in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Def)
+        from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
+        from parameters in PythonParameterList
+        from arrow in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Arrow).Optional().Then(returnType => PythonTypeDefinition.OptionalOrDefault())
+        from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon)
+        select new PythonFunctionDefinition { Name = name.ToStringValue(), Parameters = parameters, ReturnType = arrow };
 
     public static bool TryParse(string signature, out object? pythonSignature)
     {

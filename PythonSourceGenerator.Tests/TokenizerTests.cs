@@ -24,7 +24,7 @@ public class TokenizerTests
             PythonSignatureTokens.PythonSignatureToken.Identifier,
             PythonSignatureTokens.PythonSignatureToken.CloseParenthesis,
             PythonSignatureTokens.PythonSignatureToken.Arrow,
-            PythonSignatureTokens.PythonSignatureToken.None,
+            PythonSignatureTokens.PythonSignatureToken.Identifier,
             PythonSignatureTokens.PythonSignatureToken.Colon,
         }, tokens.Select(t => t.Kind));
     }
@@ -76,5 +76,20 @@ public class TokenizerTests
         Assert.Null(result.Value[1].Type);
         Assert.Equal("c", result.Value[2].Name);
         Assert.Null(result.Value[2].Type);
+    }
+
+    [Fact]
+    public void ParseFunctionDefinition()
+    {
+        var tokens = PythonSignatureTokenizer.Tokenize("def foo(a: int, b: str) -> None:");
+        var result = PythonSignatureParser.PythonFunctionDefinition.TryParse(tokens);
+
+        Assert.True(result.HasValue);
+        Assert.Equal("foo", result.Value.Name);
+        Assert.Equal("a", result.Value.Parameters[0].Name);
+        Assert.Equal("int", result.Value.Parameters[0].Type);
+        Assert.Equal("b", result.Value.Parameters[1].Name);
+        Assert.Equal("str", result.Value.Parameters[1].Type);
+        Assert.Equal("None", result.Value.ReturnType);
     }
 }

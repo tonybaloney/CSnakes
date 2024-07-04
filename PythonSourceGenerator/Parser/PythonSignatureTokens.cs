@@ -40,9 +40,6 @@ public class PythonSignatureTokens
         [Token(Example = "=")]
         Equal,
 
-        [Token(Example = "None")]
-        None,
-
         [Token(Example = "def")]
         Def,
 

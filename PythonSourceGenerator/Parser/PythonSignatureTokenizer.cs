@@ -2,7 +2,6 @@
 using Superpower.Model;
 using Superpower.Parsers;
 using Superpower.Tokenizers;
-using System.Collections.Generic;
 
 namespace PythonSourceGenerator.Parser;
 public static class PythonSignatureTokenizer
@@ -21,7 +20,6 @@ public static class PythonSignatureTokenizer
         .Match(Character.EqualTo('-').IgnoreThen(Character.EqualTo('>')), PythonSignatureTokens.PythonSignatureToken.Arrow)
         .Match(Character.EqualTo('/'), PythonSignatureTokens.PythonSignatureToken.Slash)
         .Match(Character.EqualTo('='), PythonSignatureTokens.PythonSignatureToken.Equal)
-        .Match(Span.EqualTo("None"), PythonSignatureTokens.PythonSignatureToken.None)
         .Match(Span.EqualTo("def"), PythonSignatureTokens.PythonSignatureToken.Def)
         .Match(Span.EqualTo("async"), PythonSignatureTokens.PythonSignatureToken.Async)
         .Match(Span.EqualTo("..."), PythonSignatureTokens.PythonSignatureToken.Ellipsis)

@@ -1,5 +1,4 @@
-﻿
-using PythonSourceGenerator.Parser;
+﻿using PythonSourceGenerator.Parser;
 using Superpower;
 
 namespace PythonSourceGenerator.Tests;
@@ -10,8 +9,8 @@ public class TokenizerTests
     public void Tokenize()
     {
         var tokens = PythonSignatureTokenizer.Tokenize("def foo(a: int, b: str) -> None:");
-        Assert.Equal(new[]
-        {
+        Assert.Equal(
+        [
             PythonSignatureTokens.PythonSignatureToken.Def,
             PythonSignatureTokens.PythonSignatureToken.Identifier,
             PythonSignatureTokens.PythonSignatureToken.OpenParenthesis,
@@ -26,7 +25,31 @@ public class TokenizerTests
             PythonSignatureTokens.PythonSignatureToken.Arrow,
             PythonSignatureTokens.PythonSignatureToken.Identifier,
             PythonSignatureTokens.PythonSignatureToken.Colon,
-        }, tokens.Select(t => t.Kind));
+        ], tokens.Select(t => t.Kind));
+    }
+
+    [Fact]
+    public void TokenizeWithDefaultValue()
+    {
+        var tokens = PythonSignatureTokenizer.Tokenize("def foo(a: int, b: str = 'b') -> None:");
+        Assert.Equal(
+        [
+            PythonSignatureTokens.PythonSignatureToken.Def,
+            PythonSignatureTokens.PythonSignatureToken.Identifier,
+            PythonSignatureTokens.PythonSignatureToken.OpenParenthesis,
+            PythonSignatureTokens.PythonSignatureToken.Identifier,
+            PythonSignatureTokens.PythonSignatureToken.Colon,
+            PythonSignatureTokens.PythonSignatureToken.Identifier,
+            PythonSignatureTokens.PythonSignatureToken.Comma,
+            PythonSignatureTokens.PythonSignatureToken.Identifier,
+            PythonSignatureTokens.PythonSignatureToken.Colon,
+            PythonSignatureTokens.PythonSignatureToken.Identifier,
+            PythonSignatureTokens.PythonSignatureToken.Equal,
+            PythonSignatureTokens.PythonSignatureToken.CloseParenthesis,
+            PythonSignatureTokens.PythonSignatureToken.Arrow,
+            PythonSignatureTokens.PythonSignatureToken.Identifier,
+            PythonSignatureTokens.PythonSignatureToken.Colon,
+        ], tokens.Select(t => t.Kind));
     }
 
     [Theory]
@@ -119,7 +142,7 @@ a = 1
 if __name__ == '__main__':
   xyz  = 1
         """;
-        PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions);
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions);
 
         Assert.NotNull(functions);
         Assert.Equal(2, functions.Length);

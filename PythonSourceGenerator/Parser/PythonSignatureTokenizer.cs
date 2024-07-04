@@ -1,5 +1,4 @@
 ﻿using Superpower;
-using Superpower.Model;
 using Superpower.Parsers;
 using Superpower.Tokenizers;
 
@@ -24,21 +23,8 @@ public static class PythonSignatureTokenizer
         .Match(Span.EqualTo("async"), PythonSignatureTokens.PythonSignatureToken.Async)
         .Match(Span.EqualTo("..."), PythonSignatureTokens.PythonSignatureToken.Ellipsis)
         .Match(Identifier.CStyle, PythonSignatureTokens.PythonSignatureToken.Identifier)
-        .Match(Numerics.Natural, PythonSignatureTokens.PythonSignatureToken.Number)
+        .Match(Numerics.Natural, PythonSignatureTokens.PythonSignatureToken.Integer)
+        .Match(Numerics.Decimal, PythonSignatureTokens.PythonSignatureToken.Decimal)
         .Match(PythonSignatureParser.StringConstant, PythonSignatureTokens.PythonSignatureToken.String)
         .Build();
-
-
-    public static TokenList<PythonSignatureTokens.PythonSignatureToken> Tokenize(string input)
-        {
-        var tokenizer = Instance.TryTokenize(input);
-        if (tokenizer.HasValue)
-        {
-            return tokenizer.Value;
-        }
-        else
-        {
-            throw new System.Exception(tokenizer.ErrorMessage);
-        }
-    }
 }

@@ -31,7 +31,7 @@ namespace PythonSourceGenerator.Tests
             File.WriteAllText(Path.Combine(testEnv.TempDir, $"{tempName}.py"), code);
 
             // create a Python scope
-            PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions);
+            PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
 
             var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test");
                 var csharp = module.Select(m => m.Syntax).Compile();

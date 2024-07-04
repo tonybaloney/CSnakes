@@ -59,13 +59,20 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 var code = File.ReadAllText(file.Path);
 
                 // Parse the Python file
-                PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions);
+                var result = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
 
-                methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, pascalFileName);
+                foreach (var error in errors)
+                {
+                    // TODO: Match source/target
+                    sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error, "PythonStaticGenerator", DiagnosticSeverity.Error, true), Location.None));
+                }
 
-                string source = FormatClassFromMethods(@namespace, pascalFileName, methods);
-                sourceContext.AddSource($"{pascalFileName}.py.cs", source);
-                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Warning, true), Location.None));
+                if (result) { 
+                    methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, pascalFileName);
+                    string source = FormatClassFromMethods(@namespace, pascalFileName, methods);
+                    sourceContext.AddSource($"{pascalFileName}.py.cs", source);
+                    sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Warning, true), Location.None));
+                }
             }
         });
     }

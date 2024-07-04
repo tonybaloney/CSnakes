@@ -46,7 +46,8 @@ public class PythonSignatureTokens
         [Token(Example = "async")]
         Async,
 
-        Number,
+        Integer,
+        Decimal,
         String,
 
         [Token(Example = "...")]

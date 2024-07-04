@@ -48,11 +48,26 @@ public static class PythonSignatureParser
         from closeBracket in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.CloseBracket).Optional()
         select new PythonTypeSpec { Name = name.ToStringValue(), Arguments = openBracket };
 
+    // Returns the string without the quotes
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, string> StringConstantTokenizer { get; } =
+        from constant in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.String)
+        select StringConstant.Parse(constant.Span.ToString());
+
+    // Any constant value
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, string> ConstantValueTokenizer { get; } =
+        from constant in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Integer)
+            .Or(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Decimal))
+            .Or(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.String)).OptionalOrDefault()
+        select constant.ToString(); // This possibly shouldn't be a string
+
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter> PythonParameterTokenizer { get; } = 
         from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
         from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon).Optional()
         from type in PythonTypeDefinitionTokenizer.OptionalOrDefault()
-        select new PythonFunctionParameter { Name = name.ToStringValue(), Type = type };
+        from defaultValue in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Equal).Optional().Then(
+                _ => ConstantValueTokenizer.OptionalOrDefault()
+            )
+        select new PythonFunctionParameter { Name = name.ToStringValue(), Type = type, DefaultValue = defaultValue };
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter[]> PythonParameterListTokenizer { get; } = 
         from openParen in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.OpenParenthesis)
@@ -68,36 +83,40 @@ public static class PythonSignatureParser
         from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon)
         select new PythonFunctionDefinition { Name = name.ToStringValue(), Parameters = parameters, ReturnType = arrow };
 
-    public static bool TryParseFunctionDefinitions(string source, out PythonFunctionDefinition[]? pythonSignatures)
+    public static bool TryParseFunctionDefinitions(string source, out PythonFunctionDefinition[]? pythonSignatures, out string[] errors)
     {
         List<PythonFunctionDefinition> functionDefinitions = [];
 
         // Go line by line
         var lines = source.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-
+        var currentErrors = new List<string>();
         foreach (var line in lines)
         {
             if (IsFunctionSignature(line))
             {
                 // Parse the function signature
-                var lineTokens = PythonSignatureTokenizer.Tokenize(line);
+                var result = PythonSignatureTokenizer.Instance.TryTokenize(line);
+                if (!result.HasValue)
+                {
+                    currentErrors.Add(result.ToString());
+                    continue;
+                }
 
                 // TODO : Functions that span multiple lines
 
-                var functionDefinition = PythonFunctionDefinitionTokenizer.TryParse(lineTokens);
+                var functionDefinition = PythonFunctionDefinitionTokenizer.TryParse(result.Value);
                 if (functionDefinition.HasValue) {
                     functionDefinitions.Add(functionDefinition.Value);
                 }
                 else
                 {
                     // Error parsing the function definition
-                    pythonSignatures = null;
-                    // TODO : Add reason
-                    return false;
+                    currentErrors.Add(functionDefinition.ToString());
                 }
             }
         }
         pythonSignatures = [.. functionDefinitions];
-        return true;
+        errors = [.. currentErrors];
+        return errors.Length == 0;
     }
 }

@@ -3,7 +3,7 @@ public class PythonFunctionParameter
 {
     public string Name { get; set; }
 
-    public string Type { get; set; }
+    public PythonTypeSpec Type { get; set; }
 
     public bool IsPositionalOnly { get; set; }
 

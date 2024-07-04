@@ -13,12 +13,11 @@ public static class PythonSignatureParser
     }
 
     // Should match list, list[T], tuple[int, str], dict[str, int]
-    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, string> PythonTypeDefinition { get; } =
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonTypeSpec> PythonTypeDefinition { get; } =
         from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
-        from openBracket in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.OpenBracket).Then(identifier => Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)).OptionalOrDefault()
+        from openBracket in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.OpenBracket).Then(_ => PythonTypeDefinition.ManyDelimitedBy(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Comma))).OptionalOrDefault()
         from closeBracket in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.CloseBracket).Optional()
-        // Todo capture args and allow recursive type definitions
-        select name.ToStringValue();
+        select new PythonTypeSpec { Name = name.ToStringValue(), Arguments = openBracket };
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter> PythonParameter { get; } = 
         from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)

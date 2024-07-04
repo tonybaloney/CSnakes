@@ -35,7 +35,6 @@ public class TokenizerTests
     [InlineData("b: str", "b", "str")]
     [InlineData("c: float", "c", "float")]
     [InlineData("d: bool", "d", "bool")]
-    [InlineData("arg1", "arg1", null)]
     [InlineData("e: list[int]", "e", "list[int]")]
     [InlineData("f: tuple[str, str]", "f", "tuple[str, str]")]
     [InlineData("g: dict[str, int]", "g", "dict[str, int]")]
@@ -45,7 +44,17 @@ public class TokenizerTests
         var result = PythonSignatureParser.PythonParameter.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal(expectedName, result.Value.Name);
-        Assert.Equal(expectedType, result.Value.Type);
+        Assert.Equal(expectedType, result.Value.Type.ToString());
+    }
+
+    [Fact]
+    public void ParseFunctionParameterNoType()
+    {
+        var tokens = PythonSignatureTokenizer.Tokenize("a");
+        var result = PythonSignatureParser.PythonParameter.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal("a", result.Value.Name);
+        Assert.Null(result.Value.Type);
     }
 
     [Fact]
@@ -56,11 +65,11 @@ public class TokenizerTests
         var result = PythonSignatureParser.PythonParameterList.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value[0].Name);
-        Assert.Equal("int", result.Value[0].Type);
+        Assert.Equal("int", result.Value[0].Type.Name);
         Assert.Equal("b", result.Value[1].Name);
-        Assert.Equal("float", result.Value[1].Type);
+        Assert.Equal("float", result.Value[1].Type.Name);
         Assert.Equal("c", result.Value[2].Name);
-        Assert.Equal("str", result.Value[2].Type);
+        Assert.Equal("str", result.Value[2].Type.Name);
     }
 
     [Fact]
@@ -87,9 +96,9 @@ public class TokenizerTests
         Assert.True(result.HasValue);
         Assert.Equal("foo", result.Value.Name);
         Assert.Equal("a", result.Value.Parameters[0].Name);
-        Assert.Equal("int", result.Value.Parameters[0].Type);
+        Assert.Equal("int", result.Value.Parameters[0].Type.Name);
         Assert.Equal("b", result.Value.Parameters[1].Name);
-        Assert.Equal("str", result.Value.Parameters[1].Type);
-        Assert.Equal("None", result.Value.ReturnType);
+        Assert.Equal("str", result.Value.Parameters[1].Type.Name);
+        Assert.Equal("None", result.Value.ReturnType.Name);
     }
 }

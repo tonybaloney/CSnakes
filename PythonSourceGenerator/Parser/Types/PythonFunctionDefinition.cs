@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-
+﻿
 namespace PythonSourceGenerator.Parser.Types;
 public class PythonFunctionDefinition
 {
@@ -7,7 +6,7 @@ public class PythonFunctionDefinition
 
     public PythonFunctionParameter[] Parameters { get; set; }
 
-    public string ReturnType { get; set; }
+    public PythonTypeSpec ReturnType { get; set; }
 
     public bool IsAsync { get; set; }
 }

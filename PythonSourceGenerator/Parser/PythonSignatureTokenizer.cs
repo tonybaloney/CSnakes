@@ -24,7 +24,8 @@ public static class PythonSignatureTokenizer
         .Match(Span.EqualTo("None"), PythonSignatureTokens.PythonSignatureToken.None)
         .Match(Span.EqualTo("def"), PythonSignatureTokens.PythonSignatureToken.Def)
         .Match(Span.EqualTo("async"), PythonSignatureTokens.PythonSignatureToken.Async)
-        .Match(Character.Letter.AtLeastOnce().IgnoreThen(Character.LetterOrDigit.Many()), PythonSignatureTokens.PythonSignatureToken.Identifier)
+        .Match(Span.EqualTo("..."), PythonSignatureTokens.PythonSignatureToken.Ellipsis)
+        .Match(Identifier.CStyle, PythonSignatureTokens.PythonSignatureToken.Identifier)
         .Match(Numerics.Natural, PythonSignatureTokens.PythonSignatureToken.Number)
         .Build();
 

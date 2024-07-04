@@ -50,5 +50,8 @@ public class PythonSignatureTokens
         Async,
 
         Number,
+
+        [Token(Example = "...")]
+        Ellipsis
     }
 }

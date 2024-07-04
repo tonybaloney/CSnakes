@@ -24,17 +24,11 @@ public static class MethodReflection
         // No specified return type (inspect._empty) is treated as object
         // Explicitly returning None is treated as void
         string returnType = TypeReflection.AnnotationAsTypeName(returnPythonType);
-
-        TypeSyntax returnSyntax;
-        if (returnType == "None")
+        TypeSyntax returnSyntax = returnType switch
         {
-            returnSyntax = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
-        }
-        else
-        {
-            var reflectedType = TypeReflection.AsPredefinedType(returnType);
-            returnSyntax = reflectedType.Syntax;
-        }
+            "None" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword)),
+            _ => TypeReflection.AsPredefinedType(returnType),
+        };
 
         // Step 3: Build arguments
         var parameterList = ArgumentReflection.ParameterListSyntax(signature);

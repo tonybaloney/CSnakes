@@ -13,7 +13,7 @@ public class ArgumentReflection
         var reflectedType = TypeReflection.AsPredefinedType(type);
         return SyntaxFactory
             .Parameter(SyntaxFactory.Identifier(name.ToLowerPascalCase()))
-            .WithType(reflectedType.Syntax);
+            .WithType(reflectedType);
             // TODO: Add withdefault
     }
 

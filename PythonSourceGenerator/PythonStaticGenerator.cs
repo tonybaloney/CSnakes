@@ -15,7 +15,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        System.Diagnostics.Debugger.Launch();
+        //System.Diagnostics.Debugger.Launch();
         var pythonFilesPipeline = context.AdditionalTextsProvider
             .Where(static text => Path.GetExtension(text.Path) == ".py")
             .Collect();
@@ -144,12 +144,13 @@ public class PythonStaticGenerator : IIncrementalGenerator
         {
             foreach (var genericArg in param)
             {
-                var converterType = genericArg.Identifier.Text switch
+                var identifier = genericArg.Identifier.Text;
+                var converterType = identifier switch
                 {
                     "IEnumerable" => $"ListConverter{genericArg.TypeArgumentList}",
                     "IReadOnlyDictionary" => $"DictionaryConverter{genericArg.TypeArgumentList}",
                     "Tuple" => "TupleConverter",
-                    _ => throw new NotImplementedException($"No converter for {genericArg.Identifier.Text}")
+                    _ => throw new NotImplementedException($"No converter for {identifier}")
                 };
 
                 var encoder = $"PyObjectConversions.RegisterEncoder(new {converterType}());";
@@ -163,6 +164,24 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 if (!decoders.Contains(decoder))
                 {
                     decoders.Add(decoder);
+                }
+
+                // Internally, the DictionaryConverter converts items to a Tuple, so we need the
+                // TupleConverter to be registered as well.
+                if (identifier == "IReadOnlyDictionary")
+                {
+                    encoder = $"PyObjectConversions.RegisterEncoder(new TupleConverter());";
+                    decoder = $"PyObjectConversions.RegisterDecoder(new TupleConverter());";
+
+                    if (!encoders.Contains(encoder))
+                    {
+                        encoders.Add(encoder);
+                    }
+
+                    if (!decoders.Contains(decoder))
+                    {
+                        decoders.Add(decoder);
+                    }
                 }
 
                 var nestedGenerics = genericArg.TypeArgumentList.Arguments.Where(genericArg => genericArg is GenericNameSyntax).Cast<GenericNameSyntax>();

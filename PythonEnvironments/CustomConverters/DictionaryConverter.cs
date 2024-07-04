@@ -1,6 +1,8 @@
 ﻿using Python.Runtime;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace PythonEnvironments.CustomConverters;
 
@@ -25,9 +27,26 @@ public sealed class DictionaryConverter<TKey, TValue> : IPyObjectEncoder, IPyObj
         return false;
     }
 
-    public bool TryDecode<T>(PyObject pyObj, out T? value)
+    public bool TryDecode<T>(PyObject pyObj, out T value)
     {
-        throw new NotImplementedException();
+        var pyDict = new PyDict(pyObj);
+
+        //var dict = pyDict.Items()
+        //    .Select(item => item.As<Tuple<TKey, TValue>>())
+        //    .ToDictionary(kvp => kvp.Item1, kvp => kvp.Item2);
+
+        var items = pyDict.Items();
+
+        var dict = new Dictionary<TKey, TValue>();
+
+        foreach (var item in items)
+        {
+            var t = item.As<Tuple<TKey, TValue>>();
+            dict.Add(t.Item1, t.Item2);
+        }
+
+        value = (T)(object)new ReadOnlyDictionary<TKey, TValue>(dict);
+        return true;
     }
 
     public PyObject TryEncode(object value)

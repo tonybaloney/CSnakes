@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace PythonEnvironments.CustomConverters;
@@ -18,20 +19,18 @@ public class TupleConverter : IPyObjectEncoder, IPyObjectDecoder
         return typeof(ITuple).IsAssignableFrom(type);
     }
 
-    public bool TryDecode<T>(PyObject pyObj, out T? value)
+    public bool TryDecode<T>(PyObject pyObj, out T value)
     {
-        var values = EnumeratePyObject<object>(pyObj).ToArray();
+        IEnumerable<PyObject> pyValues = pyObj.AsEnumerable<PyObject>();
 
-        var ctor = typeof(T).GetConstructors().First(c => c.GetParameters().Count() == values.Length);
-        value = (T)ctor.Invoke(values);
+        // We have to convert the Python values to CLR values, as if we just tried As<object>() it would
+        // not parse the Python type to a CLR type, only to a new Python type.
+        Type[] types = typeof(T).GetGenericArguments();
+        object[] clrValues = pyValues.Select((p, i) => p.AsManagedObject(types[i])).ToArray();
 
-        //var creates = typeof(Tuple).GetMethods().Where(m => m.Name == "Create");
+        ConstructorInfo ctor = typeof(T).GetConstructors().First(c => c.GetParameters().Count() == clrValues.Length);
+        value = (T)ctor.Invoke(clrValues);
 
-        //var create = creates.First(m => m.GetParameters().Count() == values.Length);
-
-        //var method = create.MakeGenericMethod(values.Select(v => v.GetType()).ToArray());
-
-        //value = (T)method.Invoke(null, [.. values]);
         return true;
     }
 
@@ -48,7 +47,4 @@ public class TupleConverter : IPyObjectEncoder, IPyObjectDecoder
 
         return new PyTuple([.. pyObjects]);
     }
-
-    static IEnumerable<T> EnumeratePyObject<T>(PyObject obj) =>
-        new PyIterable(obj.GetIterator()).Select(item => item.As<T>());
 }

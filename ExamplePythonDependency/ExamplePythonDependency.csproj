@@ -17,10 +17,6 @@
         <None Remove="type_demos.py" />
     </ItemGroup>
 
-    <!--<ItemGroup>
-    <PackageReference Include="pythonnet" Version="3.0.3" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
-  </ItemGroup>-->
-
     <ItemGroup>
         <AdditionalFiles Include="hello_world.py">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>

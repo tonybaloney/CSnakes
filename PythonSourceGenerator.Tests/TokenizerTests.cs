@@ -45,6 +45,7 @@ public class TokenizerTests
             PythonSignatureTokens.PythonSignatureToken.Colon,
             PythonSignatureTokens.PythonSignatureToken.Identifier,
             PythonSignatureTokens.PythonSignatureToken.Equal,
+            PythonSignatureTokens.PythonSignatureToken.String,
             PythonSignatureTokens.PythonSignatureToken.CloseParenthesis,
             PythonSignatureTokens.PythonSignatureToken.Arrow,
             PythonSignatureTokens.PythonSignatureToken.Identifier,
@@ -74,6 +75,16 @@ public class TokenizerTests
     public void ParseFunctionParameterNoType()
     {
         var tokens = PythonSignatureTokenizer.Tokenize("a");
+        var result = PythonSignatureParser.PythonParameterTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal("a", result.Value.Name);
+        Assert.Null(result.Value.Type);
+    }
+
+    [Fact]
+    public void ParseFunctionParameterDefault()
+    {
+        var tokens = PythonSignatureTokenizer.Tokenize("a = 1");
         var result = PythonSignatureParser.PythonParameterTokenizer.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);

@@ -1,5 +1,4 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-using PythonSourceGenerator.Reflection;
+﻿using PythonSourceGenerator.Reflection;
 
 namespace PythonSourceGenerator.Tests;
 

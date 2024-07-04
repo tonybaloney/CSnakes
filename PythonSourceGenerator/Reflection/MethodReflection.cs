@@ -5,34 +5,42 @@ using System.Collections.Generic;
 
 namespace PythonSourceGenerator.Reflection;
 
+public class MethodDefinition(MethodDeclarationSyntax syntax, IEnumerable<GenericNameSyntax> parameterGenericArgs = null)
+{
+    public MethodDeclarationSyntax Syntax { get; } = syntax;
+
+    public IEnumerable<GenericNameSyntax> ParameterGenericArgs { get; } = parameterGenericArgs;
+}
+
 public static class MethodReflection
 {
-    public static MethodDeclarationSyntax FromMethod(PyObject signature, string methodName, string moduleName)
+    public static MethodDefinition FromMethod(PyObject signature, string methodName, string moduleName)
     {
         // Step 1: Create a method declaration
 
         // Step 2: Determine the return type of the method
-        var returnConvertor = "";
         var returnPythonType = signature.GetAttr("return_annotation");
 
         // No specified return type (inspect._empty) is treated as object
         // Explicitly returning None is treated as void
         string returnType = TypeReflection.AnnotationAsTypeName(returnPythonType);
-
-        TypeSyntax returnSyntax;
-        if (returnType == "None")
+        TypeSyntax returnSyntax = returnType switch
         {
-            returnSyntax = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
-        }
-        else
-        {
-            (string convertor, TypeSyntax syntax) = TypeReflection.AsPredefinedType(returnType);
-            returnConvertor = convertor;
-            returnSyntax = syntax;
-        }
+            "None" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword)),
+            _ => TypeReflection.AsPredefinedType(returnType),
+        };
 
         // Step 3: Build arguments
         var parameterList = ArgumentReflection.ParameterListSyntax(signature);
+
+        List<GenericNameSyntax> parameterGenericArgs = [];
+        foreach (var genericType in parameterList.Parameters)
+        {
+            if (genericType.Type is GenericNameSyntax g)
+            {
+                parameterGenericArgs.Add(g);
+            }
+        }
 
         // Import module
         // var mod = Py.Import("hello_world");
@@ -74,27 +82,13 @@ public static class MethodReflection
                                                 SyntaxFactory.IdentifierName("ToPython")))));
         }
 
-        ReturnStatementSyntax returnExpression;
-        if (returnType == "None")
+        ReturnStatementSyntax returnExpression = returnSyntax switch
         {
-            returnExpression = SyntaxFactory.ReturnStatement(null);
-        }
-        else if (returnConvertor == null)
-        {
-            returnExpression = SyntaxFactory.ReturnStatement(
-                        SyntaxFactory.IdentifierName("result"));
-        }
-        else
-        {
-            returnExpression = SyntaxFactory.ReturnStatement(
-                        SyntaxFactory.InvocationExpression(
-                            SyntaxFactory.MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                SyntaxFactory.IdentifierName("result"),
-                                SyntaxFactory.IdentifierName(returnConvertor)))
-                        .WithArgumentList(
-                            SyntaxFactory.ArgumentList()));
-        }
+            TypeSyntax s when s is PredefinedTypeSyntax p && p.Keyword.Kind() == SyntaxKind.VoidKeyword => SyntaxFactory.ReturnStatement(null),
+            TypeSyntax s when s is IdentifierNameSyntax => SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName("result")),
+            _ => ProcessMethodWithReturnType(returnSyntax, parameterGenericArgs)
+        };
+
         var body = SyntaxFactory.Block(
             moduleLoad,
             SyntaxFactory.UsingStatement(
@@ -146,7 +140,7 @@ public static class MethodReflection
 
                 ));
 
-        return SyntaxFactory.MethodDeclaration(
+        var syntax = SyntaxFactory.MethodDeclaration(
             returnSyntax,
             SyntaxFactory.Identifier(methodName.ToPascalCase()))
             .WithModifiers(
@@ -155,5 +149,33 @@ public static class MethodReflection
                 )
             .WithBody(body)
             .WithParameterList(parameterList);
+
+        return new(syntax, parameterGenericArgs);
+    }
+
+    private static ReturnStatementSyntax ProcessMethodWithReturnType(TypeSyntax returnSyntax, List<GenericNameSyntax> parameterGenericArgs)
+    {
+        ReturnStatementSyntax returnExpression;
+        if (returnSyntax is GenericNameSyntax rg)
+        {
+            parameterGenericArgs.Add(rg);
+        }
+
+        var converter = SyntaxFactory
+            .GenericName(
+                SyntaxFactory.Identifier("As"))
+            .WithTypeArgumentList(
+                SyntaxFactory.TypeArgumentList(
+                    SyntaxFactory.SeparatedList([returnSyntax])));
+
+        returnExpression = SyntaxFactory.ReturnStatement(
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.IdentifierName("result"),
+                            converter))
+                    .WithArgumentList(
+                        SyntaxFactory.ArgumentList()));
+        return returnExpression;
     }
 }

@@ -39,9 +39,6 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
             return env;
         }
 
-        // TODO: Have to register with the real types
-        PyObjectConversions.RegisterEncoder(new DictionaryConverter<string, long>());
-
         env = new PythonEnvironmentInternal(pythonLocation, versionPath, home, this, this.extraPaths);
 
         return env;

@@ -4,45 +4,43 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Python.Runtime;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
-namespace PythonSourceGenerator.Reflection
+namespace PythonSourceGenerator.Reflection;
+
+public static class ModuleReflection
 {
-    public static class ModuleReflection
+    public static List<MethodDefinition> MethodsFromModule(PyObject moduleObject, PyModule scope)
     {
-        public static List<MethodDeclarationSyntax> MethodsFromModule(PyObject moduleObject, PyModule scope)
+        var methods = new List<MethodDefinition>();
+        // Get methods
+        var moduleDir = moduleObject.Dir();
+        var callables = new List<string>();
+        foreach (PyObject attrName in moduleDir)
         {
-            var methods = new List<MethodDeclarationSyntax>();
-            // Get methods
-            var moduleDir = moduleObject.Dir();
-            var callables = new List<string>();
-            foreach (PyObject attrName in moduleDir)
+            var attr = moduleObject.GetAttr(attrName);
+            if (attr.IsCallable() && attr.HasAttr("__name__"))
             {
-                var attr = moduleObject.GetAttr(attrName);
-                if (attr.IsCallable() && attr.HasAttr("__name__"))
-                {
-                    scope.Import("inspect");
-                    var moduleName = moduleObject.GetAttr("__name__");
-                    // TODO: Review fragile namespacing
-                    string x = $"signature = inspect.signature({moduleName}.{attrName})";
-                    scope.Exec(x);
-                    var signature = scope.Get("signature");
-                    var name = attr.GetAttr("__name__").ToString();
-                    methods.Add(MethodReflection.FromMethod(signature, name, moduleName.ToString()));
-                    callables.Add(attr.ToString());
-                }
+                scope.Import("inspect");
+                var moduleName = moduleObject.GetAttr("__name__");
+                // TODO: Review fragile namespacing
+                string x = $"signature = inspect.signature({moduleName}.{attrName})";
+                scope.Exec(x);
+                var signature = scope.Get("signature");
+                var name = attr.GetAttr("__name__").ToString();
+                methods.Add(MethodReflection.FromMethod(signature, name, moduleName.ToString()));
+                callables.Add(attr.ToString());
             }
-            return methods;
         }
+        return methods;
+    }
 
-        public static string Compile(this List<MethodDeclarationSyntax> methods)
+    public static string Compile(this IEnumerable<MethodDeclarationSyntax> methods)
+    {
+        using StringWriter sw = new();
+        foreach (var method in methods)
         {
-            StringWriter sw = new StringWriter();
-            foreach (var method in methods)
-            {
-                method.NormalizeWhitespace().WriteTo(sw);
-            }
-            return sw.ToString();
+            method.NormalizeWhitespace().WriteTo(sw);
         }
+        return sw.ToString();
     }
 }

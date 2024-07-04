@@ -37,7 +37,7 @@ namespace PythonSourceGenerator.Tests
                 using PyModule scope = Py.CreateScope();
                 var testObject = scope.Import(tempName);
                 var module = ModuleReflection.MethodsFromModule(testObject, scope);
-                var csharp = module.Compile();
+                var csharp = module.Select(m => m.Syntax).Compile();
                 Assert.Contains(expected, csharp);
 
                 // Check that the sample C# code compiles
@@ -74,7 +74,7 @@ namespace PythonSourceGenerator.Tests
                 using PyModule scope = Py.CreateScope();
                 var testObject = scope.Import(tempName);
                 var module = ModuleReflection.MethodsFromModule(testObject, scope);
-                var csharp = module.Compile();
+                var csharp = module.Select(m => m.Syntax).Compile();
                 Assert.Contains(expected, csharp);
             }
         }

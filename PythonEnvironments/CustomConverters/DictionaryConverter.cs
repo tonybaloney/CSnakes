@@ -1,20 +1,24 @@
 ﻿using Python.Runtime;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace PythonEnvironments.CustomConverters;
 
-internal class DictionaryConverter<TKey, TValue> : IPyObjectEncoder, IPyObjectDecoder
+public sealed class DictionaryConverter<TKey, TValue> : IPyObjectEncoder, IPyObjectDecoder
 {
     public bool CanDecode(PyType objectType, Type targetType)
     {
-        throw new NotImplementedException();
+        if (targetType.IsGenericType && typeof(IReadOnlyDictionary<TKey, TValue>).IsAssignableFrom(targetType))
+        {
+            return true;
+        }
+        return false;
     }
 
     public bool CanEncode(Type type)
     {
-        //if (type.IsGenericType && type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>)))
         if (type.IsGenericType && typeof(IReadOnlyDictionary<TKey, TValue>).IsAssignableFrom(type))
         {
             return true;
@@ -23,9 +27,26 @@ internal class DictionaryConverter<TKey, TValue> : IPyObjectEncoder, IPyObjectDe
         return false;
     }
 
-    public bool TryDecode<T>(PyObject pyObj, out T? value)
+    public bool TryDecode<T>(PyObject pyObj, out T value)
     {
-        throw new NotImplementedException();
+        var pyDict = new PyDict(pyObj);
+
+        //var dict = pyDict.Items()
+        //    .Select(item => item.As<Tuple<TKey, TValue>>())
+        //    .ToDictionary(kvp => kvp.Item1, kvp => kvp.Item2);
+
+        var items = pyDict.Items();
+
+        var dict = new Dictionary<TKey, TValue>();
+
+        foreach (var item in items)
+        {
+            var t = item.As<Tuple<TKey, TValue>>();
+            dict.Add(t.Item1, t.Item2);
+        }
+
+        value = (T)(object)new ReadOnlyDictionary<TKey, TValue>(dict);
+        return true;
     }
 
     public PyObject TryEncode(object value)

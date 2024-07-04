@@ -12,18 +12,26 @@ public static class PythonSignatureParser
         return line.StartsWith("def ") || line.StartsWith("async def");
     }
 
+    // Should match list, list[T], tuple[int, str], dict[str, int]
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, string> PythonTypeDefinition { get; } =
+        from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
+        from openBracket in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.OpenBracket).Then(identifier => Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)).OptionalOrDefault()
+        from closeBracket in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.CloseBracket).Optional()
+        // Todo capture args and allow recursive type definitions
+        select name.ToStringValue();
+
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter> PythonParameter { get; } = 
         from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
-        from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon)
-        from type in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
-        select new PythonFunctionParameter { Name = name.ToStringValue(), Type = type.ToStringValue() };
+        from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon).Optional()
+        from type in PythonTypeDefinition.OptionalOrDefault()
+        select new PythonFunctionParameter { Name = name.ToStringValue(), Type = type };
 
     // Python parameter list
-    //static TokenListParser<PythonSignatureTokens.PythonSignatureToken, object[]> PythonParameterList { get; } = 
-    //    from openParen in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.OpenParenthesis)
-    //    from parameters in PythonParameter.ManyDelimitedBy(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Comma))
-    //    from closeParen in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.CloseParenthesis)
-    //    select parameters;
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter[]> PythonParameterList { get; } = 
+        from openParen in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.OpenParenthesis)
+        from parameters in PythonParameter.ManyDelimitedBy(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Comma))
+        from closeParen in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.CloseParenthesis)
+        select parameters;
 
     //static TokenListParser<PythonSignatureTokens.PythonSignatureToken, object?> PythonFunctionDefinition { get; } = 
     //    from def in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Def)

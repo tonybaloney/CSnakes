@@ -25,6 +25,7 @@ public static class PythonSignatureTokenizer
         .Match(Span.EqualTo("..."), PythonSignatureTokens.PythonSignatureToken.Ellipsis)
         .Match(Identifier.CStyle, PythonSignatureTokens.PythonSignatureToken.Identifier)
         .Match(Numerics.Natural, PythonSignatureTokens.PythonSignatureToken.Number)
+        .Match(PythonSignatureParser.StringConstant, PythonSignatureTokens.PythonSignatureToken.String)
         .Build();
 
 

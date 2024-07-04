@@ -13,6 +13,35 @@ public static class PythonSignatureParser
         return line.StartsWith("def ") || line.StartsWith("async def");
     }
 
+    public static TextParser<int> IntegerConstant { get; } =
+        from sign in Character.EqualTo('-').OptionalOrDefault()
+        from digits in Character.Digit.Many()
+        select Convert.ToInt32(digits.ToString());
+
+    public static TextParser<double> FloatConstant { get; } =
+        from sign in Character.EqualTo('-').OptionalOrDefault()
+        from digits in Character.Digit.Many()
+        from decimal_ in Character.EqualTo('.')
+        from rest in Character.Digit.Many()
+        select Convert.ToDouble(digits.ToString() + '.' + rest.ToString());
+
+    public static TextParser<string> DoubleQuotedStringConstant { get; } =
+        from open in Character.EqualTo('"')
+        from chars in Character.ExceptIn('"').Many()
+        from close in Character.EqualTo('"')
+        select new string(chars);
+
+    public static TextParser<string> SingleQuotedStringConstant { get; } =
+        from open in Character.EqualTo('\'')
+        from chars in Character.ExceptIn('\'').Many()
+        from close in Character.EqualTo('\'')
+        select new string(chars);
+
+    public static TextParser<string> StringConstant { get; } =
+        SingleQuotedStringConstant.AsNullable()
+        .Or(DoubleQuotedStringConstant.AsNullable())
+        .Named("String Constant");
+
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonTypeSpec> PythonTypeDefinitionTokenizer { get; } =
         from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
         from openBracket in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.OpenBracket).Then(_ => PythonTypeDefinitionTokenizer.ManyDelimitedBy(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Comma))).OptionalOrDefault()

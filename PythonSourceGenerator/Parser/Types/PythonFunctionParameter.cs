@@ -8,4 +8,6 @@ public class PythonFunctionParameter
     public bool IsPositionalOnly { get; set; }
 
     public bool IsKeywordOnly { get; set; }
+
+    public object DefaultValue { get; set; }
 }

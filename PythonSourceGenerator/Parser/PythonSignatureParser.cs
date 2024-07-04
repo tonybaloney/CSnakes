@@ -2,6 +2,7 @@
 using Superpower;
 using Superpower.Parsers;
 using System;
+using System.Collections.Generic;
 
 namespace PythonSourceGenerator.Parser;
 public static class PythonSignatureParser
@@ -12,61 +13,62 @@ public static class PythonSignatureParser
         return line.StartsWith("def ") || line.StartsWith("async def");
     }
 
-    // Should match list, list[T], tuple[int, str], dict[str, int]
-    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonTypeSpec> PythonTypeDefinition { get; } =
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonTypeSpec> PythonTypeDefinitionTokenizer { get; } =
         from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
-        from openBracket in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.OpenBracket).Then(_ => PythonTypeDefinition.ManyDelimitedBy(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Comma))).OptionalOrDefault()
+        from openBracket in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.OpenBracket).Then(_ => PythonTypeDefinitionTokenizer.ManyDelimitedBy(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Comma))).OptionalOrDefault()
         from closeBracket in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.CloseBracket).Optional()
         select new PythonTypeSpec { Name = name.ToStringValue(), Arguments = openBracket };
 
-    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter> PythonParameter { get; } = 
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter> PythonParameterTokenizer { get; } = 
         from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
         from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon).Optional()
-        from type in PythonTypeDefinition.OptionalOrDefault()
+        from type in PythonTypeDefinitionTokenizer.OptionalOrDefault()
         select new PythonFunctionParameter { Name = name.ToStringValue(), Type = type };
 
-    // Python parameter list
-    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter[]> PythonParameterList { get; } = 
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter[]> PythonParameterListTokenizer { get; } = 
         from openParen in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.OpenParenthesis)
-        from parameters in PythonParameter.ManyDelimitedBy(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Comma))
+        from parameters in PythonParameterTokenizer.ManyDelimitedBy(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Comma))
         from closeParen in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.CloseParenthesis)
         select parameters;
 
-    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionDefinition> PythonFunctionDefinition { get; } =
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionDefinition> PythonFunctionDefinitionTokenizer { get; } =
         from def in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Def)
         from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
-        from parameters in PythonParameterList
-        from arrow in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Arrow).Optional().Then(returnType => PythonTypeDefinition.OptionalOrDefault())
+        from parameters in PythonParameterListTokenizer
+        from arrow in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionTokenizer.OptionalOrDefault())
         from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon)
         select new PythonFunctionDefinition { Name = name.ToStringValue(), Parameters = parameters, ReturnType = arrow };
 
-    public static bool TryParse(string signature, out object? pythonSignature)
+    public static bool TryParseFunctionDefinitions(string source, out PythonFunctionDefinition[]? pythonSignatures)
     {
-        pythonSignature = null;
+        List<PythonFunctionDefinition> functionDefinitions = [];
 
         // Go line by line
-        var lines = signature.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+        var lines = source.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
         foreach (var line in lines)
         {
             if (IsFunctionSignature(line))
             {
                 // Parse the function signature
-                var lineTokens = PythonSignatureTokenizer.Instance.TryTokenize(line);
+                var lineTokens = PythonSignatureTokenizer.Tokenize(line);
 
-                if (!lineTokens.HasValue)
-                {
-                    break;
+                // TODO : Functions that span multiple lines
+
+                var functionDefinition = PythonFunctionDefinitionTokenizer.TryParse(lineTokens);
+                if (functionDefinition.HasValue) {
+                    functionDefinitions.Add(functionDefinition.Value);
                 }
-
-                // Is the last token a colon?
-                //if (lineTokens.ConsumeToken().Value != PythonSignatureTokens.PythonSignatureToken.Colon)
-                //{
-                //    pythonSignature = null;
-                //    return false;
-                //}
+                else
+                {
+                    // Error parsing the function definition
+                    pythonSignatures = null;
+                    // TODO : Add reason
+                    return false;
+                }
             }
         }
-        return false;
+        pythonSignatures = [.. functionDefinitions];
+        return true;
     }
 }

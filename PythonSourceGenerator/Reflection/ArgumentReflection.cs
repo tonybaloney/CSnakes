@@ -1,7 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Python.Runtime;
-using PythonSourceGenerator.Types;
+using PythonSourceGenerator.Parser.Types;
 using System.Collections.Generic;
 
 namespace PythonSourceGenerator.Reflection;
@@ -17,19 +16,15 @@ public class ArgumentReflection
             // TODO: Add withdefault
     }
 
-    public static ParameterListSyntax ParameterListSyntax(PyObject signature)
+    public static ParameterListSyntax ParameterListSyntax(PythonFunctionParameter[] parameters)
     {
         var parameterListSyntax = new List<ParameterSyntax>();
-        var parameters = signature.GetAttr("parameters");
-        foreach (var pythonParameter in parameters.Items())
+        foreach (var pythonParameter in parameters)
         {
-            var name = pythonParameter[0].ToString();
-            var annotation = pythonParameter[1].GetAttr("annotation");
-            var defaultValue = pythonParameter[1].GetAttr("default");
+            var name = pythonParameter.Name;
+            var annotation = pythonParameter.Type.ToString(); // TODO: Keep full details
             // TODO : Handle Kind, see https://docs.python.org/3/library/inspect.html#inspect.Parameter
-
-            var type = TypeReflection.AnnotationAsTypeName(annotation);
-            parameterListSyntax.Add(ArgumentSyntax(name, type));
+            parameterListSyntax.Add(ArgumentSyntax(name, annotation));
         }
         return SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameterListSyntax));
     }

@@ -1,12 +1,11 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Python.Runtime;
+using PythonSourceGenerator.Parser;
 using PythonSourceGenerator.Reflection;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace PythonSourceGenerator;
 
@@ -44,23 +43,9 @@ public class PythonStaticGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(pythonFilesPipeline.Combine(optionsPipeline), static (sourceContext, pair) =>
         {
             var pyFiles = pair.Left;
-            var pythonLocation = pair.Right.pythonLocation;
-            var pythonVersion = pair.Right.pythonVersion;
-            var pythonVirtualEnvironment = pair.Right.pythonVirtualEnvironment;
 
-            var builder = new PythonEnvironment(
-                    pythonLocation,
-                    pythonVersion);
-
-            if (!string.IsNullOrEmpty(pythonVirtualEnvironment))
-            {
-                builder.WithVirtualEnvironment(pythonVirtualEnvironment);
-                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG001", "PythonStaticGenerator", $"Using virtual environment {pythonVirtualEnvironment}", "PythonStaticGenerator", DiagnosticSeverity.Warning, true), Location.None));
-            }
             foreach (var file in pyFiles)
             {
-                using var env = builder.Build(Path.GetDirectoryName(file.Path));
-
                 // Add environment path
                 var @namespace = "Python.Generated"; // TODO : Infer from project
 
@@ -70,13 +55,13 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
 
                 List<MethodDefinition> methods;
-                using (Py.GIL())
-                {
-                    // create a Python scope
-                    using PyModule scope = Py.CreateScope();
-                    var pythonModule = scope.Import(fileName);
-                    methods = ModuleReflection.MethodsFromModule(pythonModule, scope);
-                }
+                // Read the file
+                var code = File.ReadAllText(file.Path);
+
+                // Parse the Python file
+                PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions);
+
+                methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, pascalFileName);
 
                 string source = FormatClassFromMethods(@namespace, pascalFileName, methods);
                 sourceContext.AddSource($"{pascalFileName}.py.cs", source);

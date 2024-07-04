@@ -5,20 +5,17 @@ namespace PythonSourceGenerator.Tests
 {
     public class TestEnvironment : IDisposable
     {
-        private IPythonEnvironment env;
         private DirectoryInfo tempDir;
 
         public TestEnvironment()
         {
             tempDir = Directory.CreateTempSubdirectory("PythonSourceGenerator");
             tempDir.Create();
-            env = new PythonEnvironment("3.10").Build(tempDir.FullName);
         }
 
         public void Dispose()
         {
             Directory.Delete(tempDir.FullName, true);
-            env.Dispose();
         }
 
         public string TempDir => tempDir.FullName;

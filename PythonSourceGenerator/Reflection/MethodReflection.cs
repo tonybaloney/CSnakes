@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Python.Runtime;
+using PythonSourceGenerator.Parser.Types;
 using System.Collections.Generic;
 
 namespace PythonSourceGenerator.Reflection;
@@ -14,16 +14,16 @@ public class MethodDefinition(MethodDeclarationSyntax syntax, IEnumerable<Generi
 
 public static class MethodReflection
 {
-    public static MethodDefinition FromMethod(PyObject signature, string methodName, string moduleName)
+    public static MethodDefinition FromMethod(PythonFunctionDefinition function, string moduleName)
     {
         // Step 1: Create a method declaration
 
         // Step 2: Determine the return type of the method
-        var returnPythonType = signature.GetAttr("return_annotation");
+        var returnPythonType = function.ReturnType;
 
         // No specified return type (inspect._empty) is treated as object
         // Explicitly returning None is treated as void
-        string returnType = TypeReflection.AnnotationAsTypeName(returnPythonType);
+        string returnType = returnPythonType.ToString(); // Todo keep as original format
 
         TypeSyntax returnSyntax;
         if (returnType == "None")
@@ -37,7 +37,7 @@ public static class MethodReflection
         }
 
         // Step 3: Build arguments
-        var parameterList = ArgumentReflection.ParameterListSyntax(signature);
+        var parameterList = ArgumentReflection.ParameterListSyntax(function.Parameters);
 
         List<GenericNameSyntax> parameterGenericArgs = [];
         foreach (var genericType in parameterList.Parameters)
@@ -124,7 +124,7 @@ public static class MethodReflection
                                                     SyntaxFactory.Argument(
                                                         SyntaxFactory.LiteralExpression(
                                                             SyntaxKind.StringLiteralExpression,
-                                                            SyntaxFactory.Literal(methodName))))))))))),
+                                                            SyntaxFactory.Literal(function.Name))))))))))),
                     SyntaxFactory.LocalDeclarationStatement(
                         SyntaxFactory.VariableDeclaration(
                             SyntaxFactory.IdentifierName("var"))
@@ -148,7 +148,7 @@ public static class MethodReflection
 
         var syntax = SyntaxFactory.MethodDeclaration(
             returnSyntax,
-            SyntaxFactory.Identifier(methodName.ToPascalCase()))
+            SyntaxFactory.Identifier(function.Name.ToPascalCase()))
             .WithModifiers(
                 SyntaxFactory.TokenList(
                     SyntaxFactory.Token(SyntaxKind.PublicKeyword))

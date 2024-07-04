@@ -1,10 +1,7 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Operations;
-using Python.Runtime;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace PythonSourceGenerator.Reflection;
 
@@ -134,17 +131,6 @@ public static class TypeReflection
         var syntax = CreateGenericType("IEnumerable", [innerType.Syntax]);
 
         return new(convertor, syntax, [innerType.Syntax]);
-    }
-
-    internal static string AnnotationAsTypeName(PyObject pyObject)
-    {
-        var typeName = pyObject.GetPythonType().Name;
-        // Is class?
-        return typeName switch
-        {
-            "type" or "class" => pyObject.GetAttr("__name__").ToString(),
-            _ => pyObject.Repr().ToString(),
-        };
     }
 
     internal static TypeSyntax CreateGenericType(string typeName, IEnumerable<TypeSyntax> genericArguments) =>

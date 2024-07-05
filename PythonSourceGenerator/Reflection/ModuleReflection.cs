@@ -4,20 +4,15 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using PythonSourceGenerator.Parser.Types;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace PythonSourceGenerator.Reflection;
 
 public static class ModuleReflection
 {
-    public static List<MethodDefinition> MethodsFromFunctionDefinitions(PythonFunctionDefinition[] functions, string moduleName)
+    public static IEnumerable<MethodDefinition> MethodsFromFunctionDefinitions(PythonFunctionDefinition[] functions, string moduleName)
     {
-        var methods = new List<MethodDefinition>();
-        // Get methods
-        foreach (var function in functions)
-        {
-            methods.Add(MethodReflection.FromMethod(function, moduleName.ToString()));
-        }
-        return methods;
+        return functions.Select(function => MethodReflection.FromMethod(function, moduleName));
     }
 
     public static string Compile(this IEnumerable<MethodDeclarationSyntax> methods)

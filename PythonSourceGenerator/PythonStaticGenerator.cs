@@ -19,32 +19,9 @@ public class PythonStaticGenerator : IIncrementalGenerator
             .Where(static text => Path.GetExtension(text.Path) == ".py")
             .Collect();
 
-        var optionsPipeline = context.AnalyzerConfigOptionsProvider.Select(static (options, ct) =>
+        context.RegisterSourceOutput(pythonFilesPipeline, static (sourceContext, inputFiles) =>
         {
-            var globalOptions = options.GlobalOptions;
-            if (!globalOptions.TryGetValue("build_property.PythonVersion", out string pythonVersion))
-            {
-                pythonVersion = "3.12.4";
-            }
-
-            if (!globalOptions.TryGetValue("build_property.PythonLocation", out string pythonLocation))
-            {
-                pythonLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Python", pythonVersion);
-            }
-
-            if (!globalOptions.TryGetValue("build_property.PythonVirtualEnvironment", out string pythonVirtualEnvironment))
-            {
-                pythonVirtualEnvironment = null;
-            }
-
-            return (pythonVersion, pythonLocation, pythonVirtualEnvironment);
-        });
-
-        context.RegisterSourceOutput(pythonFilesPipeline.Combine(optionsPipeline), static (sourceContext, pair) =>
-        {
-            var pyFiles = pair.Left;
-
-            foreach (var file in pyFiles)
+            foreach (var file in inputFiles)
             {
                 // Add environment path
                 var @namespace = "Python.Generated"; // TODO : Infer from project
@@ -54,7 +31,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 // Convert snakecase to pascal case
                 var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
 
-                List<MethodDefinition> methods;
+                IEnumerable<MethodDefinition> methods;
                 // Read the file
                 var code = File.ReadAllText(file.Path);
 
@@ -68,7 +45,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 }
 
                 if (result) { 
-                    methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, pascalFileName);
+                    methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
                     string source = FormatClassFromMethods(@namespace, pascalFileName, methods);
                     sourceContext.AddSource($"{pascalFileName}.py.cs", source);
                     sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Warning, true), Location.None));
@@ -77,7 +54,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
         });
     }
 
-    public static string FormatClassFromMethods(string @namespace, string pascalFileName, List<MethodDefinition> methods)
+    public static string FormatClassFromMethods(string @namespace, string pascalFileName, IEnumerable<MethodDefinition> methods)
     {
         var paramGenericArgs = methods
             .Select(m => m.ParameterGenericArgs)

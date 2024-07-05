@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Python.Runtime;
 using PythonSourceGenerator.Parser;
 using PythonSourceGenerator.Reflection;
-using System.Collections.Generic;
 
 namespace PythonSourceGenerator.Tests
 {
@@ -45,7 +44,7 @@ namespace PythonSourceGenerator.Tests
                 var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
                     .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
                     .AddReferences(MetadataReference.CreateFromFile(typeof(IEnumerable<>).Assembly.Location))
-                    .AddReferences(MetadataReference.CreateFromFile(typeof(Tuple<>).Assembly.Location))
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(Tuple<,>).Assembly.Location))
                     .AddReferences(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location))
                     .AddReferences(MetadataReference.CreateFromFile(typeof(IReadOnlyDictionary<,>).Assembly.Location))
                     .AddReferences(MetadataReference.CreateFromFile(typeof(PythonEnvironments.PythonEnvironment).Assembly.Location))

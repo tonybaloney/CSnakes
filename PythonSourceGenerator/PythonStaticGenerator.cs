@@ -66,6 +66,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             using PythonEnvironments;
             using PythonEnvironments.CustomConverters;
 
+            using System;
             using System.Collections.Generic;
 
             namespace {{@namespace}}

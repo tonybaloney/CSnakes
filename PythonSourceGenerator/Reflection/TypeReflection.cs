@@ -35,15 +35,10 @@ public static class TypeReflection
         };
     }
 
-    private static TypeSyntax CreateDictionaryType(PythonTypeSpec keyType, PythonTypeSpec valueType)
-    {
-        TypeSyntax[] genericArgs = [
+    private static TypeSyntax CreateDictionaryType(PythonTypeSpec keyType, PythonTypeSpec valueType) => CreateGenericType("IReadOnlyDictionary", [
             AsPredefinedType(keyType),
             AsPredefinedType(valueType)
-            ];
-
-        return CreateGenericType("IReadOnlyDictionary", genericArgs);
-    }
+            ]);
 
     private static TypeSyntax CreateTupleType(PythonTypeSpec[] tupleTypes)
     {
@@ -59,14 +54,7 @@ public static class TypeReflection
         return CreateGenericType("Tuple", tupleTypeSyntax);
     }
 
-    private static TypeSyntax CreateListType(PythonTypeSpec genericOf)
-    {
-        var innerType = AsPredefinedType(genericOf);
-        var convertor = $"AsEnumerable<{innerType}>";
-        var syntax = CreateGenericType("IEnumerable", [innerType]);
-
-        return CreateGenericType("IEnumerable", [innerType]);
-    }
+    private static TypeSyntax CreateListType(PythonTypeSpec genericOf) => CreateGenericType("IEnumerable", [AsPredefinedType(genericOf)]);
 
     internal static TypeSyntax CreateGenericType(string typeName, IEnumerable<TypeSyntax> genericArguments) =>
         SyntaxFactory.GenericName(

@@ -14,7 +14,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        System.Diagnostics.Debugger.Launch();
+        // System.Diagnostics.Debugger.Launch();
         var pythonFilesPipeline = context.AdditionalTextsProvider
             .Where(static text => Path.GetExtension(text.Path) == ".py")
             .Collect();
@@ -64,7 +64,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 foreach (var error in errors)
                 {
                     // TODO: Match source/target
-                    sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error, "PythonStaticGenerator", DiagnosticSeverity.Error, true), Location.None));
+                    sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", $"{file.Path} : {error}", "PythonStaticGenerator", DiagnosticSeverity.Error, true), Location.None));
                 }
 
                 if (result) { 

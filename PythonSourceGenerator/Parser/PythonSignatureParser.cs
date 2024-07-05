@@ -161,7 +161,7 @@ public static class PythonSignatureParser
         List<PythonFunctionDefinition> functionDefinitions = [];
 
         // Go line by line
-        var lines = source.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+        var lines = source.Split(["\r\n", "\n"], StringSplitOptions.None);
         var currentErrors = new List<string>();
         foreach (var line in lines)
         {

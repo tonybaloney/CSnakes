@@ -70,6 +70,7 @@ public static class PythonSignatureParser
             from whole in Numerics.Natural.Select(n => int.Parse(n.ToStringValue()))
             select whole * sign ;
 
+        // TODO: This a copy from the JSON spec and probably doesn't reflect Python's other numeric literals like Hex and Real
         public static TextParser<double> Decimal { get; } =
             from sign in Character.EqualTo('-').Value(-1.0).OptionalOrDefault(1.0)
             from whole in Numerics.Natural.Select(n => double.Parse(n.ToStringValue()))

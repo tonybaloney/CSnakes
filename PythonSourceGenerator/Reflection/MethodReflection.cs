@@ -28,8 +28,7 @@ public static class MethodReflection
         }
         else
         {
-            var reflectedType = TypeReflection.AsPredefinedType(returnPythonType);
-            returnSyntax = reflectedType.Syntax;
+            returnSyntax = TypeReflection.AsPredefinedType(returnPythonType);
         }
 
         // Step 3: Build arguments

@@ -30,7 +30,6 @@ public class TypeReflectionTests
         var result = PythonSignatureParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
         Assert.True(result.HasValue);
         var reflectedType = TypeReflection.AsPredefinedType(result.Value);
-        Assert.Equal(expectedType, reflectedType.Syntax.ToString());
-        Assert.Equal(expectedConvertor, reflectedType.Convertor);
+        Assert.Equal(expectedType, reflectedType.ToString());
     }
 }

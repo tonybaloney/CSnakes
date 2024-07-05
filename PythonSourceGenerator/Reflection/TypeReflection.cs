@@ -38,14 +38,14 @@ public static class TypeReflection
     private static TypeSyntax CreateDictionaryType(PythonTypeSpec keyType, PythonTypeSpec valueType)
     {
         TypeSyntax[] genericArgs = [
-            AsPredefinedType(keyType).Syntax,
-            AsPredefinedType(valueType).Syntax
+            AsPredefinedType(keyType),
+            AsPredefinedType(valueType)
             ];
 
         return CreateGenericType("IReadOnlyDictionary", genericArgs);
     }
 
-    private static ReflectedType CreateTupleType(PythonTypeSpec[] tupleTypes)
+    private static TypeSyntax CreateTupleType(PythonTypeSpec[] tupleTypes)
     {
         var tupleTypeSyntax = new TypeSyntax[tupleTypes.Length];
         if (tupleTypes.Length > 8) // TODO: Implement up to 21
@@ -54,8 +54,7 @@ public static class TypeReflection
         }
         for (int i = 0; i < tupleTypes.Length; i++)
         {
-            var innerType = AsPredefinedType(tupleTypes[i]);
-            tupleTypeSyntax[i] = innerType;
+            tupleTypeSyntax[i] = AsPredefinedType(tupleTypes[i]);
         }
         return CreateGenericType("Tuple", tupleTypeSyntax);
     }
@@ -63,10 +62,10 @@ public static class TypeReflection
     private static TypeSyntax CreateListType(PythonTypeSpec genericOf)
     {
         var innerType = AsPredefinedType(genericOf);
-        var convertor = $"AsEnumerable<{innerType.Syntax}>";
+        var convertor = $"AsEnumerable<{innerType}>";
         var syntax = CreateGenericType("IEnumerable", [innerType]);
 
-        return new(convertor, syntax, [innerType.Syntax]);
+        return CreateGenericType("IEnumerable", [innerType]);
     }
 
     internal static TypeSyntax CreateGenericType(string typeName, IEnumerable<TypeSyntax> genericArguments) =>

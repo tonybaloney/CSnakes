@@ -1,35 +1,58 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Python.Runtime;
-using PythonSourceGenerator.Types;
+using PythonSourceGenerator.Parser.Types;
 using System.Collections.Generic;
 
 namespace PythonSourceGenerator.Reflection;
 
 public class ArgumentReflection
 {
-    public static ParameterSyntax ArgumentSyntax(string name, string type)
+    public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter)
     {
-        var reflectedType = TypeReflection.AsPredefinedType(type);
-        return SyntaxFactory
-            .Parameter(SyntaxFactory.Identifier(name.ToLowerPascalCase()))
-            .WithType(reflectedType);
-            // TODO: Add withdefault
+        var reflectedType = TypeReflection.AsPredefinedType(parameter.Type);
+
+        if (parameter.DefaultValue == null)
+        {
+            return SyntaxFactory
+                .Parameter(SyntaxFactory.Identifier(parameter.Name.ToLowerPascalCase()))
+                .WithType(reflectedType);
+        } else
+        {
+            LiteralExpressionSyntax literalExpressionSyntax;
+            if (parameter.DefaultValue.IsInteger)
+                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
+                                                            SyntaxKind.NumericLiteralExpression,
+                                                            SyntaxFactory.Literal(parameter.DefaultValue.IntegerValue));
+            else if (parameter.DefaultValue.IsString)
+                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
+                                                            SyntaxKind.StringLiteralExpression,
+                                                            SyntaxFactory.Literal(parameter.DefaultValue.StringValue));
+            else if (parameter.DefaultValue.IsFloat)
+                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
+                                                            SyntaxKind.NumericLiteralExpression,
+                                                            SyntaxFactory.Literal(parameter.DefaultValue.FloatValue));
+            else if (parameter.DefaultValue.IsNone)
+                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
+                                                            SyntaxKind.NullLiteralExpression);
+            else
+                // TODO : Handle other types?
+                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
+                                                            SyntaxKind.NullLiteralExpression);
+            return SyntaxFactory
+                .Parameter(SyntaxFactory.Identifier(parameter.Name.ToLowerPascalCase()))
+                .WithType(reflectedType)
+                .WithDefault(SyntaxFactory.EqualsValueClause(literalExpressionSyntax));
+
+        }
     }
 
-    public static ParameterListSyntax ParameterListSyntax(PyObject signature)
+    public static ParameterListSyntax ParameterListSyntax(PythonFunctionParameter[] parameters)
     {
         var parameterListSyntax = new List<ParameterSyntax>();
-        var parameters = signature.GetAttr("parameters");
-        foreach (var pythonParameter in parameters.Items())
+        foreach (var pythonParameter in parameters)
         {
-            var name = pythonParameter[0].ToString();
-            var annotation = pythonParameter[1].GetAttr("annotation");
-            var defaultValue = pythonParameter[1].GetAttr("default");
             // TODO : Handle Kind, see https://docs.python.org/3/library/inspect.html#inspect.Parameter
-
-            var type = TypeReflection.AnnotationAsTypeName(annotation);
-            parameterListSyntax.Add(ArgumentSyntax(name, type));
+            parameterListSyntax.Add(ArgumentSyntax(pythonParameter));
         }
         return SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameterListSyntax));
     }

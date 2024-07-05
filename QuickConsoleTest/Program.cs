@@ -1,5 +1,6 @@
 ﻿using Python.Generated;
 using PythonEnvironments;
+using System.Text.Json;
 
 // See https://aka.ms/new-console-template for more information
 Console.WriteLine("Hello, World!");
@@ -29,4 +30,8 @@ List<Tuple<long, long>> data = [
     new (1, 2), new (1, 4), new (1, 0),
         new (10, 2), new (10, 4), new (10, 0)
 ];
-Console.WriteLine($"KMeans interia for 4 clusters is {kmeansExample.CalculateKmeansInteria(data, 4)}");
+
+var interiaResult = kmeansExample.CalculateKmeansInteria(data, 4);
+var centroids = JsonSerializer.Serialize(interiaResult.Item1);
+var interia = interiaResult.Item2;
+Console.WriteLine($"KMeans interia for 4 clusters is {centroids}, interia is {interia}");

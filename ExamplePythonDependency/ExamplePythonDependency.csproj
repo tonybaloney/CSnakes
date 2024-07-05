@@ -5,10 +5,6 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-
-        <PythonVersion>3.12.4</PythonVersion>
-        <PythonLocation>$(USERPROFILE)\.nuget\packages\python\3.12.4\tools</PythonLocation>
-        <PythonVirtualEnvironment>$(MSBuildProjectDirectory)\.venv</PythonVirtualEnvironment>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,10 +12,6 @@
         <None Remove="quick_demo.py" />
         <None Remove="type_demos.py" />
     </ItemGroup>
-
-    <!--<ItemGroup>
-    <PackageReference Include="pythonnet" Version="3.0.3" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
-  </ItemGroup>-->
 
     <ItemGroup>
         <AdditionalFiles Include="hello_world.py">
@@ -42,12 +34,6 @@
     <ItemGroup>
         <ProjectReference Include="..\PythonEnvironments\PythonEnvironments.csproj" />
         <ProjectReference Include="..\PythonSourceGenerator\PythonSourceGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <CompilerVisibleProperty Include="PythonLocation" />
-        <CompilerVisibleProperty Include="PythonVersion" />
-        <CompilerVisibleProperty Include="PythonVirtualEnvironment" />
     </ItemGroup>
 
     <ItemGroup>

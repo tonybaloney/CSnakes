@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Python.Runtime;
 using PythonSourceGenerator.Parser;
 using PythonSourceGenerator.Reflection;
 
@@ -23,7 +24,7 @@ namespace PythonSourceGenerator.Tests
         [InlineData("def hello_world(name: str) -> int:\n    ...\n", "long HelloWorld(string name)")]
         [InlineData("def hello_world(name: str, age: int) -> str:\n    ...\n", "string HelloWorld(string name, long age)")]
         [InlineData("def hello_world(numbers: list[float]) -> list[int]:\n    ...\n", "IEnumerable<long> HelloWorld(IEnumerable<double> numbers)")]
-        [InlineData("def hello_world(a: bool, b: str, c: list[tuple[int, float]]) -> bool: \n ...\n", "bool HelloWorld(bool a, string b, IEnumerable<Tuple<long, bool>> c)")]
+        [InlineData("def hello_world(a: bool, b: str, c: list[tuple[int, float]]) -> bool: \n ...\n", "bool HelloWorld(bool a, string b, IEnumerable<Tuple<long, double>> c)")]
         public void TestGeneratedSignature(string code, string expected)
         {
             
@@ -45,6 +46,7 @@ namespace PythonSourceGenerator.Tests
                     .AddReferences(MetadataReference.CreateFromFile(typeof(List<>).Assembly.Location))
                     .AddReferences(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location))
                     .AddReferences(MetadataReference.CreateFromFile(typeof(PythonEnvironments.PythonEnvironment).Assembly.Location))
+                    .AddReferences(MetadataReference.CreateFromFile(typeof(Py).Assembly.Location))
                     .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "netstandard").Location)) // TODO: Ensure 2.0
                     .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Runtime").Location)) 
                     .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Collections").Location)) 

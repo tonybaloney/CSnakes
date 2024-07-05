@@ -19,20 +19,16 @@ public static class MethodReflection
         // Step 1: Create a method declaration
 
         // Step 2: Determine the return type of the method
-        var returnPythonType = function.ReturnType;
-
-        // No specified return type (inspect._empty) is treated as object
-        // Explicitly returning None is treated as void
-        string returnType = returnPythonType.ToString(); // Todo keep as original format
+        PythonTypeSpec returnPythonType = function.ReturnType;
 
         TypeSyntax returnSyntax;
-        if (returnType == "None")
+        if (returnPythonType.Name == "None")
         {
             returnSyntax = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
         }
         else
         {
-            var reflectedType = TypeReflection.AsPredefinedType(returnType);
+            var reflectedType = TypeReflection.AsPredefinedType(returnPythonType);
             returnSyntax = reflectedType.Syntax;
         }
 
@@ -71,13 +67,7 @@ public static class MethodReflection
                                                 SyntaxKind.StringLiteralExpression,
                                                 SyntaxFactory.Literal(moduleName)))))))))));
 
-        // Step 4: Build body, e.g.
-        //using (Py.GIL())
-        //{
-        //    var func = mod.GetAttr("format_name");
-        //    var result = func.Invoke(name.ToPython(), length.ToPython());
-        //    return result.ToString()!;
-        //}
+        // Step 4: Build body
         var pythonCastArguments = new List<ArgumentSyntax>();
         foreach (var parameter in parameterList.Parameters)
         {

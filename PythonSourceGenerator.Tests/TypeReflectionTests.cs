@@ -1,4 +1,6 @@
-﻿using PythonSourceGenerator.Reflection;
+﻿using PythonSourceGenerator.Parser;
+using PythonSourceGenerator.Reflection;
+using Superpower;
 
 namespace PythonSourceGenerator.Tests;
 
@@ -24,24 +26,11 @@ public class TypeReflectionTests
     [InlineData("tuple[int, int, tuple[int, int]]", "Tuple<long,long,Tuple<long,long>>", "AsTuple<long, long, Tuple<long,long>>")]
     public void AsPredefinedType(string pythonType, string expectedType, string expectedConvertor)
     {
-        var reflectedType = TypeReflection.AsPredefinedType(pythonType);
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonSignatureParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        var reflectedType = TypeReflection.AsPredefinedType(result.Value);
         Assert.Equal(expectedType, reflectedType.Syntax.ToString());
         Assert.Equal(expectedConvertor, reflectedType.Convertor);
-    }
-
-    [Fact]
-    public void TestSplitTypeArgs()
-    {
-        Assert.Equal(TypeReflection.SplitTypeArgs("a"), ["a"]);
-        Assert.Equal(TypeReflection.SplitTypeArgs("a,b"), ["a", "b"]);
-        Assert.Equal(TypeReflection.SplitTypeArgs("a,   b, c"), ["a", "b", "c"]);
-    }
-
-    [Fact]
-    public void TestSplitNestedTypeArgs()
-    {
-        Assert.Equal(TypeReflection.SplitTypeArgs("a"), ["a"]);
-        Assert.Equal(TypeReflection.SplitTypeArgs("str, list[x]"), ["str", "list[x]"]);
-        Assert.Equal(TypeReflection.SplitTypeArgs("str, int, int, tuple[str, str], str"), ["str", "int", "int", "tuple[str, str]", "str"]);
     }
 }

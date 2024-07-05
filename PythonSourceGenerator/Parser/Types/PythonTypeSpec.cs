@@ -15,4 +15,9 @@ public class PythonTypeSpec
         }
         return Name;
     }
+
+    public bool HasArguments()
+    {
+        return Arguments != null && Arguments.Length > 0;
+    }
 }

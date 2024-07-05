@@ -7,11 +7,11 @@ namespace PythonSourceGenerator.Reflection;
 
 public class ArgumentReflection
 {
-    public static ParameterSyntax ArgumentSyntax(string name, string type)
+    public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter)
     {
-        var reflectedType = TypeReflection.AsPredefinedType(type);
+        var reflectedType = TypeReflection.AsPredefinedType(parameter.Type);
         return SyntaxFactory
-            .Parameter(SyntaxFactory.Identifier(name.ToLowerPascalCase()))
+            .Parameter(SyntaxFactory.Identifier(parameter.Name.ToLowerPascalCase()))
             .WithType(reflectedType.Syntax);
             // TODO: Add withdefault
     }
@@ -21,10 +21,8 @@ public class ArgumentReflection
         var parameterListSyntax = new List<ParameterSyntax>();
         foreach (var pythonParameter in parameters)
         {
-            var name = pythonParameter.Name;
-            var annotation = pythonParameter.Type.ToString(); // TODO: Keep full details
             // TODO : Handle Kind, see https://docs.python.org/3/library/inspect.html#inspect.Parameter
-            parameterListSyntax.Add(ArgumentSyntax(name, annotation));
+            parameterListSyntax.Add(ArgumentSyntax(pythonParameter));
         }
         return SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameterListSyntax));
     }

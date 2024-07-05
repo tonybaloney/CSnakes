@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using PythonSourceGenerator.Parser.Types;
 using System;
 using System.Collections.Generic;
 
@@ -14,24 +15,23 @@ public class ReflectedType(string convertor, TypeSyntax syntax, IEnumerable<Type
 
 public static class TypeReflection
 {
-    public static ReflectedType AsPredefinedType(string pythonType)
+    public static ReflectedType AsPredefinedType(PythonTypeSpec pythonType)
     {
         // If type is an alias, e.g. "list[int]", "list[float]", etc.
-        if (pythonType.Contains("[") && pythonType.Contains("]"))
+        if (pythonType.HasArguments())
         {
-            var genericName = pythonType.Split('[')[0];
+            var genericName = pythonType.Name;
             // Get last occurrence of ] in pythonType
-            var genericOf = pythonType.Substring(pythonType.IndexOf('[') + 1, pythonType.LastIndexOf(']') - pythonType.IndexOf('[') - 1);
             return genericName switch
             {
-                "list" => CreateListType(genericOf),
-                "tuple" => CreateTupleType(genericOf),
-                "dict" => CreateDictionaryType(genericOf),
+                "list" => CreateListType(pythonType.Arguments[0]),
+                "tuple" => CreateTupleType(pythonType.Arguments),
+                "dict" => CreateDictionaryType(pythonType.Arguments[0], pythonType.Arguments[1]),
                 // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
                 _ => new(null, SyntaxFactory.ParseTypeName("PyObject")),// TODO : Should be nullable?
             };
         }
-        return pythonType switch
+        return pythonType.Name switch
         {
             "int" => new("ToInt64", SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword))),
             "str" => new("ToString", SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword))),
@@ -42,72 +42,21 @@ public static class TypeReflection
         };
     }
 
-    private static ReflectedType CreateDictionaryType(string genericOf)
+    private static ReflectedType CreateDictionaryType(PythonTypeSpec keyType, PythonTypeSpec valueType)
     {
-        var types = genericOf.Split(',');
+        TypeSyntax[] genericArgs = [
+            AsPredefinedType(keyType).Syntax,
+            AsPredefinedType(valueType).Syntax
+            ];
 
-        var genericArgs = new List<TypeSyntax>();
-        foreach (var t in types)
-        {
-            var innerType = AsPredefinedType(t.Trim());
-            genericArgs.Add(innerType.Syntax);
-        }
-
-        var convertor = $"AsDictionary<{string.Join(", ", genericArgs)}>";
+        var convertor = $"AsDictionary<{genericArgs[0]}, {genericArgs[1]}>";
         var syntax = CreateGenericType("IReadOnlyDictionary", genericArgs);
 
         return new(convertor, syntax, genericArgs);
     }
 
-    public static string[] SplitTypeArgs(string input)
+    private static ReflectedType CreateTupleType(PythonTypeSpec[] tupleTypes)
     {
-        if (!input.Contains(","))
-        {
-            return [input];
-        }
-
-        List<string> args = [];
-        int cursor = 0;
-        while (cursor < input.Length)
-        {
-            // Get next ,
-            var nextComma = input.IndexOf(',', cursor);
-            if (nextComma == -1)
-            {
-                // No more items, stuff last one
-                args.Add(input.Substring(cursor).Trim());
-                break;
-            }
-            var nextBracket = input.IndexOf('[', cursor);
-
-            // Is there a [ before the next comma? then it's likely a nested type
-            if (nextBracket != -1 && nextBracket < nextComma)
-            {
-                // Next arg contains [] (and possibly a ,)
-                var closingBracket = input.IndexOf(']', cursor);
-                if (closingBracket == -1)
-                {
-                    throw new Exception("Type annotation does not have closing bracket");
-                }
-                nextComma = input.IndexOf(',', closingBracket);
-                if (nextComma == -1)
-                {
-                    args.Add(input.Substring(cursor).Trim());
-                    break;
-                }
-            }
-
-            // push substring
-            args.Add(input.Substring(cursor, nextComma - cursor).Trim());
-            cursor = nextComma + 1;
-        }
-
-        return [.. args];
-    }
-
-    private static ReflectedType CreateTupleType(string genericOf)
-    {
-        var tupleTypes = SplitTypeArgs(genericOf);
         var tupleTypeSyntax = new TypeSyntax[tupleTypes.Length];
         if (tupleTypes.Length > 8) // TODO: Implement up to 21
         {
@@ -115,7 +64,7 @@ public static class TypeReflection
         }
         for (int i = 0; i < tupleTypes.Length; i++)
         {
-            var innerType = AsPredefinedType(tupleTypes[i].Trim());
+            var innerType = AsPredefinedType(tupleTypes[i]);
             tupleTypeSyntax[i] = innerType.Syntax;
         }
         var convertor = $"AsTuple<{string.Join<TypeSyntax>(", ", tupleTypeSyntax)}>";
@@ -124,9 +73,9 @@ public static class TypeReflection
         return new(convertor, syntax, tupleTypeSyntax);
     }
 
-    private static ReflectedType CreateListType(string genericOf)
+    private static ReflectedType CreateListType(PythonTypeSpec genericOf)
     {
-        var innerType = AsPredefinedType(genericOf.Trim());
+        var innerType = AsPredefinedType(genericOf);
         var convertor = $"AsEnumerable<{innerType.Syntax}>";
         var syntax = CreateGenericType("IEnumerable", [innerType.Syntax]);
 

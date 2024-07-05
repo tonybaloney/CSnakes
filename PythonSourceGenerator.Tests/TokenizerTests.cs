@@ -98,7 +98,7 @@ public class TokenizerTests
         var result = PythonSignatureParser.PythonParameterTokenizer.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
-        Assert.Null(result.Value.Type);
+        Assert.False(result.Value.HasTypeAnnotation());
     }
 
     [Fact]
@@ -109,7 +109,7 @@ public class TokenizerTests
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.Equal("1", result.Value.DefaultValue?.ToString());
-        Assert.Null(result.Value.Type);
+        Assert.False(result.Value.HasTypeAnnotation());
     }
 
     [Theory]
@@ -124,7 +124,7 @@ public class TokenizerTests
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.Equal(value, result.Value.DefaultValue?.ToString());
-        Assert.Null(result.Value.Type);
+        Assert.False(result.Value.HasTypeAnnotation());
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public class TokenizerTests
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.Equal("hello", result.Value.DefaultValue?.ToString());
-        Assert.Null(result.Value.Type);
+        Assert.False(result.Value.HasTypeAnnotation());
     }
 
     [Fact]
@@ -146,7 +146,7 @@ public class TokenizerTests
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.Equal("hello", result.Value.DefaultValue?.ToString());
-        Assert.Null(result.Value.Type);
+        Assert.False(result.Value.HasTypeAnnotation());
     }
 
     [Fact]
@@ -194,11 +194,11 @@ public class TokenizerTests
         var result = PythonSignatureParser.PythonParameterListTokenizer.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value[0].Name);
-        Assert.Null(result.Value[0].Type);
+        Assert.Equal("Any", result.Value[0].Type.Name);
         Assert.Equal("b", result.Value[1].Name);
-        Assert.Null(result.Value[1].Type);
+        Assert.Equal("Any", result.Value[1].Type.Name);
         Assert.Equal("c", result.Value[2].Name);
-        Assert.Null(result.Value[2].Type);
+        Assert.Equal("Any", result.Value[2].Type.Name);
     }
 
     [Fact]

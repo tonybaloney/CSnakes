@@ -19,12 +19,14 @@ public static class PythonSignatureTokenizer
         .Match(Character.EqualTo('-').IgnoreThen(Character.EqualTo('>')), PythonSignatureTokens.PythonSignatureToken.Arrow)
         .Match(Character.EqualTo('/'), PythonSignatureTokens.PythonSignatureToken.Slash)
         .Match(Character.EqualTo('='), PythonSignatureTokens.PythonSignatureToken.Equal)
-        .Match(Span.EqualTo("def"), PythonSignatureTokens.PythonSignatureToken.Def)
-        .Match(Span.EqualTo("async"), PythonSignatureTokens.PythonSignatureToken.Async)
+        .Match(Span.EqualTo("def"), PythonSignatureTokens.PythonSignatureToken.Def, requireDelimiters: true)
+        .Match(Span.EqualTo("async"), PythonSignatureTokens.PythonSignatureToken.Async, requireDelimiters: true)
         .Match(Span.EqualTo("..."), PythonSignatureTokens.PythonSignatureToken.Ellipsis)
-        .Match(Identifier.CStyle, PythonSignatureTokens.PythonSignatureToken.Identifier)
-        .Match(Numerics.Natural, PythonSignatureTokens.PythonSignatureToken.Integer)
-        .Match(Numerics.Decimal, PythonSignatureTokens.PythonSignatureToken.Decimal)
-        .Match(PythonSignatureParser.StringConstant, PythonSignatureTokens.PythonSignatureToken.String)
+        .Match(Identifier.CStyle, PythonSignatureTokens.PythonSignatureToken.Identifier, requireDelimiters: true) // TODO: Does this require delimiters?
+        .Match(PythonSignatureParser.IntegerConstantToken, PythonSignatureTokens.PythonSignatureToken.Integer, requireDelimiters: true)
+        .Match(PythonSignatureParser.DecimalConstantToken, PythonSignatureTokens.PythonSignatureToken.Decimal, requireDelimiters: true)
+        .Match(PythonSignatureParser.DoubleQuotedStringConstantToken, PythonSignatureTokens.PythonSignatureToken.DoubleQuotedString)
+        .Match(PythonSignatureParser.SingleQuotedStringConstantToken, PythonSignatureTokens.PythonSignatureToken.SingleQuotedString)
+        // TODO: Treat None as a special token
         .Build();
 }

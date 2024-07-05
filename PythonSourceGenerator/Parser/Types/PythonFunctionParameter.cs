@@ -9,5 +9,5 @@ public class PythonFunctionParameter
 
     public bool IsKeywordOnly { get; set; }
 
-    public object DefaultValue { get; set; }
+    public PythonConstant? DefaultValue { get; set; }
 }

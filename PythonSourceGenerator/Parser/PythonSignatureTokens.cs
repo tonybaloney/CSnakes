@@ -48,7 +48,8 @@ public class PythonSignatureTokens
 
         Integer,
         Decimal,
-        String,
+        DoubleQuotedString,
+        SingleQuotedString,
 
         [Token(Example = "...")]
         Ellipsis

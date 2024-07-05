@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestPlatform.Utilities;
+﻿using Microsoft.CodeAnalysis;
 using PythonSourceGenerator.Parser;
 using Superpower;
 
@@ -29,6 +29,22 @@ public class TokenizerTests
         ], tokens.Select(t => t.Kind));
     }
 
+    [Theory]
+    [InlineData("1", PythonSignatureTokens.PythonSignatureToken.Integer)]
+    [InlineData("-1", PythonSignatureTokens.PythonSignatureToken.Integer)]
+    [InlineData("10123", PythonSignatureTokens.PythonSignatureToken.Integer)]
+    [InlineData("-1231", PythonSignatureTokens.PythonSignatureToken.Integer)]
+    [InlineData("1.0", PythonSignatureTokens.PythonSignatureToken.Decimal)]
+    [InlineData("-1123.323", PythonSignatureTokens.PythonSignatureToken.Decimal)]
+    [InlineData("abc123", PythonSignatureTokens.PythonSignatureToken.Identifier)]
+    [InlineData("'hello'", PythonSignatureTokens.PythonSignatureToken.SingleQuotedString)]
+    [InlineData("\"hello\"", PythonSignatureTokens.PythonSignatureToken.DoubleQuotedString)]
+    public void AssertTokenKinds(string code, PythonSignatureTokens.PythonSignatureToken expectedToken)
+    {
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize(code);
+        Assert.Equal(expectedToken, tokens.Single().Kind);
+    }
+
     [Fact]
     public void TokenizeWithDefaultValue()
     {
@@ -46,7 +62,7 @@ public class TokenizerTests
             PythonSignatureTokens.PythonSignatureToken.Colon,
             PythonSignatureTokens.PythonSignatureToken.Identifier,
             PythonSignatureTokens.PythonSignatureToken.Equal,
-            PythonSignatureTokens.PythonSignatureToken.String,
+            PythonSignatureTokens.PythonSignatureToken.SingleQuotedString,
             PythonSignatureTokens.PythonSignatureToken.CloseParenthesis,
             PythonSignatureTokens.PythonSignatureToken.Arrow,
             PythonSignatureTokens.PythonSignatureToken.Identifier,
@@ -64,6 +80,8 @@ public class TokenizerTests
     [InlineData("f: tuple[str, str]", "f", "tuple[str, str]")]
     [InlineData("g: dict[str, int]", "g", "dict[str, int]")]
     [InlineData("nest: list[tuple[int, int]]", "nest", "list[tuple[int, int]]")]
+    [InlineData("max_length: int", "max_length", "int")]
+    [InlineData("max_length: int = 50", "max_length", "int")]
     public void ParseFunctionParameter(string code, string expectedName, string expectedType)
     {
         var tokens = PythonSignatureTokenizer.Instance.Tokenize(code);
@@ -90,19 +108,67 @@ public class TokenizerTests
         var result = PythonSignatureParser.PythonParameterTokenizer.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
-        Assert.Equal("1", result.Value.DefaultValue);
+        Assert.Equal("1", result.Value.DefaultValue?.ToString());
+        Assert.Null(result.Value.Type);
+    }
+
+    [Theory]
+    [InlineData("123")]
+    [InlineData("-1")]
+    [InlineData("1.01")]
+    [InlineData("-1.01")]
+    public void ParseFunctionParameterDefaultValuesNoType(string value)
+    {
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize($"a = {value}");
+        var result = PythonSignatureParser.PythonParameterTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal("a", result.Value.Name);
+        Assert.Equal(value, result.Value.DefaultValue?.ToString());
         Assert.Null(result.Value.Type);
     }
 
     [Fact]
-    public void ParseFunctionParameterDefaultString()
+    public void ParseFunctionParameterDefaultSingleQuotedString()
     {
-        var tokens = PythonSignatureTokenizer.Instance.Tokenize("a = 'hello'");
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize($"a = 'hello'");
         var result = PythonSignatureParser.PythonParameterTokenizer.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
-        Assert.Equal("hello", result.Value.DefaultValue);
+        Assert.Equal("hello", result.Value.DefaultValue?.ToString());
         Assert.Null(result.Value.Type);
+    }
+
+    [Fact]
+    public void ParseFunctionParameterDefaultDoubleQuotedString()
+    {
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize($"a = \"hello\"");
+        var result = PythonSignatureParser.PythonParameterTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal("a", result.Value.Name);
+        Assert.Equal("hello", result.Value.DefaultValue?.ToString());
+        Assert.Null(result.Value.Type);
+    }
+
+    [Fact]
+    public void ParseFunctionParameterListSingleGeneric()
+    {
+        var code = "(a: list[int])";
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize(code);
+        var result = PythonSignatureParser.PythonParameterListTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal("a", result.Value[0].Name);
+        Assert.Equal("list[int]", result.Value[0].Type.ToString());
+    }
+
+    [Fact]
+    public void ParseFunctionParameterListDoubleGeneric()
+    {
+        var code = "(a: list[int], b)";
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize(code);
+        var result = PythonSignatureParser.PythonParameterListTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal("a", result.Value[0].Name);
+        Assert.Equal("list[int]", result.Value[0].Type.ToString());
     }
 
     [Fact]
@@ -151,17 +217,22 @@ public class TokenizerTests
     }
 
     [Theory]
+    // Walk up the complexity
+    [InlineData("def foo(a: int, b: str) -> None:")]
+    [InlineData("def foo(a: int, b: str = 'b') -> str:")]
+    [InlineData("def foo(a: int, b: str = 'b', c: float = 1.0) -> float:")]
+    [InlineData("def foo(a: int, c: list[int]) -> None:")]
+    [InlineData("def foo(data: list[int], clusters: int) -> float:")]
+    // From the demo apps
     [InlineData("def format_name(name: str, max_length: int = 50) -> str:")]
     [InlineData("def calculate_kmeans_interia(data: list[tuple[int, int]], n_clusters: int) -> float:")]
     [InlineData("def invoke_mistral_inference(messages: list[str], lang: str = \"en-US\", temperature=0.0) -> str:")]
     public void ParseFunctionDefinitionComplex(string code)
     {
-        // These are all from the initial demo apps
         var tokens = PythonSignatureTokenizer.Instance.Tokenize(code);
+        Assert.True(tokens.IsAtEnd == false, "Tokenize failed");
         var result = PythonSignatureParser.PythonFunctionDefinitionTokenizer.TryParse(tokens);
-        if (!result.HasValue)
-            Console.Write(result.ToString());
-        Assert.True(result.HasValue);
+        Assert.True(result.HasValue, result.ToString());
     }
 
     [Fact]

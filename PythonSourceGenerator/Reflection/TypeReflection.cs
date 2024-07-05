@@ -6,16 +6,9 @@ using System.Collections.Generic;
 
 namespace PythonSourceGenerator.Reflection;
 
-public class ReflectedType(string convertor, TypeSyntax syntax, IEnumerable<TypeSyntax> genericArguments = null)
-{
-    public string Convertor => convertor;
-    public TypeSyntax Syntax => syntax;
-    public IEnumerable<TypeSyntax> GenericArguments => genericArguments;
-}
-
 public static class TypeReflection
 {
-    public static ReflectedType AsPredefinedType(PythonTypeSpec pythonType)
+    public static TypeSyntax AsPredefinedType(PythonTypeSpec pythonType)
     {
         // If type is an alias, e.g. "list[int]", "list[float]", etc.
         if (pythonType.HasArguments())
@@ -28,31 +21,28 @@ public static class TypeReflection
                 "tuple" => CreateTupleType(pythonType.Arguments),
                 "dict" => CreateDictionaryType(pythonType.Arguments[0], pythonType.Arguments[1]),
                 // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
-                _ => new(null, SyntaxFactory.ParseTypeName("PyObject")),// TODO : Should be nullable?
+                _ => SyntaxFactory.ParseTypeName("PyObject"),// TODO : Should be nullable?
             };
         }
         return pythonType.Name switch
         {
-            "int" => new("ToInt64", SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword))),
-            "str" => new("ToString", SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword))),
-            "float" => new("ToDouble", SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DoubleKeyword))),
-            "bool" => new("ToBoolean", SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword))),
+            "int" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword)),
+            "str" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword)),
+            "float" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DoubleKeyword)),
+            "bool" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword)),
             // Todo more types...
-            _ => new(null, SyntaxFactory.ParseTypeName("PyObject")),// TODO : Should be nullable?
+            _ => SyntaxFactory.ParseTypeName("PyObject"),// TODO : Should be nullable?
         };
     }
 
-    private static ReflectedType CreateDictionaryType(PythonTypeSpec keyType, PythonTypeSpec valueType)
+    private static TypeSyntax CreateDictionaryType(PythonTypeSpec keyType, PythonTypeSpec valueType)
     {
         TypeSyntax[] genericArgs = [
             AsPredefinedType(keyType).Syntax,
             AsPredefinedType(valueType).Syntax
             ];
 
-        var convertor = $"AsDictionary<{genericArgs[0]}, {genericArgs[1]}>";
-        var syntax = CreateGenericType("IReadOnlyDictionary", genericArgs);
-
-        return new(convertor, syntax, genericArgs);
+        return CreateGenericType("IReadOnlyDictionary", genericArgs);
     }
 
     private static ReflectedType CreateTupleType(PythonTypeSpec[] tupleTypes)
@@ -65,19 +55,16 @@ public static class TypeReflection
         for (int i = 0; i < tupleTypes.Length; i++)
         {
             var innerType = AsPredefinedType(tupleTypes[i]);
-            tupleTypeSyntax[i] = innerType.Syntax;
+            tupleTypeSyntax[i] = innerType;
         }
-        var convertor = $"AsTuple<{string.Join<TypeSyntax>(", ", tupleTypeSyntax)}>";
-        var syntax = CreateGenericType("Tuple", tupleTypeSyntax);
-
-        return new(convertor, syntax, tupleTypeSyntax);
+        return CreateGenericType("Tuple", tupleTypeSyntax);
     }
 
-    private static ReflectedType CreateListType(PythonTypeSpec genericOf)
+    private static TypeSyntax CreateListType(PythonTypeSpec genericOf)
     {
         var innerType = AsPredefinedType(genericOf);
         var convertor = $"AsEnumerable<{innerType.Syntax}>";
-        var syntax = CreateGenericType("IEnumerable", [innerType.Syntax]);
+        var syntax = CreateGenericType("IEnumerable", [innerType]);
 
         return new(convertor, syntax, [innerType.Syntax]);
     }

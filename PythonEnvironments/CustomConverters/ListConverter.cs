@@ -1,6 +1,7 @@
 ﻿using Python.Runtime;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PythonEnvironments.CustomConverters;
 
@@ -25,9 +26,10 @@ public sealed class ListConverter<TKey> : IPyObjectEncoder, IPyObjectDecoder
         return false;
     }
 
-    public bool TryDecode<T>(PyObject pyObj, out T? value)
+    public bool TryDecode<T>(PyObject pyObj, out T value)
     {
-        throw new NotImplementedException();
+        value = (T)(object)pyObj.AsEnumerable<TKey>().ToList();
+        return true;
     }
 
     public PyObject TryEncode(object value)

@@ -4,6 +4,7 @@ using Superpower.Model;
 using Superpower.Parsers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PythonSourceGenerator.Parser;
 public static class PythonSignatureParser
@@ -164,31 +165,59 @@ public static class PythonSignatureParser
         // Go line by line
         var lines = source.Split(["\r\n", "\n"], StringSplitOptions.None);
         var currentErrors = new List<string>();
+        List<string> functionLines = [];
+        List<string> currentBuffer = [];
+        bool unfinishedFunctionSpec = false;
         foreach (var line in lines)
         {
-            if (IsFunctionSignature(line))
+            if (IsFunctionSignature(line) || unfinishedFunctionSpec)
             {
+                currentBuffer.Add(line);
                 // Parse the function signature
                 var result = PythonSignatureTokenizer.Instance.TryTokenize(line);
                 if (!result.HasValue)
                 {
                     currentErrors.Add(result.ToString());
+                    currentBuffer = [];
+                    unfinishedFunctionSpec = false;
                     continue;
                 }
 
-                // TODO : Functions that span multiple lines
-
-                var functionDefinition = PythonFunctionDefinitionTokenizer.TryParse(result.Value);
-                if (functionDefinition.HasValue) {
-                    functionDefinitions.Add(functionDefinition.Value);
-                }
-                else
+                // If this is a function definition on one line..
+                if (result.Value.Last().Kind == PythonSignatureTokens.PythonSignatureToken.Colon)
                 {
-                    // Error parsing the function definition
-                    currentErrors.Add(functionDefinition.ToString());
+                    // TODO: Is an empty string the right joining character?
+                    functionLines.Add(string.Join("", currentBuffer));
+                    currentBuffer = [];
+                    unfinishedFunctionSpec = false;
+                    continue;
+                } else
+                {
+                    unfinishedFunctionSpec = true;
                 }
             }
         }
+        foreach (var line in functionLines)
+        {
+            // TODO: This means we end up tokenizing the lines twice (one individually and again merged). Optimize.
+            var result = PythonSignatureTokenizer.Instance.TryTokenize(line);
+            if (!result.HasValue)
+            {
+                currentErrors.Add(result.ToString());
+                continue;
+            }
+            var functionDefinition = PythonFunctionDefinitionTokenizer.TryParse(result.Value);
+            if (functionDefinition.HasValue)
+            {
+                functionDefinitions.Add(functionDefinition.Value);
+            }
+            else
+            {
+                // Error parsing the function definition
+                currentErrors.Add(functionDefinition.ToString());
+            }
+        }
+
         pythonSignatures = [.. functionDefinitions];
         errors = [.. currentErrors];
         return errors.Length == 0;

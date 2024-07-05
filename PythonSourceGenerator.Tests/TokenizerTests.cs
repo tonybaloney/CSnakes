@@ -270,4 +270,31 @@ if __name__ == '__main__':
         Assert.Equal("bool", functions[1].Parameters[1].Type.Name);
         Assert.Equal("None", functions[1].ReturnType.Name);
     }
+
+    [Fact]
+    public void ParseMultiLineFunctionDefinition()
+    {
+        var code = @"""
+import foo
+
+def bar(a: int, 
+        b: str) -> None:
+    pass
+
+a = 1
+
+if __name__ == '__main__':
+  xyz  = 1
+        """;
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+
+        Assert.NotNull(functions);
+        Assert.Single(functions);
+        Assert.Equal("bar", functions[0].Name);
+        Assert.Equal("a", functions[0].Parameters[0].Name);
+        Assert.Equal("int", functions[0].Parameters[0].Type.Name);
+        Assert.Equal("b", functions[0].Parameters[1].Name);
+        Assert.Equal("str", functions[0].Parameters[1].Type.Name);
+        Assert.Equal("None", functions[0].ReturnType.Name);
+    }
 }

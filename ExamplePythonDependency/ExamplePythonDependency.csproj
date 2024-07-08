@@ -8,7 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="HelloWorldOld.cs.txt" />
         <None Remove="quick_demo.py" />
         <None Remove="type_demos.py" />
     </ItemGroup>
@@ -23,9 +22,9 @@
         <AdditionalFiles Include="type_demos.py">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
-        <!--<AdditionalFiles Include="mistral_demo.py">
+        <AdditionalFiles Include="mistral_demo.py">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </AdditionalFiles>-->
+        </AdditionalFiles>
         <AdditionalFiles Include="kmeans_example.py">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>

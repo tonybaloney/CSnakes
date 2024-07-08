@@ -13,6 +13,9 @@ public class PythonConstant
     public bool IsFloat { get; set; }
     public double FloatValue { get; set; }
 
+    public bool IsBool { get; set; }
+    public bool BoolValue { get; set; }
+
     public override string ToString()
     {
         if (IsInteger)
@@ -30,6 +33,10 @@ public class PythonConstant
         if (IsNone)
         {
             return "None";
+        }
+        if (IsBool)
+        {
+            return BoolValue.ToString();
         }
         return "unknown";
     }

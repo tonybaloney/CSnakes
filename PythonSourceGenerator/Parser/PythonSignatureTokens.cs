@@ -50,6 +50,9 @@ public class PythonSignatureTokens
         Decimal,
         DoubleQuotedString,
         SingleQuotedString,
+        True,
+        False,
+        None,
 
         [Token(Example = "...")]
         Ellipsis

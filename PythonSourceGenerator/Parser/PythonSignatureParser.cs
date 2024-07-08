@@ -89,8 +89,8 @@ public static class PythonSignatureParser
     }
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonTypeSpec> PythonTypeDefinitionTokenizer { get; } =
-        (from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
-        from openBracket in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.OpenBracket)
+        (from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier).Or(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.None))
+         from openBracket in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.OpenBracket)
             .Then(_ => PythonTypeDefinitionTokenizer.ManyDelimitedBy(
                 Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Comma),
                 end: Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.CloseBracket)
@@ -123,13 +123,24 @@ public static class PythonSignatureParser
         .Select(d => new PythonConstant { IsInteger = true, IntegerValue = d })
         .Named("Integer Constant");
 
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> BoolConstantTokenizer { get; } =
+    Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.True).Or(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.False))
+    .Select(d => new PythonConstant { IsBool = true, BoolValue = d.Kind == PythonSignatureTokens.PythonSignatureToken.True })
+    .Named("Bool Constant");
+
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> NoneConstantTokenizer { get; } =
+    Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.None)
+    .Select(d => new PythonConstant { IsNone = true })
+    .Named("None Constant");
+
     // Any constant value
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> ConstantValueTokenizer { get; } =
         DecimalConstantTokenizer.AsNullable()
         .Or(IntegerConstantTokenizer.AsNullable())
+        .Or(BoolConstantTokenizer.AsNullable())
+        .Or(NoneConstantTokenizer.AsNullable())
         .Or(DoubleQuotedStringConstantTokenizer.AsNullable())
         .Or(SingleQuotedStringConstantTokenizer.AsNullable())
-        // TODO: Add None token
         .Named("Constant");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter> PythonParameterTokenizer { get; } = 

@@ -24,7 +24,7 @@ public class TokenizerTests
             PythonSignatureTokens.PythonSignatureToken.Identifier,
             PythonSignatureTokens.PythonSignatureToken.CloseParenthesis,
             PythonSignatureTokens.PythonSignatureToken.Arrow,
-            PythonSignatureTokens.PythonSignatureToken.Identifier,
+            PythonSignatureTokens.PythonSignatureToken.None,
             PythonSignatureTokens.PythonSignatureToken.Colon,
         ], tokens.Select(t => t.Kind));
     }
@@ -39,6 +39,9 @@ public class TokenizerTests
     [InlineData("abc123", PythonSignatureTokens.PythonSignatureToken.Identifier)]
     [InlineData("'hello'", PythonSignatureTokens.PythonSignatureToken.SingleQuotedString)]
     [InlineData("\"hello\"", PythonSignatureTokens.PythonSignatureToken.DoubleQuotedString)]
+    [InlineData("True", PythonSignatureTokens.PythonSignatureToken.True)]
+    [InlineData("False", PythonSignatureTokens.PythonSignatureToken.False)]
+    [InlineData("None", PythonSignatureTokens.PythonSignatureToken.None)]
     public void AssertTokenKinds(string code, PythonSignatureTokens.PythonSignatureToken expectedToken)
     {
         var tokens = PythonSignatureTokenizer.Instance.Tokenize(code);
@@ -65,7 +68,7 @@ public class TokenizerTests
             PythonSignatureTokens.PythonSignatureToken.SingleQuotedString,
             PythonSignatureTokens.PythonSignatureToken.CloseParenthesis,
             PythonSignatureTokens.PythonSignatureToken.Arrow,
-            PythonSignatureTokens.PythonSignatureToken.Identifier,
+            PythonSignatureTokens.PythonSignatureToken.None,
             PythonSignatureTokens.PythonSignatureToken.Colon,
         ], tokens.Select(t => t.Kind));
     }
@@ -168,6 +171,39 @@ public class TokenizerTests
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.Equal("1234", result.Value.DefaultValue?.ToString());
+        Assert.True(result.Value.HasTypeAnnotation());
+    }
+
+    [Fact]
+    public void ParseFunctionParameterDefaultBoolTrue()
+    {
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize($"a: bool = True");
+        var result = PythonSignatureParser.PythonParameterTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal("a", result.Value.Name);
+        Assert.Equal("True", result.Value.DefaultValue?.ToString());
+        Assert.True(result.Value.HasTypeAnnotation());
+    }
+
+    [Fact]
+    public void ParseFunctionParameterDefaultBoolFalse()
+    {
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize($"a: bool = False");
+        var result = PythonSignatureParser.PythonParameterTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal("a", result.Value.Name);
+        Assert.Equal("False", result.Value.DefaultValue?.ToString());
+        Assert.True(result.Value.HasTypeAnnotation());
+    }
+
+    [Fact]
+    public void ParseFunctionParameterDefaultNone()
+    {
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize($"a: bool = None");
+        var result = PythonSignatureParser.PythonParameterTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal("a", result.Value.Name);
+        Assert.Equal("None", result.Value.DefaultValue?.ToString());
         Assert.True(result.Value.HasTypeAnnotation());
     }
 

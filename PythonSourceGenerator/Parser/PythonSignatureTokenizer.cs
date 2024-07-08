@@ -22,11 +22,13 @@ public static class PythonSignatureTokenizer
         .Match(Span.EqualTo("def"), PythonSignatureTokens.PythonSignatureToken.Def, requireDelimiters: true)
         .Match(Span.EqualTo("async"), PythonSignatureTokens.PythonSignatureToken.Async, requireDelimiters: true)
         .Match(Span.EqualTo("..."), PythonSignatureTokens.PythonSignatureToken.Ellipsis)
+        .Match(Span.EqualTo("None"), PythonSignatureTokens.PythonSignatureToken.None, requireDelimiters: true)
+        .Match(Span.EqualTo("True"), PythonSignatureTokens.PythonSignatureToken.True, requireDelimiters: true)
+        .Match(Span.EqualTo("False"), PythonSignatureTokens.PythonSignatureToken.False, requireDelimiters: true)
         .Match(Identifier.CStyle, PythonSignatureTokens.PythonSignatureToken.Identifier, requireDelimiters: true) // TODO: Does this require delimiters?
         .Match(PythonSignatureParser.IntegerConstantToken, PythonSignatureTokens.PythonSignatureToken.Integer, requireDelimiters: true)
         .Match(PythonSignatureParser.DecimalConstantToken, PythonSignatureTokens.PythonSignatureToken.Decimal, requireDelimiters: true)
         .Match(PythonSignatureParser.DoubleQuotedStringConstantToken, PythonSignatureTokens.PythonSignatureToken.DoubleQuotedString)
         .Match(PythonSignatureParser.SingleQuotedStringConstantToken, PythonSignatureTokens.PythonSignatureToken.SingleQuotedString)
-        // TODO: Treat None as a special token
         .Build();
 }

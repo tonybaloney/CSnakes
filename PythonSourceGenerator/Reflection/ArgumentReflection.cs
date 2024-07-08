@@ -31,6 +31,10 @@ public class ArgumentReflection
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                             SyntaxKind.NumericLiteralExpression,
                                                             SyntaxFactory.Literal(parameter.DefaultValue.FloatValue));
+            else if (parameter.DefaultValue.IsBool && parameter.DefaultValue.BoolValue == true)
+                literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression);
+            else if (parameter.DefaultValue.IsBool && parameter.DefaultValue.BoolValue == false)
+                literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression);
             else if (parameter.DefaultValue.IsNone)
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                             SyntaxKind.NullLiteralExpression);

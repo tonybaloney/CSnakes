@@ -152,11 +152,11 @@ public class TokenizerTests
     [Fact]
     public void ParseFunctionParameterDefaultDouble()
     {
-        var tokens = PythonSignatureTokenizer.Instance.Tokenize($"a: float = 0.0");
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize($"a: float = -1.1");
         var result = PythonSignatureParser.PythonParameterTokenizer.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
-        Assert.Equal("0.0", result.Value.DefaultValue?.ToString());
+        Assert.Equal("-1.1", result.Value.DefaultValue?.ToString());
         Assert.True(result.Value.HasTypeAnnotation());
     }
 

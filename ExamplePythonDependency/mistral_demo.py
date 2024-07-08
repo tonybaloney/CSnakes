@@ -6,7 +6,7 @@ from mistral_common.protocol.instruct.messages import UserMessage
 from mistral_common.protocol.instruct.request import ChatCompletionRequest
 
 
-def invoke_mistral_inference(messages: list[str], lang: str = "en-US", temperature=0.0) -> str:
+def invoke_mistral_inference(messages: list[str], lang: str = "en-US", temperature: float=0.0) -> str:
 	tokenizer = MistralTokenizer.from_file(f"{mistral_models_path}/tokenizer.model.v3")
 	model = Transformer.from_folder(mistral_models_path)
 

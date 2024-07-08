@@ -150,6 +150,28 @@ public class TokenizerTests
     }
 
     [Fact]
+    public void ParseFunctionParameterDefaultDouble()
+    {
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize($"a: float = 0.0");
+        var result = PythonSignatureParser.PythonParameterTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal("a", result.Value.Name);
+        Assert.Equal("0.0", result.Value.DefaultValue?.ToString());
+        Assert.True(result.Value.HasTypeAnnotation());
+    }
+
+    [Fact]
+    public void ParseFunctionParameterDefaultInt()
+    {
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize($"a: int = 1234");
+        var result = PythonSignatureParser.PythonParameterTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal("a", result.Value.Name);
+        Assert.Equal("1234", result.Value.DefaultValue?.ToString());
+        Assert.True(result.Value.HasTypeAnnotation());
+    }
+
+    [Fact]
     public void ParseFunctionParameterListSingleGeneric()
     {
         var code = "(a: list[int])";

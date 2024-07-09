@@ -22,7 +22,7 @@
         <AdditionalFiles Include="type_demos.py">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
-        <AdditionalFiles Include="mistral_demo.py">
+        <AdditionalFiles Include="phi3_demo.py">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
         <AdditionalFiles Include="kmeans_example.py">

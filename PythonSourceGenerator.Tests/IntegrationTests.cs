@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis;
 using Python.Runtime;
 using PythonSourceGenerator.Parser;
 using PythonSourceGenerator.Reflection;
-using System.Reflection;
 
 namespace PythonSourceGenerator.Tests;
 

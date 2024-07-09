@@ -7,9 +7,28 @@ namespace PythonSourceGenerator.Reflection;
 
 public class ArgumentReflection
 {
+    private static readonly PythonTypeSpec TupleAny = new() { Name = "tuple", Arguments = [new PythonTypeSpec { Name = "Any" }] };
+    private static readonly PythonTypeSpec DictStrAny = new() { Name = "dict", Arguments = [new PythonTypeSpec { Name = "str" }, new PythonTypeSpec { Name = "Any" }] };
+
     public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter)
     {
-        var reflectedType = TypeReflection.AsPredefinedType(parameter.Type);
+        TypeSyntax reflectedType;
+        // Treat *args as tuple<Any> and **kwargs as dict<str, Any>
+        if (parameter.IsStar)
+        {
+            reflectedType = TypeReflection.AsPredefinedType(TupleAny);
+            parameter.DefaultValue = new PythonConstant { IsNone = true };
+        }
+        else if (parameter.IsDoubleStar)
+        {
+            reflectedType = TypeReflection.AsPredefinedType(DictStrAny);
+            parameter.DefaultValue = new PythonConstant { IsNone = true };
+        }
+        else
+        {
+            reflectedType = TypeReflection.AsPredefinedType(parameter.Type);
+        
+        }
 
         if (parameter.DefaultValue == null)
         {

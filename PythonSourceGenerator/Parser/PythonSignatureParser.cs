@@ -144,13 +144,16 @@ public static class PythonSignatureParser
         .Named("Constant");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter> PythonParameterTokenizer { get; } = 
-        (from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
+        (
+        from star in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Asterisk).Optional()
+        from doubleStar in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.DoubleAsterisk).Optional()
+        from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
         from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon).Optional()
         from type in PythonTypeDefinitionTokenizer.OptionalOrDefault()
         from defaultValue in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Equal).Optional().Then(
                 _ => ConstantValueTokenizer.OptionalOrDefault()
             )
-        select new PythonFunctionParameter { Name = name.ToStringValue(), Type = type, DefaultValue = defaultValue })
+        select new PythonFunctionParameter { Name = name.ToStringValue(), Type = type, DefaultValue = defaultValue, IsStar = star != null, IsDoubleStar = doubleStar != null })
         .Named("Parameter");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter[]> PythonParameterListTokenizer { get; } = 

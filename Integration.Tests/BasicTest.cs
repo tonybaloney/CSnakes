@@ -59,5 +59,15 @@ public class BasicTest(TestEnvironment testEnv) : IClassFixture<TestEnvironment>
         var result = testDicts.TestDictStrInt(testDict);
         Assert.Equal(1, result["hello"]);
         Assert.Equal(2, result["world"]);
+
+
+        IReadOnlyDictionary<string, IEnumerable<long>> testListDict = new Dictionary<string, IEnumerable<long>> { { "hello", new List<long> { 1, 2, 3 } }, { "world", new List<long> { 4, 5, 6 } } };
+        var result2 = testDicts.TestDictStrListInt(testListDict);
+        Assert.Equal([1, 2, 3], result2["hello"]);
+        Assert.Equal([4, 5, 6], result2["world"]);
+
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, long>> testDictDict = new Dictionary<string, IReadOnlyDictionary<string, long>> { { "hello", new Dictionary<string, long> { { "world", 1 } } } };
+        var result3 = testDicts.TestDictStrDictInt(testDictDict);
+        Assert.Equal(1, result3["hello"]["world"]);
     }
 }

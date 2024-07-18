@@ -355,4 +355,22 @@ if __name__ == '__main__':
         Assert.Equal("str", functions[0].Parameters[1].Type.Name);
         Assert.Equal("None", functions[0].ReturnType.Name);
     }
+
+    [Fact]
+    public void ParseFunctionNoBlankLineAtEnd()
+    {
+        var code = @"""def bar(a: int, 
+        b: str) -> None:
+    pass""";
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+
+        Assert.NotNull(functions);
+        Assert.Single(functions);
+        Assert.Equal("bar", functions[0].Name);
+        Assert.Equal("a", functions[0].Parameters[0].Name);
+        Assert.Equal("int", functions[0].Parameters[0].Type.Name);
+        Assert.Equal("b", functions[0].Parameters[1].Name);
+        Assert.Equal("str", functions[0].Parameters[1].Type.Name);
+        Assert.Equal("None", functions[0].ReturnType.Name);
+    }
 }

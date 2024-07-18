@@ -11,11 +11,15 @@
 
   <ItemGroup>
     <None Remove="python\test_basic.py" />
+    <None Remove="python\test_defaults.py" />
     <None Remove="python\test_false_returns.py" />
   </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="python\test_basic.py">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AdditionalFiles>
+    <AdditionalFiles Include="python\test_defaults.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
     <AdditionalFiles Include="python\test_false_returns.py">

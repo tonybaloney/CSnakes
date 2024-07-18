@@ -1,23 +1,18 @@
-using PythonEnvironments;
 using Python.Generated;
 using Python.Runtime;
 using System.Reflection;
 
 namespace Integration.Tests;
 
-public class BasicTest
+public class BasicTest(TestEnvironment testEnv) : IClassFixture<TestEnvironment>
 {
+    TestEnvironment testEnv = testEnv;
+
     [Fact]
     public void TestBasic()
     {
-        var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
-        var builder = new PythonEnvironment(
-            Environment.GetEnvironmentVariable("USERPROFILE") + "\\.nuget\\packages\\python\\3.12.4\\tools",
-            "3.12.4");
 
-        using var env = builder.Build(Path.Join(Environment.CurrentDirectory, "python"));
-
-        var testModule = env.TestBasic();
+        var testModule = testEnv.Env.TestBasic();
 
         Assert.Equal(4.3, testModule.TestIntFloat(4, 0.3));
         Assert.Equal(4.3, testModule.TestFloatInt(0.3, 4));
@@ -27,7 +22,12 @@ public class BasicTest
         Assert.Equal("hello world", testModule.TestTwoStrings("hello ", "world"));
         Assert.Equal(["hello", "world", "this", "is", "a", "test"], testModule.TestTwoListsOfStrings(["hello", "world"], ["this", "is", "a", "test"]));
 
-        var falseReturns = env.TestFalseReturns();
+
+    }
+
+    [Fact]
+    public void TestFalseReturnTypes() { 
+        var falseReturns = testEnv.Env.TestFalseReturns();
 
         // TODO: Standardise the exception that gets raised when the response type is invalid.
         Assert.Throws<InvalidCastException>(() => falseReturns.TestStrActuallyReturnsInt());
@@ -37,5 +37,15 @@ public class BasicTest
         Assert.Throws<TargetInvocationException>(() => falseReturns.TestTupleActuallyReturnsInt());
         Assert.Throws<TargetInvocationException>(() => falseReturns.TestTupleActuallyReturnsFloat());
         Assert.Throws<TargetInvocationException>(() => falseReturns.TestTupleActuallyReturnsList());
+    }
+
+    [Fact]
+    public void TestDefaults()
+    {
+        var testDefaults = testEnv.Env.TestDefaults();
+
+        Assert.Equal("hello", testDefaults.TestDefaultStrArg());
+        Assert.Equal(1337, testDefaults.TestDefaultIntArg());
+        Assert.Equal(-1, testDefaults.TestDefaultFloatArg());
     }
 }

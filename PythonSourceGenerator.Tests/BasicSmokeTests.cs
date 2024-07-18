@@ -26,6 +26,8 @@ namespace PythonSourceGenerator.Tests
         [InlineData("def hello_world(numbers: list[float]) -> list[int]:\n    ...\n", "IEnumerable<long> HelloWorld(IEnumerable<double> numbers)")]
         [InlineData("def hello_world(a: bool, b: str, c: list[tuple[int, float]]) -> bool: \n ...\n", "bool HelloWorld(bool a, string b, IEnumerable<Tuple<long, double>> c)")]
         [InlineData("def hello_world(a: bool = True, b: str = None) -> bool: \n ...\n", "bool HelloWorld(bool a = true, string b = null)")]
+        [InlineData("def hello_world(a: str, *args) -> None: \n ...\n", "void HelloWorld(string a, Tuple<PyObject> args = null)")]
+        [InlineData("def hello_world(a: str, *args, **kwargs) -> None: \n ...\n", "void HelloWorld(string a, Tuple<PyObject> args = null, IReadOnlyDictionary<string, PyObject> kwargs = null)")]
         public void TestGeneratedSignature(string code, string expected)
         {
             
@@ -34,7 +36,7 @@ namespace PythonSourceGenerator.Tests
 
             // create a Python scope
             PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
-
+            Assert.Empty(errors);
             var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test");
                 var csharp = module.Select(m => m.Syntax).Compile();
                 Assert.Contains(expected, csharp);

@@ -19,6 +19,7 @@ namespace PythonSourceGenerator.Tests
         [InlineData("def hello_world():\n    ...\n", "PyObject HelloWorld()")]
         [InlineData("def hello_world() -> None:\n    ...\n", "void HelloWorld()")]
         [InlineData("def hello_world(name): \n    ...\n", "PyObject HelloWorld(PyObject name)")]
+        [InlineData("def hello_world(new): \n    ...\n", "PyObject HelloWorld(PyObject @new)")]
         [InlineData("def hello_world(name: str) -> str:\n    ...\n", "string HelloWorld(string name)")]
         [InlineData("def hello_world(name: str) -> float:\n    ...\n", "double HelloWorld(string name)")]
         [InlineData("def hello_world(name: str) -> int:\n    ...\n", "long HelloWorld(string name)")]

@@ -13,6 +13,7 @@ public class ArgumentReflection
     public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter)
     {
         TypeSyntax reflectedType;
+
         // Treat *args as tuple<Any> and **kwargs as dict<str, Any>
         if (parameter.IsStar)
         {
@@ -32,9 +33,9 @@ public class ArgumentReflection
 
         if (parameter.DefaultValue == null)
         {
-            // TODO : Mangle reserved keyword identifiers, e.g. "new"
+
             return SyntaxFactory
-                .Parameter(SyntaxFactory.Identifier(parameter.Name.ToLowerPascalCase()))
+                .Parameter(SyntaxFactory.Identifier(Keywords.ValidIdentifier(parameter.Name.ToLowerPascalCase())))
                 .WithType(reflectedType);
         } else
         {
@@ -62,9 +63,8 @@ public class ArgumentReflection
                 // TODO : Handle other types?
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                             SyntaxKind.NullLiteralExpression);
-            // TODO : Mangle reserved keyword identifiers, e.g. "new"
             return SyntaxFactory
-                .Parameter(SyntaxFactory.Identifier(parameter.Name.ToLowerPascalCase()))
+                .Parameter(SyntaxFactory.Identifier(Keywords.ValidIdentifier(parameter.Name.ToLowerPascalCase())))
                 .WithType(reflectedType)
                 .WithDefault(SyntaxFactory.EqualsValueClause(literalExpressionSyntax));
 

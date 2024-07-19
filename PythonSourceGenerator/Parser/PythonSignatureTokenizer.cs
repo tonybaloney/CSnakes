@@ -8,14 +8,15 @@ public static class PythonSignatureTokenizer
     public static Tokenizer<PythonSignatureTokens.PythonSignatureToken> Instance { get; } =
         new TokenizerBuilder<PythonSignatureTokens.PythonSignatureToken>()
         .Ignore(Span.WhiteSpace)
+        .Ignore(Comment.ShellStyle)
         .Match(Character.EqualTo('('), PythonSignatureTokens.PythonSignatureToken.OpenParenthesis)
         .Match(Character.EqualTo(')'), PythonSignatureTokens.PythonSignatureToken.CloseParenthesis)
         .Match(Character.EqualTo('['), PythonSignatureTokens.PythonSignatureToken.OpenBracket)
         .Match(Character.EqualTo(']'), PythonSignatureTokens.PythonSignatureToken.CloseBracket)
         .Match(Character.EqualTo(':'), PythonSignatureTokens.PythonSignatureToken.Colon)
         .Match(Character.EqualTo(','), PythonSignatureTokens.PythonSignatureToken.Comma)
-        .Match(Character.EqualTo('*'), PythonSignatureTokens.PythonSignatureToken.Asterisk)
         .Match(Character.EqualTo('*').IgnoreThen(Character.EqualTo('*')), PythonSignatureTokens.PythonSignatureToken.DoubleAsterisk)
+        .Match(Character.EqualTo('*'), PythonSignatureTokens.PythonSignatureToken.Asterisk)
         .Match(Character.EqualTo('-').IgnoreThen(Character.EqualTo('>')), PythonSignatureTokens.PythonSignatureToken.Arrow)
         .Match(Character.EqualTo('/'), PythonSignatureTokens.PythonSignatureToken.Slash)
         .Match(Character.EqualTo('='), PythonSignatureTokens.PythonSignatureToken.Equal)
@@ -25,7 +26,7 @@ public static class PythonSignatureTokenizer
         .Match(Span.EqualTo("None"), PythonSignatureTokens.PythonSignatureToken.None, requireDelimiters: true)
         .Match(Span.EqualTo("True"), PythonSignatureTokens.PythonSignatureToken.True, requireDelimiters: true)
         .Match(Span.EqualTo("False"), PythonSignatureTokens.PythonSignatureToken.False, requireDelimiters: true)
-        .Match(Identifier.CStyle, PythonSignatureTokens.PythonSignatureToken.Identifier, requireDelimiters: true) // TODO: Does this require delimiters?
+        .Match(Identifier.CStyle, PythonSignatureTokens.PythonSignatureToken.Identifier, requireDelimiters: true) // TODO: (track) Does this require delimiters?
         .Match(PythonSignatureParser.IntegerConstantToken, PythonSignatureTokens.PythonSignatureToken.Integer, requireDelimiters: true)
         .Match(PythonSignatureParser.DecimalConstantToken, PythonSignatureTokens.PythonSignatureToken.Decimal, requireDelimiters: true)
         .Match(PythonSignatureParser.DoubleQuotedStringConstantToken, PythonSignatureTokens.PythonSignatureToken.DoubleQuotedString)

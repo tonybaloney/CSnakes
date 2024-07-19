@@ -41,7 +41,6 @@ public static class PythonSignatureParser
 
     static class ConstantParsers
     {
-        // TODO: See if we can combine these parsers
         public static TextParser<string> DoubleQuotedString { get; } =
             from open in Character.EqualTo('"')
             from chars in Character.ExceptIn('"', '\\')
@@ -71,7 +70,7 @@ public static class PythonSignatureParser
             from whole in Numerics.Natural.Select(n => int.Parse(n.ToStringValue()))
             select whole * sign ;
 
-        // TODO: This a copy from the JSON spec and probably doesn't reflect Python's other numeric literals like Hex and Real
+        // TODO: (track) This a copy from the JSON spec and probably doesn't reflect Python's other numeric literals like Hex and Real
         public static TextParser<double> Decimal { get; } =
             from sign in Character.EqualTo('-').Value(-1.0).OptionalOrDefault(1.0)
             from whole in Numerics.Natural.Select(n => double.Parse(n.ToStringValue()))
@@ -144,13 +143,16 @@ public static class PythonSignatureParser
         .Named("Constant");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter> PythonParameterTokenizer { get; } = 
-        (from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
+        (
+        from star in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Asterisk).Optional()
+        from doubleStar in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.DoubleAsterisk).Optional()
+        from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
         from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon).Optional()
         from type in PythonTypeDefinitionTokenizer.OptionalOrDefault()
         from defaultValue in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Equal).Optional().Then(
                 _ => ConstantValueTokenizer.OptionalOrDefault()
             )
-        select new PythonFunctionParameter { Name = name.ToStringValue(), Type = type, DefaultValue = defaultValue })
+        select new PythonFunctionParameter { Name = name.ToStringValue(), Type = type, DefaultValue = defaultValue, IsStar = star != null, IsDoubleStar = doubleStar != null })
         .Named("Parameter");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter[]> PythonParameterListTokenizer { get; } = 
@@ -169,27 +171,36 @@ public static class PythonSignatureParser
         select new PythonFunctionDefinition { Name = name.ToStringValue(), Parameters = parameters, ReturnType = arrow })
         .Named("Function Definition");
 
-    public static bool TryParseFunctionDefinitions(string source, out PythonFunctionDefinition[]? pythonSignatures, out string[] errors)
+    public static bool TryParseFunctionDefinitions(string source, out PythonFunctionDefinition[]? pythonSignatures, out GeneratorError[] errors)
     {
         List<PythonFunctionDefinition> functionDefinitions = [];
 
         // Go line by line
         var lines = source.Split(["\r\n", "\n"], StringSplitOptions.None);
-        var currentErrors = new List<string>();
-        List<string> functionLines = [];
+        var currentErrors = new List<GeneratorError>();
+        List<(int startLine, int endLine, string code)> functionLines = [];
         List<string> currentBuffer = [];
+        int currentBufferStartLine = -1;
         bool unfinishedFunctionSpec = false;
-        foreach (var line in lines)
+        for (int i = 0; i < lines.Length; i++)
         {
-            if (IsFunctionSignature(line) || unfinishedFunctionSpec)
+            if (IsFunctionSignature(lines[i]) || unfinishedFunctionSpec)
             {
-                currentBuffer.Add(line);
+                currentBuffer.Add(lines[i]);
+                if (currentBufferStartLine == -1)
+                {
+                    currentBufferStartLine = i;
+                }
                 // Parse the function signature
-                var result = PythonSignatureTokenizer.Instance.TryTokenize(line);
+                var result = PythonSignatureTokenizer.Instance.TryTokenize(lines[i]);
                 if (!result.HasValue)
                 {
-                    currentErrors.Add(result.ToString());
+                    // TODO: Work out end column and add to the other places in this function where it's raised
+                    currentErrors.Add(new GeneratorError(i, i, result.ErrorPosition.Column, result.ErrorPosition.Column, result.FormatErrorMessageFragment()));
+                    
+                    // Reset buffer
                     currentBuffer = [];
+                    currentBufferStartLine = -1;
                     unfinishedFunctionSpec = false;
                     continue;
                 }
@@ -197,9 +208,10 @@ public static class PythonSignatureParser
                 // If this is a function definition on one line..
                 if (result.Value.Last().Kind == PythonSignatureTokens.PythonSignatureToken.Colon)
                 {
-                    // TODO: Is an empty string the right joining character?
-                    functionLines.Add(string.Join("", currentBuffer));
+                    // TODO: (track) Is an empty string the right joining character?
+                    functionLines.Add((currentBufferStartLine, i, string.Join("", currentBuffer)));
                     currentBuffer = [];
+                    currentBufferStartLine = -1;
                     unfinishedFunctionSpec = false;
                     continue;
                 } else
@@ -210,11 +222,11 @@ public static class PythonSignatureParser
         }
         foreach (var line in functionLines)
         {
-            // TODO: This means we end up tokenizing the lines twice (one individually and again merged). Optimize.
-            var result = PythonSignatureTokenizer.Instance.TryTokenize(line);
+            // TODO: (track) This means we end up tokenizing the lines twice (one individually and again merged). Optimize.
+            var result = PythonSignatureTokenizer.Instance.TryTokenize(line.code);
             if (!result.HasValue)
             {
-                currentErrors.Add(result.ToString());
+                currentErrors.Add(new GeneratorError(line.startLine, line.endLine, result.ErrorPosition.Column, result.ErrorPosition.Column, result.FormatErrorMessageFragment()));
                 continue;
             }
             var functionDefinition = PythonFunctionDefinitionTokenizer.TryParse(result.Value);
@@ -225,7 +237,7 @@ public static class PythonSignatureParser
             else
             {
                 // Error parsing the function definition
-                currentErrors.Add(functionDefinition.ToString());
+                currentErrors.Add(new GeneratorError(line.startLine, line.endLine, functionDefinition.ErrorPosition.Column, functionDefinition.ErrorPosition.Column + 1, functionDefinition.FormatErrorMessageFragment()));
             }
         }
 

@@ -311,7 +311,7 @@ if __name__ == '__main__':
   xyz  = 1
         """;
         _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
-
+        Assert.Empty(errors);
         Assert.NotNull(functions);
         Assert.Equal(2, functions.Length);
         Assert.Equal("bar", functions[0].Name);
@@ -332,7 +332,7 @@ if __name__ == '__main__':
     [Fact]
     public void ParseMultiLineFunctionDefinition()
     {
-        var code = @"""
+        var code = @"
 import foo
 
 def bar(a: int, 
@@ -343,9 +343,9 @@ a = 1
 
 if __name__ == '__main__':
   xyz  = 1
-        """;
+        ";
         _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
-
+        Assert.Empty(errors);
         Assert.NotNull(functions);
         Assert.Single(functions);
         Assert.Equal("bar", functions[0].Name);
@@ -354,5 +354,63 @@ if __name__ == '__main__':
         Assert.Equal("b", functions[0].Parameters[1].Name);
         Assert.Equal("str", functions[0].Parameters[1].Type.Name);
         Assert.Equal("None", functions[0].ReturnType.Name);
+    }
+
+    [Fact]
+    public void ParseFunctionWithTrailingComment()
+    {
+        var code = @"def bar(a: int, b: str) -> None: # this is a comment
+    pass";
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+        Assert.Empty(errors);
+        Assert.NotNull(functions);
+        Assert.Single(functions);
+        Assert.Equal("bar", functions[0].Name);
+    }
+
+    [Fact]
+    public void ParseFunctionTrailingSpaceAfterColon()
+    {
+        var code = @"def bar(a: int, 
+        b: str) -> None:   
+    pass"; // There is a trailing space after None:
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+        Assert.Empty(errors);
+        Assert.NotNull(functions);
+        Assert.Single(functions);
+        Assert.Equal("bar", functions[0].Name);
+    }
+
+    [Fact]
+    public void ParseFunctionNoBlankLineAtEnd()
+    {
+        var code = @"def bar(a: int, 
+        b: str) -> None:
+    pass";
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+        Assert.Empty(errors);
+        Assert.NotNull(functions);
+        Assert.Single(functions);
+        Assert.Equal("bar", functions[0].Name);
+        Assert.Equal("a", functions[0].Parameters[0].Name);
+        Assert.Equal("int", functions[0].Parameters[0].Type.Name);
+        Assert.Equal("b", functions[0].Parameters[1].Name);
+        Assert.Equal("str", functions[0].Parameters[1].Type.Name);
+        Assert.Equal("None", functions[0].ReturnType.Name);
+    }
+
+    [Fact]
+    public void VerifyErrors()
+    {
+        var code = @"
+
+
+
+def bar(a: int, b:= str) -> None:
+    pass";
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+        Assert.NotEmpty(errors);
+        Assert.Equal(4, errors[0].StartLine);
+        Assert.Equal(4, errors[0].EndLine);
     }
 }

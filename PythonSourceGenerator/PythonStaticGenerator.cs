@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using PythonSourceGenerator.Parser;
 using PythonSourceGenerator.Reflection;
 using System;
@@ -24,7 +25,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             foreach (var file in inputFiles)
             {
                 // Add environment path
-                var @namespace = "Python.Generated"; // TODO : Infer from project
+                var @namespace = "Python.Generated"; // TODO: (track) Infer namespace from project
 
                 var fileName = Path.GetFileNameWithoutExtension(file.Path);
 
@@ -40,8 +41,9 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                 foreach (var error in errors)
                 {
-                    // TODO: Match source/target
-                    sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", $"{file.Path} : {error}", "PythonStaticGenerator", DiagnosticSeverity.Error, true), Location.None));
+                    // Update text span
+                    Location errorLocation = Location.Create(file.Path, TextSpan.FromBounds(0, 1), new LinePositionSpan(new LinePosition(error.StartLine, error.StartColumn), new LinePosition(error.EndLine, error.EndColumn)));
+                    sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error.Message, "PythonStaticGenerator", DiagnosticSeverity.Error, true), errorLocation));
                 }
 
                 if (result) { 

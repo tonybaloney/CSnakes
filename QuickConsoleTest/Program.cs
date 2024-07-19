@@ -35,3 +35,8 @@ var interiaResult = kmeansExample.CalculateKmeansInteria(data, 4);
 var centroids = JsonSerializer.Serialize(interiaResult.Item1);
 var interia = interiaResult.Item2;
 Console.WriteLine($"KMeans interia for 4 clusters is {centroids}, interia is {interia}");
+
+
+var phi3demo = env.Phi3Demo();
+// var result = phi3demo.Phi3InferenceDemo("What kind of food is Brie?");
+// Console.WriteLine(result);

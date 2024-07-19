@@ -8,6 +8,7 @@ public static class PythonSignatureTokenizer
     public static Tokenizer<PythonSignatureTokens.PythonSignatureToken> Instance { get; } =
         new TokenizerBuilder<PythonSignatureTokens.PythonSignatureToken>()
         .Ignore(Span.WhiteSpace)
+        .Ignore(Comment.ShellStyle)
         .Match(Character.EqualTo('('), PythonSignatureTokens.PythonSignatureToken.OpenParenthesis)
         .Match(Character.EqualTo(')'), PythonSignatureTokens.PythonSignatureToken.CloseParenthesis)
         .Match(Character.EqualTo('['), PythonSignatureTokens.PythonSignatureToken.OpenBracket)

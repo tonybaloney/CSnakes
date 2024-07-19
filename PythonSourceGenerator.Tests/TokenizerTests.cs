@@ -357,6 +357,18 @@ if __name__ == '__main__':
     }
 
     [Fact]
+    public void ParseFunctionWithTrailingComment()
+    {
+        var code = @"def bar(a: int, b: str) -> None: # this is a comment
+    pass";
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+        Assert.Empty(errors);
+        Assert.NotNull(functions);
+        Assert.Single(functions);
+        Assert.Equal("bar", functions[0].Name);
+    }
+
+    [Fact]
     public void ParseFunctionTrailingSpaceAfterColon()
     {
         var code = @"def bar(a: int, 

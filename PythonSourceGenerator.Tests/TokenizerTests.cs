@@ -247,16 +247,17 @@ public class TokenizerTests
     [Fact]
     public void ParseFunctionParameterKeywordOnly()
     {
-        var code = "(a: int, *, c: str = '')";
+        var code = "def foo(a: int, *, c: str = ''):";
         var tokens = PythonSignatureTokenizer.Instance.Tokenize(code);
-        var result = PythonSignatureParser.PythonParameterListTokenizer.TryParse(tokens);
+        var result = PythonSignatureParser.PythonFunctionDefinitionTokenizer.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value[0].Name);
-        Assert.Equal("int", result.Value[0].Type.Name);
-        Assert.Equal("b", result.Value[1].Name);
-        Assert.Equal("float", result.Value[1].Type.Name);
-        Assert.Equal("c", result.Value[2].Name);
-        Assert.Equal("str", result.Value[2].Type.Name);
+        Assert.Equal("a", result.Value.Parameters[0].Name);
+        Assert.Equal("int", result.Value.Parameters[0].Type.Name);
+        Assert.Equal("args", result.Value.Parameters[1].Name);
+        Assert.Equal("Any", result.Value.Parameters[1].Type.Name);
+        Assert.Equal("c", result.Value.Parameters[2].Name);
+        Assert.Equal("str", result.Value.Parameters[2].Type.Name);
+        Assert.True(result.Value.Parameters[2].IsKeywordOnly);
     }
 
     [Fact]

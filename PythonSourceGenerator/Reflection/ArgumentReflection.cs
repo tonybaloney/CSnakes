@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using PythonSourceGenerator.Parser.Types;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PythonSourceGenerator.Reflection;
 
@@ -15,25 +16,29 @@ public class ArgumentReflection
         TypeSyntax reflectedType;
 
         // Treat *args as tuple<Any> and **kwargs as dict<str, Any>
-        if (parameter.IsStar)
+        switch (parameter.ParameterType)
         {
-            reflectedType = TypeReflection.AsPredefinedType(TupleAny);
-            parameter.DefaultValue = new PythonConstant { IsNone = true };
+            case PythonFunctionParameterType.Star:
+                reflectedType = TypeReflection.AsPredefinedType(TupleAny);
+                parameter.DefaultValue = new PythonConstant { IsNone = true };
+                break;
+            case PythonFunctionParameterType.DoubleStar:
+                reflectedType = TypeReflection.AsPredefinedType(DictStrAny);
+                parameter.DefaultValue = new PythonConstant { IsNone = true };
+                break;
+            default:
+                reflectedType = TypeReflection.AsPredefinedType(parameter.Type);
+                break;
         }
-        else if (parameter.IsDoubleStar)
+
+        // Make keyword-only arguments default to None if they had no default arg (which is invalid Python anyway)
+        if (parameter.IsKeywordOnly && parameter.DefaultValue == null)
         {
-            reflectedType = TypeReflection.AsPredefinedType(DictStrAny);
             parameter.DefaultValue = new PythonConstant { IsNone = true };
-        }
-        else
-        {
-            reflectedType = TypeReflection.AsPredefinedType(parameter.Type);
-        
         }
 
         if (parameter.DefaultValue == null)
         {
-
             return SyntaxFactory
                 .Parameter(SyntaxFactory.Identifier(Keywords.ValidIdentifier(parameter.Name.ToLowerPascalCase())))
                 .WithType(reflectedType);

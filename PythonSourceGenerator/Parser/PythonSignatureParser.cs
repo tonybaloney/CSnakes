@@ -142,17 +142,44 @@ public static class PythonSignatureParser
         .Or(SingleQuotedStringConstantTokenizer.AsNullable())
         .Named("Constant");
 
+    public class PythonParameterType
+    {
+        public string Name { get; set; }
+        public PythonFunctionParameterType ParameterType { get; set; }
+    }
+
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonParameterType> PythonStarArgTokenizer { get; } =
+        (from star in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Asterisk)
+        from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier).Optional()
+        select new PythonParameterType { Name = name.HasValue ? name.Value.ToStringValue() : "args", ParameterType = PythonFunctionParameterType.Star })
+        .Named("Star Arg");
+
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonParameterType> PythonDoubleStarArgTokenizer { get; } =
+        (from star in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.DoubleAsterisk)
+        from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
+        select new PythonParameterType { Name = name.ToStringValue(), ParameterType = PythonFunctionParameterType.DoubleStar })
+        .Named("Double Star Arg");
+
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonParameterType> PythonNormalArgTokenizer { get; } =
+        (from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
+        select new PythonParameterType { Name = name.ToStringValue(), ParameterType = PythonFunctionParameterType.Normal })
+        .Named("Normal Arg");
+
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonParameterType> PythonArgTokenizer { get; } =
+        PythonStarArgTokenizer.AsNullable()
+        .Or(PythonDoubleStarArgTokenizer.AsNullable())
+        .Or(PythonNormalArgTokenizer.AsNullable())
+        .Named("Arg");
+
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter> PythonParameterTokenizer { get; } = 
         (
-        from star in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Asterisk).Optional()
-        from doubleStar in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.DoubleAsterisk).Optional()
-        from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
+        from arg in PythonArgTokenizer
         from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon).Optional()
         from type in PythonTypeDefinitionTokenizer.OptionalOrDefault()
         from defaultValue in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Equal).Optional().Then(
                 _ => ConstantValueTokenizer.OptionalOrDefault()
             )
-        select new PythonFunctionParameter { Name = name.ToStringValue(), Type = type, DefaultValue = defaultValue, IsStar = star != null, IsDoubleStar = doubleStar != null })
+        select new PythonFunctionParameter { Name = arg.Name, Type = type, DefaultValue = defaultValue, ParameterType = arg.ParameterType })
         .Named("Parameter");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter[]> PythonParameterListTokenizer { get; } = 

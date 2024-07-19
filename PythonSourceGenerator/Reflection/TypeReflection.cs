@@ -13,9 +13,9 @@ public static class TypeReflection
         // If type is an alias, e.g. "list[int]", "list[float]", etc.
         if (pythonType.HasArguments())
         {
-            var genericName = pythonType.Name;
+            var genericName = pythonType.Name.ToLowerInvariant();
             // Get last occurrence of ] in pythonType
-            return genericName.ToLower() switch
+            return genericName switch
             {
                 "list" => CreateListType(pythonType.Arguments[0]),
                 "tuple" => CreateTupleType(pythonType.Arguments),

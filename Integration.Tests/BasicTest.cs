@@ -67,17 +67,4 @@ public class BasicTest(TestEnvironment testEnv) : IClassFixture<TestEnvironment>
         var result3 = testDicts.TestDictStrDictInt(testDictDict);
         Assert.Equal(1, result3["hello"]["world"]);
     }
-
-    [Fact]
-    public void TestOldTypeBuiltinTypes()
-    {
-        var testTyping = testEnv.Env.TestTyping();
-
-        Assert.Equal([1, 2, 3], testTyping.TestOldListStyle([1, 2, 3]));
-
-        IReadOnlyDictionary<string, long> testDict = new Dictionary<string, long> { { "hello", 1 }, { "world", 2 } };
-        var result = testTyping.TestOldDictStyle(testDict);
-        Assert.Equal(1, result["hello"]);
-        Assert.Equal(2, result["world"]);
-    }
 }

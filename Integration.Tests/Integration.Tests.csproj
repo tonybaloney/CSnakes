@@ -14,7 +14,6 @@
     <None Remove="python\test_defaults.py" />
     <None Remove="python\test_dicts.py" />
     <None Remove="python\test_false_returns.py" />
-    <None Remove="python\test_typing.py" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,7 +29,6 @@
     <AdditionalFiles Include="python\test_false_returns.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
-    <AdditionalFiles Include="python\test_typing.py" />
   </ItemGroup>
 
   <ItemGroup>

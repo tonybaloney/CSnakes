@@ -1,6 +1,5 @@
 using Python.Generated;
 using Python.Runtime;
-using System.Collections.Immutable;
 using System.Reflection;
 
 namespace Integration.Tests;
@@ -22,8 +21,6 @@ public class BasicTest(TestEnvironment testEnv) : IClassFixture<TestEnvironment>
         Assert.Equal([1, 2, 3], testModule.TestListOfInts([1, 2, 3]));
         Assert.Equal("hello world", testModule.TestTwoStrings("hello ", "world"));
         Assert.Equal(["hello", "world", "this", "is", "a", "test"], testModule.TestTwoListsOfStrings(["hello", "world"], ["this", "is", "a", "test"]));
-
-
     }
 
     [Fact]
@@ -69,5 +66,13 @@ public class BasicTest(TestEnvironment testEnv) : IClassFixture<TestEnvironment>
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, long>> testDictDict = new Dictionary<string, IReadOnlyDictionary<string, long>> { { "hello", new Dictionary<string, long> { { "world", 1 } } } };
         var result3 = testDicts.TestDictStrDictInt(testDictDict);
         Assert.Equal(1, result3["hello"]["world"]);
+    }
+
+    [Fact]
+    public void TestOldTypeBuiltinTypes()
+    {
+        var testTyping = testEnv.Env.TestTyping();
+
+        Assert.Equal([1, 2, 3], testTyping.TestOldListStyle([1, 2, 3]));
     }
 }

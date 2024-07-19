@@ -13,7 +13,7 @@ public static class TypeReflection
         // If type is an alias, e.g. "list[int]", "list[float]", etc.
         if (pythonType.HasArguments())
         {
-            var genericName = pythonType.Name;
+            var genericName = pythonType.Name.ToLowerInvariant();
             // Get last occurrence of ] in pythonType
             return genericName switch
             {

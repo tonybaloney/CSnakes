@@ -19,7 +19,7 @@ public class CaseHelperTests
         Assert.Equal("helloWorld", CaseHelper.ToLowerPascalCase("hello_world"));
         Assert.Equal("hello_", CaseHelper.ToLowerPascalCase("hello_"));
         Assert.Equal("hello_World", CaseHelper.ToLowerPascalCase("hello__world"));
-        // TODO: This instance could arguably be _hello_World although the name is already weird
+        // TODO: (track) This instance could arguably be _hello_World although the name is already weird
         Assert.Equal("_Hello_World", CaseHelper.ToLowerPascalCase("_hello__world"));
     }
 }

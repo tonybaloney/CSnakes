@@ -25,7 +25,7 @@ public static class PythonSignatureTokenizer
         .Match(Span.EqualTo("None"), PythonSignatureTokens.PythonSignatureToken.None, requireDelimiters: true)
         .Match(Span.EqualTo("True"), PythonSignatureTokens.PythonSignatureToken.True, requireDelimiters: true)
         .Match(Span.EqualTo("False"), PythonSignatureTokens.PythonSignatureToken.False, requireDelimiters: true)
-        .Match(Identifier.CStyle, PythonSignatureTokens.PythonSignatureToken.Identifier, requireDelimiters: true) // TODO: Does this require delimiters?
+        .Match(Identifier.CStyle, PythonSignatureTokens.PythonSignatureToken.Identifier, requireDelimiters: true) // TODO: (track) Does this require delimiters?
         .Match(PythonSignatureParser.IntegerConstantToken, PythonSignatureTokens.PythonSignatureToken.Integer, requireDelimiters: true)
         .Match(PythonSignatureParser.DecimalConstantToken, PythonSignatureTokens.PythonSignatureToken.Decimal, requireDelimiters: true)
         .Match(PythonSignatureParser.DoubleQuotedStringConstantToken, PythonSignatureTokens.PythonSignatureToken.DoubleQuotedString)

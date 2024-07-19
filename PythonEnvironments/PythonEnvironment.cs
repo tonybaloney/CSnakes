@@ -49,8 +49,8 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
         var versionPath = MapVersion(version);
         var windowsStorePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Python", "Python" + versionPath);
         var officialInstallerPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Python", MapVersion(version, "."));
-        // TODO: Locate from PATH
-        // TODO: Add standard paths for Linux and MacOS
+        // TODO: (track) Locate from PATH
+        // TODO: (track) Add standard paths for Linux and MacOS
         if (Directory.Exists(windowsStorePath))
         {
             return windowsStorePath;
@@ -115,7 +115,7 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
             }
             else
             {
-                // TODO: C extension path for linux/macos
+                // TODO: (track) C extension path for linux/macos
             }
 
             if (extraPath.Length > 0)

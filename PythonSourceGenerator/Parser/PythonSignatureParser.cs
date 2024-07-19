@@ -41,7 +41,6 @@ public static class PythonSignatureParser
 
     static class ConstantParsers
     {
-        // TODO: See if we can combine these parsers
         public static TextParser<string> DoubleQuotedString { get; } =
             from open in Character.EqualTo('"')
             from chars in Character.ExceptIn('"', '\\')
@@ -71,7 +70,7 @@ public static class PythonSignatureParser
             from whole in Numerics.Natural.Select(n => int.Parse(n.ToStringValue()))
             select whole * sign ;
 
-        // TODO: This a copy from the JSON spec and probably doesn't reflect Python's other numeric literals like Hex and Real
+        // TODO: (track) This a copy from the JSON spec and probably doesn't reflect Python's other numeric literals like Hex and Real
         public static TextParser<double> Decimal { get; } =
             from sign in Character.EqualTo('-').Value(-1.0).OptionalOrDefault(1.0)
             from whole in Numerics.Natural.Select(n => double.Parse(n.ToStringValue()))
@@ -200,7 +199,7 @@ public static class PythonSignatureParser
                 // If this is a function definition on one line..
                 if (result.Value.Last().Kind == PythonSignatureTokens.PythonSignatureToken.Colon)
                 {
-                    // TODO: Is an empty string the right joining character?
+                    // TODO: (track) Is an empty string the right joining character?
                     functionLines.Add(string.Join("", currentBuffer));
                     currentBuffer = [];
                     unfinishedFunctionSpec = false;
@@ -213,7 +212,7 @@ public static class PythonSignatureParser
         }
         foreach (var line in functionLines)
         {
-            // TODO: This means we end up tokenizing the lines twice (one individually and again merged). Optimize.
+            // TODO: (track) This means we end up tokenizing the lines twice (one individually and again merged). Optimize.
             var result = PythonSignatureTokenizer.Instance.TryTokenize(line);
             if (!result.HasValue)
             {

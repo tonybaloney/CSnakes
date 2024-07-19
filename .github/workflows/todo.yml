@@ -1,7 +1,7 @@
 name: "Run TODO to Issue"
 on:
   push:
-    branches: [ "codegen" ]
+    branches: [ "main" ]
 jobs:
   build:
     runs-on: "ubuntu-latest"

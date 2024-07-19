@@ -22,7 +22,7 @@ public class IntegrationTests : IClassFixture<TestEnvironment>
 
         // create a Python scope
         PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
-
+        Assert.Empty(errors);
         var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test");
         var csharp = module.Select(m => m.Syntax).Compile();
 

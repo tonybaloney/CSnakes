@@ -311,7 +311,7 @@ if __name__ == '__main__':
   xyz  = 1
         """;
         _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
-
+        Assert.Empty(errors);
         Assert.NotNull(functions);
         Assert.Equal(2, functions.Length);
         Assert.Equal("bar", functions[0].Name);
@@ -345,7 +345,7 @@ if __name__ == '__main__':
   xyz  = 1
         ";
         _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
-
+        Assert.Empty(errors);
         Assert.NotNull(functions);
         Assert.Single(functions);
         Assert.Equal("bar", functions[0].Name);
@@ -363,7 +363,7 @@ if __name__ == '__main__':
         b: str) -> None:   
     pass"; // There is a trailing space after None:
         _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
-
+        Assert.Empty(errors);
         Assert.NotNull(functions);
         Assert.Single(functions);
         Assert.Equal("bar", functions[0].Name);
@@ -376,7 +376,7 @@ if __name__ == '__main__':
         b: str) -> None:
     pass";
         _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
-
+        Assert.Empty(errors);
         Assert.NotNull(functions);
         Assert.Single(functions);
         Assert.Equal("bar", functions[0].Name);
@@ -385,5 +385,20 @@ if __name__ == '__main__':
         Assert.Equal("b", functions[0].Parameters[1].Name);
         Assert.Equal("str", functions[0].Parameters[1].Type.Name);
         Assert.Equal("None", functions[0].ReturnType.Name);
+    }
+
+    [Fact]
+    public void VerifyErrors()
+    {
+        var code = @"
+
+
+
+def bar(a: int, b:= str) -> None:
+    pass";
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+        Assert.NotEmpty(errors);
+        Assert.Equal(4, errors[0].StartLine);
+        Assert.Equal(4, errors[0].EndLine);
     }
 }

@@ -332,7 +332,7 @@ if __name__ == '__main__':
     [Fact]
     public void ParseMultiLineFunctionDefinition()
     {
-        var code = @"""
+        var code = @"
 import foo
 
 def bar(a: int, 
@@ -343,7 +343,7 @@ a = 1
 
 if __name__ == '__main__':
   xyz  = 1
-        """;
+        ";
         _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
 
         Assert.NotNull(functions);
@@ -357,11 +357,24 @@ if __name__ == '__main__':
     }
 
     [Fact]
+    public void ParseFunctionTrailingSpaceAfterColon()
+    {
+        var code = @"def bar(a: int, 
+        b: str) -> None:   
+    pass"; // There is a trailing space after None:
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+
+        Assert.NotNull(functions);
+        Assert.Single(functions);
+        Assert.Equal("bar", functions[0].Name);
+    }
+
+    [Fact]
     public void ParseFunctionNoBlankLineAtEnd()
     {
-        var code = @"""def bar(a: int, 
+        var code = @"def bar(a: int, 
         b: str) -> None:
-    pass""";
+    pass";
         _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
 
         Assert.NotNull(functions);

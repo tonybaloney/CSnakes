@@ -15,7 +15,7 @@ public static class TypeReflection
         {
             var genericName = pythonType.Name;
             // Get last occurrence of ] in pythonType
-            return genericName switch
+            return genericName.ToLower() switch
             {
                 "list" => CreateListType(pythonType.Arguments[0]),
                 "tuple" => CreateTupleType(pythonType.Arguments),

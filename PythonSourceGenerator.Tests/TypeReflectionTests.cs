@@ -32,4 +32,27 @@ public class TypeReflectionTests
         var reflectedType = TypeReflection.AsPredefinedType(result.Value);
         Assert.Equal(expectedType, reflectedType.ToString());
     }
+
+    [Theory]
+    [InlineData("List[int]", "IEnumerable<long>")]
+    [InlineData("List[str]", "IEnumerable<string>")]
+    [InlineData("List[float]", "IEnumerable<double>")]
+    [InlineData("List[bool]", "IEnumerable<bool>")]
+    [InlineData("List[object]", "IEnumerable<PyObject>")]
+    [InlineData("Tuple[int, int]", "Tuple<long,long>")]
+    [InlineData("Tuple[str, str]", "Tuple<string,string>")]
+    [InlineData("Tuple[float, float]", "Tuple<double,double>")]
+    [InlineData("Tuple[bool, bool]", "Tuple<bool,bool>")]
+    [InlineData("Tuple[str, Any]", "Tuple<string,PyObject>")]
+    [InlineData("Tuple[str, list[int]]", "Tuple<string,IEnumerable<long>>")]
+    [InlineData("Dict[str, int]", "IReadOnlyDictionary<string,long>")]
+    [InlineData("Tuple[int, int, Tuple[int, int]]", "Tuple<long,long,Tuple<long,long>>")]
+    public void AsPredefinedTypeOldTypeNames(string pythonType, string expectedType)
+    {
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonSignatureParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        var reflectedType = TypeReflection.AsPredefinedType(result.Value);
+        Assert.Equal(expectedType, reflectedType.ToString());
+    }
 }

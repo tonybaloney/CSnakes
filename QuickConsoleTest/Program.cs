@@ -6,7 +6,7 @@ using System.Text.Json;
 Console.WriteLine("Hello, World!");
 var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
 var builder = new PythonEnvironment(
-    Environment.GetEnvironmentVariable("USERPROFILE") + "\\.nuget\\packages\\python\\3.12.4\\tools",
+    userProfile + "\\.nuget\\packages\\python\\3.12.4\\tools",
     "3.12.4")
     .WithVirtualEnvironment(Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency", ".venv"));
 
@@ -14,7 +14,7 @@ using var env = builder.Build(Path.Join(Environment.CurrentDirectory, "..", ".."
 
 var quickDemo = env.QuickDemo();
 Console.WriteLine(quickDemo.Scream("a", 99));
-Console.WriteLine(string.Join(',', quickDemo.ScreamNames(new List<string> { "a", "b", "c" }, 3)));
+Console.WriteLine(string.Join(',', quickDemo.ScreamNames(["a", "b", "c"], 3)));
 
 var dict = env.TypeDemos().ReturnDict();
 
@@ -26,15 +26,15 @@ foreach ((string key, long value) in dict)
 env.TypeDemos().TakeDict(dict);
 // That was boring, how about scikit-learn
 var kmeansExample = env.KmeansExample();
-List<Tuple<long, long>> data = [
-    new (1, 2), new (1, 4), new (1, 0),
-        new (10, 2), new (10, 4), new (10, 0)
+List<(long, long)> data = [
+    (1, 2), (1, 4), (1, 0),
+        (10, 2), (10, 4), (10, 0)
 ];
 
-var interiaResult = kmeansExample.CalculateKmeansInteria(data, 4);
-var centroids = JsonSerializer.Serialize(interiaResult.Item1);
-var interia = interiaResult.Item2;
-Console.WriteLine($"KMeans interia for 4 clusters is {centroids}, interia is {interia}");
+var inertiaResult = kmeansExample.CalculateKmeansInertia(data, 4);
+var centroids = JsonSerializer.Serialize(inertiaResult.Item1);
+var inertia = inertiaResult.Item2;
+Console.WriteLine($"KMeans inertia for 4 clusters is {centroids}, inertia is {inertia}");
 
 
 var phi3demo = env.Phi3Demo();

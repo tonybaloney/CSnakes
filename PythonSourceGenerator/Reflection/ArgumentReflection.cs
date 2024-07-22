@@ -30,9 +30,17 @@ public class ArgumentReflection
         {
             LiteralExpressionSyntax literalExpressionSyntax;
             if (parameter.DefaultValue.IsInteger)
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
+            {
+                // Downcast long to int if the value is small as the code is more readable without the L suffix
+                if (parameter.DefaultValue.IntegerValue <= int.MaxValue && parameter.DefaultValue.IntegerValue >= int.MinValue)
+                    literalExpressionSyntax = SyntaxFactory.LiteralExpression(
+                                                            SyntaxKind.NumericLiteralExpression,
+                                                            SyntaxFactory.Literal((int)parameter.DefaultValue.IntegerValue));
+                else
+                    literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                             SyntaxKind.NumericLiteralExpression,
                                                             SyntaxFactory.Literal(parameter.DefaultValue.IntegerValue));
+            }
             else if (parameter.DefaultValue.IsString && parameter.DefaultValue.StringValue is not null)
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                             SyntaxKind.StringLiteralExpression,

@@ -1,7 +1,4 @@
 ﻿using Python.Runtime;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -9,15 +6,9 @@ namespace PythonEnvironments.CustomConverters;
 
 public class TupleConverter : IPyObjectEncoder, IPyObjectDecoder
 {
-    public bool CanDecode(PyType objectType, Type targetType)
-    {
-        return typeof(ITuple).IsAssignableFrom(targetType);
-    }
+    public bool CanDecode(PyType objectType, Type targetType) => typeof(ITuple).IsAssignableFrom(targetType);
 
-    public bool CanEncode(Type type)
-    {
-        return typeof(ITuple).IsAssignableFrom(type);
-    }
+    public bool CanEncode(Type type) => typeof(ITuple).IsAssignableFrom(type);
 
     public bool TryDecode<T>(PyObject pyObj, out T value)
     {

@@ -29,27 +29,54 @@ public class ArgumentReflection
         else
         {
             LiteralExpressionSyntax literalExpressionSyntax;
-            if (parameter.DefaultValue.IsInteger)
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
-                                                            SyntaxKind.NumericLiteralExpression,
-                                                            SyntaxFactory.Literal(parameter.DefaultValue.IntegerValue));
-            else if (parameter.DefaultValue.IsString && parameter.DefaultValue.StringValue is not null)
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
+
+            switch (parameter.DefaultValue.Type)
+            {
+                case PythonConstant.ConstantType.Integer:
+                    // Downcast long to int if the value is small as the code is more readable without the L suffix
+                    if (parameter.DefaultValue.IntegerValue <= int.MaxValue && parameter.DefaultValue.IntegerValue >= int.MinValue)
+                        literalExpressionSyntax = SyntaxFactory.LiteralExpression(
+                                                                SyntaxKind.NumericLiteralExpression,
+                                                                SyntaxFactory.Literal((int)parameter.DefaultValue.IntegerValue));
+                    else
+                        literalExpressionSyntax = SyntaxFactory.LiteralExpression(
+                                                                SyntaxKind.NumericLiteralExpression,
+                                                                SyntaxFactory.Literal(parameter.DefaultValue.IntegerValue));
+                    break;
+                case PythonConstant.ConstantType.String:
+                    literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                             SyntaxKind.StringLiteralExpression,
                                                             SyntaxFactory.Literal(parameter.DefaultValue.StringValue));
-            else if (parameter.DefaultValue.IsFloat)
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
+                    break;
+                case PythonConstant.ConstantType.Float:
+                    literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                             SyntaxKind.NumericLiteralExpression,
                                                             SyntaxFactory.Literal(parameter.DefaultValue.FloatValue));
-            else if (parameter.DefaultValue.IsBool && parameter.DefaultValue.BoolValue == true)
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression);
-            else if (parameter.DefaultValue.IsBool && parameter.DefaultValue.BoolValue == false)
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression);
-            else if (parameter.DefaultValue.IsNone)
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
-            else
-                // TODO : Handle other types?
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+                    break;
+                case PythonConstant.ConstantType.Bool:
+                    literalExpressionSyntax = parameter.DefaultValue.BoolValue
+                        ? SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression)
+                        : SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression);
+                    break;
+                case PythonConstant.ConstantType.None:
+                    literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+                    break;
+                case PythonConstant.ConstantType.HexidecimalInteger:
+                    literalExpressionSyntax = SyntaxFactory.LiteralExpression(
+                                                            SyntaxKind.NumericLiteralExpression,
+                                                            SyntaxFactory.Literal(string.Format("0x{0:X}", parameter.DefaultValue.IntegerValue), parameter.DefaultValue.IntegerValue));
+                    break;
+                case PythonConstant.ConstantType.BinaryInteger:
+                    literalExpressionSyntax = SyntaxFactory.LiteralExpression(
+                                                            SyntaxKind.NumericLiteralExpression,
+                                                            SyntaxFactory.Literal(string.Format("0b{0}", Convert.ToString(parameter.DefaultValue.IntegerValue, 2)), parameter.DefaultValue.IntegerValue));
+                    break;
+                default:
+                    literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+                    break;
+            }
+
+
             return SyntaxFactory
                 .Parameter(SyntaxFactory.Identifier(Keywords.ValidIdentifier(parameter.Name.ToLowerPascalCase())))
                 .WithType(reflectedType)

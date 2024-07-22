@@ -32,15 +32,11 @@ namespace PythonSourceGenerator.Tests
         [InlineData("def hello_world(a: str, *, b: int) -> None: \n ...\n", "void HelloWorld(string a, ValueTuple<PyObject> args, long b)")]
         [InlineData("def hello_world(a: str, *, b: int = 3) -> None: \n ...\n", "void HelloWorld(string a, ValueTuple<PyObject> args, long b = 3)")]
         [InlineData("def hello_world(a: str, *args, **kwargs) -> None: \n ...\n", "void HelloWorld(string a, ValueTuple<PyObject> args, IReadOnlyDictionary<string, PyObject> kwargs)")]
-        [InlineData("def hello_world(a: str, *args) -> None: \n ...\n", "void HelloWorld(string a, Tuple<PyObject> args)")]
         [InlineData("def hello(a: int = 0xdeadbeef) -> None:\n ...\n", "void Hello(long a = 0xDEADBEEF)")]
         [InlineData("def hello(a: int = 0b10101010) -> None:\n ...\n", "void Hello(long a = 0b10101010)")]
-        [InlineData("def hello_world(a: str, *, b: int) -> None: \n ...\n", "void HelloWorld(string a, Tuple<PyObject> args, long b)")]
-        [InlineData("def hello_world(a: str, *, b: int = 3) -> None: \n ...\n", "void HelloWorld(string a, Tuple<PyObject> args, long b = 3)")]
-        [InlineData("def hello_world(a: str, *args, **kwargs) -> None: \n ...\n", "void HelloWorld(string a, Tuple<PyObject> args, IReadOnlyDictionary<string, PyObject> kwargs)")]
         public void TestGeneratedSignature(string code, string expected)
         {
-            
+
             var tempName = string.Format("{0}_{1:N}", "test", Guid.NewGuid().ToString("N"));
             File.WriteAllText(Path.Combine(testEnv.TempDir, $"{tempName}.py"), code);
 
@@ -48,27 +44,27 @@ namespace PythonSourceGenerator.Tests
             PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
             Assert.Empty(errors);
             var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test");
-                var csharp = module.Select(m => m.Syntax).Compile();
-                Assert.Contains(expected, csharp);
+            var csharp = module.Select(m => m.Syntax).Compile();
+            Assert.Contains(expected, csharp);
 
-                // Check that the sample C# code compiles
-                string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module);
-                var tree = CSharpSyntaxTree.ParseText(compiledCode);
-                var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-                    .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
-                    .AddReferences(MetadataReference.CreateFromFile(typeof(IEnumerable<>).Assembly.Location))
-                    .AddReferences(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location))
-                    .AddReferences(MetadataReference.CreateFromFile(typeof(IReadOnlyDictionary<,>).Assembly.Location))
-                    .AddReferences(MetadataReference.CreateFromFile(typeof(PythonEnvironments.PythonEnvironment).Assembly.Location))
-                    .AddReferences(MetadataReference.CreateFromFile(typeof(Py).Assembly.Location))
-                    .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "netstandard").Location)) // TODO: (track) Ensure 2.0
-                    .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Runtime").Location)) 
-                    .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Collections").Location)) 
-                    .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Linq.Expressions").Location)) 
+            // Check that the sample C# code compiles
+            string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module);
+            var tree = CSharpSyntaxTree.ParseText(compiledCode);
+            var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+                .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
+                .AddReferences(MetadataReference.CreateFromFile(typeof(IEnumerable<>).Assembly.Location))
+                .AddReferences(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location))
+                .AddReferences(MetadataReference.CreateFromFile(typeof(IReadOnlyDictionary<,>).Assembly.Location))
+                .AddReferences(MetadataReference.CreateFromFile(typeof(PythonEnvironments.PythonEnvironment).Assembly.Location))
+                .AddReferences(MetadataReference.CreateFromFile(typeof(Py).Assembly.Location))
+                .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "netstandard").Location)) // TODO: (track) Ensure 2.0
+                .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Runtime").Location))
+                .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Collections").Location))
+                .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Linq.Expressions").Location))
 
-                    .AddSyntaxTrees(tree);
-                var result = compilation.Emit(testEnv.TempDir + "/HelloWorld.dll");
-                Assert.True(result.Success, compiledCode + "\n" + string.Join("\n", result.Diagnostics));
+                .AddSyntaxTrees(tree);
+            var result = compilation.Emit(testEnv.TempDir + "/HelloWorld.dll");
+            Assert.True(result.Success, compiledCode + "\n" + string.Join("\n", result.Diagnostics));
         }
     }
 }

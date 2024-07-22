@@ -2,28 +2,29 @@
 
 namespace Integration.Tests;
 
-public class TupleTests(TestEnvironment env) : IClassFixture<TestEnvironment>
+public partial class BasicTest
 {
     [Fact]
     public void RunTests()
     {
-        SingleTupleValue(env.Env.TestTuples());
-        TwoTupleValues(env.Env.TestTuples());
-        ThreeTupleValues(env.Env.TestTuples());
-        FourTupleValues(env.Env.TestTuples());
-        FiveTupleValues(env.Env.TestTuples());
-        SixTupleValues(env.Env.TestTuples());
-        SevenTupleValues(env.Env.TestTuples());
-        EightTupleValues(env.Env.TestTuples());
-        NineTupleValues(env.Env.TestTuples());
-        TenTupleValues(env.Env.TestTuples());
-        ElevenTupleValues(env.Env.TestTuples());
-        TwelveTupleValues(env.Env.TestTuples());
-        ThirteenTupleValues(env.Env.TestTuples());
-        FourteenTupleValues(env.Env.TestTuples());
-        FifteenTupleValues(env.Env.TestTuples());
-        SixteenTupleValues(env.Env.TestTuples());
-        SeventeenTupleValues(env.Env.TestTuples());
+        ITestTuples testTuples = testEnv.Env.TestTuples();
+        SingleTupleValue(testTuples);
+        TwoTupleValues(testTuples);
+        ThreeTupleValues(testTuples);
+        FourTupleValues(testTuples);
+        FiveTupleValues(testTuples);
+        SixTupleValues(testTuples);
+        SevenTupleValues(testTuples);
+        EightTupleValues(testTuples);
+        NineTupleValues(testTuples);
+        TenTupleValues(testTuples);
+        ElevenTupleValues(testTuples);
+        TwelveTupleValues(testTuples);
+        ThirteenTupleValues(testTuples);
+        FourteenTupleValues(testTuples);
+        FifteenTupleValues(testTuples);
+        SixteenTupleValues(testTuples);
+        SeventeenTupleValues(testTuples);
     }
 
     private static void SingleTupleValue(ITestTuples testTuples)

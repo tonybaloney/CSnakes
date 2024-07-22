@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Integration.Tests;
 
-public class BasicTest(TestEnvironment testEnv) : IClassFixture<TestEnvironment>
+public partial class BasicTest(TestEnvironment testEnv) : IClassFixture<TestEnvironment>
 {
     TestEnvironment testEnv = testEnv;
 

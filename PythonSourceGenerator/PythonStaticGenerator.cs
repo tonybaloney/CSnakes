@@ -118,7 +118,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 {
                     "IEnumerable" => $"ListConverter{genericArg.TypeArgumentList}",
                     "IReadOnlyDictionary" => $"DictionaryConverter{genericArg.TypeArgumentList}",
-                    "Tuple" => "TupleConverter",
+                    "ValueTuple" => "TupleConverter",
                     _ => throw new NotImplementedException($"No converter for {identifier}")
                 };
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using PythonSourceGenerator.Parser.Types;
 
@@ -40,16 +41,21 @@ public static class TypeReflection
 
     private static TypeSyntax CreateTupleType(PythonTypeSpec[] tupleTypes)
     {
-        var tupleTypeSyntax = new TypeSyntax[tupleTypes.Length];
-        if (tupleTypes.Length > 8) // TODO: (track) Implement up to 21
+        if (tupleTypes.Length == 1)
         {
-            throw new NotSupportedException("Maximum tuple items is 8");
+            return CreateGenericType("ValueTuple", tupleTypes.Select(AsPredefinedType));
         }
-        for (int i = 0; i < tupleTypes.Length; i++)
-        {
-            tupleTypeSyntax[i] = AsPredefinedType(tupleTypes[i]);
-        }
-        return CreateGenericType("Tuple", tupleTypeSyntax);
+
+        IEnumerable<TupleElementSyntax> tupleTypeSyntaxGroups = tupleTypes.Select((x, i) => new { Index = i, Value = x })
+            .GroupBy(x => x.Index / 7)
+            .Select(x => x.Select(v => v.Value))
+            .Select(typeSpecs => typeSpecs.Select(AsPredefinedType))
+            .SelectMany(item => item.Select(SyntaxFactory.TupleElement));
+
+        return SyntaxFactory.TupleType(
+            SyntaxFactory.Token(SyntaxKind.OpenParenToken),
+            SyntaxFactory.SeparatedList(tupleTypeSyntaxGroups),
+            SyntaxFactory.Token(SyntaxKind.CloseParenToken));
     }
 
     private static TypeSyntax CreateListType(PythonTypeSpec genericOf) => CreateGenericType("IEnumerable", [AsPredefinedType(genericOf)]);

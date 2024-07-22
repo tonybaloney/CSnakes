@@ -29,6 +29,8 @@ public static class PythonSignatureTokenizer
         .Match(Identifier.CStyle, PythonSignatureTokens.PythonSignatureToken.Identifier, requireDelimiters: true) // TODO: (track) Does this require delimiters?
         .Match(PythonSignatureParser.IntegerConstantToken, PythonSignatureTokens.PythonSignatureToken.Integer, requireDelimiters: true)
         .Match(PythonSignatureParser.DecimalConstantToken, PythonSignatureTokens.PythonSignatureToken.Decimal, requireDelimiters: true)
+        .Match(PythonSignatureParser.HexidecimalConstantToken, PythonSignatureTokens.PythonSignatureToken.HexidecimalInteger, requireDelimiters: true)
+        .Match(PythonSignatureParser.BinaryConstantToken, PythonSignatureTokens.PythonSignatureToken.BinaryInteger, requireDelimiters: true)
         .Match(PythonSignatureParser.DoubleQuotedStringConstantToken, PythonSignatureTokens.PythonSignatureToken.DoubleQuotedString)
         .Match(PythonSignatureParser.SingleQuotedStringConstantToken, PythonSignatureTokens.PythonSignatureToken.SingleQuotedString)
         .Build();

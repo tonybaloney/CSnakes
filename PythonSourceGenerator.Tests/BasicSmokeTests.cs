@@ -32,6 +32,12 @@ namespace PythonSourceGenerator.Tests
         [InlineData("def hello_world(a: str, *, b: int) -> None: \n ...\n", "void HelloWorld(string a, ValueTuple<PyObject> args, long b)")]
         [InlineData("def hello_world(a: str, *, b: int = 3) -> None: \n ...\n", "void HelloWorld(string a, ValueTuple<PyObject> args, long b = 3)")]
         [InlineData("def hello_world(a: str, *args, **kwargs) -> None: \n ...\n", "void HelloWorld(string a, ValueTuple<PyObject> args, IReadOnlyDictionary<string, PyObject> kwargs)")]
+        [InlineData("def hello_world(a: str, *args) -> None: \n ...\n", "void HelloWorld(string a, Tuple<PyObject> args)")]
+        [InlineData("def hello(a: int = 0xdeadbeef) -> None:\n ...\n", "void Hello(long a = 0xDEADBEEF)")]
+        [InlineData("def hello(a: int = 0b10101010) -> None:\n ...\n", "void Hello(long a = 0b10101010)")]
+        [InlineData("def hello_world(a: str, *, b: int) -> None: \n ...\n", "void HelloWorld(string a, Tuple<PyObject> args, long b)")]
+        [InlineData("def hello_world(a: str, *, b: int = 3) -> None: \n ...\n", "void HelloWorld(string a, Tuple<PyObject> args, long b = 3)")]
+        [InlineData("def hello_world(a: str, *args, **kwargs) -> None: \n ...\n", "void HelloWorld(string a, Tuple<PyObject> args, IReadOnlyDictionary<string, PyObject> kwargs)")]
         public void TestGeneratedSignature(string code, string expected)
         {
             

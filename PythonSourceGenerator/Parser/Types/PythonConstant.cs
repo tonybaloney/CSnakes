@@ -3,7 +3,7 @@
 public class PythonConstant
 {
     public bool IsInteger { get; set; }
-    public int IntegerValue { get; set; }
+    public long IntegerValue { get; set; }
 
     public bool IsString { get; set; }
     public string? StringValue { get; set; }

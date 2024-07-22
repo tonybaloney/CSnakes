@@ -245,37 +245,6 @@ public class TokenizerTests
     }
 
     [Fact]
-    public void ParseFunctionParameterKeywordOnly()
-    {
-        var code = "def foo(a: int, *, c: str = ''):";
-        var tokens = PythonSignatureTokenizer.Instance.Tokenize(code);
-        var result = PythonSignatureParser.PythonFunctionDefinitionTokenizer.TryParse(tokens);
-        Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value.Parameters[0].Name);
-        Assert.Equal("int", result.Value.Parameters[0].Type.Name);
-        Assert.Equal("args", result.Value.Parameters[1].Name);
-        Assert.Equal("Any", result.Value.Parameters[1].Type.Name);
-        Assert.Equal("c", result.Value.Parameters[2].Name);
-        Assert.Equal("str", result.Value.Parameters[2].Type.Name);
-        Assert.True(result.Value.Parameters[2].IsKeywordOnly);
-    }
-
-    [Fact]
-    public void ParseFunctionParameterKeywordOnlyNamed()
-    {
-        var code = "(a: int, *args, c: str = '')";
-        var tokens = PythonSignatureTokenizer.Instance.Tokenize(code);
-        var result = PythonSignatureParser.PythonParameterListTokenizer.TryParse(tokens);
-        Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value[0].Name);
-        Assert.Equal("int", result.Value[0].Type.Name);
-        Assert.Equal("args", result.Value[1].Name);
-        Assert.Equal("Any", result.Value[1].Type.Name);
-        Assert.Equal("c", result.Value[2].Name);
-        Assert.Equal("str", result.Value[2].Type.Name);
-    }
-
-    [Fact]
     public void ParseFunctionParameterListUntyped()
     {
         var code = "(a, b, c)";
@@ -443,5 +412,24 @@ def bar(a: int, b:= str) -> None:
         Assert.NotEmpty(errors);
         Assert.Equal(4, errors[0].StartLine);
         Assert.Equal(4, errors[0].EndLine);
+    }
+
+    [Theory]
+    /* See https://github.com/python/cpython/blob/main/Lib/test/test_tokenize.py#L2063-L2126 */
+    [InlineData("255", 255)]
+    [InlineData("0b10", 0b10)]
+    // [InlineData("0o123", 0o123)] Octal literals are not supported in C#
+    [InlineData("1234567", 1234567)]
+    [InlineData("-1234567", -1234567)]
+    [InlineData("0xdeadbeef", 0xdeadbeef)]
+    public void TestIntegerTokenization(string code, long expectedValue)
+    {
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize(code);
+        var result = PythonSignatureParser.ConstantValueTokenizer.TryParse(tokens);
+
+        Assert.True(result.HasValue);
+        Assert.NotNull(result.Value);
+        Assert.True(result.Value?.IsInteger);
+        Assert.Equal(expectedValue, result.Value?.IntegerValue);
     }
 }

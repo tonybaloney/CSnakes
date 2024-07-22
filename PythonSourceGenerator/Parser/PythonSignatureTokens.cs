@@ -48,6 +48,7 @@ public class PythonSignatureTokens
 
         Integer,
         Decimal,
+        HexidecimalInteger,
         DoubleQuotedString,
         SingleQuotedString,
         True,

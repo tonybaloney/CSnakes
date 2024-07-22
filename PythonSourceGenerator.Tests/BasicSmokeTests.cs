@@ -6,15 +6,8 @@ using PythonSourceGenerator.Reflection;
 
 namespace PythonSourceGenerator.Tests
 {
-    public class BasicSmokeTest : IClassFixture<TestEnvironment>
+    public class BasicSmokeTest(TestEnvironment testEnv) : IClassFixture<TestEnvironment>
     {
-        TestEnvironment testEnv;
-
-        public BasicSmokeTest(TestEnvironment testEnv)
-        {
-            this.testEnv = testEnv;
-        }
-
         [Theory]
         [InlineData("def hello_world():\n    ...\n", "PyObject HelloWorld()")]
         [InlineData("def hello_world() -> None:\n    ...\n", "void HelloWorld()")]

@@ -64,7 +64,7 @@ public class ArgumentReflection
                 case PythonConstant.ConstantType.HexidecimalInteger:
                     literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                             SyntaxKind.NumericLiteralExpression,
-                                                            SyntaxFactory.Literal(string.Format("{0:X}", parameter.DefaultValue.IntegerValue), parameter.DefaultValue.IntegerValue));
+                                                            SyntaxFactory.Literal(string.Format("0x{0:X}", parameter.DefaultValue.IntegerValue), parameter.DefaultValue.IntegerValue));
                     break;
                 case PythonConstant.ConstantType.BinaryInteger:
                     literalExpressionSyntax = SyntaxFactory.LiteralExpression(

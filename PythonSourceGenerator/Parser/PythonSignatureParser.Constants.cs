@@ -67,14 +67,12 @@ public static partial class PythonSignatureParser
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> HexidecimalIntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.HexidecimalInteger)
         .Apply(ConstantParsers.HexidecimalConstantParser)
-        // TODO: Emit as a hexidecimal literal
         .Select(d => new PythonConstant { Type = PythonConstant.ConstantType.HexidecimalInteger, IntegerValue = (long)d })
         .Named("Hexidecimal Integer Constant");
     
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> BinaryIntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.BinaryInteger)
         .Apply(ConstantParsers.BinaryConstantParser)
-        // TODO: Emit as a binary literal
         .Select(d => new PythonConstant { Type = PythonConstant.ConstantType.BinaryInteger, IntegerValue = (long)d })
         .Named("Binary Integer Constant");
 

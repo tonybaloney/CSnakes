@@ -43,7 +43,7 @@ public static class TypeReflection
     {
         if (tupleTypes.Length == 1)
         {
-            return CreateGenericType("Tuple", tupleTypes.Select(AsPredefinedType));
+            return CreateGenericType("ValueTuple", tupleTypes.Select(AsPredefinedType));
         }
 
         IEnumerable<TupleElementSyntax> tupleTypeSyntaxGroups = tupleTypes.Select((x, i) => new { Index = i, Value = x })

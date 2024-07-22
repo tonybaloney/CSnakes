@@ -6,7 +6,7 @@ public class PythonConstant
     public int IntegerValue { get; set; }
 
     public bool IsString { get; set; }
-    public string StringValue { get; set; }
+    public string? StringValue { get; set; }
 
     public bool IsNone { get; set; }
 
@@ -24,7 +24,7 @@ public class PythonConstant
         }
         if (IsString)
         {
-            return StringValue;
+            return StringValue ?? throw new ArgumentNullException(nameof(StringValue));
         }
         if (IsFloat)
         {

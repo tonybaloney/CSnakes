@@ -1,9 +1,9 @@
 ﻿namespace PythonSourceGenerator.Parser.Types;
 public class PythonFunctionParameter
 {
-    PythonTypeSpec _type;
+    PythonTypeSpec? _type;
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public PythonTypeSpec Type {
         get { return _type ?? new PythonTypeSpec { Name = "Any" }; }

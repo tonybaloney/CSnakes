@@ -171,7 +171,7 @@ public static class PythonSignatureParser
         select new PythonFunctionDefinition { Name = name.ToStringValue(), Parameters = parameters, ReturnType = arrow })
         .Named("Function Definition");
 
-    public static bool TryParseFunctionDefinitions(string source, out PythonFunctionDefinition[]? pythonSignatures, out GeneratorError[] errors)
+    public static bool TryParseFunctionDefinitions(string source, out PythonFunctionDefinition[] pythonSignatures, out GeneratorError[] errors)
     {
         List<PythonFunctionDefinition> functionDefinitions = [];
 

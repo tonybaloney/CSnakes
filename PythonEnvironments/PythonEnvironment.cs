@@ -1,9 +1,4 @@
 ﻿using Python.Runtime;
-using PythonEnvironments.CustomConverters;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace PythonEnvironments;
@@ -11,7 +6,7 @@ namespace PythonEnvironments;
 public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
 {
     private readonly string versionPath = MapVersion(version);
-    private PythonEnvironmentInternal env;
+    private PythonEnvironmentInternal? env;
     private string[] extraPaths = [];
 
     private static string MapVersion(string version, string sep = "")
@@ -33,7 +28,7 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
 
     public IPythonEnvironment Build(string home)
     {
-        if (PythonEngine.IsInitialized)
+        if (PythonEngine.IsInitialized && env is not null)
         {
             // Raise exception?
             return env;
@@ -55,15 +50,15 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
         {
             return windowsStorePath;
         }
-        else if (Directory.Exists(officialInstallerPath))
+
+        if (Directory.Exists(officialInstallerPath))
         {
             return officialInstallerPath;
         }
-        else
-        {
-            // TODO : Use nuget package path?
-            throw new Exception("Python not found");
-        }
+
+        // TODO : Use nuget package path?
+        throw new Exception("Python not found");
+
     }
 
     public override bool Equals(object obj)

@@ -16,9 +16,7 @@ public class PythonFunctionParameter
 
     public PythonConstant? DefaultValue { get; set; }
 
-    public bool IsStar { get; set; }
-
-    public bool IsDoubleStar { get; set; }
+    public PythonFunctionParameterType ParameterType { get; set; }
 
     public bool HasTypeAnnotation()
     {

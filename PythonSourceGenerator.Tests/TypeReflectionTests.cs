@@ -55,4 +55,31 @@ public class TypeReflectionTests
         var reflectedType = TypeReflection.AsPredefinedType(result.Value);
         Assert.Equal(expectedType, reflectedType.ToString());
     }
+
+    [Theory]
+    [InlineData("tuple[str]", "Tuple<string>")]
+    [InlineData("tuple[str, str]", "(string,string)")]
+    [InlineData("tuple[str, str, str]", "(string,string,string)")]
+    [InlineData("tuple[str, str, str, str]", "(string,string,string,string)")]
+    [InlineData("tuple[str, str, str, str, str]", "(string,string,string,string,string)")]
+    [InlineData("tuple[str, str, str, str, str, str]", "(string,string,string,string,string,string)")]
+    [InlineData("tuple[str, str, str, str, str, str, str]", "(string,string,string,string,string,string,string)")]
+    [InlineData("tuple[str, str, str, str, str, str, str, str]", "(string,string,string,string,string,string,string,string)")]
+    [InlineData("tuple[str, str, str, str, str, str, str, str, str]", "(string,string,string,string,string,string,string,string,string)")]
+    [InlineData("tuple[str, str, str, str, str, str, str, str, str, str]", "(string,string,string,string,string,string,string,string,string,string)")]
+    [InlineData("tuple[str, str, str, str, str, str, str, str, str, str, str]", "(string,string,string,string,string,string,string,string,string,string,string)")]
+    [InlineData("tuple[str, str, str, str, str, str, str, str, str, str, str, str]", "(string,string,string,string,string,string,string,string,string,string,string,string)")]
+    [InlineData("tuple[str, str, str, str, str, str, str, str, str, str, str, str, str]", "(string,string,string,string,string,string,string,string,string,string,string,string,string)")]
+    [InlineData("tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str]", "(string,string,string,string,string,string,string,string,string,string,string,string,string,string)")]
+    [InlineData("tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]", "(string,string,string,string,string,string,string,string,string,string,string,string,string,string,string)")]
+    [InlineData("tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]", "(string,string,string,string,string,string,string,string,string,string,string,string,string,string,string,string)")]
+    public void TupleParsingTest(string pythonType, string expectedType)
+    {
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonSignatureParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.NotNull(result.Value);
+        var reflectedType = TypeReflection.AsPredefinedType(result.Value);
+        Assert.Equal(expectedType, reflectedType.ToString());
+    }
 }

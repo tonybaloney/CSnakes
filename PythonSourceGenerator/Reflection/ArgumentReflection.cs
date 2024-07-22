@@ -7,32 +7,21 @@ namespace PythonSourceGenerator.Reflection;
 public class ArgumentReflection
 {
     private static readonly PythonTypeSpec TupleAny = new("tuple", [PythonTypeSpec.Any]);
-    private static readonly PythonTypeSpec DictStrAny = new("dict", [new ("str", []), PythonTypeSpec.Any]);
+    private static readonly PythonTypeSpec DictStrAny = new("dict", [new("str", []), PythonTypeSpec.Any]);
 
     public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter)
     {
-        TypeSyntax reflectedType;
-
         // Treat *args as tuple<Any> and **kwargs as dict<str, Any>
-        if (parameter.IsStar)
+        TypeSyntax reflectedType = parameter.ParameterType switch
         {
-            reflectedType = TypeReflection.AsPredefinedType(TupleAny);
-            parameter.DefaultValue = new PythonConstant { IsNone = true };
-        }
-        else if (parameter.IsDoubleStar)
-        {
-            reflectedType = TypeReflection.AsPredefinedType(DictStrAny);
-            parameter.DefaultValue = new PythonConstant { IsNone = true };
-        }
-        else
-        {
-            reflectedType = TypeReflection.AsPredefinedType(parameter.Type);
-
-        }
+            PythonFunctionParameterType.Star => TypeReflection.AsPredefinedType(TupleAny),
+            PythonFunctionParameterType.DoubleStar => TypeReflection.AsPredefinedType(DictStrAny),
+            PythonFunctionParameterType.Normal => TypeReflection.AsPredefinedType(parameter.Type),
+            _ => throw new System.NotImplementedException()
+        };
 
         if (parameter.DefaultValue == null)
         {
-
             return SyntaxFactory
                 .Parameter(SyntaxFactory.Identifier(Keywords.ValidIdentifier(parameter.Name.ToLowerPascalCase())))
                 .WithType(reflectedType);
@@ -71,12 +60,6 @@ public class ArgumentReflection
 
     public static ParameterListSyntax ParameterListSyntax(PythonFunctionParameter[] parameters)
     {
-        var parameterListSyntax = new List<ParameterSyntax>();
-        foreach (var pythonParameter in parameters)
-        {
-            // TODO : Handle Kind, see https://docs.python.org/3/library/inspect.html#inspect.Parameter
-            parameterListSyntax.Add(ArgumentSyntax(pythonParameter));
-        }
-        return SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameterListSyntax));
+        return SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters.Select(ArgumentSyntax).ToList()));
     }
 }

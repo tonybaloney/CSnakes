@@ -4,10 +4,6 @@ using Microsoft.CodeAnalysis.Text;
 using PythonSourceGenerator.Parser;
 using PythonSourceGenerator.Parser.Types;
 using PythonSourceGenerator.Reflection;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace PythonSourceGenerator;
 

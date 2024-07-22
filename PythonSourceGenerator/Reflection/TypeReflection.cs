@@ -1,8 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using PythonSourceGenerator.Parser.Types;
-using System;
-using System.Collections.Generic;
 
 namespace PythonSourceGenerator.Reflection;
 

@@ -68,7 +68,7 @@ public static class PythonSignatureParser
         public static TextParser<int> Integer { get; } =
             from sign in Character.EqualTo('-').Value(-1).OptionalOrDefault(1)
             from whole in Numerics.Natural.Select(n => int.Parse(n.ToStringValue()))
-            select whole * sign ;
+            select whole * sign;
 
         // TODO: (track) This a copy from the JSON spec and probably doesn't reflect Python's other numeric literals like Hex and Real
         public static TextParser<double> Decimal { get; } =
@@ -95,7 +95,7 @@ public static class PythonSignatureParser
                 end: Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.CloseBracket)
                 ))
             .OptionalOrDefault()
-        select new PythonTypeSpec { Name = name.ToStringValue(), Arguments = openBracket })
+         select new PythonTypeSpec(name.ToStringValue(), openBracket))
         .Named("Type Definition");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> DoubleQuotedStringConstantTokenizer { get; } =
@@ -142,7 +142,7 @@ public static class PythonSignatureParser
         .Or(SingleQuotedStringConstantTokenizer.AsNullable())
         .Named("Constant");
 
-    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter> PythonParameterTokenizer { get; } = 
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter> PythonParameterTokenizer { get; } =
         (
         from star in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Asterisk).Optional()
         from doubleStar in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.DoubleAsterisk).Optional()
@@ -152,23 +152,23 @@ public static class PythonSignatureParser
         from defaultValue in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Equal).Optional().Then(
                 _ => ConstantValueTokenizer.OptionalOrDefault()
             )
-        select new PythonFunctionParameter { Name = name.ToStringValue(), Type = type, DefaultValue = defaultValue, IsStar = star != null, IsDoubleStar = doubleStar != null })
+        select new PythonFunctionParameter(name.ToStringValue(), type, defaultValue, star is not null, doubleStar is not null))
         .Named("Parameter");
 
-    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter[]> PythonParameterListTokenizer { get; } = 
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionParameter[]> PythonParameterListTokenizer { get; } =
         (from openParen in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.OpenParenthesis)
-        from parameters in PythonParameterTokenizer.ManyDelimitedBy(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Comma))
-        from closeParen in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.CloseParenthesis)
-        select parameters)
+         from parameters in PythonParameterTokenizer.ManyDelimitedBy(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Comma))
+         from closeParen in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.CloseParenthesis)
+         select parameters)
         .Named("Parameter List");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionDefinition> PythonFunctionDefinitionTokenizer { get; } =
         (from def in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Def)
-        from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
-        from parameters in PythonParameterListTokenizer
-        from arrow in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionTokenizer.OptionalOrDefault())
-        from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon)
-        select new PythonFunctionDefinition { Name = name.ToStringValue(), Parameters = parameters, ReturnType = arrow })
+         from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
+         from parameters in PythonParameterListTokenizer
+         from arrow in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionTokenizer.OptionalOrDefault())
+         from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon)
+         select new PythonFunctionDefinition(name.ToStringValue(), arrow, parameters))
         .Named("Function Definition");
 
     public static bool TryParseFunctionDefinitions(string source, out PythonFunctionDefinition[] pythonSignatures, out GeneratorError[] errors)
@@ -197,7 +197,7 @@ public static class PythonSignatureParser
                 {
                     // TODO: Work out end column and add to the other places in this function where it's raised
                     currentErrors.Add(new GeneratorError(i, i, result.ErrorPosition.Column, result.ErrorPosition.Column, result.FormatErrorMessageFragment()));
-                    
+
                     // Reset buffer
                     currentBuffer = [];
                     currentBufferStartLine = -1;
@@ -214,7 +214,8 @@ public static class PythonSignatureParser
                     currentBufferStartLine = -1;
                     unfinishedFunctionSpec = false;
                     continue;
-                } else
+                }
+                else
                 {
                     unfinishedFunctionSpec = true;
                 }

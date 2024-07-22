@@ -1,21 +1,16 @@
 ﻿namespace PythonSourceGenerator.Parser.Types;
-public class PythonTypeSpec
+public class PythonTypeSpec(string name, PythonTypeSpec[] arguments)
 {
-    public string? Name { get; set; }
+    public string Name { get; } = name;
 
-    public PythonTypeSpec[]? Arguments { get; set; }
+    public PythonTypeSpec[] Arguments { get; } = arguments;
 
-    public override string ToString()
-    {
-        if (Arguments is not null && Arguments.Length > 0)
-        {
-            return $"{Name}[{string.Join(", ", Arguments.Select(a => a.ToString()))}]";
-        }
-        return Name ?? throw new ArgumentNullException(nameof(Name));
-    }
+    public override string ToString() =>
+        HasArguments() ?
+            $"{Name}[{string.Join(", ", Arguments.Select(a => a.ToString()))}]" :
+            Name;
 
-    public bool HasArguments()
-    {
-        return Arguments is not null && Arguments.Length > 0;
-    }
+    public bool HasArguments() => Arguments is not null && Arguments.Length > 0;
+
+    public static PythonTypeSpec Any => new("Any", []);
 }

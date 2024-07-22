@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{24D80700-8F01-41C7-B858-2C1B242C4EE0}"
 	ProjectSection(SolutionItems) = preProject
 		AutoUpdateAssemblyName.txt = AutoUpdateAssemblyName.txt
+		Directory.Build.props = Directory.Build.props
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -19,7 +20,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PythonEnvironments", "Pytho
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PythonSourceGenerator.Tests", "PythonSourceGenerator.Tests\PythonSourceGenerator.Tests.csproj", "{E01D5C27-CB38-4A0D-B297-33E1E10C1A82}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integration.Tests", "Integration.Tests\Integration.Tests.csproj", "{F179777C-913A-46FE-BE2F-15A59EAB7E88}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Integration.Tests", "Integration.Tests\Integration.Tests.csproj", "{F179777C-913A-46FE-BE2F-15A59EAB7E88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

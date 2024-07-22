@@ -26,7 +26,7 @@ public class TupleConverter : IPyObjectEncoder, IPyObjectDecoder
         // We have to convert the Python values to CLR values, as if we just tried As<object>() it would
         // not parse the Python type to a CLR type, only to a new Python type.
         Type[] types = typeof(T).GetGenericArguments();
-        object[] clrValues = pyValues.Select((p, i) => p.AsManagedObject(types[i])).ToArray();
+        object?[] clrValues = pyValues.Select((p, i) => p.AsManagedObject(types[i])).ToArray();
 
         ConstructorInfo ctor = typeof(T).GetConstructors().First(c => c.GetParameters().Count() == clrValues.Length);
         value = (T)ctor.Invoke(clrValues);

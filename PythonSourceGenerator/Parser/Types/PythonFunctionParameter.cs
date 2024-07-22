@@ -1,25 +1,17 @@
 ﻿namespace PythonSourceGenerator.Parser.Types;
-public class PythonFunctionParameter
+public class PythonFunctionParameter(string name, PythonTypeSpec? type, PythonConstant defaultValue, PythonFunctionParameterType parameterType)
 {
-    PythonTypeSpec _type;
+    public string Name { get; } = name;
 
-    public string Name { get; set; }
-
-    public PythonTypeSpec Type {
-        get { return _type ?? new PythonTypeSpec { Name = "Any" }; }
-        set => _type = value;
-    }
+    public PythonTypeSpec Type { get; } = type ?? PythonTypeSpec.Any;
 
     public bool IsPositionalOnly { get; set; }
 
     public bool IsKeywordOnly { get; set; }
 
-    public PythonConstant? DefaultValue { get; set; }
+    public PythonConstant DefaultValue { get; set; } = defaultValue;
 
-    public PythonFunctionParameterType ParameterType { get; set; }
+    public PythonFunctionParameterType ParameterType { get; } = parameterType;
 
-    public bool HasTypeAnnotation()
-    {
-        return _type != null;
-    }
+    public bool HasTypeAnnotation() => type is not null;
 }

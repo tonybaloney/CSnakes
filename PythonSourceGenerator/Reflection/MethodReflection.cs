@@ -1,11 +1,11 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using PythonSourceGenerator.Parser.Types;
-using System.Collections.Generic;
 
 namespace PythonSourceGenerator.Reflection;
 
-public class MethodDefinition(MethodDeclarationSyntax syntax, IEnumerable<GenericNameSyntax> parameterGenericArgs = null)
+public class MethodDefinition(MethodDeclarationSyntax syntax, IEnumerable<GenericNameSyntax> parameterGenericArgs)
 {
     public MethodDeclarationSyntax Syntax { get; } = syntax;
 
@@ -79,7 +79,7 @@ public static class MethodReflection
 
         ReturnStatementSyntax returnExpression = returnSyntax switch
         {
-            TypeSyntax s when s is PredefinedTypeSyntax p && p.Keyword.Kind() == SyntaxKind.VoidKeyword => SyntaxFactory.ReturnStatement(null),
+            TypeSyntax s when s is PredefinedTypeSyntax p && p.Keyword.IsKind(SyntaxKind.VoidKeyword) => SyntaxFactory.ReturnStatement(null),
             TypeSyntax s when s is IdentifierNameSyntax => SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName("result")),
             _ => ProcessMethodWithReturnType(returnSyntax, parameterGenericArgs)
         };

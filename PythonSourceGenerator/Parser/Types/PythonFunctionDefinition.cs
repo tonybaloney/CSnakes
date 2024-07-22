@@ -1,47 +1,36 @@
-﻿
 namespace PythonSourceGenerator.Parser.Types;
-
-public class PythonFunctionDefinition
+public class PythonFunctionDefinition(string name, PythonTypeSpec? returnType, PythonFunctionParameter[] pythonFunctionParameter)
 {
-    PythonTypeSpec _returnType;
-    PythonFunctionParameter[] _parameters;
+    public string Name { get; private set; } = name;
 
-    private void FixupArguments()
+    private readonly PythonFunctionParameter[] _parameters = FixupArguments(pythonFunctionParameter);
+
+    private static PythonFunctionParameter[] FixupArguments(PythonFunctionParameter[]? parameters)
     {
-        if (_parameters == null || _parameters.Length == 0)
-            return;
+        if (parameters == null || parameters.Length == 0)
+            return [];
 
         // Go through all parameters and mark those after the *arg as keyword only
         bool keywordOnly = false;
-        for (int i = 1; i < _parameters.Length; i++)
+        for (int i = 1; i < parameters.Length; i++)
         {
-            if (_parameters[i].ParameterType == PythonFunctionParameterType.Star)
+            if (parameters[i].ParameterType == PythonFunctionParameterType.Star)
             {
                 keywordOnly = true;
                 continue;
             }
 
-            _parameters[i].IsKeywordOnly = keywordOnly;
+            parameters[i].IsKeywordOnly = keywordOnly;
         }
+
+        return parameters;
     }
 
-    public string Name { get; set; }
+    public PythonTypeSpec ReturnType => returnType ?? PythonTypeSpec.Any;
 
-    public PythonFunctionParameter[] Parameters { 
-        get { return _parameters; }
-        set { _parameters = value; FixupArguments(); }
-    }
+    public PythonFunctionParameter[] Parameters => _parameters;
 
-    public PythonTypeSpec ReturnType
-    {
-        get { return _returnType ?? new PythonTypeSpec { Name = "Any" }; }
-        set => _returnType = value;
-    }
-
-    public bool HasReturnTypeAnnotation()
-    {
-        return _returnType != null;
-    }
+    public bool HasReturnTypeAnnotation() => returnType is not null;
 
     public bool IsAsync { get; set; }
 }

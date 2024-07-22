@@ -1,14 +1,13 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using PythonSourceGenerator.Parser.Types;
-using System.Linq;
 
 namespace PythonSourceGenerator.Reflection;
 
 public class ArgumentReflection
 {
-    private static readonly PythonTypeSpec TupleAny = new() { Name = "tuple", Arguments = [new PythonTypeSpec { Name = "Any" }] };
-    private static readonly PythonTypeSpec DictStrAny = new() { Name = "dict", Arguments = [new PythonTypeSpec { Name = "str" }, new PythonTypeSpec { Name = "Any" }] };
+    private static readonly PythonTypeSpec TupleAny = new("tuple", [PythonTypeSpec.Any]);
+    private static readonly PythonTypeSpec DictStrAny = new("dict", [new("str", []), PythonTypeSpec.Any]);
 
     public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter)
     {
@@ -26,14 +25,15 @@ public class ArgumentReflection
             return SyntaxFactory
                 .Parameter(SyntaxFactory.Identifier(Keywords.ValidIdentifier(parameter.Name.ToLowerPascalCase())))
                 .WithType(reflectedType);
-        } else
+        }
+        else
         {
             LiteralExpressionSyntax literalExpressionSyntax;
             if (parameter.DefaultValue.IsInteger)
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                             SyntaxKind.NumericLiteralExpression,
                                                             SyntaxFactory.Literal(parameter.DefaultValue.IntegerValue));
-            else if (parameter.DefaultValue.IsString)
+            else if (parameter.DefaultValue.IsString && parameter.DefaultValue.StringValue is not null)
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                             SyntaxKind.StringLiteralExpression,
                                                             SyntaxFactory.Literal(parameter.DefaultValue.StringValue));
@@ -46,12 +46,10 @@ public class ArgumentReflection
             else if (parameter.DefaultValue.IsBool && parameter.DefaultValue.BoolValue == false)
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression);
             else if (parameter.DefaultValue.IsNone)
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
-                                                            SyntaxKind.NullLiteralExpression);
+                literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
             else
                 // TODO : Handle other types?
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
-                                                            SyntaxKind.NullLiteralExpression);
+                literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
             return SyntaxFactory
                 .Parameter(SyntaxFactory.Identifier(Keywords.ValidIdentifier(parameter.Name.ToLowerPascalCase())))
                 .WithType(reflectedType)

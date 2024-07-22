@@ -2,11 +2,8 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using PythonSourceGenerator.Parser;
+using PythonSourceGenerator.Parser.Types;
 using PythonSourceGenerator.Reflection;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace PythonSourceGenerator;
 
@@ -37,7 +34,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 var code = File.ReadAllText(file.Path);
 
                 // Parse the Python file
-                var result = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+                var result = PythonSignatureParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);
 
                 foreach (var error in errors)
                 {

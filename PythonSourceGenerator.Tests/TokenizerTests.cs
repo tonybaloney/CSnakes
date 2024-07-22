@@ -418,6 +418,7 @@ def bar(a: int, b:= str) -> None:
     /* See https://github.com/python/cpython/blob/main/Lib/test/test_tokenize.py#L2063-L2126 */
     [InlineData("255", 255)]
     [InlineData("0b10", 0b10)]
+    [InlineData("0b10101101", 0b10101101)]
     // [InlineData("0o123", 0o123)] Octal literals are not supported in C#
     [InlineData("1234567", 1234567)]
     [InlineData("-1234567", -1234567)]

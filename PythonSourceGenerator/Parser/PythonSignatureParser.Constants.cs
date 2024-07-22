@@ -23,6 +23,11 @@ public static partial class PythonSignatureParser
         from digits in Character.HexDigit.AtLeastOnce()
         select Unit.Value;
 
+    public static TextParser<Unit> BinaryConstantToken { get; } =
+        from prefix in Span.EqualTo("0b")
+        from digits in Character.EqualTo('0').Or(Character.EqualTo('1')).AtLeastOnce()
+        select Unit.Value;
+
     public static TextParser<Unit> DoubleQuotedStringConstantToken { get; } =
         from open in Character.EqualTo('"')
         from chars in Character.ExceptIn('"').Many()
@@ -64,6 +69,12 @@ public static partial class PythonSignatureParser
         .Apply(ConstantParsers.HexidecimalConstantParser)
         .Select(d => new PythonConstant { IsInteger = true, IntegerValue = (long)d })
         .Named("Hexidecimal Integer Constant");
+    
+    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> BinaryIntegerConstantTokenizer { get; } =
+        Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.BinaryInteger)
+        .Apply(ConstantParsers.BinaryConstantParser)
+        .Select(d => new PythonConstant { IsInteger = true, IntegerValue = (long)d })
+        .Named("Binary Integer Constant");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> BoolConstantTokenizer { get; } =
         Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.True).Or(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.False))
@@ -80,6 +91,7 @@ public static partial class PythonSignatureParser
         DecimalConstantTokenizer.AsNullable()
         .Or(IntegerConstantTokenizer.AsNullable())
         .Or(HexidecimalIntegerConstantTokenizer.AsNullable())
+        .Or(BinaryIntegerConstantTokenizer.AsNullable())
         .Or(BoolConstantTokenizer.AsNullable())
         .Or(NoneConstantTokenizer.AsNullable())
         .Or(DoubleQuotedStringConstantTokenizer.AsNullable())
@@ -116,5 +128,10 @@ public static partial class PythonSignatureParser
             from prefix in Span.EqualTo("0x")
             from digits in Character.HexDigit.AtLeastOnce()
             select UInt64.Parse(new string(digits), System.Globalization.NumberStyles.HexNumber);
+    
+        public static TextParser<UInt64> BinaryConstantParser { get; } =
+            from prefix in Span.EqualTo("0b")
+            from digits in Character.EqualTo('0').Or(Character.EqualTo('1')).AtLeastOnce()
+            select Convert.ToUInt64(new string(digits), 2);
     }
 }

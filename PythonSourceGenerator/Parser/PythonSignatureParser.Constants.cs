@@ -43,47 +43,49 @@ public static partial class PythonSignatureParser
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> DoubleQuotedStringConstantTokenizer { get; } =
         Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.DoubleQuotedString)
         .Apply(ConstantParsers.DoubleQuotedString)
-        .Select(s => new PythonConstant { IsString = true, StringValue = s })
+        .Select(s => new PythonConstant(s))
         .Named("Double Quoted String Constant");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> SingleQuotedStringConstantTokenizer { get; } =
         Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.SingleQuotedString)
         .Apply(ConstantParsers.SingleQuotedString)
-        .Select(s => new PythonConstant { IsString = true, StringValue = s })
+        .Select(s => new PythonConstant(s))
         .Named("Single Quoted String Constant");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> DecimalConstantTokenizer { get; } =
         Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Decimal)
         .Apply(Numerics.DecimalDouble)
-        .Select(d => new PythonConstant { IsFloat = true, FloatValue = d })
+        .Select(d => new PythonConstant(d))
         .Named("Decimal Constant");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> IntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Integer)
         .Apply(Numerics.IntegerInt64)
-        .Select(d => new PythonConstant { IsInteger = true, IntegerValue = d })
+        .Select(d => new PythonConstant(d))
         .Named("Integer Constant");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> HexidecimalIntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.HexidecimalInteger)
         .Apply(ConstantParsers.HexidecimalConstantParser)
-        .Select(d => new PythonConstant { IsInteger = true, IntegerValue = (long)d })
+        // TODO: Emit as a hexidecimal literal
+        .Select(d => new PythonConstant { Type = PythonConstant.ConstantType.HexidecimalInteger, IntegerValue = (long)d })
         .Named("Hexidecimal Integer Constant");
     
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> BinaryIntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.BinaryInteger)
         .Apply(ConstantParsers.BinaryConstantParser)
-        .Select(d => new PythonConstant { IsInteger = true, IntegerValue = (long)d })
+        // TODO: Emit as a binary literal
+        .Select(d => new PythonConstant { Type = PythonConstant.ConstantType.BinaryInteger, IntegerValue = (long)d })
         .Named("Binary Integer Constant");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> BoolConstantTokenizer { get; } =
         Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.True).Or(Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.False))
-        .Select(d => new PythonConstant { IsBool = true, BoolValue = d.Kind == PythonSignatureTokens.PythonSignatureToken.True })
+        .Select(d => new PythonConstant(d.Kind == PythonSignatureTokens.PythonSignatureToken.True ))
         .Named("Bool Constant");
 
     public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonConstant> NoneConstantTokenizer { get; } =
         Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.None)
-        .Select(d => new PythonConstant { IsNone = true })
+        .Select(d => new PythonConstant { Type = PythonConstant.ConstantType.None })
         .Named("None Constant");
 
     // Any constant value

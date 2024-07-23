@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Text;
 using Python.Runtime;
 using PythonSourceGenerator.Parser;
 using PythonSourceGenerator.Reflection;
@@ -33,8 +34,10 @@ namespace PythonSourceGenerator.Tests
             var tempName = string.Format("{0}_{1:N}", "test", Guid.NewGuid().ToString("N"));
             File.WriteAllText(Path.Combine(testEnv.TempDir, $"{tempName}.py"), code);
 
+            SourceText sourceText = SourceText.From(code);
+
             // create a Python scope
-            PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+            PythonSignatureParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
             Assert.Empty(errors);
             var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test");
             var csharp = module.Select(m => m.Syntax).Compile();

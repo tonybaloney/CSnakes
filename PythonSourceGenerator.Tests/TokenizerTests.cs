@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 using PythonSourceGenerator.Parser;
 using Superpower;
 
@@ -310,7 +311,10 @@ a = 1
 if __name__ == '__main__':
   xyz  = 1
         """;
-        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+
+        SourceText sourceText = SourceText.From(code);
+
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
         Assert.NotNull(functions);
         Assert.Equal(2, functions.Length);
@@ -344,7 +348,9 @@ a = 1
 if __name__ == '__main__':
   xyz  = 1
         ";
-        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+
+        SourceText sourceText = SourceText.From(code);
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
         Assert.NotNull(functions);
         Assert.Single(functions);
@@ -361,7 +367,8 @@ if __name__ == '__main__':
     {
         var code = @"def bar(a: int, b: str) -> None: # this is a comment
     pass";
-        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+        SourceText sourceText = SourceText.From(code);
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
         Assert.NotNull(functions);
         Assert.Single(functions);
@@ -374,7 +381,8 @@ if __name__ == '__main__':
         var code = @"def bar(a: int, 
         b: str) -> None:   
     pass"; // There is a trailing space after None:
-        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+        SourceText sourceText = SourceText.From(code);
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
         Assert.NotNull(functions);
         Assert.Single(functions);
@@ -387,7 +395,8 @@ if __name__ == '__main__':
         var code = @"def bar(a: int, 
         b: str) -> None:
     pass";
-        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+        SourceText sourceText = SourceText.From(code);
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
         Assert.NotNull(functions);
         Assert.Single(functions);
@@ -400,18 +409,22 @@ if __name__ == '__main__':
     }
 
     [Fact]
-    public void VerifyErrors()
+    public void ErrorInParamSignatureReturnsCorrectLineAndColumn()
     {
-        var code = @"
+        var code = """
 
 
 
-def bar(a: int, b:= str) -> None:
-    pass";
-        _ = PythonSignatureParser.TryParseFunctionDefinitions(code, out var functions, out var errors);
+        def bar(a: int, b:= str) -> None:
+            pass
+        """;
+        SourceText sourceText = SourceText.From(code);
+        _ = PythonSignatureParser.TryParseFunctionDefinitions(sourceText, out var _, out var errors);
         Assert.NotEmpty(errors);
-        Assert.Equal(4, errors[0].StartLine);
-        Assert.Equal(4, errors[0].EndLine);
+        Assert.Equal(3, errors[0].StartLine);
+        Assert.Equal(3, errors[0].EndLine);
+        Assert.Equal(21, errors[0].StartColumn);
+        Assert.Equal(22, errors[0].EndColumn);
     }
 
     [Theory]

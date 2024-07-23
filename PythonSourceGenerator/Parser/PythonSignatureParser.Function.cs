@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis.Text;
 using PythonSourceGenerator.Parser.Types;
 using Superpower;
+using Superpower.Model;
 using Superpower.Parsers;
 
 namespace PythonSourceGenerator.Parser;
@@ -30,9 +31,8 @@ public static partial class PythonSignatureParser
         // Go line by line
         TextLineCollection lines = source.Lines;
         List<GeneratorError> currentErrors = [];
-        List<(int startLine, int endLine, string code)> functionLines = [];
-        List<string> currentBuffer = [];
-        int currentBufferStartLine = -1;
+        List<(IEnumerable<TextLine> lines, TokenList<PythonSignatureTokens.PythonSignatureToken> tokens )> functionLines = [];
+        List<(TextLine line, TokenList<PythonSignatureTokens.PythonSignatureToken> tokens)> currentBuffer = [];
         bool unfinishedFunctionSpec = false;
         foreach (TextLine line in lines)
         {
@@ -42,11 +42,6 @@ public static partial class PythonSignatureParser
                 continue;
             }
 
-            currentBuffer.Add(lineOfCode);
-            if (currentBufferStartLine == -1)
-            {
-                currentBufferStartLine = line.LineNumber;
-            }
             // Parse the function signature
             var result = PythonSignatureTokenizer.Instance.TryTokenize(lineOfCode);
             if (!result.HasValue)
@@ -55,18 +50,19 @@ public static partial class PythonSignatureParser
 
                 // Reset buffer
                 currentBuffer = [];
-                currentBufferStartLine = -1;
                 unfinishedFunctionSpec = false;
                 continue;
             }
+            currentBuffer.Add((line, result.Value));
 
             // If this is a function definition on one line..
             if (result.Value.Last().Kind == PythonSignatureTokens.PythonSignatureToken.Colon)
             {
-                // TODO: (track) Is an empty string the right joining character?
-                functionLines.Add((currentBufferStartLine, line.LineNumber, string.Join("", currentBuffer)));
+                var bufferLines = currentBuffer.Select(x => x.line);
+                var tokens = new TokenList<PythonSignatureTokens.PythonSignatureToken>(currentBuffer.SelectMany(x => x.tokens).ToArray());
+
+                functionLines.Add((bufferLines, tokens));
                 currentBuffer = [];
-                currentBufferStartLine = -1;
                 unfinishedFunctionSpec = false;
                 continue;
             }
@@ -75,16 +71,9 @@ public static partial class PythonSignatureParser
                 unfinishedFunctionSpec = true;
             }
         }
-        foreach ((int startLine, int endLine, string code) in functionLines)
+        foreach (var (currentLines, tokens) in functionLines)
         {
-            // TODO: (track) This means we end up tokenizing the lines twice (one individually and again merged). Optimize.
-            var result = PythonSignatureTokenizer.Instance.TryTokenize(code);
-            if (!result.HasValue)
-            {
-                currentErrors.Add(new GeneratorError(startLine, endLine, result.ErrorPosition.Column, result.ErrorPosition.Column, result.FormatErrorMessageFragment()));
-                continue;
-            }
-            var functionDefinition = PythonFunctionDefinitionTokenizer.TryParse(result.Value);
+            var functionDefinition = PythonFunctionDefinitionTokenizer.TryParse(tokens);
             if (functionDefinition.HasValue)
             {
                 functionDefinitions.Add(functionDefinition.Value);
@@ -92,7 +81,7 @@ public static partial class PythonSignatureParser
             else
             {
                 // Error parsing the function definition
-                currentErrors.Add(new GeneratorError(startLine, endLine, functionDefinition.ErrorPosition.Column, functionDefinition.ErrorPosition.Column + 1, functionDefinition.FormatErrorMessageFragment()));
+                currentErrors.Add(new GeneratorError(currentLines.First().LineNumber, currentLines.First().LineNumber + functionDefinition.ErrorPosition.Line -1, functionDefinition.ErrorPosition.Column, functionDefinition.ErrorPosition.Column + 1, functionDefinition.FormatErrorMessageFragment()));
             }
         }
 

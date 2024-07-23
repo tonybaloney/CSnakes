@@ -1,4 +1,5 @@
-﻿using PythonSourceGenerator.Parser.Types;
+﻿using Microsoft.CodeAnalysis.Text;
+using PythonSourceGenerator.Parser.Types;
 using Superpower;
 using Superpower.Parsers;
 
@@ -22,63 +23,65 @@ public static partial class PythonSignatureParser
     static bool IsFunctionSignature(string line) =>
         line.StartsWith("def ") || line.StartsWith("async def");
 
-    public static bool TryParseFunctionDefinitions(string source, out PythonFunctionDefinition[] pythonSignatures, out GeneratorError[] errors)
+    public static bool TryParseFunctionDefinitions(SourceText source, out PythonFunctionDefinition[] pythonSignatures, out GeneratorError[] errors)
     {
         List<PythonFunctionDefinition> functionDefinitions = [];
 
         // Go line by line
-        var lines = source.Split(["\r\n", "\n"], StringSplitOptions.None);
-        var currentErrors = new List<GeneratorError>();
+        TextLineCollection lines = source.Lines;
+        List<GeneratorError> currentErrors = [];
         List<(int startLine, int endLine, string code)> functionLines = [];
         List<string> currentBuffer = [];
         int currentBufferStartLine = -1;
         bool unfinishedFunctionSpec = false;
-        for (int i = 0; i < lines.Length; i++)
+        foreach (TextLine line in lines)
         {
-            if (IsFunctionSignature(lines[i]) || unfinishedFunctionSpec)
+            string lineOfCode = line.ToString();
+            if (!IsFunctionSignature(lineOfCode) && !unfinishedFunctionSpec)
             {
-                currentBuffer.Add(lines[i]);
-                if (currentBufferStartLine == -1)
-                {
-                    currentBufferStartLine = i;
-                }
-                // Parse the function signature
-                var result = PythonSignatureTokenizer.Instance.TryTokenize(lines[i]);
-                if (!result.HasValue)
-                {
-                    // TODO: Work out end column and add to the other places in this function where it's raised
-                    currentErrors.Add(new GeneratorError(i, i, result.ErrorPosition.Column, result.ErrorPosition.Column, result.FormatErrorMessageFragment()));
-
-                    // Reset buffer
-                    currentBuffer = [];
-                    currentBufferStartLine = -1;
-                    unfinishedFunctionSpec = false;
-                    continue;
-                }
-
-                // If this is a function definition on one line..
-                if (result.Value.Last().Kind == PythonSignatureTokens.PythonSignatureToken.Colon)
-                {
-                    // TODO: (track) Is an empty string the right joining character?
-                    functionLines.Add((currentBufferStartLine, i, string.Join("", currentBuffer)));
-                    currentBuffer = [];
-                    currentBufferStartLine = -1;
-                    unfinishedFunctionSpec = false;
-                    continue;
-                }
-                else
-                {
-                    unfinishedFunctionSpec = true;
-                }
+                continue;
             }
-        }
-        foreach (var line in functionLines)
-        {
-            // TODO: (track) This means we end up tokenizing the lines twice (one individually and again merged). Optimize.
-            var result = PythonSignatureTokenizer.Instance.TryTokenize(line.code);
+
+            currentBuffer.Add(lineOfCode);
+            if (currentBufferStartLine == -1)
+            {
+                currentBufferStartLine = line.LineNumber;
+            }
+            // Parse the function signature
+            var result = PythonSignatureTokenizer.Instance.TryTokenize(lineOfCode);
             if (!result.HasValue)
             {
-                currentErrors.Add(new GeneratorError(line.startLine, line.endLine, result.ErrorPosition.Column, result.ErrorPosition.Column, result.FormatErrorMessageFragment()));
+                currentErrors.Add(new GeneratorError(line.LineNumber, line.LineNumber, result.ErrorPosition.Column, line.End, result.FormatErrorMessageFragment()));
+
+                // Reset buffer
+                currentBuffer = [];
+                currentBufferStartLine = -1;
+                unfinishedFunctionSpec = false;
+                continue;
+            }
+
+            // If this is a function definition on one line..
+            if (result.Value.Last().Kind == PythonSignatureTokens.PythonSignatureToken.Colon)
+            {
+                // TODO: (track) Is an empty string the right joining character?
+                functionLines.Add((currentBufferStartLine, line.LineNumber, string.Join("", currentBuffer)));
+                currentBuffer = [];
+                currentBufferStartLine = -1;
+                unfinishedFunctionSpec = false;
+                continue;
+            }
+            else
+            {
+                unfinishedFunctionSpec = true;
+            }
+        }
+        foreach ((int startLine, int endLine, string code) in functionLines)
+        {
+            // TODO: (track) This means we end up tokenizing the lines twice (one individually and again merged). Optimize.
+            var result = PythonSignatureTokenizer.Instance.TryTokenize(code);
+            if (!result.HasValue)
+            {
+                currentErrors.Add(new GeneratorError(startLine, endLine, result.ErrorPosition.Column, result.ErrorPosition.Column, result.FormatErrorMessageFragment()));
                 continue;
             }
             var functionDefinition = PythonFunctionDefinitionTokenizer.TryParse(result.Value);
@@ -89,7 +92,7 @@ public static partial class PythonSignatureParser
             else
             {
                 // Error parsing the function definition
-                currentErrors.Add(new GeneratorError(line.startLine, line.endLine, functionDefinition.ErrorPosition.Column, functionDefinition.ErrorPosition.Column + 1, functionDefinition.FormatErrorMessageFragment()));
+                currentErrors.Add(new GeneratorError(startLine, endLine, functionDefinition.ErrorPosition.Column, functionDefinition.ErrorPosition.Column + 1, functionDefinition.FormatErrorMessageFragment()));
             }
         }
 

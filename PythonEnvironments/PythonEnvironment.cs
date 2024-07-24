@@ -115,42 +115,33 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
                 return new NoopFormatter();
             };
             string pythonLibraryPath = string.Empty;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                pythonLibraryPath = Path.Combine(pythonLocation, $"python{versionPath}.dll");
-            } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                pythonLibraryPath = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.dylib");
-            } else
-            {
-                pythonLibraryPath = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.so");
-            }
-            
-            if (!File.Exists(pythonLibraryPath))
-            {
-                throw new FileNotFoundException($"Python library not found at {pythonLibraryPath}", pythonLibraryPath);
-            }
             Runtime.PythonDLL = pythonLibraryPath;
             string sep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":";
            
             // Add standard library to PYTHONPATH
-            if (!string.IsNullOrEmpty(home))
-            {
-                PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + sep + home;
-            }
-            else
-            {
-                PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}");
-            }
-
-            // Add compiled extension path.
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                PythonEngine.PythonPath = PythonEngine.PythonPath + sep + Path.Combine(pythonLocation, "DLLs");
+                pythonLibraryPath = Path.Combine(pythonLocation, $"python{versionPath}.dll");
+                PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + sep + Path.Combine(pythonLocation, "DLLs");
             }
-            else
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                PythonEngine.PythonPath = PythonEngine.PythonPath + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}" ,"lib-dynload");
+                pythonLibraryPath = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.dylib");
+                PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}" + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
+            }
+            else 
+            {
+                pythonLibraryPath = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.so");
+                PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
+            }
+
+            if (!File.Exists(pythonLibraryPath))
+            {
+                throw new FileNotFoundException($"Python library not found at {pythonLibraryPath}", pythonLibraryPath);
+            }
+            if (!string.IsNullOrEmpty(home))
+            {
+                PythonEngine.PythonPath = PythonEngine.PythonPath + sep + home;
             }
 
             if (extraPath.Length > 0)

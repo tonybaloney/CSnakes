@@ -2,7 +2,6 @@
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
-using System;
 using System.Globalization;
 
 namespace PythonSourceGenerator.Parser;

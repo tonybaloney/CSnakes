@@ -31,7 +31,7 @@ public static partial class PythonSignatureParser
         // Go line by line
         TextLineCollection lines = source.Lines;
         List<GeneratorError> currentErrors = [];
-        List<(IEnumerable<TextLine> lines, TokenList<PythonSignatureTokens.PythonSignatureToken> tokens )> functionLines = [];
+        List<(IEnumerable<TextLine> lines, TokenList<PythonSignatureTokens.PythonSignatureToken> tokens)> functionLines = [];
         List<(TextLine line, TokenList<PythonSignatureTokens.PythonSignatureToken> tokens)> currentBuffer = [];
         bool unfinishedFunctionSpec = false;
         foreach (TextLine line in lines)
@@ -81,7 +81,7 @@ public static partial class PythonSignatureParser
             else
             {
                 // Error parsing the function definition
-                currentErrors.Add(new GeneratorError(currentLines.First().LineNumber, currentLines.First().LineNumber + functionDefinition.ErrorPosition.Line -1, functionDefinition.ErrorPosition.Column, functionDefinition.ErrorPosition.Column + 1, functionDefinition.FormatErrorMessageFragment()));
+                currentErrors.Add(new GeneratorError(currentLines.First().LineNumber, currentLines.First().LineNumber + functionDefinition.ErrorPosition.Line - 1, functionDefinition.ErrorPosition.Column, functionDefinition.ErrorPosition.Column + 1, functionDefinition.FormatErrorMessageFragment()));
             }
         }
 

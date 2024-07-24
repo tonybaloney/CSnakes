@@ -445,7 +445,7 @@ if __name__ == '__main__':
     public void TestIntegerTokenization(string code, long expectedValue)
     {
         var tokens = PythonSignatureTokenizer.Instance.Tokenize(code);
-        Assert.Single(tokens); 
+        Assert.Single(tokens);
         var result = PythonSignatureParser.ConstantValueTokenizer.TryParse(tokens);
 
         Assert.True(result.HasValue);

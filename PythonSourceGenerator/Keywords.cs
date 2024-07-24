@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace PythonSourceGenerator;
+﻿namespace PythonSourceGenerator;
 internal static class Keywords
 {
     static readonly string[] cSharpKeywords = [
@@ -20,13 +18,13 @@ internal static class Keywords
         "decimal",
         "default",
         "delegate",
-        "do", 
+        "do",
         "double",
         "else",
         "enum",
         "event",
         "explicit",
-        "extern", 
+        "extern",
         "false",
         "finally",
         "fixed",

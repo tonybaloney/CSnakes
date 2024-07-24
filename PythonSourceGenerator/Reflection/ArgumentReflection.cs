@@ -46,7 +46,7 @@ public class ArgumentReflection
                 case PythonConstant.ConstantType.String:
                     literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                             SyntaxKind.StringLiteralExpression,
-                                                            SyntaxFactory.Literal(parameter.DefaultValue.StringValue));
+                                                            SyntaxFactory.Literal(parameter.DefaultValue.StringValue ?? String.Empty));
                     break;
                 case PythonConstant.ConstantType.Float:
                     literalExpressionSyntax = SyntaxFactory.LiteralExpression(
@@ -69,7 +69,7 @@ public class ArgumentReflection
                 case PythonConstant.ConstantType.BinaryInteger:
                     literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                             SyntaxKind.NumericLiteralExpression,
-                                                            SyntaxFactory.Literal(string.Format("0b{0}", Convert.ToString(parameter.DefaultValue.IntegerValue, 2)), parameter.DefaultValue.IntegerValue));
+                                                            SyntaxFactory.Literal(string.Format("0b{0:B}", parameter.DefaultValue.IntegerValue), parameter.DefaultValue.IntegerValue));
                     break;
                 default:
                     literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);

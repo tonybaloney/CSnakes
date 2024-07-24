@@ -120,10 +120,10 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
                 pythonLibraryPath = Path.Combine(pythonLocation, $"python{versionPath}.dll");
             } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                pythonLibraryPath = Path.Combine(pythonLocation, "lib", $"libpython{versionPath}.dylib");
+                pythonLibraryPath = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.dylib");
             } else
             {
-                pythonLibraryPath = Path.Combine(pythonLocation, "lib", $"libpython{versionPath}.so");
+                pythonLibraryPath = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.so");
             }
             
             if (!File.Exists(pythonLibraryPath))

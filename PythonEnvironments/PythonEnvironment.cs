@@ -134,10 +134,6 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
                 PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
             }
 
-            if (!File.Exists(pythonLibraryPath))
-            {
-                throw new FileNotFoundException($"Python library not found at {pythonLibraryPath}", pythonLibraryPath);
-            }
             if (!string.IsNullOrEmpty(home))
             {
                 PythonEngine.PythonPath = PythonEngine.PythonPath + sep + home;

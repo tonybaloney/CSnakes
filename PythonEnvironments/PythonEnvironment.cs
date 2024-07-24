@@ -127,7 +127,7 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 pythonLibraryPath = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.dylib");
-                PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}" + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
+                PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
             }
             else 
             {

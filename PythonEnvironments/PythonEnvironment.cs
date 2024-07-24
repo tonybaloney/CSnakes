@@ -13,11 +13,7 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
     {
         // split on . then take the first two segments and join them without spaces
         var versionParts = version.Split('.');
-        return string.Join("", versionParts.Take(2));
-    }
-
-    public PythonEnvironment(string version = "3.10") : this(TryLocatePython(version), version)
-    {
+        return string.Join(sep, versionParts.Take(2));
     }
 
     public PythonEnvironment WithVirtualEnvironment(string path)
@@ -34,31 +30,60 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
             return env;
         }
 
-        env = new PythonEnvironmentInternal(pythonLocation, versionPath, home, this, this.extraPaths);
+        env = new PythonEnvironmentInternal(pythonLocation, version, home, this, this.extraPaths);
 
         return env;
     }
 
-    private static string TryLocatePython(string version)
+    // Helper factories
+    public static PythonEnvironment? FromNuget(string version)
+    {
+        var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
+        if (string.IsNullOrEmpty(userProfile))
+        {
+            return null;
+        }
+        return new PythonEnvironment(
+            Path.Combine(userProfile, ".nuget", "packages", "python", version, "tools"),
+            version);
+    }
+
+    public static PythonEnvironment? FromWindowsStore(string version)
     {
         var versionPath = MapVersion(version);
         var windowsStorePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Python", "Python" + versionPath);
+        if (!Directory.Exists(windowsStorePath))
+        {
+            return null;
+        }
+        return new PythonEnvironment(windowsStorePath, version);
+    }
+
+    public static PythonEnvironment? FromPythonWindowsInstaller(string version)
+    {
         var officialInstallerPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Python", MapVersion(version, "."));
-        // TODO: (track) Locate from PATH
-        // TODO: (track) Add standard paths for Linux and MacOS
-        if (Directory.Exists(windowsStorePath))
+
+        if (!Directory.Exists(officialInstallerPath))
         {
-            return windowsStorePath;
+            return null;
+        }
+        return new PythonEnvironment(officialInstallerPath, version);
+    }
+
+    public static PythonEnvironment? FromEnvironmentVariable(string variable, string version)
+    {
+        var envValue = Environment.GetEnvironmentVariable(variable);
+        if (string.IsNullOrEmpty(envValue))
+        {
+            return null;
         }
 
-        if (Directory.Exists(officialInstallerPath))
+        if (!Directory.Exists(envValue))
         {
-            return officialInstallerPath;
+            return null;
         }
 
-        // TODO : Use nuget package path?
-        throw new Exception("Python not found");
-
+        return new PythonEnvironment(envValue, version);
     }
 
     public override bool Equals(object obj)
@@ -79,38 +104,39 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
     {
         private readonly PythonEnvironment pythonEnvironment;
 
-        public PythonEnvironmentInternal(string pythonLocation, string versionPath, string home, PythonEnvironment pythonEnvironment, string[] extraPath)
+        public PythonEnvironmentInternal(string pythonLocation, string version, string home, PythonEnvironment pythonEnvironment, string[] extraPath)
         {
+            string versionPath = MapVersion(version);
+            string majorVersion = MapVersion(version, ".");
             // Don't use BinaryFormatter by default as it's deprecated in .NET 8
             // See https://github.com/pythonnet/pythonnet/issues/2282
             RuntimeData.FormatterFactory = () =>
             {
                 return new NoopFormatter();
             };
-            var dllPath = Path.Combine(pythonLocation, string.Format("python{0}.dll", versionPath));
-            if (!File.Exists(dllPath))
-            {
-                throw new FileNotFoundException("Python DLL not found", dllPath);
-            }
-            Runtime.PythonDLL = dllPath;
+            string pythonLibraryPath = string.Empty;
             string sep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":";
-            if (!string.IsNullOrEmpty(home))
-            {
-                //PythonEngine.PythonHome = home;
-                PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + sep + home;
-            }
-            else
-            {
-                PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib");
-            }
-
+           
+            // Add standard library to PYTHONPATH
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                PythonEngine.PythonPath = PythonEngine.PythonPath + sep + Path.Combine(pythonLocation, "DLLs");
+                Runtime.PythonDLL = Path.Combine(pythonLocation, $"python{versionPath}.dll");
+                PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + sep + Path.Combine(pythonLocation, "DLLs");
             }
-            else
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                // TODO: (track) C extension path for linux/macos
+                Runtime.PythonDLL = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.dylib");
+                PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
+            }
+            else 
+            {
+                Runtime.PythonDLL = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.so");
+                PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
+            }
+
+            if (!string.IsNullOrEmpty(home))
+            {
+                PythonEngine.PythonPath = PythonEngine.PythonPath + sep + home;
             }
 
             if (extraPath.Length > 0)

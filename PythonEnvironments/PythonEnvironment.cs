@@ -44,7 +44,7 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
             return null;
         }
         return new PythonEnvironment(
-            userProfile + Path.Combine(".nuget", "packages", "python", version, "tools"),
+            Path.Combine(userProfile, ".nuget", "packages", "python", version, "tools"),
             version);
     }
 

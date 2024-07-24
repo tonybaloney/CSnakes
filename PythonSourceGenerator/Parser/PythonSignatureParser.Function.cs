@@ -46,22 +46,35 @@ public static partial class PythonSignatureParser
             Result<ParsedTokens> result = PythonSignatureTokenizer.Instance.TryTokenize(lineOfCode);
             if (!result.HasValue)
             {
-                currentErrors.Add(new GeneratorError(line.LineNumber, line.LineNumber, result.ErrorPosition.Column, line.End, result.FormatErrorMessageFragment()));
+                currentErrors.Add(new(
+                    line.LineNumber,
+                    line.LineNumber,
+                    result.ErrorPosition.Column,
+                    result.ErrorPosition.Column + result.Location.Length,
+                    result.FormatErrorMessageFragment())
+                );
 
                 // Reset buffer
                 currentBuffer = [];
                 unfinishedFunctionSpec = false;
                 continue;
             }
-            currentBuffer.Add((line, result.Value));
+
+            ParsedTokens repositionedTokens = new(result.Value.Select(token =>
+            {
+                Superpower.Model.TextSpan span = new(token.Span.Source!, new(token.Span.Position.Absolute, line.LineNumber, token.Span.Position.Column), token.Span.Length);
+                Token<PythonSignatureTokens.PythonSignatureToken> t = new(token.Kind, span);
+                return t;
+            }).ToArray());
+            currentBuffer.Add((line, repositionedTokens));
 
             // If this is a function definition on one line..
-            if (result.Value.Last().Kind == PythonSignatureTokens.PythonSignatureToken.Colon)
+            if (repositionedTokens.Last().Kind == PythonSignatureTokens.PythonSignatureToken.Colon)
             {
                 IEnumerable<TextLine> bufferLines = currentBuffer.Select(x => x.line);
-                ParsedTokens tokens = new(currentBuffer.SelectMany(x => x.tokens).ToArray());
+                ParsedTokens combinedTokens = new(currentBuffer.SelectMany(x => x.tokens).ToArray());
 
-                functionLines.Add((bufferLines, tokens));
+                functionLines.Add((bufferLines, combinedTokens));
                 currentBuffer = [];
                 unfinishedFunctionSpec = false;
                 continue;

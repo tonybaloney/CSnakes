@@ -132,24 +132,25 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
             }
             Runtime.PythonDLL = pythonLibraryPath;
             string sep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":";
+           
+            // Add standard library to PYTHONPATH
             if (!string.IsNullOrEmpty(home))
             {
-                //PythonEngine.PythonHome = home;
                 PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + sep + home;
             }
             else
             {
-                PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib");
+                PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}");
             }
 
+            // Add compiled extension path.
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 PythonEngine.PythonPath = PythonEngine.PythonPath + sep + Path.Combine(pythonLocation, "DLLs");
             }
             else
             {
-                // TODO: dylib path on macOS is different.
-                PythonEngine.PythonPath = PythonEngine.PythonPath + sep + Path.Combine(pythonLocation, "lib");
+                PythonEngine.PythonPath = PythonEngine.PythonPath + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}" ,"lib-dynload");
             }
 
             if (extraPath.Length > 0)

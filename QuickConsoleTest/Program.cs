@@ -1,10 +1,11 @@
 ﻿using Python.Generated;
 using PythonEnvironments;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 
 // See https://aka.ms/new-console-template for more information
 Console.WriteLine("Hello, World!");
-var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
+var userProfile = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Environment.GetEnvironmentVariable("USERPROFILE") : Environment.GetEnvironmentVariable("HOME");
 var builder = new PythonEnvironment(
     userProfile + Path.Join(".nuget", "packages", "python", "3.12.4", "tools"),
     "3.12.4")

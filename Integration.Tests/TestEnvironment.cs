@@ -1,4 +1,5 @@
 ﻿using PythonEnvironments;
+using System.Runtime.InteropServices;
 
 namespace Integration.Tests;
 public class TestEnvironment : IDisposable
@@ -7,13 +8,12 @@ public class TestEnvironment : IDisposable
 
     public TestEnvironment()
     {
-        var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
+        var userProfile = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Environment.GetEnvironmentVariable("USERPROFILE") : Environment.GetEnvironmentVariable("HOME");
         Assert.NotNull(userProfile);
         var builder = new PythonEnvironment(
-            Environment.GetEnvironmentVariable("USERPROFILE") + Path.Join(".nuget", "packages", "python", "3.12.4", "tools"),
+            userProfile + Path.Join(".nuget", "packages", "python", "3.12.4", "tools"),
             "3.12.4");
         env = builder.Build(Path.Join(Environment.CurrentDirectory, "python"));
-
     }
 
     public void Dispose()

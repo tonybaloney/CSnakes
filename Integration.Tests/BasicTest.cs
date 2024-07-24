@@ -24,7 +24,8 @@ public partial class BasicTest(TestEnvironment testEnv) : IClassFixture<TestEnvi
     }
 
     [Fact]
-    public void TestFalseReturnTypes() { 
+    public void TestFalseReturnTypes()
+    {
         var falseReturns = testEnv.Env.TestFalseReturns();
 
         // TODO: Standardise the exception that gets raised when the response type is invalid.

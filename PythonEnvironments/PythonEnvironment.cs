@@ -115,23 +115,22 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
                 return new NoopFormatter();
             };
             string pythonLibraryPath = string.Empty;
-            Runtime.PythonDLL = pythonLibraryPath;
             string sep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":";
            
             // Add standard library to PYTHONPATH
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                pythonLibraryPath = Path.Combine(pythonLocation, $"python{versionPath}.dll");
+                Runtime.PythonDLL = Path.Combine(pythonLocation, $"python{versionPath}.dll");
                 PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + sep + Path.Combine(pythonLocation, "DLLs");
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                pythonLibraryPath = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.dylib");
+                Runtime.PythonDLL = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.dylib");
                 PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
             }
             else 
             {
-                pythonLibraryPath = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.so");
+                Runtime.PythonDLL = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.so");
                 PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
             }
 

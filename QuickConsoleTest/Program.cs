@@ -1,15 +1,12 @@
 ﻿using Python.Generated;
 using PythonEnvironments;
-using System.Runtime.InteropServices;
 using System.Text.Json;
 
 // See https://aka.ms/new-console-template for more information
 Console.WriteLine("Hello, World!");
-var userProfile = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Environment.GetEnvironmentVariable("USERPROFILE") : Environment.GetEnvironmentVariable("HOME");
-var builder = new PythonEnvironment(
-    userProfile + Path.Join(".nuget", "packages", "python", "3.12.4", "tools"),
-    "3.12.4")
-    .WithVirtualEnvironment(Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency", ".venv"));
+
+var builder = (PythonEnvironment.FromNuget("3.12.4")
+    ?.WithVirtualEnvironment(Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency", ".venv"))) ?? throw new Exception("Cannot find Python");
 
 using var env = builder.Build(Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency"));
 

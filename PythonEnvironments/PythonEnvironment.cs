@@ -16,10 +16,6 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
         return string.Join("", versionParts.Take(2));
     }
 
-    public PythonEnvironment(string version = "3.10") : this(TryLocatePython(version), version)
-    {
-    }
-
     public PythonEnvironment WithVirtualEnvironment(string path)
     {
         extraPaths = [.. extraPaths, path, Path.Combine(path, "Lib", "site-packages")];
@@ -39,26 +35,55 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
         return env;
     }
 
-    private static string TryLocatePython(string version)
+    // Helper factories
+    public static PythonEnvironment? FromNuget(string version)
+    {
+        var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
+        if (string.IsNullOrEmpty(userProfile))
+        {
+            return null;
+        }
+        return new PythonEnvironment(
+            userProfile + Path.Combine(".nuget", "packages", "python", version, "tools"),
+            version);
+    }
+
+    public static PythonEnvironment? FromWindowsStore(string version)
     {
         var versionPath = MapVersion(version);
         var windowsStorePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Python", "Python" + versionPath);
+        if (!Directory.Exists(windowsStorePath))
+        {
+            return null;
+        }
+        return new PythonEnvironment(windowsStorePath, version);
+    }
+
+    public static PythonEnvironment? FromPythonWindowsInstaller(string version)
+    {
         var officialInstallerPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Python", MapVersion(version, "."));
-        // TODO: (track) Locate from PATH
-        // TODO: (track) Add standard paths for Linux and MacOS
-        if (Directory.Exists(windowsStorePath))
+
+        if (!Directory.Exists(officialInstallerPath))
         {
-            return windowsStorePath;
+            return null;
+        }
+        return new PythonEnvironment(officialInstallerPath, version);
+    }
+
+    public static PythonEnvironment? FromEnvironmentVariable(string variable, string version)
+    {
+        var envValue = Environment.GetEnvironmentVariable(variable);
+        if (string.IsNullOrEmpty(envValue))
+        {
+            return null;
         }
 
-        if (Directory.Exists(officialInstallerPath))
+        if (!Directory.Exists(envValue))
         {
-            return officialInstallerPath;
+            return null;
         }
 
-        // TODO : Use nuget package path?
-        throw new Exception("Python not found");
-
+        return new PythonEnvironment(envValue, version);
     }
 
     public override bool Equals(object obj)
@@ -87,12 +112,13 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
             {
                 return new NoopFormatter();
             };
-            var dllPath = Path.Combine(pythonLocation, string.Format("python{0}.dll", versionPath));
-            if (!File.Exists(dllPath))
+            string ext = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".dll" : ".so";
+            var pythonLibraryPath = Path.Combine(pythonLocation, $"python{versionPath}.{ext}");
+            if (!File.Exists(pythonLibraryPath))
             {
-                throw new FileNotFoundException("Python DLL not found", dllPath);
+                throw new FileNotFoundException("Python library not found", pythonLibraryPath);
             }
-            Runtime.PythonDLL = dllPath;
+            Runtime.PythonDLL = pythonLibraryPath;
             string sep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":";
             if (!string.IsNullOrEmpty(home))
             {

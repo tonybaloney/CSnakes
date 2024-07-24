@@ -13,7 +13,7 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
     {
         // split on . then take the first two segments and join them without spaces
         var versionParts = version.Split('.');
-        return string.Join("", versionParts.Take(2));
+        return string.Join(sep, versionParts.Take(2));
     }
 
     public PythonEnvironment WithVirtualEnvironment(string path)
@@ -30,7 +30,7 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
             return env;
         }
 
-        env = new PythonEnvironmentInternal(pythonLocation, versionPath, home, this, this.extraPaths);
+        env = new PythonEnvironmentInternal(pythonLocation, version, home, this, this.extraPaths);
 
         return env;
     }
@@ -104,19 +104,31 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
     {
         private readonly PythonEnvironment pythonEnvironment;
 
-        public PythonEnvironmentInternal(string pythonLocation, string versionPath, string home, PythonEnvironment pythonEnvironment, string[] extraPath)
+        public PythonEnvironmentInternal(string pythonLocation, string version, string home, PythonEnvironment pythonEnvironment, string[] extraPath)
         {
+            string versionPath = MapVersion(version);
+            string majorVersion = MapVersion(version, ".");
             // Don't use BinaryFormatter by default as it's deprecated in .NET 8
             // See https://github.com/pythonnet/pythonnet/issues/2282
             RuntimeData.FormatterFactory = () =>
             {
                 return new NoopFormatter();
             };
-            string ext = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".dll" : ".so";
-            var pythonLibraryPath = Path.Combine(pythonLocation, $"python{versionPath}.{ext}");
+            string pythonLibraryPath = string.Empty;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                pythonLibraryPath = Path.Combine(pythonLocation, $"python{versionPath}.dll");
+            } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                pythonLibraryPath = Path.Combine(pythonLocation, $"libpython{versionPath}.dylib");
+            } else
+            {
+                pythonLibraryPath = Path.Combine(pythonLocation, $"libpython{versionPath}.so");
+            }
+            
             if (!File.Exists(pythonLibraryPath))
             {
-                throw new FileNotFoundException("Python library not found", pythonLibraryPath);
+                throw new FileNotFoundException($"Python library not found at {pythonLibraryPath}", pythonLibraryPath);
             }
             Runtime.PythonDLL = pythonLibraryPath;
             string sep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":";
@@ -136,7 +148,8 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
             }
             else
             {
-                // TODO: (track) C extension path for linux/macos
+                // TODO: dylib path on macOS is different.
+                PythonEngine.PythonPath = PythonEngine.PythonPath + sep + Path.Combine(pythonLocation, "lib");
             }
 
             if (extraPath.Length > 0)

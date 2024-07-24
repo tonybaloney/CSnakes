@@ -6,7 +6,7 @@ using System.Text.Json;
 Console.WriteLine("Hello, World!");
 var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
 var builder = new PythonEnvironment(
-    userProfile + "\\.nuget\\packages\\python\\3.12.4\\tools",
+    userProfile + Path.Join(".nuget", "packages", "python", "3.12.4", "tools"),
     "3.12.4")
     .WithVirtualEnvironment(Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency", ".venv"));
 

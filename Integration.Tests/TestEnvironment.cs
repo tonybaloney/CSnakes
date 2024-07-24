@@ -8,8 +8,9 @@ public class TestEnvironment : IDisposable
     public TestEnvironment()
     {
         var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
+        Assert.NotNull(userProfile);
         var builder = new PythonEnvironment(
-            Environment.GetEnvironmentVariable("USERPROFILE") + "\\.nuget\\packages\\python\\3.12.4\\tools",
+            Environment.GetEnvironmentVariable("USERPROFILE") + Path.Join(".nuget", "packages", "python", "3.12.4", "tools"),
             "3.12.4");
         env = builder.Build(Path.Join(Environment.CurrentDirectory, "python"));
 

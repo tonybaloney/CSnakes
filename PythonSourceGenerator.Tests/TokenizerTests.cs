@@ -450,13 +450,20 @@ if __name__ == '__main__':
     [InlineData("255", 255)]
     [InlineData("0b10", 0b10)]
     [InlineData("0b10101101", 0b10101101)]
+    [InlineData("0b1010_1101", 0b10101101)]
     // [InlineData("0o123", 0o123)] Octal literals are not supported in C#
     [InlineData("1234567", 1234567)]
     [InlineData("-1234567", -1234567)]
     [InlineData("0xdeadbeef", 0xdeadbeef)]
+    [InlineData("0xdead_beef", 0xdeadbeef)]
+    // See https://github.com/python/cpython/blob/main/Lib/test/test_grammar.py#L25
+    [InlineData("1_000_000", 1_000_000)]
+    [InlineData("4_2", 42)]
+    [InlineData("0_0", 0)]
     public void TestIntegerTokenization(string code, long expectedValue)
     {
         var tokens = PythonSignatureTokenizer.Instance.Tokenize(code);
+        Assert.Single(tokens);
         var result = PythonSignatureParser.ConstantValueTokenizer.TryParse(tokens);
 
         Assert.True(result.HasValue);
@@ -464,4 +471,32 @@ if __name__ == '__main__':
         Assert.True(result.Value?.IsInteger);
         Assert.Equal(expectedValue, result.Value?.IntegerValue);
     }
+
+    [Theory]
+    /* See https://github.com/python/cpython/blob/main/Lib/test/test_tokenize.py#L2063-L2126 */
+    [InlineData("1.0", 1.0)]
+    [InlineData("-1.0", -1.0)]
+    [InlineData("-1_000.0", -1000.0)]
+    [InlineData("3.14159", 3.14159)]
+    [InlineData("314159.", 314159.0)]
+    // [InlineData(".314159", .314159)] // TODO: (track) Support no leading 0
+    // [InlineData(".1_4", 0.14)]
+    // [InlineData(".1_4e1", 0.14e1)]
+    [InlineData("3E123", 3E123)]
+    [InlineData("3e-1230", 3e-1230)]
+    [InlineData("3.14e159", 3.14e159)]
+    [InlineData("1_000_000.4e5", 1_000_000.4e5)]
+    [InlineData("1e1_0", 1e1_0)]
+    public void TestDoubleTokenization(string code, double expectedValue)
+    {
+        var tokens = PythonSignatureTokenizer.Instance.Tokenize(code);
+        Assert.Single(tokens);
+        Assert.Equal(PythonSignatureTokens.PythonSignatureToken.Decimal, tokens.First().Kind);
+        var result = PythonSignatureParser.DecimalConstantTokenizer.TryParse(tokens);
+
+        Assert.True(result.HasValue);
+        Assert.NotNull(result.Value);
+        Assert.Equal(expectedValue, result.Value?.FloatValue);
+    }
 }
+

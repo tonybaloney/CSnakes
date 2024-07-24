@@ -1,5 +1,5 @@
-﻿using System.Globalization;
-using Python.Runtime;
+﻿using Python.Runtime;
+using System.Globalization;
 
 namespace PythonEnvironments
 {

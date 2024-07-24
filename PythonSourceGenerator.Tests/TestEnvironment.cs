@@ -1,7 +1,4 @@
-﻿
-using PythonSourceGenerator;
-
-namespace PythonSourceGenerator.Tests
+﻿namespace PythonSourceGenerator.Tests
 {
     public class TestEnvironment : IDisposable
     {

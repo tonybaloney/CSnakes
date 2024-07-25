@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     </PropertyGroup>
 
@@ -25,11 +26,6 @@
         <AdditionalFiles Include="kmeans_example.py">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\PythonEnvironments\PythonEnvironments.csproj" />
-        <ProjectReference Include="..\PythonSourceGenerator\PythonSourceGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     </ItemGroup>
 
     <ItemGroup>

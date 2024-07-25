@@ -36,7 +36,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 if (code == null) continue;
 
                 // Parse the Python file
-                var result = PythonSignatureParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);
+                var result = PythonParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);
 
                 foreach (var error in errors)
                 {
@@ -45,8 +45,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error.Message, "PythonStaticGenerator", DiagnosticSeverity.Error, true), errorLocation));
                 }
 
-                if (result)
-                {
+                if (result) { 
                     methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
                     string source = FormatClassFromMethods(@namespace, pascalFileName, methods);
                     sourceContext.AddSource($"{pascalFileName}.py.cs", source);

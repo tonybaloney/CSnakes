@@ -5,14 +5,14 @@ using Superpower.Model;
 using Superpower.Parsers;
 
 namespace PythonSourceGenerator.Parser;
-public static partial class PythonSignatureParser
+public static partial class PythonParser
 {
-    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionDefinition> PythonFunctionDefinitionTokenizer { get; } =
-        (from def in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Def)
-         from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
+    public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionTokenizer { get; } =
+        (from def in Token.EqualTo(PythonToken.Def)
+         from name in Token.EqualTo(PythonToken.Identifier)
          from parameters in PythonParameterListTokenizer
-         from arrow in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionTokenizer.OptionalOrDefault())
-         from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon)
+         from arrow in Token.EqualTo(PythonToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionTokenizer.OptionalOrDefault())
+         from colon in Token.EqualTo(PythonToken.Colon)
          select new PythonFunctionDefinition(name.ToStringValue(), arrow, parameters))
         .Named("Function Definition");
 
@@ -31,8 +31,8 @@ public static partial class PythonSignatureParser
         // Go line by line
         TextLineCollection lines = source.Lines;
         List<GeneratorError> currentErrors = [];
-        List<(IEnumerable<TextLine> lines, TokenList<PythonSignatureTokens.PythonSignatureToken> tokens)> functionLines = [];
-        List<(TextLine line, TokenList<PythonSignatureTokens.PythonSignatureToken> tokens)> currentBuffer = [];
+        List<(IEnumerable<TextLine> lines, TokenList<PythonToken> tokens)> functionLines = [];
+        List<(TextLine line, TokenList<PythonToken> tokens)> currentBuffer = [];
         bool unfinishedFunctionSpec = false;
         foreach (TextLine line in lines)
         {
@@ -43,7 +43,7 @@ public static partial class PythonSignatureParser
             }
 
             // Parse the function signature
-            var result = PythonSignatureTokenizer.Instance.TryTokenize(lineOfCode);
+            var result = PythonTokenizer.Instance.TryTokenize(lineOfCode);
             if (!result.HasValue)
             {
                 currentErrors.Add(new GeneratorError(line.LineNumber, line.LineNumber, result.ErrorPosition.Column, line.End, result.FormatErrorMessageFragment()));
@@ -56,10 +56,10 @@ public static partial class PythonSignatureParser
             currentBuffer.Add((line, result.Value));
 
             // If this is a function definition on one line..
-            if (result.Value.Last().Kind == PythonSignatureTokens.PythonSignatureToken.Colon)
+            if (result.Value.Last().Kind == PythonToken.Colon)
             {
                 var bufferLines = currentBuffer.Select(x => x.line);
-                var tokens = new TokenList<PythonSignatureTokens.PythonSignatureToken>(currentBuffer.SelectMany(x => x.tokens).ToArray());
+                var tokens = new TokenList<PythonToken>(currentBuffer.SelectMany(x => x.tokens).ToArray());
 
                 functionLines.Add((bufferLines, tokens));
                 currentBuffer = [];

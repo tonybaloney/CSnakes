@@ -4,6 +4,8 @@ using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
 
+using ParsedTokens = Superpower.Model.TokenList<PythonSourceGenerator.Parser.PythonSignatureTokens.PythonSignatureToken>;
+
 namespace PythonSourceGenerator.Parser;
 public static partial class PythonSignatureParser
 {
@@ -26,13 +28,11 @@ public static partial class PythonSignatureParser
 
     public static bool TryParseFunctionDefinitions(SourceText source, out PythonFunctionDefinition[] pythonSignatures, out GeneratorError[] errors)
     {
-        List<PythonFunctionDefinition> functionDefinitions = [];
-
         // Go line by line
         TextLineCollection lines = source.Lines;
         List<GeneratorError> currentErrors = [];
-        List<(IEnumerable<TextLine> lines, TokenList<PythonSignatureTokens.PythonSignatureToken> tokens)> functionLines = [];
-        List<(TextLine line, TokenList<PythonSignatureTokens.PythonSignatureToken> tokens)> currentBuffer = [];
+        List<(IEnumerable<TextLine> lines, ParsedTokens tokens)> functionLines = [];
+        List<(TextLine line, ParsedTokens tokens)> currentBuffer = [];
         bool unfinishedFunctionSpec = false;
         foreach (TextLine line in lines)
         {
@@ -43,25 +43,38 @@ public static partial class PythonSignatureParser
             }
 
             // Parse the function signature
-            var result = PythonSignatureTokenizer.Instance.TryTokenize(lineOfCode);
+            Result<ParsedTokens> result = PythonSignatureTokenizer.Instance.TryTokenize(lineOfCode);
             if (!result.HasValue)
             {
-                currentErrors.Add(new GeneratorError(line.LineNumber, line.LineNumber, result.ErrorPosition.Column, line.End, result.FormatErrorMessageFragment()));
+                currentErrors.Add(new(
+                    line.LineNumber,
+                    line.LineNumber,
+                    result.ErrorPosition.Column,
+                    result.ErrorPosition.Column + result.Location.Length,
+                    result.FormatErrorMessageFragment())
+                );
 
                 // Reset buffer
                 currentBuffer = [];
                 unfinishedFunctionSpec = false;
                 continue;
             }
-            currentBuffer.Add((line, result.Value));
+
+            ParsedTokens repositionedTokens = new(result.Value.Select(token =>
+            {
+                Superpower.Model.TextSpan span = new(token.Span.Source!, new(token.Span.Position.Absolute, line.LineNumber, token.Span.Position.Column), token.Span.Length);
+                Token<PythonSignatureTokens.PythonSignatureToken> t = new(token.Kind, span);
+                return t;
+            }).ToArray());
+            currentBuffer.Add((line, repositionedTokens));
 
             // If this is a function definition on one line..
-            if (result.Value.Last().Kind == PythonSignatureTokens.PythonSignatureToken.Colon)
+            if (repositionedTokens.Last().Kind == PythonSignatureTokens.PythonSignatureToken.Colon)
             {
-                var bufferLines = currentBuffer.Select(x => x.line);
-                var tokens = new TokenList<PythonSignatureTokens.PythonSignatureToken>(currentBuffer.SelectMany(x => x.tokens).ToArray());
+                IEnumerable<TextLine> bufferLines = currentBuffer.Select(x => x.line);
+                ParsedTokens combinedTokens = new(currentBuffer.SelectMany(x => x.tokens).ToArray());
 
-                functionLines.Add((bufferLines, tokens));
+                functionLines.Add((bufferLines, combinedTokens));
                 currentBuffer = [];
                 unfinishedFunctionSpec = false;
                 continue;
@@ -71,9 +84,13 @@ public static partial class PythonSignatureParser
                 unfinishedFunctionSpec = true;
             }
         }
-        foreach (var (currentLines, tokens) in functionLines)
+
+        List<PythonFunctionDefinition> functionDefinitions = [];
+
+        foreach ((IEnumerable<TextLine> currentLines, ParsedTokens tokens) in functionLines)
         {
-            var functionDefinition = PythonFunctionDefinitionTokenizer.TryParse(tokens);
+            TokenListParserResult<PythonSignatureTokens.PythonSignatureToken, PythonFunctionDefinition> functionDefinition =
+                PythonFunctionDefinitionTokenizer.TryParse(tokens);
             if (functionDefinition.HasValue)
             {
                 functionDefinitions.Add(functionDefinition.Value);
@@ -81,7 +98,14 @@ public static partial class PythonSignatureParser
             else
             {
                 // Error parsing the function definition
-                currentErrors.Add(new GeneratorError(currentLines.First().LineNumber, currentLines.First().LineNumber + functionDefinition.ErrorPosition.Line - 1, functionDefinition.ErrorPosition.Column, functionDefinition.ErrorPosition.Column + 1, functionDefinition.FormatErrorMessageFragment()));
+                int lineNumber = currentLines.First().LineNumber;
+                currentErrors.Add(new(
+                    lineNumber,
+                    lineNumber + functionDefinition.ErrorPosition.Line - 1,
+                    functionDefinition.ErrorPosition.Column,
+                    functionDefinition.ErrorPosition.Column + 1,
+                    functionDefinition.FormatErrorMessageFragment())
+                );
             }
         }
 

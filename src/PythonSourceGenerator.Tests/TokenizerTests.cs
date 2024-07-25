@@ -422,9 +422,27 @@ if __name__ == '__main__':
         _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var _, out var errors);
         Assert.NotEmpty(errors);
         Assert.Equal(3, errors[0].StartLine);
-        Assert.Equal(3, errors[0].EndLine);
+        Assert.Equal(5, errors[0].EndLine);
         Assert.Equal(21, errors[0].StartColumn);
         Assert.Equal(22, errors[0].EndColumn);
+        Assert.Equal("unexpected identifier `str`, expected `)`", errors[0].Message);
+    }
+
+    [Fact]
+    public void ErrorInParamDefaultValueReturnsCorrectLineAndColumn()
+    {
+        var code = """
+        def test_octal_literal(a: int = 0o1234) -> None:
+            pass
+        """;
+        SourceText sourceText = SourceText.From(code);
+        _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var _, out var errors);
+        Assert.NotEmpty(errors);
+        Assert.Equal(0, errors[0].StartLine);
+        Assert.Equal(0, errors[0].EndLine);
+        Assert.Equal(33, errors[0].StartColumn);
+        Assert.Equal(49, errors[0].EndColumn);
+        Assert.Equal("invalid binaryinteger, unexpected `o`, expected `b` at line 1, column 34", errors[0].Message);
     }
 
     [Theory]

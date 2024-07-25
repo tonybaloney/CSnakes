@@ -4,17 +4,17 @@ using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
 
-using ParsedTokens = Superpower.Model.TokenList<PythonSourceGenerator.Parser.PythonSignatureTokens.PythonSignatureToken>;
+using ParsedTokens = Superpower.Model.TokenList<PythonSourceGenerator.Parser.PythonToken>;
 
 namespace PythonSourceGenerator.Parser;
-public static partial class PythonSignatureParser
+public static partial class PythonParser
 {
-    public static TokenListParser<PythonSignatureTokens.PythonSignatureToken, PythonFunctionDefinition> PythonFunctionDefinitionTokenizer { get; } =
-        (from def in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Def)
-         from name in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Identifier)
+    public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionTokenizer { get; } =
+        (from def in Token.EqualTo(PythonToken.Def)
+         from name in Token.EqualTo(PythonToken.Identifier)
          from parameters in PythonParameterListTokenizer
-         from arrow in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionTokenizer.OptionalOrDefault())
-         from colon in Token.EqualTo(PythonSignatureTokens.PythonSignatureToken.Colon)
+         from arrow in Token.EqualTo(PythonToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionTokenizer.OptionalOrDefault())
+         from colon in Token.EqualTo(PythonToken.Colon)
          select new PythonFunctionDefinition(name.ToStringValue(), arrow, parameters))
         .Named("Function Definition");
 
@@ -43,7 +43,7 @@ public static partial class PythonSignatureParser
             }
 
             // Parse the function signature
-            Result<ParsedTokens> result = PythonSignatureTokenizer.Instance.TryTokenize(lineOfCode);
+            Result<ParsedTokens> result = PythonTokenizer.Instance.TryTokenize(lineOfCode);
             if (!result.HasValue)
             {
                 currentErrors.Add(new(
@@ -63,13 +63,13 @@ public static partial class PythonSignatureParser
             ParsedTokens repositionedTokens = new(result.Value.Select(token =>
             {
                 Superpower.Model.TextSpan span = new(token.Span.Source!, new(token.Span.Position.Absolute, line.LineNumber, token.Span.Position.Column), token.Span.Length);
-                Token<PythonSignatureTokens.PythonSignatureToken> t = new(token.Kind, span);
+                Token<PythonToken> t = new(token.Kind, span);
                 return t;
             }).ToArray());
             currentBuffer.Add((line, repositionedTokens));
 
             // If this is a function definition on one line..
-            if (repositionedTokens.Last().Kind == PythonSignatureTokens.PythonSignatureToken.Colon)
+            if (repositionedTokens.Last().Kind == PythonToken.Colon)
             {
                 IEnumerable<TextLine> bufferLines = currentBuffer.Select(x => x.line);
                 ParsedTokens combinedTokens = new(currentBuffer.SelectMany(x => x.tokens).ToArray());
@@ -89,7 +89,7 @@ public static partial class PythonSignatureParser
 
         foreach ((IEnumerable<TextLine> currentLines, ParsedTokens tokens) in functionLines)
         {
-            TokenListParserResult<PythonSignatureTokens.PythonSignatureToken, PythonFunctionDefinition> functionDefinition =
+            TokenListParserResult<PythonToken, PythonFunctionDefinition> functionDefinition =
                 PythonFunctionDefinitionTokenizer.TryParse(tokens);
             if (functionDefinition.HasValue)
             {

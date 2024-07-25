@@ -26,8 +26,8 @@ public class TypeReflectionTests
     [InlineData("tuple[int, int, tuple[int, int]]", "(long,long,(long,long))")]
     public void AsPredefinedType(string pythonType, string expectedType)
     {
-        var tokens = PythonSignatureTokenizer.Instance.Tokenize(pythonType);
-        var result = PythonSignatureParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
+        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
         Assert.True(result.HasValue);
         var reflectedType = TypeReflection.AsPredefinedType(result.Value);
         Assert.Equal(expectedType, reflectedType.ToString());
@@ -49,8 +49,8 @@ public class TypeReflectionTests
     [InlineData("Tuple[int, int, Tuple[int, int]]", "(long,long,(long,long))")]
     public void AsPredefinedTypeOldTypeNames(string pythonType, string expectedType)
     {
-        var tokens = PythonSignatureTokenizer.Instance.Tokenize(pythonType);
-        var result = PythonSignatureParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
+        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
         Assert.True(result.HasValue);
         var reflectedType = TypeReflection.AsPredefinedType(result.Value);
         Assert.Equal(expectedType, reflectedType.ToString());
@@ -75,8 +75,8 @@ public class TypeReflectionTests
     [InlineData("tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]", "(string,string,string,string,string,string,string,string,string,string,string,string,string,string,string,string)")]
     public void TupleParsingTest(string pythonType, string expectedType)
     {
-        var tokens = PythonSignatureTokenizer.Instance.Tokenize(pythonType);
-        var result = PythonSignatureParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
+        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.NotNull(result.Value);
         var reflectedType = TypeReflection.AsPredefinedType(result.Value);

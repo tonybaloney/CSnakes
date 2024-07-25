@@ -51,7 +51,7 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\PythonEnvironments\PythonEnvironments.csproj" />
-		<ProjectReference Include="..\PythonSourceGenerator\PythonSourceGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+		<ProjectReference Include="..\CSnakes.Runtime\CSnakes.Runtime.csproj" />
+		<ProjectReference Include="..\CSnakes\CSnakes.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
 	</ItemGroup>
 </Project>

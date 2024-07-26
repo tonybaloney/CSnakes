@@ -1,6 +1,8 @@
 ﻿using Python.Generated;
 using PythonEnvironments;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 
 // See https://aka.ms/new-console-template for more information

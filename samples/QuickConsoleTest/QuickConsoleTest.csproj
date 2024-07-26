@@ -2,9 +2,14 @@
 
   <PropertyGroup>
 	<ProductName>Example Python Embedded Console App</ProductName>
-	  <TargetFramework>netstandard2.1</TargetFramework>
+	  <TargetFramework>net8.0</TargetFramework>
 	  <OutputType>Exe</OutputType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CSnakes.Runtime" Version="1.0.1" />
+    <PackageReference Include="python" Version="3.12.4" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ExamplePythonDependency\ExamplePythonDependency.csproj" />

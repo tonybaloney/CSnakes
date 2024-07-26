@@ -21,6 +21,7 @@
 		  <Pack>True</Pack>
 		  <PackagePath>\</PackagePath>
 		</None>
+		<None Include="$(PKGSuperpower)\lib\netstandard2.0\Superpower.dll" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 	<PropertyGroup>

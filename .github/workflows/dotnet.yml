@@ -5,9 +5,13 @@ name: .NET
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+
+env:
+  DOTNET_VERSION: 8.0.x
+  NUGET_VERSION: 1.0.1
 
 jobs:
   build:
@@ -18,21 +22,57 @@ jobs:
     runs-on: "${{ matrix.os }}"
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "${{ matrix.python }}"
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-      working-directory: src
-    - name: Build
-      run: dotnet build --no-restore
-      working-directory: src
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-      working-directory: src
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "${{ matrix.python }}"
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: src
+      - name: Build
+        run: dotnet build --no-restore
+        working-directory: src
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+        working-directory: src
+
+  publish-nuget:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: src
+
+      - name: Build release packages
+        run: dotnet build --no-restore -c Release
+        working-directory: src
+
+      - name: Publish NuGet package CSnakes
+        run: dotnet pack --no-build -c Release -o ./nuget --version ${{ env.NUGET_VERSION }}-alpha${{ github.run_number }}
+        working-directory: src/CSnakes
+
+      - name: Publish NuGet package CSnakes.Runtime
+        run: dotnet pack --no-build -c Release -o ./nuget --version ${{ env.NUGET_VERSION }}-alpha${{ github.run_number }}
+        working-directory: src/CSnakes.Runtime
+
+      - name: Publish to GitHub packages
+        run: dotnet nuget push ./nuget/*.nupkg --source "github"
+        env:
+          NUGET_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish NuGet packages as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: ./nuget

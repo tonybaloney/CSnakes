@@ -30,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="python" Version="3.12.4" />
+        <PackageReference Include="CSnakes" Version="1.0.1" />
     </ItemGroup>
 
 </Project>

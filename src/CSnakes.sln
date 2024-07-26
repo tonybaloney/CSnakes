@@ -9,11 +9,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PythonSourceGenerator", "PythonSourceGenerator\PythonSourceGenerator.csproj", "{3912E0F4-493B-4B26-A44D-B095F6CF7538}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSnakes", "CSnakes\CSnakes.csproj", "{3912E0F4-493B-4B26-A44D-B095F6CF7538}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PythonEnvironments", "PythonEnvironments\PythonEnvironments.csproj", "{9BAB43D1-017F-4470-B898-42022328D17F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSnakes.Runtime", "CSnakes.Runtime\CSnakes.Runtime.csproj", "{9BAB43D1-017F-4470-B898-42022328D17F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PythonSourceGenerator.Tests", "PythonSourceGenerator.Tests\PythonSourceGenerator.Tests.csproj", "{E01D5C27-CB38-4A0D-B297-33E1E10C1A82}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSnakes.Tests", "CSnakes.Tests\CSnakes.Tests.csproj", "{E01D5C27-CB38-4A0D-B297-33E1E10C1A82}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Integration.Tests", "Integration.Tests\Integration.Tests.csproj", "{F179777C-913A-46FE-BE2F-15A59EAB7E88}"
 EndProject

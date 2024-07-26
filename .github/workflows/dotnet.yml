@@ -59,10 +59,10 @@ jobs:
         working-directory: src
 
       - name: Publish NuGet package CSnakes
-        run: dotnet pack src/CSnakes --no-build -c Release -o ./nuget --version '${{ env.NUGET_VERSION }}-alpha${{ github.run_number }}'
+        run: dotnet pack src/CSnakes --no-build -c Release -o ./nuget -p:PackageVersion='${{ env.NUGET_VERSION }}' --version--suffix 'alpha${{ github.run_number }}'
 
       - name: Publish NuGet package CSnakes.Runtime
-        run: dotnet pack src/CSnakes.Runtime --no-build -c Release -o ./nuget --version '${{ env.NUGET_VERSION }}-alpha${{ github.run_number }}'
+        run: dotnet pack src/CSnakes.Runtime --no-build -c Release -o ./nuget -p:PackageVersion='${{ env.NUGET_VERSION }}' --version--suffix 'alpha${{ github.run_number }}'
 
       - name: Publish to GitHub packages
         run: dotnet nuget push ./nuget/*.nupkg --source "github"

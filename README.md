@@ -1,5 +1,7 @@
 # CSnakes - a tool for embedding Python code into .NET projects
 
+[![NuGet Version](https://img.shields.io/nuget/v/CSnakes)](https://www.nuget.org/packages/CSnakes)
+
 <img src="docs/res/logo.jpeg" alt="drawing" width="200"/> 
 
 CSnakes is a .NET Source Generator and Runtime that you can use to embed Python code and libraries into your .NET Solution without the need for REST, HTTP, or Microservices.

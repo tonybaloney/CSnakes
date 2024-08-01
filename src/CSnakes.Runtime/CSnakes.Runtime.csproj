@@ -1,17 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="pythonnet" Version="3.1.0-preview2024-07-03" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="pythonnet" Version="3.1.0-preview2024-07-03" />
+    </ItemGroup>
 
-	<PropertyGroup>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<PackageId>CSnakes.Runtime</PackageId>
-		<Title>CSnakes Runtime</Title>
-	</PropertyGroup>
+    <PropertyGroup>
+        <PackageId>CSnakes.Runtime</PackageId>
+        <Title>CSnakes Runtime</Title>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <GeneratePackageOnBuild>$(EnableLocalPackaging)</GeneratePackageOnBuild>
+        <PackageOutputPath>../../nuget</PackageOutputPath>
+    </PropertyGroup>
 
 </Project>

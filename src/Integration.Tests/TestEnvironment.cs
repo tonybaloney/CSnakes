@@ -1,4 +1,4 @@
-﻿using PythonEnvironments;
+﻿using CSnakes.Runtime;
 using System.Runtime.InteropServices;
 
 namespace Integration.Tests;
@@ -9,7 +9,7 @@ public class TestEnvironment : IDisposable
     public TestEnvironment()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-            var builder = PythonEnvironment.FromNuget("3.12.4") ?? throw new Exception("Cannot find Python"); // This is a dependency of the test project
+            var builder = PythonEnvironment.FromNuGet("3.12.4") ?? throw new Exception("Cannot find Python"); // This is a dependency of the test project
             env = builder.Build(Path.Join(Environment.CurrentDirectory, "python"));
         } else
         {

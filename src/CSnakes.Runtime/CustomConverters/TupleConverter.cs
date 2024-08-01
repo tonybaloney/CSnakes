@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace PythonEnvironments.CustomConverters;
+namespace CSnakes.Runtime.CustomConverters;
 
 public class TupleConverter : IPyObjectEncoder, IPyObjectDecoder
 {

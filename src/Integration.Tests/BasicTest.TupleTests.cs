@@ -1,4 +1,4 @@
-﻿using Python.Generated;
+﻿using CSnakes.Runtime;
 
 namespace Integration.Tests;
 

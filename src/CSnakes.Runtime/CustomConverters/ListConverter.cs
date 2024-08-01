@@ -1,30 +1,14 @@
 ﻿using Python.Runtime;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace PythonEnvironments.CustomConverters;
+namespace CSnakes.Runtime.CustomConverters;
 
 public sealed class ListConverter<TKey> : IPyObjectEncoder, IPyObjectDecoder
 {
-    public bool CanDecode(PyType objectType, Type targetType)
-    {
-        if (targetType.IsGenericType && typeof(IEnumerable<TKey>).IsAssignableFrom(targetType))
-        {
-            return true;
-        }
-        return false;
-    }
+    public bool CanDecode(PyType objectType, Type targetType) =>
+        targetType.IsGenericType && typeof(IEnumerable<TKey>).IsAssignableFrom(targetType);
 
-    public bool CanEncode(Type type)
-    {
-        if (type.IsGenericType && typeof(IEnumerable<TKey>).IsAssignableFrom(type))
-        {
-            return true;
-        }
-
-        return false;
-    }
+    public bool CanEncode(Type type) =>
+        type.IsGenericType && typeof(IEnumerable<TKey>).IsAssignableFrom(type);
 
     public bool TryDecode<T>(PyObject pyObj, out T value)
     {

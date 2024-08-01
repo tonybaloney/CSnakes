@@ -1,39 +1,20 @@
 ﻿using Python.Runtime;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 
-namespace PythonEnvironments.CustomConverters;
+namespace CSnakes.Runtime.CustomConverters;
 
 public sealed class DictionaryConverter<TKey, TValue> : IPyObjectEncoder, IPyObjectDecoder
+    where TKey : notnull
 {
-    public bool CanDecode(PyType objectType, Type targetType)
-    {
-        if (targetType.IsGenericType && typeof(IReadOnlyDictionary<TKey, TValue>).IsAssignableFrom(targetType))
-        {
-            return true;
-        }
-        return false;
-    }
+    public bool CanDecode(PyType objectType, Type targetType) =>
+        targetType.IsGenericType && typeof(IReadOnlyDictionary<TKey, TValue>).IsAssignableFrom(targetType);
 
-    public bool CanEncode(Type type)
-    {
-        if (type.IsGenericType && typeof(IReadOnlyDictionary<TKey, TValue>).IsAssignableFrom(type))
-        {
-            return true;
-        }
-
-        return false;
-    }
+    public bool CanEncode(Type type) =>
+        type.IsGenericType && typeof(IReadOnlyDictionary<TKey, TValue>).IsAssignableFrom(type);
 
     public bool TryDecode<T>(PyObject pyObj, out T value)
     {
         var pyDict = new PyDict(pyObj);
-
-        //var dict = pyDict.Items()
-        //    .Select(item => item.As<Tuple<TKey, TValue>>())
-        //    .ToDictionary(kvp => kvp.Item1, kvp => kvp.Item2);
 
         var items = pyDict.Items();
 

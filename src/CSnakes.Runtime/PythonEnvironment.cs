@@ -1,7 +1,7 @@
 ﻿using Python.Runtime;
 using System.Runtime.InteropServices;
 
-namespace PythonEnvironments;
+namespace CSnakes.Runtime;
 
 public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
 {
@@ -30,13 +30,13 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
             return env;
         }
 
-        env = new PythonEnvironmentInternal(pythonLocation, version, home, this, this.extraPaths);
+        env = new PythonEnvironmentInternal(pythonLocation, version, home, this, extraPaths);
 
         return env;
     }
 
     // Helper factories
-    public static PythonEnvironment? FromNuget(string version)
+    public static PythonEnvironment? FromNuGet(string version)
     {
         var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
         if (string.IsNullOrEmpty(userProfile))
@@ -116,21 +116,21 @@ public class PythonEnvironment(string pythonLocation, string version = "3.10.0")
             };
             string pythonLibraryPath = string.Empty;
             string sep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":";
-           
+
             // Add standard library to PYTHONPATH
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Runtime.PythonDLL = Path.Combine(pythonLocation, $"python{versionPath}.dll");
+                Python.Runtime.Runtime.PythonDLL = Path.Combine(pythonLocation, $"python{versionPath}.dll");
                 PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + sep + Path.Combine(pythonLocation, "DLLs");
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                Runtime.PythonDLL = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.dylib");
+                Python.Runtime.Runtime.PythonDLL = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.dylib");
                 PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
             }
-            else 
+            else
             {
-                Runtime.PythonDLL = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.so");
+                Python.Runtime.Runtime.PythonDLL = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.so");
                 PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
             }
 

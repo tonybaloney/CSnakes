@@ -9,7 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: 8.0.x
-  NUGET_VERSION: 1.0.3
+  NUGET_VERSION: 1.0.4
 
 jobs:
   publish-github-packages:
@@ -46,4 +46,4 @@ jobs:
           path: ./nuget
 
       - name: Publish to GitHub packages
-        run: dotnet nuget push ./nuget/*.nupkg --source "nuget" --api-key ${{ secrets.NUGET_API_KEY }}
+        run: dotnet nuget push ./nuget/*.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_API_KEY }}

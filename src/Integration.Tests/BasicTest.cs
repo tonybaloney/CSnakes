@@ -1,5 +1,5 @@
-using Python.Generated;
 using Python.Runtime;
+using CSnakes.Runtime;
 using System.Reflection;
 
 namespace Integration.Tests;

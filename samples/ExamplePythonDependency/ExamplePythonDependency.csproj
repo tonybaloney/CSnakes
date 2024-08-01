@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-		<ProductName>Example Python Dependency</ProductName>
-		<TargetFramework>netstandard2.0</TargetFramework>
+        <ProductName>Example Python Dependency</ProductName>
+        <TargetFramework>net8.0</TargetFramework>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     </PropertyGroup>
 
@@ -16,10 +16,10 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
         <AdditionalFiles Include="quick_demo.py">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
         <AdditionalFiles Include="type_demos.py">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
         <AdditionalFiles Include="phi3_demo.py">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -30,7 +30,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CSnakes" Version="1.0.1" />
+        <PackageReference Include="CSnakes" Version="1.*" />
+        <PackageReference Include="CSnakes.Runtime" Version="1.*" />
     </ItemGroup>
 
 </Project>

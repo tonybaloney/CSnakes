@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuickConsoleTest", "QuickCo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4F565C83-C7AB-42E8-81E2-EC8C49B5C6E2}"
 	ProjectSection(SolutionItems) = preProject
-		..\nuget.config = ..\nuget.config
+		nuget.config = nuget.config
 	EndProjectSection
 EndProject
 Global

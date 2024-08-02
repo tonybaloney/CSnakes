@@ -25,6 +25,8 @@
             <Pack>True</Pack>
             <PackagePath>analyzers/dotnet/cs</PackagePath>
         </None>
+
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     </ItemGroup>
 
     <PropertyGroup>

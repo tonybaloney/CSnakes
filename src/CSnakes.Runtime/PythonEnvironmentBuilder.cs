@@ -1,4 +1,6 @@
 ﻿using Python.Runtime;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime;
 
@@ -8,6 +10,7 @@ public partial class PythonEnvironmentBuilder
     private readonly string pythonLocation;
     private readonly string version;
     private PythonEnvironmentInternal? env;
+    private string? virtualEnvironmentLocation;
     private string[] extraPaths = [];
 
     private PythonEnvironmentBuilder(string pythonLocation, string version)
@@ -24,9 +27,16 @@ public partial class PythonEnvironmentBuilder
         return string.Join(sep, versionParts.Take(2));
     }
 
-    public PythonEnvironmentBuilder WithVirtualEnvironment(string path)
+    public PythonEnvironmentBuilder WithVirtualEnvironment(string path, bool ensureVirtualEnvironment = true)
     {
-        extraPaths = [.. extraPaths, path, Path.Combine(path, "Lib", "site-packages")];
+        if (ensureVirtualEnvironment)
+        {
+            EnsureVirtualEnvironment(path);
+        }
+
+        virtualEnvironmentLocation = path;
+        extraPaths = [.. extraPaths, path, Path.Combine(virtualEnvironmentLocation, "Lib", "site-packages")];
+
         return this;
     }
 
@@ -41,6 +51,33 @@ public partial class PythonEnvironmentBuilder
         env = new PythonEnvironmentInternal(pythonLocation, version, home, this, extraPaths);
 
         return env;
+    }
+
+    private void EnsureVirtualEnvironment(string path)
+    {
+        if (path is null)
+        {
+            throw new InvalidOperationException("Virtual environment location is not set.");
+        }
+
+        if (!Directory.Exists(path))
+        {
+            ProcessStartInfo startInfo = new()
+            {
+                WorkingDirectory = pythonLocation,
+                FileName = "python",
+                Arguments = $"-m venv {path}"
+            };
+            Process? process = Process.Start(startInfo);
+            if (process is not null)
+            {
+                process.WaitForExit();
+            }
+            else
+            {
+                throw new InvalidOperationException("Failed to create virtual environment.");
+            }
+        }
     }
 
     public override bool Equals(object? obj) =>

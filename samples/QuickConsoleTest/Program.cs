@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
-var builder = PythonEnvironment.FromNuGet("3.12.4") ?? throw new Exception("Cannot find Python");
+var builder = PythonEnvironmentBuilder.FromNuGet("3.12.4") ?? throw new Exception("Cannot find Python");
 
 builder.WithVirtualEnvironment(Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency", ".venv"));
 

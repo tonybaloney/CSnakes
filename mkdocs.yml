@@ -1,0 +1,6 @@
+site_name: CSnakes
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Limitations: limitations.md
+  - Examples: examples.md

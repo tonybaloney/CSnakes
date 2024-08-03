@@ -2,6 +2,7 @@ site_name: CSnakes
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
+  - Reference: reference.md
   - Limitations: limitations.md
   - Examples: examples.md
 
@@ -18,3 +19,4 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - attr_list

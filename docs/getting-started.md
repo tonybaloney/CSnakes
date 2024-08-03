@@ -17,6 +17,8 @@ To get started with CSnakes, you need to:
 
 ## Using type annotations for reflection
 
+See the [reference supported types](reference.md#supported-types) for a list of Python types and their C#.NET equivalents.
+
 ## Installing the nuget packages for CSnakes
 
 ## Marking files for generation

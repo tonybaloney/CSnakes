@@ -4,3 +4,6 @@ nav:
   - Getting Started: getting-started.md
   - Limitations: limitations.md
   - Examples: examples.md
+
+theme:
+  name: material

@@ -53,39 +53,9 @@ public partial class PythonEnvironmentBuilder
             throw new DirectoryNotFoundException("Python home directory does not exist.");
         }
 
-        if (File.Exists(Path.Combine(home, "requirements.txt")))
-        {
-            InstallPackagesWithPip(home);
-        }
-
         env = new PythonEnvironmentInternal(pythonLocation, version, home, this, extraPaths);
 
         return env;
-    }
-
-    private void InstallPackagesWithPip(string home)
-    {
-        ProcessStartInfo startInfo = new()
-        {
-            WorkingDirectory = home,
-            FileName = "pip",
-            Arguments = "install -r requirements.txt"
-        };
-
-        if (virtualEnvironmentLocation is not null)
-        {
-            string venvScriptPath = Path.Combine(virtualEnvironmentLocation, "Scripts");
-            startInfo.FileName = Path.Combine(venvScriptPath, "pip.exe");
-            startInfo.EnvironmentVariables["PATH"] = $"{venvScriptPath};{Environment.GetEnvironmentVariable("PATH")}";
-        }
-
-        using Process process = new() {  StartInfo = startInfo };
-        process.WaitForExit();
-
-        if (process.ExitCode != 0)
-        {
-            throw new InvalidOperationException("Failed to install packages.");
-        }
     }
 
     private void EnsureVirtualEnvironment(string path)

@@ -11,7 +11,6 @@ on:
 
 env:
   DOTNET_VERSION: 8.0.x
-  NUGET_VERSION: 1.0.4
 
 jobs:
   publish-github-packages:
@@ -36,10 +35,10 @@ jobs:
         working-directory: src
 
       - name: Publish NuGet package CSnakes
-        run: dotnet pack src/CSnakes --no-build -c Release -o ./nuget -p:PackageVersion='${{ env.NUGET_VERSION }}-alpha.${{ github.run_number }}'
+        run: dotnet pack src/CSnakes --no-build -c Release -o ./nuget -p:VersionSuffix='alpha.${{ github.run_number }}'
 
       - name: Publish NuGet package CSnakes.Runtime
-        run: dotnet pack src/CSnakes.Runtime --no-build -c Release -o ./nuget -p:PackageVersion='${{ env.NUGET_VERSION }}-alpha.${{ github.run_number }}'
+        run: dotnet pack src/CSnakes.Runtime --no-build -c Release -o ./nuget -p:VersionSuffix='alpha.${{ github.run_number }}'
 
       - name: Publish NuGet packages as artifacts
         uses: actions/upload-artifact@v4

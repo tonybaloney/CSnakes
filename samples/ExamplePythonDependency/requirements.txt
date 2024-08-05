@@ -1,5 +1,6 @@
 numpy
 scikit-learn
+torch
 wheel
 flash_attn==2.5.8
 torch==2.3.1

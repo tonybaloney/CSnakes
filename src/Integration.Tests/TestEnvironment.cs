@@ -4,25 +4,26 @@ using System.Runtime.InteropServices;
 namespace Integration.Tests;
 public class TestEnvironment : IDisposable
 {
-    IPythonEnvironment env;
+    private readonly IPythonEnvironment env = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? PythonEnvironmentBuilder.FromNuGet("3.12.4")
+                .Build(Path.Join(Environment.CurrentDirectory, "python"))
+            : PythonEnvironmentBuilder.FromEnvironmentVariable("Python3_ROOT_DIR", "3.12")
+                .Build(Path.Join(Environment.CurrentDirectory, "python"));
 
-    public TestEnvironment()
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-            var builder = PythonEnvironment.FromNuGet("3.12.4") ?? throw new Exception("Cannot find Python"); // This is a dependency of the test project
-            env = builder.Build(Path.Join(Environment.CurrentDirectory, "python"));
-        } else
-        {
-            // Use the Github actions path
-            var builder = PythonEnvironment.FromEnvironmentVariable("Python3_ROOT_DIR", "3.12") ?? throw new Exception("Cannot find Python");
-            env = builder.Build(Path.Join(Environment.CurrentDirectory, "python"));
-        }
-    }
 
     public void Dispose()
     {
-        env.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
-    public IPythonEnvironment Env { get { return env; } }
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            env.Dispose();
+        }
+    }
+
+    public IPythonEnvironment Env => env;
 }

@@ -1,10 +1,14 @@
-﻿namespace CSnakes.Runtime;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace CSnakes.Runtime;
 
 /// <summary>
 /// Represents a builder for creating Python environments.
 /// </summary>
 public interface IPythonEnvironmentBuilder
 {
+    public IServiceCollection Services { get; }
+
     /// <summary>
     /// Sets the virtual environment path for the Python environment being built.
     /// </summary>
@@ -20,9 +24,5 @@ public interface IPythonEnvironmentBuilder
     /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
     IPythonEnvironmentBuilder WithHome(string home);
 
-    /// <summary>
-    /// Builds the Python environment based on the configured settings.
-    /// </summary>
-    /// <returns>The built <see cref="IPythonEnvironment"/>.</returns>
-    IPythonEnvironment Build();
+    PythonEnvironmentOptions GetOptions();
 }

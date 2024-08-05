@@ -1,37 +1,56 @@
 ﻿using CSnakes.Runtime.Locators;
+using CSnakes.Runtime.PackageManagement;
 using Python.Runtime;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime;
 
 internal class PythonEnvironmentInternal : IPythonEnvironment
 {
-    private readonly PythonEnvironmentBuilder pythonEnvironment;
-
-    public PythonEnvironmentInternal(PythonLocationMetadata pythonLocation, string home, PythonEnvironmentBuilder pythonEnvironment, string[] extraPath)
+    public PythonEnvironmentInternal(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options)
     {
-        string versionPath = PythonEnvironmentBuilder.MapVersion(pythonLocation.Version);
-        string majorVersion = PythonEnvironmentBuilder.MapVersion(pythonLocation.Version, ".");
+        var location = locators.Select(locator => locator.LocatePython()).FirstOrDefault(loc => loc is not null)
+            ?? throw new InvalidOperationException("Python installation not found.");
+
+        string home = options.Home;
+
+        if (!Directory.Exists(home))
+        {
+            throw new DirectoryNotFoundException("Python home directory does not exist.");
+        }
+
+        if (options.EnsureVirtualEnvironment)
+        {
+            EnsureVirtualEnvironment(location, options.VirtualEnvironmentPath);
+        }
+
+        foreach (var installer in packageInstallers)
+        {
+            installer.InstallPackages(home, options.VirtualEnvironmentPath);
+        }
+
+        string versionPath = MapVersion(location.Version);
+        string majorVersion = MapVersion(location.Version, ".");
         // Don't use BinaryFormatter by default as it's deprecated in .NET 8
         // See https://github.com/pythonnet/pythonnet/issues/2282
         RuntimeData.FormatterFactory = () =>
         {
             return new NoopFormatter();
         };
-        string pythonLibraryPath = string.Empty;
 
         char sep = Path.PathSeparator;
 
-        SetupStandardLibrary(pythonLocation.Folder, versionPath, majorVersion, sep);
+        SetupStandardLibrary(location.Folder, versionPath, majorVersion, sep);
 
         if (!string.IsNullOrEmpty(home))
         {
             PythonEngine.PythonPath = PythonEngine.PythonPath + sep + home;
         }
 
-        if (extraPath is { Length: > 0 })
+        if (options.ExtraPaths is { Length: > 0 })
         {
-            PythonEngine.PythonPath = PythonEngine.PythonPath + sep + string.Join(sep, extraPath);
+            PythonEngine.PythonPath = PythonEngine.PythonPath + sep + string.Join(sep, options.ExtraPaths);
         }
 
         try
@@ -42,8 +61,26 @@ internal class PythonEnvironmentInternal : IPythonEnvironment
         {
 
         }
+    }
 
-        this.pythonEnvironment = pythonEnvironment;
+    private static void EnsureVirtualEnvironment(PythonLocationMetadata pythonLocation, string? venvPath)
+    {
+        if (venvPath is null)
+        {
+            throw new ArgumentNullException(nameof(venvPath), "Virtual environment location is not set.");
+        }
+
+        if (!Directory.Exists(venvPath))
+        {
+            ProcessStartInfo startInfo = new()
+            {
+                WorkingDirectory = pythonLocation.Folder,
+                FileName = "python",
+                Arguments = $"-m venv {venvPath}"
+            };
+            using Process process = new() { StartInfo = startInfo };
+            process.WaitForExit();
+        }
     }
 
     private static void SetupStandardLibrary(string pythonLocation, string versionPath, string majorVersion, char sep)
@@ -67,5 +104,11 @@ internal class PythonEnvironmentInternal : IPythonEnvironment
         PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
     }
 
-    public void Dispose() => pythonEnvironment.Destroy();
+    internal static string MapVersion(string version, string sep = "")
+    {
+        // split on . then take the first two segments and join them without spaces
+        var versionParts = version.Split('.');
+        return string.Join(sep, versionParts.Take(2));
+    }
+
 }

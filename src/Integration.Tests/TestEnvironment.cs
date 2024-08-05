@@ -14,15 +14,16 @@ public class TestEnvironment : IDisposable
         app = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
-                services.WithPython(Path.Join(Environment.CurrentDirectory, "python"));
+                var pb = services.WithPython();
+                pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    services.WithPythonFromNuGet("3.12.4");
+                    pb.FromNuGet("3.12.4");
                 }
                 else
                 {
-                    services.WithPythonFromEnvironmentVariable("Python3_ROOT_DIR", "3.12.4");
+                    pb.FromEnvironmentVariable("Python3_ROOT_DIR", "3.12.4");
                 }
             })
             .Build();
@@ -32,7 +33,6 @@ public class TestEnvironment : IDisposable
 
     public void Dispose()
     {
-        app.Dispose();
         Dispose(true);
         GC.SuppressFinalize(this);
     }
@@ -41,7 +41,7 @@ public class TestEnvironment : IDisposable
     {
         if (disposing)
         {
-            env.Dispose();
+            app.Dispose();
         }
     }
 

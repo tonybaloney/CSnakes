@@ -1,4 +1,5 @@
-﻿using Python.Runtime;
+﻿using CSnakes.Runtime.Locators;
+using Python.Runtime;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime;
@@ -7,10 +8,10 @@ internal class PythonEnvironmentInternal : IPythonEnvironment
 {
     private readonly PythonEnvironmentBuilder pythonEnvironment;
 
-    public PythonEnvironmentInternal(string pythonLocation, string version, string home, PythonEnvironmentBuilder pythonEnvironment, string[] extraPath)
+    public PythonEnvironmentInternal(PythonLocationMetadata pythonLocation, string home, PythonEnvironmentBuilder pythonEnvironment, string[] extraPath)
     {
-        string versionPath = PythonEnvironmentBuilder.MapVersion(version);
-        string majorVersion = PythonEnvironmentBuilder.MapVersion(version, ".");
+        string versionPath = PythonEnvironmentBuilder.MapVersion(pythonLocation.Version);
+        string majorVersion = PythonEnvironmentBuilder.MapVersion(pythonLocation.Version, ".");
         // Don't use BinaryFormatter by default as it's deprecated in .NET 8
         // See https://github.com/pythonnet/pythonnet/issues/2282
         RuntimeData.FormatterFactory = () =>
@@ -21,7 +22,7 @@ internal class PythonEnvironmentInternal : IPythonEnvironment
 
         char sep = Path.PathSeparator;
 
-        SetupStandardLibrary(pythonLocation, versionPath, majorVersion, sep);
+        SetupStandardLibrary(pythonLocation.Folder, versionPath, majorVersion, sep);
 
         if (!string.IsNullOrEmpty(home))
         {

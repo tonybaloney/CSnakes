@@ -1,24 +1,17 @@
-﻿using Python.Runtime;
+﻿using CSnakes.Runtime.Locators;
+using CSnakes.Runtime.PackageManagement;
+using Python.Runtime;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime;
 
-public partial class PythonEnvironmentBuilder
+internal partial class PythonEnvironmentBuilder(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers) : IPythonEnvironmentBuilder
 {
-    private readonly string versionPath;
-    private readonly string pythonLocation;
-    private readonly string version;
     private PythonEnvironmentInternal? env;
+    private bool ensureVirtualEnvironment = false;
     private string? virtualEnvironmentLocation;
     private string[] extraPaths = [];
-
-    private PythonEnvironmentBuilder(string pythonLocation, string version)
-    {
-        versionPath = MapVersion(version);
-        this.pythonLocation = pythonLocation;
-        this.version = version;
-    }
+    private string? home;
 
     internal static string MapVersion(string version, string sep = "")
     {
@@ -27,99 +20,73 @@ public partial class PythonEnvironmentBuilder
         return string.Join(sep, versionParts.Take(2));
     }
 
-    public PythonEnvironmentBuilder WithVirtualEnvironment(string path, bool ensureVirtualEnvironment = true)
+    public IPythonEnvironmentBuilder WithVirtualEnvironment(string path, bool ensureVirtualEnvironment = true)
     {
-        if (ensureVirtualEnvironment)
-        {
-            EnsureVirtualEnvironment(path);
-        }
-
+        this.ensureVirtualEnvironment = ensureVirtualEnvironment;
         virtualEnvironmentLocation = path;
         extraPaths = [.. extraPaths, path, Path.Combine(virtualEnvironmentLocation, "Lib", "site-packages")];
 
         return this;
     }
 
-    public IPythonEnvironment Build(string home)
+    public IPythonEnvironmentBuilder WithHome(string home)
     {
+        this.home = home;
+        return this;
+    }
+
+    public IPythonEnvironment Build()
+    {
+        PythonLocationMetadata location = locators.Select(locator => locator.LocatePython()).FirstOrDefault(loc => loc is not null)
+            ?? throw new InvalidOperationException("Python installation not found.");
+
         if (PythonEngine.IsInitialized && env is not null)
         {
             // Raise exception?
             return env;
         }
 
+        home ??= Environment.CurrentDirectory;
+
         if (!Directory.Exists(home))
         {
             throw new DirectoryNotFoundException("Python home directory does not exist.");
         }
 
-        if (File.Exists(Path.Combine(home, "requirements.txt")))
+        if (ensureVirtualEnvironment)
         {
-            InstallPackagesWithPip(home);
+            EnsureVirtualEnvironment(location);
         }
 
-        env = new PythonEnvironmentInternal(pythonLocation, version, home, this, extraPaths);
+        foreach (var installer in packageInstallers)
+        {
+            installer.InstallPackages(home, virtualEnvironmentLocation);
+        }
+
+        env = new PythonEnvironmentInternal(location, home, this, extraPaths);
 
         return env;
     }
 
-    private void InstallPackagesWithPip(string home)
+    private void EnsureVirtualEnvironment(PythonLocationMetadata pythonLocation)
     {
-        ProcessStartInfo startInfo = new()
-        {
-            WorkingDirectory = home,
-            FileName = "pip",
-            Arguments = "install -r requirements.txt"
-        };
-
-        if (virtualEnvironmentLocation is not null)
-        {
-            string venvScriptPath = Path.Combine(virtualEnvironmentLocation, "Scripts");
-            startInfo.FileName = Path.Combine(venvScriptPath, "pip.exe");
-            startInfo.EnvironmentVariables["PATH"] = $"{venvScriptPath};{Environment.GetEnvironmentVariable("PATH")}";
-        }
-
-        using Process process = new() {  StartInfo = startInfo };
-        process.WaitForExit();
-
-        if (process.ExitCode != 0)
-        {
-            throw new InvalidOperationException("Failed to install packages.");
-        }
-    }
-
-    private void EnsureVirtualEnvironment(string path)
-    {
-        if (path is null)
+        if (virtualEnvironmentLocation is null)
         {
             throw new InvalidOperationException("Virtual environment location is not set.");
         }
 
-        if (!Directory.Exists(path))
+        if (!Directory.Exists(virtualEnvironmentLocation))
         {
             ProcessStartInfo startInfo = new()
             {
-                WorkingDirectory = pythonLocation,
+                WorkingDirectory = pythonLocation.Folder,
                 FileName = "python",
-                Arguments = $"-m venv {path}"
+                Arguments = $"-m venv {virtualEnvironmentLocation}"
             };
-            Process? process = Process.Start(startInfo);
-            if (process is not null)
-            {
-                process.WaitForExit();
-            }
-            else
-            {
-                throw new InvalidOperationException("Failed to create virtual environment.");
-            }
+            using Process process = new() { StartInfo = startInfo };
+            process.WaitForExit();
         }
     }
-
-    public override bool Equals(object? obj) =>
-        obj is PythonEnvironmentBuilder environment &&
-        versionPath == environment.versionPath;
-
-    public override int GetHashCode() => HashCode.Combine(versionPath, pythonLocation);
 
     internal void Destroy() => env = null;
 }

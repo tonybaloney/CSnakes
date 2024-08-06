@@ -1,4 +1,6 @@
-﻿namespace CSnakes.Runtime.Locators;
+﻿using System.Runtime.InteropServices;
+
+namespace CSnakes.Runtime.Locators;
 internal class NuGetLocator(string version) : PythonLocator(version)
 {
     public override PythonLocationMetadata LocatePython()
@@ -12,4 +14,6 @@ internal class NuGetLocator(string version) : PythonLocator(version)
         string nugetPath = Path.Combine(userProfile, ".nuget", "packages", "python", Version, "tools");
         return LocatePythonInternal(nugetPath);
     }
+
+    internal override bool IsSupported() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 }

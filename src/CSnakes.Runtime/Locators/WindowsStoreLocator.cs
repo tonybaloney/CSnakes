@@ -1,4 +1,6 @@
-﻿namespace CSnakes.Runtime.Locators;
+﻿using System.Runtime.InteropServices;
+
+namespace CSnakes.Runtime.Locators;
 internal class WindowsStoreLocator(string version) : PythonLocator(version)
 {
     public override PythonLocationMetadata LocatePython()
@@ -8,4 +10,6 @@ internal class WindowsStoreLocator(string version) : PythonLocator(version)
 
         return LocatePythonInternal(windowsStorePath);
     }
+
+    internal override bool IsSupported() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 }

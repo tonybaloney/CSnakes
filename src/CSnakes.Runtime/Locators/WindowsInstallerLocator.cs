@@ -1,4 +1,6 @@
-﻿namespace CSnakes.Runtime.Locators;
+﻿using System.Runtime.InteropServices;
+
+namespace CSnakes.Runtime.Locators;
 internal class WindowsInstallerLocator(string version) : PythonLocator(version)
 {
     readonly string programFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
@@ -10,4 +12,6 @@ internal class WindowsInstallerLocator(string version) : PythonLocator(version)
 
         return LocatePythonInternal(officialInstallerPath);
     }
+
+    internal override bool IsSupported() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 }

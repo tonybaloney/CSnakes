@@ -6,11 +6,14 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime;
 
-internal class PythonEnvironmentInternal : IPythonEnvironment
+internal class PythonEnvironment : IPythonEnvironment
 {
-    public PythonEnvironmentInternal(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options)
+    public PythonEnvironment(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options)
     {
-        var location = locators.Select(locator => locator.LocatePython()).FirstOrDefault(loc => loc is not null)
+        var location = locators
+            .Where(locator => locator.IsSupported())
+            .Select(locator => locator.LocatePython())
+            .FirstOrDefault(loc => loc is not null)
             ?? throw new InvalidOperationException("Python installation not found.");
 
         string home = options.Home;
@@ -79,6 +82,7 @@ internal class PythonEnvironmentInternal : IPythonEnvironment
                 Arguments = $"-m venv {venvPath}"
             };
             using Process process = new() { StartInfo = startInfo };
+            process.Start();
             process.WaitForExit();
         }
     }

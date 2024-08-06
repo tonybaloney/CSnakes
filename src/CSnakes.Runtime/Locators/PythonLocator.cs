@@ -48,4 +48,6 @@ public abstract class PythonLocator(string version)
         var versionParts = version.Split('.');
         return string.Join(sep, versionParts.Take(2));
     }
+
+    internal virtual bool IsSupported() => true;
 }

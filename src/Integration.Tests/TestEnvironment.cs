@@ -17,14 +17,7 @@ public class TestEnvironment : IDisposable
                 var pb = services.WithPython();
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    pb.FromNuGet("3.12.4");
-                }
-                else
-                {
-                    pb.FromEnvironmentVariable("Python3_ROOT_DIR", "3.12.4");
-                }
+                pb.FromNuGet("3.12.4").FromEnvironmentVariable("Python3_ROOT_DIR", "3.12.4");
             })
             .Build();
 

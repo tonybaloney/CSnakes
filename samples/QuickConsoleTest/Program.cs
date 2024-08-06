@@ -11,9 +11,13 @@ var builder = Host.CreateDefaultBuilder(args)
     {
         var home = Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency");
         var venv = Path.Join(home, ".venv");
-        services.WithPython(home, venv);
-
-        services.WithPythonFromNuGet("3.12.4");
+        services
+        .WithPython()
+        .WithHome(home)
+        .WithVirtualEnvironment(venv)
+        .FromNuGet("3.12.4")
+        .FromPath("3.12.4")
+        .WithPipInstaller();
     });
 
 var app = builder.Build();

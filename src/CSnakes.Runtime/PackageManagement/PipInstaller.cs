@@ -43,6 +43,7 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
         startInfo.RedirectStandardError = true;
 
         using Process process = new() { StartInfo = startInfo };
+        process.Start();
         process.WaitForExit();
 
         if (process.ExitCode != 0)

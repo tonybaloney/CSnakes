@@ -24,5 +24,9 @@ public interface IPythonEnvironmentBuilder
     /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
     IPythonEnvironmentBuilder WithHome(string home);
 
+    /// <summary>
+    /// Gets the options for the Python environment being built.
+    /// </summary>
+    /// <returns>The <see cref="PythonEnvironmentOptions"/> for the current environment.</returns>
     PythonEnvironmentOptions GetOptions();
 }

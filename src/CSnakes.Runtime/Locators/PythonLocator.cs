@@ -49,5 +49,9 @@ public abstract class PythonLocator(string version)
         return string.Join(sep, versionParts.Take(2));
     }
 
+    /// <summary>
+    /// Specifies whether the Python Locator is supported. Defaults to <see langword="true"/>
+    /// </summary>
+    /// <remarks>This would be used to do an OS check and ignore a particular <see cref="PythonLocator"/> if the OS does not match the one it supports. See the <see cref="WindowsInstallerLocator"/> as an example.</remarks>
     internal virtual bool IsSupported() => true;
 }

@@ -1,5 +1,6 @@
 ﻿using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
+using Microsoft.Extensions.Logging;
 using Python.Runtime;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -8,18 +9,32 @@ namespace CSnakes.Runtime;
 
 internal class PythonEnvironment : IPythonEnvironment
 {
-    public PythonEnvironment(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options)
+    private readonly ILogger<IPythonEnvironment> logger;
+
+    protected ILogger<IPythonEnvironment> Logger => logger;
+
+    public PythonEnvironment(
+        IEnumerable<PythonLocator> locators,
+        IEnumerable<IPythonPackageInstaller> packageInstallers,
+        PythonEnvironmentOptions options,
+        ILogger<IPythonEnvironment> logger)
     {
         var location = locators
             .Where(locator => locator.IsSupported())
             .Select(locator => locator.LocatePython())
-            .FirstOrDefault(loc => loc is not null)
-            ?? throw new InvalidOperationException("Python installation not found.");
+            .FirstOrDefault(loc => loc is not null);
+
+        if (location is null)
+        {
+            logger.LogError("Python installation not found. There were {LocatorCount} locators registered.", locators.Count());
+            throw new InvalidOperationException("Python installation not found.");
+        }
 
         string home = options.Home;
 
         if (!Directory.Exists(home))
         {
+            logger.LogError("Python home directory does not exist: {Home}", home);
             throw new DirectoryNotFoundException("Python home directory does not exist.");
         }
 
@@ -48,11 +63,13 @@ internal class PythonEnvironment : IPythonEnvironment
 
         if (!string.IsNullOrEmpty(home))
         {
+            logger.LogInformation("Adding Python home directory to PYTHONPATH: {Home}", home);
             PythonEngine.PythonPath = PythonEngine.PythonPath + sep + home;
         }
 
         if (options.ExtraPaths is { Length: > 0 })
         {
+            logger.LogInformation("Adding extra paths to PYTHONPATH: {ExtraPaths}", options.ExtraPaths);
             PythonEngine.PythonPath = PythonEngine.PythonPath + sep + string.Join(sep, options.ExtraPaths);
         }
 
@@ -64,17 +81,21 @@ internal class PythonEnvironment : IPythonEnvironment
         {
 
         }
+
+        this.logger = logger;
     }
 
-    private static void EnsureVirtualEnvironment(PythonLocationMetadata pythonLocation, string? venvPath)
+    private void EnsureVirtualEnvironment(PythonLocationMetadata pythonLocation, string? venvPath)
     {
         if (venvPath is null)
         {
+            logger.LogError("Virtual environment location is not set but it was requested to be created.");
             throw new ArgumentNullException(nameof(venvPath), "Virtual environment location is not set.");
         }
 
         if (!Directory.Exists(venvPath))
         {
+            logger.LogInformation("Creating virtual environment at {VirtualEnvPath}", venvPath);
             ProcessStartInfo startInfo = new()
             {
                 WorkingDirectory = pythonLocation.Folder,
@@ -82,18 +103,35 @@ internal class PythonEnvironment : IPythonEnvironment
                 Arguments = $"-m venv {venvPath}"
             };
             using Process process = new() { StartInfo = startInfo };
+            process.OutputDataReceived += (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    logger.LogInformation("{Data}", e.Data);
+                }
+            };
+
+            process.ErrorDataReceived += (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    logger.LogError("{Data}", e.Data);
+                }
+            };
             process.Start();
             process.WaitForExit();
         }
     }
 
-    private static void SetupStandardLibrary(string pythonLocation, string versionPath, string majorVersion, char sep)
+    private void SetupStandardLibrary(string pythonLocation, string versionPath, string majorVersion, char sep)
     {
         // Add standard library to PYTHONPATH
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             Python.Runtime.Runtime.PythonDLL = Path.Combine(pythonLocation, $"python{versionPath}.dll");
             PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + sep + Path.Combine(pythonLocation, "DLLs");
+            logger.LogInformation("Python DLL: {PythonDLL}", Python.Runtime.Runtime.PythonDLL);
+            logger.LogInformation("Python path: {PythonPath}", PythonEngine.PythonPath);
             return;
         }
 
@@ -101,11 +139,15 @@ internal class PythonEnvironment : IPythonEnvironment
         {
             Python.Runtime.Runtime.PythonDLL = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.dylib");
             PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
+            logger.LogInformation("Python DLL: {PythonDLL}", Python.Runtime.Runtime.PythonDLL);
+            logger.LogInformation("Python path: {PythonPath}", PythonEngine.PythonPath);
             return;
         }
 
         Python.Runtime.Runtime.PythonDLL = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.so");
         PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
+        logger.LogInformation("Python DLL: {PythonDLL}", Python.Runtime.Runtime.PythonDLL);
+        logger.LogInformation("Python path: {PythonPath}", PythonEngine.PythonPath);
     }
 
     internal static string MapVersion(string version, string sep = "")

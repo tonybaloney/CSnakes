@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
@@ -20,10 +21,9 @@ internal unsafe partial class CPythonAPI
     {
         if (libraryName == PythonLibraryName)
         {
-            return NativeLibrary.Load(pythonLibraryPath!, assembly, DllImportSearchPath.UserDirectories);
+            return NativeLibrary.Load(pythonLibraryPath!, assembly, null);
         }
-        // This shouldn't happen.
-        return IntPtr.Zero;
+        return NativeLibrary.Load(libraryName, assembly, searchPath);
     }
 
     internal void Initialize()
@@ -34,9 +34,16 @@ internal unsafe partial class CPythonAPI
 
     internal static bool IsInitialized => Py_IsInitialized() == 1;
 
-    [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Utf16)]
-    [return: MarshalAs(UnmanagedType.LPStr)]
-    internal static partial string Py_GetVersion();
+    internal static string? Version
+    {
+        get
+        {
+            return Marshal.PtrToStringAnsi(Py_GetVersion());
+        }
+    }
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial IntPtr Py_GetVersion();
 
     [LibraryImport(PythonLibraryName)]
     internal static partial void Py_Initialize();

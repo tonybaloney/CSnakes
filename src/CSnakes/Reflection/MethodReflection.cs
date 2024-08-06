@@ -91,8 +91,8 @@ public static class MethodReflection
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        SyntaxFactory.IdentifierName("Py"),
-                        SyntaxFactory.IdentifierName("GIL"))),
+                        SyntaxFactory.IdentifierName("GIL"),
+                        SyntaxFactory.IdentifierName("Acquire"))),
                 SyntaxFactory.Block(
                     SyntaxFactory.LocalDeclarationStatement(
                         SyntaxFactory.VariableDeclaration(

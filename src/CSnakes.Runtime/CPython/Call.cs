@@ -11,6 +11,8 @@ internal unsafe partial class CPythonAPI
             throw new ArgumentNullException(nameof(callable));
         }
 
+        // TODO: Use vectorcall if possible https://docs.python.org/3/c-api/call.html#c.PyObject_Vectorcall
+
         // These options are used for efficiency. Don't create a tuple if its not required. 
         if (args.Length == 0)
         {

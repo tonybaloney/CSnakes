@@ -3,7 +3,7 @@
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
-    internal static PyObject* AsPyUnicodeObject(string s)
+    internal static nint AsPyUnicodeObject(string s)
     {
         fixed (char* c = s)
         {
@@ -12,8 +12,8 @@ internal unsafe partial class CPythonAPI
     }
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial PyObject* PyUnicode_DecodeUTF16(char* str, nint size, IntPtr errors, IntPtr byteorder);
+    internal static partial nint PyUnicode_DecodeUTF16(char* str, nint size, IntPtr errors, IntPtr byteorder);
 
     [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller))]
-    internal static partial string? PyUnicode_AsUTF8(PyObject* s);
+    internal static partial string? PyUnicode_AsUTF8(IntPtr s);
 }

@@ -57,8 +57,8 @@ public static class MethodReflection
                             SyntaxFactory.InvocationExpression(
                                 SyntaxFactory.MemberAccessExpression(
                                     SyntaxKind.SimpleMemberAccessExpression,
-                                    SyntaxFactory.IdentifierName("Py"),
-                                    SyntaxFactory.IdentifierName("Import")),
+                                    SyntaxFactory.IdentifierName("Import"),
+                                    SyntaxFactory.IdentifierName("ImportModule")),
                                 SyntaxFactory.ArgumentList(
                                     SyntaxFactory.SingletonSeparatedList(
                                         SyntaxFactory.Argument(
@@ -127,7 +127,7 @@ public static class MethodReflection
                                             SyntaxFactory.MemberAccessExpression(
                                                 SyntaxKind.SimpleMemberAccessExpression,
                                                 SyntaxFactory.IdentifierName("func"),
-                                                SyntaxFactory.IdentifierName("Invoke")),
+                                                SyntaxFactory.IdentifierName("Call")),
                                             SyntaxFactory.ArgumentList(
                                                 SyntaxFactory.SeparatedList(pythonCastArguments)))))))),
                     returnExpression

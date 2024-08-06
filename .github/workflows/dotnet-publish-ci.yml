@@ -6,6 +6,8 @@ name: .NET Publish (GitHub Packages)
 on:
   pull_request:
     branches: ["main"]
+    paths:
+      - "src/**"
 
 env:
   DOTNET_VERSION: 8.0.x

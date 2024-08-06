@@ -23,7 +23,7 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
         return Task.CompletedTask;
     }
 
-    private static void InstallPackagesWithPip(string home, string? virtualEnvironmentLocation)
+    private void InstallPackagesWithPip(string home, string? virtualEnvironmentLocation)
     {
         ProcessStartInfo startInfo = new()
         {
@@ -43,6 +43,22 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
         startInfo.RedirectStandardError = true;
 
         using Process process = new() { StartInfo = startInfo };
+        process.OutputDataReceived += (sender, e) =>
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                logger.LogInformation("{Data}", e.Data);
+            }
+        };
+
+        process.ErrorDataReceived += (sender, e) =>
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                logger.LogError("{Data}", e.Data);
+            }
+        };
+
         process.Start();
         process.WaitForExit();
 

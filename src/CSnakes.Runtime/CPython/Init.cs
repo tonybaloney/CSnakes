@@ -32,7 +32,10 @@ internal unsafe partial class CPythonAPI
         Py_Initialize();
     }
 
-    [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Utf8)]
+    internal static bool IsInitialized => Py_IsInitialized() == 1;
+
+    [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Utf16)]
+    [return: MarshalAs(UnmanagedType.LPStr)]
     internal static partial string Py_GetVersion();
 
     [LibraryImport(PythonLibraryName)]
@@ -45,5 +48,5 @@ internal unsafe partial class CPythonAPI
     internal static partial int Py_IsInitialized();
 
     [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Utf8)]
-    internal static partial void Py_SetPath(string path);
+    internal static partial void Py_SetPath([MarshalAs(UnmanagedType.LPWStr)] string path);
 }

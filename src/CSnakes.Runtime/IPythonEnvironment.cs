@@ -6,7 +6,7 @@ public interface IPythonEnvironment
 {
     public string Version()
     {
-        if (CPythonAPI.Py_IsInitialized() == 0)
+        if (!CPythonAPI.IsInitialized)
             return "Python not initialized";
         return CPythonAPI.Py_GetVersion();
     }

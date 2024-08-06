@@ -51,15 +51,7 @@ internal class PythonEnvironment : IPythonEnvironment
         {
             api.PythonPath = api.PythonPath + sep + string.Join(sep, options.ExtraPaths);
         }
-
-        try
-        {
-            api.Initialize();
-        }
-        catch (NullReferenceException)
-        {
-
-        }
+        api.Initialize();
     }
 
     private static void EnsureVirtualEnvironment(PythonLocationMetadata pythonLocation, string? venvPath)

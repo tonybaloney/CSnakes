@@ -84,7 +84,28 @@ public static class MethodReflection
             _ => ProcessMethodWithReturnType(returnSyntax, parameterGenericArgs)
         };
 
+        var loggerStatement = SyntaxFactory.ExpressionStatement(
+            SyntaxFactory.InvocationExpression(
+                SyntaxFactory.MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    SyntaxFactory.IdentifierName("logger"),
+                    SyntaxFactory.IdentifierName("LogInformation")))
+            .WithArgumentList(
+                SyntaxFactory.ArgumentList(
+                    SyntaxFactory.SeparatedList(
+                        new[]
+                        {
+                            SyntaxFactory.Argument(
+                                SyntaxFactory.LiteralExpression(
+                                    SyntaxKind.StringLiteralExpression,
+                                    SyntaxFactory.Literal("Loading module: {ModuleName}"))),
+                            SyntaxFactory.Argument(
+                                SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(moduleName)))
+                        })))
+            );
+
         var body = SyntaxFactory.Block(
+            loggerStatement,
             moduleLoad,
             SyntaxFactory.UsingStatement(
                 null,
@@ -94,6 +115,25 @@ public static class MethodReflection
                         SyntaxFactory.IdentifierName("Py"),
                         SyntaxFactory.IdentifierName("GIL"))),
                 SyntaxFactory.Block(
+                    SyntaxFactory.ExpressionStatement(
+                        SyntaxFactory.InvocationExpression(
+                            SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                SyntaxFactory.IdentifierName("logger"),
+                                SyntaxFactory.IdentifierName("LogInformation")))
+                        .WithArgumentList(
+                            SyntaxFactory.ArgumentList(
+                                SyntaxFactory.SeparatedList(
+                                    new[]
+                                    {
+                                        SyntaxFactory.Argument(
+                                            SyntaxFactory.LiteralExpression(
+                                                SyntaxKind.StringLiteralExpression,
+                                                SyntaxFactory.Literal("Invoking Python function: {FunctionName}"))),
+                                        SyntaxFactory.Argument(
+                                            SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(function.Name)))
+                                    })))
+                    ),
                     SyntaxFactory.LocalDeclarationStatement(
                         SyntaxFactory.VariableDeclaration(
                             SyntaxFactory.IdentifierName("var"))

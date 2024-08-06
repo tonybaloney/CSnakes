@@ -19,6 +19,8 @@ internal class PythonEnvironment : IPythonEnvironment
         PythonEnvironmentOptions options,
         ILogger<IPythonEnvironment> logger)
     {
+        this.logger = logger;
+
         var location = locators
             .Where(locator => locator.IsSupported())
             .Select(locator => locator.LocatePython())
@@ -81,8 +83,6 @@ internal class PythonEnvironment : IPythonEnvironment
         {
 
         }
-
-        this.logger = logger;
     }
 
     private void EnsureVirtualEnvironment(PythonLocationMetadata pythonLocation, string? venvPath)

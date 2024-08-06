@@ -6,6 +6,11 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName)]
     internal static partial PyObject* PyObject_Repr(PyObject* ob);
 
+    [LibraryImport(PythonLibraryName)]
+    internal static partial void Py_DecRef(PyObject* ob);
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial void Py_IncRef(PyObject* ob);
 
 /*    PyAPI_FUNC(PyObject*) PyObject_Str(PyObject*);
     PyAPI_FUNC(PyObject*) PyObject_ASCII(PyObject*);

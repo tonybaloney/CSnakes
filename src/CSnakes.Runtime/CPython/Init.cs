@@ -1,12 +1,11 @@
 ﻿using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
-    private const string PythonLibraryName = "python";
+    private const string PythonLibraryName = "csnakes_python";
     public string PythonPath { get; internal set; } = string.Empty;
 
     private static string? pythonLibraryPath = null;
@@ -14,7 +13,7 @@ internal unsafe partial class CPythonAPI
     public CPythonAPI(string pythonLibraryPath)
     {
         CPythonAPI.pythonLibraryPath = pythonLibraryPath;
-        NativeLibrary.SetDllImportResolver(Assembly.GetExecutingAssembly(), DllImportResolver);
+        NativeLibrary.SetDllImportResolver(typeof(CPythonAPI).Assembly, DllImportResolver);
     }
 
     private static IntPtr DllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
@@ -28,22 +27,16 @@ internal unsafe partial class CPythonAPI
 
     internal void Initialize()
     {
+        if (IsInitialized)
+            return;
         Py_SetPath(PythonPath);
         Py_Initialize();
     }
 
     internal static bool IsInitialized => Py_IsInitialized() == 1;
 
-    internal static string? Version
-    {
-        get
-        {
-            return Marshal.PtrToStringAnsi(Py_GetVersion());
-        }
-    }
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial IntPtr Py_GetVersion();
+    [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller))]
+    internal static partial string? Py_GetVersion();
 
     [LibraryImport(PythonLibraryName)]
     internal static partial void Py_Initialize();

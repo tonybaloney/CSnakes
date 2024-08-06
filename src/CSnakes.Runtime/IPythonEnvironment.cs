@@ -7,7 +7,7 @@ public interface IPythonEnvironment
     public string Version
     {
         get {
-            return CPythonAPI.Version ?? "No version available";
+            return CPythonAPI.Py_GetVersion() ?? "No version available";
         }
     }
 }

@@ -11,7 +11,7 @@ internal class PythonEnvironment : IPythonEnvironment
 {
     private readonly ILogger<IPythonEnvironment> logger;
 
-    protected ILogger<IPythonEnvironment> Logger => logger;
+    ILogger<IPythonEnvironment> IPythonEnvironment.Logger => logger;
 
     public PythonEnvironment(
         IEnumerable<PythonLocator> locators,

@@ -70,14 +70,21 @@ public class PythonStaticGenerator : IIncrementalGenerator
             using System;
             using System.Collections.Generic;
 
+            using Microsoft.Extensions.Logging;
+
             namespace {{@namespace}}
             {
                 public static class {{pascalFileName}}Extensions
                 {
-                    private static readonly I{{pascalFileName}} instance = new {{pascalFileName}}Internal();
+                    private static I{{pascalFileName}}? instance;
 
                     public static I{{pascalFileName}} {{pascalFileName}}(this IPythonEnvironment env)
                     {
+                        if (instance is null)
+                        {
+                            instance = new {{pascalFileName }}Internal(env.Logger);
+                        }
+
                         return instance;
                     }
 
@@ -85,8 +92,11 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     {
                         {{methods.Select(m => m.Syntax).Compile()}}
 
-                        internal {{pascalFileName}}Internal()
+                        private readonly ILogger<IPythonEnvironment> logger;
+
+                        internal {{pascalFileName}}Internal(ILogger<IPythonEnvironment> logger)
                         {
+                            this.logger = logger;
                             {{InjectConverters(paramGenericArgs)}}
                         }
                     }

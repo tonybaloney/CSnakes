@@ -1,8 +1,8 @@
-﻿import torch 
+﻿## Requires manual, platform specific setup of pytorch, see https://pytorch.org/get-started/locally/
+
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline 
 
 def phi3_inference_demo(user_message: str, system_message: str = "You are a helpful AI assistant.", temperature: float = 0.0) -> str:
-    torch.random.manual_seed(0) 
     model = AutoModelForCausalLM.from_pretrained( 
         "microsoft/Phi-3-mini-4k-instruct",  
         device_map="cuda",  
@@ -32,3 +32,6 @@ def phi3_inference_demo(user_message: str, system_message: str = "You are a help
 
     output = pipe(messages, **generation_args) 
     return output[0]['generated_text']
+
+if __name__ == "__main__":
+    print(phi3_inference_demo("Who's afraid of the big bad wolf?"))

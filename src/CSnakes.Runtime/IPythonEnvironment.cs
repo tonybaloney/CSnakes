@@ -1,5 +1,5 @@
 ﻿namespace CSnakes.Runtime;
 
-public interface IPythonEnvironment : IDisposable
+public interface IPythonEnvironment
 {
 }

@@ -1,14 +1,28 @@
 ﻿using CSnakes.Runtime;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
-var builder = PythonEnvironmentBuilder.FromNuGet("3.12.4") ?? throw new Exception("Cannot find Python");
+var builder = Host.CreateDefaultBuilder(args)
+    .ConfigureServices(services =>
+    {
+        var home = Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency");
+        var venv = Path.Join(home, ".venv");
+        services
+        .WithPython()
+        .WithHome(home)
+        .WithVirtualEnvironment(venv)
+        .FromNuGet("3.12.4")
+        .FromPath("3.12.4")
+        .WithPipInstaller();
+    });
 
-builder.WithVirtualEnvironment(Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency", ".venv"));
+var app = builder.Build();
 
-using var env = builder.Build(Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency"));
+var env = app.Services.GetRequiredService<IPythonEnvironment>();
 
 RunQuickDemo(env);
 

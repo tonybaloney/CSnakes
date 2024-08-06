@@ -2,6 +2,9 @@ using CSnakes.Runtime;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
+
 var pythonBuilder = builder.Services.WithPython();
 var home = Path.Join(Environment.CurrentDirectory, "..", "ExamplePythonDependency");
 var venv = Path.Join(home, ".venv");
@@ -19,7 +22,7 @@ builder.Services.AddSingleton(sp => sp.GetRequiredService<IPythonEnvironment>().
 
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
+app.MapDefaultEndpoints();
 
 app.MapGet("/quick", (IQuickDemo demo) => demo.Scream("a", 99));
 app.MapGet("/quick/names", (IQuickDemo demo) => string.Join(',', demo.ScreamNames(new[] { "a", "b", "c" }, 3)));

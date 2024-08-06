@@ -29,7 +29,6 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 // Convert snakecase to pascal case
                 var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
 
-                IEnumerable<MethodDefinition> methods;
                 // Read the file
                 var code = file.GetText(sourceContext.CancellationToken);
 
@@ -45,8 +44,8 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error.Message, "PythonStaticGenerator", DiagnosticSeverity.Error, true), errorLocation));
                 }
 
-                if (result) { 
-                    methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
+                if (result) {
+                    IEnumerable<MethodDefinition> methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
                     string source = FormatClassFromMethods(@namespace, pascalFileName, methods);
                     sourceContext.AddSource($"{pascalFileName}.py.cs", source);
                     sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
@@ -70,14 +69,21 @@ public class PythonStaticGenerator : IIncrementalGenerator
             using System;
             using System.Collections.Generic;
 
+            using Microsoft.Extensions.Logging;
+
             namespace {{@namespace}}
             {
                 public static class {{pascalFileName}}Extensions
                 {
-                    private static readonly I{{pascalFileName}} instance = new {{pascalFileName}}Internal();
+                    private static I{{pascalFileName}}? instance;
 
                     public static I{{pascalFileName}} {{pascalFileName}}(this IPythonEnvironment env)
                     {
+                        if (instance is null)
+                        {
+                            instance = new {{pascalFileName }}Internal(env.Logger);
+                        }
+
                         return instance;
                     }
 
@@ -85,8 +91,11 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     {
                         {{methods.Select(m => m.Syntax).Compile()}}
 
-                        internal {{pascalFileName}}Internal()
+                        private readonly ILogger<IPythonEnvironment> logger;
+
+                        internal {{pascalFileName}}Internal(ILogger<IPythonEnvironment> logger)
                         {
+                            this.logger = logger;
                             {{InjectConverters(paramGenericArgs)}}
                         }
                     }

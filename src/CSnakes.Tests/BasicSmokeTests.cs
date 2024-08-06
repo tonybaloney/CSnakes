@@ -2,6 +2,7 @@ using CSnakes.Runtime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
+using Microsoft.Extensions.Logging;
 using Python.Runtime;
 using PythonSourceGenerator.Parser;
 using PythonSourceGenerator.Reflection;
@@ -54,6 +55,7 @@ namespace PythonSourceGenerator.Tests
                 .AddReferences(MetadataReference.CreateFromFile(typeof(IReadOnlyDictionary<,>).Assembly.Location))
                 .AddReferences(MetadataReference.CreateFromFile(typeof(IPythonEnvironmentBuilder).Assembly.Location))
                 .AddReferences(MetadataReference.CreateFromFile(typeof(Py).Assembly.Location))
+                .AddReferences(MetadataReference.CreateFromFile(typeof(ILogger<>).Assembly.Location))
                 .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "netstandard").Location)) // TODO: (track) Ensure 2.0
                 .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Runtime").Location))
                 .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Collections").Location))

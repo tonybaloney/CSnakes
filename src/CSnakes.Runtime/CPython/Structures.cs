@@ -1,19 +1,16 @@
-﻿using System.Runtime.InteropServices;
-
-
-namespace CSnakes.Runtime;
+﻿namespace CSnakes.Runtime.CPython;
 
 using Py_ssize_t = System.IntPtr;
 
 internal unsafe partial class CPythonAPI
 {
-    struct PyObject
+    internal struct PyObject
     {
         Py_ssize_t ob_refcnt;
         PyObject* ob_type;
     }
 
-    struct PyVarObject
+    internal struct PyVarObject
     {
         PyObject ob_base;
         Py_ssize_t ob_size;

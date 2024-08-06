@@ -1,4 +1,5 @@
-﻿using CSnakes.Runtime.Locators;
+﻿using CSnakes.Runtime.CPython;
+using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
 using Python.Runtime;
 using System.Diagnostics;
@@ -8,6 +9,8 @@ namespace CSnakes.Runtime;
 
 internal class PythonEnvironment : IPythonEnvironment
 {
+    private CPythonAPI api;
+
     public PythonEnvironment(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options)
     {
         var location = locators
@@ -44,7 +47,7 @@ internal class PythonEnvironment : IPythonEnvironment
 
         char sep = Path.PathSeparator;
 
-        SetupStandardLibrary(location.Folder, versionPath, majorVersion, sep);
+        api = SetupStandardLibrary(location.Folder, versionPath, majorVersion, sep);
 
         if (!string.IsNullOrEmpty(home))
         {
@@ -87,25 +90,26 @@ internal class PythonEnvironment : IPythonEnvironment
         }
     }
 
-    private static void SetupStandardLibrary(string pythonLocation, string versionPath, string majorVersion, char sep)
+    private static CPythonAPI SetupStandardLibrary(string pythonLocation, string versionPath, string majorVersion, char sep)
     {
         // Add standard library to PYTHONPATH
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             Python.Runtime.Runtime.PythonDLL = Path.Combine(pythonLocation, $"python{versionPath}.dll");
             PythonEngine.PythonPath = Path.Combine(pythonLocation, "Lib") + sep + Path.Combine(pythonLocation, "DLLs");
-            return;
-        }
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
             Python.Runtime.Runtime.PythonDLL = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.dylib");
             PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
-            return;
+        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            Python.Runtime.Runtime.PythonDLL = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.so");
+            PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
+        } else
+        {
+            throw new PlatformNotSupportedException("Unsupported platform.");
         }
-
-        Python.Runtime.Runtime.PythonDLL = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.so");
-        PythonEngine.PythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
+        return new CPythonAPI(Python.Runtime.Runtime.PythonDLL);
     }
 
     internal static string MapVersion(string version, string sep = "")
@@ -114,5 +118,4 @@ internal class PythonEnvironment : IPythonEnvironment
         var versionParts = version.Split('.');
         return string.Join(sep, versionParts.Take(2));
     }
-
 }

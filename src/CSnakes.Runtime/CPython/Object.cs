@@ -1,16 +1,10 @@
-﻿using Python.Runtime;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
-    [LibraryImport("python.dll")]
-    static partial PyObject* PyObject_Repr(PyObject* ob);
+    [LibraryImport(PythonLibraryName)]
+    internal static partial PyObject* PyObject_Repr(PyObject* ob);
 
 
 /*    PyAPI_FUNC(PyObject*) PyObject_Str(PyObject*);

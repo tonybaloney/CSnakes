@@ -1,7 +1,6 @@
 ﻿using CSnakes.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Runtime.InteropServices;
 
 namespace Integration.Tests;
 public class TestEnvironment : IDisposable

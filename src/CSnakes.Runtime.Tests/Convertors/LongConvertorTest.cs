@@ -12,6 +12,8 @@ public class LongConvertorTest
     [InlineData(-1)]
     [InlineData(42)]
     [InlineData(-42)]
+    [InlineData(long.MaxValue)]
+    [InlineData(long.MinValue)]
     public void TestLongBidirectional(long input)
     {
         var td = TypeDescriptor.GetConverter(typeof(PyObject));

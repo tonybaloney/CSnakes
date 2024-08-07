@@ -13,7 +13,7 @@ public class LongConvertor : IPythonConvertor
 
     public bool TryEncode(object value, out PyObject? pyObject)
     {
-        pyObject = new(CPythonAPI.PyLong_FromLong((long)value));
+        pyObject = new(CPythonAPI.PyLong_FromLongLong((long)value));
         return true;
     }
 
@@ -25,7 +25,7 @@ public class LongConvertor : IPythonConvertor
             return false;
         }
 
-        value = CPythonAPI.PyLong_AsLong(pyObject.DangerousGetHandle());
+        value = CPythonAPI.PyLong_AsLongLong(pyObject.DangerousGetHandle());
         return true;
     }
 }

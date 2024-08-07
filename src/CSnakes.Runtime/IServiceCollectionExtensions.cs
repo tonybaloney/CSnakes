@@ -31,7 +31,6 @@ public static class IServiceCollectionExtensions
 
             return new PythonEnvironment(locators, installers, convertors, options);
         });
-        services.RegisterDefaultConvertors();
 
         return pythonBuilder;
     }

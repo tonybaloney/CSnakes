@@ -1,14 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CSnakes.Runtime.Convertors;
 internal static class ConvertorExtensions
 {
     public static IServiceCollection RegisterDefaultConvertors(this IServiceCollection services)
     {
-        services.AddSingleton<IPythonConvertor, DoubleConvertor>();
-        services.AddSingleton<IPythonConvertor, LongConvertor>();
-        services.AddSingleton<IPythonConvertor, StringConvertor>();
-        services.AddSingleton<IPythonConvertor, TupleConvertor>();
+        services.TryAddSingleton<IPythonConvertor, TupleConvertor>();
         return services;
     }
 }

@@ -1,4 +1,5 @@
-﻿using CSnakes.Runtime.Convertors;
+﻿using CSnakes.Runtime.Python;
+using System.ComponentModel;
 
 namespace CSnakes.Runtime.Tests.Convertors;
 
@@ -14,18 +15,16 @@ public class UnicodeConvertorTest
     [InlineData("नमस्ते दुनिया!")]
     public void TestUnicodeBidirectional(string input)
     {
-        var convertor = new StringConvertor();
+        var td = TypeDescriptor.GetConverter(typeof(PyObject));
 
-        Assert.True(convertor.CanEncode(typeof(string)));
+        Assert.True(td.CanConvertTo(typeof(string)));
 
-        var result = convertor.TryEncode(input, out var pyObj);
+        var pyObj = td.ConvertFromString(input) as PyObject;
 
-        Assert.True(result);
         Assert.NotNull(pyObj);
 
         // Convert back
-        result = convertor.TryDecode(pyObj!, out var str);
-        Assert.True(result);
+        var str = td.ConvertToString(pyObj);
         Assert.Equal(input, str);
     }
 }

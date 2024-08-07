@@ -1,4 +1,5 @@
-﻿using CSnakes.Runtime.Convertors;
+﻿using CSnakes.Runtime.Python;
+using System.ComponentModel;
 
 namespace CSnakes.Runtime.Tests.Convertors;
 
@@ -10,21 +11,18 @@ public class BoolConvertorTest
     [InlineData(false)]
     public void TestBoolBidirectional(bool input)
     {
-        var convertor = new BoolConvertor();
+        var td = TypeDescriptor.GetConverter(typeof(PyObject));
 
-        Assert.True(convertor.CanEncode(typeof(bool)));
+        Assert.True(td.CanConvertFrom(typeof(bool)));
 
-        var result = convertor.TryEncode(input, out var pyObj);
+        var pyObj = td.ConvertFrom(input) as PyObject;
 
-        Assert.True(result);
         Assert.NotNull(pyObj);
 
-        // Convert back
-        result = convertor.TryDecode(pyObj!, out var str);
-        Assert.True(result);
-        Assert.Equal(input, str);
+        Assert.True(td.CanConvertTo(typeof(bool)));
 
-        // Release object
-        pyObj.Dispose();
+        // Convert back
+        var str = td.ConvertTo(pyObj, typeof(bool));
+        Assert.Equal(input, str);
     }
 }

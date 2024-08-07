@@ -50,6 +50,7 @@ internal unsafe partial class CPythonAPI
         PyTupleType = ((PyObjectStruct*)PyEmptyTuple)->Type();
         PyFloatType = ((PyObjectStruct*)PyFloat_FromDouble(0.0))->Type();
         PyLongType = ((PyObjectStruct*)PyLong_FromLong(0))->Type();
+        PyListType = ((PyObjectStruct*)PyList_New(0))->Type();
     }
 
     internal static bool IsInitialized => Py_IsInitialized() == 1;

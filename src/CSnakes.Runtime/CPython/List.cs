@@ -4,6 +4,8 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
+    internal static nint PyListType;
+
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyList_New(nint size);
 
@@ -33,12 +35,6 @@ internal unsafe partial class CPythonAPI
 
     internal static bool IsPyList(nint p)
     {
-        return PyList_CheckExact(p) == 1 || PyList_Check(p) == 1;
+        return ((PyObjectStruct*)p)->Type() == PyListType;
     }
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial int PyList_Check(nint p);
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial int PyList_CheckExact(nint p);
 }

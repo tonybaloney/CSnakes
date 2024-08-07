@@ -3,7 +3,7 @@
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
-    internal static IntPtr PyUnicodeType = IntPtr.Zero;
+    private static IntPtr PyUnicodeType = IntPtr.Zero;
 
     internal static nint AsPyUnicodeObject(string s)
     {

@@ -175,12 +175,7 @@ internal class PyObjectTypeConverter : TypeConverter
         for (var i = 0; i < t.Length; i++)
         {
             var currentValue = t[i];
-
-            if (currentValue is null)
-            {
-                // TODO: handle null values
-            }
-
+            currentValue ??= CPythonAPI.GetNone();
             pyObjects.Add(ToPython(currentValue, context, culture));
         }
 

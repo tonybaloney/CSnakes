@@ -4,7 +4,7 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
-    internal static nint PyDictType;
+    private static nint PyDictType = IntPtr.Zero;
 
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyDict_New();

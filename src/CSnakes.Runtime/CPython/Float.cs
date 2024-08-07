@@ -4,7 +4,7 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
-    internal static nint PyFloatType;
+    private static nint PyFloatType = IntPtr.Zero;
 
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyFloat_FromDouble(double v);

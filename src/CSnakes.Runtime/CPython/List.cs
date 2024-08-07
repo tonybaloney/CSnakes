@@ -4,7 +4,7 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
-    internal static nint PyListType;
+    private static nint PyListType = IntPtr.Zero;
 
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyList_New(nint size);

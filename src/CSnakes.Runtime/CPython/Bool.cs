@@ -4,9 +4,9 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
-    internal static nint PyBoolType = IntPtr.Zero;
-    internal static nint Py_True = IntPtr.Zero;
-    internal static nint Py_False = IntPtr.Zero;
+    private static nint PyBoolType = IntPtr.Zero;
+    private static nint Py_True = IntPtr.Zero;
+    private static nint Py_False = IntPtr.Zero;
 
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyBool_FromLong(long value);

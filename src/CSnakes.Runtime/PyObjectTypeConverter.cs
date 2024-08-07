@@ -66,7 +66,7 @@ internal class PyObjectTypeConverter : TypeConverter
                 var tupleTypes = destinationType.GetGenericArguments();
                 if (tupleTypes.Length > 1)
                 {
-                    throw new NotSupportedException("The type is a tuple with more than one generic argument, but the underlying Python type is not a tuple.");
+                    throw new InvalidCastException($"The type is a tuple with more than one generic argument, but the underlying Python type is not a tuple. Destination Type: {destinationType}");
                 }
 
                 var convertedValue = ConvertTo(context, culture, pyObject, tupleTypes[0]);

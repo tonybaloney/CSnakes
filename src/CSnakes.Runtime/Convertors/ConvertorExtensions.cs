@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,10 @@ internal static class ConvertorExtensions
 {
     public static IServiceCollection RegisterDefaultConvertors(this IServiceCollection services)
     {
-        services.AddSingleton<IPythonConvertor<double>, DoubleConvertor>();
-        services.AddSingleton<IPythonConvertor<long>, LongConvertor>();
-        services.AddSingleton<IPythonConvertor<string>, StringConvertor>();
-        services.AddSingleton<IPythonConvertor<ITuple>, TupleConvertor>();
+        services.TryAddSingleton<IPythonConvertor<double>, DoubleConvertor>();
+        services.TryAddSingleton<IPythonConvertor<long>, LongConvertor>();
+        services.TryAddSingleton<IPythonConvertor<string>, StringConvertor>();
+        services.TryAddSingleton<IPythonConvertor<ITuple>, TupleConvertor>();
         return services;
     }
 }

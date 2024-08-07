@@ -60,6 +60,8 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
         };
 
         process.Start();
+        process.BeginErrorReadLine();
+        process.BeginOutputReadLine();
         process.WaitForExit();
 
         if (process.ExitCode != 0)

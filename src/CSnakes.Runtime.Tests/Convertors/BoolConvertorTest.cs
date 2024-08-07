@@ -11,7 +11,7 @@ public class BoolConvertorTest
     [InlineData(false)]
     public void TestBoolBidirectional(bool input)
     {
-        var td = TypeDescriptor.GetConverter(typeof(PyObject));
+        TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
 
         Assert.True(td.CanConvertFrom(typeof(bool)));
 

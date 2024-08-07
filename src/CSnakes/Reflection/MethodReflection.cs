@@ -67,14 +67,38 @@ public static class MethodReflection
                                                 SyntaxFactory.Literal(moduleName)))))))))));
 
         // Step 4: Build body
+        var pythonConversionStatements = new List<StatementSyntax>();
+        foreach (var parameter in parameterList.Parameters)
+        {
+            pythonConversionStatements.Add(
+                SyntaxFactory.LocalDeclarationStatement(
+                        SyntaxFactory.VariableDeclaration(
+                            SyntaxFactory.IdentifierName("PyObject"))
+                        .WithVariables(
+                            SyntaxFactory.SingletonSeparatedList(
+                                SyntaxFactory.VariableDeclarator(
+                                    SyntaxFactory.Identifier($"{parameter.Identifier}_pyObject"))
+                                .WithInitializer(
+                                    SyntaxFactory.EqualsValueClause(
+                                        SyntaxFactory.BinaryExpression(
+                                        SyntaxKind.AsExpression,
+                                        SyntaxFactory.InvocationExpression(
+                                            SyntaxFactory.MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                SyntaxFactory.IdentifierName("td"),
+                                                SyntaxFactory.IdentifierName("ConvertFrom")),
+                                            SyntaxFactory.ArgumentList(
+                                                 SyntaxFactory.SingletonSeparatedList(
+                                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(parameter.Identifier))))),
+                                        SyntaxFactory.Token(SyntaxKind.AsKeyword),
+                                SyntaxFactory.IdentifierName("PyObject")))
+                                )))));
+        }
+
         var pythonCastArguments = new List<ArgumentSyntax>();
         foreach (var parameter in parameterList.Parameters)
         {
-            pythonCastArguments.Add(SyntaxFactory.Argument(SyntaxFactory.InvocationExpression(
-                                            SyntaxFactory.MemberAccessExpression(
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                SyntaxFactory.IdentifierName(parameter.Identifier),
-                                                SyntaxFactory.IdentifierName("ToPython")))));
+            pythonCastArguments.Add(SyntaxFactory.Argument(SyntaxFactory.IdentifierName($"{parameter.Identifier}_pyObject")));
         }
 
         ReturnStatementSyntax returnExpression = returnSyntax switch
@@ -83,18 +107,7 @@ public static class MethodReflection
             TypeSyntax s when s is IdentifierNameSyntax => SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName("result")),
             _ => ProcessMethodWithReturnType(returnSyntax, parameterGenericArgs)
         };
-
-        var body = SyntaxFactory.Block(
-            moduleLoad,
-            SyntaxFactory.UsingStatement(
-                null,
-                SyntaxFactory.InvocationExpression(
-                    SyntaxFactory.MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        SyntaxFactory.IdentifierName("GIL"),
-                        SyntaxFactory.IdentifierName("Acquire"))),
-                SyntaxFactory.Block(
-                    SyntaxFactory.LocalDeclarationStatement(
+        var moduleDefinition = SyntaxFactory.LocalDeclarationStatement(
                         SyntaxFactory.VariableDeclaration(
                             SyntaxFactory.IdentifierName("var"))
                         .WithVariables(
@@ -113,8 +126,8 @@ public static class MethodReflection
                                                     SyntaxFactory.Argument(
                                                         SyntaxFactory.LiteralExpression(
                                                             SyntaxKind.StringLiteralExpression,
-                                                            SyntaxFactory.Literal(function.Name))))))))))),
-                    SyntaxFactory.LocalDeclarationStatement(
+                                                            SyntaxFactory.Literal(function.Name)))))))))));
+        var callStatement = SyntaxFactory.LocalDeclarationStatement(
                         SyntaxFactory.VariableDeclaration(
                             SyntaxFactory.IdentifierName("var"))
                         .WithVariables(
@@ -129,10 +142,23 @@ public static class MethodReflection
                                                 SyntaxFactory.IdentifierName("func"),
                                                 SyntaxFactory.IdentifierName("Call")),
                                             SyntaxFactory.ArgumentList(
-                                                SyntaxFactory.SeparatedList(pythonCastArguments)))))))),
-                    returnExpression
-                    )
-
+                                                SyntaxFactory.SeparatedList(pythonCastArguments))))))));
+        StatementSyntax[] statements = [
+            moduleDefinition,
+            .. pythonConversionStatements,
+            callStatement,
+            // TODO : Add free statements
+            returnExpression];
+        var body = SyntaxFactory.Block(
+            moduleLoad,
+            SyntaxFactory.UsingStatement(
+                null,
+                SyntaxFactory.InvocationExpression(
+                    SyntaxFactory.MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        SyntaxFactory.IdentifierName("GIL"),
+                        SyntaxFactory.IdentifierName("Acquire"))),
+                SyntaxFactory.Block(statements)
                 ));
 
         var syntax = SyntaxFactory.MethodDeclaration(

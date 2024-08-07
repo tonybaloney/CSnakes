@@ -7,6 +7,8 @@ namespace CSnakes.Runtime.Python;
 [TypeConverter(typeof(PyObjectTypeConverter))]
 public class PyObject : SafeHandle
 {
+    private static readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
+
     internal PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
     }
@@ -66,19 +68,7 @@ public class PyObject : SafeHandle
 
     public T As<T>()
     {
-        throw new NotImplementedException();
-    }
-
-    internal object AsManagedObject(Type type)
-    {
-        throw new NotImplementedException();
-    }
-}
-
-public static class Conversions
-{
-    public static PyObject ToPython(this object? o)
-    {
-        throw new NotImplementedException();
+        // TODO: This fails in many cases. 
+        return (T) td.ConvertTo(this, typeof(T)) ?? default;
     }
 }

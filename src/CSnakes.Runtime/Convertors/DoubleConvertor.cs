@@ -9,17 +9,17 @@ public class DoubleConvertor : IPythonConvertor<double>
         typeof(double).IsAssignableFrom(type);
 
     public bool CanDecode(PyObject objectType, Type type) =>
-        typeof(double).IsAssignableFrom(objectType) && CPythonAPI.IsPyFloat(objectType.DangerousGetHandle());
+        typeof(double).IsAssignableFrom(type) && CPythonAPI.IsPyFloat(objectType.DangerousGetHandle());
 
     public bool TryEncode(double value, out PyObject? result)
     {
-        result = new(CPythonAPI.PyFloat_AsDouble(value));
+        result = new(CPythonAPI.PyFloat_FromDouble(value));
         return true;
     }
 
     public bool TryDecode(PyObject value, out double? result)
     {
-        if (!CPythonAPI.IsPyFloat(objectType.DangerousGetHandle()))
+        if (!CPythonAPI.IsPyFloat(value.DangerousGetHandle()))
         {
             result = null;
             return false;

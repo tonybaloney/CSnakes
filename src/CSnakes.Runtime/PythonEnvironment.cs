@@ -1,4 +1,5 @@
-﻿using CSnakes.Runtime.CPython;
+﻿using CSnakes.Runtime.Convertors;
+using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
 using System.Diagnostics;
@@ -8,9 +9,13 @@ namespace CSnakes.Runtime;
 
 internal class PythonEnvironment : IPythonEnvironment
 {
-    private CPythonAPI api;
+    private readonly CPythonAPI api;
 
-    public PythonEnvironment(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options)
+    public PythonEnvironment(
+        IEnumerable<PythonLocator> locators,
+        IEnumerable<IPythonPackageInstaller> packageInstallers,
+        IEnumerable<IPythonConvertor<>> convertors,
+        PythonEnvironmentOptions options)
     {
         var location = locators
             .Where(locator => locator.IsSupported())

@@ -21,7 +21,7 @@ public class LongConvertorTest
 
         Assert.True(result);
         Assert.NotNull(pyObj);
-
+        Assert.Equal(input.ToString(), pyObj.ToString());
         // Convert back
         result = convertor.TryDecode(pyObj!, out var str);
         Assert.True(result);

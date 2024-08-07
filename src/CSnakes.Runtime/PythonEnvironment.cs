@@ -1,5 +1,4 @@
-﻿using CSnakes.Runtime.Convertors;
-using CSnakes.Runtime.CPython;
+﻿using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
 using System.Diagnostics;

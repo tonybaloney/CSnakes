@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace CSnakes.Runtime.Convertors;
+namespace CSnakes.Runtime;
 internal class PyObjectTypeConverter : TypeConverter
 {
     public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
@@ -199,7 +199,7 @@ internal class PyObjectTypeConverter : TypeConverter
     private PyObject ConvertFromList(ITypeDescriptorContext? context, CultureInfo? culture, IEnumerable e)
     {
         List<PyObject> list = [];
-        foreach(var item in e)
+        foreach (var item in e)
         {
             var converted = ConvertFrom(context, culture, item);
             list.Add((PyObject)converted!);

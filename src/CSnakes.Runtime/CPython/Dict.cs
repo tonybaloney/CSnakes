@@ -4,19 +4,15 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
+    internal static nint PyDictType;
+
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyDict_New();
 
     public static bool IsPyDict(nint p)
     {
-        return PyDict_CheckExact(p) == 1 || PyDict_Check(p) == 1;
+        return ((PyObjectStruct*)p)->Type() == PyDictType;
     }
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial int PyDict_Check(nint p);
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial int PyDict_CheckExact(nint p);
 
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyDict_Size(nint p);

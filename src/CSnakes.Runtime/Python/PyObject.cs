@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Convertors;
+using CSnakes.Runtime.Convertors;
 using CSnakes.Runtime.CPython;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
@@ -54,6 +54,15 @@ public class PyObject : SafeHandle
         }
 
         return new PyObject(CPythonAPI.Call(DangerousGetHandle(), argHandles));
+    }
+
+    public override string ToString()
+    {
+        var pyStringValue = CPythonAPI.PyObject_Str(handle);
+        var stringValue = CPythonAPI.PyUnicode_AsUTF8(pyStringValue);
+        CPythonAPI.Py_DecRef(pyStringValue);
+        // TODO: Clear exception on null
+        return stringValue ?? string.Empty;
     }
 
     public T As<T>()

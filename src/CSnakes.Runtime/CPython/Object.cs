@@ -32,7 +32,10 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName)]
     internal static partial IntPtr PyObject_GetIter(IntPtr ob);
 
-    /*    PyAPI_FUNC(PyObject*) PyObject_Str(PyObject*);
+    [LibraryImport(PythonLibraryName)]
+    internal static partial nint PyObject_Str(nint ob);
+
+    /*
         PyAPI_FUNC(PyObject*) PyObject_ASCII(PyObject*);
         PyAPI_FUNC(PyObject*) PyObject_Bytes(PyObject*);
         PyAPI_FUNC(PyObject*) PyObject_RichCompare(PyObject*, PyObject*, int);

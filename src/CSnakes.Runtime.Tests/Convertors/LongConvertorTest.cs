@@ -21,8 +21,7 @@ public class LongConvertorTest
         var pyObj = td.ConvertFrom(input) as PyObject;
 
         Assert.NotNull(pyObj);
-
-        Assert.True(td.CanConvertTo(typeof(long)));
+        Assert.Equal(input.ToString(), pyObj.ToString());
 
         // Convert back
         var str = td.ConvertTo(pyObj, typeof(long));

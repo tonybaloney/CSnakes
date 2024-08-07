@@ -17,11 +17,22 @@ internal unsafe partial class CPythonAPI
     internal static partial nint PyTuple_New(nint size);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyTuple_SetItem(nint p, nint pos, nint o);
+    internal static partial nint PyTuple_SetItem(nint ob, nint pos, nint o);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyTuple_GetItem(nint p, nint pos);
+    internal static partial nint PyTuple_GetItem(nint ob, nint pos);
 
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyTuple_Size(nint p);
+
+    internal static bool IsPyTuple(nint p)
+    {
+        return PyTuple_CheckExact(p) == 1 || PyTuple_Check(p) == 1;
+    }
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int PyTuple_Check(nint p);
+    
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int PyTuple_CheckExact(nint p);
 }

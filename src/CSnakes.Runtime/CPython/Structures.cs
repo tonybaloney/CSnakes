@@ -4,15 +4,17 @@ using Py_ssize_t = System.IntPtr;
 
 internal unsafe partial class CPythonAPI
 {
-    internal struct PyObject
+    internal struct PyObjectStruct
     {
         Py_ssize_t ob_refcnt;
-        PyObject* ob_type;
+        PyObjectStruct* ob_type;
+
+        internal readonly IntPtr Type() => (nint)ob_type;
     }
 
     internal struct PyVarObject
     {
-        PyObject ob_base;
+        PyObjectStruct* ob_base;
         Py_ssize_t ob_size;
     }
 }

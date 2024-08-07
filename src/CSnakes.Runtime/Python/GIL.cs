@@ -4,6 +4,7 @@ namespace CSnakes.Runtime.Python;
 
 public static class GIL
 {
+    // TODO: Handle environments without the GIL (although GIL state ensure becomes a noop)
     internal class PyGilState : IDisposable
     {
         private readonly IntPtr _state;

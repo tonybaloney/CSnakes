@@ -16,4 +16,15 @@ internal unsafe partial class CPythonAPI
 
     [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller))]
     internal static partial string? PyUnicode_AsUTF8(IntPtr s);
+
+    public static bool IsPyUnicode(nint p)
+    {
+        return PyUnicode_CheckExact(p) == 1 || PyUnicode_Check(p) == 1;
+    }
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int PyUnicode_Check(nint p);
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int PyUnicode_CheckExact(nint p);
 }

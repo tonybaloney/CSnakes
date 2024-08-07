@@ -4,19 +4,15 @@ namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
     [LibraryImport(PythonLibraryName)]
-    internal static partial PyObject* PyObject_Repr(PyObject* ob);
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial void Py_DecRef(PyObject* ob);
+    internal static partial IntPtr PyObject_Repr(IntPtr ob);
 
     [LibraryImport(PythonLibraryName)]
     internal static partial void Py_DecRef(nint ob);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial void Py_IncRef(PyObject* ob);
-
-    [LibraryImport(PythonLibraryName)]
     internal static partial void Py_IncRef(nint ob);
+
+    internal static IntPtr GetType(IntPtr ob) => ((PyObjectStruct*)ob)->Type();
 
     internal static IntPtr GetAttr(IntPtr ob, string name)
     {
@@ -31,7 +27,10 @@ internal unsafe partial class CPythonAPI
     internal static partial IntPtr PyObject_GetAttr(IntPtr ob, IntPtr attr);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial int PyObject_HasAttr(PyObject* ob, PyObject* attr);
+    internal static partial int PyObject_HasAttr(IntPtr ob, IntPtr attr);
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial IntPtr PyObject_GetIter(IntPtr ob);
 
     /*    PyAPI_FUNC(PyObject*) PyObject_Str(PyObject*);
         PyAPI_FUNC(PyObject*) PyObject_ASCII(PyObject*);

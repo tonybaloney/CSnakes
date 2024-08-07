@@ -22,12 +22,12 @@ internal class PyObjectTypeConverter : TypeConverter
 
         if (destinationType == typeof(long) && CPythonAPI.IsPyLong(handle))
         {
-            return CPythonAPI.PyLong_AsLong(handle);
+            return CPythonAPI.PyLong_AsLongLong(handle);
         }
 
         if (destinationType == typeof(int) && CPythonAPI.IsPyLong(handle))
         {
-            return CPythonAPI.PyLong_AsLong(handle);
+            return CPythonAPI.PyLong_AsLongLong(handle);
         }
 
         if (destinationType == typeof(bool) && CPythonAPI.IsPyBool(handle))
@@ -60,8 +60,8 @@ internal class PyObjectTypeConverter : TypeConverter
         value switch
         {
             string str => new PyObject(CPythonAPI.AsPyUnicodeObject(str)),
-            long l => new PyObject(CPythonAPI.PyLong_FromLong(l)),
-            int i => new PyObject(CPythonAPI.PyLong_FromLong(i)),
+            long l => new PyObject(CPythonAPI.PyLong_FromLongLong(l)),
+            int i => new PyObject(CPythonAPI.PyLong_FromLongLong(i)),
             bool b => new PyObject(CPythonAPI.PyBool_FromLong(b ? 1 : 0)),
             double d => new PyObject(CPythonAPI.PyFloat_FromDouble(d)),
             _ => base.ConvertFrom(context, culture, value)

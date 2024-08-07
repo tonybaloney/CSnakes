@@ -143,6 +143,7 @@ internal class PyObjectTypeConverter : TypeConverter
             double d => new PyObject(CPythonAPI.PyFloat_FromDouble(d)),
             ITuple t => ConvertFromTuple(context, culture, t),
             IEnumerable e => ConvertFromList(context, culture, e),
+            null => new PyObject(CPythonAPI.GetNone()),
             _ => base.ConvertFrom(context, culture, value)
         };
 
@@ -175,7 +176,10 @@ internal class PyObjectTypeConverter : TypeConverter
         for (var i = 0; i < t.Length; i++)
         {
             var currentValue = t[i];
-            currentValue ??= CPythonAPI.GetNone();
+            if (currentValue is null)
+            {
+                // TODO: handle null values
+            }
             pyObjects.Add(ToPython(currentValue, context, culture));
         }
 

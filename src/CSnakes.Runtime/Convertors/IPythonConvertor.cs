@@ -2,13 +2,13 @@
 
 namespace CSnakes.Runtime.Convertors;
 
-internal interface IPythonConvertor<T>
+internal interface IPythonConvertor
 {
     public bool CanEncode(Type type);
 
     public bool CanDecode(PyObject objectType, Type targetType);
 
-    public bool TryEncode(T value, out PyObject? result);
+    public bool TryEncode(object value, out PyObject? result);
 
-    public bool TryDecode(PyObject pyObj, out T? value);
+    public bool TryDecode(PyObject pyObj, out object? value);
 }

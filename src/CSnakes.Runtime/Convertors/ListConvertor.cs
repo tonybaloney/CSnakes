@@ -3,7 +3,7 @@ using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Convertors;
 
-public sealed class ListConvertor<TKey> : IPythonConvertor<IEnumerable<TKey>>
+public sealed class ListConvertor<TKey> : IPythonConvertor
 {
     public bool CanDecode(PyObject objectType, Type targetType) =>
         targetType.IsGenericType && typeof(IEnumerable<TKey>).IsAssignableFrom(targetType);
@@ -11,12 +11,13 @@ public sealed class ListConvertor<TKey> : IPythonConvertor<IEnumerable<TKey>>
     public bool CanEncode(Type type) =>
         type.IsGenericType && typeof(IEnumerable<TKey>).IsAssignableFrom(type);
 
-    public bool TryEncode(IEnumerable<TKey> value, out PyObject? result)
+    public bool TryEncode(object value, out PyObject? result)
     {
-        var list = value.ToArray();
+        var coll = (IEnumerable<TKey>)value;
+        var list = coll.ToArray();
 
-        var pyList = CPythonAPI.PyList_New(value.Count());
-        for (var i = 0; i < value.Count(); i++)
+        var pyList = CPythonAPI.PyList_New(coll.Count());
+        for (var i = 0; i < coll.Count(); i++)
         {
             int hresult = CPythonAPI.PyList_SetItem(pyList, i, list[i].ToPython().DangerousGetHandle());
             if (hresult == -1)
@@ -31,7 +32,7 @@ public sealed class ListConvertor<TKey> : IPythonConvertor<IEnumerable<TKey>>
         return true;
     }
 
-    public bool TryDecode(PyObject value, out IEnumerable<TKey>? result)
+    public bool TryDecode(PyObject value, out object? result)
     {
         // Check is list
         if (!CPythonAPI.IsPyList(value.DangerousGetHandle()))

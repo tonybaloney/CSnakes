@@ -3,20 +3,20 @@ using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Convertors;
 
-public class StringConvertor : IPythonConvertor<string>
+public class StringConvertor : IPythonConvertor
 {
     public bool CanEncode(Type type) =>
         type == typeof(string);
     public bool CanDecode(PyObject objectType, Type targetType) =>
         targetType == typeof(string) && CPythonAPI.IsPyUnicode(objectType.DangerousGetHandle());
 
-    public bool TryEncode(string value, out PyObject? result)
+    public bool TryEncode(object value, out PyObject? result)
     {
-        result = new PyObject(CPythonAPI.AsPyUnicodeObject(value));
+        result = new PyObject(CPythonAPI.AsPyUnicodeObject((string)value));
         return true;
     }
 
-    public bool TryDecode(PyObject pyObj, out string? result)
+    public bool TryDecode(PyObject pyObj, out object? result)
     {
         if (!CPythonAPI.IsPyUnicode(pyObj.DangerousGetHandle()))
         {

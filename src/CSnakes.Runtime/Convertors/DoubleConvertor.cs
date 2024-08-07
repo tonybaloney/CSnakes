@@ -3,7 +3,7 @@ using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Convertors;
 
-public class DoubleConvertor : IPythonConvertor<double>
+public class DoubleConvertor : IPythonConvertor
 {
     public bool CanEncode(Type type) =>
         typeof(double).IsAssignableFrom(type);
@@ -11,13 +11,13 @@ public class DoubleConvertor : IPythonConvertor<double>
     public bool CanDecode(PyObject objectType, Type type) =>
         typeof(double).IsAssignableFrom(type) && CPythonAPI.IsPyFloat(objectType.DangerousGetHandle());
 
-    public bool TryEncode(double value, out PyObject? result)
+    public bool TryEncode(object value, out PyObject? result)
     {
-        result = new(CPythonAPI.PyFloat_FromDouble(value));
+        result = new(CPythonAPI.PyFloat_FromDouble((double)value));
         return true;
     }
 
-    public bool TryDecode(PyObject value, out double result)
+    public bool TryDecode(PyObject value, out object? result)
     {
         if (!CPythonAPI.IsPyFloat(value.DangerousGetHandle()))
         {

@@ -2,7 +2,7 @@
 using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Convertors;
-public class BoolConvertor : IPythonConvertor<bool>
+public class BoolConvertor : IPythonConvertor
 {
     public bool CanEncode(Type type) =>
         type == typeof(bool);
@@ -10,7 +10,7 @@ public class BoolConvertor : IPythonConvertor<bool>
     public bool CanDecode(PyObject objectType, Type targetType) =>
         targetType == typeof(bool) && CPythonAPI.IsPyBool(objectType.DangerousGetHandle());
 
-    public bool TryDecode(PyObject pyObj, out bool value)
+    public bool TryDecode(PyObject pyObj, out object? value)
     {
         if (!CPythonAPI.IsPyBool(pyObj.DangerousGetHandle()))
         {
@@ -21,7 +21,7 @@ public class BoolConvertor : IPythonConvertor<bool>
         return true;
     }
 
-    public bool TryEncode(bool value, out PyObject? result)
+    public bool TryEncode(object value, out PyObject? result)
     {
         result = new PyObject(CPythonAPI.PyBool_FromLong(Convert.ToInt64(value)));
         return true;

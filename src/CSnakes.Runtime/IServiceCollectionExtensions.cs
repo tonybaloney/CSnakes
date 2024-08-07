@@ -25,7 +25,7 @@ public static class IServiceCollectionExtensions
             var envBuilder = sp.GetRequiredService<IPythonEnvironmentBuilder>();
             var locators = sp.GetServices<PythonLocator>();
             var installers = sp.GetServices<IPythonPackageInstaller>();
-            var convertors = sp.GetServices<IPythonConvertor<>>();
+            var convertors = sp.GetServices<IPythonConvertor>();
 
             var options = envBuilder.GetOptions();
 

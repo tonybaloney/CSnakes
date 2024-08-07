@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 
 namespace CSnakes.Runtime.Converters;
 
-public sealed class DictionaryConvertor<TKey, TValue> : IPythonConvertor<IReadOnlyDictionary<TKey, TValue>>
+public sealed class DictionaryConvertor<TKey, TValue> : IPythonConvertor
     where TKey : notnull
 {
     public bool CanDecode(PyObject objectType, Type targetType) =>
@@ -14,10 +14,13 @@ public sealed class DictionaryConvertor<TKey, TValue> : IPythonConvertor<IReadOn
     public bool CanEncode(Type type) =>
         type.IsGenericType && typeof(IReadOnlyDictionary<TKey, TValue>).IsAssignableFrom(type);
 
-    public bool TryEncode(IReadOnlyDictionary<TKey, TValue> value, out PyObject? result)
+    public bool TryEncode(object value, out PyObject? result)
     {
         var pyDict = CPythonAPI.PyDict_New();
-        foreach (var kvp in value)
+
+        var dict = (IReadOnlyDictionary<TKey, TValue>)value;
+
+        foreach (var kvp in dict)
         {
             int hresult = CPythonAPI.PyDict_SetItem(pyDict, kvp.Key.ToPython().DangerousGetHandle(), kvp.Value.ToPython().DangerousGetHandle());
             if (hresult == -1)
@@ -32,7 +35,7 @@ public sealed class DictionaryConvertor<TKey, TValue> : IPythonConvertor<IReadOn
         return true;
     }
 
-    public bool TryDecode(PyObject pyObj, out IReadOnlyDictionary<TKey, TValue>? result)
+    public bool TryDecode(PyObject pyObj, out object? result)
     {
         if (!CPythonAPI.IsPyDict(pyObj.DangerousGetHandle()))
         {

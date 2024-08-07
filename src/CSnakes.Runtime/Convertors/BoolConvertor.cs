@@ -14,7 +14,7 @@ public class BoolConvertor : IPythonConvertor
     {
         if (!CPythonAPI.IsPyBool(pyObj.DangerousGetHandle()))
         {
-            value = false;
+            value = CPythonAPI.IsPyTrue(pyObj.DangerousGetHandle());
             return false;
         }
         value = true;

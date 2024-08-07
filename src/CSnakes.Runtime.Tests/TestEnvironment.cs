@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Hosting;
 
 namespace CSnakes.Runtime.Tests;
+
+
 public class TestEnvironment : IDisposable
 {
     private readonly IPythonEnvironment env;
@@ -13,7 +15,7 @@ public class TestEnvironment : IDisposable
             .ConfigureServices((context, services) =>
             {
                 var pb = services.WithPython();
-                pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
+                pb.WithHome(Environment.CurrentDirectory);
 
                 pb.FromNuGet("3.12.4").FromEnvironmentVariable("Python3_ROOT_DIR", "3.12.4");
             })

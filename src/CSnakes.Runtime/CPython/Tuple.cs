@@ -3,8 +3,17 @@
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
+    internal static nint PyTupleType;
+    internal static nint PyEmptyTuple;
+
     internal static nint PackTuple(params nint[] items)
     {
+        if (items.Length == 0)
+        {
+            Py_IncRef(PyEmptyTuple);
+            return PyEmptyTuple;
+        }
+
         nint tuple = PyTuple_New(items.Length);
         for (int i = 0; i < items.Length; i++)
         {

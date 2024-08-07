@@ -3,6 +3,8 @@
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
+    internal static IntPtr PyUnicodeType = IntPtr.Zero;
+
     internal static nint AsPyUnicodeObject(string s)
     {
         fixed (char* c = s)
@@ -19,12 +21,6 @@ internal unsafe partial class CPythonAPI
 
     public static bool IsPyUnicode(nint p)
     {
-        return PyUnicode_CheckExact(p) == 1 || PyUnicode_Check(p) == 1;
+        return ((PyObjectStruct*)p)->Type() == PyUnicodeType; // TODO: Derived types
     }
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial int PyUnicode_Check(nint p);
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial int PyUnicode_CheckExact(nint p);
 }

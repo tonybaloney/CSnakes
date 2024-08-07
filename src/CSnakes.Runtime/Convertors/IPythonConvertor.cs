@@ -1,6 +1,6 @@
 ﻿using CSnakes.Runtime.Python;
 
-namespace CSnakes.Runtime.Converters;
+namespace CSnakes.Runtime.Convertors;
 
 internal interface IPythonConvertor<T>
 {

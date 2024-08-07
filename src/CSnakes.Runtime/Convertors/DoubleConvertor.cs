@@ -1,7 +1,7 @@
 ﻿using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 
-namespace CSnakes.Runtime.Converters;
+namespace CSnakes.Runtime.Convertors;
 
 public class DoubleConvertor : IPythonConvertor<double>
 {

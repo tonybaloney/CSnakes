@@ -1,7 +1,7 @@
 ﻿using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 
-namespace CSnakes.Runtime.Converters;
+namespace CSnakes.Runtime.Convertors;
 
 public class LongConvertor : IPythonConvertor<long>
 {
@@ -19,7 +19,7 @@ public class LongConvertor : IPythonConvertor<long>
 
     public bool TryDecode(PyObject pyObject, out long? value)
     {
-        if(!CPythonAPI.IsPyLong(pyObject.DangerousGetHandle()))
+        if (!CPythonAPI.IsPyLong(pyObject.DangerousGetHandle()))
         {
             value = null;
             return false;

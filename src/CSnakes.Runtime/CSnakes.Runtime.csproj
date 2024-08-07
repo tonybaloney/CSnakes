@@ -5,14 +5,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="Converters\FloatConvertor.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="Converters\NewFile1.txt" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
         <PackageReference Include="System.Text.Json" Version="8.0.4" />

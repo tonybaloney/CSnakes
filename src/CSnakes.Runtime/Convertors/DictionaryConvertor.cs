@@ -1,10 +1,11 @@
-﻿using CSnakes.Runtime.CPython;
+﻿using CSnakes.Runtime.Convertors;
+using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections.ObjectModel;
 
 namespace CSnakes.Runtime.Converters;
 
-public sealed class DictionaryConverter<TKey, TValue> : IPythonConvertor<IReadOnlyDictionary<TKey, TValue>>
+public sealed class DictionaryConvertor<TKey, TValue> : IPythonConvertor<IReadOnlyDictionary<TKey, TValue>>
     where TKey : notnull
 {
     public bool CanDecode(PyObject objectType, Type targetType) =>

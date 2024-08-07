@@ -1,9 +1,9 @@
 ﻿using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 
-namespace CSnakes.Runtime.Converters;
+namespace CSnakes.Runtime.Convertors;
 
-public sealed class ListConverter<TKey> : IPythonConvertor<IEnumerable<TKey>>
+public sealed class ListConvertor<TKey> : IPythonConvertor<IEnumerable<TKey>>
 {
     public bool CanDecode(PyObject objectType, Type targetType) =>
         targetType.IsGenericType && typeof(IEnumerable<TKey>).IsAssignableFrom(targetType);

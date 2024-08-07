@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace CSnakes.Runtime.Tests.Convertors;
+namespace CSnakes.Runtime.Tests.Converter;
 
 [Collection("ConversionTests")]
 public class TupleConverterTests

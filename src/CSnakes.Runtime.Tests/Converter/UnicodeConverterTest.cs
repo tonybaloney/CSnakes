@@ -1,10 +1,10 @@
 ﻿using CSnakes.Runtime.Python;
 using System.ComponentModel;
 
-namespace CSnakes.Runtime.Tests.Convertors;
+namespace CSnakes.Runtime.Tests.Converter;
 
 [Collection("ConversionTests")]
-public class UnicodeConvertorTest
+public class UnicodeConverterTest
 {
     [Theory]
     [InlineData("Hello, World!")]

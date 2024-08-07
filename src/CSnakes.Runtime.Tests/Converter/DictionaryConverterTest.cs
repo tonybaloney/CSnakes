@@ -1,7 +1,7 @@
 ﻿using CSnakes.Runtime.Python;
 using System.ComponentModel;
 
-namespace CSnakes.Runtime.Tests.Convertors;
+namespace CSnakes.Runtime.Tests.Converter;
 
 [Collection("ConversionTests")]
 public class DictionaryConverterTest

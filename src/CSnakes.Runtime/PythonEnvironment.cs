@@ -14,7 +14,7 @@ internal class PythonEnvironment : IPythonEnvironment
     public PythonEnvironment(
         IEnumerable<PythonLocator> locators,
         IEnumerable<IPythonPackageInstaller> packageInstallers,
-        IEnumerable<IPythonConvertor<>> convertors,
+        IEnumerable<IPythonConvertor> convertors,
         PythonEnvironmentOptions options)
     {
         var location = locators

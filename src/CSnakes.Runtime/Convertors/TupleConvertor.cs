@@ -5,13 +5,13 @@ using System.Runtime.CompilerServices;
 
 namespace CSnakes.Runtime.Convertors
 {
-    public class TupleConvertor : IPythonConvertor<ITuple>
+    public class TupleConvertor : IPythonConvertor
     {
         public bool CanDecode(PyObject objectType, Type targetType) => typeof(ITuple).IsAssignableFrom(targetType);
 
         public bool CanEncode(Type type) => typeof(ITuple).IsAssignableFrom(type);
 
-        public bool TryDecode(PyObject pyObj, out ITuple? value)
+        public bool TryDecode(PyObject pyObj, out object? value)
         {
             var tuplePtr = pyObj.DangerousGetHandle();
             if (!CPythonAPI.IsPyTuple(tuplePtr))
@@ -63,9 +63,9 @@ namespace CSnakes.Runtime.Convertors
             return true;
         }
 
-        public bool TryEncode(ITuple value, out PyObject? result)
+        public bool TryEncode(object value, out PyObject? result)
         {
-            var t = value;
+            var t = (ITuple)value;
 
             List<PyObject> pyObjects = [];
 

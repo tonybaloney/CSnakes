@@ -39,7 +39,7 @@ public sealed class DictionaryConvertor<TKey, TValue> : IPythonConvertor
     {
         if (!CPythonAPI.IsPyDict(pyObj.DangerousGetHandle()))
         {
-            result = default!;
+            result = null;
             return false;
         }
 

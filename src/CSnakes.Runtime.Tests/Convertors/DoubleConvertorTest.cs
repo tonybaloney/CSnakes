@@ -1,4 +1,6 @@
 ﻿using CSnakes.Runtime.Convertors;
+using CSnakes.Runtime.Python;
+using System.ComponentModel;
 
 namespace CSnakes.Runtime.Tests.Convertors;
 
@@ -13,21 +15,18 @@ public class DoubleConvertorTest
     [InlineData(double.PositiveInfinity)]
     public void TestDoubleBidirectional(double input)
     {
-        var convertor = new DoubleConvertor();
+        var td = TypeDescriptor.GetConverter(typeof(PyObject));
 
-        Assert.True(convertor.CanEncode(typeof(double)));
+        Assert.True(td.CanConvertFrom(typeof(double)));
 
-        var result = convertor.TryEncode(input, out var pyObj);
+        var pyObj = td.ConvertFrom(input) as PyObject;
 
-        Assert.True(result);
         Assert.NotNull(pyObj);
 
-        // Convert back
-        result = convertor.TryDecode(pyObj!, out var str);
-        Assert.True(result);
-        Assert.Equal(input, str);
+        Assert.True(td.CanConvertTo(typeof(double)));
 
-        // Release object
-        pyObj.Dispose();
+        // Convert back
+        var str = td.ConvertTo(pyObj, typeof(double));
+        Assert.Equal(input, str);
     }
 }

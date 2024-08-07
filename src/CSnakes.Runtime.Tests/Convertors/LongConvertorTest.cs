@@ -1,4 +1,5 @@
-﻿using CSnakes.Runtime.Convertors;
+﻿using CSnakes.Runtime.Python;
+using System.ComponentModel;
 
 namespace CSnakes.Runtime.Tests.Convertors;
 
@@ -13,21 +14,18 @@ public class LongConvertorTest
     [InlineData(-42)]
     public void TestLongBidirectional(long input)
     {
-        var convertor = new LongConvertor();
+        var td = TypeDescriptor.GetConverter(typeof(PyObject));
 
-        Assert.True(convertor.CanEncode(typeof(long)));
+        Assert.True(td.CanConvertFrom(typeof(long)));
 
-        var result = convertor.TryEncode(input, out var pyObj);
+        var pyObj = td.ConvertFrom(input) as PyObject;
 
-        Assert.True(result);
         Assert.NotNull(pyObj);
 
-        // Convert back
-        result = convertor.TryDecode(pyObj!, out var str);
-        Assert.True(result);
-        Assert.Equal(input, str);
+        Assert.True(td.CanConvertTo(typeof(long)));
 
-        // Release object
-        pyObj.Dispose();
+        // Convert back
+        var str = td.ConvertTo(pyObj, typeof(long));
+        Assert.Equal(input, str);
     }
 }

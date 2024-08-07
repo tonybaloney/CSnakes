@@ -1,8 +1,11 @@
-﻿using CSnakes.Runtime.CPython;
+﻿using CSnakes.Runtime.Convertors;
+using CSnakes.Runtime.CPython;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.Python;
 
+[TypeConverter(typeof(PyObjectTypeConverter))]
 public class PyObject : SafeHandle
 {
     internal PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
@@ -53,7 +56,8 @@ public class PyObject : SafeHandle
         return new PyObject(CPythonAPI.Call(DangerousGetHandle(), argHandles));
     }
 
-    public T As<T> () {
+    public T As<T>()
+    {
         throw new NotImplementedException();
     }
 

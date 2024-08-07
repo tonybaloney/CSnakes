@@ -1,5 +1,6 @@
 ﻿using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
+using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -44,7 +45,7 @@ internal class PyObjectTypeConverter : TypeConverter
 
         if (destinationType.IsGenericType)
         {
-            if (destinationType.GetGenericTypeDefinition() == typeof(IEnumerable<>) && CPythonAPI.IsPyList(handle))
+            if (destinationType.IsAssignableTo(typeof(IEnumerable)) && CPythonAPI.IsPyList(handle))
             {
                 return ConvertToList(pyObject, destinationType);
             }
@@ -121,7 +122,15 @@ internal class PyObjectTypeConverter : TypeConverter
 
     private object? ConvertToList(PyObject pyObject, Type destinationType)
     {
-        throw new NotImplementedException();
+        List<object?> list = [];
+        var genericType = destinationType.GetGenericArguments()[0];
+        for (var i = 0; i < CPythonAPI.PyList_Size(pyObject.DangerousGetHandle()); i++)
+        {
+            var item = new PyObject(CPythonAPI.PyList_GetItem(pyObject.DangerousGetHandle(), i));
+            list.Add(AsManagedObject(genericType, item, null, null));
+        }
+
+        return list;
     }
 
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) =>
@@ -133,8 +142,31 @@ internal class PyObjectTypeConverter : TypeConverter
             bool b => new PyObject(CPythonAPI.PyBool_FromLong(b ? 1 : 0)),
             double d => new PyObject(CPythonAPI.PyFloat_FromDouble(d)),
             ITuple t => ConvertFromTuple(context, culture, t),
+            IEnumerable e => ConvertFromList(context, culture, e),
             _ => base.ConvertFrom(context, culture, value)
         };
+
+    private PyObject ConvertFromList(ITypeDescriptorContext? context, CultureInfo? culture, IEnumerable e)
+    {
+        List<PyObject> list = [];
+        foreach(var item in e)
+        {
+            var converted = ConvertFrom(context, culture, item);
+            list.Add((PyObject)converted!);
+        }
+
+        var pyList = CPythonAPI.PyList_New(list.Count);
+        for (var i = 0; i < list.Count; i++)
+        {
+            int hresult = CPythonAPI.PyList_SetItem(pyList, i, list[i].DangerousGetHandle());
+            if (hresult == -1)
+            {
+                throw new Exception("Failed to set item in list");
+            }
+        }
+
+        return new PyObject(pyList);
+    }
 
     private PyObject ConvertFromTuple(ITypeDescriptorContext? context, CultureInfo? culture, ITuple t)
     {

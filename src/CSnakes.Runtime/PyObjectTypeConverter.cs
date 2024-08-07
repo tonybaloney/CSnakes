@@ -46,7 +46,7 @@ internal class PyObjectTypeConverter : TypeConverter
 
         if (destinationType.IsGenericType)
         {
-            if (destinationType.IsAssignableTo(typeof(IDictionary)) && CPythonAPI.IsPyDict(handle))
+            if (destinationType.IsAssignableTo(typeof(IEnumerable)) && CPythonAPI.IsPyDict(handle))
             {
                 return ConvertToDictionary(pyObject, destinationType, context, culture);
             }
@@ -74,16 +74,17 @@ internal class PyObjectTypeConverter : TypeConverter
             }
         }
 
-        return base.ConvertTo(context, culture, value, destinationType);
+        throw new InvalidCastException($"Attempting to cast {destinationType} from {pyObject.Type()}");
     }
 
     private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
     {
         var items = CPythonAPI.PyDict_Items(pyObject.DangerousGetHandle()); // Newref
-        var dict = new Dictionary<object, object?>();
-        nint itemsLength = CPythonAPI.PyList_Size(items);
         Type item1Type = destinationType.GetGenericArguments()[0];
         Type item2Type = destinationType.GetGenericArguments()[1];
+        Type dictType = typeof(Dictionary<,>).MakeGenericType(item1Type, item2Type);
+        var dict = (IDictionary)Activator.CreateInstance(dictType)!;
+        nint itemsLength = CPythonAPI.PyList_Size(items);
 
         for (nint i = 0; i < itemsLength; i++)
         {
@@ -98,7 +99,8 @@ internal class PyObjectTypeConverter : TypeConverter
             dict.Add(convertedItem1!, convertedItem2);
         }
 
-        return new ReadOnlyDictionary<object, object?>(dict);
+        Type returnType = typeof(ReadOnlyDictionary<,>).MakeGenericType(item1Type, item2Type);
+        return Activator.CreateInstance(returnType, dict);
     }
 
     private object? ConvertToTuple(ITypeDescriptorContext? context, CultureInfo? culture, PyObject pyObj, Type destinationType)
@@ -152,12 +154,14 @@ internal class PyObjectTypeConverter : TypeConverter
 
     private object? ConvertToList(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
     {
-        List<object?> list = [];
-        var genericType = destinationType.GetGenericArguments()[0];
+        Type genericArgument = destinationType.GetGenericArguments()[0];
+        Type listType = typeof(List<>).MakeGenericType(genericArgument);
+
+        IList list = (IList)Activator.CreateInstance(listType)!;
         for (var i = 0; i < CPythonAPI.PyList_Size(pyObject.DangerousGetHandle()); i++)
         {
             var item = new PyObject(CPythonAPI.PyList_GetItem(pyObject.DangerousGetHandle(), i));
-            list.Add(AsManagedObject(genericType, item, context, culture));
+            list.Add(AsManagedObject(genericArgument, item, context, culture));
         }
 
         return list;

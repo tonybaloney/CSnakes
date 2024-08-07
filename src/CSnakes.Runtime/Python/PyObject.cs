@@ -67,8 +67,9 @@ public class PyObject : SafeHandle
         return stringValue ?? string.Empty;
     }
 
-    public T? As<T>() where T : class
+    public T As<T>()
     {
-        return td.ConvertTo(this, typeof(T)) as T;
+        // TODO: This fails in many cases. 
+        return (T) td.ConvertTo(this, typeof(T)) ?? default;
     }
 }

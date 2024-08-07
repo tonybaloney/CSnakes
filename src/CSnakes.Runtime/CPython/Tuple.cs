@@ -36,12 +36,6 @@ internal unsafe partial class CPythonAPI
 
     internal static bool IsPyTuple(nint p)
     {
-        return PyTuple_CheckExact(p) == 1 || PyTuple_Check(p) == 1;
+        return ((PyObjectStruct*)p)->Type() == PyTupleType;
     }
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial int PyTuple_Check(nint p);
-    
-    [LibraryImport(PythonLibraryName)]
-    internal static partial int PyTuple_CheckExact(nint p);
 }

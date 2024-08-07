@@ -82,6 +82,9 @@ internal class PyObjectTypeConverter : TypeConverter
         var items = CPythonAPI.PyDict_Items(pyObject.DangerousGetHandle()); // Newref
         var dict = new Dictionary<object, object?>();
         nint itemsLength = CPythonAPI.PyList_Size(items);
+        Type item1Type = destinationType.GetGenericArguments()[0];
+        Type item2Type = destinationType.GetGenericArguments()[1];
+
         for (nint i = 0; i < itemsLength; i++)
         {
             var item = new PyObject(CPythonAPI.PyList_GetItem(items, i)); // Borrowed
@@ -89,8 +92,8 @@ internal class PyObjectTypeConverter : TypeConverter
             var item1 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 0));
             var item2 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 1));
 
-            var convertedItem1 = AsManagedObject(destinationType.GetGenericArguments()[0], item1, context, culture);
-            var convertedItem2 = AsManagedObject(destinationType.GetGenericArguments()[1], item2, context, culture);
+            var convertedItem1 = AsManagedObject(item1Type, item1, context, culture);
+            var convertedItem2 = AsManagedObject(item2Type, item2, context, culture);
 
             dict.Add(convertedItem1!, convertedItem2);
         }

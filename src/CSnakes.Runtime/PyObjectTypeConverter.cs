@@ -150,11 +150,6 @@ internal class PyObjectTypeConverter : TypeConverter
         return ConvertTo(context, culture, p, type);
     }
 
-    private T AsManagedObject<T>(PyObject p, ITypeDescriptorContext? context, CultureInfo? culture)
-    {
-        return (T)AsManagedObject(typeof(T), p, context, culture)!;
-    }
-
     private object? ConvertToList(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
     {
         List<object?> list = [];

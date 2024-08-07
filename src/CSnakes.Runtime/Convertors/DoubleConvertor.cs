@@ -17,11 +17,11 @@ public class DoubleConvertor : IPythonConvertor<double>
         return true;
     }
 
-    public bool TryDecode(PyObject value, out double? result)
+    public bool TryDecode(PyObject value, out double result)
     {
         if (!CPythonAPI.IsPyFloat(value.DangerousGetHandle()))
         {
-            result = null;
+            result = -0.0;
             return false;
         }
 

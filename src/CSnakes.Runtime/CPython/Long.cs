@@ -5,7 +5,7 @@ namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyLong_FromLong(nint v);
+    internal static partial nint PyLong_FromLong(long v);
 
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyLong_AsLong(nint p);

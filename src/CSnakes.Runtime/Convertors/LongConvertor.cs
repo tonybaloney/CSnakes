@@ -17,11 +17,11 @@ public class LongConvertor : IPythonConvertor<long>
         return true;
     }
 
-    public bool TryDecode(PyObject pyObject, out long? value)
+    public bool TryDecode(PyObject pyObject, out long value)
     {
         if (!CPythonAPI.IsPyLong(pyObject.DangerousGetHandle()))
         {
-            value = null;
+            value = 0;
             return false;
         }
 

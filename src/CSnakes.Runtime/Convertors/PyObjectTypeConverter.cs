@@ -1,6 +1,7 @@
 ﻿using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -45,9 +46,14 @@ internal class PyObjectTypeConverter : TypeConverter
 
         if (destinationType.IsGenericType)
         {
+            if (destinationType.IsAssignableTo(typeof(IDictionary)) && CPythonAPI.IsPyDict(handle))
+            {
+                return ConvertToDictionary(pyObject, destinationType, context, culture);
+            }
+
             if (destinationType.IsAssignableTo(typeof(IEnumerable)) && CPythonAPI.IsPyList(handle))
             {
-                return ConvertToList(pyObject, destinationType);
+                return ConvertToList(pyObject, destinationType, context, culture);
             }
 
             if (destinationType.IsAssignableTo(typeof(ITuple)))
@@ -69,6 +75,27 @@ internal class PyObjectTypeConverter : TypeConverter
         }
 
         return base.ConvertTo(context, culture, value, destinationType);
+    }
+
+    private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
+    {
+        var items = CPythonAPI.PyDict_Items(pyObject.DangerousGetHandle()); // Newref
+        var dict = new Dictionary<object, object?>();
+        nint itemsLength = CPythonAPI.PyList_Size(items);
+        for (nint i = 0; i < itemsLength; i++)
+        {
+            var item = new PyObject(CPythonAPI.PyList_GetItem(items, i)); // Borrowed
+
+            var item1 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 0));
+            var item2 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 1));
+
+            var convertedItem1 = AsManagedObject(destinationType.GetGenericArguments()[0], item1, context, culture);
+            var convertedItem2 = AsManagedObject(destinationType.GetGenericArguments()[1], item2, context, culture);
+
+            dict.Add(convertedItem1!, convertedItem2);
+        }
+
+        return new ReadOnlyDictionary<object, object?>(dict);
     }
 
     private object? ConvertToTuple(ITypeDescriptorContext? context, CultureInfo? culture, PyObject pyObj, Type destinationType)
@@ -120,14 +147,19 @@ internal class PyObjectTypeConverter : TypeConverter
         return ConvertTo(context, culture, p, type);
     }
 
-    private object? ConvertToList(PyObject pyObject, Type destinationType)
+    private T AsManagedObject<T>(PyObject p, ITypeDescriptorContext? context, CultureInfo? culture)
+    {
+        return (T)AsManagedObject(typeof(T), p, context, culture)!;
+    }
+
+    private object? ConvertToList(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
     {
         List<object?> list = [];
         var genericType = destinationType.GetGenericArguments()[0];
         for (var i = 0; i < CPythonAPI.PyList_Size(pyObject.DangerousGetHandle()); i++)
         {
             var item = new PyObject(CPythonAPI.PyList_GetItem(pyObject.DangerousGetHandle(), i));
-            list.Add(AsManagedObject(genericType, item, null, null));
+            list.Add(AsManagedObject(genericType, item, context, culture));
         }
 
         return list;
@@ -141,11 +173,28 @@ internal class PyObjectTypeConverter : TypeConverter
             int i => new PyObject(CPythonAPI.PyLong_FromLong(i)),
             bool b => new PyObject(CPythonAPI.PyBool_FromLong(b ? 1 : 0)),
             double d => new PyObject(CPythonAPI.PyFloat_FromDouble(d)),
+            IDictionary dictionary => ConvertFromDictionary(context, culture, dictionary),
             ITuple t => ConvertFromTuple(context, culture, t),
             IEnumerable e => ConvertFromList(context, culture, e),
             null => new PyObject(CPythonAPI.GetNone()),
             _ => base.ConvertFrom(context, culture, value)
         };
+
+    private PyObject ConvertFromDictionary(ITypeDescriptorContext? context, CultureInfo? culture, IDictionary dictionary)
+    {
+        var pyDict = CPythonAPI.PyDict_New();
+
+        foreach (DictionaryEntry kvp in dictionary)
+        {
+            int hresult = CPythonAPI.PyDict_SetItem(pyDict, ToPython(kvp.Key, context, culture).DangerousGetHandle(), ToPython(kvp.Value, context, culture).DangerousGetHandle());
+            if (hresult == -1)
+            {
+                throw new Exception("Failed to set item in dictionary");
+            }
+        }
+
+        return new PyObject(pyDict);
+    }
 
     private PyObject ConvertFromList(ITypeDescriptorContext? context, CultureInfo? culture, IEnumerable e)
     {

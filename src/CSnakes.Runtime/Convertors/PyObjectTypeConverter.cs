@@ -35,7 +35,7 @@ internal class PyObjectTypeConverter : TypeConverter
 
         if (destinationType == typeof(bool) && CPythonAPI.IsPyBool(handle))
         {
-            return CPythonAPI.PyBool_FromLong(handle);
+            return CPythonAPI.IsPyTrue(handle);
         }
 
         if (destinationType == typeof(double) && CPythonAPI.IsPyFloat(handle))
@@ -138,7 +138,7 @@ internal class PyObjectTypeConverter : TypeConverter
         {
             string str => new PyObject(CPythonAPI.AsPyUnicodeObject(str)),
             long l => new PyObject(CPythonAPI.PyLong_FromLongLong(l)),
-            int i => new PyObject(CPythonAPI.PyLong_FromLongLong(i)),
+            int i => new PyObject(CPythonAPI.PyLong_FromLong(i)),
             bool b => new PyObject(CPythonAPI.PyBool_FromLong(b ? 1 : 0)),
             double d => new PyObject(CPythonAPI.PyFloat_FromDouble(d)),
             ITuple t => ConvertFromTuple(context, culture, t),

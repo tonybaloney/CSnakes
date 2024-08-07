@@ -24,6 +24,7 @@ public class ListConverterTest
         // Convert back
         var str = td.ConvertTo(pyObj, input.GetType());
         Assert.Equal(input, str);
+        pyObj.Dispose();
     }
 
     [Fact]
@@ -44,5 +45,7 @@ public class ListConverterTest
         // Convert back
         var str = td.ConvertTo(pyObj, input.GetType());
         Assert.Equal(input, str);
+
+        pyObj.Dispose();
     }
 }

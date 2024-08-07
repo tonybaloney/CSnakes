@@ -1,7 +1,9 @@
 ﻿using CSnakes.Runtime.Convertors;
 
 namespace CSnakes.Runtime.Tests.Convertors;
-public class UnicodeConvertorTests
+
+[Collection("ConversionTests")]
+public class UnicodeConvertorTest
 {
     [Theory]
     [InlineData("Hello, World!")]

@@ -13,7 +13,13 @@ internal unsafe partial class CPythonAPI
     public CPythonAPI(string pythonLibraryPath)
     {
         CPythonAPI.pythonLibraryPath = pythonLibraryPath;
-        NativeLibrary.SetDllImportResolver(typeof(CPythonAPI).Assembly, DllImportResolver);
+        try
+        {
+            NativeLibrary.SetDllImportResolver(typeof(CPythonAPI).Assembly, DllImportResolver);
+        } catch (InvalidOperationException)
+        {
+            // Already set. 
+        }
     }
 
     private static IntPtr DllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
@@ -31,6 +37,18 @@ internal unsafe partial class CPythonAPI
             return;
         Py_SetPath(PythonPath);
         Py_Initialize();
+
+        if (!IsInitialized)
+            throw new InvalidOperationException("Python initialization failed.");
+
+        // Setup type statics
+        PyUnicodeType = ((PyObjectStruct*)AsPyUnicodeObject(String.Empty))->Type();
+        Py_True = PyBool_FromLong(1);
+        Py_False = PyBool_FromLong(0);
+        PyBoolType = ((PyObjectStruct*)Py_True)->Type();
+        PyEmptyTuple = PyTuple_New(0);
+        PyTupleType = ((PyObjectStruct*)PyEmptyTuple)->Type();
+        PyFloatType = ((PyObjectStruct*)PyFloat_FromDouble(0.0))->Type();
     }
 
     internal static bool IsInitialized => Py_IsInitialized() == 1;

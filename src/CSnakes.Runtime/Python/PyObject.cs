@@ -1,7 +1,5 @@
 using CSnakes.Runtime.CPython;
-using Microsoft.Extensions.Primitives;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 

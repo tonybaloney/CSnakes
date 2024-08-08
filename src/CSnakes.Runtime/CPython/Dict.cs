@@ -59,7 +59,7 @@ internal unsafe partial class CPythonAPI
     /// <summary>
     /// Insert val into the dictionary p with a key of key. 
     /// key must be hashable; if it isn’t, TypeError will be raised.  
-    /// This function does not steal a reference to val.
+    /// This function adds a reference to val if successful.
     /// </summary>
     /// <param name="dict">PyDict object</param>
     /// <param name="key">Key</param>

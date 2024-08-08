@@ -68,7 +68,6 @@ public class PyObject : SafeHandle
     public PyObject Type()
     {
         Debug.Assert(!IsInvalid);
-        // TODO: Handle releasing reference to the type object
         return new PyObject(CPythonAPI.GetType(DangerousGetHandle()));
     }
 

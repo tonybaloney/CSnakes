@@ -12,7 +12,16 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName)]
     internal static partial void Py_IncRef(nint ob);
 
-    internal static IntPtr GetType(IntPtr ob) => ((PyObjectStruct*)ob)->Type();
+    /// <summary>
+    /// Get the Type object for the object
+    /// </summary>
+    /// <param name="ob">The Python object</param>
+    /// <returns>A new reference to the type.</returns>
+    internal static IntPtr GetType(IntPtr ob) {
+        nint type = ((PyObjectStruct*)ob)->Type();
+        Py_IncRef(type);
+        return type;
+    }
 
     internal static IntPtr GetAttr(IntPtr ob, string name)
     {

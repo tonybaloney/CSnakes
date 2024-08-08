@@ -20,11 +20,14 @@ public class PyObject : SafeHandle
             ThrowPythonExceptionAsClrException();
         }
 #if DEBUG
-        IntPtr i = CPythonAPI.PyObject_Str(pyObject);
-        if (i == IntPtr.Zero)
-            self = String.Empty;
-        self = CPythonAPI.PyUnicode_AsUTF8(i) ?? String.Empty;
-        CPythonAPI.Py_DecRef(i);
+        using (GIL.Acquire())
+        {
+            IntPtr i = CPythonAPI.PyObject_Str(pyObject);
+            if (i == IntPtr.Zero)
+                self = String.Empty;
+            self = CPythonAPI.PyUnicode_AsUTF8(i) ?? String.Empty;
+            CPythonAPI.Py_DecRef(i);
+        }
 #else
         self = string.Empty;
 #endif
@@ -36,9 +39,10 @@ public class PyObject : SafeHandle
     {
         if (!hasDecrefed)
         {
+            // TODO: thread-safe lock here, and/or GIL
+            hasDecrefed = true;
             CPythonAPI.Py_DecRef(handle);
             handle = IntPtr.Zero;
-            hasDecrefed = true;
         }
         else
         {
@@ -54,24 +58,31 @@ public class PyObject : SafeHandle
             throw new InvalidDataException("An error occurred in Python, but no exception was set.");
         }
         nint excType, excValue, excTraceback;
-        CPythonAPI.PyErr_Fetch(out excType, out excValue, out excTraceback);
-        using var pyExceptionType = new PyObject(excType);
-        using var pyExceptionValue = new PyObject(excValue);
-        using var pyExceptionTraceback = new PyObject(excTraceback);
-
-        if (pyExceptionType.IsInvalid || pyExceptionValue.IsInvalid || pyExceptionType.IsInvalid)
+        using (GIL.Acquire())
         {
-            CPythonAPI.PyErr_Clear();
-            throw new InvalidDataException("An error fetching the exceptions in Python.");
-        }
+            CPythonAPI.PyErr_Fetch(out excType, out excValue, out excTraceback);
+            using var pyExceptionType = new PyObject(excType);
+            using var pyExceptionValue = new PyObject(excValue);
+            using var pyExceptionTraceback = new PyObject(excTraceback);
 
-        var pyExceptionStr = pyExceptionValue.ToString();
-        var pyExceptionTypeStr = pyExceptionType.ToString();
-        var pyExceptionTracebackStr = pyExceptionTraceback.ToString();
-        CPythonAPI.PyErr_Clear();
-        throw new PythonException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTracebackStr);
+            if (pyExceptionType.IsInvalid || pyExceptionValue.IsInvalid || pyExceptionType.IsInvalid)
+            {
+                CPythonAPI.PyErr_Clear();
+                throw new InvalidDataException("An error fetching the exceptions in Python.");
+            }
+
+            var pyExceptionStr = pyExceptionValue.ToString();
+            var pyExceptionTypeStr = pyExceptionType.ToString();
+            var pyExceptionTracebackStr = pyExceptionTraceback.ToString();
+            CPythonAPI.PyErr_Clear();
+            throw new PythonException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTracebackStr);
+        }
     }
 
+    /// <summary>
+    /// Get the type for the object.
+    /// </summary>
+    /// <returns>A new reference to the type field.</returns>
     public PyObject Type()
     {
         Debug.Assert(!IsInvalid);
@@ -99,8 +110,15 @@ public class PyObject : SafeHandle
         return new PyObject(CPythonAPI.PyObject_GetIter(DangerousGetHandle()));
     }
 
+    /// <summary>
+    /// Call the object. Equivalent to (__call__)(args)
+    /// Caller should already have aquired the GIL.
+    /// </summary>
+    /// <param name="args"></param>
+    /// <returns>The resulting object, or NULL on error.</returns>
     public PyObject Call(params PyObject[] args)
     {
+        // TODO: Decide whether to move the GIL acquisition to here.
         Debug.Assert(!IsInvalid);
         var argHandles = new IntPtr[args.Length];
         for (int i = 0; i < args.Length; i++)
@@ -110,12 +128,19 @@ public class PyObject : SafeHandle
         return new PyObject(CPythonAPI.Call(DangerousGetHandle(), argHandles));
     }
 
+    /// <summary>
+    /// Get a string representation of the object.
+    /// </summary>
+    /// <returns></returns>
     public override string ToString()
     {
         Debug.Assert(!IsInvalid);
-        using PyObject pyObjectStr = new PyObject(CPythonAPI.PyObject_Str(handle));
-        string? stringValue = CPythonAPI.PyUnicode_AsUTF8(pyObjectStr.DangerousGetHandle());
-        return stringValue ?? string.Empty;
+        using (GIL.Acquire())
+        {
+            using PyObject pyObjectStr = new PyObject(CPythonAPI.PyObject_Str(handle));
+            string? stringValue = CPythonAPI.PyUnicode_AsUTF8(pyObjectStr.DangerousGetHandle());
+            return stringValue ?? string.Empty;
+        }
     }
 
     public T As<T>()

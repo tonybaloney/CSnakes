@@ -70,6 +70,18 @@ public static class IServiceCollectionExtensions
     }
 
     /// <summary>
+    /// Adds a Python locator using Python from the Official macOS Installer packages to the service collection with the specified version.
+    /// </summary>
+    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
+    /// <param name="version">The version of the Windows Installer package.</param>
+    /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
+    public static IPythonEnvironmentBuilder FromMacOSInstallerLocator(this IPythonEnvironmentBuilder builder, string version)
+    {
+        builder.Services.AddSingleton<PythonLocator>(new MacOSInstallerLocator(version));
+        return builder;
+    }
+
+    /// <summary>
     /// Adds a Python locator using Python from an environment variable to the service collection with the specified environment variable name and version.
     /// </summary>
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>

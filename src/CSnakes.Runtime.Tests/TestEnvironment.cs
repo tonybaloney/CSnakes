@@ -17,7 +17,7 @@ public class TestEnvironment : IDisposable
                 var pb = services.WithPython();
                 pb.WithHome(Environment.CurrentDirectory);
 
-                pb.FromNuGet("3.12.4").FromEnvironmentVariable("Python3_ROOT_DIR", "3.12.4");
+                pb.FromNuGet("3.12.4").FromMacOSInstallerLocator("3.12").FromEnvironmentVariable("Python3_ROOT_DIR", "3.12.4");
             })
             .Build();
 

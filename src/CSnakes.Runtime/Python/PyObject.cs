@@ -56,9 +56,9 @@ public class PyObject : SafeHandle
         var pyExceptionStr = pyExceptionValue.ToString();
         var pyExceptionTypeStr = pyExceptionType.ToString();
         var pyExceptionTracebackStr = pyExceptionTraceback.ToString();
-        pyExceptionType.Dispose();
-        pyExceptionValue.Dispose();
-        pyExceptionTraceback.Dispose();
+        // pyExceptionType.Dispose();
+        // pyExceptionValue.Dispose();
+        // pyExceptionTraceback.Dispose();
         CPythonAPI.PyErr_Clear();
         throw new PythonException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTracebackStr);
     }

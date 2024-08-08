@@ -32,27 +32,37 @@ internal unsafe partial class CPythonAPI
         return pyAttr;
     }
 
+    /// <summary>
+    /// Get the attribute with name `attr` from the object `ob`
+    /// </summary>
+    /// <param name="ob">The Python object</param>
+    /// <param name="attr">The attribute as a PyUnicode object</param>
+    /// <returns>A new reference to the attribute</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial IntPtr PyObject_GetAttr(IntPtr ob, IntPtr attr);
 
+    /// <summary>
+    /// Does the object ob have the attr `attr`?
+    /// </summary>
+    /// <param name="ob">The Python object</param>
+    /// <param name="attr">The attribute as a PyUnicode object</param>
+    /// <returns>1 on success, 0 if the attr does not exist</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial int PyObject_HasAttr(IntPtr ob, IntPtr attr);
 
+    /// <summary>
+    /// Get the iterator for the given object
+    /// </summary>
+    /// <param name="ob"></param>
+    /// <returns>A new reference to the iterator</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial IntPtr PyObject_GetIter(IntPtr ob);
 
+    /// <summary>
+    /// Get the str(ob) form of the object
+    /// </summary>
+    /// <param name="ob">The Python object</param>
+    /// <returns>A new reference to the string representation</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyObject_Str(nint ob);
-
-    /*
-        PyAPI_FUNC(PyObject*) PyObject_ASCII(PyObject*);
-        PyAPI_FUNC(PyObject*) PyObject_Bytes(PyObject*);
-        PyAPI_FUNC(PyObject*) PyObject_RichCompare(PyObject*, PyObject*, int);
-        PyAPI_FUNC(int) PyObject_RichCompareBool(PyObject*, PyObject*, int);
-        PyAPI_FUNC(PyObject*) PyObject_GetAttrString(PyObject*, const char*);
-        PyAPI_FUNC(int) PyObject_SetAttrString(PyObject*, const char*, PyObject *);
-        PyAPI_FUNC(int) PyObject_HasAttrString(PyObject*, const char*);
-        PyAPI_FUNC(PyObject*) PyObject_GetAttr(PyObject*, PyObject*);
-        PyAPI_FUNC(int) PyObject_SetAttr(PyObject*, PyObject*, PyObject*);
-        PyAPI_FUNC(int) PyObject_HasAttr(PyObject*, PyObject*);*/
 }

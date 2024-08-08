@@ -36,8 +36,8 @@ internal unsafe partial class CPythonAPI
     {
         if (IsInitialized)
             return;
-        Py_Initialize();
         Py_SetPath(PythonPath);
+        Py_Initialize();
         if (PyErr_Occurred() == 1)
             throw new InvalidOperationException("Python initialization failed.");
 

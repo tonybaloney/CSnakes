@@ -4,12 +4,13 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 
-internal unsafe partial class CPythonAPI
+internal unsafe partial class CPythonAPI : IDisposable
 {
     private const string PythonLibraryName = "csnakes_python";
     public string PythonPath { get; internal set; } = string.Empty;
 
     private static string? pythonLibraryPath = null;
+    private bool disposedValue;
 
     public CPythonAPI(string pythonLibraryPath)
     {
@@ -49,31 +50,22 @@ internal unsafe partial class CPythonAPI
             throw new InvalidOperationException("Python initialization failed.");
 
         // Setup type statics
-        using (var gil = new GIL.PyGilState())
-        {
-            PyUnicodeType = ((PyObjectStruct*)AsPyUnicodeObject(String.Empty))->Type();
-            Py_True = PyBool_FromLong(1);
-            Py_False = PyBool_FromLong(0);
-            PyBoolType = ((PyObjectStruct*)Py_True)->Type();
-            PyEmptyTuple = PyTuple_New(0);
-            PyTupleType = ((PyObjectStruct*)PyEmptyTuple)->Type();
-            PyFloatType = ((PyObjectStruct*)PyFloat_FromDouble(0.0))->Type();
-            PyLongType = ((PyObjectStruct*)PyLong_FromLongLong(0))->Type();
-            PyListType = ((PyObjectStruct*)PyList_New(0))->Type();
-            PyDictType = ((PyObjectStruct*)PyDict_New())->Type();
+        using var gil = new GIL.PyGilState();
+        PyUnicodeType = ((PyObjectStruct*)AsPyUnicodeObject(String.Empty))->Type();
+        Py_True = PyBool_FromLong(1);
+        Py_False = PyBool_FromLong(0);
+        PyBoolType = ((PyObjectStruct*)Py_True)->Type();
+        PyEmptyTuple = PyTuple_New(0);
+        PyTupleType = ((PyObjectStruct*)PyEmptyTuple)->Type();
+        PyFloatType = ((PyObjectStruct*)PyFloat_FromDouble(0.0))->Type();
+        PyLongType = ((PyObjectStruct*)PyLong_FromLongLong(0))->Type();
+        PyListType = ((PyObjectStruct*)PyList_New(0))->Type();
+        PyDictType = ((PyObjectStruct*)PyDict_New())->Type();
 
-            // Import builtins module
-            var builtinsMod = Import("builtins");
-            PyNone = GetAttr(builtinsMod, "None");
-            Py_DecRef(builtinsMod);
-        }
-    }
-
-    internal void Uninitialize()
-    {
-        if (!IsInitialized)
-            return;
-        Py_Finalize();
+        // Import builtins module
+        var builtinsMod = Import("builtins");
+        PyNone = GetAttr(builtinsMod, "None");
+        Py_DecRef(builtinsMod);
     }
 
     internal static bool IsInitialized => Py_IsInitialized() == 1;
@@ -95,4 +87,25 @@ internal unsafe partial class CPythonAPI
 
     [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath", StringMarshallingCustomType = typeof(Utf32StringMarshaller), StringMarshalling = StringMarshalling.Custom)]
     internal static partial void Py_SetPath_UCS4_UTF32(string path);
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                if (!IsInitialized)
+                    return;
+                Py_Finalize();
+            }
+
+            disposedValue = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
 }

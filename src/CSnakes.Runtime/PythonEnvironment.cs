@@ -9,6 +9,7 @@ namespace CSnakes.Runtime;
 internal class PythonEnvironment : IPythonEnvironment
 {
     private readonly CPythonAPI api;
+    private bool disposedValue;
 
     public PythonEnvironment(
         IEnumerable<PythonLocator> locators,
@@ -88,15 +89,18 @@ internal class PythonEnvironment : IPythonEnvironment
         {
             pythonDll = Path.Combine(pythonLocation, $"python{versionPath}.dll");
             pythonPath = Path.Combine(pythonLocation, "Lib") + sep + Path.Combine(pythonLocation, "DLLs");
-        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
             pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.dylib");
             pythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
-        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
             pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.so");
             pythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
-        } else
+        }
+        else
         {
             throw new PlatformNotSupportedException("Unsupported platform.");
         }
@@ -112,5 +116,24 @@ internal class PythonEnvironment : IPythonEnvironment
         // split on . then take the first two segments and join them without spaces
         var versionParts = version.Split('.');
         return string.Join(sep, versionParts.Take(2));
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                api.Dispose();
+            }
+
+            disposedValue = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

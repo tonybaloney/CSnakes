@@ -2,11 +2,12 @@
 
 namespace CSnakes.Runtime;
 
-public interface IPythonEnvironment
+public interface IPythonEnvironment : IDisposable
 {
     public string Version
     {
-        get {
+        get
+        {
             return CPythonAPI.Py_GetVersion() ?? "No version available";
         }
     }

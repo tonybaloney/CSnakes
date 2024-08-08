@@ -47,7 +47,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                 if (result) { 
                     methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
-                    string source = FormatClassFromMethods(@namespace, pascalFileName, methods);
+                    string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName);
                     sourceContext.AddSource($"{pascalFileName}.py.cs", source);
                     sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
                 }
@@ -55,7 +55,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
         });
     }
 
-    public static string FormatClassFromMethods(string @namespace, string pascalFileName, IEnumerable<MethodDefinition> methods)
+    public static string FormatClassFromMethods(string @namespace, string pascalFileName, IEnumerable<MethodDefinition> methods, string fileName)
     {
         var paramGenericArgs = methods
             .Select(m => m.ParameterGenericArgs)
@@ -83,7 +83,22 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                     private class {{pascalFileName}}Internal : I{{pascalFileName}}
                     {
-                        private TypeConverter? td = TypeDescriptor.GetConverter(typeof(PyObject));
+                        private readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
+
+                        private readonly PyObject module;
+
+                        internal {{pascalFileName}}Internal()
+                        {
+                            using (GIL.Acquire())
+                            {
+                                module = Import.ImportModule("{{fileName}}");
+                            }
+                        }
+
+                        public void Dispose()
+                        {
+                            module.Dispose();
+                        }
 
                         {{methods.Select(m => m.Syntax).Compile()}}
                     }

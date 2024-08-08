@@ -45,7 +45,7 @@ namespace PythonSourceGenerator.Tests
             Assert.Contains(expected, csharp);
 
             // Check that the sample C# code compiles
-            string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module);
+            string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test");
             var tree = CSharpSyntaxTree.ParseText(compiledCode);
             var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
                 .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))

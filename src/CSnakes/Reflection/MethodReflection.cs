@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using PythonSourceGenerator.Parser.Types;
 
 namespace PythonSourceGenerator.Reflection;
-
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 public class MethodDefinition(MethodDeclarationSyntax syntax, IEnumerable<GenericNameSyntax> parameterGenericArgs)
 {
     public MethodDeclarationSyntax Syntax { get; } = syntax;
@@ -24,7 +24,7 @@ public static class MethodReflection
         TypeSyntax returnSyntax;
         if (returnPythonType.Name == "None")
         {
-            returnSyntax = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
+            returnSyntax = PredefinedType(Token(SyntaxKind.VoidKeyword));
         }
         else
         {
@@ -43,130 +43,131 @@ public static class MethodReflection
             }
         }
 
-        // Import module
-        // var mod = Py.Import("hello_world");
-        var moduleLoad = SyntaxFactory.LocalDeclarationStatement(
-            SyntaxFactory.VariableDeclaration(
-                SyntaxFactory.IdentifierName("var"))
-            .WithVariables(
-                SyntaxFactory.SingletonSeparatedList(
-                    SyntaxFactory.VariableDeclarator(
-                        SyntaxFactory.Identifier("mod"))
-                    .WithInitializer(
-                        SyntaxFactory.EqualsValueClause(
-                            SyntaxFactory.InvocationExpression(
-                                SyntaxFactory.MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    SyntaxFactory.IdentifierName("Import"),
-                                    SyntaxFactory.IdentifierName("ImportModule")),
-                                SyntaxFactory.ArgumentList(
-                                    SyntaxFactory.SingletonSeparatedList(
-                                        SyntaxFactory.Argument(
-                                            SyntaxFactory.LiteralExpression(
-                                                SyntaxKind.StringLiteralExpression,
-                                                SyntaxFactory.Literal(moduleName)))))))))));
-
         // Step 4: Build body
         var pythonConversionStatements = new List<StatementSyntax>();
         foreach (var parameter in parameterList.Parameters)
         {
             pythonConversionStatements.Add(
-                SyntaxFactory.LocalDeclarationStatement(
-                        SyntaxFactory.VariableDeclaration(
-                            SyntaxFactory.IdentifierName("PyObject"))
+                LocalDeclarationStatement(
+                        VariableDeclaration(
+                            IdentifierName("PyObject"))
                         .WithVariables(
-                            SyntaxFactory.SingletonSeparatedList(
-                                SyntaxFactory.VariableDeclarator(
-                                    SyntaxFactory.Identifier($"{parameter.Identifier}_pyObject"))
+                            SingletonSeparatedList(
+                                VariableDeclarator(
+                                    Identifier($"{parameter.Identifier}_pyObject"))
                                 .WithInitializer(
-                                    SyntaxFactory.EqualsValueClause(
-                                        SyntaxFactory.BinaryExpression(
+                                    EqualsValueClause(
+                                        BinaryExpression(
                                         SyntaxKind.AsExpression,
-                                        SyntaxFactory.InvocationExpression(
-                                            SyntaxFactory.MemberAccessExpression(
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                SyntaxFactory.IdentifierName("td"),
-                                                SyntaxFactory.IdentifierName("ConvertFrom")),
-                                            SyntaxFactory.ArgumentList(
-                                                 SyntaxFactory.SingletonSeparatedList(
-                                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(parameter.Identifier))))),
-                                        SyntaxFactory.Token(SyntaxKind.AsKeyword),
-                                SyntaxFactory.IdentifierName("PyObject")))
-                                )))));
+                                        InvocationExpression(
+                                            MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            ThisExpression(),
+                                            IdentifierName(
+                                                Identifier(
+                                                    TriviaList(),
+                                                    SyntaxKind.ModuleKeyword,
+                                                    "td",
+                                                    "td",
+                                                    TriviaList()))),
+                                        IdentifierName("ConvertFrom")),
+                                            ArgumentList(
+                                                 SingletonSeparatedList(
+                                        Argument(IdentifierName(parameter.Identifier))))),
+                                        Token(SyntaxKind.AsKeyword),
+                                IdentifierName("PyObject")))
+                                ))))
+                .WithUsingKeyword(
+                    Token(SyntaxKind.UsingKeyword)));
         }
 
         var pythonCastArguments = new List<ArgumentSyntax>();
         foreach (var parameter in parameterList.Parameters)
         {
-            pythonCastArguments.Add(SyntaxFactory.Argument(SyntaxFactory.IdentifierName($"{parameter.Identifier}_pyObject")));
+            pythonCastArguments.Add(Argument(IdentifierName($"{parameter.Identifier}_pyObject")));
         }
 
         ReturnStatementSyntax returnExpression = returnSyntax switch
         {
-            TypeSyntax s when s is PredefinedTypeSyntax p && p.Keyword.IsKind(SyntaxKind.VoidKeyword) => SyntaxFactory.ReturnStatement(null),
-            TypeSyntax s when s is IdentifierNameSyntax => SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName("result")),
+            TypeSyntax s when s is PredefinedTypeSyntax p && p.Keyword.IsKind(SyntaxKind.VoidKeyword) => ReturnStatement(null),
+            TypeSyntax s when s is IdentifierNameSyntax => ReturnStatement(IdentifierName("__result_pyObject")),
             _ => ProcessMethodWithReturnType(returnSyntax, parameterGenericArgs)
         };
-        var moduleDefinition = SyntaxFactory.LocalDeclarationStatement(
-                        SyntaxFactory.VariableDeclaration(
-                            SyntaxFactory.IdentifierName("var"))
+
+        var moduleDefinition = LocalDeclarationStatement(
+                        VariableDeclaration(
+                            IdentifierName("var"))
                         .WithVariables(
-                            SyntaxFactory.SingletonSeparatedList(
-                                SyntaxFactory.VariableDeclarator(
-                                    SyntaxFactory.Identifier("func"))
+                            SingletonSeparatedList(
+                                VariableDeclarator(
+                                    Identifier("__underlyingPythonFunc"))
                                 .WithInitializer(
-                                    SyntaxFactory.EqualsValueClause(
-                                        SyntaxFactory.InvocationExpression(
-                                            SyntaxFactory.MemberAccessExpression(
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                SyntaxFactory.IdentifierName("mod"),
-                                                SyntaxFactory.IdentifierName("GetAttr")),
-                                            SyntaxFactory.ArgumentList(
-                                                SyntaxFactory.SingletonSeparatedList(
-                                                    SyntaxFactory.Argument(
-                                                        SyntaxFactory.LiteralExpression(
+                                    EqualsValueClause(
+                                        InvocationExpression(
+                                            MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            ThisExpression(),
+                                            IdentifierName(
+                                                Identifier(
+                                                    TriviaList(),
+                                                    SyntaxKind.ModuleKeyword,
+                                                    "module",
+                                                    "module",
+                                                    TriviaList()))),
+                                        IdentifierName("GetAttr")),
+                                            ArgumentList(
+                                                SingletonSeparatedList(
+                                                    Argument(
+                                                        LiteralExpression(
                                                             SyntaxKind.StringLiteralExpression,
-                                                            SyntaxFactory.Literal(function.Name)))))))))));
-        var callStatement = SyntaxFactory.LocalDeclarationStatement(
-                        SyntaxFactory.VariableDeclaration(
-                            SyntaxFactory.IdentifierName("var"))
+                                                            Literal(function.Name)))))))))))
+            .WithUsingKeyword(
+                    Token(SyntaxKind.UsingKeyword));
+        var callStatement = LocalDeclarationStatement(
+                        VariableDeclaration(
+                            IdentifierName("var"))
                         .WithVariables(
-                            SyntaxFactory.SingletonSeparatedList(
-                                SyntaxFactory.VariableDeclarator(
-                                    SyntaxFactory.Identifier("result"))
+                            SingletonSeparatedList(
+                                VariableDeclarator(
+                                    Identifier("__result_pyObject"))
                                 .WithInitializer(
-                                    SyntaxFactory.EqualsValueClause(
-                                        SyntaxFactory.InvocationExpression(
-                                            SyntaxFactory.MemberAccessExpression(
+                                    EqualsValueClause(
+                                        InvocationExpression(
+                                            MemberAccessExpression(
                                                 SyntaxKind.SimpleMemberAccessExpression,
-                                                SyntaxFactory.IdentifierName("func"),
-                                                SyntaxFactory.IdentifierName("Call")),
-                                            SyntaxFactory.ArgumentList(
-                                                SyntaxFactory.SeparatedList(pythonCastArguments))))))));
+                                                IdentifierName("__underlyingPythonFunc"),
+                                                IdentifierName("Call")),
+                                            ArgumentList(
+                                                SeparatedList(pythonCastArguments))))))))
+            .WithUsingKeyword(
+                    Token(SyntaxKind.UsingKeyword));
         StatementSyntax[] statements = [
             moduleDefinition,
             .. pythonConversionStatements,
             callStatement,
             // TODO : Add free statements
             returnExpression];
-        var body = SyntaxFactory.Block(
-            moduleLoad,
-            SyntaxFactory.UsingStatement(
+        var body = Block(
+            UsingStatement(
                 null,
-                SyntaxFactory.InvocationExpression(
-                    SyntaxFactory.MemberAccessExpression(
+                InvocationExpression(
+                    MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        SyntaxFactory.IdentifierName("GIL"),
-                        SyntaxFactory.IdentifierName("Acquire"))),
-                SyntaxFactory.Block(statements)
+                        IdentifierName("GIL"),
+                        IdentifierName("Acquire"))),
+                Block(statements)
                 ));
 
-        var syntax = SyntaxFactory.MethodDeclaration(
+        var syntax = MethodDeclaration(
             returnSyntax,
-            SyntaxFactory.Identifier(function.Name.ToPascalCase()))
+            Identifier(function.Name.ToPascalCase()))
             .WithModifiers(
-                SyntaxFactory.TokenList(
-                    SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                TokenList(
+                    Token(SyntaxKind.PublicKeyword))
                 )
             .WithBody(body)
             .WithParameterList(parameterList);
@@ -182,21 +183,21 @@ public static class MethodReflection
             parameterGenericArgs.Add(rg);
         }
 
-        var converter = SyntaxFactory
-            .GenericName(
-                SyntaxFactory.Identifier("As"))
+        var converter =
+            GenericName(
+                Identifier("As"))
             .WithTypeArgumentList(
-                SyntaxFactory.TypeArgumentList(
-                    SyntaxFactory.SeparatedList([returnSyntax])));
+                TypeArgumentList(
+                    SeparatedList([returnSyntax])));
 
-        returnExpression = SyntaxFactory.ReturnStatement(
-                    SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
+        returnExpression = ReturnStatement(
+                    InvocationExpression(
+                        MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName("result"),
+                            IdentifierName("__result_pyObject"),
                             converter))
                     .WithArgumentList(
-                        SyntaxFactory.ArgumentList()));
+                        ArgumentList()));
         return returnExpression;
     }
 }

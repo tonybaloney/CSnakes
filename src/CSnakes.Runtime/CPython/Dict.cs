@@ -38,6 +38,7 @@ internal unsafe partial class CPythonAPI
         var result = PyDict_GetItem_(dict, key);
         if (result == IntPtr.Zero)
         {
+            PyErr_Clear();
             throw new KeyNotFoundException();
         }
         Py_IncRef(result);

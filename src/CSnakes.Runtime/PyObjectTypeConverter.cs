@@ -164,7 +164,7 @@ internal class PyObjectTypeConverter : TypeConverter
         IList list = (IList)Activator.CreateInstance(listType)!;
         for (var i = 0; i < CPythonAPI.PyList_Size(pyObject.DangerousGetHandle()); i++)
         {
-            var item = new PyObject(CPythonAPI.PyList_GetItem(pyObject.DangerousGetHandle(), i));
+            using var item = new PyObject(CPythonAPI.PyList_GetItem(pyObject.DangerousGetHandle(), i));
             list.Add(AsManagedObject(genericArgument, item, context, culture));
         }
 

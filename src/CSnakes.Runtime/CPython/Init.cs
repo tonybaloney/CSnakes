@@ -69,6 +69,13 @@ internal unsafe partial class CPythonAPI
         }
     }
 
+    internal void Uninitialize()
+    {
+        if (!IsInitialized)
+            return;
+        Py_Finalize();
+    }
+
     internal static bool IsInitialized => Py_IsInitialized() == 1;
 
     [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller))]

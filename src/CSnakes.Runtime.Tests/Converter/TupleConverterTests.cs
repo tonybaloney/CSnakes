@@ -48,13 +48,13 @@ public class TupleConverterTests
         var td = TypeDescriptor.GetConverter(typeof(PyObject));
         Assert.True(td.CanConvertFrom(input.GetType()));
 
-        var pyObj = td.ConvertFrom(input) as PyObject;
+        using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
         Assert.NotNull(pyObj);
 
         // Assert.Equal(input.ToString(), pyObj.ToString());
 
         // Convert back
-        var str = td.ConvertTo(pyObj, input.GetType());
+        object? str = td.ConvertTo(pyObj, input.GetType());
         pyObj.Dispose();
         Assert.Equal(input, str);
     }

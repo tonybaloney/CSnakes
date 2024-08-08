@@ -18,14 +18,14 @@ public class DoubleConverterTest
 
         Assert.True(td.CanConvertFrom(typeof(double)));
 
-        var pyObj = td.ConvertFrom(input) as PyObject;
+        using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
 
         Assert.NotNull(pyObj);
 
         Assert.True(td.CanConvertTo(typeof(double)));
 
         // Convert back
-        var str = td.ConvertTo(pyObj, typeof(double));
+        object? str = td.ConvertTo(pyObj, typeof(double));
         Assert.Equal(input, str);
     }
 }

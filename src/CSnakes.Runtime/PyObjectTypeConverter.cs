@@ -87,7 +87,7 @@ internal class PyObjectTypeConverter : TypeConverter
         Type item1Type = destinationType.GetGenericArguments()[0];
         Type item2Type = destinationType.GetGenericArguments()[1];
         Type dictType = typeof(Dictionary<,>).MakeGenericType(item1Type, item2Type);
-        var dict = (IDictionary)Activator.CreateInstance(dictType)!;
+        IDictionary dict = (IDictionary)Activator.CreateInstance(dictType)!;
         nint itemsLength = CPythonAPI.PyList_Size(items.DangerousGetHandle());
 
         for (nint i = 0; i < itemsLength; i++)
@@ -97,8 +97,8 @@ internal class PyObjectTypeConverter : TypeConverter
             using PyObject item1 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 0));
             using PyObject item2 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 1));
 
-            var convertedItem1 = AsManagedObject(item1Type, item1, context, culture);
-            var convertedItem2 = AsManagedObject(item2Type, item2, context, culture);
+            object? convertedItem1 = AsManagedObject(item1Type, item1, context, culture);
+            object? convertedItem2 = AsManagedObject(item2Type, item2, context, culture);
 
             dict.Add(convertedItem1!, convertedItem2);
         }
@@ -134,7 +134,7 @@ internal class PyObjectTypeConverter : TypeConverter
             IEnumerable<PyObject> rest = tupleValues.Skip(7);
 
             // Back to a Python tuple.
-            PyObject pyTuple = PyTuple.CreateTuple(rest);
+            using PyObject pyTuple = PyTuple.CreateTuple(rest);
 
             // Use the decoder pipeline to decode the nested tuple (and its values).
             // We do this because that means if we have nested nested tuples, they'll be decoded as well.
@@ -146,6 +146,12 @@ internal class PyObjectTypeConverter : TypeConverter
         else
         {
             clrValues = tupleValues.Select((p, i) => AsManagedObject(types[i], p, context, culture)).ToArray();
+        }
+
+        // Dispose of all the Python values that we captured from the Tuple.
+        foreach (var value in tupleValues)
+        {
+            value.Dispose();
         }
 
         ConstructorInfo ctor = destinationType.GetConstructors().First(c => c.GetParameters().Length == clrValues.Length);
@@ -189,7 +195,7 @@ internal class PyObjectTypeConverter : TypeConverter
 
     private PyObject ConvertFromDictionary(ITypeDescriptorContext? context, CultureInfo? culture, IDictionary dictionary)
     {
-        var pyDict = CPythonAPI.PyDict_New();
+        nint pyDict = CPythonAPI.PyDict_New();
         if (pyDict == IntPtr.Zero)
         {
             throw new Exception("Failed to create dictionary");
@@ -212,12 +218,12 @@ internal class PyObjectTypeConverter : TypeConverter
         List<PyObject> list = [];
         foreach (var item in e)
         {
-            var converted = ConvertFrom(context, culture, item);
+            object? converted = ConvertFrom(context, culture, item);
             list.Add((PyObject)converted!);
         }
 
-        var pyList = CPythonAPI.PyList_New(list.Count);
-        for (var i = 0; i < list.Count; i++)
+        nint pyList = CPythonAPI.PyList_New(list.Count);
+        for (int i = 0; i < list.Count; i++)
         {
             int hresult = CPythonAPI.PyList_SetItem(pyList, i, list[i].DangerousGetHandle());
             if (hresult == -1)

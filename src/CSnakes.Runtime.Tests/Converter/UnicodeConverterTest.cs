@@ -19,12 +19,12 @@ public class UnicodeConverterTest
 
         Assert.True(td.CanConvertTo(typeof(string)));
 
-        var pyObj = td.ConvertFromString(input) as PyObject;
+        using PyObject? pyObj = td.ConvertFromString(input) as PyObject;
 
         Assert.NotNull(pyObj);
 
         // Convert back
-        var str = td.ConvertToString(pyObj);
+        string? str = td.ConvertToString(pyObj);
         Assert.Equal(input, str);
     }
 }

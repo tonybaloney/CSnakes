@@ -14,14 +14,13 @@ public class DictionaryConverterTest
             ["Hello"] = "World",
             ["Foo"] = "Bar"
         };
-        var td = TypeDescriptor.GetConverter(typeof(PyObject));
+        TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
         Assert.True(td.CanConvertFrom(input.GetType()));
-        var pyObj = td.ConvertFrom(input) as PyObject;
+        using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
         Assert.NotNull(pyObj);
         Assert.True(td.CanConvertTo(input.GetType()));
         // Convert back
-        var str = td.ConvertTo(pyObj, input.GetType());
+        object? str = td.ConvertTo(pyObj, input.GetType());
         Assert.Equal(input, str);
-        pyObj.Dispose();
     }
 }

@@ -20,13 +20,13 @@ public class LongConverterTest
 
         Assert.True(td.CanConvertFrom(typeof(long)));
 
-        var pyObj = td.ConvertFrom(input) as PyObject;
+        using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
 
         Assert.NotNull(pyObj);
         Assert.Equal(input.ToString(), pyObj.ToString());
 
         // Convert back
-        var str = td.ConvertTo(pyObj, typeof(long));
+        object? str = td.ConvertTo(pyObj, typeof(long));
         Assert.Equal(input, str);
     }
 }

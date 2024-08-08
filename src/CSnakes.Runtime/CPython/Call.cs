@@ -29,12 +29,30 @@ internal unsafe partial class CPythonAPI
         }
     }
 
+    /// <summary>
+    /// Call a callable with no arguments
+    /// </summary>
+    /// <param name="callable"></param>
+    /// <returns>A new reference to the result, or null on failure</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial IntPtr PyObject_CallNoArgs(IntPtr callable);
 
+    /// <summary>
+    /// Call a callable with one argument
+    /// </summary>
+    /// <param name="callable">Callable object</param>
+    /// <param name="arg1">The first argument</param>
+    /// <returns>A new reference to the result, or null on failure</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial IntPtr PyObject_CallOneArg(IntPtr callable, IntPtr arg1);
 
+    /// <summary>
+    /// Call a callable with many arguments
+    /// </summary>
+    /// <param name="callable">Callable object</param>
+    /// <param name="args">A PyTuple of positional arguments</param>
+    /// <param name="kwargs">A PyDict of keyword arguments</param>
+    /// <returns>A new reference to the result, or null on failure</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial IntPtr PyObject_Call(IntPtr callable, IntPtr args, IntPtr kwargs);
 }

@@ -8,8 +8,13 @@ internal unsafe partial class CPythonAPI
     private static nint Py_True = IntPtr.Zero;
     private static nint Py_False = IntPtr.Zero;
 
+    /// <summary>
+    /// Convert a Int32 to a PyBool Object
+    /// </summary>
+    /// <param name="value">Numeric value (0 or 1)</param>
+    /// <returns>New reference to a PyBool Object</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyBool_FromLong(long value);
+    internal static partial nint PyBool_FromLong(int value);
 
     public static bool IsPyBool(nint p)
     {

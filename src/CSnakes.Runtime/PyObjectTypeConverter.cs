@@ -83,19 +83,19 @@ internal class PyObjectTypeConverter : TypeConverter
 
     private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
     {
-        var items = CPythonAPI.PyDict_Items(pyObject.DangerousGetHandle()); // Newref
+        PyObject items = new PyObject(CPythonAPI.PyDict_Items(pyObject.DangerousGetHandle()));
         Type item1Type = destinationType.GetGenericArguments()[0];
         Type item2Type = destinationType.GetGenericArguments()[1];
         Type dictType = typeof(Dictionary<,>).MakeGenericType(item1Type, item2Type);
         var dict = (IDictionary)Activator.CreateInstance(dictType)!;
-        nint itemsLength = CPythonAPI.PyList_Size(items);
+        nint itemsLength = CPythonAPI.PyList_Size(items.DangerousGetHandle());
 
         for (nint i = 0; i < itemsLength; i++)
         {
-            var item = new PyObject(CPythonAPI.PyList_GetItem(items, i)); // Borrowed
+            PyObject item = new PyObject(CPythonAPI.PyList_GetItem(items.DangerousGetHandle(), i));
 
-            var item1 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 0));
-            var item2 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 1));
+            PyObject item1 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 0));
+            PyObject item2 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 1));
 
             var convertedItem1 = AsManagedObject(item1Type, item1, context, culture);
             var convertedItem2 = AsManagedObject(item2Type, item2, context, culture);
@@ -189,6 +189,10 @@ internal class PyObjectTypeConverter : TypeConverter
     private PyObject ConvertFromDictionary(ITypeDescriptorContext? context, CultureInfo? culture, IDictionary dictionary)
     {
         var pyDict = CPythonAPI.PyDict_New();
+        if (pyDict == IntPtr.Zero)
+        {
+            throw new Exception("Failed to create dictionary");
+        }
 
         foreach (DictionaryEntry kvp in dictionary)
         {

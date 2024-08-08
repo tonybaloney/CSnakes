@@ -59,7 +59,7 @@ internal unsafe partial class CPythonAPI
     /// <summary>
     /// Insert val into the dictionary p with a key of key. 
     /// key must be hashable; if it isn’t, TypeError will be raised.  
-    /// This function adds a reference to val if successful.
+    /// This function adds a reference to val and key if successful.
     /// </summary>
     /// <param name="dict">PyDict object</param>
     /// <param name="key">Key</param>
@@ -70,8 +70,9 @@ internal unsafe partial class CPythonAPI
         int result = PyDict_SetItem_(dict, key, value);
         if (result != -1)
         {
-            // Add reference to the new item as it belongs to the dictionary now. 
+            // Add reference to the new item and key as it belongs to the dictionary now. 
             Py_IncRef(value);
+            Py_IncRef(key);
         }
         return result;
     }

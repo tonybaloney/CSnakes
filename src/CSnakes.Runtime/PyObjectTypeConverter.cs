@@ -11,17 +11,23 @@ using System.Runtime.CompilerServices;
 namespace CSnakes.Runtime;
 internal class PyObjectTypeConverter : TypeConverter
 {
+    /// <summary>
+    /// Convert a Python object to a CLR managed object.
+    /// Caller should already hold the GIL because this function uses the Python runtime for some conversions.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="culture"></param>
+    /// <param name="value"></param>
+    /// <param name="destinationType"></param>
+    /// <returns></returns>
+    /// <exception cref="NotSupportedException">Passed object is not a PyObject</exception>
+    /// <exception cref="InvalidCastException">Source/Target types do not match</exception>
     public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
     {
         if (value is not PyObject pyObject)
         {
             throw new NotSupportedException();
         }
-        if (pyObject.IsInvalid)
-        {
-            throw new NullReferenceException("Python object safehandle is invalid");
-        }
-
         nint handle = pyObject.DangerousGetHandle();
         if (destinationType == typeof(string) && CPythonAPI.IsPyUnicode(handle))
         {
@@ -119,7 +125,7 @@ internal class PyObjectTypeConverter : TypeConverter
         var tupleValues = new List<PyObject>();
         for (nint i = 0; i < CPythonAPI.PyTuple_Size(tuplePtr); i++)
         {
-            // TODO: Dispose of this reference.
+            // TODO: Dispose of this reference. Ant- It will be disposed by the CLR/GC when tupleValues is freed.
             PyObject value = new PyObject(CPythonAPI.PyTuple_GetItem(tuplePtr, i));
             tupleValues.Add(value);
         }
@@ -195,22 +201,18 @@ internal class PyObjectTypeConverter : TypeConverter
 
     private PyObject ConvertFromDictionary(ITypeDescriptorContext? context, CultureInfo? culture, IDictionary dictionary)
     {
-        nint pyDict = CPythonAPI.PyDict_New();
-        if (pyDict == IntPtr.Zero)
-        {
-            throw new Exception("Failed to create dictionary");
-        }
+        PyObject pyDict = new PyObject(CPythonAPI.PyDict_New());
 
         foreach (DictionaryEntry kvp in dictionary)
         {
-            int hresult = CPythonAPI.PyDict_SetItem(pyDict, ToPython(kvp.Key, context, culture).DangerousGetHandle(), ToPython(kvp.Value, context, culture).DangerousGetHandle());
+            int hresult = CPythonAPI.PyDict_SetItem(pyDict.DangerousGetHandle(), ToPython(kvp.Key, context, culture).DangerousGetHandle(), ToPython(kvp.Value, context, culture).DangerousGetHandle());
             if (hresult == -1)
             {
                 throw new Exception("Failed to set item in dictionary");
             }
         }
 
-        return new PyObject(pyDict);
+        return pyDict;
     }
 
     private PyObject ConvertFromList(ITypeDescriptorContext? context, CultureInfo? culture, IEnumerable e)

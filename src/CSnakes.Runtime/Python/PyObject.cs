@@ -1,5 +1,6 @@
 using CSnakes.Runtime.CPython;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.Python;
@@ -12,6 +13,11 @@ public class PyObject : SafeHandle
 
     internal PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
+        if (pyObject == IntPtr.Zero)
+        {
+            hasDecrefed = true;
+            ThrowPythonExceptionAsClrException();
+        }
     }
 
     public override bool IsInvalid => handle == IntPtr.Zero;
@@ -27,6 +33,34 @@ public class PyObject : SafeHandle
             throw new AccessViolationException("Double free of PyObject");
         }
         return true;
+    }
+
+    private static void ThrowPythonExceptionAsClrException()
+    {
+        if (CPythonAPI.PyErr_Occurred() == 0)
+        {
+            throw new InvalidDataException("An error occurred in Python, but no exception was set.");
+        }
+        nint excType, excValue, excTraceback;
+        CPythonAPI.PyErr_Fetch(out excType, out excValue, out excTraceback);
+        var pyExceptionType = new PyObject(excType);
+        var pyExceptionValue = new PyObject(excValue);
+        var pyExceptionTraceback = new PyObject(excTraceback);
+
+        if (pyExceptionType.IsInvalid || pyExceptionValue.IsInvalid || pyExceptionType.IsInvalid)
+        {
+            CPythonAPI.PyErr_Clear();
+            throw new InvalidDataException("An error fetching the exceptions in Python.");
+        }
+
+        var pyExceptionStr = pyExceptionValue.ToString();
+        var pyExceptionTypeStr = pyExceptionType.ToString();
+        var pyExceptionTracebackStr = pyExceptionTraceback.ToString();
+        pyExceptionType.Dispose();
+        pyExceptionValue.Dispose();
+        pyExceptionTraceback.Dispose();
+        CPythonAPI.PyErr_Clear();
+        throw new PythonException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTracebackStr);
     }
 
     public PyObject Type()
@@ -61,7 +95,6 @@ public class PyObject : SafeHandle
         {
             argHandles[i] = args[i].DangerousGetHandle();
         }
-
         return new PyObject(CPythonAPI.Call(DangerousGetHandle(), argHandles));
     }
 

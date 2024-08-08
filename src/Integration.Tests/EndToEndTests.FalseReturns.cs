@@ -1,7 +1,7 @@
 ﻿using CSnakes.Runtime;
 
 namespace Integration.Tests;
-// TODO: Standardise the exception that gets raised when the response type is invalid.
+
 public partial class EndToEndTests
 {
     [Fact]

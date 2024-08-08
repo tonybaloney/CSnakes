@@ -119,8 +119,9 @@ internal class PyObjectTypeConverter : TypeConverter
         var tupleValues = new List<PyObject>();
         for (nint i = 0; i < CPythonAPI.PyTuple_Size(tuplePtr); i++)
         {
-            // TODO: Inspect GetItem returns borrowed or new reference.
-            tupleValues.Add(new PyObject(CPythonAPI.PyTuple_GetItem(tuplePtr, i)));
+            // TODO: Dispose of this reference.
+            PyObject value = new PyObject(CPythonAPI.PyTuple_GetItem(tuplePtr, i));
+            tupleValues.Add(value);
         }
 
         // If we have more than 8 python values, we are going to have a nested tuple, which we have to unpack.
@@ -164,7 +165,7 @@ internal class PyObjectTypeConverter : TypeConverter
         IList list = (IList)Activator.CreateInstance(listType)!;
         for (var i = 0; i < CPythonAPI.PyList_Size(pyObject.DangerousGetHandle()); i++)
         {
-            using var item = new PyObject(CPythonAPI.PyList_GetItem(pyObject.DangerousGetHandle(), i));
+            using PyObject item = new PyObject(CPythonAPI.PyList_GetItem(pyObject.DangerousGetHandle(), i));
             list.Add(AsManagedObject(genericArgument, item, context, culture));
         }
 

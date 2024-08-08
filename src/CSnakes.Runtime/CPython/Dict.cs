@@ -55,6 +55,7 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_GetItem")]
     private static partial nint PyDict_GetItem_(nint dict, nint key);
 
+
     /// <summary>
     /// Insert val into the dictionary p with a key of key. 
     /// key must be hashable; if it isn’t, TypeError will be raised.  
@@ -64,8 +65,28 @@ internal unsafe partial class CPythonAPI
     /// <param name="key">Key</param>
     /// <param name="value">Value</param>
     /// <returns>Return 0 on success or -1 on failure.</returns>
-    [LibraryImport(PythonLibraryName)]
-    internal static partial int PyDict_SetItem(nint dict, nint key, nint val);
+    internal static int PyDict_SetItem(nint dict, nint key, nint value)
+    {
+        int result = PyDict_SetItem_(dict, key, value);
+        if (result != -1)
+        {
+            // Add reference to the new item as it belongs to the dictionary now. 
+            Py_IncRef(value);
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Insert val into the dictionary p with a key of key. 
+    /// key must be hashable; if it isn’t, TypeError will be raised.  
+    /// This function does not steal a reference to val.
+    /// </summary>
+    /// <param name="dict">PyDict object</param>
+    /// <param name="key">Key</param>
+    /// <param name="value">Value</param>
+    /// <returns>Return 0 on success or -1 on failure.</returns>
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_SetItem")]
+    private static partial int PyDict_SetItem_(nint dict, nint key, nint val);
 
     /// <summary>
     /// Get the items iterator for the dictionary.

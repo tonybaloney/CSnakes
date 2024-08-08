@@ -22,14 +22,57 @@ internal unsafe partial class CPythonAPI
         return tuple;
     }
 
+    /// <summary>
+    /// Create a new tuple of size `size` as ssize_t
+    /// </summary>
+    /// <param name="size"></param>
+    /// <returns>A new reference to the tuple object, or NULL on failure.</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyTuple_New(nint size);
 
-    [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyTuple_SetItem(nint ob, nint pos, nint o);
+    /// <summary>
+    /// Set the Tuple Item at position `pos` to the object `o`
+    /// </summary>
+    /// <param name="ob">The tuple object</param>
+    /// <param name="pos">The index as ssize_t</param>
+    /// <param name="o">The new value</param>
+    /// <returns>0 on success and -1 on failure</returns>
+    internal static int PyTuple_SetItem(nint ob, nint pos, nint o)
+    {
+        int result = PyTuple_SetItem_(ob, pos, o);
+        if (result != -1)
+        {
+            // Add reference to the new item as it belongs to tuple now. 
+            Py_IncRef(o);
+        }
+        return result;
+    }
 
-    [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyTuple_GetItem(nint ob, nint pos);
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyTuple_SetItem")]
+    private static partial int PyTuple_SetItem_(nint ob, nint pos, nint o);
+
+    /// <summary>
+    /// Get an item at position `pos` from a PyTuple.
+    /// </summary>
+    /// <param name="ob">the Tuple object</param>
+    /// <param name="pos">the index position as ssize_t</param>
+    /// <returns>A new reference to the item.</returns>
+    /// <exception cref="IndexOutOfRangeException"></exception>
+    internal static nint PyTuple_GetItem(nint ob, nint pos)
+    {
+        nint item = PyTuple_GetItem_(ob, pos);
+        if (item == IntPtr.Zero)
+        {
+            // TODO : revisit whether we want to capture other sorts of exceptions in this, dict and list.
+            PyErr_Clear();
+            throw new IndexOutOfRangeException();
+        }
+        Py_IncRef(item);
+        return item;
+    }
+
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyTuple_GetItem")]
+    private static partial nint PyTuple_GetItem_(nint ob, nint pos);
 
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyTuple_Size(nint p);

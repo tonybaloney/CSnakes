@@ -1,4 +1,5 @@
 using CSnakes.Runtime.CPython;
+using Microsoft.Extensions.Primitives;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -106,10 +107,8 @@ public class PyObject : SafeHandle
     public override string ToString()
     {
         Debug.Assert(!IsInvalid);
-        var pyStringValue = CPythonAPI.PyObject_Str(handle);
-        var stringValue = CPythonAPI.PyUnicode_AsUTF8(pyStringValue);
-        CPythonAPI.Py_DecRef(pyStringValue);
-        // TODO: Clear exception on null
+        using PyObject pyObjectStr = new PyObject(CPythonAPI.PyObject_Str(handle));
+        string? stringValue = CPythonAPI.PyUnicode_AsUTF8(pyObjectStr.DangerousGetHandle());
         return stringValue ?? string.Empty;
     }
 

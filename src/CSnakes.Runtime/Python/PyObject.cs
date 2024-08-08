@@ -1,6 +1,7 @@
 using CSnakes.Runtime.CPython;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.Python;
@@ -27,6 +28,7 @@ public class PyObject : SafeHandle
         if (!hasDecrefed)
         {
             CPythonAPI.Py_DecRef(handle);
+            handle = IntPtr.Zero;
             hasDecrefed = true;
         } else
         {
@@ -56,15 +58,16 @@ public class PyObject : SafeHandle
         var pyExceptionStr = pyExceptionValue.ToString();
         var pyExceptionTypeStr = pyExceptionType.ToString();
         var pyExceptionTracebackStr = pyExceptionTraceback.ToString();
-        // pyExceptionType.Dispose();
-        // pyExceptionValue.Dispose();
-        // pyExceptionTraceback.Dispose();
+        pyExceptionType.Dispose();
+        pyExceptionValue.Dispose();
+        pyExceptionTraceback.Dispose();
         CPythonAPI.PyErr_Clear();
         throw new PythonException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTracebackStr);
     }
 
     public PyObject Type()
     {
+        Debug.Assert(!IsInvalid);
         // TODO: Handle releasing reference to the type object
         return new PyObject(CPythonAPI.GetType(DangerousGetHandle()));
     }
@@ -76,6 +79,7 @@ public class PyObject : SafeHandle
     /// <returns>Attribute object (new ref)</returns>
     public PyObject GetAttr(string name)
     {
+        Debug.Assert(!IsInvalid);
         return new PyObject(CPythonAPI.GetAttr(handle, name));
     }
 
@@ -85,11 +89,13 @@ public class PyObject : SafeHandle
     /// <returns>The iterator object (new ref)</returns>
     public PyObject GetIter()
     {
+        Debug.Assert(!IsInvalid);
         return new PyObject(CPythonAPI.PyObject_GetIter(DangerousGetHandle()));
     }
 
     public PyObject Call(params PyObject[] args)
     {
+        Debug.Assert(!IsInvalid);
         var argHandles = new IntPtr[args.Length];
         for (int i = 0; i < args.Length; i++)
         {
@@ -100,6 +106,7 @@ public class PyObject : SafeHandle
 
     public override string ToString()
     {
+        Debug.Assert(!IsInvalid);
         var pyStringValue = CPythonAPI.PyObject_Str(handle);
         var stringValue = CPythonAPI.PyUnicode_AsUTF8(pyStringValue);
         CPythonAPI.Py_DecRef(pyStringValue);

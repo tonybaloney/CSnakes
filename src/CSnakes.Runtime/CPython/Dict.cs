@@ -50,7 +50,7 @@ internal unsafe partial class CPythonAPI
     /// </summary>
     /// <param name="dict">Dictionary Object</param>
     /// <param name="key">Key Object</param>
-    /// <returns>=Borrowed reference.</returns>
+    /// <returns>Borrowed reference.</returns>
     [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_GetItem")]
     private static partial nint PyDict_GetItem_(nint dict, nint key);
 

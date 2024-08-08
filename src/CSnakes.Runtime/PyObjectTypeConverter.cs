@@ -83,7 +83,7 @@ internal class PyObjectTypeConverter : TypeConverter
 
     private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
     {
-        PyObject items = new PyObject(CPythonAPI.PyDict_Items(pyObject.DangerousGetHandle()));
+        using PyObject items = new PyObject(CPythonAPI.PyDict_Items(pyObject.DangerousGetHandle()));
         Type item1Type = destinationType.GetGenericArguments()[0];
         Type item2Type = destinationType.GetGenericArguments()[1];
         Type dictType = typeof(Dictionary<,>).MakeGenericType(item1Type, item2Type);
@@ -92,10 +92,10 @@ internal class PyObjectTypeConverter : TypeConverter
 
         for (nint i = 0; i < itemsLength; i++)
         {
-            PyObject item = new PyObject(CPythonAPI.PyList_GetItem(items.DangerousGetHandle(), i));
+            using PyObject item = new PyObject(CPythonAPI.PyList_GetItem(items.DangerousGetHandle(), i));
 
-            PyObject item1 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 0));
-            PyObject item2 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 1));
+            using PyObject item1 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 0));
+            using PyObject item2 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 1));
 
             var convertedItem1 = AsManagedObject(item1Type, item1, context, culture);
             var convertedItem2 = AsManagedObject(item2Type, item2, context, culture);

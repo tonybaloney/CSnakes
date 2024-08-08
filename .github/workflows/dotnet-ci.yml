@@ -18,6 +18,7 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
         python: ["3.12"]
+      fail-fast: false
     runs-on: "${{ matrix.os }}"
 
     steps:

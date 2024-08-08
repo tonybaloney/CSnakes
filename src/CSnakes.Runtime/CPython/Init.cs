@@ -36,7 +36,11 @@ internal unsafe partial class CPythonAPI
     {
         if (IsInitialized)
             return;
-        Py_SetPath(PythonPath);
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            Py_SetPath_UCS2_UTF16(PythonPath);
+        else
+            Py_SetPath_UCS4_UTF32(PythonPath);
+
         Py_Initialize();
         if (PyErr_Occurred() == 1)
             throw new InvalidOperationException("Python initialization failed.");
@@ -80,8 +84,8 @@ internal unsafe partial class CPythonAPI
     internal static partial int Py_IsInitialized();
 
     [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath")]
-    internal static partial void Py_SetPath([MarshalAs(UnmanagedType.LPTStr)] string path);
+    internal static partial void Py_SetPath_UCS2_UTF16([MarshalAs(UnmanagedType.LPWStr)] string path);
 
-    [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath")]
-    internal static partial void Py_SetPath_UCS4_UTF32([MarshalAs(UnmanagedType.LPTStr)] string path);
+    [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath", StringMarshallingCustomType = typeof(Utf32StringMarshaller), StringMarshalling = StringMarshalling.Custom)]
+    internal static partial void Py_SetPath_UCS4_UTF32(string path);
 }

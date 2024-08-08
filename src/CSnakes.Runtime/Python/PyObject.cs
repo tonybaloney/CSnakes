@@ -8,6 +8,7 @@ namespace CSnakes.Runtime.Python;
 public class PyObject : SafeHandle
 {
     private static readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
+    private bool hasDecrefed = false;
 
     internal PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
@@ -17,7 +18,14 @@ public class PyObject : SafeHandle
 
     protected override bool ReleaseHandle()
     {
-        CPythonAPI.Py_DecRef(handle);
+        if (!hasDecrefed)
+        {
+            CPythonAPI.Py_DecRef(handle);
+            hasDecrefed = true;
+        } else
+        {
+            throw new AccessViolationException("Double free of PyObject");
+        }
         return true;
     }
 

@@ -28,6 +28,7 @@ public class TestEnvironment : IDisposable
     {
         Dispose(true);
         GC.SuppressFinalize(this);
+        GC.Collect();
     }
 
     protected virtual void Dispose(bool disposing)

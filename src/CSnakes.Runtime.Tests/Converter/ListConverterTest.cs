@@ -9,7 +9,7 @@ public class ListConverterTest
     [Fact]
     public void IEnumerableConverter()
     {
-        IEnumerable<string> input = ["Hello", "World"];
+        IEnumerable<string> input = ["Hell0", "W0rld"];
 
         var td = TypeDescriptor.GetConverter(typeof(PyObject));
 
@@ -29,7 +29,7 @@ public class ListConverterTest
     [Fact]
     public void ListConverter()
     {
-        List<string> input = ["Hello", "World"];
+        List<string> input = ["Hello", "WoRld"];
 
         var td = TypeDescriptor.GetConverter(typeof(PyObject));
 

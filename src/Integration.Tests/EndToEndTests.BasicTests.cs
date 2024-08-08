@@ -44,13 +44,13 @@ public partial class EndToEndTests(TestEnvironment testEnv) : IClassFixture<Test
     public void TestBasic_TestTwoStrings()
     {
         var testModule = testEnv.Env.TestBasic();
-        Assert.Equal("hello world", testModule.TestTwoStrings("hello ", "world"));
+        Assert.Equal("hello w0rld", testModule.TestTwoStrings("hello ", "w0rld"));
     }
 
     [Fact]
     public void TestBasic_TestTwoListsOfStrings()
     {
         var testModule = testEnv.Env.TestBasic();
-        Assert.Equal(["hello", "world", "this", "is", "a", "test"], testModule.TestTwoListsOfStrings(["hello", "world"], new string[] { "this", "is", "a", "test" }));
+        Assert.Equal(["h3llo", "worLd", "this", "is", "a", "test"], testModule.TestTwoListsOfStrings(["h3llo", "worLd"], new string[] { "this", "is", "a", "test" }));
     }
 }

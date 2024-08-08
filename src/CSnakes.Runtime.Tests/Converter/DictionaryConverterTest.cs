@@ -11,7 +11,7 @@ public class DictionaryConverterTest
     {
         Dictionary<string, string> input = new()
         {
-            ["Hello"] = "World",
+            ["Hello"] = "World?",
             ["Foo"] = "Bar"
         };
         TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));

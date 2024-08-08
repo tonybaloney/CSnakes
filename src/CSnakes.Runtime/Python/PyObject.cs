@@ -10,6 +10,7 @@ public class PyObject : SafeHandle
 {
     private static readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
     private bool hasDecrefed = false;
+    private readonly string self;
 
     internal PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
@@ -18,6 +19,15 @@ public class PyObject : SafeHandle
             hasDecrefed = true;
             ThrowPythonExceptionAsClrException();
         }
+#if DEBUG
+        IntPtr i = CPythonAPI.PyObject_Str(pyObject);
+        if (i == IntPtr.Zero)
+            self = String.Empty;
+        self = CPythonAPI.PyUnicode_AsUTF8(i) ?? String.Empty;
+        CPythonAPI.Py_DecRef(i);
+#else
+        self = string.Empty;
+#endif
     }
 
     public override bool IsInvalid => handle == IntPtr.Zero;

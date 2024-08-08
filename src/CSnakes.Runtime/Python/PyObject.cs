@@ -29,7 +29,8 @@ public class PyObject : SafeHandle
             CPythonAPI.Py_DecRef(handle);
             handle = IntPtr.Zero;
             hasDecrefed = true;
-        } else
+        }
+        else
         {
             throw new AccessViolationException("Double free of PyObject");
         }
@@ -113,6 +114,6 @@ public class PyObject : SafeHandle
     public T As<T>()
     {
         // TODO: This fails in many cases. 
-        return (T) td.ConvertTo(this, typeof(T)) ?? default;
+        return (T)td.ConvertTo(this, typeof(T)) ?? default;
     }
 }

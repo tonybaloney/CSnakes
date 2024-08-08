@@ -79,6 +79,9 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName)]
     internal static partial int Py_IsInitialized();
 
-    [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Utf8)]
-    internal static partial void Py_SetPath([MarshalAs(UnmanagedType.LPWStr)] string path);
+    [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath")]
+    internal static partial void Py_SetPath([MarshalAs(UnmanagedType.LPTStr)] string path);
+
+    [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath")]
+    internal static partial void Py_SetPath_UCS4_UTF32([MarshalAs(UnmanagedType.LPTStr)] string path);
 }

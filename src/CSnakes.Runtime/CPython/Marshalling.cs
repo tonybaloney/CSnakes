@@ -16,4 +16,3 @@ internal static unsafe class NonFreeUtf8StringMarshaller
         // Do nothing, string is static (const char*)
     }
 }
-

@@ -45,9 +45,9 @@ public class PyObject : SafeHandle
         }
         nint excType, excValue, excTraceback;
         CPythonAPI.PyErr_Fetch(out excType, out excValue, out excTraceback);
-        var pyExceptionType = new PyObject(excType);
-        var pyExceptionValue = new PyObject(excValue);
-        var pyExceptionTraceback = new PyObject(excTraceback);
+        using var pyExceptionType = new PyObject(excType);
+        using var pyExceptionValue = new PyObject(excValue);
+        using var pyExceptionTraceback = new PyObject(excTraceback);
 
         if (pyExceptionType.IsInvalid || pyExceptionValue.IsInvalid || pyExceptionType.IsInvalid)
         {
@@ -58,9 +58,6 @@ public class PyObject : SafeHandle
         var pyExceptionStr = pyExceptionValue.ToString();
         var pyExceptionTypeStr = pyExceptionType.ToString();
         var pyExceptionTracebackStr = pyExceptionTraceback.ToString();
-        pyExceptionType.Dispose();
-        pyExceptionValue.Dispose();
-        pyExceptionTraceback.Dispose();
         CPythonAPI.PyErr_Clear();
         throw new PythonException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTracebackStr);
     }

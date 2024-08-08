@@ -10,6 +10,7 @@
     <None Remove="python\test_basic.py" />
     <None Remove="python\test_defaults.py" />
     <None Remove="python\test_dicts.py" />
+    <None Remove="python\test_exceptions.py" />
     <None Remove="python\test_false_returns.py" />
     <None Remove="python\test_keywords.py" />
     <None Remove="python\test_reserved.py" />
@@ -24,6 +25,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
     <AdditionalFiles Include="python\test_dicts.py">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AdditionalFiles>
+    <AdditionalFiles Include="python\test_exceptions.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
     <AdditionalFiles Include="python\test_false_returns.py">

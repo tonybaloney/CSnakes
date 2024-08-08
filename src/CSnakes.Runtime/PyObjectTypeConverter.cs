@@ -17,6 +17,10 @@ internal class PyObjectTypeConverter : TypeConverter
         {
             throw new NotSupportedException();
         }
+        if (pyObject.IsInvalid)
+        {
+            throw new NullReferenceException("Python object safehandle is invalid");
+        }
 
         nint handle = pyObject.DangerousGetHandle();
         if (destinationType == typeof(string) && CPythonAPI.IsPyUnicode(handle))

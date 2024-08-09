@@ -18,6 +18,7 @@ public class PyObject : SafeHandle
             ThrowPythonExceptionAsClrException();
         }
 #if DEBUG
+        RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
             IntPtr i = CPythonAPI.PyObject_Str(pyObject);
@@ -37,7 +38,14 @@ public class PyObject : SafeHandle
 
     protected override bool ReleaseHandle()
     {
-        Debug.Assert(CPythonAPI.IsInitialized);
+        if (!CPythonAPI.IsInitialized)
+        {
+            // The Python environment has been disposed, and therefore Python has freed it's memory pools.
+            // Don't run decref since the Python process isn't running and this pointer will point somewhere else.
+            handle = IntPtr.Zero;
+            Debug.WriteLine($"Python object at 0x{handle:X} was released, but Python is no longer running.");
+            return true;
+        }
         using (GIL.Acquire())
         {
             CPythonAPI.Py_DecRef(handle);
@@ -75,12 +83,26 @@ public class PyObject : SafeHandle
     }
 
     /// <summary>
+    /// Throw an invalid operation exception if Python is not running. This is used to prevent
+    /// runtime errors when trying to use Python objects after the Python environment has been disposed.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
+    private void RaiseOnPythonNotInitialized()
+    {
+        if (!CPythonAPI.IsInitialized)
+        {
+            throw new InvalidOperationException("Python is not initialized. You cannot call this method outside of a Python Environment context.");
+        }
+    }
+
+    /// <summary>
     /// Get the type for the object.
     /// </summary>
     /// <returns>A new reference to the type field.</returns>
     public PyObject Type()
     {
         Debug.Assert(!IsInvalid);
+        RaiseOnPythonNotInitialized();
         return new PyObject(CPythonAPI.GetType(DangerousGetHandle()));
     }
 
@@ -92,6 +114,7 @@ public class PyObject : SafeHandle
     public PyObject GetAttr(string name)
     {
         Debug.Assert(!IsInvalid);
+        RaiseOnPythonNotInitialized();
         return new PyObject(CPythonAPI.GetAttr(handle, name));
     }
 
@@ -102,6 +125,7 @@ public class PyObject : SafeHandle
     public PyObject GetIter()
     {
         Debug.Assert(!IsInvalid);
+        RaiseOnPythonNotInitialized();
         return new PyObject(CPythonAPI.PyObject_GetIter(DangerousGetHandle()));
     }
 
@@ -113,6 +137,7 @@ public class PyObject : SafeHandle
     /// <returns>The resulting object, or NULL on error.</returns>
     public PyObject Call(params PyObject[] args)
     {
+        RaiseOnPythonNotInitialized();
         // TODO: Decide whether to move the GIL acquisition to here.
         Debug.Assert(!IsInvalid);
         var argHandles = new IntPtr[args.Length];
@@ -130,6 +155,7 @@ public class PyObject : SafeHandle
     public override string ToString()
     {
         Debug.Assert(!IsInvalid);
+        RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
             using PyObject pyObjectStr = new PyObject(CPythonAPI.PyObject_Str(handle));

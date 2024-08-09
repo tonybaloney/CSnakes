@@ -23,6 +23,8 @@ internal unsafe partial class CPythonAPI
         return type;
     }
 
+    internal static int Py_REFCNT(IntPtr ob) => ((PyObjectStruct*)ob)->RefCount();
+
     internal static IntPtr GetAttr(IntPtr ob, string name)
     {
         /* TODO: Consider interning/caching the name value */

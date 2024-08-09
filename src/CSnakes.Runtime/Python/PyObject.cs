@@ -9,14 +9,12 @@ namespace CSnakes.Runtime.Python;
 public class PyObject : SafeHandle
 {
     private static readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
-    private bool hasDecrefed = false;
     private readonly string self;
 
     internal PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
         if (pyObject == IntPtr.Zero)
         {
-            hasDecrefed = true;
             ThrowPythonExceptionAsClrException();
         }
 #if DEBUG
@@ -35,19 +33,14 @@ public class PyObject : SafeHandle
 
     public override bool IsInvalid => handle == IntPtr.Zero;
 
+    private int PythonRefCnt => CPythonAPI.Py_REFCNT(handle);
+
     protected override bool ReleaseHandle()
     {
-        if (!hasDecrefed)
-        {
-            // TODO: thread-safe lock here, and/or GIL
-            hasDecrefed = true;
-            CPythonAPI.Py_DecRef(handle);
-            handle = IntPtr.Zero;
-        }
-        else
-        {
-            throw new AccessViolationException("Double free of PyObject");
-        }
+        // TODO: thread-safe lock here, and/or GIL
+        Debug.WriteLine($"Disposing PyObject ({handle}) - {self} with refcnt {PythonRefCnt}");
+        CPythonAPI.Py_DecRef(handle);
+        handle = IntPtr.Zero;
         return true;
     }
 

@@ -217,24 +217,19 @@ internal class PyObjectTypeConverter : TypeConverter
 
     private PyObject ConvertFromList(ITypeDescriptorContext? context, CultureInfo? culture, IEnumerable e)
     {
-        List<PyObject> list = [];
+        PyObject pyList = new PyObject(CPythonAPI.PyList_New(0));
+
         foreach (var item in e)
         {
-            object? converted = ConvertFrom(context, culture, item);
-            list.Add((PyObject)converted!);
-        }
-
-        nint pyList = CPythonAPI.PyList_New(list.Count);
-        for (int i = 0; i < list.Count; i++)
-        {
-            int hresult = CPythonAPI.PyList_SetItem(pyList, i, list[i].DangerousGetHandle());
+            PyObject converted = ToPython(item, context, culture);
+            int hresult = CPythonAPI.PyList_Append(pyList.DangerousGetHandle(), converted!.DangerousGetHandle());
             if (hresult == -1)
             {
                 throw new Exception("Failed to set item in list");
             }
         }
 
-        return new PyObject(pyList);
+        return pyList;
     }
 
     private PyObject ConvertFromTuple(ITypeDescriptorContext? context, CultureInfo? culture, ITuple t)

@@ -6,8 +6,15 @@ internal unsafe partial class CPythonAPI
     private static nint PyTupleType = IntPtr.Zero;
     private static nint PyEmptyTuple = IntPtr.Zero;
 
+    /// <summary>
+    /// Create a PyTuple from the PyObject pointers in `items`.
+    /// Function handles the reference increments to items.
+    /// </summary>
+    /// <param name="items">An array of pointers to PyObject</param>
+    /// <returns>A new reference to the resulting tuple object.</returns>
     internal static nint PackTuple(params nint[] items)
     {
+        // This is a shortcut to a CPython optimization. Keep an empty tuple and reuse it.
         if (items.Length == 0)
         {
             Py_IncRef(PyEmptyTuple);
@@ -31,10 +38,11 @@ internal unsafe partial class CPythonAPI
     internal static partial nint PyTuple_New(nint size);
 
     /// <summary>
-    /// Set the Tuple Item at position `pos` to the object `o`
+    /// Set the Tuple Item at position `pos` to the object `o`.
+    /// Adds a new reference to `o` if it was set successfully.
     /// </summary>
     /// <param name="ob">The tuple object</param>
-    /// <param name="pos">The index as ssize_t</param>
+    /// <param name="pos">The position as ssize_t</param>
     /// <param name="o">The new value</param>
     /// <returns>0 on success and -1 on failure</returns>
     internal static int PyTuple_SetItem(nint ob, nint pos, nint o)

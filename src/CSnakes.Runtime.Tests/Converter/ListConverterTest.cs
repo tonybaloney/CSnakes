@@ -29,7 +29,7 @@ public class ListConverterTest
     [Fact]
     public void ListConverter()
     {
-        List<string> input = ["Hello", "WoRld"];
+        List<string> input = ["HeLLo", "WoRld"];
 
         var td = TypeDescriptor.GetConverter(typeof(PyObject));
 

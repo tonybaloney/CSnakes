@@ -10,11 +10,6 @@ internal unsafe partial class CPythonAPI
         PyObjectStruct* ob_type;
 
         internal readonly IntPtr Type() => (nint)ob_type;
-    }
-
-    internal struct PyVarObject
-    {
-        PyObjectStruct* ob_base;
-        Py_ssize_t ob_size;
+        internal readonly int RefCount() => (int)ob_refcnt;
     }
 }

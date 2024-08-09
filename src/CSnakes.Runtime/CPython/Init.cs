@@ -41,8 +41,10 @@ internal unsafe partial class CPythonAPI : IDisposable
             Py_SetPath_UCS2_UTF16(PythonPath);
         else
             Py_SetPath_UCS4_UTF32(PythonPath);
-
-        Py_Initialize();
+        lock (typeof(CPythonAPI))
+        {
+            Py_Initialize();
+        }
         if (PyErr_Occurred() == 1)
             throw new InvalidOperationException("Python initialization failed.");
 
@@ -50,22 +52,24 @@ internal unsafe partial class CPythonAPI : IDisposable
             throw new InvalidOperationException("Python initialization failed.");
 
         // Setup type statics
-        using var gil = new GIL.PyGilState();
-        PyUnicodeType = ((PyObjectStruct*)AsPyUnicodeObject(String.Empty))->Type();
-        Py_True = PyBool_FromLong(1);
-        Py_False = PyBool_FromLong(0);
-        PyBoolType = ((PyObjectStruct*)Py_True)->Type();
-        PyEmptyTuple = PyTuple_New(0);
-        PyTupleType = ((PyObjectStruct*)PyEmptyTuple)->Type();
-        PyFloatType = ((PyObjectStruct*)PyFloat_FromDouble(0.0))->Type();
-        PyLongType = ((PyObjectStruct*)PyLong_FromLongLong(0))->Type();
-        PyListType = ((PyObjectStruct*)PyList_New(0))->Type();
-        PyDictType = ((PyObjectStruct*)PyDict_New())->Type();
+        using (GIL.Acquire())
+        {
+            PyUnicodeType = ((PyObjectStruct*)AsPyUnicodeObject(String.Empty))->Type();
+            Py_True = PyBool_FromLong(1);
+            Py_False = PyBool_FromLong(0);
+            PyBoolType = ((PyObjectStruct*)Py_True)->Type();
+            PyEmptyTuple = PyTuple_New(0);
+            PyTupleType = ((PyObjectStruct*)PyEmptyTuple)->Type();
+            PyFloatType = ((PyObjectStruct*)PyFloat_FromDouble(0.0))->Type();
+            PyLongType = ((PyObjectStruct*)PyLong_FromLongLong(0))->Type();
+            PyListType = ((PyObjectStruct*)PyList_New(0))->Type();
+            PyDictType = ((PyObjectStruct*)PyDict_New())->Type();
 
-        // Import builtins module
-        var builtinsMod = Import("builtins");
-        PyNone = GetAttr(builtinsMod, "None");
-        Py_DecRef(builtinsMod);
+            // Import builtins module
+            var builtinsMod = Import("builtins");
+            PyNone = GetAttr(builtinsMod, "None");
+            Py_DecRef(builtinsMod);
+        }
     }
 
     internal static bool IsInitialized => Py_IsInitialized() == 1;

@@ -27,7 +27,7 @@ public static class IServiceCollectionExtensions
 
             var options = envBuilder.GetOptions();
 
-            return new PythonEnvironment(locators, installers, options);
+            return PythonEnvironment.GetPythonEnvironment(locators, installers, options);
         });
 
         return pythonBuilder;

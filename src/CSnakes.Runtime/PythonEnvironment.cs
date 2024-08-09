@@ -11,7 +11,22 @@ internal class PythonEnvironment : IPythonEnvironment
     private readonly CPythonAPI api;
     private bool disposedValue;
 
-    public PythonEnvironment(
+    private static IPythonEnvironment? pythonEnvironment;
+    private readonly static object locker = new();
+
+    public static IPythonEnvironment GetPythonEnvironment(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options)
+    {
+            if (pythonEnvironment is null)
+            {
+                lock(locker)
+                {
+                    pythonEnvironment ??= new PythonEnvironment(locators, packageInstallers, options);
+                }
+            }
+            return pythonEnvironment;
+    }
+
+    private PythonEnvironment(
         IEnumerable<PythonLocator> locators,
         IEnumerable<IPythonPackageInstaller> packageInstallers,
         PythonEnvironmentOptions options)
@@ -135,6 +150,16 @@ internal class PythonEnvironment : IPythonEnvironment
             if (disposing)
             {
                 api.Dispose();
+                if (pythonEnvironment is not null)
+                {
+                    lock(locker)
+                    {
+                        if (pythonEnvironment is not null)
+                        {
+                            pythonEnvironment = null;
+                        }
+                    }
+                }
             }
 
             disposedValue = true;

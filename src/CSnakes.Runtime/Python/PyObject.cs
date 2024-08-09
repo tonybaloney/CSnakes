@@ -56,13 +56,13 @@ public class PyObject : SafeHandle
 
     private static void ThrowPythonExceptionAsClrException()
     {
-        if (CPythonAPI.PyErr_Occurred() == 0)
-        {
-            throw new InvalidDataException("An error occurred in Python, but no exception was set.");
-        }
         nint excType, excValue, excTraceback;
         using (GIL.Acquire())
         {
+            if (CPythonAPI.PyErr_Occurred() == 0)
+            {
+                throw new InvalidDataException("An error occurred in Python, but no exception was set.");
+            }
             CPythonAPI.PyErr_Fetch(out excType, out excValue, out excTraceback);
             using var pyExceptionType = new PyObject(excType);
             using var pyExceptionValue = new PyObject(excValue);

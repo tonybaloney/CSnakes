@@ -102,9 +102,12 @@ internal unsafe partial class CPythonAPI : IDisposable
         {
             if (disposing)
             {
-                if (!IsInitialized)
-                    return;
-                Py_Finalize();
+                lock (initLock)
+                {
+                    if (!IsInitialized)
+                        return;
+                    Py_Finalize();
+                }
             }
 
             disposedValue = true;

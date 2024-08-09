@@ -34,6 +34,7 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
 
         if (virtualEnvironmentLocation is not null)
         {
+            logger.LogInformation("Using virtual environment at {VirtualEnvironmentLocation} to install packages with pip.", virtualEnvironmentLocation);
             string venvScriptPath = Path.Combine(virtualEnvironmentLocation, RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Scripts" : "bin");
             startInfo.FileName = Path.Combine(venvScriptPath, pipBinaryName);
             startInfo.EnvironmentVariables["PATH"] = $"{venvScriptPath};{Environment.GetEnvironmentVariable("PATH")}";
@@ -60,10 +61,13 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
         };
 
         process.Start();
+        process.BeginErrorReadLine();
+        process.BeginOutputReadLine();
         process.WaitForExit();
 
         if (process.ExitCode != 0)
         {
+            logger.LogError("Failed to install packages.");
             throw new InvalidOperationException("Failed to install packages.");
         }
     }

@@ -141,11 +141,23 @@ public static class MethodReflection
                                                 SyntaxKind.SimpleMemberAccessExpression,
                                                 IdentifierName("__underlyingPythonFunc"),
                                                 IdentifierName("Call")),
-                                            ArgumentList(
-                                                SeparatedList(pythonCastArguments))))))))
-            .WithUsingKeyword(
-                    Token(SyntaxKind.UsingKeyword));
+                                            ArgumentList(SeparatedList(pythonCastArguments))))))))
+            .WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
         StatementSyntax[] statements = [
+            ExpressionStatement(
+                InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("logger"),
+                        IdentifierName("LogInformation")))
+                    .WithArgumentList(
+                        ArgumentList(
+                            SeparatedList(
+                                [
+                                    Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Invoking Python function: {FunctionName}"))),
+                                    Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(function.Name)))
+                                ])))
+                    ),
             moduleDefinition,
             .. pythonConversionStatements,
             callStatement,

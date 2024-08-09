@@ -37,6 +37,7 @@ public class PyObject : SafeHandle
 
     protected override bool ReleaseHandle()
     {
+        Debug.Assert(CPythonAPI.IsInitialized);
         using (GIL.Acquire())
         {
             CPythonAPI.Py_DecRef(handle);

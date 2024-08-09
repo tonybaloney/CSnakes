@@ -37,9 +37,10 @@ public class PyObject : SafeHandle
 
     protected override bool ReleaseHandle()
     {
-        // TODO: thread-safe lock here, and/or GIL
-        Debug.WriteLine($"Disposing PyObject ({handle}) - {self} with refcnt {PythonRefCnt}");
-        CPythonAPI.Py_DecRef(handle);
+        using (GIL.Acquire())
+        {
+            CPythonAPI.Py_DecRef(handle);
+        }
         handle = IntPtr.Zero;
         return true;
     }

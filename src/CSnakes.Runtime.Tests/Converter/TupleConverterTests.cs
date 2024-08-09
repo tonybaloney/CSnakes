@@ -4,8 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace CSnakes.Runtime.Tests.Converter;
 
-[Collection("ConversionTests")]
-public class TupleConverterTests
+public class TupleConverterTests : ConverterTestBase
 {
     [Fact]
     public void TupleConverter_SingleArgument()

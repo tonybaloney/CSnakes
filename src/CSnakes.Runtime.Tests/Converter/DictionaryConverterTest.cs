@@ -3,8 +3,7 @@ using System.ComponentModel;
 
 namespace CSnakes.Runtime.Tests.Converter;
 
-[Collection("ConversionTests")]
-public class DictionaryConverterTest
+public class DictionaryConverterTest : ConverterTestBase
 {
     [Fact]
     public void DictionaryConverter()

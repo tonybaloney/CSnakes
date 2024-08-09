@@ -3,8 +3,7 @@ using System.ComponentModel;
 
 namespace CSnakes.Runtime.Tests.Converter;
 
-[Collection("ConversionTests")]
-public class ListConverterTest
+public class ListConverterTest : ConverterTestBase
 {
     [Fact]
     public void IEnumerableConverter()

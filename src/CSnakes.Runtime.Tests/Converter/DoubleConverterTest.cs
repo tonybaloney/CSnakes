@@ -3,8 +3,7 @@ using System.ComponentModel;
 
 namespace CSnakes.Runtime.Tests.Converter;
 
-[Collection("ConversionTests")]
-public class DoubleConverterTest
+public class DoubleConverterTest : ConverterTestBase
 {
     [Theory]
     [InlineData(0.0)]

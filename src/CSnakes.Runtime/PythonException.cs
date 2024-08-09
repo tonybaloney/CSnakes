@@ -1,10 +1,12 @@
-﻿namespace CSnakes.Runtime;
+﻿using System.Diagnostics;
 
-public class PythonException : Exception
+namespace CSnakes.Runtime;
+
+[DebuggerDisplay("Exception Type={ExceptionType,nq}, Message={Message,nq}")]
+public class PythonException(string exceptionType, string message, string pythonStackTrace) : Exception(message)
 {
-    public PythonException(string exceptionType, string message, string stackTrace) : base(message)
-    {
-        // TODO: Handle exception type
-        // TODO: Custom set stack trace...
-    }
+    public string ExceptionType { get; } = exceptionType;
+    public string PythonStackTrace { get; } = pythonStackTrace;
+
+    public override string ToString() => $"{ExceptionType}: {Message}\n{PythonStackTrace}";
 }

@@ -171,4 +171,9 @@ internal class PythonEnvironment : IPythonEnvironment
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+
+    public bool IsDisposed()
+    {
+        return disposedValue;
+    }
 }

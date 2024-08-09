@@ -11,4 +11,6 @@ public interface IPythonEnvironment : IDisposable
             return CPythonAPI.Py_GetVersion() ?? "No version available";
         }
     }
+
+    public bool IsDisposed();
 }

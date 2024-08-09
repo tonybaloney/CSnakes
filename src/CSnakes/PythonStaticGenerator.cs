@@ -69,6 +69,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             using System;
             using System.Collections.Generic;
             using System.ComponentModel;
+            using System.Diagnostics;
 
             namespace {{@namespace}}
             {
@@ -78,6 +79,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                     public static I{{pascalFileName}} {{pascalFileName}}(this IPythonEnvironment env)
                     {
+                        Debug.Assert(!env.IsDisposed());
                         return instance;
                     }
 

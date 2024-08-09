@@ -38,12 +38,14 @@ internal unsafe partial class CPythonAPI : IDisposable
     {
         if (IsInitialized)
             return;
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            Py_SetPath_UCS2_UTF16(PythonPath);
-        else
-            Py_SetPath_UCS4_UTF32(PythonPath);
+
         lock (initLock)
         {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Py_SetPath_UCS2_UTF16(PythonPath);
+            else
+                Py_SetPath_UCS4_UTF32(PythonPath);
+
             Py_Initialize();
 
             // Setup type statics

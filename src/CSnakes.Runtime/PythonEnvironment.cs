@@ -44,7 +44,7 @@ internal class PythonEnvironment : IPythonEnvironment
 
         char sep = Path.PathSeparator;
 
-        api = SetupStandardLibrary(location.Folder, versionPath, majorVersion, sep);
+        api = SetupStandardLibrary(location, versionPath, majorVersion, sep);
 
         if (!string.IsNullOrEmpty(home))
         {
@@ -79,16 +79,26 @@ internal class PythonEnvironment : IPythonEnvironment
         }
     }
 
-    private static CPythonAPI SetupStandardLibrary(string pythonLocation, string versionPath, string majorVersion, char sep)
+    private static CPythonAPI SetupStandardLibrary(PythonLocationMetadata pythonLocationMetadata, string versionPath, string majorVersion, char sep)
     {
         string pythonDll = string.Empty;
         string pythonPath = string.Empty;
+        string pythonLocation = pythonLocationMetadata.Folder;
 
         // Add standard library to PYTHONPATH
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            pythonDll = Path.Combine(pythonLocation, $"python{versionPath}.dll");
-            pythonPath = Path.Combine(pythonLocation, "Lib") + sep + Path.Combine(pythonLocation, "DLLs");
+            string suffix = pythonLocationMetadata.Debug ? "_d" : string.Empty;
+            pythonDll = Path.Combine(pythonLocation, $"python{versionPath}{suffix}.dll");
+            if (pythonLocationMetadata.Debug)
+            {
+                // From source..
+                pythonPath = Path.Combine(pythonLocation, "..", "..", "Lib") + sep + pythonLocation;
+            }
+            else
+            {
+                pythonPath = Path.Combine(pythonLocation, "Lib") + sep + Path.Combine(pythonLocation, "DLLs");
+            }
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {

@@ -4,4 +4,4 @@
 /// </summary>
 /// <param name="Folder">Path on disk where Python is to be loaded from.</param>
 /// <param name="Version">Version of Python being used from the location.</param>
-public sealed record PythonLocationMetadata(string Folder, string Version);
+public sealed record PythonLocationMetadata(string Folder, string Version, bool Debug = false);

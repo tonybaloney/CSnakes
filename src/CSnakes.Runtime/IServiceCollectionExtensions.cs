@@ -81,6 +81,12 @@ public static class IServiceCollectionExtensions
         return builder;
     }
 
+    public static IPythonEnvironmentBuilder FromSource(this IPythonEnvironmentBuilder builder, string folder, string version, bool debug = true)
+    {
+        builder.Services.AddSingleton<PythonLocator>(new SourceLocator(folder, version, debug));
+        return builder;
+    }
+
     /// <summary>
     /// Adds a Python locator using Python from an environment variable to the service collection with the specified environment variable name and version.
     /// </summary>

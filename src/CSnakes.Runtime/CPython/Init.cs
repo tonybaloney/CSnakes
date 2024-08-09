@@ -10,6 +10,7 @@ internal unsafe partial class CPythonAPI : IDisposable
     public string PythonPath { get; internal set; } = string.Empty;
 
     private static string? pythonLibraryPath = null;
+    private static readonly object initLock = new();
     private bool disposedValue;
 
     public CPythonAPI(string pythonLibraryPath)
@@ -41,34 +42,35 @@ internal unsafe partial class CPythonAPI : IDisposable
             Py_SetPath_UCS2_UTF16(PythonPath);
         else
             Py_SetPath_UCS4_UTF32(PythonPath);
-        lock (typeof(CPythonAPI))
+        lock (initLock)
         {
             Py_Initialize();
-        }
-        if (PyErr_Occurred() == 1)
-            throw new InvalidOperationException("Python initialization failed.");
 
-        if (!IsInitialized)
-            throw new InvalidOperationException("Python initialization failed.");
+            // Setup type statics
+            using (GIL.Acquire())
+            {
+                if (PyErr_Occurred() == 1)
+                    throw new InvalidOperationException("Python initialization failed.");
 
-        // Setup type statics
-        using (GIL.Acquire())
-        {
-            PyUnicodeType = ((PyObjectStruct*)AsPyUnicodeObject(String.Empty))->Type();
-            Py_True = PyBool_FromLong(1);
-            Py_False = PyBool_FromLong(0);
-            PyBoolType = ((PyObjectStruct*)Py_True)->Type();
-            PyEmptyTuple = PyTuple_New(0);
-            PyTupleType = ((PyObjectStruct*)PyEmptyTuple)->Type();
-            PyFloatType = ((PyObjectStruct*)PyFloat_FromDouble(0.0))->Type();
-            PyLongType = ((PyObjectStruct*)PyLong_FromLongLong(0))->Type();
-            PyListType = ((PyObjectStruct*)PyList_New(0))->Type();
-            PyDictType = ((PyObjectStruct*)PyDict_New())->Type();
+                if (!IsInitialized)
+                    throw new InvalidOperationException("Python initialization failed.");
 
-            // Import builtins module
-            var builtinsMod = Import("builtins");
-            PyNone = GetAttr(builtinsMod, "None");
-            Py_DecRef(builtinsMod);
+                PyUnicodeType = ((PyObjectStruct*)AsPyUnicodeObject(String.Empty))->Type();
+                Py_True = PyBool_FromLong(1);
+                Py_False = PyBool_FromLong(0);
+                PyBoolType = ((PyObjectStruct*)Py_True)->Type();
+                PyEmptyTuple = PyTuple_New(0);
+                PyTupleType = ((PyObjectStruct*)PyEmptyTuple)->Type();
+                PyFloatType = ((PyObjectStruct*)PyFloat_FromDouble(0.0))->Type();
+                PyLongType = ((PyObjectStruct*)PyLong_FromLongLong(0))->Type();
+                PyListType = ((PyObjectStruct*)PyList_New(0))->Type();
+                PyDictType = ((PyObjectStruct*)PyDict_New())->Type();
+
+                // Import builtins module
+                var builtinsMod = Import("builtins");
+                PyNone = GetAttr(builtinsMod, "None");
+                Py_DecRef(builtinsMod);
+            }
         }
     }
 

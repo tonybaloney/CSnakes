@@ -16,15 +16,17 @@ public class DoubleConverterTest : ConverterTestBase
         var td = TypeDescriptor.GetConverter(typeof(PyObject));
 
         Assert.True(td.CanConvertFrom(typeof(double)));
+        using (GIL.Acquire())
+        {
+            using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
 
-        using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
+            Assert.NotNull(pyObj);
 
-        Assert.NotNull(pyObj);
+            Assert.True(td.CanConvertTo(typeof(double)));
 
-        Assert.True(td.CanConvertTo(typeof(double)));
-
-        // Convert back
-        object? str = td.ConvertTo(pyObj, typeof(double));
-        Assert.Equal(input, str);
+            // Convert back
+            object? str = td.ConvertTo(pyObj, typeof(double));
+            Assert.Equal(input, str);
+        }
     }
 }

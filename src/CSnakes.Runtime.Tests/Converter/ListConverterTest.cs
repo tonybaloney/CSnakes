@@ -13,35 +13,39 @@ public class ListConverterTest : ConverterTestBase
         var td = TypeDescriptor.GetConverter(typeof(PyObject));
 
         Assert.True(td.CanConvertFrom(input.GetType()));
+        using (GIL.Acquire())
+        {
+            using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
 
-        using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
+            Assert.NotNull(pyObj);
 
-        Assert.NotNull(pyObj);
+            Assert.True(td.CanConvertTo(input.GetType()));
 
-        Assert.True(td.CanConvertTo(input.GetType()));
-
-        // Convert back
-        object? str = td.ConvertTo(pyObj, input.GetType());
-        Assert.Equal(input, str);
+            // Convert back
+            object? str = td.ConvertTo(pyObj, input.GetType());
+            Assert.Equal(input, str);
+        }
     }
 
     [Fact]
     public void ListConverter()
     {
-        List<string> input = ["HeLLo", "WoRld"];
+        List<long> input = [123456, 123562];
 
         var td = TypeDescriptor.GetConverter(typeof(PyObject));
 
         Assert.True(td.CanConvertFrom(input.GetType()));
+        using (GIL.Acquire())
+        {
+            using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
 
-        using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
+            Assert.NotNull(pyObj);
 
-        Assert.NotNull(pyObj);
+            Assert.True(td.CanConvertTo(input.GetType()));
 
-        Assert.True(td.CanConvertTo(input.GetType()));
-
-        // Convert back
-        object? str = td.ConvertTo(pyObj, input.GetType());
-        Assert.Equal(input, str);
+            // Convert back
+            object? str = td.ConvertTo(pyObj, input.GetType());
+            Assert.Equal(input, str);
+        }
     }
 }

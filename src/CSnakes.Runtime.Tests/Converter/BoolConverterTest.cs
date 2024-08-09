@@ -14,14 +14,17 @@ public class BoolConverterTest : ConverterTestBase
 
         Assert.True(td.CanConvertFrom(typeof(bool)));
 
-        using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
+        using (GIL.Acquire())
+        {
+            using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
 
-        Assert.NotNull(pyObj);
+            Assert.NotNull(pyObj);
 
-        Assert.True(td.CanConvertTo(typeof(bool)));
+            Assert.True(td.CanConvertTo(typeof(bool)));
 
-        // Convert back
-        object? str = td.ConvertTo(pyObj, typeof(bool));
-        Assert.Equal(input, str);
+            // Convert back
+            object? str = td.ConvertTo(pyObj, typeof(bool));
+            Assert.Equal(input, str);
+        }
     }
 }

@@ -19,13 +19,16 @@ public class LongConverterTest : ConverterTestBase
 
         Assert.True(td.CanConvertFrom(typeof(long)));
 
-        using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
+        using (GIL.Acquire())
+        {
+            using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
 
-        Assert.NotNull(pyObj);
-        Assert.Equal(input.ToString(), pyObj.ToString());
+            Assert.NotNull(pyObj);
+            Assert.Equal(input.ToString(), pyObj.ToString());
 
-        // Convert back
-        object? str = td.ConvertTo(pyObj, typeof(long));
-        Assert.Equal(input, str);
+            // Convert back
+            object? str = td.ConvertTo(pyObj, typeof(long));
+            Assert.Equal(input, str);
+        }
     }
 }

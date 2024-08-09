@@ -17,13 +17,15 @@ public class UnicodeConverterTest : ConverterTestBase
         var td = TypeDescriptor.GetConverter(typeof(PyObject));
 
         Assert.True(td.CanConvertTo(typeof(string)));
+        using (GIL.Acquire())
+        {
+            using PyObject? pyObj = td.ConvertFromString(input) as PyObject;
 
-        using PyObject? pyObj = td.ConvertFromString(input) as PyObject;
+            Assert.NotNull(pyObj);
 
-        Assert.NotNull(pyObj);
-
-        // Convert back
-        string? str = td.ConvertToString(pyObj);
-        Assert.Equal(input, str);
+            // Convert back
+            string? str = td.ConvertToString(pyObj);
+            Assert.Equal(input, str);
+        }
     }
 }

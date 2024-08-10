@@ -1,4 +1,5 @@
 ﻿using CSnakes.Runtime.CPython;
+using System.Diagnostics;
 
 namespace CSnakes.Runtime.Python;
 
@@ -11,12 +12,14 @@ public static class GIL
 
         public PyGilState()
         {
+            Debug.Assert(CPythonAPI.IsInitialized);
             _state = CPythonAPI.PyGILState_Ensure();
         }
 
         public void Dispose()
         {
             CPythonAPI.PyGILState_Release(_state);
+            GC.SuppressFinalize(this);
         }
     }
 

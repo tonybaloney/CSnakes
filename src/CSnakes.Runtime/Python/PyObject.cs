@@ -38,6 +38,8 @@ public class PyObject : SafeHandle
 
     protected override bool ReleaseHandle()
     {
+        if (IsInvalid)
+            return true;
         if (!CPythonAPI.IsInitialized)
         {
             // The Python environment has been disposed, and therefore Python has freed it's memory pools.
@@ -102,6 +104,7 @@ public class PyObject : SafeHandle
     public PyObject Type()
     {
         Debug.Assert(!IsInvalid);
+        Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         RaiseOnPythonNotInitialized();
         return new PyObject(CPythonAPI.GetType(DangerousGetHandle()));
     }
@@ -114,6 +117,7 @@ public class PyObject : SafeHandle
     public PyObject GetAttr(string name)
     {
         Debug.Assert(!IsInvalid);
+        Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         RaiseOnPythonNotInitialized();
         return new PyObject(CPythonAPI.GetAttr(handle, name));
     }
@@ -125,6 +129,7 @@ public class PyObject : SafeHandle
     public PyObject GetIter()
     {
         Debug.Assert(!IsInvalid);
+        Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         RaiseOnPythonNotInitialized();
         return new PyObject(CPythonAPI.PyObject_GetIter(DangerousGetHandle()));
     }
@@ -140,6 +145,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         // TODO: Decide whether to move the GIL acquisition to here.
         Debug.Assert(!IsInvalid);
+        Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         var argHandles = new IntPtr[args.Length];
         for (int i = 0; i < args.Length; i++)
         {
@@ -155,6 +161,7 @@ public class PyObject : SafeHandle
     public override string ToString()
     {
         Debug.Assert(!IsInvalid);
+        Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {

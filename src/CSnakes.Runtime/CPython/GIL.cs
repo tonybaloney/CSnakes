@@ -17,4 +17,11 @@ internal unsafe partial class CPythonAPI
     /// <param name="state">GIL State handle</param>
     [LibraryImport(PythonLibraryName)]
     internal static partial void PyGILState_Release(nint state);
+
+    /// <summary>
+    /// Check the GIL is held by the current thread
+    /// </summary>
+    /// <returns>1 if held, 0 if not.</returns>
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int PyGILState_Check();
 }

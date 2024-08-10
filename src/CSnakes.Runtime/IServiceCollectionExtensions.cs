@@ -1,6 +1,7 @@
 ﻿using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;
 /// <summary>
@@ -24,10 +25,11 @@ public static class IServiceCollectionExtensions
             var envBuilder = sp.GetRequiredService<IPythonEnvironmentBuilder>();
             var locators = sp.GetServices<PythonLocator>();
             var installers = sp.GetServices<IPythonPackageInstaller>();
+            var logger = sp.GetRequiredService<ILogger<IPythonEnvironment>>();
 
             var options = envBuilder.GetOptions();
 
-            return PythonEnvironment.GetPythonEnvironment(locators, installers, options);
+            return PythonEnvironment.GetPythonEnvironment(locators, installers, options, logger);
         });
 
         return pythonBuilder;

@@ -1,4 +1,5 @@
 ﻿using CSnakes.Runtime.CPython;
+using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;
 
@@ -13,4 +14,6 @@ public interface IPythonEnvironment : IDisposable
     }
 
     public bool IsDisposed();
+
+    public ILogger<IPythonEnvironment> Logger { get; }
 }

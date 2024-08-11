@@ -83,9 +83,9 @@ public static class IServiceCollectionExtensions
         return builder;
     }
 
-    public static IPythonEnvironmentBuilder FromSource(this IPythonEnvironmentBuilder builder, string folder, string version, bool debug = true)
+    public static IPythonEnvironmentBuilder FromSource(this IPythonEnvironmentBuilder builder, string folder, string version, bool debug = true, bool freeThreaded = false)
     {
-        builder.Services.AddSingleton<PythonLocator>(new SourceLocator(folder, version, debug));
+        builder.Services.AddSingleton<PythonLocator>(new SourceLocator(folder, version, debug, freeThreaded));
         return builder;
     }
 

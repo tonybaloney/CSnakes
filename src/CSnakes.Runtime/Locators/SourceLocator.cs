@@ -2,7 +2,7 @@
 
 namespace CSnakes.Runtime.Locators;
 
-internal class SourceLocator(string folder, string version, bool debug = true) : PythonLocator(version: version)
+internal class SourceLocator(string folder, string version, bool debug = true, bool freeThreaded = false) : PythonLocator(version: version)
 {
     public override PythonLocationMetadata LocatePython()
     {
@@ -10,7 +10,8 @@ internal class SourceLocator(string folder, string version, bool debug = true) :
         return new PythonLocationMetadata(
             buildFolder,
             version,
-            debug
+            debug,
+            freeThreaded
         );
     }
 

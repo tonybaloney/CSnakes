@@ -138,11 +138,17 @@ internal class PythonEnvironment : IPythonEnvironment
         string pythonDll = string.Empty;
         string pythonPath = string.Empty;
         string pythonLocation = pythonLocationMetadata.Folder;
+        string suffix = String.Empty;
+
+        if (pythonLocationMetadata.FreeThreaded)
+        {
+            suffix += "t";
+        }
 
         // Add standard library to PYTHONPATH
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            string suffix = pythonLocationMetadata.Debug ? "_d" : string.Empty;
+            suffix += pythonLocationMetadata.Debug ? "_d" : string.Empty;
             pythonDll = Path.Combine(pythonLocation, $"python{versionPath}{suffix}.dll");
             if (pythonLocationMetadata.Debug)
             {
@@ -156,12 +162,12 @@ internal class PythonEnvironment : IPythonEnvironment
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.dylib");
+            pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}{suffix}.dylib");
             pythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}.so");
+            pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}{suffix}.so");
             pythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
         }
         else
@@ -172,7 +178,7 @@ internal class PythonEnvironment : IPythonEnvironment
         Logger.LogInformation("Python DLL: {PythonDLL}", pythonDll);
         Logger.LogInformation("Python path: {PythonPath}", pythonPath);
 
-        var api = new CPythonAPI(pythonDll)
+        var api = new CPythonAPI(pythonDll, pythonLocationMetadata.FreeThreaded)
         {
             PythonPath = pythonPath
         };

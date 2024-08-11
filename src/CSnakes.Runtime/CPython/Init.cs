@@ -11,11 +11,13 @@ internal unsafe partial class CPythonAPI : IDisposable
 
     private static string? pythonLibraryPath = null;
     private static readonly object initLock = new();
-    private bool disposedValue;
+    private readonly bool freeThreaded = false;
+    private bool disposedValue = false;
 
-    public CPythonAPI(string pythonLibraryPath)
+    public CPythonAPI(string pythonLibraryPath, bool freeThreaded = false)
     {
         CPythonAPI.pythonLibraryPath = pythonLibraryPath;
+        this.freeThreaded = freeThreaded;
         try
         {
             NativeLibrary.SetDllImportResolver(typeof(CPythonAPI).Assembly, DllImportResolver);

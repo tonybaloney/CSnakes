@@ -37,17 +37,5 @@ internal unsafe partial class CPythonAPI
     private static partial int GetCurrentThreadId();
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial int Py_MakePendingCalls();
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyEval_SaveThread();
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial void PyEval_RestoreThread(nint tstate);
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyThreadState_Get();
-
-    [LibraryImport(PythonLibraryName)]
     internal static partial void PyEval_ReleaseLock();
 }

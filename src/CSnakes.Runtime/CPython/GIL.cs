@@ -24,4 +24,18 @@ internal unsafe partial class CPythonAPI
     /// <returns>1 if held, 0 if not.</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial int PyGILState_Check();
+
+    internal static int GetNativeThreadId()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            return GetCurrentThreadId();
+        else
+            return -1;
+    }
+
+    [LibraryImport("kernel32.dll")]
+    private static partial int GetCurrentThreadId();
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int Py_MakePendingCalls();
 }

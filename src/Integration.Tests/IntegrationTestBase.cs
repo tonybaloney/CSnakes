@@ -16,7 +16,7 @@ public class IntegrationTestBase : IDisposable
                 var pb = services.WithPython();
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
-                pb.FromSource("C:\\Users\\anthonyshaw\\source\\repos\\cpython\\", "3.12", true).FromNuGet("3.12.4").FromMacOSInstallerLocator("3.12").FromEnvironmentVariable("Python3_ROOT_DIR", "3.12.4");
+                pb.FromNuGet("3.12.4").FromMacOSInstallerLocator("3.12").FromEnvironmentVariable("Python3_ROOT_DIR", "3.12.4");
 
                 services.AddLogging(builder => builder.AddXUnit());
             })

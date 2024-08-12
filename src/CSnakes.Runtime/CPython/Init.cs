@@ -1,4 +1,5 @@
 ﻿using CSnakes.Runtime.Python;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -6,6 +7,60 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI : IDisposable
 {
+    private class EmbeddedPythonThread(string PythonPath, CancellationTokenSource cal)
+    {
+        internal void Process()
+        {
+            InitializeThreadState();
+
+            while (!cal.IsCancellationRequested)
+            {
+                // TODO: Put any long-running jobs in here to prevent deadlocks...
+                Thread.Sleep(100);
+            };
+        }
+
+        private void InitializeThreadState()
+        {
+            lock (initLock)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    Py_SetPath_UCS2_UTF16(PythonPath);
+                else
+                    Py_SetPath_UCS4_UTF32(PythonPath);
+                Debug.WriteLine($"Initializing Python on thread {GetNativeThreadId()}");
+                Py_Initialize();
+
+                // Setup type statics
+                using (GIL.Acquire())
+                {
+                    if (PyErr_Occurred() == 1)
+                        throw new InvalidOperationException("Python initialization failed.");
+
+                    if (!IsInitialized)
+                        throw new InvalidOperationException("Python initialization failed.");
+
+                    PyUnicodeType = ((PyObjectStruct*)AsPyUnicodeObject(String.Empty))->Type();
+                    Py_True = PyBool_FromLong(1);
+                    Py_False = PyBool_FromLong(0);
+                    PyBoolType = ((PyObjectStruct*)Py_True)->Type();
+                    PyEmptyTuple = PyTuple_New(0);
+                    PyTupleType = ((PyObjectStruct*)PyEmptyTuple)->Type();
+                    PyFloatType = ((PyObjectStruct*)PyFloat_FromDouble(0.0))->Type();
+                    PyLongType = ((PyObjectStruct*)PyLong_FromLongLong(0))->Type();
+                    PyListType = ((PyObjectStruct*)PyList_New(0))->Type();
+                    PyDictType = ((PyObjectStruct*)PyDict_New())->Type();
+
+                    // Import builtins module
+                    var builtinsMod = Import("builtins");
+                    PyNone = GetAttr(builtinsMod, "None");
+                    Py_DecRef(builtinsMod);
+                }
+                PyEval_ReleaseLock();
+            }
+        }
+    }
+
     private const string PythonLibraryName = "csnakes_python";
     public string PythonPath { get; internal set; } = string.Empty;
 
@@ -13,6 +68,8 @@ internal unsafe partial class CPythonAPI : IDisposable
     private static readonly object initLock = new();
     private readonly bool freeThreaded = false;
     private bool disposedValue = false;
+    private readonly CancellationTokenSource pollerCancellation = new CancellationTokenSource();
+    private Thread? cPythonProcess = null;
 
     public CPythonAPI(string pythonLibraryPath, bool freeThreaded = false)
     {
@@ -41,41 +98,11 @@ internal unsafe partial class CPythonAPI : IDisposable
         if (IsInitialized)
             return;
 
-        lock (initLock)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                Py_SetPath_UCS2_UTF16(PythonPath);
-            else
-                Py_SetPath_UCS4_UTF32(PythonPath);
-
-            Py_Initialize();
-
-            // Setup type statics
-            using (GIL.Acquire())
-            {
-                if (PyErr_Occurred() == 1)
-                    throw new InvalidOperationException("Python initialization failed.");
-
-                if (!IsInitialized)
-                    throw new InvalidOperationException("Python initialization failed.");
-
-                PyUnicodeType = ((PyObjectStruct*)AsPyUnicodeObject(String.Empty))->Type();
-                Py_True = PyBool_FromLong(1);
-                Py_False = PyBool_FromLong(0);
-                PyBoolType = ((PyObjectStruct*)Py_True)->Type();
-                PyEmptyTuple = PyTuple_New(0);
-                PyTupleType = ((PyObjectStruct*)PyEmptyTuple)->Type();
-                PyFloatType = ((PyObjectStruct*)PyFloat_FromDouble(0.0))->Type();
-                PyLongType = ((PyObjectStruct*)PyLong_FromLongLong(0))->Type();
-                PyListType = ((PyObjectStruct*)PyList_New(0))->Type();
-                PyDictType = ((PyObjectStruct*)PyDict_New())->Type();
-
-                // Import builtins module
-                var builtinsMod = Import("builtins");
-                PyNone = GetAttr(builtinsMod, "None");
-                Py_DecRef(builtinsMod);
-            }
-        }
+        EmbeddedPythonThread embeddedPython = new EmbeddedPythonThread(PythonPath, pollerCancellation);
+        cPythonProcess = new Thread(embeddedPython.Process);
+        cPythonProcess.Start();
+        while (!IsInitialized)
+            Thread.Sleep(10);
     }
 
     internal static bool IsInitialized => Py_IsInitialized() == 1;
@@ -108,6 +135,8 @@ internal unsafe partial class CPythonAPI : IDisposable
                 {
                     if (!IsInitialized)
                         return;
+                    pollerCancellation.Cancel();
+                    cPythonProcess?.Join();
                     Py_Finalize();
                 }
             }

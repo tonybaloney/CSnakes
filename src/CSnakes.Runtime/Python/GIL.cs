@@ -12,20 +12,11 @@ public static class GIL
         public PyGilState()
         {
             Debug.Assert(CPythonAPI.IsInitialized);
-#if DEBUG
-            if (CPythonAPI.PyGILState_Check() == 1)
-            {
-                Debug.WriteLine($"GIL already acquired for thread {Environment.CurrentManagedThreadId}");
-            }
-#endif
             gilState = CPythonAPI.PyGILState_Ensure();
-            Debug.WriteLine($"GIL acquired for thread {Environment.CurrentManagedThreadId} ({CPythonAPI.GetNativeThreadId()})");
         }
 
         public void Dispose()
         {
-            Debug.WriteLine($"Releasing GIL for thread {Thread.CurrentThread.ManagedThreadId}");
-            CPythonAPI.Py_MakePendingCalls();
             CPythonAPI.PyGILState_Release(gilState);
         }
     }

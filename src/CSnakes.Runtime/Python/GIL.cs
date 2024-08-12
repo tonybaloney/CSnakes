@@ -5,21 +5,28 @@ namespace CSnakes.Runtime.Python;
 
 public static class GIL
 {
-    // TODO: Handle environments without the GIL (although GIL state ensure becomes a noop)
     internal class PyGilState : IDisposable
     {
-        private readonly IntPtr _state;
+        private readonly nint gilState;
 
         public PyGilState()
         {
             Debug.Assert(CPythonAPI.IsInitialized);
-            _state = CPythonAPI.PyGILState_Ensure();
+#if DEBUG
+            if (CPythonAPI.PyGILState_Check() == 1)
+            {
+                Debug.WriteLine($"GIL already acquired for thread {Environment.CurrentManagedThreadId}");
+            }
+#endif
+            gilState = CPythonAPI.PyGILState_Ensure();
+            Debug.WriteLine($"GIL acquired for thread {Environment.CurrentManagedThreadId} ({CPythonAPI.GetNativeThreadId()})");
         }
 
         public void Dispose()
         {
-            CPythonAPI.PyGILState_Release(_state);
-            GC.SuppressFinalize(this);
+            Debug.WriteLine($"Releasing GIL for thread {Thread.CurrentThread.ManagedThreadId}");
+            CPythonAPI.Py_MakePendingCalls();
+            CPythonAPI.PyGILState_Release(gilState);
         }
     }
 

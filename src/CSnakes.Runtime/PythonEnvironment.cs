@@ -162,8 +162,17 @@ internal class PythonEnvironment : IPythonEnvironment
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}{suffix}.dylib");
-            pythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
+            suffix += pythonLocationMetadata.Debug ? "d" : string.Empty;
+            if (pythonLocationMetadata.Debug) // from source
+            {
+                pythonDll = Path.Combine(pythonLocation, $"libpython{majorVersion}{suffix}.dylib");
+                pythonPath = Path.Combine(pythonLocation, "Lib"); // TODO : build/lib.macosx-13.6-x86_64-3.13-pydebug
+            }
+            else
+            {
+                pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}{suffix}.dylib");
+                pythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
+            }
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {

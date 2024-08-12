@@ -81,7 +81,7 @@ internal unsafe partial class CPythonAPI : IDisposable
                 PyNone = GetAttr(builtinsMod, "None");
                 Py_DecRef(builtinsMod);
             }
-            PyEval_ReleaseLock();
+            PyEval_SaveThread();
         }
     }
 
@@ -116,6 +116,7 @@ internal unsafe partial class CPythonAPI : IDisposable
                     if (!IsInitialized)
                         return;
 
+                    Debug.WriteLine("Calling Py_Finalize()");
                     Py_Finalize();
                 }
             }

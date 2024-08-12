@@ -38,4 +38,7 @@ internal unsafe partial class CPythonAPI
 
     [LibraryImport(PythonLibraryName)]
     internal static partial void PyEval_ReleaseLock();
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial nint PyEval_SaveThread();
 }

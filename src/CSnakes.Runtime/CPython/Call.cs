@@ -4,6 +4,8 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
+    private static readonly Version extraCallArgsVersion = new(3, 9);
+
     internal static IntPtr Call(IntPtr callable, params IntPtr[] args)
     {
         if (callable == IntPtr.Zero)
@@ -14,10 +16,10 @@ internal unsafe partial class CPythonAPI
         // TODO: Use vectorcall if possible https://docs.python.org/3/c-api/call.html#c.PyObject_Vectorcall
 
         // These options are used for efficiency. Don't create a tuple if its not required. 
-        if (args.Length == 0)
+        if (args.Length == 0 && PythonVersion >= extraCallArgsVersion)
         {
             return PyObject_CallNoArgs(callable);
-        } else if (args.Length == 1)
+        } else if (args.Length == 1 && PythonVersion >= extraCallArgsVersion)
         {
             return PyObject_CallOneArg(callable, args[0]);
         } else
@@ -30,7 +32,7 @@ internal unsafe partial class CPythonAPI
     }
 
     /// <summary>
-    /// Call a callable with no arguments
+    /// Call a callable with no arguments (3.9+)
     /// </summary>
     /// <param name="callable"></param>
     /// <returns>A new reference to the result, or null on failure</returns>
@@ -38,7 +40,7 @@ internal unsafe partial class CPythonAPI
     internal static partial IntPtr PyObject_CallNoArgs(IntPtr callable);
 
     /// <summary>
-    /// Call a callable with one argument
+    /// Call a callable with one argument (3.9+)
     /// </summary>
     /// <param name="callable">Callable object</param>
     /// <param name="arg1">The first argument</param>

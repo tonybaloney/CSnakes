@@ -12,18 +12,13 @@ internal unsafe partial class CPythonAPI : IDisposable
 
     private static string? pythonLibraryPath = null;
     private static readonly object initLock = new();
+    private static readonly Version PythonVersion;
     private bool disposedValue = false;
 
-    public CPythonAPI(string pythonLibraryPath, bool freeThreaded = false)
+    public CPythonAPI(string pythonLibraryPath, string version)
     {
+        PythonVersion = new Version(version);
         CPythonAPI.pythonLibraryPath = pythonLibraryPath;
-        if (freeThreaded)
-        {
-            // Use special t-ABI for PyObject.
-        } else
-        {
-            // Use normal PyObject ABI
-        }
         try
         {
             NativeLibrary.SetDllImportResolver(typeof(CPythonAPI).Assembly, DllImportResolver);

@@ -187,7 +187,7 @@ internal class PythonEnvironment : IPythonEnvironment
         Logger.LogInformation("Python DLL: {PythonDLL}", pythonDll);
         Logger.LogInformation("Python path: {PythonPath}", pythonPath);
 
-        var api = new CPythonAPI(pythonDll, pythonLocationMetadata.FreeThreaded)
+        var api = new CPythonAPI(pythonDll, pythonLocationMetadata.Version)
         {
             PythonPath = pythonPath
         };

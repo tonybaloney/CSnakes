@@ -15,7 +15,7 @@ internal class SourceLocator(string folder, string version, bool debug = true, b
 
         return new PythonLocationMetadata(
             buildFolder,
-            version,
+            Version,
             debug,
             freeThreaded
         );

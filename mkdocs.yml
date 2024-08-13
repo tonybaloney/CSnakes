@@ -3,6 +3,7 @@ nav:
   - Home: index.md
   - Getting Started: getting-started.md
   - Reference: reference.md
+  - Advanced Usage: advanced.md
   - Limitations: limitations.md
   - Examples: examples.md
 

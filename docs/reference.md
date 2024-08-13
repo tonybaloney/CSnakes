@@ -9,6 +9,7 @@ CSnakes supports the following typed scenarios:
 | `int`                  | `long`            |
 | `float`                | `double`          |
 | `str`                  | `string`          |
+| `bytes`                | `byte[]`          |
 | `bool`                 | `bool`            |
 | `list[T]`              | `IEnumerable<T>`  |
 | `dict[K, V]`           | `IReadOnlyDictionary<K, V>` |

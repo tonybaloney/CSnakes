@@ -21,3 +21,6 @@ def test_two_lists_of_strings(a: list[str], b: list[str]) -> list[str]:
 
 def test_two_dicts(a: dict[str, int], b: dict[str, int]) -> dict[str, int]:
     return {**a, **b}
+
+def test_bytes(a: bytes) -> bytes:
+    return bytes(reversed(a))

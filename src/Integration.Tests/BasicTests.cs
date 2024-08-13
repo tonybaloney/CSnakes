@@ -50,4 +50,11 @@ public class BasicTests : IntegrationTestBase
         var testModule = Env.TestBasic();
         Assert.Equal(["h3llo", "worLd", "this", "is", "a", "test"], testModule.TestTwoListsOfStrings(["h3llo", "worLd"], new string[] { "this", "is", "a", "test" }));
     }
+
+    [Fact]
+    public void TestBasic_TestBytes()
+    {
+        var testModule = Env.TestBasic();
+        Assert.Equal(new byte[] { 0x04, 0x03, 0x02, 0x01 }, testModule.TestBytes(new byte[] { 0x01, 0x02, 0x03, 0x04 }));
+    }
 }

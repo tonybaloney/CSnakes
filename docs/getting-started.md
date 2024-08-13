@@ -83,6 +83,8 @@ Python environments created by CSnakes are designed to be process-level singleto
 
 CSnakes comes with a host builder for the `Microsoft.Extensions.Hosting` library to make it easier to create a Python environment in your C# code.
 
+CSnakes also needs to know where to find Python using one or many [Python Locators](reference.md#python-locators). This example uses the [NuGet locator](reference.md#nuget-locator), which is an easy way to get started on Windows.
+
 Here's an example of how you can create a Python environment in C#:
 
 ```csharp
@@ -101,9 +103,7 @@ var builder = Host.CreateDefaultBuilder(args)
         services
         .WithPython()
         .WithHome(home)
-        .FromNuGet("3.12.4")
-        .FromPath("3.12.4")
-        .WithPipInstaller();
+        .FromNuGet("3.12.4"); // Add one or many Python Locators here
     });
 
 var app = builder.Build();

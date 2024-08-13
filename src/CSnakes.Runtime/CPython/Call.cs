@@ -19,7 +19,7 @@ internal unsafe partial class CPythonAPI
         {
             return PyObject_CallOneArg(callable, args[0]);
         }
-        else if (args.Length > 1 && PythonVersion.Major == 3 && PythonVersion.Minor >= 9)
+        else if (args.Length > 1 && PythonVersion.Major == 3 && PythonVersion.Minor > 10)
         {
             fixed (IntPtr* argsPtr = args)
             {

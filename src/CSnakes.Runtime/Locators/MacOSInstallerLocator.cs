@@ -1,11 +1,11 @@
 ﻿using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.Locators;
-internal class MacOSInstallerLocator(string version) : PythonLocator(version)
+internal class MacOSInstallerLocator(Version version) : PythonLocator(version)
 {
     public override PythonLocationMetadata LocatePython()
     {
-        string mappedVersion = MapVersion(Version, ".");
+        string mappedVersion = $"{Version.Major}.{Version.Minor}";
         string pythonPath = Path.Combine("/Library/Frameworks/Python.framework/Versions", mappedVersion);
         return LocatePythonInternal(pythonPath);
     }

@@ -17,10 +17,11 @@ internal unsafe partial class CPythonAPI
         if (args.Length == 0)
         {
             return PyObject_CallNoArgs(callable);
-        } else if (args.Length == 1)
+        } else if (args.Length == 1 && PythonVersion.Major == 3 && PythonVersion.Minor > 10)
         {
             return PyObject_CallOneArg(callable, args[0]);
-        } else
+        }
+        else
         {
             var argsTuple = PackTuple(args);
             var result = PyObject_Call(callable, argsTuple, IntPtr.Zero);
@@ -30,7 +31,7 @@ internal unsafe partial class CPythonAPI
     }
 
     /// <summary>
-    /// Call a callable with no arguments
+    /// Call a callable with no arguments (3.9+)
     /// </summary>
     /// <param name="callable"></param>
     /// <returns>A new reference to the result, or null on failure</returns>
@@ -38,13 +39,14 @@ internal unsafe partial class CPythonAPI
     internal static partial IntPtr PyObject_CallNoArgs(IntPtr callable);
 
     /// <summary>
-    /// Call a callable with one argument
+    /// Call a callable with one argument (3.11+)
     /// </summary>
     /// <param name="callable">Callable object</param>
     /// <param name="arg1">The first argument</param>
     /// <returns>A new reference to the result, or null on failure</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial IntPtr PyObject_CallOneArg(IntPtr callable, IntPtr arg1);
+
 
     /// <summary>
     /// Call a callable with many arguments

@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Locators\" />
     <Folder Include="Python\" />
   </ItemGroup>
 

@@ -9,7 +9,6 @@ namespace CSnakes.Runtime.Python;
 public class PyObject : SafeHandle
 {
     private static readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
-    private readonly string self;
 
     internal PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
@@ -17,19 +16,6 @@ public class PyObject : SafeHandle
         {
             ThrowPythonExceptionAsClrException();
         }
-#if DEBUG
-        RaiseOnPythonNotInitialized();
-        using (GIL.Acquire())
-        {
-            IntPtr i = CPythonAPI.PyObject_Str(pyObject);
-            if (i == IntPtr.Zero)
-                self = String.Empty;
-            self = CPythonAPI.PyUnicode_AsUTF8(i) ?? String.Empty;
-            CPythonAPI.Py_DecRef(i);
-        }
-#else
-        self = string.Empty;
-#endif
     }
 
     public override bool IsInvalid => handle == IntPtr.Zero;
@@ -101,11 +87,12 @@ public class PyObject : SafeHandle
     /// <returns>A new reference to the type field.</returns>
     public PyObject Type()
     {
-        // TODO: Consider moving this to a logger.
         Debug.Assert(!IsInvalid);
-        Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         RaiseOnPythonNotInitialized();
-        return new PyObject(CPythonAPI.GetType(DangerousGetHandle()));
+        using (GIL.Acquire())
+        {
+            return new PyObject(CPythonAPI.GetType(DangerousGetHandle()));
+        }
     }
 
     /// <summary>
@@ -115,11 +102,12 @@ public class PyObject : SafeHandle
     /// <returns>Attribute object (new ref)</returns>
     public PyObject GetAttr(string name)
     {
-        // TODO: Consider moving this to a logger.
         Debug.Assert(!IsInvalid);
-        Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         RaiseOnPythonNotInitialized();
-        return new PyObject(CPythonAPI.GetAttr(handle, name));
+        using (GIL.Acquire())
+        {
+            return new PyObject(CPythonAPI.GetAttr(handle, name));
+        }
     }
 
     /// <summary>
@@ -128,44 +116,43 @@ public class PyObject : SafeHandle
     /// <returns>The iterator object (new ref)</returns>
     public PyObject GetIter()
     {
-        // TODO: Consider moving this to a logger.
         Debug.Assert(!IsInvalid);
-        Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         RaiseOnPythonNotInitialized();
-        return new PyObject(CPythonAPI.PyObject_GetIter(DangerousGetHandle()));
+        using (GIL.Acquire())
+        {
+            return new PyObject(CPythonAPI.PyObject_GetIter(DangerousGetHandle()));
+        }
     }
 
     /// <summary>
     /// Call the object. Equivalent to (__call__)(args)
-    /// Caller should already have aquired the GIL.
     /// </summary>
     /// <param name="args"></param>
     /// <returns>The resulting object, or NULL on error.</returns>
     public PyObject Call(params PyObject[] args)
     {
         RaiseOnPythonNotInitialized();
-        // TODO: Decide whether to move the GIL acquisition to here.
         // TODO: Consider moving this to a logger.
         Debug.Assert(!IsInvalid);
-        Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         var argHandles = new IntPtr[args.Length];
         for (int i = 0; i < args.Length; i++)
         {
             argHandles[i] = args[i].DangerousGetHandle();
         }
-        return new PyObject(CPythonAPI.Call(DangerousGetHandle(), argHandles));
+        using (GIL.Acquire())
+        {
+            return new PyObject(CPythonAPI.Call(DangerousGetHandle(), argHandles));
+        }
     }
 
     /// <summary>
     /// Get a string representation of the object.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The result of `str()` on the object.</returns>
     public override string ToString()
     {
         // TODO: Consider moving this to a logger.
-        // TODO: Would this be better as a `DebuggerDisplay` attribute?
         Debug.Assert(!IsInvalid);
-        Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
@@ -177,7 +164,6 @@ public class PyObject : SafeHandle
 
     public T As<T>()
     {
-        // TODO: This fails in many cases. 
         return (T)td.ConvertTo(this, typeof(T)) ?? default;
     }
 }

@@ -12,8 +12,8 @@ CSnakes is a .NET Source Generator and Runtime that you can use to embed Python 
 
 ## Features
 
-- .NET Standard 2.0 (.NET 6+)
-- Supports up to Python 3.12
+- .NET Standard 2.0 (.NET 6-8)
+- Supports Python 3.9-3.13
 - Supports Virtual Environments and C-Extensions
 - Supports Windows, macOS, and Linux
 - Uses Python's C-API for fast invocation of Python code directly in the .NET process

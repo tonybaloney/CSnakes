@@ -24,6 +24,7 @@ internal unsafe partial class CPythonAPI : IDisposable
             NativeLibrary.SetDllImportResolver(typeof(CPythonAPI).Assembly, DllImportResolver);
         } catch (InvalidOperationException)
         {
+            // TODO: Work out how to call setdllimport resolver only once to avoid raising exceptions. 
             // Already set. 
         }
     }

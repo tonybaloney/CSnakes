@@ -16,8 +16,9 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest, macos-13, macos-latest]
         python: ["3.12"]
+      fail-fast: false
     runs-on: "${{ matrix.os }}"
 
     steps:

@@ -1,27 +1,33 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <PackageReference Include="python" Version="3.12.4" />
     <PackageReference Include="xunit" Version="2.5.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+    <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CSnakes.Runtime\CSnakes.Runtime.csproj" />
-    <ProjectReference Include="..\CSnakes\CSnakes.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Python\" />
   </ItemGroup>
 
 </Project>

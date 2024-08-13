@@ -1,15 +1,14 @@
-﻿using CSnakes.Runtime;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Runtime.InteropServices;
+using Microsoft.Extensions.Logging;
 
 namespace Integration.Tests;
-public class TestEnvironment : IDisposable
+public class IntegrationTestBase : IDisposable
 {
     private readonly IPythonEnvironment env;
     private readonly IHost app;
 
-    public TestEnvironment()
+    public IntegrationTestBase()
     {
         app = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
@@ -17,7 +16,9 @@ public class TestEnvironment : IDisposable
                 var pb = services.WithPython();
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
-                pb.FromNuGet("3.12.4").FromEnvironmentVariable("Python3_ROOT_DIR", "3.12.4");
+                pb.FromNuGet("3.12.4").FromMacOSInstallerLocator("3.12").FromEnvironmentVariable("Python3_ROOT_DIR", "3.12.4");
+
+                services.AddLogging(builder => builder.AddXUnit());
             })
             .Build();
 
@@ -26,16 +27,8 @@ public class TestEnvironment : IDisposable
 
     public void Dispose()
     {
-        Dispose(true);
         GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            app.Dispose();
-        }
+        GC.Collect();
     }
 
     public IPythonEnvironment Env => env;

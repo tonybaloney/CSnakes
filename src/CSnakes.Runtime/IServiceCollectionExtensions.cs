@@ -1,6 +1,7 @@
 ﻿using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;
 /// <summary>
@@ -24,11 +25,13 @@ public static class IServiceCollectionExtensions
             var envBuilder = sp.GetRequiredService<IPythonEnvironmentBuilder>();
             var locators = sp.GetServices<PythonLocator>();
             var installers = sp.GetServices<IPythonPackageInstaller>();
+            var logger = sp.GetRequiredService<ILogger<IPythonEnvironment>>();
 
             var options = envBuilder.GetOptions();
 
-            return new PythonEnvironment(locators, installers, options);
+            return PythonEnvironment.GetPythonEnvironment(locators, installers, options, logger);
         });
+
         return pythonBuilder;
     }
 
@@ -65,6 +68,24 @@ public static class IServiceCollectionExtensions
     public static IPythonEnvironmentBuilder FromWindowsInstaller(this IPythonEnvironmentBuilder builder, string version)
     {
         builder.Services.AddSingleton<PythonLocator>(new WindowsInstallerLocator(version));
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds a Python locator using Python from the Official macOS Installer packages to the service collection with the specified version.
+    /// </summary>
+    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
+    /// <param name="version">The version of the Windows Installer package.</param>
+    /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
+    public static IPythonEnvironmentBuilder FromMacOSInstallerLocator(this IPythonEnvironmentBuilder builder, string version)
+    {
+        builder.Services.AddSingleton<PythonLocator>(new MacOSInstallerLocator(version));
+        return builder;
+    }
+
+    public static IPythonEnvironmentBuilder FromSource(this IPythonEnvironmentBuilder builder, string folder, string version, bool debug = true, bool freeThreaded = false)
+    {
+        builder.Services.AddSingleton<PythonLocator>(new SourceLocator(folder, version, debug, freeThreaded));
         return builder;
     }
 

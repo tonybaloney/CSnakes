@@ -3,12 +3,14 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-  </PropertyGroup>
+	<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+</PropertyGroup>
 
   <ItemGroup>
     <None Remove="python\test_basic.py" />
     <None Remove="python\test_defaults.py" />
     <None Remove="python\test_dicts.py" />
+    <None Remove="python\test_exceptions.py" />
     <None Remove="python\test_false_returns.py" />
     <None Remove="python\test_keywords.py" />
     <None Remove="python\test_reserved.py" />
@@ -23,6 +25,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
     <AdditionalFiles Include="python\test_dicts.py">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AdditionalFiles>
+    <AdditionalFiles Include="python\test_exceptions.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
     <AdditionalFiles Include="python\test_false_returns.py">
@@ -47,10 +52,12 @@
     <PackageReference Include="xunit" Version="2.5.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
     <PackageReference Include="python" Version="3.12.4" />
+    <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
+    <Using Include="CSnakes.Runtime"/>
   </ItemGroup>
 
 	<ItemGroup>
@@ -58,5 +65,7 @@
 		<ProjectReference Include="..\CSnakes\CSnakes.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
 	</ItemGroup>
 
-
+	<ItemGroup>
+		<Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
 </Project>

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CSnakes.Runtime": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

@@ -177,7 +177,6 @@ public class PyObject : SafeHandle
 
     public T As<T>()
     {
-        // TODO: This fails in many cases. 
         return (T)td.ConvertTo(this, typeof(T)) ?? default;
     }
 }

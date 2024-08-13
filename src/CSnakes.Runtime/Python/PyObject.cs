@@ -9,7 +9,6 @@ namespace CSnakes.Runtime.Python;
 public class PyObject : SafeHandle
 {
     private static readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
-    private readonly string self;
 
     internal PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
@@ -17,19 +16,6 @@ public class PyObject : SafeHandle
         {
             ThrowPythonExceptionAsClrException();
         }
-#if DEBUG
-        RaiseOnPythonNotInitialized();
-        using (GIL.Acquire())
-        {
-            IntPtr i = CPythonAPI.PyObject_Str(pyObject);
-            if (i == IntPtr.Zero)
-                self = String.Empty;
-            self = CPythonAPI.PyUnicode_AsUTF8(i) ?? String.Empty;
-            CPythonAPI.Py_DecRef(i);
-        }
-#else
-        self = string.Empty;
-#endif
     }
 
     public override bool IsInvalid => handle == IntPtr.Zero;
@@ -166,9 +152,7 @@ public class PyObject : SafeHandle
     public override string ToString()
     {
         // TODO: Consider moving this to a logger.
-        // TODO: Would this be better as a `DebuggerDisplay` attribute?
         Debug.Assert(!IsInvalid);
-        Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {

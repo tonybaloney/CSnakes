@@ -133,3 +133,35 @@ pythonBuilder.FromPath("3.12")
 CSnakes is designed to be thread-safe and can be used in parallel execution scenarios. 
 
 See [Advanced Usage](advanced.md) for more information on using CSnakes in a multi-threaded environment.
+
+## Implementation details
+
+CSnakes uses the Python C-API to invoke Python code from C#. The Python C-API is a low-level interface to the Python runtime that allows you to interact with Python objects and execute Python code from C.
+
+CSnakes generates a C# class that handles the calls and conversions between Python and C#. The generated class is a wrapper around the Python C-API that allows you to call Python functions and methods from C#.
+
+The generated class uses the `Python.Runtime` library to interact with the Python C-API. The `Python.Runtime` library is a C# wrapper around the Python C-API that provides a high-level interface to the Python runtime.
+
+The `PyObject` type is a Managed Handle to a Python object. It is a reference to a Python object that is managed by the Python runtime. The `PyObject` type is used to pass Python objects around inside C#. All `PyObject` instances have been created with a strong reference in C#. They are automatically garbage collected when the last reference is released. These objects are also disposable, so you can release the reference manually if you need to:
+
+```csharp
+using CSnakes.Runtime.Python;
+
+{
+  using PyObject obj = env.MethodToCall();
+
+  Console.WriteLine(obj.ToString());
+}  // obj is disposed here
+```
+
+### GIL and multi-threading
+
+CSnakes uses the Python Global Interpreter Lock (GIL) to ensure that only one thread can execute Python code at a time. This is necessary because the Python runtime is not thread-safe and can crash if multiple threads try to execute Python code simultaneously.
+
+All public methods generate by CSnakes have a built-in GIL acquisition and release mechanism. This means that you can safely call Python functions from multiple threads without worrying about the GIL.
+
+## Exceptions
+
+CSnakes will raise a `PythonException` if an error occurs during the execution of the Python code. The `PythonException` class contains the error message from the Python interpreter.
+
+If the annotations are incorrect and your Python code returns a different type to what CSnakes was expecting, an `InvalidCastException` will be thrown with the details of the source and destination types.

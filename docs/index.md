@@ -13,7 +13,7 @@ Check out the [getting started](getting-started.md) guide or check out the [demo
 ## Features
 
 - .NET Standard 2.0 (.NET 6+)
-- Supports up to Python 3.12
+- Supports up to Python 3.13
 - Supports Virtual Environments and C-Extensions
 - Supports Windows, macOS, and Linux
 - Uses Python's C-API for fast invocation of Python code directly in the .NET process

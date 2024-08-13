@@ -22,7 +22,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             foreach (var file in inputFiles)
             {
                 // Add environment path
-                var @namespace = "CSnakes.Runtime"; // TODO: (track) Infer namespace from project
+                var @namespace = "CSnakes.Runtime";
 
                 var fileName = Path.GetFileNameWithoutExtension(file.Path);
 

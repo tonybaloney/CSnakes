@@ -15,9 +15,9 @@ internal unsafe partial class CPythonAPI : IDisposable
     private static Version PythonVersion;
     private bool disposedValue = false;
 
-    public CPythonAPI(string pythonLibraryPath, string version)
+    public CPythonAPI(string pythonLibraryPath, Version version)
     {
-        PythonVersion = new Version(version);
+        PythonVersion = version;
         CPythonAPI.pythonLibraryPath = pythonLibraryPath;
         try
         {

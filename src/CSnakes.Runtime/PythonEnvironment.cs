@@ -68,12 +68,9 @@ internal class PythonEnvironment : IPythonEnvironment
             installer.InstallPackages(home, options.VirtualEnvironmentPath);
         }
 
-        string versionPath = MapVersion(location.Version);
-        string majorVersion = MapVersion(location.Version, ".");
-
         char sep = Path.PathSeparator;
 
-        api = SetupStandardLibrary(location, versionPath, majorVersion, sep);
+        api = SetupStandardLibrary(location, sep);
 
         if (!string.IsNullOrEmpty(home))
         {
@@ -133,11 +130,12 @@ internal class PythonEnvironment : IPythonEnvironment
         }
     }
 
-    private CPythonAPI SetupStandardLibrary(PythonLocationMetadata pythonLocationMetadata, string versionPath, string majorVersion, char sep)
+    private CPythonAPI SetupStandardLibrary(PythonLocationMetadata pythonLocationMetadata, char sep)
     {
         string pythonDll = string.Empty;
         string pythonPath = string.Empty;
         string pythonLocation = pythonLocationMetadata.Folder;
+        var version = pythonLocationMetadata.Version;
         string suffix = string.Empty;
 
         if (pythonLocationMetadata.FreeThreaded)
@@ -149,7 +147,7 @@ internal class PythonEnvironment : IPythonEnvironment
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             suffix += pythonLocationMetadata.Debug ? "_d" : string.Empty;
-            pythonDll = Path.Combine(pythonLocation, $"python{versionPath}{suffix}.dll");
+            pythonDll = Path.Combine(pythonLocation, $"python{version.Major}{version.Minor}{suffix}.dll");
             if (pythonLocationMetadata.Debug)
             {
                 // From source..
@@ -165,19 +163,19 @@ internal class PythonEnvironment : IPythonEnvironment
             suffix += pythonLocationMetadata.Debug ? "d" : string.Empty;
             if (pythonLocationMetadata.Debug) // from source
             {
-                pythonDll = Path.Combine(pythonLocation, $"libpython{majorVersion}{suffix}.dylib");
+                pythonDll = Path.Combine(pythonLocation, $"libpython{version.Major}.{version.Minor}{suffix}.dylib");
                 pythonPath = Path.Combine(pythonLocation, "Lib"); // TODO : build/lib.macosx-13.6-x86_64-3.13-pydebug
             }
             else
             {
-                pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}{suffix}.dylib");
-                pythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
+                pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{version.Major}.{version.Minor}{suffix}.dylib");
+                pythonPath = Path.Combine(pythonLocation, "lib", $"python{version.Major}.{version.Minor}") + sep + Path.Combine(pythonLocation, "lib", $"python{version.Major}.{version.Minor}", "lib-dynload");
             }
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{majorVersion}{suffix}.so");
-            pythonPath = Path.Combine(pythonLocation, "lib", $"python{majorVersion}") + sep + Path.Combine(pythonLocation, "lib", $"python{majorVersion}", "lib-dynload");
+            pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{version.Major}.{version.Minor}{suffix}.so");
+            pythonPath = Path.Combine(pythonLocation, "lib", $"python{version.Major}.{version.Minor}") + sep + Path.Combine(pythonLocation, "lib", $"python{version.Major}.{version.Minor}", "lib-dynload");
         }
         else
         {
@@ -192,13 +190,6 @@ internal class PythonEnvironment : IPythonEnvironment
             PythonPath = pythonPath
         };
         return api;
-    }
-
-    internal static string MapVersion(string version, string sep = "")
-    {
-        // split on . then take the first two segments and join them without spaces
-        var versionParts = version.Split('.');
-        return string.Join(sep, versionParts.Take(2));
     }
 
     protected virtual void Dispose(bool disposing)

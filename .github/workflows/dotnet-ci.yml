@@ -24,6 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
+        id: installpython
         uses: actions/setup-python@v5
         with:
           python-version: "${{ matrix.python }}"
@@ -41,4 +42,4 @@ jobs:
         run: dotnet test --no-build --verbosity normal
         working-directory: src
         env:
-          PYTHON_VERSION: ${{ matrix.python }}
+          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}

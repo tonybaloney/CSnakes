@@ -4,8 +4,6 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
-    private static readonly Version extraCallArgsVersion = new(3, 10);
-
     internal static IntPtr Call(IntPtr callable, params IntPtr[] args)
     {
         if (callable == IntPtr.Zero)
@@ -19,11 +17,11 @@ internal unsafe partial class CPythonAPI
         if (args.Length == 0)
         {
             return PyObject_CallNoArgs(callable);
-        } else if (args.Length == 1 && PythonVersion > extraCallArgsVersion)
+        } else if (args.Length == 1 && PythonVersion.Major == 3 && PythonVersion.Minor > 10)
         {
             return PyObject_CallOneArg(callable, args[0]);
         }
-        else if (args.Length == 1 && PythonVersion <= extraCallArgsVersion)
+        else if (args.Length == 1)
         {
             return _PyObject_CallOneArg(callable, args[0]);
         }

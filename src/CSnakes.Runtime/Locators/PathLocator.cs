@@ -1,5 +1,5 @@
 ﻿namespace CSnakes.Runtime.Locators;
-internal class PathLocator(string version) : PythonLocator(version)
+internal class PathLocator(Version version) : PythonLocator(version)
 {
     public override PythonLocationMetadata LocatePython()
     {

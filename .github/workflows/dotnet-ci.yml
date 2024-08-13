@@ -16,14 +16,15 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-13, macos-latest]
-        python: ["3.12"]
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13.0-rc.1"]
       fail-fast: false
     runs-on: "${{ matrix.os }}"
 
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
+        id: installpython
         uses: actions/setup-python@v5
         with:
           python-version: "${{ matrix.python }}"
@@ -40,3 +41,5 @@ jobs:
       - name: Test
         run: dotnet test --no-build --verbosity normal
         working-directory: src
+        env:
+          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}

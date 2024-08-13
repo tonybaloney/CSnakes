@@ -6,4 +6,4 @@
 /// <param name="Version">Version of Python being used from the location.</param>
 /// <param name="Debug">True if the Python installation is a debug build.</param>
 /// <param name="FreeThreaded"
-public sealed record PythonLocationMetadata(string Folder, string Version, bool Debug = false, bool FreeThreaded = false);
+public sealed record PythonLocationMetadata(string Folder, Version Version, bool Debug = false, bool FreeThreaded = false);

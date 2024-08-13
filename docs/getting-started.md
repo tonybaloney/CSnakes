@@ -13,7 +13,7 @@ To get started with CSnakes, you need to:
 
 ## Installing Python
 
-Because CSnakes embeds Python in your .NET project, you need to have Python installed on your machine. CSnakes supports Python 3.8-3.13.
+Because CSnakes embeds Python in your .NET project, you need to have Python installed on your machine. CSnakes supports Python 3.9-3.13.
 
 Embedding Python is a bit different to running `python` on the command line, because it requires 3 paths, instead of just one (`python`).
 

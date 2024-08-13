@@ -35,6 +35,19 @@ public static class IServiceCollectionExtensions
         return pythonBuilder;
     }
 
+    public static Version ParsePythonVersion(string version)
+    {
+        // Remove non -numeric characters except .
+        version = new string(version.Where(c => char.IsDigit(c) || c == '.').ToArray());
+
+        var v = Version.Parse(version);
+        if (v.Minor == -1)
+            return new Version(v.Major, 0, 0);
+        if (v.Build == -1)
+            return new Version(v.Major, v.Minor, 0);
+        return v;
+    }
+
     /// <summary>
     /// Adds a Python locator using Python from a NuGet packages to the service collection with the specified version.
     /// </summary>
@@ -43,7 +56,7 @@ public static class IServiceCollectionExtensions
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
     public static IPythonEnvironmentBuilder FromNuGet(this IPythonEnvironmentBuilder builder, string version)
     {
-        builder.Services.AddSingleton<PythonLocator>(new NuGetLocator(version));
+        builder.Services.AddSingleton<PythonLocator>(new NuGetLocator(ParsePythonVersion(version)));
         return builder;
     }
 
@@ -55,7 +68,7 @@ public static class IServiceCollectionExtensions
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
     public static IPythonEnvironmentBuilder FromWindowsStore(this IPythonEnvironmentBuilder builder, string version)
     {
-        builder.Services.AddSingleton<PythonLocator>(new WindowsStoreLocator(version));
+        builder.Services.AddSingleton<PythonLocator>(new WindowsStoreLocator(ParsePythonVersion(version)));
         return builder;
     }
 
@@ -67,7 +80,7 @@ public static class IServiceCollectionExtensions
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
     public static IPythonEnvironmentBuilder FromWindowsInstaller(this IPythonEnvironmentBuilder builder, string version)
     {
-        builder.Services.AddSingleton<PythonLocator>(new WindowsInstallerLocator(version));
+        builder.Services.AddSingleton<PythonLocator>(new WindowsInstallerLocator(ParsePythonVersion(version)));
         return builder;
     }
 
@@ -79,13 +92,13 @@ public static class IServiceCollectionExtensions
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
     public static IPythonEnvironmentBuilder FromMacOSInstallerLocator(this IPythonEnvironmentBuilder builder, string version)
     {
-        builder.Services.AddSingleton<PythonLocator>(new MacOSInstallerLocator(version));
+        builder.Services.AddSingleton<PythonLocator>(new MacOSInstallerLocator(ParsePythonVersion(version)));
         return builder;
     }
 
     public static IPythonEnvironmentBuilder FromSource(this IPythonEnvironmentBuilder builder, string folder, string version, bool debug = true, bool freeThreaded = false)
     {
-        builder.Services.AddSingleton<PythonLocator>(new SourceLocator(folder, version, debug, freeThreaded));
+        builder.Services.AddSingleton<PythonLocator>(new SourceLocator(folder, ParsePythonVersion(version), debug, freeThreaded));
         return builder;
     }
 
@@ -98,7 +111,7 @@ public static class IServiceCollectionExtensions
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
     public static IPythonEnvironmentBuilder FromEnvironmentVariable(this IPythonEnvironmentBuilder builder, string environmentVariable, string version)
     {
-        builder.Services.AddSingleton<PythonLocator>(new EnvironmentVariableLocator(environmentVariable, version));
+        builder.Services.AddSingleton<PythonLocator>(new EnvironmentVariableLocator(environmentVariable, ParsePythonVersion(version)));
         return builder;
     }
 
@@ -111,7 +124,7 @@ public static class IServiceCollectionExtensions
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
     public static IPythonEnvironmentBuilder FromFolder(this IPythonEnvironmentBuilder builder, string folder, string version)
     {
-        builder.Services.AddSingleton<PythonLocator>(new FolderLocator(folder, version));
+        builder.Services.AddSingleton<PythonLocator>(new FolderLocator(folder, ParsePythonVersion(version)));
         return builder;
     }
 
@@ -123,7 +136,7 @@ public static class IServiceCollectionExtensions
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
     public static IPythonEnvironmentBuilder FromPath(this IPythonEnvironmentBuilder builder, string version)
     {
-        builder.Services.AddSingleton<PythonLocator>(new PathLocator(version));
+        builder.Services.AddSingleton<PythonLocator>(new PathLocator(ParsePythonVersion(version)));
         return builder;
     }
 

@@ -6,13 +6,7 @@ internal class SourceLocator(string folder, string version, bool debug = true, b
 {
     public override PythonLocationMetadata LocatePython()
     {
-        var buildFolder = String.Empty;
-        
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)){
-            buildFolder = Path.Combine(folder, "PCbuild", "amd64");
-        } else {
-            buildFolder = folder;
-        }
+        var buildFolder = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Path.Combine(folder, "PCbuild", "amd64") : folder;
 
         if (string.IsNullOrEmpty(buildFolder) || !Directory.Exists(buildFolder))
         {

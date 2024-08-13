@@ -89,7 +89,7 @@ internal class PyObjectTypeConverter : TypeConverter
 
     private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
     {
-        using PyObject items = new PyObject(CPythonAPI.PyDict_Items(pyObject.DangerousGetHandle()));
+        using PyObject items = new(CPythonAPI.PyDict_Items(pyObject.DangerousGetHandle()));
         Type item1Type = destinationType.GetGenericArguments()[0];
         Type item2Type = destinationType.GetGenericArguments()[1];
         Type dictType = typeof(Dictionary<,>).MakeGenericType(item1Type, item2Type);
@@ -98,10 +98,10 @@ internal class PyObjectTypeConverter : TypeConverter
 
         for (nint i = 0; i < itemsLength; i++)
         {
-            using PyObject item = new PyObject(CPythonAPI.PyList_GetItem(items.DangerousGetHandle(), i));
+            using PyObject item = new(CPythonAPI.PyList_GetItem(items.DangerousGetHandle(), i));
 
-            using PyObject item1 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 0));
-            using PyObject item2 = new PyObject(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 1));
+            using PyObject item1 = new(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 0));
+            using PyObject item2 = new(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 1));
 
             object? convertedItem1 = AsManagedObject(item1Type, item1, context, culture);
             object? convertedItem2 = AsManagedObject(item2Type, item2, context, culture);
@@ -125,8 +125,7 @@ internal class PyObjectTypeConverter : TypeConverter
         var tupleValues = new List<PyObject>();
         for (nint i = 0; i < CPythonAPI.PyTuple_Size(tuplePtr); i++)
         {
-            // TODO: Dispose of this reference. Ant- It will be disposed by the CLR/GC when tupleValues is freed.
-            PyObject value = new PyObject(CPythonAPI.PyTuple_GetItem(tuplePtr, i));
+            PyObject value = new(CPythonAPI.PyTuple_GetItem(tuplePtr, i));
             tupleValues.Add(value);
         }
 
@@ -177,7 +176,7 @@ internal class PyObjectTypeConverter : TypeConverter
         IList list = (IList)Activator.CreateInstance(listType)!;
         for (var i = 0; i < CPythonAPI.PyList_Size(pyObject.DangerousGetHandle()); i++)
         {
-            using PyObject item = new PyObject(CPythonAPI.PyList_GetItem(pyObject.DangerousGetHandle(), i));
+            using PyObject item = new(CPythonAPI.PyList_GetItem(pyObject.DangerousGetHandle(), i));
             list.Add(AsManagedObject(genericArgument, item, context, culture));
         }
 
@@ -201,7 +200,7 @@ internal class PyObjectTypeConverter : TypeConverter
 
     private PyObject ConvertFromDictionary(ITypeDescriptorContext? context, CultureInfo? culture, IDictionary dictionary)
     {
-        PyObject pyDict = new PyObject(CPythonAPI.PyDict_New());
+        PyObject pyDict = new(CPythonAPI.PyDict_New());
 
         foreach (DictionaryEntry kvp in dictionary)
         {
@@ -217,7 +216,7 @@ internal class PyObjectTypeConverter : TypeConverter
 
     private PyObject ConvertFromList(ITypeDescriptorContext? context, CultureInfo? culture, IEnumerable e)
     {
-        PyObject pyList = new PyObject(CPythonAPI.PyList_New(0));
+        PyObject pyList = new(CPythonAPI.PyList_New(0));
 
         foreach (var item in e)
         {
@@ -273,11 +272,6 @@ internal class PyObjectTypeConverter : TypeConverter
     {
         var result = ConvertFrom(context, culture, o);
 
-        if (result is null)
-        {
-            throw new NotImplementedException();
-        }
-
-        return (PyObject)result;
+        return result is null ? throw new NotImplementedException() : (PyObject)result;
     }
 }

@@ -56,14 +56,13 @@ public class PyObject : SafeHandle
 
     private static void ThrowPythonExceptionAsClrException()
     {
-        nint excType, excValue, excTraceback;
         using (GIL.Acquire())
         {
             if (CPythonAPI.PyErr_Occurred() == 0)
             {
                 throw new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
-            CPythonAPI.PyErr_Fetch(out excType, out excValue, out excTraceback);
+            CPythonAPI.PyErr_Fetch(out nint excType, out nint excValue, out nint excTraceback);
             using var pyExceptionType = new PyObject(excType);
             using var pyExceptionValue = new PyObject(excValue);
             using var pyExceptionTraceback = new PyObject(excTraceback);
@@ -87,7 +86,7 @@ public class PyObject : SafeHandle
     /// runtime errors when trying to use Python objects after the Python environment has been disposed.
     /// </summary>
     /// <exception cref="InvalidOperationException"></exception>
-    private void RaiseOnPythonNotInitialized()
+    private static void RaiseOnPythonNotInitialized()
     {
         if (!CPythonAPI.IsInitialized)
         {
@@ -163,7 +162,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            using PyObject pyObjectStr = new PyObject(CPythonAPI.PyObject_Str(handle));
+            using PyObject pyObjectStr = new(CPythonAPI.PyObject_Str(handle));
             string? stringValue = CPythonAPI.PyUnicode_AsUTF8(pyObjectStr.DangerousGetHandle());
             return stringValue ?? string.Empty;
         }

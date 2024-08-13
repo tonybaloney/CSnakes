@@ -138,7 +138,7 @@ internal class PythonEnvironment : IPythonEnvironment
         string pythonDll = string.Empty;
         string pythonPath = string.Empty;
         string pythonLocation = pythonLocationMetadata.Folder;
-        string suffix = String.Empty;
+        string suffix = string.Empty;
 
         if (pythonLocationMetadata.FreeThreaded)
         {

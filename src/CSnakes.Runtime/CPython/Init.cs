@@ -12,13 +12,18 @@ internal unsafe partial class CPythonAPI : IDisposable
 
     private static string? pythonLibraryPath = null;
     private static readonly object initLock = new();
-    private readonly bool freeThreaded = false;
     private bool disposedValue = false;
 
     public CPythonAPI(string pythonLibraryPath, bool freeThreaded = false)
     {
         CPythonAPI.pythonLibraryPath = pythonLibraryPath;
-        this.freeThreaded = freeThreaded;
+        if (freeThreaded)
+        {
+            // Use special t-ABI for PyObject.
+        } else
+        {
+            // Use normal PyObject ABI
+        }
         try
         {
             NativeLibrary.SetDllImportResolver(typeof(CPythonAPI).Assembly, DllImportResolver);
@@ -66,16 +71,16 @@ internal unsafe partial class CPythonAPI : IDisposable
                 if (!IsInitialized)
                     throw new InvalidOperationException("Python initialization failed.");
 
-                PyUnicodeType = ((PyObjectStruct*)AsPyUnicodeObject(String.Empty))->Type();
+                PyUnicodeType = GetType(AsPyUnicodeObject(string.Empty)) ;
                 Py_True = PyBool_FromLong(1);
                 Py_False = PyBool_FromLong(0);
-                PyBoolType = ((PyObjectStruct*)Py_True)->Type();
+                PyBoolType = GetType(Py_True);
                 PyEmptyTuple = PyTuple_New(0);
-                PyTupleType = ((PyObjectStruct*)PyEmptyTuple)->Type();
-                PyFloatType = ((PyObjectStruct*)PyFloat_FromDouble(0.0))->Type();
-                PyLongType = ((PyObjectStruct*)PyLong_FromLongLong(0))->Type();
-                PyListType = ((PyObjectStruct*)PyList_New(0))->Type();
-                PyDictType = ((PyObjectStruct*)PyDict_New())->Type();
+                PyTupleType = GetType(PyEmptyTuple);
+                PyFloatType = GetType(PyFloat_FromDouble(0.0));
+                PyLongType = GetType(PyLong_FromLongLong(0));
+                PyListType = GetType(PyList_New(0));
+                PyDictType = GetType(PyDict_New());
 
                 // Import builtins module
                 var builtinsMod = Import("builtins");

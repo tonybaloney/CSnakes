@@ -17,6 +17,6 @@ internal unsafe partial class CPythonAPI
 
     internal static bool IsPyLong(nint p)
     {
-        return ((PyObjectStruct*)p)->Type() == PyLongType;
+        return PyObject_IsInstance(p, PyLongType);
     }
 }

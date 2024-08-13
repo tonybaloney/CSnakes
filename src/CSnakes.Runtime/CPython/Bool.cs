@@ -18,7 +18,7 @@ internal unsafe partial class CPythonAPI
 
     public static bool IsPyBool(nint p)
     {
-        return ((PyObjectStruct*)p)->Type() == PyBoolType;
+        return PyObject_IsInstance(p, PyBoolType);
     }
 
     public static bool IsPyTrue(nint p)

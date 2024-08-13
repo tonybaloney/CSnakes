@@ -15,7 +15,7 @@ internal unsafe partial class CPythonAPI
 
     public static bool IsPyDict(nint p)
     {
-        return ((PyObjectStruct*)p)->Type() == PyDictType;
+        return PyObject_IsInstance(p, PyDictType);
     }
 
     /// <summary>

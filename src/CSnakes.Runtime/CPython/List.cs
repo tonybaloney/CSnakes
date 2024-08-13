@@ -54,6 +54,6 @@ internal unsafe partial class CPythonAPI
 
     internal static bool IsPyList(nint p)
     {
-        return ((PyObjectStruct*)p)->Type() == PyListType;
+        return PyObject_IsInstance(p, PyListType);
     }
 }

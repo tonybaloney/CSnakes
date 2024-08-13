@@ -87,6 +87,6 @@ internal unsafe partial class CPythonAPI
 
     internal static bool IsPyTuple(nint p)
     {
-        return ((PyObjectStruct*)p)->Type() == PyTupleType;
+        return PyObject_IsInstance(p, PyTupleType);
     }
 }

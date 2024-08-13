@@ -21,6 +21,6 @@ internal unsafe partial class CPythonAPI
 
     public static bool IsPyUnicode(nint p)
     {
-        return ((PyObjectStruct*)p)->Type() == PyUnicodeType; // TODO: Derived types
+        return PyObject_IsInstance(p, PyUnicodeType);
     }
 }

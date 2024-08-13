@@ -18,12 +18,41 @@ internal unsafe partial class CPythonAPI
     /// <param name="ob">The Python object</param>
     /// <returns>A new reference to the type.</returns>
     internal static IntPtr GetType(IntPtr ob) {
-        nint type = ((PyObjectStruct*)ob)->Type();
-        Py_IncRef(type);
-        return type;
+        return PyObject_Type(ob);
     }
 
-    internal static int Py_REFCNT(IntPtr ob) => ((PyObjectStruct*)ob)->RefCount();
+    /// <summary>
+    /// When o is non-NULL, returns a type object corresponding to the object type of object o. 
+    /// On failure, raises SystemError and returns NULL. 
+    /// This is equivalent to the Python expression type(o). 
+    /// This function creates a new strong reference to the return value.
+    /// </summary>
+    /// <param name="ob">The python object</param>
+    /// <returns>A new reference to the Type object for the given Python object</returns>
+    [LibraryImport(PythonLibraryName)]
+    private static partial nint PyObject_Type(nint ob);
+
+    internal static bool PyObject_IsInstance(IntPtr ob, IntPtr type)
+    {
+        int result = PyObject_IsInstance_(ob, type);
+        if (result == -1)
+        {
+            PyErr_Clear();
+            // TODO: Get the Python exception message.
+            throw new Exception("Failure calling isinstance() on object.");
+        }
+        return result == 1;
+    }
+
+    /// <summary>
+    /// Return 1 if inst is an instance of the class cls or a subclass of cls, or 0 if not. 
+    /// On error, returns -1 and sets an exception.
+    /// </summary>
+    /// <param name="ob">The Python object</param>
+    /// <param name="type">The Python type object</param>
+    /// <returns></returns>
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyObject_IsInstance")]
+    private static partial int PyObject_IsInstance_(IntPtr ob, IntPtr type);
 
     internal static IntPtr GetAttr(IntPtr ob, string name)
     {

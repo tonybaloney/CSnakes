@@ -24,6 +24,6 @@ internal unsafe partial class CPythonAPI
 
     internal static bool IsPyFloat(nint p)
     {
-        return ((PyObjectStruct*)p)->Type() == PyFloatType;
+        return PyObject_IsInstance(p, PyFloatType);
     }
 }

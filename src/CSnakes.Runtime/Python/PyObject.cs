@@ -34,8 +34,6 @@ public class PyObject : SafeHandle
 
     public override bool IsInvalid => handle == IntPtr.Zero;
 
-    private int PythonRefCnt => CPythonAPI.Py_REFCNT(handle);
-
     protected override bool ReleaseHandle()
     {
         if (IsInvalid)

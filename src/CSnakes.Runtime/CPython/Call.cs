@@ -4,7 +4,7 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
-    private static readonly Version extraCallArgsVersion = new(3, 9);
+    private static readonly Version extraCallArgsVersion = new(3, 11); // TODO: Support the provisional API of _PyObject_Call** in Python 3.9, 3.10
 
     internal static IntPtr Call(IntPtr callable, params IntPtr[] args)
     {

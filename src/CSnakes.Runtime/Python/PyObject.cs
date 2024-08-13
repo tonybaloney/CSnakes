@@ -134,6 +134,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         // TODO: Consider moving this to a logger.
         Debug.Assert(!IsInvalid);
+        // TODO: Stack allocate short parameter lists (<10?)
         var argHandles = new IntPtr[args.Length];
         for (int i = 0; i < args.Length; i++)
         {

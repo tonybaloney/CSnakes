@@ -29,6 +29,7 @@ public static class TypeReflection
             "str" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword)),
             "float" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DoubleKeyword)),
             "bool" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword)),
+            "bytes" => SyntaxFactory.ParseTypeName("byte[]"),
             // Todo more types...
             _ => SyntaxFactory.ParseTypeName("PyObject"),// TODO : Should be nullable?
         };

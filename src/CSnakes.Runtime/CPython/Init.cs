@@ -76,6 +76,7 @@ internal unsafe partial class CPythonAPI : IDisposable
                 PyLongType = GetType(PyLong_FromLongLong(0));
                 PyListType = GetType(PyList_New(0));
                 PyDictType = GetType(PyDict_New());
+                PyBytesType = GetType(PyBytes_FromByteSpan(new byte[] { }));
 
                 // Import builtins module
                 var builtinsMod = Import("builtins");

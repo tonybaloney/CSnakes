@@ -23,6 +23,7 @@ public static class GIL
 
     public static IDisposable Acquire()
     {
+        // TODO: Decide if we want access to the `ILogger` here to pass to the `PyGilState` constructor
         return new PyGilState();
     }
 }

@@ -2,9 +2,9 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using PythonSourceGenerator.Parser.Types;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace PythonSourceGenerator.Reflection;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 public class MethodDefinition(MethodDeclarationSyntax syntax, IEnumerable<GenericNameSyntax> parameterGenericArgs)
 {
     public MethodDeclarationSyntax Syntax { get; } = syntax;
@@ -196,11 +196,8 @@ public static class MethodReflection
         }
 
         var converter =
-            GenericName(
-                Identifier("As"))
-            .WithTypeArgumentList(
-                TypeArgumentList(
-                    SeparatedList([returnSyntax])));
+            GenericName(Identifier("As"))
+            .WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])));
 
         returnExpression = ReturnStatement(
                     InvocationExpression(
@@ -208,8 +205,7 @@ public static class MethodReflection
                             SyntaxKind.SimpleMemberAccessExpression,
                             IdentifierName("__result_pyObject"),
                             converter))
-                    .WithArgumentList(
-                        ArgumentList()));
+                    .WithArgumentList(ArgumentList()));
         return returnExpression;
     }
 }

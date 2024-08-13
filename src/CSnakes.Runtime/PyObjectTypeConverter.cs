@@ -248,6 +248,7 @@ internal class PyObjectTypeConverter : TypeConverter
         return PyTuple.CreateTuple(pyObjects);
     }
 
+    // TODO: Verify there are no issues with the types tested for
     public override bool CanConvertTo(ITypeDescriptorContext? context, [NotNullWhen(true)] Type? destinationType) =>
         destinationType is not null && (
             destinationType == typeof(string) ||
@@ -258,6 +259,7 @@ internal class PyObjectTypeConverter : TypeConverter
             destinationType.IsGenericType
         );
 
+    // TODO: Verify there are no issues with the types tested for
     public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) =>
         sourceType is not null && (
             sourceType == typeof(string) ||

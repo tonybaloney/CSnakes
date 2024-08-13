@@ -12,7 +12,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // System.Diagnostics.Debugger.Launch();
+        //System.Diagnostics.Debugger.Launch();
         var pythonFilesPipeline = context.AdditionalTextsProvider
             .Where(static text => Path.GetExtension(text.Path) == ".py")
             .Collect();
@@ -71,53 +71,51 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
             using Microsoft.Extensions.Logging;
 
-            namespace {{@namespace}}
+            namespace {{@namespace}};
+            public static class {{pascalFileName}}Extensions
             {
-                public static class {{pascalFileName}}Extensions
-                {
-                    private static I{{pascalFileName}}? instance;
+                private static I{{pascalFileName}}? instance;
 
-                    public static I{{pascalFileName}} {{pascalFileName}}(this IPythonEnvironment env)
+                public static I{{pascalFileName}} {{pascalFileName}}(this IPythonEnvironment env)
+                {
+                    if (instance is null)
                     {
-                        if (instance is null)
+                        instance = new {{pascalFileName}}Internal(env.Logger);
+                    }
+                    Debug.Assert(!env.IsDisposed());
+                    return instance;
+                }
+
+                private class {{pascalFileName}}Internal : I{{pascalFileName}}
+                {
+                    private readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
+
+                    private readonly PyObject module;
+
+                    private readonly ILogger<IPythonEnvironment> logger;
+
+                    internal {{pascalFileName}}Internal(ILogger<IPythonEnvironment> logger)
+                    {
+                        this.logger = logger;
+                        using (GIL.Acquire())
                         {
-                            instance = new {{pascalFileName}}Internal(env.Logger);
+                            logger.LogInformation("Importing module {ModuleName}", "{{fileName}}");
+                            module = Import.ImportModule("{{fileName}}");
                         }
-                        Debug.Assert(!env.IsDisposed());
-                        return instance;
                     }
 
-                    private class {{pascalFileName}}Internal : I{{pascalFileName}}
+                    public void Dispose()
                     {
-                        private readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
-
-                        private readonly PyObject module;
-
-                        private readonly ILogger<IPythonEnvironment> logger;
-
-                        internal {{pascalFileName}}Internal(ILogger<IPythonEnvironment> logger)
-                        {
-                            this.logger = logger;
-                            using (GIL.Acquire())
-                            {
-                                logger.LogInformation("Importing module {ModuleName}", "{{fileName}}");
-                                module = Import.ImportModule("{{fileName}}");
-                            }
-                        }
-
-                        public void Dispose()
-                        {
-                            logger.LogInformation("Disposing module {ModuleName}", "{{fileName}}");
-                            module.Dispose();
-                        }
-
-                        {{methods.Select(m => m.Syntax).Compile()}}
+                        logger.LogInformation("Disposing module {ModuleName}", "{{fileName}}");
+                        module.Dispose();
                     }
+
+                    {{methods.Select(m => m.Syntax).Compile()}}
                 }
-                public interface I{{pascalFileName}}
-                {
-                    {{string.Join(Environment.NewLine, methods.Select(m => m.Syntax).Select(m => $"{m.ReturnType.NormalizeWhitespace()} {m.Identifier.Text}{m.ParameterList.NormalizeWhitespace()};"))}}
-                }
+            }
+            public interface I{{pascalFileName}}
+            {
+                {{string.Join(Environment.NewLine, methods.Select(m => m.Syntax).Select(m => $"{m.ReturnType.NormalizeWhitespace()} {m.Identifier.Text}{m.ParameterList.NormalizeWhitespace()};"))}}
             }
             """;
     }

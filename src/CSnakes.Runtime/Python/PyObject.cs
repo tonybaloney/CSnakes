@@ -43,6 +43,7 @@ public class PyObject : SafeHandle
             // The Python environment has been disposed, and therefore Python has freed it's memory pools.
             // Don't run decref since the Python process isn't running and this pointer will point somewhere else.
             handle = IntPtr.Zero;
+            // TODO: Consider moving this to a logger.
             Debug.WriteLine($"Python object at 0x{handle:X} was released, but Python is no longer running.");
             return true;
         }
@@ -100,6 +101,7 @@ public class PyObject : SafeHandle
     /// <returns>A new reference to the type field.</returns>
     public PyObject Type()
     {
+        // TODO: Consider moving this to a logger.
         Debug.Assert(!IsInvalid);
         Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         RaiseOnPythonNotInitialized();
@@ -113,6 +115,7 @@ public class PyObject : SafeHandle
     /// <returns>Attribute object (new ref)</returns>
     public PyObject GetAttr(string name)
     {
+        // TODO: Consider moving this to a logger.
         Debug.Assert(!IsInvalid);
         Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         RaiseOnPythonNotInitialized();
@@ -125,6 +128,7 @@ public class PyObject : SafeHandle
     /// <returns>The iterator object (new ref)</returns>
     public PyObject GetIter()
     {
+        // TODO: Consider moving this to a logger.
         Debug.Assert(!IsInvalid);
         Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         RaiseOnPythonNotInitialized();
@@ -141,6 +145,7 @@ public class PyObject : SafeHandle
     {
         RaiseOnPythonNotInitialized();
         // TODO: Decide whether to move the GIL acquisition to here.
+        // TODO: Consider moving this to a logger.
         Debug.Assert(!IsInvalid);
         Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         var argHandles = new IntPtr[args.Length];
@@ -157,6 +162,8 @@ public class PyObject : SafeHandle
     /// <returns></returns>
     public override string ToString()
     {
+        // TODO: Consider moving this to a logger.
+        // TODO: Would this be better as a `DebuggerDisplay` attribute?
         Debug.Assert(!IsInvalid);
         Debug.Assert(CPythonAPI.PyGILState_Check() == 1);
         RaiseOnPythonNotInitialized();

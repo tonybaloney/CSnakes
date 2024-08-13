@@ -35,3 +35,9 @@ public void Example(long a = 123, bool b = true, string c = "hello", double d = 
 ```
 
 1. CSnakes will treat `=None` default values as nullable arguments. The Python runtime will set the value of the parameter to the `None` value at execution.
+
+## Parallelism and concurrency
+
+CSnakes is designed to be thread-safe and can be used in parallel execution scenarios. 
+
+See [Advanced Usage](advanced.md) for more information on using CSnakes in a multi-threaded environment.

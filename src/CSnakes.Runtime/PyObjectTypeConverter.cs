@@ -34,6 +34,11 @@ internal class PyObjectTypeConverter : TypeConverter
             return CPythonAPI.PyUnicode_AsUTF8(handle);
         }
 
+        if (destinationType == typeof(byte[]) && CPythonAPI.IsBytes(handle))
+        {
+            return CPythonAPI.PyBytes_AsByteArray(handle);
+        }
+
         if (destinationType == typeof(long) && CPythonAPI.IsPyLong(handle))
         {
             return CPythonAPI.PyLong_AsLongLong(handle);
@@ -187,6 +192,7 @@ internal class PyObjectTypeConverter : TypeConverter
         value switch
         {
             string str => new PyObject(CPythonAPI.AsPyUnicodeObject(str)),
+            byte[] bytes => new PyObject(CPythonAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
             long l => new PyObject(CPythonAPI.PyLong_FromLongLong(l)),
             int i => new PyObject(CPythonAPI.PyLong_FromLong(i)),
             bool b => new PyObject(CPythonAPI.PyBool_FromLong(b ? 1 : 0)),
@@ -255,6 +261,7 @@ internal class PyObjectTypeConverter : TypeConverter
             destinationType == typeof(int) ||
             destinationType == typeof(bool) ||
             destinationType == typeof(double) ||
+            destinationType == typeof(byte[]) ||
             destinationType.IsGenericType
         );
 
@@ -265,6 +272,7 @@ internal class PyObjectTypeConverter : TypeConverter
             sourceType == typeof(int) ||
             sourceType == typeof(bool) ||
             sourceType == typeof(double) ||
+            sourceType == typeof(byte[]) ||
             sourceType.IsGenericType
         );
 

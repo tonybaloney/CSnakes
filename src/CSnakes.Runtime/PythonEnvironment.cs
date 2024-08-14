@@ -110,6 +110,10 @@ internal class PythonEnvironment : IPythonEnvironment
             using Process process1 = ExecutePythonCommand(pythonLocation, venvPath, $"-VV");
             using Process process2 = ExecutePythonCommand(pythonLocation, venvPath, $"-m venv {venvPath}");
         }
+        else
+        {
+            Logger.LogInformation("Virtual environment already exists at {VirtualEnvPath}", venvPath);
+        }
 
         Process ExecutePythonCommand(PythonLocationMetadata pythonLocation, string? venvPath, string arguments)
         {

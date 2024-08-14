@@ -15,8 +15,6 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
     {
         this.ensureVirtualEnvironment = ensureVirtualEnvironment;
         virtualEnvironmentLocation = path;
-        extraPaths = [.. extraPaths, path, Path.Combine(virtualEnvironmentLocation, "Lib", "site-packages")];
-
         return this;
     }
 

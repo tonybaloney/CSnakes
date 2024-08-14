@@ -55,6 +55,12 @@ internal class PythonEnvironment : IPythonEnvironment
             throw new DirectoryNotFoundException("Python home directory does not exist.");
         }
 
+        if (string.IsNullOrEmpty(options.VirtualEnvironmentPath) {
+            string venvLibPath = Path.Combine(options.VirtualEnvironmentPath, "lib", $"python{location.Version.Major}.{location.Version.Minor}", "site-packages")
+            logger.Debug("Adding virtual environment site-packages to extra paths: {VenvLibPath}", venvLibPath);
+            options.ExtraPaths = [.. options.ExtraPaths, ];
+        }
+
         if (options.EnsureVirtualEnvironment)
         {
             EnsureVirtualEnvironment(location, options.VirtualEnvironmentPath);

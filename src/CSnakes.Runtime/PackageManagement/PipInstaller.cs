@@ -9,6 +9,7 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
 
     public Task InstallPackages(string home, string? virtualEnvironmentLocation)
     {
+        // TODO:Allow overriding of the requirements file name.
         string requirementsPath = Path.Combine(home, "requirements.txt");
         if (File.Exists(requirementsPath))
         {

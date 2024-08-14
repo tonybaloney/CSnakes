@@ -5,6 +5,7 @@ nav:
   - Reference: reference.md
   - Advanced Usage: advanced.md
   - Limitations: limitations.md
+  - FAQ: faq.md
   - Examples: examples.md
 
 theme:

@@ -42,3 +42,7 @@ public class Example {
 ```
 
 When called, `HelloWorld()` will invoke the Python function from `example.py` using Python's C-API and return native .NET types.
+
+## FAQ
+
+See the [FAQ](docs/faq.md) for more information.

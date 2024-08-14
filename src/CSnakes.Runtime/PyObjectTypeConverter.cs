@@ -28,6 +28,12 @@ internal class PyObjectTypeConverter : TypeConverter
         {
             throw new NotSupportedException();
         }
+
+        if (destinationType == typeof(PyObject))
+        {
+            return pyObject.Clone();
+        }
+
         nint handle = pyObject.DangerousGetHandle();
         if (destinationType == typeof(string) && CPythonAPI.IsPyUnicode(handle))
         {

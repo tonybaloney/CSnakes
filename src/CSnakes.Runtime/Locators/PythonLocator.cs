@@ -24,7 +24,22 @@ public abstract class PythonLocator(Version version)
 
     protected string GetPythonExecutablePath(string folder)
     {
-        return Path.Combine(folder, "python.exe");
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return Path.Combine(folder, "python.exe");
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return Path.Combine(folder, "bin", "python");
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return Path.Combine(folder, "bin", "python");
+        }
+        else
+        {
+            throw new PlatformNotSupportedException("Unsupported platform.");
+        }
     }
 
     protected string GetLibPythonPath(string folder, bool freeThreaded = false)

@@ -3,7 +3,6 @@ using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime;
 
@@ -132,55 +131,8 @@ internal class PythonEnvironment : IPythonEnvironment
 
     private CPythonAPI SetupStandardLibrary(PythonLocationMetadata pythonLocationMetadata, char sep)
     {
-        string pythonDll = string.Empty;
-        string pythonPath = string.Empty;
-        string pythonLocation = pythonLocationMetadata.Folder;
-        var version = pythonLocationMetadata.Version;
-        string suffix = string.Empty;
-
-        if (pythonLocationMetadata.FreeThreaded)
-        {
-            suffix += "t";
-        }
-
-        // Add standard library to PYTHONPATH
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            suffix += pythonLocationMetadata.Debug ? "_d" : string.Empty;
-            pythonDll = Path.Combine(pythonLocation, $"python{version.Major}{version.Minor}{suffix}.dll");
-            if (pythonLocationMetadata.Debug)
-            {
-                // From source..
-                pythonPath = Path.Combine(pythonLocation, "..", "..", "Lib") + sep + pythonLocation;
-            }
-            else
-            {
-                pythonPath = Path.Combine(pythonLocation, "Lib") + sep + Path.Combine(pythonLocation, "DLLs");
-            }
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            suffix += pythonLocationMetadata.Debug ? "d" : string.Empty;
-            if (pythonLocationMetadata.Debug) // from source
-            {
-                pythonDll = Path.Combine(pythonLocation, $"libpython{version.Major}.{version.Minor}{suffix}.dylib");
-                pythonPath = Path.Combine(pythonLocation, "Lib"); // TODO : build/lib.macosx-13.6-x86_64-3.13-pydebug
-            }
-            else
-            {
-                pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{version.Major}.{version.Minor}{suffix}.dylib");
-                pythonPath = Path.Combine(pythonLocation, "lib", $"python{version.Major}.{version.Minor}") + sep + Path.Combine(pythonLocation, "lib", $"python{version.Major}.{version.Minor}", "lib-dynload");
-            }
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        {
-            pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{version.Major}.{version.Minor}{suffix}.so");
-            pythonPath = Path.Combine(pythonLocation, "lib", $"python{version.Major}.{version.Minor}") + sep + Path.Combine(pythonLocation, "lib", $"python{version.Major}.{version.Minor}", "lib-dynload");
-        }
-        else
-        {
-            throw new PlatformNotSupportedException("Unsupported platform.");
-        }
+        string pythonDll = pythonLocationMetadata.LibPythonPath;
+        string pythonPath = pythonLocationMetadata.PythonPath;
 
         Logger.LogInformation("Python DLL: {PythonDLL}", pythonDll);
         Logger.LogInformation("Python path: {PythonPath}", pythonPath);

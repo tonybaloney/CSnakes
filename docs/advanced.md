@@ -33,3 +33,73 @@ env = app.Services.GetRequiredService<IPythonEnvironment>();
 ```
 
 Whilst free-threading mode is **supported** at a high-level from CSnakes, it is still an experimental feature in Python 3.13 and may not be suitable for all use-cases. Also, most Python libraries, especially those written in C, are not yet compatible with free-threading mode, so you may need to test your code carefully.
+
+## Calling Python without the Source Generator
+
+The Source Generator library is a useful tool for creating the boilerplate code to invoke a Python function from a `PythonEnvironment` instance and convert the types based on the type annotations in the Python function. 
+
+It is still possible to call Python code without the Source Generator, but you will need to write the boilerplate code yourself. Here's an example of how you can call a Python function without the Source Generator to call a Python function in a module called `test_basic`:
+
+```python
+def test_int_float(a: int, b: float) -> float:
+    return a + b
+```
+
+The C# code to call this function needs to:
+
+1. Use the TypeConverter to convert the .NET types to `PyObject` instances and back.
+1. Use the `GIL.Acquire()` method to acquire the Global Interpreter Lock for all conversions and calls to Python.
+1. Use the `Import.ImportModule` method to import the module and store a reference once so that it can be used multiple times.
+1. Dispose the module when it is no longer needed.
+
+```csharp
+using CSnakes.Runtime;
+using CSnakes.Runtime.Python;
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+
+using Microsoft.Extensions.Logging;
+
+namespace CSnakes.Runtime;
+
+public class ExampleDirectIntegration
+{
+    private readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
+
+    private readonly PyObject module;
+
+    private readonly ILogger<IPythonEnvironment> logger;
+
+    internal TestBasicInternal(IPythonEnvironment env)
+    {
+        this.logger = env.Logger;
+        using (GIL.Acquire())
+        {
+            logger.LogInformation("Importing module {ModuleName}", "test_basic");
+            module = Import.ImportModule("test_basic");
+        }
+    }
+
+    public void Dispose()
+    {
+        logger.LogInformation("Disposing module");
+        module.Dispose();
+    }
+
+    public double TestIntFloat(long a, double b)
+    {
+        using (GIL.Acquire())
+        {
+            logger.LogInformation("Invoking Python function: {FunctionName}", "test_int_float");
+            using var __underlyingPythonFunc = this.module.GetAttr("test_int_float");
+            using PyObject a_pyObject = this.td.ConvertFrom(a) as PyObject;
+            using PyObject b_pyObject = this.td.ConvertFrom(b) as PyObject;
+            using var __result_pyObject = __underlyingPythonFunc.Call(a_pyObject, b_pyObject);
+            return __result_pyObject.As<double>();
+        }
+    }
+}
+```

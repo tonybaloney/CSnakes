@@ -6,7 +6,7 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
 {
     private bool ensureVirtualEnvironment = false;
     private string? virtualEnvironmentLocation;
-    private string[] extraPaths = [];
+    private readonly string[] extraPaths = [];
     private string home = Environment.CurrentDirectory;
 
     public IServiceCollection Services { get; } = services;

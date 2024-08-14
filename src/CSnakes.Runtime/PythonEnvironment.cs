@@ -3,6 +3,7 @@ using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime;
 
@@ -48,6 +49,7 @@ internal class PythonEnvironment : IPythonEnvironment
         }
 
         string home = options.Home;
+        string[] extraPaths = options.ExtraPaths;
 
         if (!Directory.Exists(home))
         {
@@ -55,10 +57,14 @@ internal class PythonEnvironment : IPythonEnvironment
             throw new DirectoryNotFoundException("Python home directory does not exist.");
         }
 
-        if (string.IsNullOrEmpty(options.VirtualEnvironmentPath) {
-            string venvLibPath = Path.Combine(options.VirtualEnvironmentPath, "lib", $"python{location.Version.Major}.{location.Version.Minor}", "site-packages")
-            logger.Debug("Adding virtual environment site-packages to extra paths: {VenvLibPath}", venvLibPath);
-            options.ExtraPaths = [.. options.ExtraPaths, ];
+        if (!string.IsNullOrEmpty(options.VirtualEnvironmentPath)) {
+            string venvLibPath = string.Empty;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                venvLibPath = Path.Combine(options.VirtualEnvironmentPath, "Lib", "site-packages");
+            else
+                venvLibPath = Path.Combine(options.VirtualEnvironmentPath, "lib", $"python{location.Version.Major}.{location.Version.Minor}", "site-packages");
+            logger.LogDebug("Adding virtual environment site-packages to extra paths: {VenvLibPath}", venvLibPath);
+            extraPaths = [.. options.ExtraPaths, venvLibPath];
         }
 
         if (options.EnsureVirtualEnvironment)
@@ -84,8 +90,8 @@ internal class PythonEnvironment : IPythonEnvironment
 
         if (options.ExtraPaths is { Length: > 0 })
         {
-            logger.LogInformation("Adding extra paths to PYTHONPATH: {ExtraPaths}", options.ExtraPaths);
-            api.PythonPath = api.PythonPath + sep + string.Join(sep, options.ExtraPaths);
+            logger.LogInformation("Adding extra paths to PYTHONPATH: {ExtraPaths}", extraPaths);
+            api.PythonPath = api.PythonPath + sep + string.Join(sep, extraPaths);
         }
         api.Initialize();
     }

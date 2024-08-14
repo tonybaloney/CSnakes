@@ -167,4 +167,10 @@ public class PyObject : SafeHandle
     {
         return (T)td.ConvertTo(this, typeof(T)) ?? default;
     }
+
+    internal PyObject Clone()
+    {
+        CPythonAPI.Py_IncRef(handle);
+        return new PyObject(handle);
+    }
 }

@@ -94,12 +94,12 @@ internal class PythonEnvironment : IPythonEnvironment
 
         if (!Directory.Exists(venvPath))
         {
-            Logger.LogInformation("Creating virtual environment at {VirtualEnvPath}", venvPath);
+            Logger.LogInformation("Creating virtual environment at {VirtualEnvPath} using {PythonBinaryPath}", venvPath, pythonLocation.PythonBinaryPath);
 
             ProcessStartInfo startInfo = new()
             {
                 WorkingDirectory = pythonLocation.Folder,
-                FileName = "python",
+                FileName = pythonLocation.PythonBinaryPath,
                 Arguments = $"-m venv {venvPath}"
             };
             startInfo.RedirectStandardError = true;

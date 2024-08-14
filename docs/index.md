@@ -10,7 +10,7 @@ Check out the [getting started](getting-started.md) guide or check out the [demo
 
 <br /> <br />
 
-![System diagram](/docs/res/architecture_simple.png)
+![System diagram](res/architecture_simple.png)
 
 ## Features
 

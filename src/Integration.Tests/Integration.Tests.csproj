@@ -7,8 +7,10 @@
 </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="python\requirements.txt" />
     <None Remove="python\test_basic.py" />
     <None Remove="python\test_defaults.py" />
+    <None Remove="python\test_dependency.py" />
     <None Remove="python\test_dicts.py" />
     <None Remove="python\test_exceptions.py" />
     <None Remove="python\test_false_returns.py" />
@@ -22,6 +24,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
     <AdditionalFiles Include="python\test_defaults.py">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AdditionalFiles>
+    <AdditionalFiles Include="python\test_dependency.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
     <AdditionalFiles Include="python\test_dicts.py">
@@ -57,7 +62,7 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
-    <Using Include="CSnakes.Runtime"/>
+    <Using Include="CSnakes.Runtime" />
   </ItemGroup>
 
 	<ItemGroup>
@@ -66,6 +71,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Content Include="python\requirements.txt">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 </Project>

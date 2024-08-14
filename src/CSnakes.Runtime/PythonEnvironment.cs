@@ -107,17 +107,21 @@ internal class PythonEnvironment : IPythonEnvironment
         if (!Directory.Exists(venvPath))
         {
             Logger.LogInformation("Creating virtual environment at {VirtualEnvPath} using {PythonBinaryPath}", venvPath, pythonLocation.PythonBinaryPath);
+            using Process process1 = ExecutePythonCommand(pythonLocation, venvPath, $"-VV");
+            using Process process2 = ExecutePythonCommand(pythonLocation, venvPath, $"-m venv {venvPath}");
+        }
 
+        Process ExecutePythonCommand(PythonLocationMetadata pythonLocation, string? venvPath, string arguments)
+        {
             ProcessStartInfo startInfo = new()
             {
                 WorkingDirectory = pythonLocation.Folder,
                 FileName = pythonLocation.PythonBinaryPath,
-                Arguments = $"-m venv {venvPath}"
+                Arguments = arguments
             };
             startInfo.RedirectStandardError = true;
             startInfo.RedirectStandardOutput = true;
-
-            using Process process = new() { StartInfo = startInfo };
+            Process process = new() { StartInfo = startInfo };
             process.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
@@ -138,6 +142,7 @@ internal class PythonEnvironment : IPythonEnvironment
             process.BeginErrorReadLine();
             process.BeginOutputReadLine();
             process.WaitForExit();
+            return process;
         }
     }
 

@@ -22,7 +22,7 @@
         <PackageIcon>logo.jpeg</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryUrl>https://github.com/tonybaloney/CSnakes</RepositoryUrl>
-        <VersionPrefix>1.0.10</VersionPrefix>
+        <VersionPrefix>1.0.11</VersionPrefix>
 
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>

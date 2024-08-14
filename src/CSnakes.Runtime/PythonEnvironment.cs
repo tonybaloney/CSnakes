@@ -88,7 +88,7 @@ internal class PythonEnvironment : IPythonEnvironment
             api.PythonPath = api.PythonPath + sep + home;
         }
 
-        if (options.ExtraPaths is { Length: > 0 })
+        if (extraPaths is { Length: > 0 })
         {
             logger.LogInformation("Adding extra paths to PYTHONPATH: {ExtraPaths}", extraPaths);
             api.PythonPath = api.PythonPath + sep + string.Join(sep, extraPaths);

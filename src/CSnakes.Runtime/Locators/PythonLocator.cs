@@ -30,11 +30,11 @@ public abstract class PythonLocator(Version version)
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            return Path.Combine(folder, "bin", "python");
+            return Path.Combine(folder, "bin", "python3");
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            return Path.Combine(folder, "bin", "python");
+            return Path.Combine(folder, "bin", "python3");
         }
         else
         {

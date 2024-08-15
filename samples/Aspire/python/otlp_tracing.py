@@ -13,30 +13,27 @@ from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
-from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.trace import NonRecordingSpan, SpanContext, TraceFlags
 
 
 def configure_oltp_grpc_tracing(
-    endpoint: str
-):
-    # Service name is required for most backends
-    resource = Resource(attributes={SERVICE_NAME: os.getenv("OTEL_SERVICE_NAME", "unknown")})
-
+    endpoint: str = None
+) -> trace.Tracer:
     # Configure Tracing
-    traceProvider = TracerProvider(resource=resource)
+    traceProvider = TracerProvider()
     processor = BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint))
     traceProvider.add_span_processor(processor)
     trace.set_tracer_provider(traceProvider)
 
     # Configure Metrics
     reader = PeriodicExportingMetricReader(OTLPMetricExporter(endpoint=endpoint))
-    meterProvider = MeterProvider(resource=resource, metric_readers=[reader])
+    meterProvider = MeterProvider(metric_readers=[reader])
     metrics.set_meter_provider(meterProvider)
 
     # Configure Logging
-    logger_provider = LoggerProvider(resource=resource)
+    logger_provider = LoggerProvider()
     set_logger_provider(logger_provider)
 
     exporter = OTLPLogExporter(endpoint=endpoint)
@@ -45,3 +42,18 @@ def configure_oltp_grpc_tracing(
 
     # Attach OTLP handler to root logger
     logging.getLogger().addHandler(handler)
+
+    tracer = trace.get_tracer(__name__)
+    return tracer
+
+
+def get_span_context(trace_id: str = None, span_id: str = None):
+    span_context = SpanContext(
+        trace_id=int(trace_id, 16),
+        span_id=int(span_id, 16),
+        is_remote=True,
+        trace_flags=TraceFlags(0x01)
+    )
+    ctx = trace.set_span_in_context(NonRecordingSpan(span_context))
+
+    return ctx

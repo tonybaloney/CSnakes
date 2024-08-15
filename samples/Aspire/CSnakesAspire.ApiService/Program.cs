@@ -1,5 +1,6 @@
 using CSnakes.Runtime;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
@@ -32,7 +33,7 @@ app.MapGet("/weatherforecast", (
     [FromServices] IWeather weather,
     [FromServices] ILogger<Program> logger) =>
 {
-    var rawForecast = weather.GetWeatherForecast();
+    var rawForecast = weather.GetWeatherForecast(Activity.Current?.TraceId.ToString(), Activity.Current.SpanId.ToString());
 
     logger.LogInformation("Raw forecast: {RawForecast}", rawForecast);
 

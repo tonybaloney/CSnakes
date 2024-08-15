@@ -22,7 +22,9 @@ public class IntegrationTestBase : IDisposable
 
                 pb.FromNuGet(pythonVersionWindows)
                   .FromMacOSInstallerLocator(pythonVersionMacOS)
-                  .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux); // This last one is for GitHub Actions
+                  .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux)
+                  .WithVirtualEnvironment(Path.Join(Environment.CurrentDirectory, "python", ".venv"))
+                  .WithPipInstaller();
 
                 services.AddLogging(builder => builder.AddXUnit());
             })

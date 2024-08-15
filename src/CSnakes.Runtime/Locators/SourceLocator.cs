@@ -13,11 +13,6 @@ internal class SourceLocator(string folder, Version version, bool debug = true, 
             throw new DirectoryNotFoundException($"Python {Version} not found in {buildFolder}.");
         }
 
-        return new PythonLocationMetadata(
-            buildFolder,
-            Version,
-            debug,
-            freeThreaded
-        );
+        return LocatePythonInternal(folder, freeThreaded);
     }
 }

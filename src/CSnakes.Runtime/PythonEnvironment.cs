@@ -49,11 +49,22 @@ internal class PythonEnvironment : IPythonEnvironment
         }
 
         string home = options.Home;
+        string[] extraPaths = options.ExtraPaths;
 
         if (!Directory.Exists(home))
         {
             logger.LogError("Python home directory does not exist: {Home}", home);
             throw new DirectoryNotFoundException("Python home directory does not exist.");
+        }
+
+        if (!string.IsNullOrEmpty(options.VirtualEnvironmentPath)) {
+            string venvLibPath = string.Empty;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                venvLibPath = Path.Combine(options.VirtualEnvironmentPath, "Lib", "site-packages");
+            else
+                venvLibPath = Path.Combine(options.VirtualEnvironmentPath, "lib", $"python{location.Version.Major}.{location.Version.Minor}", "site-packages");
+            logger.LogDebug("Adding virtual environment site-packages to extra paths: {VenvLibPath}", venvLibPath);
+            extraPaths = [.. options.ExtraPaths, venvLibPath];
         }
 
         if (options.EnsureVirtualEnvironment)
@@ -77,10 +88,10 @@ internal class PythonEnvironment : IPythonEnvironment
             api.PythonPath = api.PythonPath + sep + home;
         }
 
-        if (options.ExtraPaths is { Length: > 0 })
+        if (extraPaths is { Length: > 0 })
         {
-            logger.LogInformation("Adding extra paths to PYTHONPATH: {ExtraPaths}", options.ExtraPaths);
-            api.PythonPath = api.PythonPath + sep + string.Join(sep, options.ExtraPaths);
+            logger.LogInformation("Adding extra paths to PYTHONPATH: {ExtraPaths}", extraPaths);
+            api.PythonPath = api.PythonPath + sep + string.Join(sep, extraPaths);
         }
         api.Initialize();
     }
@@ -95,18 +106,26 @@ internal class PythonEnvironment : IPythonEnvironment
 
         if (!Directory.Exists(venvPath))
         {
-            Logger.LogInformation("Creating virtual environment at {VirtualEnvPath}", venvPath);
+            Logger.LogInformation("Creating virtual environment at {VirtualEnvPath} using {PythonBinaryPath}", venvPath, pythonLocation.PythonBinaryPath);
+            using Process process1 = ExecutePythonCommand(pythonLocation, venvPath, $"-VV");
+            using Process process2 = ExecutePythonCommand(pythonLocation, venvPath, $"-m venv {venvPath}");
+        }
+        else
+        {
+            Logger.LogInformation("Virtual environment already exists at {VirtualEnvPath}", venvPath);
+        }
 
+        Process ExecutePythonCommand(PythonLocationMetadata pythonLocation, string? venvPath, string arguments)
+        {
             ProcessStartInfo startInfo = new()
             {
                 WorkingDirectory = pythonLocation.Folder,
-                FileName = "python",
-                Arguments = $"-m venv {venvPath}"
+                FileName = pythonLocation.PythonBinaryPath,
+                Arguments = arguments
             };
             startInfo.RedirectStandardError = true;
             startInfo.RedirectStandardOutput = true;
-
-            using Process process = new() { StartInfo = startInfo };
+            Process process = new() { StartInfo = startInfo };
             process.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
@@ -127,60 +146,14 @@ internal class PythonEnvironment : IPythonEnvironment
             process.BeginErrorReadLine();
             process.BeginOutputReadLine();
             process.WaitForExit();
+            return process;
         }
     }
 
     private CPythonAPI SetupStandardLibrary(PythonLocationMetadata pythonLocationMetadata, char sep)
     {
-        string pythonDll = string.Empty;
-        string pythonPath = string.Empty;
-        string pythonLocation = pythonLocationMetadata.Folder;
-        var version = pythonLocationMetadata.Version;
-        string suffix = string.Empty;
-
-        if (pythonLocationMetadata.FreeThreaded)
-        {
-            suffix += "t";
-        }
-
-        // Add standard library to PYTHONPATH
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            suffix += pythonLocationMetadata.Debug ? "_d" : string.Empty;
-            pythonDll = Path.Combine(pythonLocation, $"python{version.Major}{version.Minor}{suffix}.dll");
-            if (pythonLocationMetadata.Debug)
-            {
-                // From source..
-                pythonPath = Path.Combine(pythonLocation, "..", "..", "Lib") + sep + pythonLocation;
-            }
-            else
-            {
-                pythonPath = Path.Combine(pythonLocation, "Lib") + sep + Path.Combine(pythonLocation, "DLLs");
-            }
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            suffix += pythonLocationMetadata.Debug ? "d" : string.Empty;
-            if (pythonLocationMetadata.Debug) // from source
-            {
-                pythonDll = Path.Combine(pythonLocation, $"libpython{version.Major}.{version.Minor}{suffix}.dylib");
-                pythonPath = Path.Combine(pythonLocation, "Lib"); // TODO : build/lib.macosx-13.6-x86_64-3.13-pydebug
-            }
-            else
-            {
-                pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{version.Major}.{version.Minor}{suffix}.dylib");
-                pythonPath = Path.Combine(pythonLocation, "lib", $"python{version.Major}.{version.Minor}") + sep + Path.Combine(pythonLocation, "lib", $"python{version.Major}.{version.Minor}", "lib-dynload");
-            }
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        {
-            pythonDll = Path.Combine(pythonLocation, "lib", $"libpython{version.Major}.{version.Minor}{suffix}.so");
-            pythonPath = Path.Combine(pythonLocation, "lib", $"python{version.Major}.{version.Minor}") + sep + Path.Combine(pythonLocation, "lib", $"python{version.Major}.{version.Minor}", "lib-dynload");
-        }
-        else
-        {
-            throw new PlatformNotSupportedException("Unsupported platform.");
-        }
+        string pythonDll = pythonLocationMetadata.LibPythonPath;
+        string pythonPath = pythonLocationMetadata.PythonPath;
 
         Logger.LogInformation("Python DLL: {PythonDLL}", pythonDll);
         Logger.LogInformation("Python path: {PythonPath}", pythonPath);

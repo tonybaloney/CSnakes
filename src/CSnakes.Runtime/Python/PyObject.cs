@@ -53,7 +53,7 @@ public class PyObject : SafeHandle
             CPythonAPI.PyErr_Fetch(out nint excType, out nint excValue, out nint excTraceback);
             using var pyExceptionType = new PyObject(excType);
             using var pyExceptionValue = new PyObject(excValue);
-            using var pyExceptionTraceback = new PyObject(excTraceback);
+            var pyExceptionTraceback = new PyObject(excTraceback);
 
             if (pyExceptionType.IsInvalid || pyExceptionValue.IsInvalid || pyExceptionType.IsInvalid)
             {
@@ -62,10 +62,10 @@ public class PyObject : SafeHandle
             }
 
             var pyExceptionStr = pyExceptionValue.ToString();
-            var pyExceptionTypeStr = pyExceptionType.ToString();
-            var pyExceptionTracebackStr = pyExceptionTraceback.ToString();
+            // TODO: Consider adding __qualname__ as well for module exceptions that aren't builtins
+            var pyExceptionTypeStr = pyExceptionType.GetAttr("__name__").ToString();
             CPythonAPI.PyErr_Clear();
-            throw new PythonException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTracebackStr);
+            throw new PythonException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback);
         }
     }
 

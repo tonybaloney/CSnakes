@@ -41,6 +41,7 @@
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	"remoteUser": "root",
 	"remoteEnv": {
-		"Python3_ROOT_DIR": "/usr/local/python/current"
+		"Python3_ROOT_DIR": "/usr/local/python/current",
+		"LD_PRELOAD": "/usr/local/python/current/lib/libpython3.12.so.1.0"
 	}
 }

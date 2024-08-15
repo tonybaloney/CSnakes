@@ -13,7 +13,7 @@ public static partial class PythonParser
         (from def in Token.EqualTo(PythonToken.Def)
          from name in Token.EqualTo(PythonToken.Identifier)
          from parameters in PythonParameterListTokenizer.AssumeNotNull()
-         from arrow in Token.EqualTo(PythonToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionTokenizer.OptionalOrDefault())
+         from arrow in Token.EqualTo(PythonToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionTokenizer.AssumeNotNull().OptionalOrDefault())
          from colon in Token.EqualTo(PythonToken.Colon)
          select new PythonFunctionDefinition(name.ToStringValue(), arrow, parameters))
         .Named("Function Definition");

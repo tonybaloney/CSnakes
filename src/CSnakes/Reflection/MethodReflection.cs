@@ -49,36 +49,31 @@ public static class MethodReflection
         {
             pythonConversionStatements.Add(
                 LocalDeclarationStatement(
-                        VariableDeclaration(
-                            IdentifierName("PyObject"))
-                        .WithVariables(
-                            SingletonSeparatedList(
-                                VariableDeclarator(
-                                    Identifier($"{parameter.Identifier}_pyObject"))
-                                .WithInitializer(
-                                    EqualsValueClause(
-                                        BinaryExpression(
-                                        SyntaxKind.AsExpression,
-                                        InvocationExpression(
-                                            MemberAccessExpression(
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            ThisExpression(),
-                                            IdentifierName(
-                                                Identifier(
-                                                    TriviaList(),
-                                                    SyntaxKind.ModuleKeyword,
-                                                    "td",
-                                                    "td",
-                                                    TriviaList()))),
-                                        IdentifierName("ConvertFrom")),
-                                            ArgumentList(
-                                                 SingletonSeparatedList(
-                                        Argument(IdentifierName(parameter.Identifier))))),
-                                        Token(SyntaxKind.AsKeyword),
-                                IdentifierName("PyObject")))
-                                ))))
+                    VariableDeclaration(
+                        IdentifierName("PyObject"))
+                    .WithVariables(
+                        SingletonSeparatedList(
+                            VariableDeclarator(
+                                Identifier($"{parameter.Identifier}_pyObject"))
+                            .WithInitializer(
+                                EqualsValueClause(
+                                    CastExpression(
+                                        IdentifierName("PyObject"),
+                                        PostfixUnaryExpression(
+                                            SyntaxKind.SuppressNullableWarningExpression,
+                                            InvocationExpression(
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    MemberAccessExpression(
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        ThisExpression(),
+                                                        IdentifierName("td")),
+                                                    IdentifierName("ConvertFrom")))
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SingletonSeparatedList(
+                                                        Argument(
+                                                            IdentifierName(parameter.Identifier))))))))))))
                 .WithUsingKeyword(
                     Token(SyntaxKind.UsingKeyword)));
         }
@@ -98,7 +93,7 @@ public static class MethodReflection
 
         var moduleDefinition = LocalDeclarationStatement(
                         VariableDeclaration(
-                            IdentifierName("var"))
+                            IdentifierName("PyObject"))
                         .WithVariables(
                             SingletonSeparatedList(
                                 VariableDeclarator(
@@ -129,7 +124,7 @@ public static class MethodReflection
                     Token(SyntaxKind.UsingKeyword));
         var callStatement = LocalDeclarationStatement(
                         VariableDeclaration(
-                            IdentifierName("var"))
+                            IdentifierName("PyObject"))
                         .WithVariables(
                             SingletonSeparatedList(
                                 VariableDeclarator(

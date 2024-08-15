@@ -13,17 +13,23 @@ public class IntegrationTestBase : IDisposable
         string pythonVersionWindows = "3.12.4";
         string pythonVersionMacOS = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
         string pythonVersionLinux = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
+        string venvPath = Path.Join(Environment.CurrentDirectory, "python", ".venv");
+
 
         app = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
+                // Delete the venv on each test run
+                if (Directory.Exists(venvPath))
+                    Directory.Delete(venvPath, true);
+
                 var pb = services.WithPython();
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
                 pb.FromNuGet(pythonVersionWindows)
                   .FromMacOSInstallerLocator(pythonVersionMacOS)
                   .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux)
-                  .WithVirtualEnvironment(Path.Join(Environment.CurrentDirectory, "python", ".venv"))
+                  .WithVirtualEnvironment(venvPath)
                   .WithPipInstaller();
 
                 services.AddLogging(builder => builder.AddXUnit());

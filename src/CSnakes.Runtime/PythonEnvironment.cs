@@ -67,6 +67,15 @@ internal class PythonEnvironment : IPythonEnvironment
             extraPaths = [.. options.ExtraPaths, venvLibPath];
         }
 
+        if (!Directory.Exists(options.VirtualEnvironmentPath) && options.EnsureVirtualEnvironment)
+        {
+            logger.LogInformation("Creating virtual environment at {VirtualEnvironmentPath}", options.VirtualEnvironmentPath);
+        } else if (!Directory.Exists(options.VirtualEnvironmentPath) && !options.EnsureVirtualEnvironment)
+        {
+            logger.LogError("Virtual environment does not exist at {VirtualEnvironmentPath}", options.VirtualEnvironmentPath);
+            throw new DirectoryNotFoundException("Virtual environment does not exist.");
+        }
+
         if (options.EnsureVirtualEnvironment)
         {
             EnsureVirtualEnvironment(location, options.VirtualEnvironmentPath);

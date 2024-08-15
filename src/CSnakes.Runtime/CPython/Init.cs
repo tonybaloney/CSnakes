@@ -12,7 +12,7 @@ internal unsafe partial class CPythonAPI : IDisposable
 
     private static string? pythonLibraryPath = null;
     private static readonly object initLock = new();
-    private static Version PythonVersion;
+    private static Version PythonVersion = new();
     private bool disposedValue = false;
 
     public CPythonAPI(string pythonLibraryPath, Version version)
@@ -22,7 +22,8 @@ internal unsafe partial class CPythonAPI : IDisposable
         try
         {
             NativeLibrary.SetDllImportResolver(typeof(CPythonAPI).Assembly, DllImportResolver);
-        } catch (InvalidOperationException)
+        }
+        catch (InvalidOperationException)
         {
             // TODO: Work out how to call setdllimport resolver only once to avoid raising exceptions. 
             // Already set. 
@@ -66,7 +67,7 @@ internal unsafe partial class CPythonAPI : IDisposable
                 if (!IsInitialized)
                     throw new InvalidOperationException("Python initialization failed.");
 
-                PyUnicodeType = GetType(AsPyUnicodeObject(string.Empty)) ;
+                PyUnicodeType = GetType(AsPyUnicodeObject(string.Empty));
                 Py_True = PyBool_FromLong(1);
                 Py_False = PyBool_FromLong(0);
                 PyBoolType = GetType(Py_True);

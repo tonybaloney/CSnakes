@@ -1,6 +1,6 @@
 ﻿using Superpower.Display;
 
-namespace PythonSourceGenerator.Parser;
+namespace CSnakes.Parser;
 
 public enum PythonToken
 {

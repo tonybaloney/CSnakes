@@ -1,12 +1,12 @@
 ﻿using Microsoft.CodeAnalysis.Text;
-using PythonSourceGenerator.Parser.Types;
+using CSnakes.Parser.Types;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
 
-using ParsedTokens = Superpower.Model.TokenList<PythonSourceGenerator.Parser.PythonToken>;
+using ParsedTokens = Superpower.Model.TokenList<CSnakes.Parser.PythonToken>;
 
-namespace PythonSourceGenerator.Parser;
+namespace CSnakes.Parser;
 public static partial class PythonParser
 {
     public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionTokenizer { get; } =

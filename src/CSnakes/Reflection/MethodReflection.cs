@@ -1,10 +1,10 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using PythonSourceGenerator.Parser.Types;
+using CSnakes.Parser.Types;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace PythonSourceGenerator.Reflection;
+namespace CSnakes.Reflection;
 public class MethodDefinition(MethodDeclarationSyntax syntax, IEnumerable<GenericNameSyntax> parameterGenericArgs)
 {
     public MethodDeclarationSyntax Syntax { get; } = syntax;

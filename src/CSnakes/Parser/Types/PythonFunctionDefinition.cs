@@ -1,4 +1,4 @@
-namespace PythonSourceGenerator.Parser.Types;
+namespace CSnakes.Parser.Types;
 public class PythonFunctionDefinition(string name, PythonTypeSpec? returnType, PythonFunctionParameter[] pythonFunctionParameter)
 {
     public string Name { get; private set; } = name;

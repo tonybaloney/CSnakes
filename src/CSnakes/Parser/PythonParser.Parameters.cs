@@ -1,8 +1,8 @@
-﻿using PythonSourceGenerator.Parser.Types;
+﻿using CSnakes.Parser.Types;
 using Superpower;
 using Superpower.Parsers;
 
-namespace PythonSourceGenerator.Parser;
+namespace CSnakes.Parser;
 public static partial class PythonParser
 {
     public static TokenListParser<PythonToken, PythonFunctionParameter> PythonParameterTokenizer { get; } =

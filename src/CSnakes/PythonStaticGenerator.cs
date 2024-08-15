@@ -1,11 +1,10 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using PythonSourceGenerator.Parser;
-using PythonSourceGenerator.Parser.Types;
-using PythonSourceGenerator.Reflection;
+using CSnakes.Parser;
+using CSnakes.Parser.Types;
+using CSnakes.Reflection;
 
-namespace PythonSourceGenerator;
+namespace CSnakes;
 
 [Generator(LanguageNames.CSharp)]
 public class PythonStaticGenerator : IIncrementalGenerator
@@ -43,7 +42,8 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error.Message, "PythonStaticGenerator", DiagnosticSeverity.Error, true), errorLocation));
                 }
 
-                if (result) {
+                if (result)
+                {
                     IEnumerable<MethodDefinition> methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
                     string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName);
                     sourceContext.AddSource($"{pascalFileName}.py.cs", source);

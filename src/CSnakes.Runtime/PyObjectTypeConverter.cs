@@ -216,8 +216,8 @@ internal class PyObjectTypeConverter : TypeConverter
 
         foreach (DictionaryEntry kvp in dictionary)
         {
-            int hresult = CPythonAPI.PyDict_SetItem(pyDict.DangerousGetHandle(), ToPython(kvp.Key, context, culture).DangerousGetHandle(), ToPython(kvp.Value, context, culture).DangerousGetHandle());
-            if (hresult == -1)
+            int result = CPythonAPI.PyDict_SetItem(pyDict.DangerousGetHandle(), ToPython(kvp.Key, context, culture).DangerousGetHandle(), ToPython(kvp.Value, context, culture).DangerousGetHandle());
+            if (result == -1)
             {
                 throw new Exception("Failed to set item in dictionary");
             }
@@ -233,8 +233,8 @@ internal class PyObjectTypeConverter : TypeConverter
         foreach (var item in e)
         {
             PyObject converted = ToPython(item, context, culture);
-            int hresult = CPythonAPI.PyList_Append(pyList.DangerousGetHandle(), converted!.DangerousGetHandle());
-            if (hresult == -1)
+            int result = CPythonAPI.PyList_Append(pyList.DangerousGetHandle(), converted!.DangerousGetHandle());
+            if (result == -1)
             {
                 throw new Exception("Failed to set item in list");
             }
@@ -282,8 +282,13 @@ internal class PyObjectTypeConverter : TypeConverter
             sourceType.IsGenericType
         );
 
-    private PyObject ToPython(object o, ITypeDescriptorContext? context, CultureInfo? culture)
+    private PyObject ToPython(object? o, ITypeDescriptorContext? context, CultureInfo? culture)
     {
+        if (o == null)
+        {
+            return new PyObject(CPythonAPI.GetNone());
+        }
+
         var result = ConvertFrom(context, culture, o);
 
         return result is null ? throw new NotImplementedException() : (PyObject)result;

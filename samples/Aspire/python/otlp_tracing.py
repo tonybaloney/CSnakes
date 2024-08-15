@@ -1,5 +1,5 @@
 import logging
-
+import os
 from opentelemetry import metrics, trace
 
 # Logging (Experimental)
@@ -19,8 +19,10 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 
 def configure_oltp_grpc_tracing(
-    service_name: str = "apiservice", endpoint=None, insecure=True, api_key=None
+    service_name: str = "apiservice", api_key=None
 ):
+    api_key = os.getenv("OTEL_EXPORTER_OTLP_TRACES_API_KEY") if api_key is None else api_key
+
     # Service name is required for most backends
     resource = Resource(attributes={SERVICE_NAME: service_name})
 
@@ -31,12 +33,12 @@ def configure_oltp_grpc_tracing(
 
     # Configure Tracing
     traceProvider = TracerProvider(resource=resource)
-    processor = BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint, insecure=insecure, headers=headers))
+    processor = BatchSpanProcessor(OTLPSpanExporter(headers=headers))
     traceProvider.add_span_processor(processor)
     trace.set_tracer_provider(traceProvider)
 
     # Configure Metrics
-    reader = PeriodicExportingMetricReader(OTLPMetricExporter(endpoint=endpoint, insecure=insecure, headers=headers))
+    reader = PeriodicExportingMetricReader(OTLPMetricExporter(headers=headers))
     meterProvider = MeterProvider(resource=resource, metric_readers=[reader])
     metrics.set_meter_provider(meterProvider)
 
@@ -44,7 +46,7 @@ def configure_oltp_grpc_tracing(
     logger_provider = LoggerProvider(resource=resource)
     set_logger_provider(logger_provider)
 
-    exporter = OTLPLogExporter(endpoint=endpoint, insecure=insecure, headers=headers)
+    exporter = OTLPLogExporter(headers=headers)
     logger_provider.add_log_record_processor(BatchLogRecordProcessor(exporter))
     handler = LoggingHandler(level=logging.NOTSET, logger_provider=logger_provider)
 

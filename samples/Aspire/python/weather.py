@@ -9,15 +9,12 @@ summaries: List[str] = ["Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm",
 
 logging.basicConfig(level=logging.INFO)
 
-configure_oltp_grpc_tracing(
-    service_name=os.getenv("OTEL_SERVICE_NAME", "apiservice"),
-    endpoint=os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT"),
-    insecure=os.getenv("OTEL_EXPORTER_OTLP_TRACES_INSECURE", "true").lower() == "true",
-    api_key=os.getenv("OTEL_EXPORTER_OTLP_TRACES_API_KEY"),
-)
+configure_oltp_grpc_tracing("apiservice")
+
+logger = logging.getLogger(__name__)
 
 def get_weather_forecast() -> List[Dict[str, Any]]:
-    logging.info("Generating weather forecast")
+    logger.info("Generating weather forecast from Python")
 
     temperature_c = random.randint(-20, 55)
     forecast: List[Dict[str, Any]] = [
@@ -29,6 +26,6 @@ def get_weather_forecast() -> List[Dict[str, Any]]:
         for index in range(1, 6)
     ]
 
-    logging.info(f"Generated forecast: {forecast}")
+    logger.info(f"Generated forecast: {forecast}")
 
     return forecast

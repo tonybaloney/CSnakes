@@ -12,7 +12,7 @@ internal unsafe partial class CPythonAPI : IDisposable
 
     private static string? pythonLibraryPath = null;
     private static readonly object initLock = new();
-    private static Version PythonVersion;
+    private static Version PythonVersion = new("0.0.0");
     private bool disposedValue = false;
 
     public CPythonAPI(string pythonLibraryPath, Version version)

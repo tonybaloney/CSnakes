@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.Python;
 
+[DebuggerDisplay("PyObject: repr={GetRepr()}, type={GetPythonType().ToString()}")]
 [TypeConverter(typeof(PyObjectTypeConverter))]
 public class PyObject : SafeHandle
 {
@@ -85,7 +86,7 @@ public class PyObject : SafeHandle
     /// Get the type for the object.
     /// </summary>
     /// <returns>A new reference to the type field.</returns>
-    public PyObject Type()
+    public PyObject GetPythonType()
     {
         Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
@@ -138,13 +139,15 @@ public class PyObject : SafeHandle
     /// Get the results of the repr() function on the object.
     /// </summary>
     /// <returns></returns>
-    public PyObject GetRepr()
+    public string GetRepr()
     {
         Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.PyObject_Repr(DangerousGetHandle()));
+            using PyObject reprStr = new PyObject(CPythonAPI.PyObject_Repr(DangerousGetHandle()));
+            string? repr = CPythonAPI.PyUnicode_AsUTF8(reprStr.DangerousGetHandle());
+            return repr ?? string.Empty;
         }
     }
 

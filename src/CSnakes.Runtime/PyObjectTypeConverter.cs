@@ -95,7 +95,7 @@ internal class PyObjectTypeConverter : TypeConverter
             }
         }
 
-        throw new InvalidCastException($"Attempting to cast {destinationType} from {pyObject.Type()}");
+        throw new InvalidCastException($"Attempting to cast {destinationType} from {pyObject.GetPythonType()}");
     }
 
     private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)

@@ -24,7 +24,7 @@ public class PyObjectTests : RuntimeTestBase
         {
             using PyObject? pyObj = td.ConvertFromString("Hello, World!") as PyObject;
             Assert.NotNull(pyObj);
-            Assert.Equal("<class 'str'>", pyObj!.Type().ToString());
+            Assert.Equal("<class 'str'>", pyObj!.GetPythonType().ToString());
         }
     }
 
@@ -49,9 +49,9 @@ public class PyObjectTests : RuntimeTestBase
         {
             using PyObject? pyObj = td.ConvertFromString("hello") as PyObject;
             Assert.NotNull(pyObj);
-            using PyObject? pyObjDoc = pyObj!.GetRepr();
-            Assert.NotNull(pyObjDoc);
-            Assert.Contains("'hello'", pyObjDoc!.ToString());
+            string pyObjDoc = pyObj!.GetRepr();
+            Assert.False(string.IsNullOrEmpty(pyObjDoc));
+            Assert.Contains("'hello'", pyObjDoc);
         }
     }
 }

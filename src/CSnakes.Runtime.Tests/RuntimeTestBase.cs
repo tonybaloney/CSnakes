@@ -2,13 +2,13 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace CSnakes.Runtime.Tests.Converter;
-public class ConverterTestBase : IDisposable
+namespace CSnakes.Runtime.Tests;
+public class RuntimeTestBase : IDisposable
 {
     protected readonly IPythonEnvironment env;
     protected readonly IHost app;
 
-    public ConverterTestBase()
+    public RuntimeTestBase()
     {
         string pythonVersionWindows = "3.12.4";
         string pythonVersionMacOS = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";

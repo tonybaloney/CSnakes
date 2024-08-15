@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace CSnakes.Runtime.Tests.Converter;
 
-public class BytesConverterTest : ConverterTestBase
+public class BytesConverterTest : RuntimeTestBase
 {
     [Theory]
     [InlineData(new byte[]{ 0x01, 0x02, 0x03, 0x04 })]

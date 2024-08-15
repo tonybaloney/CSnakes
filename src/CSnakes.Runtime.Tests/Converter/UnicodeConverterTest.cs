@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace CSnakes.Runtime.Tests.Converter;
 
-public class UnicodeConverterTest : ConverterTestBase
+public class UnicodeConverterTest : RuntimeTestBase
 {
     [Theory]
     [InlineData("Hello, World!")]

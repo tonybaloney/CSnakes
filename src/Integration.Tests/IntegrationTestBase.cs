@@ -19,10 +19,6 @@ public class IntegrationTestBase : IDisposable
         app = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
-                // Delete the venv on each test run
-                if (Directory.Exists(venvPath))
-                    Directory.Delete(venvPath, true);
-
                 var pb = services.WithPython();
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 

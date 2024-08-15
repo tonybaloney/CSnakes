@@ -35,9 +35,23 @@ public class PyObjectTests : RuntimeTestBase
         {
             using PyObject? pyObj = td.ConvertFromString("Hello, World!") as PyObject;
             Assert.NotNull(pyObj);
+            Assert.True(pyObj!.HasAttr("__doc__"));
             using PyObject? pyObjDoc = pyObj!.GetAttr("__doc__");
             Assert.NotNull(pyObjDoc);
             Assert.Contains("Create a new string ", pyObjDoc!.ToString());
+        }
+    }
+
+    [Fact]
+    public void TestObjectGetRepr()
+    {
+        using (GIL.Acquire())
+        {
+            using PyObject? pyObj = td.ConvertFromString("hello") as PyObject;
+            Assert.NotNull(pyObj);
+            using PyObject? pyObjDoc = pyObj!.GetRepr();
+            Assert.NotNull(pyObjDoc);
+            Assert.Contains("'hello'", pyObjDoc!.ToString());
         }
     }
 }

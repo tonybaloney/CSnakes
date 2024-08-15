@@ -1,9 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using PythonSourceGenerator.Parser.Types;
+using CSnakes.Parser.Types;
 
-namespace PythonSourceGenerator.Reflection;
+namespace CSnakes.Reflection;
 
 public static class TypeReflection
 {

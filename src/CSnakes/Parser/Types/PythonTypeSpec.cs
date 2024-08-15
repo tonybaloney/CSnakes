@@ -1,4 +1,4 @@
-﻿namespace PythonSourceGenerator.Parser.Types;
+﻿namespace CSnakes.Parser.Types;
 public class PythonTypeSpec(string name, PythonTypeSpec[] arguments)
 {
     public string Name { get; } = name;

@@ -1,8 +1,8 @@
-﻿using PythonSourceGenerator.Parser;
-using PythonSourceGenerator.Reflection;
+﻿using CSnakes.Parser;
+using CSnakes.Reflection;
 using Superpower;
 
-namespace PythonSourceGenerator.Tests;
+namespace CSnakes.Tests;
 
 public class TypeReflectionTests
 {
@@ -24,14 +24,8 @@ public class TypeReflectionTests
     [InlineData("tuple[str, list[int]]", "(string,IEnumerable<long>)")]
     [InlineData("dict[str, int]", "IReadOnlyDictionary<string,long>")]
     [InlineData("tuple[int, int, tuple[int, int]]", "(long,long,(long,long))")]
-    public void AsPredefinedType(string pythonType, string expectedType)
-    {
-        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
-        var result = PythonParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
-        Assert.True(result.HasValue);
-        var reflectedType = TypeReflection.AsPredefinedType(result.Value);
-        Assert.Equal(expectedType, reflectedType.ToString());
-    }
+    public void AsPredefinedType(string pythonType, string expectedType) =>
+        ParsingTestInternal(pythonType, expectedType);
 
     [Theory]
     [InlineData("List[int]", "IEnumerable<long>")]
@@ -47,14 +41,8 @@ public class TypeReflectionTests
     [InlineData("Tuple[str, list[int]]", "(string,IEnumerable<long>)")]
     [InlineData("Dict[str, int]", "IReadOnlyDictionary<string,long>")]
     [InlineData("Tuple[int, int, Tuple[int, int]]", "(long,long,(long,long))")]
-    public void AsPredefinedTypeOldTypeNames(string pythonType, string expectedType)
-    {
-        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
-        var result = PythonParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
-        Assert.True(result.HasValue);
-        var reflectedType = TypeReflection.AsPredefinedType(result.Value);
-        Assert.Equal(expectedType, reflectedType.ToString());
-    }
+    public void AsPredefinedTypeOldTypeNames(string pythonType, string expectedType) =>
+        ParsingTestInternal(pythonType, expectedType);
 
     [Theory]
     [InlineData("tuple[str]", "ValueTuple<string>")]
@@ -73,7 +61,10 @@ public class TypeReflectionTests
     [InlineData("tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str]", "(string,string,string,string,string,string,string,string,string,string,string,string,string,string)")]
     [InlineData("tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]", "(string,string,string,string,string,string,string,string,string,string,string,string,string,string,string)")]
     [InlineData("tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]", "(string,string,string,string,string,string,string,string,string,string,string,string,string,string,string,string)")]
-    public void TupleParsingTest(string pythonType, string expectedType)
+    public void TupleParsingTest(string pythonType, string expectedType) =>
+        ParsingTestInternal(pythonType, expectedType);
+
+    private static void ParsingTestInternal(string pythonType, string expectedType)
     {
         var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
         var result = PythonParser.PythonTypeDefinitionTokenizer.TryParse(tokens);

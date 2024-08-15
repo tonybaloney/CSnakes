@@ -1,4 +1,4 @@
-﻿namespace PythonSourceGenerator.Parser.Types;
+﻿namespace CSnakes.Parser.Types;
 
 public class PythonParameterType(string name, PythonFunctionParameterType parameterType)
 {

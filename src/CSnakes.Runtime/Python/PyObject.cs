@@ -163,10 +163,7 @@ public class PyObject : SafeHandle
         }
     }
 
-    public T As<T>()
-    {
-        return (T)td.ConvertTo(this, typeof(T)) ?? default;
-    }
+    public T As<T>() => (T)(td.ConvertTo(this, typeof(T)) ?? default!);
 
     internal PyObject Clone()
     {

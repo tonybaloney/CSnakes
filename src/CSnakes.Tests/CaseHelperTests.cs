@@ -1,25 +1,25 @@
-﻿namespace PythonSourceGenerator.Tests;
+﻿using CSnakes;
+
+namespace CSnakes.Tests;
 
 public class CaseHelperTests
 {
-    [Fact]
-    public void VerifyToPascalCase()
-    {
-        Assert.Equal("Hello", CaseHelper.ToPascalCase("hello"));
-        Assert.Equal("HelloWorld", CaseHelper.ToPascalCase("hello_world"));
-        Assert.Equal("Hello_", CaseHelper.ToPascalCase("hello_"));
-        Assert.Equal("Hello_World", CaseHelper.ToPascalCase("hello__world"));
-        Assert.Equal("_Hello_World", CaseHelper.ToPascalCase("_hello__world"));
-    }
+    [Theory]
+    [InlineData("Hello", "hello")]
+    [InlineData("HelloWorld", "hello_world")]
+    [InlineData("Hello_", "hello_")]
+    [InlineData("Hello_World", "hello__world")]
+    [InlineData("_Hello_World", "_hello__world")]
+    public void VerifyToPascalCase(string input, string expected) =>
+        Assert.Equal(input, expected.ToPascalCase());
 
-    [Fact]
-    public void VerifyToLowerPascalCase()
-    {
-        Assert.Equal("hello", CaseHelper.ToLowerPascalCase("hello"));
-        Assert.Equal("helloWorld", CaseHelper.ToLowerPascalCase("hello_world"));
-        Assert.Equal("hello_", CaseHelper.ToLowerPascalCase("hello_"));
-        Assert.Equal("hello_World", CaseHelper.ToLowerPascalCase("hello__world"));
-        // TODO: (track) This instance could arguably be _hello_World although the name is already weird
-        Assert.Equal("_Hello_World", CaseHelper.ToLowerPascalCase("_hello__world"));
-    }
+    [Theory]
+    [InlineData("hello", "hello")]
+    [InlineData("helloWorld", "hello_world")]
+    [InlineData("hello_", "hello_")]
+    [InlineData("hello_World", "hello__world")]
+    // TODO: (track) This instance could arguably be _hello_World although the name is already weird
+    [InlineData("_Hello_World", "_hello__world")]
+    public void VerifyToLowerPascalCase(string input, string expected) =>
+        Assert.Equal(input, expected.ToLowerPascalCase());
 }

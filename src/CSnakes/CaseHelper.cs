@@ -1,4 +1,4 @@
-﻿namespace PythonSourceGenerator
+﻿namespace CSnakes
 {
     public static class CaseHelper
     {

@@ -110,6 +110,16 @@ public class PyObject : SafeHandle
         }
     }
 
+    public bool HasAttr(string name)
+    {
+        Debug.Assert(!IsInvalid);
+        RaiseOnPythonNotInitialized();
+        using (GIL.Acquire())
+        {
+            return CPythonAPI.HasAttr(handle, name);
+        }
+    }
+
     /// <summary>
     /// Get the iterator for the object. This is equivalent to iter(obj) in Python.
     /// </summary>
@@ -121,6 +131,20 @@ public class PyObject : SafeHandle
         using (GIL.Acquire())
         {
             return new PyObject(CPythonAPI.PyObject_GetIter(DangerousGetHandle()));
+        }
+    }
+
+    /// <summary>
+    /// Get the results of the repr() function on the object.
+    /// </summary>
+    /// <returns></returns>
+    public PyObject GetRepr()
+    {
+        Debug.Assert(!IsInvalid);
+        RaiseOnPythonNotInitialized();
+        using (GIL.Acquire())
+        {
+            return new PyObject(CPythonAPI.PyObject_Repr(DangerousGetHandle()));
         }
     }
 

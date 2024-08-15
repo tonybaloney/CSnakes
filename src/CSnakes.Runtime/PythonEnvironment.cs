@@ -65,20 +65,11 @@ internal class PythonEnvironment : IPythonEnvironment
                 venvLibPath = Path.Combine(options.VirtualEnvironmentPath, "lib", $"python{location.Version.Major}.{location.Version.Minor}", "site-packages");
             logger.LogDebug("Adding virtual environment site-packages to extra paths: {VenvLibPath}", venvLibPath);
             extraPaths = [.. options.ExtraPaths, venvLibPath];
-        }
 
-        if (!Directory.Exists(options.VirtualEnvironmentPath) && options.EnsureVirtualEnvironment)
-        {
-            logger.LogInformation("Creating virtual environment at {VirtualEnvironmentPath}", options.VirtualEnvironmentPath);
-        } else if (!Directory.Exists(options.VirtualEnvironmentPath) && !options.EnsureVirtualEnvironment)
-        {
-            logger.LogError("Virtual environment does not exist at {VirtualEnvironmentPath}", options.VirtualEnvironmentPath);
-            throw new DirectoryNotFoundException("Virtual environment does not exist.");
-        }
-
-        if (options.EnsureVirtualEnvironment)
-        {
-            EnsureVirtualEnvironment(location, options.VirtualEnvironmentPath);
+            if (options.EnsureVirtualEnvironment)
+            {
+                EnsureVirtualEnvironment(location, options.VirtualEnvironmentPath);
+            }
         }
 
         logger.LogInformation("Setting up Python environment from {PythonLocation} using home of {Home}", location.Folder, home);

@@ -22,7 +22,7 @@ public abstract class PythonLocator(Version version)
     /// <returns>The metadata of the located Python installation.</returns>
     public abstract PythonLocationMetadata LocatePython();
 
-    protected string GetPythonExecutablePath(string folder)
+    protected virtual string GetPythonExecutablePath(string folder)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -42,7 +42,7 @@ public abstract class PythonLocator(Version version)
         }
     }
 
-    protected string GetLibPythonPath(string folder, bool freeThreaded = false)
+    protected virtual string GetLibPythonPath(string folder, bool freeThreaded = false)
     {
         string suffix = freeThreaded ? "t" : "";
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -68,7 +68,7 @@ public abstract class PythonLocator(Version version)
     /// </summary>
     /// <param name="folder">The base folder</param>
     /// <returns></returns>
-    protected string GetPythonPath(string folder)
+    protected virtual string GetPythonPath(string folder)
     {
         char sep = Path.PathSeparator;
 

@@ -27,10 +27,14 @@ def get_weather_forecast(trace_id: str = None, span_id: str = None) -> List[Dict
         logger.info("Generating weather forecast from Python")
         
         # read 6 random records from the pg database
-        # cursor = cnx.cursor()
-        # cursor.execute("INSERT INTO test (testField) VALUES (123)")
-        # cursor.close()
-
+        cursor = cnx.cursor()
+        cursor.execute("""SELECT * FROM public."WeatherForecasts" ORDER BY RANDOM() LIMIT 6;""")
+        forecast = cursor.fetchall()
+        cursor.close()
+        cnx.commit()
+        # Convert the records to a list of dictionaries
+        forecast = [dict(zip([column[0] for column in cursor.description], row)) for row in forecast]
+        
         logger.info("Generated forecast: %s", forecast)
 
     return forecast
@@ -51,3 +55,10 @@ def seed_database() -> None:
         ]
 
         # write to pg database
+        cursor = cnx.cursor()
+        for record in forecast:
+            cursor.execute("""INSERT INTO public."WeatherForecasts"(
+                        "Date", "TemperatureC", "Summary")
+                        VALUES (%s, %s, %s);""", (record["date"], record["temperature_c"], record["summary"]))
+        cursor.close()
+        cnx.commit()

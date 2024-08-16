@@ -65,7 +65,7 @@ public class PyObject : SafeHandle
             // TODO: Consider adding __qualname__ as well for module exceptions that aren't builtins
             var pyExceptionTypeStr = pyExceptionType.GetAttr("__name__").ToString();
             CPythonAPI.PyErr_Clear();
-            throw new PythonException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback);
+            throw new PythonInvocationException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback);
         }
     }
 

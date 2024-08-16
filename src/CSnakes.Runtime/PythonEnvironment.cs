@@ -65,11 +65,11 @@ internal class PythonEnvironment : IPythonEnvironment
                 venvLibPath = Path.Combine(options.VirtualEnvironmentPath, "lib", $"python{location.Version.Major}.{location.Version.Minor}", "site-packages");
             logger.LogDebug("Adding virtual environment site-packages to extra paths: {VenvLibPath}", venvLibPath);
             extraPaths = [.. options.ExtraPaths, venvLibPath];
-        }
 
-        if (options.EnsureVirtualEnvironment)
-        {
-            EnsureVirtualEnvironment(location, options.VirtualEnvironmentPath);
+            if (options.EnsureVirtualEnvironment)
+            {
+                EnsureVirtualEnvironment(location, options.VirtualEnvironmentPath);
+            }
         }
 
         logger.LogInformation("Setting up Python environment from {PythonLocation} using home of {Home}", location.Folder, home);

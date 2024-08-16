@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace CSnakes.Runtime.Tests.Converter;
 
-public class BoolConverterTest : ConverterTestBase
+public class BoolConverterTest : RuntimeTestBase
 {
     [Theory]
     [InlineData(true)]

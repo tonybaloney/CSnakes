@@ -63,6 +63,14 @@ internal unsafe partial class CPythonAPI
         return pyAttr;
     }
 
+    internal static bool HasAttr(IntPtr ob, string name)
+    {
+        nint pyName = AsPyUnicodeObject(name);
+        int hasAttr = PyObject_HasAttr(ob, pyName);
+        Py_DecRef(pyName);
+        return hasAttr == 1;
+    }
+
     /// <summary>
     /// Get the attribute with name `attr` from the object `ob`
     /// </summary>

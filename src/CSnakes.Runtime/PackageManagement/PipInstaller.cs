@@ -37,6 +37,7 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
         {
             logger.LogInformation("Using virtual environment at {VirtualEnvironmentLocation} to install packages with pip.", virtualEnvironmentLocation);
             string venvScriptPath = Path.Combine(virtualEnvironmentLocation, RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Scripts" : "bin");
+            // TODO: Check that the pip executable exists, and if not, raise an exception with actionable steps.
             startInfo.FileName = Path.Combine(venvScriptPath, pipBinaryName);
             startInfo.EnvironmentVariables["PATH"] = $"{venvScriptPath};{Environment.GetEnvironmentVariable("PATH")}";
         }

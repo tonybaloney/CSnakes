@@ -22,7 +22,7 @@ public abstract class PythonLocator(Version version)
     /// <returns>The metadata of the located Python installation.</returns>
     public abstract PythonLocationMetadata LocatePython();
 
-    protected string GetPythonExecutablePath(string folder)
+    protected virtual string GetPythonExecutablePath(string folder)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -42,20 +42,20 @@ public abstract class PythonLocator(Version version)
         }
     }
 
-    protected string GetLibPythonPath(string folder, bool freeThreaded = false)
+    protected virtual string GetLibPythonPath(string folder, bool freeThreaded = false)
     {
         string suffix = freeThreaded ? "t" : "";
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            return Path.Combine(folder, $"python{version.Major}{version.Minor}{suffix}.dll");
+            return Path.Combine(folder, $"python{Version.Major}{Version.Minor}{suffix}.dll");
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            return Path.Combine(folder, "lib", $"libpython{version.Major}.{version.Minor}{suffix}.dylib");
+            return Path.Combine(folder, "lib", $"libpython{Version.Major}.{Version.Minor}{suffix}.dylib");
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            return Path.Combine(folder, "lib", $"libpython{version.Major}.{version.Minor}{suffix}.so");
+            return Path.Combine(folder, "lib", $"libpython{Version.Major}.{Version.Minor}{suffix}.so");
         }
         else
         {
@@ -68,7 +68,7 @@ public abstract class PythonLocator(Version version)
     /// </summary>
     /// <param name="folder">The base folder</param>
     /// <returns></returns>
-    protected string GetPythonPath(string folder)
+    protected virtual string GetPythonPath(string folder)
     {
         char sep = Path.PathSeparator;
 
@@ -79,11 +79,11 @@ public abstract class PythonLocator(Version version)
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            return Path.Combine(folder, "lib", $"python{version.Major}.{version.Minor}") + sep + Path.Combine(folder, "lib", $"python{version.Major}.{version.Minor}", "lib-dynload");
+            return Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}") + sep + Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}", "lib-dynload");
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            return Path.Combine(folder, "lib", $"python{version.Major}.{version.Minor}") + sep + Path.Combine(folder, "lib", $"python{version.Major}.{version.Minor}", "lib-dynload");
+            return Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}") + sep + Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}", "lib-dynload");
         }
         else
         {

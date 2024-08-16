@@ -1,14 +1,14 @@
-﻿using PythonSourceGenerator.Parser.Types;
+﻿using CSnakes.Parser.Types;
 using Superpower;
 using Superpower.Parsers;
 
-namespace PythonSourceGenerator.Parser;
+namespace CSnakes.Parser;
 public static partial class PythonParser
 {
     public static TokenListParser<PythonToken, PythonFunctionParameter> PythonParameterTokenizer { get; } =
         (from arg in PythonArgTokenizer
          from colon in Token.EqualTo(PythonToken.Colon).Optional()
-         from type in PythonTypeDefinitionTokenizer.OptionalOrDefault()
+         from type in PythonTypeDefinitionTokenizer.AssumeNotNull().OptionalOrDefault()
          from defaultValue in Token.EqualTo(PythonToken.Equal).Optional().Then(
                  _ => ConstantValueTokenizer.OptionalOrDefault()
              )

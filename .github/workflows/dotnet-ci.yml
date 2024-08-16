@@ -9,15 +9,23 @@ on:
   pull_request:
     branches: ["main"]
 
-env:
-  DOTNET_VERSION: 8.0.x
-
 jobs:
   build:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
         python: ["3.9", "3.10", "3.11", "3.12", "3.13.0-rc.1"]
+        dotnet: ["8.0.x"]
+        include:
+            - os: windows-latest
+              python: "3.12"
+              dotnet: "6.0.x"
+            - os: windows-latest
+              python: "3.12"
+              dotnet: "7.0.x"
+            - os: windows-latest
+              python: "3.12"
+              dotnet: "9.0.x"
       fail-fast: false
     runs-on: "${{ matrix.os }}"
 
@@ -31,7 +39,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-version: ${{ matrix.dotnet }}
       - name: Restore dependencies
         run: dotnet restore
         working-directory: src

@@ -2,7 +2,7 @@
 using Superpower.Parsers;
 using Superpower.Tokenizers;
 
-namespace PythonSourceGenerator.Parser;
+namespace CSnakes.Parser;
 public static class PythonTokenizer
 {
     public static Tokenizer<PythonToken> Instance { get; } =

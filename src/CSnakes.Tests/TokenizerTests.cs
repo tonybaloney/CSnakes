@@ -1,9 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using PythonSourceGenerator.Parser;
+using CSnakes.Parser;
 using Superpower;
 
-namespace PythonSourceGenerator.Tests;
+namespace CSnakes.Tests;
 public class TokenizerTests
 {
 

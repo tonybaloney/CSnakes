@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.Python;
 
+[DebuggerDisplay("PyObject: repr={GetRepr()}, type={GetPythonType().ToString()}")]
 [TypeConverter(typeof(PyObjectTypeConverter))]
 public class PyObject : SafeHandle
 {
@@ -52,7 +53,7 @@ public class PyObject : SafeHandle
             CPythonAPI.PyErr_Fetch(out nint excType, out nint excValue, out nint excTraceback);
             using var pyExceptionType = new PyObject(excType);
             using var pyExceptionValue = new PyObject(excValue);
-            using var pyExceptionTraceback = new PyObject(excTraceback);
+            var pyExceptionTraceback = new PyObject(excTraceback);
 
             if (pyExceptionType.IsInvalid || pyExceptionValue.IsInvalid || pyExceptionType.IsInvalid)
             {
@@ -61,10 +62,10 @@ public class PyObject : SafeHandle
             }
 
             var pyExceptionStr = pyExceptionValue.ToString();
-            var pyExceptionTypeStr = pyExceptionType.ToString();
-            var pyExceptionTracebackStr = pyExceptionTraceback.ToString();
+            // TODO: Consider adding __qualname__ as well for module exceptions that aren't builtins
+            var pyExceptionTypeStr = pyExceptionType.GetAttr("__name__").ToString();
             CPythonAPI.PyErr_Clear();
-            throw new PythonException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTracebackStr);
+            throw new PythonException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback);
         }
     }
 
@@ -85,7 +86,7 @@ public class PyObject : SafeHandle
     /// Get the type for the object.
     /// </summary>
     /// <returns>A new reference to the type field.</returns>
-    public PyObject Type()
+    public PyObject GetPythonType()
     {
         Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
@@ -110,6 +111,16 @@ public class PyObject : SafeHandle
         }
     }
 
+    public bool HasAttr(string name)
+    {
+        Debug.Assert(!IsInvalid);
+        RaiseOnPythonNotInitialized();
+        using (GIL.Acquire())
+        {
+            return CPythonAPI.HasAttr(handle, name);
+        }
+    }
+
     /// <summary>
     /// Get the iterator for the object. This is equivalent to iter(obj) in Python.
     /// </summary>
@@ -121,6 +132,22 @@ public class PyObject : SafeHandle
         using (GIL.Acquire())
         {
             return new PyObject(CPythonAPI.PyObject_GetIter(DangerousGetHandle()));
+        }
+    }
+
+    /// <summary>
+    /// Get the results of the repr() function on the object.
+    /// </summary>
+    /// <returns></returns>
+    public string GetRepr()
+    {
+        Debug.Assert(!IsInvalid);
+        RaiseOnPythonNotInitialized();
+        using (GIL.Acquire())
+        {
+            using PyObject reprStr = new PyObject(CPythonAPI.PyObject_Repr(DangerousGetHandle()));
+            string? repr = CPythonAPI.PyUnicode_AsUTF8(reprStr.DangerousGetHandle());
+            return repr ?? string.Empty;
         }
     }
 
@@ -163,10 +190,7 @@ public class PyObject : SafeHandle
         }
     }
 
-    public T As<T>()
-    {
-        return (T)td.ConvertTo(this, typeof(T)) ?? default;
-    }
+    public T As<T>() => (T)(td.ConvertTo(this, typeof(T)) ?? default!);
 
     internal PyObject Clone()
     {

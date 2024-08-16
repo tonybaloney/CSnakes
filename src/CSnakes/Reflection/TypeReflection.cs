@@ -12,13 +12,16 @@ public static class TypeReflection
         // If type is an alias, e.g. "list[int]", "list[float]", etc.
         if (pythonType.HasArguments())
         {
-            var genericName = pythonType.Name.ToLowerInvariant();
             // Get last occurrence of ] in pythonType
-            return genericName switch
+            return pythonType.Name switch
             {
                 "list" => CreateListType(pythonType.Arguments[0]),
+                "List" => CreateListType(pythonType.Arguments[0]),
+                "Tuple" => CreateTupleType(pythonType.Arguments),
                 "tuple" => CreateTupleType(pythonType.Arguments),
                 "dict" => CreateDictionaryType(pythonType.Arguments[0], pythonType.Arguments[1]),
+                "Dict" => CreateDictionaryType(pythonType.Arguments[0], pythonType.Arguments[1]),
+                "Sequence" => CreateListType(pythonType.Arguments[0]),
                 // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
                 _ => SyntaxFactory.ParseTypeName("PyObject"),// TODO : Should be nullable?
             };

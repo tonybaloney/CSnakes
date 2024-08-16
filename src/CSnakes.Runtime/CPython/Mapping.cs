@@ -4,10 +4,9 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
-    private static nint ItemsStrIntern = IntPtr.Zero;
-    public static bool IsPyMappingWithItems(nint p)
+    public static bool IsPyMapping(nint p)
     {
-        return PyMapping_Check(p) == 1 && PyObject_HasAttr(p, ItemsStrIntern) == 1;
+        return PyMapping_Check(p) == 1;
     }
 
     /// <summary>

@@ -72,13 +72,13 @@ internal class PyObjectTypeConverter : TypeConverter
                 return ConvertToDictionary(pyObject, destinationType, context, culture);
             }
 
-            if (destinationType.IsAssignableTo(typeof(IEnumerable)) && CPythonAPI.IsPyList(handle))
+            if (destinationType.Name.StartsWith("IList") && CPythonAPI.IsPyList(handle))
             {
                 return ConvertToList(pyObject, destinationType, context, culture);
             }
 
             // This needs to come after lists, because sequences are also maps
-            if (destinationType.IsAssignableTo(typeof(IEnumerable)) && CPythonAPI.IsPyMappingWithItems(handle))
+            if (destinationType.IsAssignableTo(typeof(IEnumerable)) && CPythonAPI.IsPyMapping(handle))
             {
                 return ConvertToDictionary(pyObject, destinationType, context, culture, useMappingProtocol: true);
             }

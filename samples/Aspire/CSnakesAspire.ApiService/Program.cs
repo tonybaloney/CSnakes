@@ -67,7 +67,7 @@ app.MapGet("/weatherforecast", (
     logger.LogInformation("Raw forecast: {RawForecast}", rawForecast);
 
     var forecast = rawForecast
-        .Select(f => new WeatherForecast(DateOnly.Parse(f["date"].As<string>()), f["temperature_c"].As<long>(), f["summary"].As<string>()));
+        .Select(f => new WeatherForecast(DateOnly.FromDateTime(DateTime.Parse(f["Date"].ToString())), f["TemperatureC"].As<long>(), f["Summary"].ToString()));
     return forecast;
 });
 

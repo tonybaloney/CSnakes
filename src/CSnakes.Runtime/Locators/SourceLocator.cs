@@ -32,6 +32,15 @@ internal class SourceLocator(string folder, Version version, bool debug = true, 
         return Path.Combine(folder, "..", "..", "Lib") + Path.PathSeparator + folder;
     }
 
+    protected override string GetPythonExecutablePath(string folder)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && Debug)
+        {
+            return Path.Combine(folder, "python_d.exe");
+        }
+        return base.GetPythonExecutablePath(folder);
+    }
+
     public override PythonLocationMetadata LocatePython()
     {
         var buildFolder = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Path.Combine(folder, "PCbuild", "amd64") : folder;
@@ -41,7 +50,7 @@ internal class SourceLocator(string folder, Version version, bool debug = true, 
             throw new DirectoryNotFoundException($"Python {Version} not found in {buildFolder}.");
         }
 
-        return LocatePythonInternal(folder, freeThreaded);
+        return LocatePythonInternal(buildFolder, freeThreaded);
     }
 
     internal override bool IsSupported() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);

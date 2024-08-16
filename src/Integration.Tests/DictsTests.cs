@@ -32,4 +32,14 @@ public class TestDicts : IntegrationTestBase
         var result = testDicts.TestDictStrDictInt(testDictDict);
         Assert.Equal(1, result["hello"]["world3"]);
     }
+
+    [Fact]
+    public void TestDicts_TestMapping()
+    {
+        var testDicts = Env.TestDicts();
+
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, long>> testDictDict = new Dictionary<string, IReadOnlyDictionary<string, long>> { { "hello", new Dictionary<string, long> { { "world3", 1 } } } };
+        var result = testDicts.TestMapping(testDictDict);
+        Assert.Equal(1, result["hello"]["world3"]);
+    }
 }

@@ -62,6 +62,6 @@ public class BasicTests : IntegrationTestBase
     public void TestBasic_TestSequence()
     {
         var testModule = Env.TestBasic();
-        Assert.Equal([1, 2, 3], testModule.TestSequence([1, 2, 3 ]));
+        Assert.Equal([2, 3, 4], testModule.TestSequence([1, 2, 3 ], 2, 5));
     }
 }

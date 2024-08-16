@@ -79,7 +79,7 @@ internal partial class PyObjectTypeConverter : TypeConverter
             }
 
             // This needs to come after lists, because sequences are also maps
-            if (destinationType.IsAssignableTo(collectionType) && CPythonAPI.IsPyMapping(handle))
+            if (destinationType.IsAssignableTo(collectionType) && CPythonAPI.IsPyMappingWithItems(handle))
             {
                 return ConvertToDictionary(pyObject, destinationType, context, culture, useMappingProtocol: true);
             }

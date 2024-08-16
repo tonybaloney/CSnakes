@@ -1,5 +1,8 @@
 using CSnakes.Runtime;
+using CSnakesAspire.ApiService;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using System.Diagnostics;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +11,8 @@ builder.AddServiceDefaults();
 
 // Add services to the container.
 builder.Services.AddProblemDetails();
+
+builder.AddNpgsqlDbContext<WeatherDbContext>("weather");
 
 string pythonVersionWindows = "3.12.4";
 string pythonVersionMacOS = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
@@ -25,6 +30,27 @@ builder.Services.WithPython()
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IPythonEnvironment>().Weather());
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    int count = 0;
+    for (var i = 0; i < 10; i++)
+    {
+        try
+        {
+            using var scope = app.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<WeatherDbContext>();
+            context.Database.Migrate();
+            break;
+        }
+        catch (NpgsqlException)
+        {
+            // database was probably not ready yet, so we'll wait a moment.
+            await Task.Delay(1000);
+            count++;
+        }
+    }
+}
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
@@ -45,8 +71,3 @@ app.MapGet("/weatherforecast", (
 app.MapDefaultEndpoints();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, long TemperatureC, string? Summary)
-{
-    public long TemperatureF => 32 + (long)(TemperatureC / 0.5556);
-}

@@ -1,6 +1,11 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var apiService = builder.AddProject<Projects.CSnakesAspire_ApiService>("apiservice");
+var pg = builder.AddPostgres("postgres")
+    .WithPgAdmin()
+    .AddDatabase("weather");
+
+var apiService = builder.AddProject<Projects.CSnakesAspire_ApiService>("apiservice")
+    .WithReference(pg);
 
 builder.AddProject<Projects.CSnakesAspire_Web>("webfrontend")
     .WithExternalHttpEndpoints()

@@ -17,7 +17,7 @@ public class TestDicts : IntegrationTestBase
     {
         var testDicts = Env.TestDicts();
 
-        IReadOnlyDictionary<string, IEnumerable<long>> testListDict = new Dictionary<string, IEnumerable<long>> { { "hello", new List<long> { 1, 2, 3 } }, { "world2", new List<long> { 4, 5, 6 } } };
+        IReadOnlyDictionary<string, IList<long>> testListDict = new Dictionary<string, IList<long>> { { "hello", new List<long> { 1, 2, 3 } }, { "world2", new List<long> { 4, 5, 6 } } };
         var result = testDicts.TestDictStrListInt(testListDict);
         Assert.Equal(new List<long> { 1, 2, 3 }, result["hello"]);
         Assert.Equal(new List<long> { 4, 5, 6 }, result["world2"]);

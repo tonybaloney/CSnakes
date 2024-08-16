@@ -59,7 +59,7 @@ public static class TypeReflection
             SyntaxFactory.Token(SyntaxKind.CloseParenToken));
     }
 
-    private static TypeSyntax CreateListType(PythonTypeSpec genericOf) => CreateGenericType("IList", [AsPredefinedType(genericOf)]);
+    private static TypeSyntax CreateListType(PythonTypeSpec genericOf) => CreateGenericType("IReadOnlyCollection", [AsPredefinedType(genericOf)]);
 
     internal static TypeSyntax CreateGenericType(string typeName, IEnumerable<TypeSyntax> genericArguments) =>
         SyntaxFactory.GenericName(

@@ -1,1 +1,3 @@
 opentelemetry-exporter-otlp-proto-grpc
+psycopg2-binary
+opentelemetry-instrumentation-psycopg2

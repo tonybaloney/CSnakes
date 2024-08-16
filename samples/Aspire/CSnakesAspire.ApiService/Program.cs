@@ -43,7 +43,7 @@ if (app.Environment.IsDevelopment())
             context.Database.Migrate();
 
             var weather = scope.ServiceProvider.GetRequiredService<IWeather>();
-            weather.SeedDatabase(Activity.Current?.TraceId.ToString(), Activity.Current.SpanId.ToString());
+            weather.SeedDatabase();
             break;
         }
         catch (NpgsqlException)

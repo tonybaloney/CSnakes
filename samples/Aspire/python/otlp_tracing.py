@@ -1,3 +1,9 @@
+## This is a convenience layer for the following:
+# - Setting up OTLP Tracing
+# - Setting up OTLP Metrics
+# - Setting up OTLP Logging
+# - Creating a SpanContext object for use in creating a new span from an existing trace and span ID
+
 import logging
 import os
 from opentelemetry import metrics, trace
@@ -48,6 +54,8 @@ def configure_oltp_grpc_tracing(
 
 
 def get_span_context(trace_id: str = None, span_id: str = None):
+    if trace_id is None or span_id is None:
+        return None
     span_context = SpanContext(
         trace_id=int(trace_id, 16),
         span_id=int(span_id, 16),

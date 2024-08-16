@@ -14,6 +14,18 @@ logger = logging.getLogger(__name__)
 def get_weather_forecast(trace_id: str = None, span_id: str = None) -> List[Dict[str, Any]]:
     with tracer.start_as_current_span("generate-forecast", get_span_context(trace_id, span_id)):
         logger.info("Generating weather forecast from Python")
+        
+        # read 6 random records from the pg database
+
+        logger.info("Generated forecast: %s", forecast)
+
+    return forecast
+
+def seed_database(trace_id: str = None, span_id: str = None) -> None:
+    with tracer.start_as_current_span("seed-database", get_span_context(trace_id, span_id)):
+        logger.info("Seeding database from Python")
+        logger.info("Database seeded")
+
         temperature_c = random.randint(-20, 55)
         forecast: List[Dict[str, Any]] = [
             {
@@ -21,9 +33,7 @@ def get_weather_forecast(trace_id: str = None, span_id: str = None) -> List[Dict
                 "temperature_c": temperature_c,
                 "summary": random.choice(summaries)
             }
-            for index in range(1, 6)
+            for index in range(1, 100)
         ]
 
-        logger.info("Generated forecast: %s", forecast)
-
-    return forecast
+        # write to pg database

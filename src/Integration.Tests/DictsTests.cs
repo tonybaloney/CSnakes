@@ -38,8 +38,9 @@ public class TestDicts : IntegrationTestBase
     {
         var testDicts = Env.TestDicts();
 
-        IReadOnlyDictionary<string, IReadOnlyDictionary<string, long>> testDictDict = new Dictionary<string, IReadOnlyDictionary<string, long>> { { "hello", new Dictionary<string, long> { { "world3", 1 } } } };
-        var result = testDicts.TestMapping(testDictDict);
-        Assert.Equal(1, result["hello"]["world3"]);
+        IReadOnlyDictionary<string, long> testDict = new Dictionary<string, long> { { "dictkey1", 1 }, { "dictkey2", 2 } };
+        var result = testDicts.TestMapping(testDict);
+        Assert.Equal(1, result["dictkey1"]);
+        Assert.Equal(2, result["dictkey2"]);
     }
 }

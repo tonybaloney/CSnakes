@@ -3,12 +3,16 @@
 namespace CSnakes.Runtime;
 public class PythonRuntimeException : Exception
 {
-    private readonly PyObject pythonTracebackObject;
+    private readonly PyObject? pythonTracebackObject;
     private string[]? formattedStackTrace = null;
 
-    public PythonRuntimeException(string message, PyObject traceback): base(message)
+    public PythonRuntimeException(string message, PyObject? traceback): base(message)
     {
         pythonTracebackObject = traceback;
+        if (traceback is null)
+        {
+            return;
+        }
         Data["locals"] = traceback.GetAttr("tb_frame").GetAttr("f_locals").As<IReadOnlyDictionary<string, PyObject>>();
         Data["globals"] = traceback.GetAttr("tb_frame").GetAttr("f_globals").As<IReadOnlyDictionary<string, PyObject>>();
     }
@@ -17,6 +21,10 @@ public class PythonRuntimeException : Exception
     {
         get
         {
+            if (pythonTracebackObject is null)
+            {
+                return Array.Empty<string>();
+            }
             // This is lazy because it's expensive to format the stack trace.
             formattedStackTrace ??= FormatPythonStackTrace(pythonTracebackObject);
             return formattedStackTrace;

@@ -39,7 +39,7 @@ public class PythonRuntimeException : Exception
             using var formatTbFunction = tracebackModule.GetAttr("format_tb");
             using var formattedStackTrace = formatTbFunction.Call(pythonStackTrace);
 
-            string[] result = formattedStackTrace.As<IEnumerable<string>>().ToArray();
+            string[] result = formattedStackTrace.As<IList<string>>().ToArray();
             return result;
         }
     }

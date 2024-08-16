@@ -72,7 +72,7 @@ internal class PyObjectTypeConverter : TypeConverter
                 return ConvertToDictionary(pyObject, destinationType, context, culture);
             }
 
-            if (destinationType.IsAssignableTo(typeof(IList)) && CPythonAPI.IsPyList(handle))
+            if (destinationType.Name.StartsWith("IList") && CPythonAPI.IsPyList(handle))
             {
                 return ConvertToList(pyObject, destinationType, context, culture);
             }

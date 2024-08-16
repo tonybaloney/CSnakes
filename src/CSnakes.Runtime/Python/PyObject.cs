@@ -51,21 +51,26 @@ public class PyObject : SafeHandle
                 throw new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
             CPythonAPI.PyErr_Fetch(out nint excType, out nint excValue, out nint excTraceback);
-            using var pyExceptionType = new PyObject(excType);
-            using var pyExceptionValue = new PyObject(excValue);
-            var pyExceptionTraceback = new PyObject(excTraceback);
-
-            if (pyExceptionType.IsInvalid || pyExceptionValue.IsInvalid || pyExceptionType.IsInvalid)
+            
+            if (excType == 0)
             {
-                CPythonAPI.PyErr_Clear();
-                throw new InvalidDataException("An error fetching the exceptions in Python.");
+                throw new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
 
-            var pyExceptionStr = pyExceptionValue.ToString();
+            using var pyExceptionType = new PyObject(excType);
+            PyObject? pyExceptionTraceback = excTraceback == IntPtr.Zero ? null : new PyObject(excTraceback);
+
+            var pyExceptionStr = string.Empty;
+            if (excValue != IntPtr.Zero)
+            {
+                using PyObject pyExceptionValue = new PyObject(excValue);
+                pyExceptionStr = pyExceptionValue.ToString();
+            }
+             ;
             // TODO: Consider adding __qualname__ as well for module exceptions that aren't builtins
             var pyExceptionTypeStr = pyExceptionType.GetAttr("__name__").ToString();
             CPythonAPI.PyErr_Clear();
-            throw new PythonException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback);
+            throw new PythonInvocationException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback);
         }
     }
 

@@ -77,6 +77,12 @@ internal class PyObjectTypeConverter : TypeConverter
                 return ConvertToList(pyObject, destinationType, context, culture);
             }
 
+            // This needs to come after lists, because sequences are also maps
+            if (destinationType.IsAssignableTo(typeof(IEnumerable)) && CPythonAPI.IsPyMapping(handle))
+            {
+                return ConvertToDictionary(pyObject, destinationType, context, culture, useMappingProtocol: true);
+            }
+
             if (destinationType.IsAssignableTo(typeof(ITuple)))
             {
                 if (CPythonAPI.IsPyTuple(handle))
@@ -98,9 +104,9 @@ internal class PyObjectTypeConverter : TypeConverter
         throw new InvalidCastException($"Attempting to cast {destinationType} from {pyObject.GetPythonType()}");
     }
 
-    private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
+    private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture, bool useMappingProtocol = false)
     {
-        using PyObject items = new(CPythonAPI.PyDict_Items(pyObject.DangerousGetHandle()));
+        using PyObject items = useMappingProtocol ? new(CPythonAPI.PyMapping_Items(pyObject.DangerousGetHandle())) : new(CPythonAPI.PyDict_Items(pyObject.DangerousGetHandle()));
         Type item1Type = destinationType.GetGenericArguments()[0];
         Type item2Type = destinationType.GetGenericArguments()[1];
         Type dictType = typeof(Dictionary<,>).MakeGenericType(item1Type, item2Type);

@@ -14,6 +14,7 @@ CSnakes supports the following typed scenarios:
 | `list[T]`              | `IEnumerable<T>`  |
 | `dict[K, V]`           | `IReadOnlyDictionary<K, V>` |
 | `tuple[T1, T2, ...]`   | `(T1, T2, ...)`   |
+| `typing.Sequence[T]`   | `IEnumerable<T>`  |
 
 ### Return types
 

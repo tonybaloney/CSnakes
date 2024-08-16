@@ -104,4 +104,25 @@ internal unsafe partial class CPythonAPI
     /// <returns>A new reference to the string representation</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyObject_Str(nint ob);
+
+    /// <summary>
+    /// Implements ob[key]
+    /// </summary>
+    /// <param name="ob"></param>
+    /// <param name="key"></param>
+    /// <returns>A new reference to the object item if it exists, else NULL</returns>
+    [LibraryImport(PythonLibraryName)]
+    internal static partial nint PyObject_GetItem(nint ob, nint key);
+
+    /// <summary>
+    /// Set ob[key] = value
+    /// Returns -1 on error and sets exception.
+    /// Does not steal a reference to value on success.
+    /// </summary>
+    /// <param name="ob"></param>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int PyObject_SetItem(nint ob, nint key, nint value);
 }

@@ -1,5 +1,6 @@
-﻿using Integration.Tests;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
+
+namespace Integration.Tests;
 
 public class TestDependency : IntegrationTestBase
 {

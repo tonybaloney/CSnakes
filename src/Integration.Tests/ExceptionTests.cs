@@ -4,7 +4,6 @@ namespace Integration.Tests;
 
 public class ExceptionTests : IntegrationTestBase
 {
-
     [Fact]
     public void TestExceptions_TestRaisePythonException()
     {
@@ -19,11 +18,11 @@ public class ExceptionTests : IntegrationTestBase
         Assert.Contains("in test_raise_python_exception", pythonRuntimeException.PythonStackTrace[0]);
         // Get the frame locals from the inner exception
         Assert.NotNull(pythonRuntimeException.Data["locals"]);
-        var topFrameLocals = (IReadOnlyDictionary<string, PyObject>) pythonRuntimeException.Data["locals"];
+        var topFrameLocals = (IReadOnlyDictionary<string, PyObject>?) pythonRuntimeException.Data["locals"];
         Assert.NotNull(topFrameLocals);
         Assert.Equal(1, topFrameLocals["a"].As<long>());
         Assert.Equal(2, topFrameLocals["b"].As<long>());
-        var topFrameGlobals = (IReadOnlyDictionary<string, PyObject>)pythonRuntimeException.Data["globals"];
-        Assert.Equal(topFrameGlobals["some_global"].ToString(), "1337");
+        var topFrameGlobals = (IReadOnlyDictionary<string, PyObject>?)pythonRuntimeException.Data["globals"];
+        Assert.Equal("1337", topFrameGlobals?["some_global"].ToString());
     }
 }

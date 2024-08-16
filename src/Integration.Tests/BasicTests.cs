@@ -57,4 +57,11 @@ public class BasicTests : IntegrationTestBase
         var testModule = Env.TestBasic();
         Assert.Equal(new byte[] { 0x04, 0x03, 0x02, 0x01 }, testModule.TestBytes(new byte[] { 0x01, 0x02, 0x03, 0x04 }));
     }
+
+    [Fact]
+    public void TestBasic_TestSequence()
+    {
+        var testModule = Env.TestBasic();
+        Assert.Equal([2, 3, 4], testModule.TestSequence([1, 2, 3 ], 2, 5));
+    }
 }

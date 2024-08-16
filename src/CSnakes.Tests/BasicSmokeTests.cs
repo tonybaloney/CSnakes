@@ -21,10 +21,10 @@ public class BasicSmokeTest(TestEnvironment testEnv) : IClassFixture<TestEnviron
     [InlineData("def hello_world(name: str) -> float:\n    ...\n", "double HelloWorld(string name)")]
     [InlineData("def hello_world(name: str) -> int:\n    ...\n", "long HelloWorld(string name)")]
     [InlineData("def hello_world(name: str, age: int) -> str:\n    ...\n", "string HelloWorld(string name, long age)")]
-    [InlineData("def hello_world(numbers: list[float]) -> list[int]:\n    ...\n", "IEnumerable<long> HelloWorld(IEnumerable<double> numbers)")]
-    [InlineData("def hello_world(numbers: List[float]) -> List[int]:\n    ...\n", "IEnumerable<long> HelloWorld(IEnumerable<double> numbers)")]
+    [InlineData("def hello_world(numbers: list[float]) -> list[int]:\n    ...\n", "IReadOnlyCollection<long> HelloWorld(IReadOnlyCollection<double> numbers)")]
+    [InlineData("def hello_world(numbers: List[float]) -> List[int]:\n    ...\n", "IReadOnlyCollection<long> HelloWorld(IReadOnlyCollection<double> numbers)")]
     [InlineData("def hello_world(value: tuple[int]) -> None:\n    ...\n", "void HelloWorld(ValueTuple<long> value)")]
-    [InlineData("def hello_world(a: bool, b: str, c: list[tuple[int, float]]) -> bool: \n ...\n", "bool HelloWorld(bool a, string b, IEnumerable<(long, double)> c)")]
+    [InlineData("def hello_world(a: bool, b: str, c: list[tuple[int, float]]) -> bool: \n ...\n", "bool HelloWorld(bool a, string b, IReadOnlyCollection<(long, double)> c)")]
     [InlineData("def hello_world(a: bool = True, b: str = None) -> bool: \n ...\n", "bool HelloWorld(bool a = true, string b = null)")]
     [InlineData("def hello_world(a: bytes, b: bool = False, c: float = 0.1) -> None: \n ...\n", "void HelloWorld(byte[] a, bool b = false, double c = 0.1)")]
     [InlineData("def hello_world(a: str = 'default') -> None: \n ...\n", "void HelloWorld(string a = \"default\")")]
@@ -55,7 +55,7 @@ public class BasicSmokeTest(TestEnvironment testEnv) : IClassFixture<TestEnviron
         var tree = CSharpSyntaxTree.ParseText(compiledCode);
         var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
             .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
-            .AddReferences(MetadataReference.CreateFromFile(typeof(IEnumerable<>).Assembly.Location))
+            .AddReferences(MetadataReference.CreateFromFile(typeof(IList<>).Assembly.Location))
             .AddReferences(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location))
             .AddReferences(MetadataReference.CreateFromFile(typeof(TypeConverter).Assembly.Location))
             .AddReferences(MetadataReference.CreateFromFile(typeof(IReadOnlyDictionary<,>).Assembly.Location))

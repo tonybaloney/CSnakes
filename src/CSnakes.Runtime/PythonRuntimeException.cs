@@ -23,7 +23,7 @@ public class PythonRuntimeException : Exception
         {
             if (pythonTracebackObject is null)
             {
-                return Array.Empty<string>();
+                return [];
             }
             // This is lazy because it's expensive to format the stack trace.
             formattedStackTrace ??= FormatPythonStackTrace(pythonTracebackObject);
@@ -39,8 +39,7 @@ public class PythonRuntimeException : Exception
             using var formatTbFunction = tracebackModule.GetAttr("format_tb");
             using var formattedStackTrace = formatTbFunction.Call(pythonStackTrace);
 
-            string[] result = formattedStackTrace.As<IList<string>>().ToArray();
-            return result;
+            return [.. formattedStackTrace.As<IReadOnlyCollection<string>>()];
         }
     }
 

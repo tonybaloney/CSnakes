@@ -9,8 +9,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace CSnakes.Runtime;
-internal class PyObjectTypeConverter : TypeConverter
+internal partial class PyObjectTypeConverter : TypeConverter
 {
+
     /// <summary>
     /// Convert a Python object to a CLR managed object.
     /// Caller should already hold the GIL because this function uses the Python runtime for some conversions.
@@ -29,7 +30,7 @@ internal class PyObjectTypeConverter : TypeConverter
             throw new NotSupportedException();
         }
 
-        if (destinationType == typeof(PyObject))
+        if (destinationType == pyObjectType)
         {
             return pyObject.Clone();
         }
@@ -67,18 +68,18 @@ internal class PyObjectTypeConverter : TypeConverter
 
         if (destinationType.IsGenericType)
         {
-            if (destinationType.IsAssignableTo(typeof(IEnumerable)) && CPythonAPI.IsPyDict(handle))
+            if (IsAssignableToGenericType(destinationType, dictionaryType) && CPythonAPI.IsPyDict(handle))
             {
                 return ConvertToDictionary(pyObject, destinationType, context, culture);
             }
 
-            if (destinationType.Name.StartsWith("IList") && CPythonAPI.IsPyList(handle))
+            if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPyList(handle))
             {
                 return ConvertToList(pyObject, destinationType, context, culture);
             }
 
             // This needs to come after lists, because sequences are also maps
-            if (destinationType.IsAssignableTo(typeof(IEnumerable)) && CPythonAPI.IsPyMapping(handle))
+            if (destinationType.IsAssignableTo(collectionType) && CPythonAPI.IsPyMapping(handle))
             {
                 return ConvertToDictionary(pyObject, destinationType, context, culture, useMappingProtocol: true);
             }
@@ -274,7 +275,12 @@ internal class PyObjectTypeConverter : TypeConverter
             destinationType == typeof(bool) ||
             destinationType == typeof(double) ||
             destinationType == typeof(byte[]) ||
-            destinationType.IsGenericType
+            (destinationType.IsGenericType && (
+                IsAssignableToGenericType(destinationType, dictionaryType) ||
+                IsAssignableToGenericType(destinationType, listType) ||
+                destinationType.IsAssignableTo(collectionType) ||
+                destinationType.IsAssignableTo(typeof(ITuple))
+            ))
         );
 
     public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) =>
@@ -285,7 +291,12 @@ internal class PyObjectTypeConverter : TypeConverter
             sourceType == typeof(bool) ||
             sourceType == typeof(double) ||
             sourceType == typeof(byte[]) ||
-            sourceType.IsGenericType
+            (sourceType.IsGenericType && (
+                IsAssignableToGenericType(sourceType, dictionaryType) ||
+                IsAssignableToGenericType(sourceType, listType) ||
+                sourceType.IsAssignableTo(collectionType) ||
+                sourceType.IsAssignableTo(typeof(ITuple))
+            ))
         );
 
     private PyObject ToPython(object? o, ITypeDescriptorContext? context, CultureInfo? culture)

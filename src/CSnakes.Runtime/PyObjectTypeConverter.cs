@@ -84,6 +84,11 @@ internal partial class PyObjectTypeConverter : TypeConverter
                 return ConvertToDictionary(pyObject, destinationType, context, culture, useMappingProtocol: true);
             }
 
+            if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPySequence(handle))
+            {
+                return ConvertToListFromSequence(pyObject, destinationType, context, culture);
+            }
+
             if (destinationType.IsAssignableTo(typeof(ITuple)))
             {
                 if (CPythonAPI.IsPyTuple(handle))
@@ -195,6 +200,21 @@ internal partial class PyObjectTypeConverter : TypeConverter
         for (var i = 0; i < CPythonAPI.PyList_Size(pyObject.DangerousGetHandle()); i++)
         {
             using PyObject item = new(CPythonAPI.PyList_GetItem(pyObject.DangerousGetHandle(), i));
+            list.Add(AsManagedObject(genericArgument, item, context, culture));
+        }
+
+        return list;
+    }
+
+    private object? ConvertToListFromSequence(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
+    {
+        Type genericArgument = destinationType.GetGenericArguments()[0];
+        Type listType = typeof(List<>).MakeGenericType(genericArgument);
+
+        IList list = (IList)Activator.CreateInstance(listType)!;
+        for (var i = 0; i < CPythonAPI.PySequence_Size(pyObject.DangerousGetHandle()); i++)
+        {
+            using PyObject item = new(CPythonAPI.PySequence_GetItem(pyObject.DangerousGetHandle(), i));
             list.Add(AsManagedObject(genericArgument, item, context, culture));
         }
 

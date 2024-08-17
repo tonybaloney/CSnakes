@@ -18,14 +18,23 @@ public class ArgumentReflection
         {
             return null;
         }
-        // Treat *args as tuple<Any> and **kwargs as dict<str, Any>
+        // Treat *args as tuple<Any>=None and **kwargs as dict<str, Any>=None
+        // TODO: Handle the user specifying *args with a type annotation like tuple[int, str]
         TypeSyntax reflectedType = parameter.ParameterType switch
         {
-        PythonFunctionParameterType.Star => TypeReflection.AsPredefinedType(TupleAny),
-        PythonFunctionParameterType.DoubleStar => TypeReflection.AsPredefinedType(DictStrAny),
-        PythonFunctionParameterType.Normal => TypeReflection.AsPredefinedType(parameter.Type),
-            _ => throw new System.NotImplementedException()
+            PythonFunctionParameterType.Star => TypeReflection.AsPredefinedType(TupleAny),
+            PythonFunctionParameterType.DoubleStar => TypeReflection.AsPredefinedType(DictStrAny),
+            PythonFunctionParameterType.Normal => TypeReflection.AsPredefinedType(parameter.Type),
+            _ => throw new NotImplementedException()
         };
+
+        // Force a default value for *args and **kwargs as null, otherwise the calling convention is strange
+        if ((parameter.ParameterType == PythonFunctionParameterType.Star || 
+             parameter.ParameterType == PythonFunctionParameterType.DoubleStar) && 
+            parameter.DefaultValue == null) 
+        {
+            parameter.DefaultValue = PythonConstant.FromNone();
+        }
 
         bool isNullableType = false;
 

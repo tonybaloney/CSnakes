@@ -29,6 +29,7 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
     [InlineData("def hello_world(a: bytes, b: bool = False, c: float = 0.1) -> None: \n ...\n", "void HelloWorld(byte[] a, bool b = false, double c = 0.1)")]
     [InlineData("def hello_world(a: str = 'default') -> None: \n ...\n", "void HelloWorld(string a = \"default\")")]
     [InlineData("def hello_world(a: str, *args) -> None: \n ...\n", "void HelloWorld(string a, ValueTuple<PyObject>? args = null)")]
+    [InlineData("def hello_world(a: str, *, b: int) -> None: \n ...\n", "void HelloWorld(string a, ValueTuple<PyObject>? args = null, long? b = null)")]
     [InlineData("def hello_world(a: str, *, b: int = 3) -> None: \n ...\n", "void HelloWorld(string a, ValueTuple<PyObject>? args = null, long b = 3)")]
     [InlineData("def hello_world(a: str, *args, **kwargs) -> None: \n ...\n", "void HelloWorld(string a, ValueTuple<PyObject>? args = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)")]
     [InlineData("def hello(a: int = 0xdeadbeef) -> None:\n ...\n", "void Hello(long a = 0xDEADBEEF)")]
@@ -68,6 +69,7 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
 
             .AddSyntaxTrees(tree);
         var result = compilation.Emit(testEnv.TempDir + "/HelloWorld.dll");
+        // TODO: Raise compiler warnings as assertion errors
         Assert.True(result.Success, compiledCode + "\n" + string.Join("\n", result.Diagnostics));
     }
 }

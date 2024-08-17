@@ -21,6 +21,18 @@ public class PyObject : SafeHandle
 
     public override bool IsInvalid => handle == IntPtr.Zero;
 
+    /// <summary>
+    /// Gets the handle, or raise exception if it has been marked as invalid.
+    /// ALWAYS use this instead of DangerousGetHandle().
+    /// </summary>
+    /// <returns></returns>
+    internal IntPtr GetHandle()
+    {
+        if (handle == IntPtr.Zero)
+            throw new ObjectDisposedException($"Unable to get reference to PyObject. Object has already been disposed or is invalid.");
+        return handle;
+    }
+
     protected override bool ReleaseHandle()
     {
         if (IsInvalid)
@@ -97,7 +109,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.GetType(DangerousGetHandle()));
+            return new PyObject(CPythonAPI.GetType(GetHandle()));
         }
     }
 
@@ -112,7 +124,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.GetAttr(handle, name));
+            return new PyObject(CPythonAPI.GetAttr(GetHandle(), name));
         }
     }
 
@@ -122,7 +134,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return CPythonAPI.HasAttr(handle, name);
+            return CPythonAPI.HasAttr(GetHandle(), name);
         }
     }
 
@@ -136,7 +148,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.PyObject_GetIter(DangerousGetHandle()));
+            return new PyObject(CPythonAPI.PyObject_GetIter(GetHandle()));
         }
     }
 
@@ -150,8 +162,8 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            using PyObject reprStr = new PyObject(CPythonAPI.PyObject_Repr(DangerousGetHandle()));
-            string? repr = CPythonAPI.PyUnicode_AsUTF8(reprStr.DangerousGetHandle());
+            using PyObject reprStr = new PyObject(CPythonAPI.PyObject_Repr(GetHandle()));
+            string? repr = CPythonAPI.PyUnicode_AsUTF8(reprStr.GetHandle());
             return repr ?? string.Empty;
         }
     }
@@ -170,11 +182,11 @@ public class PyObject : SafeHandle
         var argHandles = new IntPtr[args.Length];
         for (int i = 0; i < args.Length; i++)
         {
-            argHandles[i] = args[i].DangerousGetHandle();
+            argHandles[i] = args[i].GetHandle();
         }
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.Call(DangerousGetHandle(), argHandles));
+            return new PyObject(CPythonAPI.Call(GetHandle(), argHandles));
         }
     }
 
@@ -189,8 +201,8 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            using PyObject pyObjectStr = new(CPythonAPI.PyObject_Str(handle));
-            string? stringValue = CPythonAPI.PyUnicode_AsUTF8(pyObjectStr.DangerousGetHandle());
+            using PyObject pyObjectStr = new(CPythonAPI.PyObject_Str(GetHandle()));
+            string? stringValue = CPythonAPI.PyUnicode_AsUTF8(pyObjectStr.GetHandle());
             return stringValue ?? string.Empty;
         }
     }
@@ -199,7 +211,7 @@ public class PyObject : SafeHandle
 
     internal PyObject Clone()
     {
-        CPythonAPI.Py_IncRef(handle);
-        return new PyObject(handle);
+        CPythonAPI.Py_IncRef(GetHandle());
+        return new PyObject(GetHandle());
     }
 }

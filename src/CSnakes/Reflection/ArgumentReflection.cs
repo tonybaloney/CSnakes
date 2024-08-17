@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using CSnakes.Parser.Types;
+using System.Net.Http.Headers;
 
 namespace CSnakes.Reflection;
 
@@ -9,14 +10,19 @@ public class ArgumentReflection
     private static readonly PythonTypeSpec TupleAny = new("tuple", [PythonTypeSpec.Any]);
     private static readonly PythonTypeSpec DictStrAny = new("dict", [new("str", []), PythonTypeSpec.Any]);
 
-    public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter)
+    public static ParameterSyntax? ArgumentSyntax(PythonFunctionParameter parameter)
     {
+        // The parameter / is a special syntax, not a parameter. 
+        if (parameter.ParameterType == PythonFunctionParameterType.Slash)
+        {
+            return null;
+        }
         // Treat *args as tuple<Any> and **kwargs as dict<str, Any>
         TypeSyntax reflectedType = parameter.ParameterType switch
         {
-            PythonFunctionParameterType.Star => TypeReflection.AsPredefinedType(TupleAny),
-            PythonFunctionParameterType.DoubleStar => TypeReflection.AsPredefinedType(DictStrAny),
-            PythonFunctionParameterType.Normal => TypeReflection.AsPredefinedType(parameter.Type),
+        PythonFunctionParameterType.Star => TypeReflection.AsPredefinedType(TupleAny),
+        PythonFunctionParameterType.DoubleStar => TypeReflection.AsPredefinedType(DictStrAny),
+        PythonFunctionParameterType.Normal => TypeReflection.AsPredefinedType(parameter.Type),
             _ => throw new System.NotImplementedException()
         };
 
@@ -87,6 +93,16 @@ public class ArgumentReflection
 
     public static ParameterListSyntax ParameterListSyntax(PythonFunctionParameter[] parameters)
     {
-        return SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters.Select(ArgumentSyntax).ToList()));
+        List<ParameterSyntax> parametersList = [];
+        foreach (var parameter in parameters)
+        {
+            var argument = ArgumentSyntax(parameter);
+            if (argument != null)
+            {
+                parametersList.Add(argument);
+            }
+        }
+
+        return SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parametersList));
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using CSnakes.Parser.Types;
 using System.Net.Http.Headers;
+using Microsoft.CodeAnalysis;
 
 namespace CSnakes.Reflection;
 
@@ -25,6 +26,8 @@ public class ArgumentReflection
         PythonFunctionParameterType.Normal => TypeReflection.AsPredefinedType(parameter.Type),
             _ => throw new System.NotImplementedException()
         };
+
+        bool isNullableType = false;
 
         if (parameter.DefaultValue == null)
         {
@@ -66,6 +69,7 @@ public class ArgumentReflection
                     break;
                 case PythonConstant.ConstantType.None:
                     literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+                    isNullableType = true;
                     break;
                 case PythonConstant.ConstantType.HexidecimalInteger:
                     literalExpressionSyntax = SyntaxFactory.LiteralExpression(
@@ -79,9 +83,14 @@ public class ArgumentReflection
                     break;
                 default:
                     literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+                    isNullableType = true;
                     break;
             }
 
+            if (isNullableType)
+            {
+                reflectedType = SyntaxFactory.NullableType(reflectedType);
+            }
 
             return SyntaxFactory
                 .Parameter(SyntaxFactory.Identifier(Keywords.ValidIdentifier(parameter.Name.ToLowerPascalCase())))

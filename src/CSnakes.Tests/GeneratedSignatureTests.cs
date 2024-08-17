@@ -10,7 +10,7 @@ using System.ComponentModel;
 
 namespace CSnakes.Tests;
 
-public class BasicSmokeTest(TestEnvironment testEnv) : IClassFixture<TestEnvironment>
+public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<TestEnvironment>
 {
     [Theory]
     [InlineData("def hello_world():\n    ...\n", "PyObject HelloWorld()")]

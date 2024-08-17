@@ -70,6 +70,7 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
             .AddSyntaxTrees(tree);
         var result = compilation.Emit(testEnv.TempDir + "/HelloWorld.dll");
         // TODO: Raise compiler warnings as assertion errors
+        result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList().ForEach(d => Assert.Fail(d.ToString()));
         Assert.True(result.Success, compiledCode + "\n" + string.Join("\n", result.Diagnostics));
     }
 }

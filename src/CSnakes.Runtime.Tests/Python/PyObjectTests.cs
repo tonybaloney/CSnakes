@@ -54,4 +54,16 @@ public class PyObjectTests : RuntimeTestBase
             Assert.Contains("'hello'", pyObjDoc);
         }
     }
+
+    [Fact]
+    public void CannotUnsafelyGetHandleFromDisposedPyObject()
+    {
+        using (GIL.Acquire())
+        {
+            using PyObject? pyObj = td.ConvertFromString("hello") as PyObject;
+            Assert.NotNull(pyObj);
+            pyObj.Dispose();
+            Assert.Throws<ObjectDisposedException>(() => pyObj!.ToString());
+        }
+    }
 }

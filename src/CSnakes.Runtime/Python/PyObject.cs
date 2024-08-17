@@ -105,7 +105,6 @@ public class PyObject : SafeHandle
     /// <returns>A new reference to the type field.</returns>
     public PyObject GetPythonType()
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
@@ -120,7 +119,6 @@ public class PyObject : SafeHandle
     /// <returns>Attribute object (new ref)</returns>
     public PyObject GetAttr(string name)
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
@@ -130,7 +128,6 @@ public class PyObject : SafeHandle
 
     public bool HasAttr(string name)
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
@@ -144,7 +141,6 @@ public class PyObject : SafeHandle
     /// <returns>The iterator object (new ref)</returns>
     public PyObject GetIter()
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
@@ -158,7 +154,6 @@ public class PyObject : SafeHandle
     /// <returns></returns>
     public string GetRepr()
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
@@ -177,7 +172,6 @@ public class PyObject : SafeHandle
     {
         RaiseOnPythonNotInitialized();
         // TODO: Consider moving this to a logger.
-        Debug.Assert(!IsInvalid);
         // TODO: Stack allocate short parameter lists (<10?)
         var argHandles = new IntPtr[args.Length];
         for (int i = 0; i < args.Length; i++)
@@ -197,7 +191,6 @@ public class PyObject : SafeHandle
     public override string ToString()
     {
         // TODO: Consider moving this to a logger.
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {

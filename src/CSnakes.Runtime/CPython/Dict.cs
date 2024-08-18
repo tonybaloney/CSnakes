@@ -18,13 +18,13 @@ internal unsafe partial class CPythonAPI
         return PyObject_IsInstance(p, PyDictType);
     }
 
-    internal static nint PackDict(IReadOnlyDictionary<string, nint> items)
+    internal static nint PackDict(Span<string> kwnames, Span<IntPtr> kwvalues)
     {
         var dict = PyDict_New();
-        foreach (var (key, value) in items)
+        for (int i = 0; i < kwnames.Length; i ++)
         {
-            var keyObj = AsPyUnicodeObject(key);
-            int result = PyDict_SetItem(dict, keyObj, value);
+            var keyObj = AsPyUnicodeObject(kwnames[i]);
+            int result = PyDict_SetItem(dict, keyObj, kwvalues[i]);
             if (result == -1)
             {
                 Py_DecRef(dict);

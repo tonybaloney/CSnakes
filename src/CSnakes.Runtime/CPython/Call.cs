@@ -35,7 +35,7 @@ internal unsafe partial class CPythonAPI
         }
     }
 
-    internal static IntPtr Call(IntPtr callable, Span<IntPtr> args, IReadOnlyDictionary<string, nint> kwargs)
+    internal static IntPtr Call(IntPtr callable, Span<IntPtr> args, Span<string> kwnames, Span<IntPtr> kwvalues)
     {
         if (callable == IntPtr.Zero)
         {
@@ -43,9 +43,9 @@ internal unsafe partial class CPythonAPI
         }
 
         // These options are used for efficiency. Don't create a tuple if its not required. 
-        if (false && PythonVersion.Major == 3 && PythonVersion.Minor > 10)
+        if (false /* TODO: Implement vectorcall for kwargs*/ && 
+            PythonVersion.Major == 3 && PythonVersion.Minor > 10)
         {
-            // TODO: Implement vectorcall for kwargs
             fixed (IntPtr* argsPtr = args)
             {
                 return PyObject_Vectorcall(callable, argsPtr, (nuint)args.Length, IntPtr.Zero);
@@ -54,7 +54,7 @@ internal unsafe partial class CPythonAPI
         else
         {
             var argsTuple = PackTuple(args);
-            var kwargsDict = PackDict(kwargs);
+            var kwargsDict = PackDict(kwnames, kwvalues);
             var result = PyObject_Call(callable, argsTuple, kwargsDict);
             Py_DecRef(argsTuple);
             Py_DecRef(kwargsDict);

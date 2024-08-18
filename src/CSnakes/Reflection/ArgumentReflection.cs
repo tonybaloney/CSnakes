@@ -1,15 +1,14 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using CSnakes.Parser.Types;
-using System.Net.Http.Headers;
-using Microsoft.CodeAnalysis;
 
 namespace CSnakes.Reflection;
 
 public class ArgumentReflection
 {
-    private static readonly PythonTypeSpec TupleAny = new("tuple", [PythonTypeSpec.Any]);
+    private static readonly PythonTypeSpec ListAny = new("list", [PythonTypeSpec.Any]);
     private static readonly PythonTypeSpec DictStrAny = new("dict", [new("str", []), PythonTypeSpec.Any]);
+    private static readonly TypeSyntax ArrayPyObject = SyntaxFactory.ParseTypeName("PyObject[]");
 
     public static ParameterSyntax? ArgumentSyntax(PythonFunctionParameter parameter)
     {
@@ -18,20 +17,21 @@ public class ArgumentReflection
         {
             return null;
         }
-        // Treat *args as tuple<Any>=None and **kwargs as dict<str, Any>=None
+
+        // Treat *args as list<Any>=None and **kwargs as dict<str, Any>=None
         // TODO: Handle the user specifying *args with a type annotation like tuple[int, str]
         TypeSyntax reflectedType = parameter.ParameterType switch
         {
-            PythonFunctionParameterType.Star => TypeReflection.AsPredefinedType(TupleAny),
+            PythonFunctionParameterType.Star => ArrayPyObject,
             PythonFunctionParameterType.DoubleStar => TypeReflection.AsPredefinedType(DictStrAny),
             PythonFunctionParameterType.Normal => TypeReflection.AsPredefinedType(parameter.Type),
             _ => throw new NotImplementedException()
         };
 
         // Force a default value for *args and **kwargs as null, otherwise the calling convention is strange
-        if ((parameter.ParameterType == PythonFunctionParameterType.Star || 
-             parameter.ParameterType == PythonFunctionParameterType.DoubleStar) && 
-            parameter.DefaultValue == null) 
+        if ((parameter.ParameterType == PythonFunctionParameterType.Star ||
+             parameter.ParameterType == PythonFunctionParameterType.DoubleStar) &&
+            parameter.DefaultValue == null)
         {
             parameter.DefaultValue = PythonConstant.FromNone();
         }

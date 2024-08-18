@@ -165,6 +165,7 @@ public class PyObject : SafeHandle
 
     /// <summary>
     /// Call the object. Equivalent to (__call__)(args)
+    /// All arguments are treated as positional.
     /// </summary>
     /// <param name="args"></param>
     /// <returns>The resulting object, or NULL on error.</returns>
@@ -181,6 +182,28 @@ public class PyObject : SafeHandle
         using (GIL.Acquire())
         {
             return new PyObject(CPythonAPI.Call(GetHandle(), argHandles));
+        }
+    }
+
+    public PyObject Call(Span<PyObject> args, IReadOnlyDictionary<string, PyObject>? kwargs = null)
+    {
+        RaiseOnPythonNotInitialized();
+        var argHandles = new IntPtr[args.Length];
+        for (int i = 0; i < args.Length; i++)
+        {
+            argHandles[i] = args[i].GetHandle();
+        }
+
+        using (GIL.Acquire())
+        {
+            if (kwargs == null)
+            {
+                return new PyObject(CPythonAPI.Call(GetHandle(), argHandles));
+            } else
+            {
+                IReadOnlyDictionary<string, nint> kwargHandles = kwargs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.GetHandle());
+                return new PyObject(CPythonAPI.Call(GetHandle(), argHandles, kwargHandles));
+            }
         }
     }
 

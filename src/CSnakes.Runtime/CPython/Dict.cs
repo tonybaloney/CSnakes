@@ -18,6 +18,24 @@ internal unsafe partial class CPythonAPI
         return PyObject_IsInstance(p, PyDictType);
     }
 
+    internal static nint PackDict(IReadOnlyDictionary<string, nint> items)
+    {
+        var dict = PyDict_New();
+        foreach (var (key, value) in items)
+        {
+            var keyObj = AsPyUnicodeObject(key);
+            int result = PyDict_SetItem(dict, keyObj, value);
+            if (result == -1)
+            {
+                Py_DecRef(dict);
+                PyErr_Clear();
+                throw new Exception("Failed to create dictionary.");
+            }
+            Py_DecRef(keyObj);
+        }
+        return dict;
+    }
+
     /// <summary>
     /// Return the number of items in the dictionary as ssize_t
     /// </summary>

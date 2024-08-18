@@ -9,6 +9,13 @@ public class ArgsTests : IntegrationTestBase
     }
 
     [Fact]
+    public void CollectStarArgs()
+    {
+        var mod = Env.TestArgs();
+        Assert.Equal(6, mod.CollectStarArgs(1, 2));
+    }
+
+    [Fact]
     public void KeywordOnly()
     {
         var mod = Env.TestArgs();

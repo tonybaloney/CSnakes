@@ -83,6 +83,23 @@ public static class MethodReflection
         }
 
         var pythonFunctionCallArguments = new List<ArgumentSyntax>();
+        // First argument should be *args or null if that is not present
+        ArgumentSyntax? starArg = null;
+        ArgumentSyntax? starStarKwargs = null;
+
+        if (parameterList.Any((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.Star))
+        {
+            starArg = Argument(IdentifierName(parameterList.First((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.Star).pythonParameter.Name));
+        }
+
+        if (parameterList.Any((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.DoubleStar))
+        {
+            starStarKwargs = Argument(IdentifierName(parameterList.First((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.DoubleStar).pythonParameter.Name));
+        }
+
+        if (starArg != null) pythonFunctionCallArguments.Add(starArg);
+        if (starStarKwargs != null) pythonFunctionCallArguments.Add(starStarKwargs);
+
         foreach (var parameter in parameterList)
         {
             if (parameter.pythonParameter.ParameterType != PythonFunctionParameterType.Normal)
@@ -90,16 +107,6 @@ public static class MethodReflection
                 continue;
             }
             pythonFunctionCallArguments.Add(Argument(IdentifierName($"{parameter.cSharpParameter.Identifier}_pyObject")));
-        }
-
-        // If we have *args, use [arg1, arg2, .. args]
-        if (function.Parameters.Any(p => p.ParameterType == PythonFunctionParameterType.Star))
-        {
-            var starArg = parameterList.First(p => p.pythonParameter.ParameterType == PythonFunctionParameterType.Star);
-            SeparatedSyntaxList<CollectionElementSyntax> collection = SeparatedList<CollectionElementSyntax>()
-                .AddRange(pythonFunctionCallArguments.Select((a) => ExpressionElement(a.Expression)))
-                .Add(SpreadElement(IdentifierName(starArg.pythonParameter.Name)));
-            pythonFunctionCallArguments = [Argument(CollectionExpression(collection))];
         }
 
         ReturnStatementSyntax returnExpression = returnSyntax switch
@@ -194,7 +201,7 @@ public static class MethodReflection
                     Token(SyntaxKind.PublicKeyword))
                 )
             .WithBody(body)
-            .WithParameterList(ParameterList(SeparatedList(parameterList.Select((a) => a.Item2))));
+            .WithParameterList(ParameterList(SeparatedList(parameterList.Select((a) => a.cSharpParameter))));
 
         return new(syntax, parameterGenericArgs);
     }

@@ -185,13 +185,44 @@ public class PyObject : SafeHandle
         }
     }
 
-    public PyObject Call(Span<PyObject> args, IReadOnlyDictionary<string, PyObject>? kwargs = null)
+    public PyObject Call(PyObject[]? args = null, params PyObject[] positionalArgs)
     {
+        if (args == null)
+            return Call(positionalArgs);
         RaiseOnPythonNotInitialized();
-        var argHandles = new IntPtr[args.Length];
-        for (int i = 0; i < args.Length; i++)
+        int argsLen = args?.Length ?? 0;
+        var argHandles = new IntPtr[argsLen + positionalArgs.Length];
+
+        for (int i = 0; i < argsLen; i++)
         {
-            argHandles[i] = args[i].GetHandle();
+            argHandles[i] = args![i].GetHandle();
+        }
+        for (int i = 0; i < positionalArgs.Length; i++)
+        {
+            argHandles[i + argsLen] = positionalArgs[i].GetHandle();
+        }
+
+        using (GIL.Acquire())
+        {
+            return new PyObject(CPythonAPI.Call(GetHandle(), argHandles));
+        }
+    }
+
+    public PyObject Call(PyObject[]? args = null, IReadOnlyDictionary<string, PyObject>? kwargs = null, params PyObject[] positionalArgs)
+    {
+        if (args == null && kwargs == null)
+            return Call(positionalArgs);
+        RaiseOnPythonNotInitialized();
+        int argsLen = args?.Length ?? 0;
+        var argHandles = new IntPtr[argsLen + positionalArgs.Length];
+
+        for (int i = 0; i < argsLen; i++)
+        {
+            argHandles[i] = args![i].GetHandle();
+        }
+        for (int i = 0; i < positionalArgs.Length; i++)
+        {
+            argHandles[i + argsLen] = positionalArgs[i].GetHandle();
         }
 
         using (GIL.Acquire())
@@ -204,6 +235,23 @@ public class PyObject : SafeHandle
                 IReadOnlyDictionary<string, nint> kwargHandles = kwargs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.GetHandle());
                 return new PyObject(CPythonAPI.Call(GetHandle(), argHandles, kwargHandles));
             }
+        }
+    }
+
+    public PyObject Call(IReadOnlyDictionary<string, PyObject>? kwargs = null, params PyObject[] positionalArgs)
+    {
+        if (kwargs == null)
+            return Call(positionalArgs);
+        RaiseOnPythonNotInitialized();
+        var argHandles = new IntPtr[positionalArgs.Length];
+        for (int i = 0; i < positionalArgs.Length; i++)
+        {
+            argHandles[i] = positionalArgs[i].GetHandle();
+        }
+        using (GIL.Acquire())
+        {
+            IReadOnlyDictionary<string, nint> kwargHandles = kwargs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.GetHandle());
+            return new PyObject(CPythonAPI.Call(GetHandle(), argHandles, kwargHandles));
         }
     }
 

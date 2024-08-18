@@ -6,7 +6,6 @@ namespace CSnakes.Reflection;
 
 public class ArgumentReflection
 {
-    private static readonly PythonTypeSpec ListAny = new("list", [PythonTypeSpec.Any]);
     private static readonly PythonTypeSpec DictStrAny = new("dict", [new("str", []), PythonTypeSpec.Any]);
     private static readonly TypeSyntax ArrayPyObject = SyntaxFactory.ParseTypeName("PyObject[]");
 
@@ -116,18 +115,18 @@ public class ArgumentReflection
         }
     }
 
-    public static ParameterListSyntax ParameterListSyntax(PythonFunctionParameter[] parameters)
+    public static List<(PythonFunctionParameter, ParameterSyntax)> FunctionParametersAsParameterSyntaxPairs(PythonFunctionParameter[] parameters)
     {
-        List<ParameterSyntax> parametersList = [];
+        List<(PythonFunctionParameter, ParameterSyntax)> parametersList = [];
         foreach (var parameter in parameters)
         {
             var argument = ArgumentSyntax(parameter);
             if (argument != null)
             {
-                parametersList.Add(argument);
+                parametersList.Add((parameter, argument));
             }
         }
 
-        return SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parametersList));
+        return parametersList;
     }
 }

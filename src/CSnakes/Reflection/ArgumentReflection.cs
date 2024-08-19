@@ -30,14 +30,16 @@ public class ArgumentReflection
         // Force a default value for *args and **kwargs as null, otherwise the calling convention is strange
         if ((parameter.ParameterType == PythonFunctionParameterType.Star ||
              parameter.ParameterType == PythonFunctionParameterType.DoubleStar) &&
-            parameter.DefaultValue == null)
+            parameter.DefaultValue is null)
+
         {
             parameter.DefaultValue = PythonConstant.FromNone();
         }
 
         // Keyword only arguments must have a default parameter, otherwise C# will give a compilation error
         // e.g., error CS1737: Optional parameters must appear after all required parameters
-        if (parameter.IsKeywordOnly && parameter.DefaultValue == null)
+        if (parameter.IsKeywordOnly && parameter.DefaultValue is null)
+
         {
             parameter.DefaultValue = PythonConstant.FromNone();
         }

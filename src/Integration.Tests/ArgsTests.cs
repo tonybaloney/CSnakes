@@ -18,7 +18,8 @@ public class ArgsTests : IntegrationTestBase
         var td = TypeDescriptor.GetConverter(typeof(PyObject));
 
         using (GIL.Acquire()) {
-            using PyObject? arg1 = td.ConvertFrom(3L) as PyObject;
+            using PyObject arg1 = (PyObject)td.ConvertFrom(3L);
+
             Assert.Equal(6, mod.CollectStarArgs(1, 2, [arg1]));
 
         }
@@ -32,8 +33,8 @@ public class ArgsTests : IntegrationTestBase
 
         using (GIL.Acquire())
         {
-            using PyObject? arg1 = td.ConvertFrom(3L) as PyObject;
-            Assert.NotNull(arg1);
+            using PyObject arg1 = (PyObject)td.ConvertFrom(3L);
+
             Assert.Equal(6, mod.CollectStarStarKwargs(1, 2, new Dictionary<string, PyObject> { { "c", arg1 } }));
 
         }
@@ -47,8 +48,8 @@ public class ArgsTests : IntegrationTestBase
 
         using (GIL.Acquire())
         {
-            using PyObject? arg1 = td.ConvertFrom(3L) as PyObject;
-            Assert.NotNull(arg1);
+            using PyObject arg1 = (PyObject)td.ConvertFrom(3L);
+
             Assert.Equal(9, mod.PositionalAndKwargs(a: 1, b: 2, c: 3, kwargs: new Dictionary<string, PyObject> { { "d", arg1 } }));
         }
     }

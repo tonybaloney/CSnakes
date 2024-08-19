@@ -1,5 +1,5 @@
 ﻿namespace CSnakes.Parser.Types;
-public class PythonFunctionParameter(string name, PythonTypeSpec? type, PythonConstant defaultValue, PythonFunctionParameterType parameterType)
+public class PythonFunctionParameter(string name, PythonTypeSpec? type, PythonConstant? defaultValue, PythonFunctionParameterType parameterType)
 {
     public string Name { get; } = name;
 

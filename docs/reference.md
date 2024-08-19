@@ -18,6 +18,7 @@ CSnakes supports the following typed scenarios:
 | `typing.Dict[K, V]`    | `IReadOnlyDictionary<K, V>` |
 | `typing.Mapping[K, V]` | `IReadOnlyDictionary<K, V>` |
 | `typing.Tuple[T1, T2, ...]` | `(T1, T2, ...)` |
+| `typing.Optional[T]`   | `T?`              |
 | `None` (Return)        | `void`            |
 
 

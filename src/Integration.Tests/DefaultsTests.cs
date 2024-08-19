@@ -21,4 +21,32 @@ public class DefaultsTests : IntegrationTestBase
         var testDefaults = Env.TestDefaults();
         Assert.Equal(-1, testDefaults.TestDefaultFloatArg());
     }
+
+    [Fact]
+    public void TestDefault_OptionalInt()
+    {
+        var testDefaults = Env.TestDefaults();
+        Assert.True(testDefaults.TestOptionalInt());
+    }
+
+    [Fact]
+    public void TestDefault_OptionalStr()
+    {
+        var testDefaults = Env.TestDefaults();
+        Assert.True(testDefaults.TestOptionalStr());
+    }
+
+    [Fact]
+    public void TestDefault_OptionalList()
+    {
+        var testDefaults = Env.TestDefaults();
+        Assert.True(testDefaults.TestOptionalList());
+    }
+
+    [Fact]
+    public void TestDefault_OptionalAny()
+    {
+        var testDefaults = Env.TestDefaults();
+        Assert.True(testDefaults.TestOptionalAny());
+    }
 }

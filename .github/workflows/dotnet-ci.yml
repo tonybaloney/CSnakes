@@ -17,15 +17,15 @@ jobs:
         python: ["3.9", "3.10", "3.11", "3.12", "3.13.0-rc.1"]
         dotnet: ["8.0.x"]
         include:
-          - os: windows-latest
-            python: "3.12"
-            dotnet: "6.0.x"
-          - os: windows-latest
-            python: "3.12"
-            dotnet: "7.0.x"
-          - os: windows-latest
-            python: "3.12"
-            dotnet: "9.0.x"
+            - os: windows-latest
+              python: "3.12"
+              dotnet: "6.0.x"
+            - os: windows-latest
+              python: "3.12"
+              dotnet: "7.0.x"
+            - os: windows-latest
+              python: "3.12"
+              dotnet: "9.0.x"
       fail-fast: false
     runs-on: "${{ matrix.os }}"
 
@@ -41,10 +41,13 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet }}
       - name: Restore dependencies
-        run: find . -name "*.sln" -type f | while read -r line; do echo "dotnet restore $line" && dotnet restore $line; done
+        run: dotnet restore
+        working-directory: src
       - name: Build
-        run: find . -name "*.sln" -type f | while read -r line; do echo "dotnet build $line" dotnet build --no-restore $line; done
+        run: dotnet build --no-restore
+        working-directory: src
       - name: Test
-        run: find . -name "*.sln" -type f | while read -r line; do echo "dotnet test $line" dotnet test --no-build --verbosity normal $line; done
+        run: dotnet test --no-build --verbosity normal
+        working-directory: src
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}

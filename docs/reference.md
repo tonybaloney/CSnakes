@@ -125,16 +125,6 @@ var pythonBuilder = services.WithPython();
 pythonBuilder.FromNuGet("3.12.4")
 ```
 
-### Path Locator
-
-The Path Locator is used to find the Python runtime based on the `$PATH` environment variable, typically for Linux. This is useful for scenarios where you have installed Python from the package manager on Linux.
-
-```csharp
-...
-var pythonBuilder = services.WithPython();
-pythonBuilder.FromPath("3.12")
-```
-
 ## Parallelism and concurrency
 
 CSnakes is designed to be thread-safe and can be used in parallel execution scenarios. 

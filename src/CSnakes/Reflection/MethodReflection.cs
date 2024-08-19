@@ -181,6 +181,28 @@ public static class MethodReflection
                 Block(statements)
                 ));
 
+        // Sort the method parameters into this order
+        // 1. All positional arguments
+        // 2. All keyword-only arguments
+        // 3. Any *args argument
+        // 4. Any **kwargs argument
+        var methodParameters = parameterList
+            .Where((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.Normal && !a.pythonParameter.IsKeywordOnly)
+            .Select((a) => a.cSharpParameter)
+            .Concat(
+                parameterList
+                    .Where((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.Normal && a.pythonParameter.IsKeywordOnly)
+                    .Select((a) => a.cSharpParameter)
+            ).Concat(
+                parameterList
+                    .Where((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.Star)
+                    .Select((a) => a.cSharpParameter)
+            ).Concat(
+                parameterList
+                    .Where((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.DoubleStar)
+                    .Select((a) => a.cSharpParameter)
+            );
+
         var syntax = MethodDeclaration(
             returnSyntax,
             Identifier(function.Name.ToPascalCase()))
@@ -189,7 +211,7 @@ public static class MethodReflection
                     Token(SyntaxKind.PublicKeyword))
                 )
             .WithBody(body)
-            .WithParameterList(ParameterList(SeparatedList(parameterList.Select((a) => a.cSharpParameter))));
+            .WithParameterList(ParameterList(SeparatedList(methodParameters)));
 
         return new(syntax, parameterGenericArgs);
     }
@@ -275,7 +297,7 @@ public static class MethodReflection
 
         if (parameterList.Any((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.Star))
         {
-            collection.Add(
+            collection = collection.Add(
                 SpreadElement(
                     BinaryExpression(
                         SyntaxKind.CoalesceExpression,

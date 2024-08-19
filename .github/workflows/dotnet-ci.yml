@@ -73,6 +73,8 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet }}
+      - name: Install Aspire workload
+        run: dotnet workload install aspire
       - name: Restore dependencies
         run: dotnet restore "${{ matrix.sample }}"
         working-directory: samples

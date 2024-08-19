@@ -35,6 +35,33 @@ internal unsafe partial class CPythonAPI
         }
     }
 
+    internal static IntPtr Call(IntPtr callable, Span<IntPtr> args, Span<string> kwnames, Span<IntPtr> kwvalues)
+    {
+        if (callable == IntPtr.Zero)
+        {
+            throw new ArgumentNullException(nameof(callable));
+        }
+
+        // These options are used for efficiency. Don't create a tuple if its not required. 
+        if (false /* TODO: Implement vectorcall for kwargs*/ && 
+            PythonVersion.Major == 3 && PythonVersion.Minor > 10)
+        {
+            fixed (IntPtr* argsPtr = args)
+            {
+                return PyObject_Vectorcall(callable, argsPtr, (nuint)args.Length, IntPtr.Zero);
+            }
+        }
+        else
+        {
+            var argsTuple = PackTuple(args);
+            var kwargsDict = PackDict(kwnames, kwvalues);
+            var result = PyObject_Call(callable, argsTuple, kwargsDict);
+            Py_DecRef(argsTuple);
+            Py_DecRef(kwargsDict);
+            return result;
+        }
+    }
+
     /// <summary>
     /// Call a callable with no arguments (3.9+)
     /// </summary>

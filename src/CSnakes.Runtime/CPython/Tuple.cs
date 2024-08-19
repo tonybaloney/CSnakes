@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using CSnakes.Runtime.Python;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
@@ -71,9 +72,7 @@ internal unsafe partial class CPythonAPI
         nint item = PyTuple_GetItem_(ob, pos);
         if (item == IntPtr.Zero)
         {
-            // TODO : revisit whether we want to capture other sorts of exceptions in this, dict and list.
-            PyErr_Clear();
-            throw new IndexOutOfRangeException();
+            PyObject.ThrowPythonExceptionAsClrException();
         }
         Py_IncRef(item);
         return item;

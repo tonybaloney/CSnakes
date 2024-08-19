@@ -9,8 +9,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace CSnakes.Runtime;
-internal class PyObjectTypeConverter : TypeConverter
+internal partial class PyObjectTypeConverter : TypeConverter
 {
+
     /// <summary>
     /// Convert a Python object to a CLR managed object.
     /// Caller should already hold the GIL because this function uses the Python runtime for some conversions.
@@ -29,12 +30,12 @@ internal class PyObjectTypeConverter : TypeConverter
             throw new NotSupportedException();
         }
 
-        if (destinationType == typeof(PyObject))
+        if (destinationType == pyObjectType)
         {
             return pyObject.Clone();
         }
 
-        nint handle = pyObject.DangerousGetHandle();
+        nint handle = pyObject.GetHandle();
         if (destinationType == typeof(string) && CPythonAPI.IsPyUnicode(handle))
         {
             return CPythonAPI.PyUnicode_AsUTF8(handle);
@@ -67,14 +68,25 @@ internal class PyObjectTypeConverter : TypeConverter
 
         if (destinationType.IsGenericType)
         {
-            if (destinationType.IsAssignableTo(typeof(IEnumerable)) && CPythonAPI.IsPyDict(handle))
+            if (IsAssignableToGenericType(destinationType, dictionaryType) && CPythonAPI.IsPyDict(handle))
             {
                 return ConvertToDictionary(pyObject, destinationType, context, culture);
             }
 
-            if (destinationType.IsAssignableTo(typeof(IEnumerable)) && CPythonAPI.IsPyList(handle))
+            if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPyList(handle))
             {
                 return ConvertToList(pyObject, destinationType, context, culture);
+            }
+
+            // This needs to come after lists, because sequences are also maps
+            if (destinationType.IsAssignableTo(collectionType) && CPythonAPI.IsPyMappingWithItems(handle))
+            {
+                return ConvertToDictionary(pyObject, destinationType, context, culture, useMappingProtocol: true);
+            }
+
+            if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPySequence(handle))
+            {
+                return ConvertToListFromSequence(pyObject, destinationType, context, culture);
             }
 
             if (destinationType.IsAssignableTo(typeof(ITuple)))
@@ -98,21 +110,21 @@ internal class PyObjectTypeConverter : TypeConverter
         throw new InvalidCastException($"Attempting to cast {destinationType} from {pyObject.GetPythonType()}");
     }
 
-    private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
+    private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture, bool useMappingProtocol = false)
     {
-        using PyObject items = new(CPythonAPI.PyDict_Items(pyObject.DangerousGetHandle()));
+        using PyObject items = useMappingProtocol ? new(CPythonAPI.PyMapping_Items(pyObject.GetHandle())) : new(CPythonAPI.PyDict_Items(pyObject.GetHandle()));
         Type item1Type = destinationType.GetGenericArguments()[0];
         Type item2Type = destinationType.GetGenericArguments()[1];
         Type dictType = typeof(Dictionary<,>).MakeGenericType(item1Type, item2Type);
         IDictionary dict = (IDictionary)Activator.CreateInstance(dictType)!;
-        nint itemsLength = CPythonAPI.PyList_Size(items.DangerousGetHandle());
+        nint itemsLength = CPythonAPI.PyList_Size(items.GetHandle());
 
         for (nint i = 0; i < itemsLength; i++)
         {
-            using PyObject item = new(CPythonAPI.PyList_GetItem(items.DangerousGetHandle(), i));
+            using PyObject item = new(CPythonAPI.PyList_GetItem(items.GetHandle(), i));
 
-            using PyObject item1 = new(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 0));
-            using PyObject item2 = new(CPythonAPI.PyTuple_GetItem(item.DangerousGetHandle(), 1));
+            using PyObject item1 = new(CPythonAPI.PyTuple_GetItem(item.GetHandle(), 0));
+            using PyObject item2 = new(CPythonAPI.PyTuple_GetItem(item.GetHandle(), 1));
 
             object? convertedItem1 = AsManagedObject(item1Type, item1, context, culture);
             object? convertedItem2 = AsManagedObject(item2Type, item2, context, culture);
@@ -126,7 +138,7 @@ internal class PyObjectTypeConverter : TypeConverter
 
     private object? ConvertToTuple(ITypeDescriptorContext? context, CultureInfo? culture, PyObject pyObj, Type destinationType)
     {
-        var tuplePtr = pyObj.DangerousGetHandle();
+        var tuplePtr = pyObj.GetHandle();
 
         // We have to convert the Python values to CLR values, as if we just tried As<object>() it would
         // not parse the Python type to a CLR type, only to a new Python type.
@@ -185,9 +197,24 @@ internal class PyObjectTypeConverter : TypeConverter
         Type listType = typeof(List<>).MakeGenericType(genericArgument);
 
         IList list = (IList)Activator.CreateInstance(listType)!;
-        for (var i = 0; i < CPythonAPI.PyList_Size(pyObject.DangerousGetHandle()); i++)
+        for (var i = 0; i < CPythonAPI.PyList_Size(pyObject.GetHandle()); i++)
         {
-            using PyObject item = new(CPythonAPI.PyList_GetItem(pyObject.DangerousGetHandle(), i));
+            using PyObject item = new(CPythonAPI.PyList_GetItem(pyObject.GetHandle(), i));
+            list.Add(AsManagedObject(genericArgument, item, context, culture));
+        }
+
+        return list;
+    }
+
+    private object? ConvertToListFromSequence(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
+    {
+        Type genericArgument = destinationType.GetGenericArguments()[0];
+        Type listType = typeof(List<>).MakeGenericType(genericArgument);
+
+        IList list = (IList)Activator.CreateInstance(listType)!;
+        for (var i = 0; i < CPythonAPI.PySequence_Size(pyObject.GetHandle()); i++)
+        {
+            using PyObject item = new(CPythonAPI.PySequence_GetItem(pyObject.GetHandle(), i));
             list.Add(AsManagedObject(genericArgument, item, context, culture));
         }
 
@@ -216,7 +243,7 @@ internal class PyObjectTypeConverter : TypeConverter
 
         foreach (DictionaryEntry kvp in dictionary)
         {
-            int result = CPythonAPI.PyDict_SetItem(pyDict.DangerousGetHandle(), ToPython(kvp.Key, context, culture).DangerousGetHandle(), ToPython(kvp.Value, context, culture).DangerousGetHandle());
+            int result = CPythonAPI.PyDict_SetItem(pyDict.GetHandle(), ToPython(kvp.Key, context, culture).GetHandle(), ToPython(kvp.Value, context, culture).GetHandle());
             if (result == -1)
             {
                 throw new Exception("Failed to set item in dictionary");
@@ -233,7 +260,7 @@ internal class PyObjectTypeConverter : TypeConverter
         foreach (var item in e)
         {
             PyObject converted = ToPython(item, context, culture);
-            int result = CPythonAPI.PyList_Append(pyList.DangerousGetHandle(), converted!.DangerousGetHandle());
+            int result = CPythonAPI.PyList_Append(pyList.GetHandle(), converted!.GetHandle());
             if (result == -1)
             {
                 throw new Exception("Failed to set item in list");
@@ -268,7 +295,12 @@ internal class PyObjectTypeConverter : TypeConverter
             destinationType == typeof(bool) ||
             destinationType == typeof(double) ||
             destinationType == typeof(byte[]) ||
-            destinationType.IsGenericType
+            (destinationType.IsGenericType && (
+                IsAssignableToGenericType(destinationType, dictionaryType) ||
+                IsAssignableToGenericType(destinationType, listType) ||
+                destinationType.IsAssignableTo(collectionType) ||
+                destinationType.IsAssignableTo(typeof(ITuple))
+            ))
         );
 
     public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) =>
@@ -279,7 +311,12 @@ internal class PyObjectTypeConverter : TypeConverter
             sourceType == typeof(bool) ||
             sourceType == typeof(double) ||
             sourceType == typeof(byte[]) ||
-            sourceType.IsGenericType
+            (sourceType.IsGenericType && (
+                IsAssignableToGenericType(sourceType, dictionaryType) ||
+                IsAssignableToGenericType(sourceType, listType) ||
+                sourceType.IsAssignableTo(collectionType) ||
+                sourceType.IsAssignableTo(typeof(ITuple))
+            ))
         );
 
     private PyObject ToPython(object? o, ITypeDescriptorContext? context, CultureInfo? culture)

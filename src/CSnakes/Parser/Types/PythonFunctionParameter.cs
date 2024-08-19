@@ -9,7 +9,7 @@ public class PythonFunctionParameter(string name, PythonTypeSpec? type, PythonCo
 
     public bool IsKeywordOnly { get; set; }
 
-    public PythonConstant DefaultValue { get; set; } = defaultValue;
+    public PythonConstant? DefaultValue { get; set; } = defaultValue;
 
     public PythonFunctionParameterType ParameterType { get; } = parameterType;
 

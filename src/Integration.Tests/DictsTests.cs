@@ -17,7 +17,7 @@ public class TestDicts : IntegrationTestBase
     {
         var testDicts = Env.TestDicts();
 
-        IReadOnlyDictionary<string, IEnumerable<long>> testListDict = new Dictionary<string, IEnumerable<long>> { { "hello", new List<long> { 1, 2, 3 } }, { "world2", new List<long> { 4, 5, 6 } } };
+        IReadOnlyDictionary<string, IReadOnlyCollection<long>> testListDict = new Dictionary<string, IReadOnlyCollection<long>> { { "hello", new List<long> { 1, 2, 3 } }, { "world2", new List<long> { 4, 5, 6 } } };
         var result = testDicts.TestDictStrListInt(testListDict);
         Assert.Equal(new List<long> { 1, 2, 3 }, result["hello"]);
         Assert.Equal(new List<long> { 4, 5, 6 }, result["world2"]);
@@ -31,5 +31,16 @@ public class TestDicts : IntegrationTestBase
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, long>> testDictDict = new Dictionary<string, IReadOnlyDictionary<string, long>> { { "hello", new Dictionary<string, long> { { "world3", 1 } } } };
         var result = testDicts.TestDictStrDictInt(testDictDict);
         Assert.Equal(1, result["hello"]["world3"]);
+    }
+
+    [Fact]
+    public void TestDicts_TestMapping()
+    {
+        var testDicts = Env.TestDicts();
+
+        IReadOnlyDictionary<string, long> testDict = new Dictionary<string, long> { { "dictkey1", 1 }, { "dictkey2", 2 } };
+        var result = testDicts.TestMapping(testDict);
+        Assert.Equal(1, result["dictkey1"]);
+        Assert.Equal(2, result["dictkey2"]);
     }
 }

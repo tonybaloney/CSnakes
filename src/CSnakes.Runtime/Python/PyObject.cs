@@ -21,6 +21,18 @@ public class PyObject : SafeHandle
 
     public override bool IsInvalid => handle == IntPtr.Zero;
 
+    /// <summary>
+    /// Gets the handle, or raise exception if it has been marked as invalid.
+    /// ALWAYS use this instead of DangerousGetHandle().
+    /// </summary>
+    /// <returns></returns>
+    internal IntPtr GetHandle()
+    {
+        if (handle == IntPtr.Zero)
+            throw new ObjectDisposedException($"Unable to get reference to PyObject. Object has already been disposed or is invalid.");
+        return handle;
+    }
+
     protected override bool ReleaseHandle()
     {
         if (IsInvalid)
@@ -51,21 +63,26 @@ public class PyObject : SafeHandle
                 throw new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
             CPythonAPI.PyErr_Fetch(out nint excType, out nint excValue, out nint excTraceback);
-            using var pyExceptionType = new PyObject(excType);
-            using var pyExceptionValue = new PyObject(excValue);
-            var pyExceptionTraceback = new PyObject(excTraceback);
-
-            if (pyExceptionType.IsInvalid || pyExceptionValue.IsInvalid || pyExceptionType.IsInvalid)
+            
+            if (excType == 0)
             {
-                CPythonAPI.PyErr_Clear();
-                throw new InvalidDataException("An error fetching the exceptions in Python.");
+                throw new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
 
-            var pyExceptionStr = pyExceptionValue.ToString();
+            using var pyExceptionType = new PyObject(excType);
+            PyObject? pyExceptionTraceback = excTraceback == IntPtr.Zero ? null : new PyObject(excTraceback);
+
+            var pyExceptionStr = string.Empty;
+            if (excValue != IntPtr.Zero)
+            {
+                using PyObject pyExceptionValue = new PyObject(excValue);
+                pyExceptionStr = pyExceptionValue.ToString();
+            }
+             ;
             // TODO: Consider adding __qualname__ as well for module exceptions that aren't builtins
             var pyExceptionTypeStr = pyExceptionType.GetAttr("__name__").ToString();
             CPythonAPI.PyErr_Clear();
-            throw new PythonException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback);
+            throw new PythonInvocationException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback);
         }
     }
 
@@ -88,11 +105,10 @@ public class PyObject : SafeHandle
     /// <returns>A new reference to the type field.</returns>
     public PyObject GetPythonType()
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.GetType(DangerousGetHandle()));
+            return new PyObject(CPythonAPI.GetType(GetHandle()));
         }
     }
 
@@ -103,21 +119,19 @@ public class PyObject : SafeHandle
     /// <returns>Attribute object (new ref)</returns>
     public PyObject GetAttr(string name)
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.GetAttr(handle, name));
+            return new PyObject(CPythonAPI.GetAttr(GetHandle(), name));
         }
     }
 
     public bool HasAttr(string name)
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return CPythonAPI.HasAttr(handle, name);
+            return CPythonAPI.HasAttr(GetHandle(), name);
         }
     }
 
@@ -127,11 +141,10 @@ public class PyObject : SafeHandle
     /// <returns>The iterator object (new ref)</returns>
     public PyObject GetIter()
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.PyObject_GetIter(DangerousGetHandle()));
+            return new PyObject(CPythonAPI.PyObject_GetIter(GetHandle()));
         }
     }
 
@@ -141,12 +154,11 @@ public class PyObject : SafeHandle
     /// <returns></returns>
     public string GetRepr()
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            using PyObject reprStr = new PyObject(CPythonAPI.PyObject_Repr(DangerousGetHandle()));
-            string? repr = CPythonAPI.PyUnicode_AsUTF8(reprStr.DangerousGetHandle());
+            using PyObject reprStr = new PyObject(CPythonAPI.PyObject_Repr(GetHandle()));
+            string? repr = CPythonAPI.PyUnicode_AsUTF8(reprStr.GetHandle());
             return repr ?? string.Empty;
         }
     }
@@ -160,16 +172,15 @@ public class PyObject : SafeHandle
     {
         RaiseOnPythonNotInitialized();
         // TODO: Consider moving this to a logger.
-        Debug.Assert(!IsInvalid);
         // TODO: Stack allocate short parameter lists (<10?)
         var argHandles = new IntPtr[args.Length];
         for (int i = 0; i < args.Length; i++)
         {
-            argHandles[i] = args[i].DangerousGetHandle();
+            argHandles[i] = args[i].GetHandle();
         }
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.Call(DangerousGetHandle(), argHandles));
+            return new PyObject(CPythonAPI.Call(GetHandle(), argHandles));
         }
     }
 
@@ -180,12 +191,11 @@ public class PyObject : SafeHandle
     public override string ToString()
     {
         // TODO: Consider moving this to a logger.
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            using PyObject pyObjectStr = new(CPythonAPI.PyObject_Str(handle));
-            string? stringValue = CPythonAPI.PyUnicode_AsUTF8(pyObjectStr.DangerousGetHandle());
+            using PyObject pyObjectStr = new(CPythonAPI.PyObject_Str(GetHandle()));
+            string? stringValue = CPythonAPI.PyUnicode_AsUTF8(pyObjectStr.GetHandle());
             return stringValue ?? string.Empty;
         }
     }
@@ -194,7 +204,7 @@ public class PyObject : SafeHandle
 
     internal PyObject Clone()
     {
-        CPythonAPI.Py_IncRef(handle);
-        return new PyObject(handle);
+        CPythonAPI.Py_IncRef(GetHandle());
+        return new PyObject(GetHandle());
     }
 }

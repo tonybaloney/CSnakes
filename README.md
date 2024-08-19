@@ -1,5 +1,8 @@
 # CSnakes - a tool for embedding Python code into .NET projects
 
+> [!WARNING]  
+> This project is in prototype stage and the API is subject to change. 
+
 [Documentation](https://tonybaloney.github.io/CSnakes/)
 
 [![NuGet Version](https://img.shields.io/nuget/v/CSnakes)](https://www.nuget.org/packages/CSnakes)

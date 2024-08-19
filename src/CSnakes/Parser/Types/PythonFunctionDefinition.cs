@@ -7,7 +7,7 @@ public class PythonFunctionDefinition(string name, PythonTypeSpec? returnType, P
 
     private static PythonFunctionParameter[] FixupArguments(PythonFunctionParameter[]? parameters)
     {
-        if (parameters == null || parameters.Length == 0)
+        if (parameters is null || parameters.Length == 0)
             return [];
 
         // Go through all parameters and mark those after the *arg as keyword only

@@ -54,7 +54,12 @@ public class PyObject : SafeHandle
         return true;
     }
 
-    private static void ThrowPythonExceptionAsClrException()
+    /// <summary>
+    /// Throws a Python exception as a CLR exception.
+    /// </summary>
+    /// <exception cref="InvalidDataException"></exception>
+    /// <exception cref="PythonInvocationException"></exception>
+    internal static void ThrowPythonExceptionAsClrException()
     {
         using (GIL.Acquire())
         {
@@ -63,7 +68,7 @@ public class PyObject : SafeHandle
                 throw new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
             CPythonAPI.PyErr_Fetch(out nint excType, out nint excValue, out nint excTraceback);
-            
+
             if (excType == 0)
             {
                 throw new InvalidDataException("An error occurred in Python, but no exception was set.");
@@ -165,6 +170,7 @@ public class PyObject : SafeHandle
 
     /// <summary>
     /// Call the object. Equivalent to (__call__)(args)
+    /// All arguments are treated as positional.
     /// </summary>
     /// <param name="args"></param>
     /// <returns>The resulting object, or NULL on error.</returns>
@@ -173,15 +179,53 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         // TODO: Consider moving this to a logger.
         // TODO: Stack allocate short parameter lists (<10?)
-        var argHandles = new IntPtr[args.Length];
-        for (int i = 0; i < args.Length; i++)
-        {
-            argHandles[i] = args[i].GetHandle();
-        }
+        var argHandles = args.Select(args => args.GetHandle()).ToArray();
         using (GIL.Acquire())
         {
             return new PyObject(CPythonAPI.Call(GetHandle(), argHandles));
         }
+    }
+
+    public PyObject CallWithArgs(PyObject[]? args = null)
+    {
+        RaiseOnPythonNotInitialized();
+        args ??= [];
+        var argHandles = args.Select(args => args.GetHandle()).ToArray();
+
+        using (GIL.Acquire())
+        {
+            return new PyObject(CPythonAPI.Call(GetHandle(), argHandles));
+        }
+    }
+
+    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null)
+    {
+        if (kwnames is null)
+            return CallWithArgs(args);
+        if (kwvalues is null || kwnames.Length != kwvalues.Length)
+            throw new ArgumentException("kwnames and kwvalues must be the same length.");
+        RaiseOnPythonNotInitialized();
+        args ??= [];
+        var argHandles = args.Select(args => args.GetHandle()).ToArray();
+        var kwargHandles = kwvalues.Select(kw => kw.GetHandle()).ToArray();
+
+        using (GIL.Acquire())
+        {
+            return new PyObject(CPythonAPI.Call(GetHandle(), argHandles, kwnames, kwargHandles));
+        }
+    }
+
+    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)
+    {
+        // No keyword parameters supplied
+        if (kwnames is null && kwargs is null)
+            return CallWithArgs(args);
+        // Keyword args are empty and kwargs is empty. 
+        if (kwnames is not null && kwnames.Length == 0 && (kwargs is null || kwargs.Count == 0))
+            return CallWithArgs(args);
+
+        MergeKeywordArguments(kwnames ?? [], kwvalues ?? [], kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues);
+        return CallWithKeywordArguments(args, combinedKwnames, combinedKwvalues);
     }
 
     /// <summary>
@@ -206,5 +250,30 @@ public class PyObject : SafeHandle
     {
         CPythonAPI.Py_IncRef(GetHandle());
         return new PyObject(GetHandle());
+    }
+
+    private static void MergeKeywordArguments(string[] kwnames, PyObject[] kwvalues, IReadOnlyDictionary<string, PyObject>? kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues)
+    {
+        if (kwnames.Length != kwvalues.Length)
+            throw new ArgumentException("kwnames and kwvalues must be the same length.");
+        if (kwargs is null)
+        {
+            combinedKwnames = kwnames;
+            combinedKwvalues = kwvalues;
+            return;
+        }
+
+        var newKwnames = new List<string>(kwnames);
+        var newKwvalues = new List<PyObject>(kwvalues);
+
+        // The order must be the same as we're not submitting these in a mapping, but a parallel array.
+        foreach (var (key, value) in kwargs)
+        {
+            newKwnames.Add(key);
+            newKwvalues.Add(value);
+        }
+
+        combinedKwnames = [.. newKwnames];
+        combinedKwvalues = [.. newKwvalues];
     }
 }

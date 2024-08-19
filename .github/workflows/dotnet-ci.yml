@@ -17,15 +17,15 @@ jobs:
         python: ["3.9", "3.10", "3.11", "3.12", "3.13.0-rc.1"]
         dotnet: ["8.0.x"]
         include:
-            - os: windows-latest
-              python: "3.12"
-              dotnet: "6.0.x"
-            - os: windows-latest
-              python: "3.12"
-              dotnet: "7.0.x"
-            - os: windows-latest
-              python: "3.12"
-              dotnet: "9.0.x"
+          - os: windows-latest
+            python: "3.12"
+            dotnet: "6.0.x"
+          - os: windows-latest
+            python: "3.12"
+            dotnet: "7.0.x"
+          - os: windows-latest
+            python: "3.12"
+            dotnet: "9.0.x"
       fail-fast: false
     runs-on: "${{ matrix.os }}"
 
@@ -49,5 +49,40 @@ jobs:
       - name: Test
         run: dotnet test --no-build --verbosity normal
         working-directory: src
+        env:
+          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+
+  build-samples:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        python: ["3.12"]
+        dotnet: ["8.0.x"]
+        sample: ["simple", "Aspire"]
+      fail-fast: false
+    runs-on: "${{ matrix.os }}"
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        id: installpython
+        uses: actions/setup-python@v5
+        with:
+          python-version: "${{ matrix.python }}"
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet }}
+      - name: Install Aspire workload
+        run: dotnet workload install aspire
+      - name: Restore dependencies
+        run: dotnet restore "${{ matrix.sample }}"
+        working-directory: samples
+      - name: Build
+        run: dotnet build --no-restore "${{ matrix.sample }}"
+        working-directory: samples
+      - name: Test
+        run: dotnet test --no-build --verbosity normal "${{ matrix.sample }}"
+        working-directory: samples
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}

@@ -21,8 +21,6 @@ internal unsafe partial class CPythonAPI
         return PyObject_IsInstance(p, PyLongType);
     }
 
-    internal static nint PyLong_FromBytes(nint bytesObject)
-    {
-        return Call(PyLong_FromBytesMethod, [bytesObject]);
-    }
+    [LibraryImport(PythonLibraryName)]
+    internal static partial nint PyLong_FromUnicodeObject(nint unicode, int @base);
 }

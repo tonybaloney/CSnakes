@@ -15,9 +15,7 @@ internal partial class PyObjectTypeConverter
 
     private PyObject ConvertFromBigInteger(ITypeDescriptorContext? context, CultureInfo? culture, BigInteger integer)
     {
-        byte[] integerBytes = integer.ToByteArray(isBigEndian: true, isUnsigned: false);
-        using PyObject pyBytes = new PyObject(CPythonAPI.PyBytes_FromByteSpan(integerBytes.AsSpan()));
-        PyObject intObject = new PyObject(CPythonAPI.PyLong_FromBytes(pyBytes.GetHandle()));
-        return intObject;
+        using PyObject pyUnicode = new PyObject(CPythonAPI.AsPyUnicodeObject(integer.ToString()));
+        return new PyObject(CPythonAPI.PyLong_FromUnicodeObject(pyUnicode.GetHandle(), 10));
     }
 }

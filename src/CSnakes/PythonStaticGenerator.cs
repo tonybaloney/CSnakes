@@ -30,7 +30,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 // Read the file
                 var code = file.GetText(sourceContext.CancellationToken);
 
-                if (code == null) continue;
+                if (code is null) continue;
 
                 // Parse the Python file
                 var result = PythonParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);

@@ -46,7 +46,7 @@ public class ArgumentReflection
 
         bool isNullableType = false;
 
-        if (parameter.DefaultValue == null)
+        if (parameter.DefaultValue is null)
         {
             return SyntaxFactory
                 .Parameter(SyntaxFactory.Identifier(Keywords.ValidIdentifier(parameter.Name.ToLowerPascalCase())))

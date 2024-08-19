@@ -238,9 +238,9 @@ public static class MethodReflection
         return returnExpression;
     }
 
-    private static InvocationExpressionSyntax GenerateParamsCall(List<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList)
+    private static InvocationExpressionSyntax GenerateParamsCall(IEnumerable<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList)
     {
-        List<ArgumentSyntax> pythonFunctionCallArguments = parameterList.Select((a) => Argument(IdentifierName($"{a.cSharpParameter.Identifier}_pyObject"))).ToList();
+        IEnumerable<ArgumentSyntax> pythonFunctionCallArguments = parameterList.Select((a) => Argument(IdentifierName($"{a.cSharpParameter.Identifier}_pyObject"))).ToList();
 
         return InvocationExpression(
             MemberAccessExpression(
@@ -250,11 +250,11 @@ public static class MethodReflection
             ArgumentList(SeparatedList(pythonFunctionCallArguments)));
     }
 
-    private static InvocationExpressionSyntax GenerateArgsCall(List<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList)
+    private static InvocationExpressionSyntax GenerateArgsCall(IEnumerable<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList)
     {
         // Merge the positional arguments and the *args into a single collection
         // Use CallWithArgs([arg1, arg2, ..args ?? []])
-        List<ArgumentSyntax> pythonFunctionCallArguments =
+        IEnumerable<ArgumentSyntax> pythonFunctionCallArguments =
             parameterList
                 .Where((arg) => arg.pythonParameter.ParameterType == PythonFunctionParameterType.Normal)
                 .Select((a) => Argument(IdentifierName($"{a.cSharpParameter.Identifier}_pyObject"))).ToList();
@@ -281,12 +281,12 @@ public static class MethodReflection
                     ArgumentList(SeparatedList(pythonFunctionCallArguments)));
     }
 
-    private static InvocationExpressionSyntax GenerateKeywordCall(List<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList)
+    private static InvocationExpressionSyntax GenerateKeywordCall(IEnumerable<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList)
     {
         // Same as args, use a collection expression for all the positional args
         // [arg1, arg2, .. args ?? []]
         // Create a collection of string constants for the keyword-only names
-        List<ArgumentSyntax> positionalArgumentsForCollection =
+        IEnumerable<ArgumentSyntax> positionalArgumentsForCollection =
             parameterList
                 .Where((arg) => arg.pythonParameter.ParameterType == PythonFunctionParameterType.Normal &&
                                 !arg.pythonParameter.IsKeywordOnly)

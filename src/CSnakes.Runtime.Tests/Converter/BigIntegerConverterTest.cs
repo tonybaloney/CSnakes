@@ -9,9 +9,10 @@ public class BigIntegerConverterTest : RuntimeTestBase
     [Fact]
     public void TestVeryBigNumbers()
     {
+        const string number = "12345678987654345678764345678987654345678765";
         TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
         // Something that is too big for a long (I8)
-        BigInteger input = BigInteger.Parse("12345678987654345678764345678987654345678765");
+        BigInteger input = BigInteger.Parse(number);
 
         Assert.True(td.CanConvertFrom(typeof(BigInteger)));
 
@@ -20,14 +21,13 @@ public class BigIntegerConverterTest : RuntimeTestBase
             using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
 
             Assert.NotNull(pyObj);
+            Assert.Equal(number, pyObj!.ToString());
 
             Assert.True(td.CanConvertTo(typeof(BigInteger)));
 
             // Convert back
-            object? str = td.ConvertTo(pyObj, typeof(BigInteger));
-            Assert.Equal(input, str);
+            BigInteger integer = (BigInteger) td.ConvertTo(pyObj, typeof(BigInteger))!;
+            Assert.Equal(input, integer);
         }
     }
-
-    /// Test that null converts into NoneType..
 }

@@ -1,5 +1,9 @@
+using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
-using System.Collections;
+using System.ComponentModel;
+using System.Globalization;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter

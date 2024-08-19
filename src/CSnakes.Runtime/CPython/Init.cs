@@ -75,6 +75,8 @@ internal unsafe partial class CPythonAPI : IDisposable
                 PyTupleType = GetType(PyEmptyTuple);
                 PyFloatType = GetType(PyFloat_FromDouble(0.0));
                 PyLongType = GetType(PyLong_FromLongLong(0));
+                PyLong_FromBytesMethod = GetAttr(PyLongType, "from_bytes");
+                PyLong_ToBytesMethod = GetAttr(PyLongType, "to_bytes");
                 PyListType = GetType(PyList_New(0));
                 PyDictType = GetType(PyDict_New());
                 PyBytesType = GetType(PyBytes_FromByteSpan(new byte[] { }));

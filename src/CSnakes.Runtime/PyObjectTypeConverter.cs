@@ -52,6 +52,11 @@ internal partial class PyObjectTypeConverter : TypeConverter
             return CPythonAPI.PyLong_AsLongLong(handle);
         }
 
+        if (destinationType == typeof(BigInteger) && CPythonAPI.IsPyLong(handle))
+        {
+            return ConvertToBigInteger(pyObject, destinationType, context, culture);
+        }
+
         if (destinationType == typeof(int) && CPythonAPI.IsPyLong(handle))
         {
             return CPythonAPI.PyLong_AsLongLong(handle);
@@ -128,6 +133,7 @@ internal partial class PyObjectTypeConverter : TypeConverter
             IDictionary dictionary => ConvertFromDictionary(context, culture, dictionary),
             ITuple t => ConvertFromTuple(context, culture, t),
             IEnumerable e => ConvertFromList(context, culture, e),
+            BigInteger b => ConvertFromBigInteger(context, culture, b),
             null => new PyObject(CPythonAPI.GetNone()),
             _ => base.ConvertFrom(context, culture, value)
         };

@@ -9,9 +9,8 @@ internal partial class PyObjectTypeConverter
 {
     private object? ConvertToBigInteger(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
     {
-        using PyObject pyBytes = new PyObject(CPythonAPI.PyLong_ToBytes(pyObject.GetHandle()));
-        byte[] byteArray = CPythonAPI.PyBytes_AsByteArray(pyObject.GetHandle());
-        return new BigInteger(byteArray, isBigEndian: true, isUnsigned: false);
+        // There is no practical API for this in CPython. Use str() instead. 
+        return BigInteger.Parse(pyObject.ToString());
     }
 
     private PyObject ConvertFromBigInteger(ITypeDescriptorContext? context, CultureInfo? culture, BigInteger integer)

@@ -5,7 +5,6 @@ namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
     private static nint PyLongType = IntPtr.Zero;
-    private static nint PyLong_ToBytesMethod = IntPtr.Zero;
     private static nint PyLong_FromBytesMethod = IntPtr.Zero;
 
     [LibraryImport(PythonLibraryName)]
@@ -25,10 +24,5 @@ internal unsafe partial class CPythonAPI
     internal static nint PyLong_FromBytes(nint bytesObject)
     {
         return Call(PyLong_FromBytesMethod, [bytesObject]);
-    }
-
-    internal static nint PyLong_ToBytes(nint longObject)
-    {
-        return Call(PyLong_ToBytesMethod, [longObject]);
     }
 }

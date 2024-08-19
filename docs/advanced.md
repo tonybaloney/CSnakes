@@ -1,5 +1,32 @@
 # Advanced Usage
 
+## Handling very large integers
+
+Python's `int` type is closer in structure to C#.NET's `System.Numerics.BigInteger` than to `System.Int64`. This means that when you are working with very large integers in Python, you may need to use the `BigInteger` type in C# to handle the results.
+
+You can use this using the TypeConverter class to convert between `BigInteger` and `PyObject` instances. Here's an example of how you can call a Python function that returns a very large integer:
+
+```csharp
+using CSnakes.Runtime.Python;
+using System.ComponentModel;
+using System.Numerics;
+
+const string number = "12345678987654345678764345678987654345678765";
+TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
+// Something that is too big for a long (I8)
+BigInteger input = BigInteger.Parse(number);
+
+using (GIL.Acquire())
+{
+    using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
+
+    // Do stuff with the integer object
+
+    // Convert back
+    BigInteger integer = (BigInteger) td.ConvertTo(pyObj, typeof(BigInteger))!;
+}
+```
+
 ## Free-Threading Mode
 
 Python 3.13 introduced a new feature called "free-threading mode" which allows the Python interpreter to run in a multi-threaded environment without the Global Interpreter Lock (GIL). This is a significant change to the Python runtime and can have a big impact on the performance of Python code running in a multi-threaded environment.

@@ -34,6 +34,7 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
     [InlineData("def hello(a: int = 0xdeadbeef) -> None:\n ...\n", "void Hello(long a = 0xDEADBEEF)")]
     [InlineData("def hello(a: int = 0b10101010) -> None:\n ...\n", "void Hello(long a = 0b10101010)")]
     [InlineData("def hello(a: int = 2147483648) -> None:\n ...\n", "void Hello(long a = 2147483648L)")]
+    [InlineData("def hello(a: Optional[int] = None) -> None:\n ...\n", "void Hello(long? a = null)")]
     public void TestGeneratedSignature(string code, string expected)
     {
 

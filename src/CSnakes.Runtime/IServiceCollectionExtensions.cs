@@ -129,18 +129,6 @@ public static class IServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Adds a Python locator using Python from the system PATH to the service collection with the specified version.
-    /// </summary>
-    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
-    /// <param name="version">The version of the Python installation.</param>
-    /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    public static IPythonEnvironmentBuilder FromPath(this IPythonEnvironmentBuilder builder, string version)
-    {
-        builder.Services.AddSingleton<PythonLocator>(new PathLocator(ParsePythonVersion(version)));
-        return builder;
-    }
-
-    /// <summary>
     /// Adds a pip package installer to the service collection.
     /// </summary>
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the installer to.</param>

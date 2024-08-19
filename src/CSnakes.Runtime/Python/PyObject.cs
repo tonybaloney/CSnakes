@@ -189,12 +189,11 @@ public class PyObject : SafeHandle
     {
         RaiseOnPythonNotInitialized();
         args ??= [];
-        int argsLen = args?.Length ?? 0;
-        var argHandles = new IntPtr[argsLen];
+        var argHandles = new IntPtr[args.Length];
 
-        for (int i = 0; i < argsLen; i++)
+        for (int i = 0; i < args.Length; i++)
         {
-            argHandles[i] = args![i].GetHandle();
+            argHandles[i] = args[i].GetHandle();
         }
 
         using (GIL.Acquire())
@@ -205,7 +204,7 @@ public class PyObject : SafeHandle
 
     public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null)
     {
-        if (kwnames == null)
+        if (kwnames is null)
             return CallWithArgs(args);
         RaiseOnPythonNotInitialized();
         int argsLen = args?.Length ?? 0;
@@ -231,10 +230,10 @@ public class PyObject : SafeHandle
     public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)
     {
         // No keyword parameters supplied
-        if (kwnames == null && kwargs == null)
+        if (kwnames is null && kwargs is null)
             return CallWithArgs(args);
         // Keyword args are empty and kwargs is empty. 
-        if (kwnames != null && kwnames.Length == 0 && (kwargs == null || kwargs.Count == 0))
+        if (kwnames is not null && kwnames.Length == 0 && (kwargs is null || kwargs.Count == 0))
             return CallWithArgs(args);
 
         MergeKeywordArguments(kwnames ?? [], kwvalues ?? [], kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues);
@@ -267,7 +266,7 @@ public class PyObject : SafeHandle
 
     private static void MergeKeywordArguments(string[] kwnames, PyObject[] kwvalues, IReadOnlyDictionary<string, PyObject>? kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues)
     {
-        if (kwargs == null)
+        if (kwargs is null)
         {
             combinedKwnames = kwnames;
             combinedKwvalues = kwvalues;

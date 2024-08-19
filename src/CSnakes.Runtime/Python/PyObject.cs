@@ -1,6 +1,5 @@
 using CSnakes.Runtime.CPython;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -64,7 +63,7 @@ public class PyObject : SafeHandle
                 throw new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
             CPythonAPI.PyErr_Fetch(out nint excType, out nint excValue, out nint excTraceback);
-            
+
             if (excType == 0)
             {
                 throw new InvalidDataException("An error occurred in Python, but no exception was set.");

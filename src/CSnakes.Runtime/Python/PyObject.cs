@@ -229,6 +229,19 @@ public class PyObject : SafeHandle
         }
     }
 
+    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)
+    {
+        // No keyword parameters supplied
+        if (kwnames == null && kwargs == null)
+            return CallWithArgs(args);
+        // Keyword args are empty and kwargs is empty. 
+        if (kwnames != null && kwnames.Length == 0 && (kwargs == null || kwargs.Count == 0))
+            return CallWithArgs(args);
+
+        MergeKeywordArguments(kwnames ?? [], kwvalues ?? [], kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues);
+        return CallWithKeywordArguments(args, combinedKwnames, combinedKwvalues);
+    }
+
     /// <summary>
     /// Get a string representation of the object.
     /// </summary>
@@ -251,5 +264,28 @@ public class PyObject : SafeHandle
     {
         CPythonAPI.Py_IncRef(GetHandle());
         return new PyObject(GetHandle());
+    }
+
+    private static void MergeKeywordArguments(string[] kwnames, PyObject[] kwvalues, IReadOnlyDictionary<string, PyObject>? kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues)
+    {
+        if (kwargs == null)
+        {
+            combinedKwnames = kwnames;
+            combinedKwvalues = kwvalues;
+            return;
+        }
+
+        var newKwnames = new List<string>(kwnames);
+        var newKwvalues = new List<PyObject>(kwvalues);
+
+        // The order must be the same as we're not submitting these in a mapping, but a parallel array.
+        foreach (var (key, value) in kwargs)
+        {
+            newKwnames.Add(key);
+            newKwvalues.Add(value);
+        }
+
+        combinedKwnames = [.. newKwnames];
+        combinedKwvalues = [.. newKwvalues];
     }
 }

@@ -1,11 +1,12 @@
-﻿using System.Runtime.InteropServices;
+﻿using CSnakes.Runtime.Python;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
     private static nint PyBytesType = IntPtr.Zero;
 
-    public static bool IsBytes(nint p)
+    public static bool IsBytes(PyObject p)
     {
         return PyObject_IsInstance(p, PyBytesType);
     }
@@ -18,7 +19,7 @@ internal unsafe partial class CPythonAPI
         }
     }
 
-    internal static byte[] PyBytes_AsByteArray(nint bytes)
+    internal static byte[] PyBytes_AsByteArray(PyObject bytes)
     {
         byte* ptr = PyBytes_AsString(bytes);
         nint size = PyBytes_Size(bytes);
@@ -31,8 +32,8 @@ internal unsafe partial class CPythonAPI
     private static partial nint PyBytes_FromStringAndSize(byte* v, nint len);
 
     [LibraryImport(PythonLibraryName)]
-    private static partial byte* PyBytes_AsString(nint ob);
+    private static partial byte* PyBytes_AsString(PyObject ob);
 
     [LibraryImport(PythonLibraryName)]
-    private static partial nint PyBytes_Size(nint ob);
+    private static partial nint PyBytes_Size(PyObject ob);
 }

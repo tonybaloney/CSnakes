@@ -1,23 +1,30 @@
-﻿using System.Runtime.InteropServices;
+﻿using CSnakes.Runtime.Python;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
     [LibraryImport(PythonLibraryName)]
-    internal static partial IntPtr PyObject_Repr(IntPtr ob);
+    internal static partial IntPtr PyObject_Repr(PyObject ob);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial void Py_DecRef(nint ob);
+    internal static partial void Py_DecRef(PyObject ob);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial void Py_IncRef(nint ob);
+    internal static partial void Py_IncRef(PyObject ob);
+
+    [LibraryImport(PythonLibraryName, EntryPoint = "Py_DecRef")]
+    internal static partial void Py_DecRefRaw(nint ob);
+
+    [LibraryImport(PythonLibraryName, EntryPoint = "Py_IncRef")]
+    internal static partial void Py_IncRefRaw(nint ob);
 
     /// <summary>
     /// Get the Type object for the object
     /// </summary>
     /// <param name="ob">The Python object</param>
     /// <returns>A new reference to the type.</returns>
-    internal static IntPtr GetType(IntPtr ob) {
+    internal static IntPtr GetType(PyObject ob) {
         return PyObject_Type(ob);
     }
 
@@ -30,9 +37,30 @@ internal unsafe partial class CPythonAPI
     /// <param name="ob">The python object</param>
     /// <returns>A new reference to the Type object for the given Python object</returns>
     [LibraryImport(PythonLibraryName)]
-    private static partial nint PyObject_Type(nint ob);
+    private static partial nint PyObject_Type(PyObject ob);
 
-    internal static bool PyObject_IsInstance(IntPtr ob, IntPtr type)
+    /// <summary>
+    /// Get the Type object for the object
+    /// </summary>
+    /// <param name="ob">The Python object</param>
+    /// <returns>A new reference to the type.</returns>
+    internal static IntPtr GetTypeRaw(nint ob)
+    {
+        return PyObject_TypeRaw(ob);
+    }
+
+    /// <summary>
+    /// When o is non-NULL, returns a type object corresponding to the object type of object o. 
+    /// On failure, raises SystemError and returns NULL. 
+    /// This is equivalent to the Python expression type(o). 
+    /// This function creates a new strong reference to the return value.
+    /// </summary>
+    /// <param name="ob">The python object</param>
+    /// <returns>A new reference to the Type object for the given Python object</returns>
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyObject_Type")]
+    private static partial nint PyObject_TypeRaw(nint ob);
+
+    internal static bool PyObject_IsInstance(PyObject ob, IntPtr type)
     {
         int result = PyObject_IsInstance_(ob, type);
         if (result == -1)
@@ -52,22 +80,22 @@ internal unsafe partial class CPythonAPI
     /// <param name="type">The Python type object</param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName, EntryPoint = "PyObject_IsInstance")]
-    private static partial int PyObject_IsInstance_(IntPtr ob, IntPtr type);
+    private static partial int PyObject_IsInstance_(PyObject ob, IntPtr type);
 
-    internal static IntPtr GetAttr(IntPtr ob, string name)
+    internal static IntPtr GetAttr(PyObject ob, string name)
     {
         /* TODO: Consider interning/caching the name value */
         nint pyName = AsPyUnicodeObject(name);
         nint pyAttr = PyObject_GetAttr(ob, pyName);
-        Py_DecRef(pyName);
+        Py_DecRefRaw(pyName);
         return pyAttr;
     }
 
-    internal static bool HasAttr(IntPtr ob, string name)
+    internal static bool HasAttr(PyObject ob, string name)
     {
         nint pyName = AsPyUnicodeObject(name);
         int hasAttr = PyObject_HasAttr(ob, pyName);
-        Py_DecRef(pyName);
+        Py_DecRefRaw(pyName);
         return hasAttr == 1;
     }
 
@@ -78,7 +106,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="attr">The attribute as a PyUnicode object</param>
     /// <returns>A new reference to the attribute</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial IntPtr PyObject_GetAttr(IntPtr ob, IntPtr attr);
+    internal static partial IntPtr PyObject_GetAttr(PyObject ob, IntPtr attr);
 
     /// <summary>
     /// Does the object ob have the attr `attr`?
@@ -87,7 +115,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="attr">The attribute as a PyUnicode object</param>
     /// <returns>1 on success, 0 if the attr does not exist</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial int PyObject_HasAttr(IntPtr ob, IntPtr attr);
+    internal static partial int PyObject_HasAttr(PyObject ob, IntPtr attr);
 
     /// <summary>
     /// Get the iterator for the given object
@@ -95,7 +123,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="ob"></param>
     /// <returns>A new reference to the iterator</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial IntPtr PyObject_GetIter(IntPtr ob);
+    internal static partial IntPtr PyObject_GetIter(PyObject ob);
 
     /// <summary>
     /// Get the str(ob) form of the object
@@ -103,7 +131,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="ob">The Python object</param>
     /// <returns>A new reference to the string representation</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyObject_Str(nint ob);
+    internal static partial nint PyObject_Str(PyObject ob);
 
     /// <summary>
     /// Implements ob[key]
@@ -112,7 +140,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="key"></param>
     /// <returns>A new reference to the object item if it exists, else NULL</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyObject_GetItem(nint ob, nint key);
+    internal static partial nint PyObject_GetItem(PyObject ob, PyObject key);
 
     /// <summary>
     /// Set ob[key] = value
@@ -124,5 +152,5 @@ internal unsafe partial class CPythonAPI
     /// <param name="value"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial int PyObject_SetItem(nint ob, nint key, nint value);
+    internal static partial int PyObject_SetItem(PyObject ob, PyObject key, PyObject value);
 }

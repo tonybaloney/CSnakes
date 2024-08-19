@@ -10,7 +10,7 @@ internal unsafe partial class CPythonAPI
     /// <returns>A new reference to None. In newer versions of Python, None is immortal anyway.</returns>
     internal static nint GetNone()
     {
-        Py_IncRef(PyNone);
+        Py_IncRefRaw(PyNone);
         return PyNone;
     }
 }

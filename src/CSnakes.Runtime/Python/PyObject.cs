@@ -2,6 +2,7 @@ using CSnakes.Runtime.CPython;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace CSnakes.Runtime.Python;
 
@@ -36,7 +37,7 @@ public class PyObject : SafeHandle
         }
         using (GIL.Acquire())
         {
-            CPythonAPI.Py_DecRef(handle);
+            CPythonAPI.Py_DecRefRaw(handle);
         }
         handle = IntPtr.Zero;
         return true;
@@ -97,7 +98,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.GetType(DangerousGetHandle()));
+            return new PyObject(CPythonAPI.GetType(this));
         }
     }
 
@@ -112,7 +113,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.GetAttr(handle, name));
+            return new PyObject(CPythonAPI.GetAttr(this, name));
         }
     }
 
@@ -122,7 +123,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return CPythonAPI.HasAttr(handle, name);
+            return CPythonAPI.HasAttr(this, name);
         }
     }
 
@@ -136,7 +137,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.PyObject_GetIter(DangerousGetHandle()));
+            return new PyObject(CPythonAPI.PyObject_GetIter(this));
         }
     }
 
@@ -150,8 +151,8 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            using PyObject reprStr = new PyObject(CPythonAPI.PyObject_Repr(DangerousGetHandle()));
-            string? repr = CPythonAPI.PyUnicode_AsUTF8(reprStr.DangerousGetHandle());
+            using PyObject reprStr = new PyObject(CPythonAPI.PyObject_Repr(this));
+            string? repr = CPythonAPI.PyUnicode_AsUTF8(reprStr);
             return repr ?? string.Empty;
         }
     }
@@ -166,15 +167,29 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         // TODO: Consider moving this to a logger.
         Debug.Assert(!IsInvalid);
-        // TODO: Stack allocate short parameter lists (<10?)
-        var argHandles = new IntPtr[args.Length];
+        var marshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
+        var argHandles = args.Length < 16
+            ? stackalloc IntPtr[args.Length]
+            : new IntPtr[args.Length];
         for (int i = 0; i < args.Length; i++)
         {
-            argHandles[i] = args[i].DangerousGetHandle();
+            ref var m = ref marshallers[i];
+            m.FromManaged(args[i]);
+            argHandles[i] = m.ToUnmanaged();
         }
-        using (GIL.Acquire())
+        try
         {
-            return new PyObject(CPythonAPI.Call(DangerousGetHandle(), argHandles));
+            using (GIL.Acquire())
+            {
+                return new PyObject(CPythonAPI.Call(this, argHandles));
+            }
+        }
+        finally
+        {
+            foreach (var m in marshallers)
+            {
+                m.Free();
+            }
         }
     }
 
@@ -189,8 +204,8 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            using PyObject pyObjectStr = new(CPythonAPI.PyObject_Str(handle));
-            string? stringValue = CPythonAPI.PyUnicode_AsUTF8(pyObjectStr.DangerousGetHandle());
+            using PyObject pyObjectStr = new(CPythonAPI.PyObject_Str(this));
+            string? stringValue = CPythonAPI.PyUnicode_AsUTF8(pyObjectStr);
             return stringValue ?? string.Empty;
         }
     }
@@ -199,7 +214,7 @@ public class PyObject : SafeHandle
 
     internal PyObject Clone()
     {
-        CPythonAPI.Py_IncRef(handle);
+        CPythonAPI.Py_IncRefRaw(handle);
         return new PyObject(handle);
     }
 }

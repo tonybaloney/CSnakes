@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using CSnakes.Runtime.Python;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 
@@ -20,9 +21,9 @@ internal unsafe partial class CPythonAPI
     /// <param name="p"></param>
     /// <returns>The double value</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial double PyFloat_AsDouble(nint obj);
+    internal static partial double PyFloat_AsDouble(PyObject obj);
 
-    internal static bool IsPyFloat(nint p)
+    internal static bool IsPyFloat(PyObject p)
     {
         return PyObject_IsInstance(p, PyFloatType);
     }

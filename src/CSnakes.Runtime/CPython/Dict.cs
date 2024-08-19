@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using CSnakes.Runtime.Python;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 
@@ -13,7 +14,7 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyDict_New();
 
-    public static bool IsPyDict(nint p)
+    public static bool IsPyDict(PyObject p)
     {
         return PyObject_IsInstance(p, PyDictType);
     }
@@ -24,7 +25,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="p"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyDict_Size(nint dict);
+    internal static partial nint PyDict_Size(PyObject dict);
 
     /// <summary>
     /// Return the object from dictionary p which has a key `key`. 
@@ -33,7 +34,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="key">Key Object</param>
     /// <exception cref="KeyNotFoundException">If the key is not found</exception>
     /// <returns>New reference.</returns>
-    internal static nint PyDict_GetItem(nint dict, nint key)
+    internal static nint PyDict_GetItem(PyObject dict, PyObject key)
     {
         var result = PyDict_GetItem_(dict, key);
         if (result == IntPtr.Zero)
@@ -41,7 +42,7 @@ internal unsafe partial class CPythonAPI
             PyErr_Clear();
             throw new KeyNotFoundException();
         }
-        Py_IncRef(result);
+        Py_IncRefRaw(result);
         return result;
     }
 
@@ -53,7 +54,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="key">Key Object</param>
     /// <returns>Borrowed reference.</returns>
     [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_GetItem")]
-    private static partial nint PyDict_GetItem_(nint dict, nint key);
+    private static partial nint PyDict_GetItem_(PyObject dict, PyObject key);
 
 
     /// <summary>
@@ -65,7 +66,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="key">Key</param>
     /// <param name="value">Value</param>
     /// <returns>Return 0 on success or -1 on failure.</returns>
-    internal static int PyDict_SetItem(nint dict, nint key, nint value)
+    internal static int PyDict_SetItem(PyObject dict, PyObject key, PyObject value)
     {
         int result = PyDict_SetItem_(dict, key, value);
         if (result != -1)
@@ -87,7 +88,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="value">Value</param>
     /// <returns>Return 0 on success or -1 on failure.</returns>
     [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_SetItem")]
-    private static partial int PyDict_SetItem_(nint dict, nint key, nint val);
+    private static partial int PyDict_SetItem_(PyObject dict, PyObject key, PyObject val);
 
     /// <summary>
     /// Get the items iterator for the dictionary.
@@ -95,5 +96,5 @@ internal unsafe partial class CPythonAPI
     /// <param name="dict">PyDict object</param>
     /// <returns>New reference to the items().</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyDict_Items(nint dict);
+    internal static partial nint PyDict_Items(PyObject dict);
 }

@@ -1,10 +1,11 @@
+using CSnakes.Runtime.Python;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
-    public static bool IsPySequence(nint p)
+    public static bool IsPySequence(PyObject p)
     {
         return PySequence_Check(p) == 1;
     }
@@ -18,7 +19,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="p"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial int PySequence_Check(nint ob);
+    internal static partial int PySequence_Check(PyObject ob);
 
     /// <summary>
     /// Return the number of items in the sequence object as ssize_t
@@ -26,7 +27,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="seq">Sequence object</param>
     /// <returns>Number of items in the sequence</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PySequence_Size(nint seq);
+    internal static partial nint PySequence_Size(PyObject seq);
 
     /// <summary>
     /// Return the ith element of o, or NULL on failure. This is the equivalent of the Python expression o[i].
@@ -35,5 +36,5 @@ internal unsafe partial class CPythonAPI
     /// <param name="index">Index</param>
     /// <returns>New reference to the item or NULL.</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PySequence_GetItem(nint seq, nint index);
+    internal static partial nint PySequence_GetItem(PyObject seq, nint index);
 }

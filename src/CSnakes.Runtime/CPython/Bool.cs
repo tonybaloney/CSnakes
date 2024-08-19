@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using CSnakes.Runtime.Python;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 
@@ -14,15 +15,15 @@ internal unsafe partial class CPythonAPI
     /// <param name="value">Numeric value (0 or 1)</param>
     /// <returns>New reference to a PyBool Object</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyBool_FromLong(int value);
+    internal static partial nint PyBool_FromLong(nint value);
 
-    public static bool IsPyBool(nint p)
+    public static bool IsPyBool(PyObject p)
     {
         return PyObject_IsInstance(p, PyBoolType);
     }
 
-    public static bool IsPyTrue(nint p)
+    public static bool IsPyTrue(PyObject p)
     {
-        return p == Py_True;
+        return p.DangerousGetHandle() == Py_True;
     }
 }

@@ -1,11 +1,12 @@
-﻿using System.Runtime.InteropServices;
+﻿using CSnakes.Runtime.Python;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
     private static nint ItemsStrIntern = IntPtr.Zero;
-    public static bool IsPyMappingWithItems(nint p)
+    public static bool IsPyMappingWithItems(PyObject p)
     {
         return PyMapping_Check(p) == 1 && PyObject_HasAttr(p, ItemsStrIntern) == 1;
     }
@@ -18,7 +19,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="p"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial int PyMapping_Check(nint ob);
+    internal static partial int PyMapping_Check(PyObject ob);
 
     /// <summary>
     /// Return the object from dictionary p which has a key `key`. 
@@ -27,7 +28,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="key">Key Object</param>
     /// <exception cref="KeyNotFoundException">If the key is not found</exception>
     /// <returns>New reference.</returns>
-    internal static nint PyMapping_GetItem(nint map, nint key)
+    internal static nint PyMapping_GetItem(PyObject map, PyObject key)
     { 
         return PyObject_GetItem(map, key);
     }
@@ -41,7 +42,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="key">Key</param>
     /// <param name="value">Value</param>
     /// <returns>Return 0 on success or -1 on failure.</returns>
-    internal static bool PyMapping_SetItem(nint dict, nint key, nint value)
+    internal static bool PyMapping_SetItem(PyObject dict, PyObject key, PyObject value)
     {
         return PyObject_SetItem(dict, key, value) == 0;
     }
@@ -52,5 +53,5 @@ internal unsafe partial class CPythonAPI
     /// <param name="dict">Object that implements the mapping protocol</param>
     /// <returns>New reference to the items().</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyMapping_Items(nint dict);
+    internal static partial nint PyMapping_Items(PyObject dict);
 }

@@ -23,7 +23,7 @@ internal static class Utf32StringMarshaller
 {
     public static IntPtr ConvertToUnmanaged(string? managed)
     {
-        if (managed == null)
+        if (managed is null)
             return IntPtr.Zero;
 
         // Allocate memory for the UTF-32 string

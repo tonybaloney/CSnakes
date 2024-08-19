@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using CSnakes.Runtime.Python;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 
@@ -16,6 +17,22 @@ internal unsafe partial class CPythonAPI
     public static bool IsPyDict(nint p)
     {
         return PyObject_IsInstance(p, PyDictType);
+    }
+
+    internal static nint PackDict(Span<string> kwnames, Span<IntPtr> kwvalues)
+    {
+        var dict = PyDict_New();
+        for (int i = 0; i < kwnames.Length; i ++)
+        {
+            var keyObj = AsPyUnicodeObject(kwnames[i]);
+            int result = PyDict_SetItem(dict, keyObj, kwvalues[i]);
+            if (result == -1)
+            {
+                PyObject.ThrowPythonExceptionAsClrException();
+            }
+            Py_DecRef(keyObj);
+        }
+        return dict;
     }
 
     /// <summary>
@@ -38,8 +55,7 @@ internal unsafe partial class CPythonAPI
         var result = PyDict_GetItem_(dict, key);
         if (result == IntPtr.Zero)
         {
-            PyErr_Clear();
-            throw new KeyNotFoundException();
+            PyObject.ThrowPythonExceptionAsClrException();
         }
         Py_IncRef(result);
         return result;

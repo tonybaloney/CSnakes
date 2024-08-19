@@ -321,7 +321,7 @@ internal partial class PyObjectTypeConverter : TypeConverter
 
     private PyObject ToPython(object? o, ITypeDescriptorContext? context, CultureInfo? culture)
     {
-        if (o == null)
+        if (o is null)
         {
             return new PyObject(CPythonAPI.GetNone());
         }

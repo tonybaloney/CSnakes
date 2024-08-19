@@ -18,7 +18,8 @@ public class ArgsTests : IntegrationTestBase
         var td = TypeDescriptor.GetConverter(typeof(PyObject));
 
         using (GIL.Acquire()) {
-            using PyObject? arg1 = td.ConvertFrom(3L) as PyObject;
+            using PyObject arg1 = (PyObject)td.ConvertFrom(3L);
+
             Assert.Equal(6, mod.CollectStarArgs(1, 2, [arg1]));
 
         }

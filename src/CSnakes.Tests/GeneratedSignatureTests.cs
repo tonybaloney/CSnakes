@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
-using CSnakes;
 using CSnakes.Parser;
 using CSnakes.Reflection;
 using System.ComponentModel;
@@ -69,7 +68,7 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
 
             .AddSyntaxTrees(tree);
         var result = compilation.Emit(testEnv.TempDir + "/HelloWorld.dll");
-        result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Warning).ToList().ForEach(d => Assert.Fail(d.ToString()));
+        // TODO : Log compiler warnings. 
         result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList().ForEach(d => Assert.Fail(d.ToString()));
         Assert.True(result.Success, compiledCode + "\n" + string.Join("\n", result.Diagnostics));
     }

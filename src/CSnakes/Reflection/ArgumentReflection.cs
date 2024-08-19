@@ -30,7 +30,8 @@ public class ArgumentReflection
         // Force a default value for *args and **kwargs as null, otherwise the calling convention is strange
         if ((parameter.ParameterType == PythonFunctionParameterType.Star ||
              parameter.ParameterType == PythonFunctionParameterType.DoubleStar) &&
-            parameter.DefaultValue == null)
+            parameter.DefaultValue is null)
+
         {
             parameter.DefaultValue = PythonConstant.FromNone();
         }

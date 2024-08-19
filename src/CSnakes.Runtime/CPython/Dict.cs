@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using CSnakes.Runtime.Python;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 
@@ -27,9 +28,7 @@ internal unsafe partial class CPythonAPI
             int result = PyDict_SetItem(dict, keyObj, kwvalues[i]);
             if (result == -1)
             {
-                Py_DecRef(dict);
-                PyErr_Clear();
-                throw new Exception("Failed to create dictionary.");
+                PyObject.ThrowPythonExceptionAsClrException();
             }
             Py_DecRef(keyObj);
         }
@@ -56,8 +55,7 @@ internal unsafe partial class CPythonAPI
         var result = PyDict_GetItem_(dict, key);
         if (result == IntPtr.Zero)
         {
-            PyErr_Clear();
-            throw new KeyNotFoundException();
+            PyObject.ThrowPythonExceptionAsClrException();
         }
         Py_IncRef(result);
         return result;

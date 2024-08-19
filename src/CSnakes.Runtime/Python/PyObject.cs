@@ -54,7 +54,7 @@ public class PyObject : SafeHandle
         return true;
     }
 
-    private static void ThrowPythonExceptionAsClrException()
+    internal static void ThrowPythonExceptionAsClrException()
     {
         using (GIL.Acquire())
         {

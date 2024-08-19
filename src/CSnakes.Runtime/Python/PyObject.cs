@@ -54,6 +54,11 @@ public class PyObject : SafeHandle
         return true;
     }
 
+    /// <summary>
+    /// Throws a Python exception as a CLR exception.
+    /// </summary>
+    /// <exception cref="InvalidDataException"></exception>
+    /// <exception cref="PythonInvocationException"></exception>
     internal static void ThrowPythonExceptionAsClrException()
     {
         using (GIL.Acquire())
@@ -174,11 +179,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         // TODO: Consider moving this to a logger.
         // TODO: Stack allocate short parameter lists (<10?)
-        var argHandles = new IntPtr[args.Length];
-        for (int i = 0; i < args.Length; i++)
-        {
-            argHandles[i] = args[i].GetHandle();
-        }
+        var argHandles = args.Select(args => args.GetHandle()).ToArray();
         using (GIL.Acquire())
         {
             return new PyObject(CPythonAPI.Call(GetHandle(), argHandles));
@@ -189,12 +190,7 @@ public class PyObject : SafeHandle
     {
         RaiseOnPythonNotInitialized();
         args ??= [];
-        var argHandles = new IntPtr[args.Length];
-
-        for (int i = 0; i < args.Length; i++)
-        {
-            argHandles[i] = args[i].GetHandle();
-        }
+        var argHandles = args.Select(args => args.GetHandle()).ToArray();
 
         using (GIL.Acquire())
         {
@@ -206,20 +202,12 @@ public class PyObject : SafeHandle
     {
         if (kwnames is null)
             return CallWithArgs(args);
+        if (kwvalues is null || kwnames.Length != kwvalues.Length)
+            throw new ArgumentException("kwnames and kwvalues must be the same length.");
         RaiseOnPythonNotInitialized();
-        int argsLen = args?.Length ?? 0;
-        var argHandles = new IntPtr[argsLen];
-
-        for (int i = 0; i < argsLen; i++)
-        {
-            argHandles[i] = args![i].GetHandle();
-        }
-
-        var kwargHandles = new IntPtr[kwnames.Length];
-        for (int i = 0; i < kwnames.Length; i++)
-        {
-            kwargHandles[i] = kwvalues![i].GetHandle();
-        }
+        args ??= [];
+        var argHandles = args.Select(args => args.GetHandle()).ToArray();
+        var kwargHandles = kwvalues.Select(kw => kw.GetHandle()).ToArray();
 
         using (GIL.Acquire())
         {
@@ -266,6 +254,8 @@ public class PyObject : SafeHandle
 
     private static void MergeKeywordArguments(string[] kwnames, PyObject[] kwvalues, IReadOnlyDictionary<string, PyObject>? kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues)
     {
+        if (kwnames.Length != kwvalues.Length)
+            throw new ArgumentException("kwnames and kwvalues must be the same length.");
         if (kwargs is null)
         {
             combinedKwnames = kwnames;

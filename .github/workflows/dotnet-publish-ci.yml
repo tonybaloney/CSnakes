@@ -48,3 +48,6 @@ jobs:
 
       - name: Publish to GitHub packages
         run: dotnet nuget push ./nuget/*.nupkg --source "https://nuget.pkg.github.com/tonybaloney/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to GitHub packages (symbols)
+        run: dotnet nuget push ./nuget/*.snupkg --source "https://nuget.pkg.github.com/tonybaloney/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}

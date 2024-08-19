@@ -5,7 +5,7 @@ using Superpower.Parsers;
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
-    public static TokenListParser<PythonToken, PythonFunctionParameter> PositinalOnlyParameterParser { get; } =
+    public static TokenListParser<PythonToken, PythonFunctionParameter> PositionalOnlyParameterParser { get; } =
         Token.EqualTo(PythonToken.Slash)
         .Select(d => new PythonFunctionParameter("/", null, null, PythonFunctionParameterType.Slash))
         .Named("Positional Only Signal");
@@ -15,13 +15,13 @@ public static partial class PythonParser
          from colon in Token.EqualTo(PythonToken.Colon).Optional()
          from type in PythonTypeDefinitionTokenizer.AssumeNotNull().OptionalOrDefault()
          from defaultValue in Token.EqualTo(PythonToken.Equal).Optional().Then(
-                 _ => ConstantValueTokenizer.OptionalOrDefault()
+                 _ => ConstantValueTokenizer.AssumeNotNull().OptionalOrDefault()
              )
          select new PythonFunctionParameter(arg.Name, type, defaultValue, arg.ParameterType))
         .Named("Parameter");
 
     public static TokenListParser<PythonToken, PythonFunctionParameter?> ParameterOrSlash { get; } =
-        PositinalOnlyParameterParser.AsNullable()
+        PositionalOnlyParameterParser.AsNullable()
         .Or(PythonParameterTokenizer.AsNullable())
         .Named("Parameter");
 

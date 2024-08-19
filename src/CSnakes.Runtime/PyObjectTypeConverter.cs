@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Numerics;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter : TypeConverter
@@ -139,6 +140,7 @@ internal partial class PyObjectTypeConverter : TypeConverter
             destinationType == typeof(bool) ||
             destinationType == typeof(double) ||
             destinationType == typeof(byte[]) ||
+            destinationType == typeof(BigInteger) ||
             (destinationType.IsGenericType && (
                 IsAssignableToGenericType(destinationType, dictionaryType) ||
                 IsAssignableToGenericType(destinationType, listType) ||
@@ -155,6 +157,7 @@ internal partial class PyObjectTypeConverter : TypeConverter
             sourceType == typeof(bool) ||
             sourceType == typeof(double) ||
             sourceType == typeof(byte[]) ||
+            sourceType == typeof(BigInteger) ||
             (sourceType.IsGenericType && (
                 IsAssignableToGenericType(sourceType, dictionaryType) ||
                 IsAssignableToGenericType(sourceType, listType) ||

@@ -37,7 +37,8 @@ public class ArgumentReflection
 
         // Keyword only arguments must have a default parameter, otherwise C# will give a compilation error
         // e.g., error CS1737: Optional parameters must appear after all required parameters
-        if (parameter.IsKeywordOnly && parameter.DefaultValue == null)
+        if (parameter.IsKeywordOnly && parameter.DefaultValue is null)
+
         {
             parameter.DefaultValue = PythonConstant.FromNone();
         }

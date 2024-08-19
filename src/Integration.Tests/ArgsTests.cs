@@ -47,8 +47,8 @@ public class ArgsTests : IntegrationTestBase
 
         using (GIL.Acquire())
         {
-            using PyObject? arg1 = td.ConvertFrom(3L) as PyObject;
-            Assert.NotNull(arg1);
+            using PyObject arg1 = (PyObject)td.ConvertFrom(3L);
+
             Assert.Equal(9, mod.PositionalAndKwargs(a: 1, b: 2, c: 3, kwargs: new Dictionary<string, PyObject> { { "d", arg1 } }));
         }
     }

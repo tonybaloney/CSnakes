@@ -47,7 +47,7 @@ internal partial class PyObjectTypeConverter
             int result = CPythonAPI.PyList_Append(pyList, converted);
             if (result == -1)
             {
-                throw new Exception("Failed to set item in list");
+                PyObject.ThrowPythonExceptionAsClrException();
             }
         }
 

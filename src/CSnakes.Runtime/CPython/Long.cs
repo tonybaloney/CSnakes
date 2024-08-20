@@ -22,5 +22,5 @@ internal unsafe partial class CPythonAPI
     }
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyLong_FromUnicodeObject(nint unicode, int @base);
+    internal static partial nint PyLong_FromUnicodeObject(PyObject unicode, int @base);
 }

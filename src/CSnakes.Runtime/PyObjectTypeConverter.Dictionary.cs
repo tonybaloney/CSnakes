@@ -43,7 +43,7 @@ internal partial class PyObjectTypeConverter
             int result = CPythonAPI.PyDict_SetItem(pyDict, ToPython(kvp.Key, context, culture), ToPython(kvp.Value, context, culture));
             if (result == -1)
             {
-                throw new Exception("Failed to set item in dictionary");
+                PyObject.ThrowPythonExceptionAsClrException();
             }
         }
 

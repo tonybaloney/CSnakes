@@ -30,3 +30,6 @@ def test_bytes(a: bytes) -> bytes:
 def test_sequence(a: Sequence[int], start: int, end: int) -> Sequence[int]:
     assert a == [1, 2, 3]
     return range(start, end)
+
+def test_none_result() -> None:
+    pass

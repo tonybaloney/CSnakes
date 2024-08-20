@@ -102,6 +102,13 @@ public static class MethodReflection
             _ => ProcessMethodWithReturnType(returnSyntax, parameterGenericArgs)
         };
 
+        bool resultShouldBeDisposed = returnSyntax switch
+        {
+            TypeSyntax s when s is PredefinedTypeSyntax p && p.Keyword.IsKind(SyntaxKind.VoidKeyword) => true,
+            TypeSyntax s when s is IdentifierNameSyntax => false,
+            _ => true
+        };
+
         var moduleDefinition = LocalDeclarationStatement(
                         VariableDeclaration(
                             IdentifierName("PyObject"))
@@ -142,8 +149,9 @@ public static class MethodReflection
                                     Identifier("__result_pyObject"))
                                 .WithInitializer(
                                     EqualsValueClause(
-                                        callExpression)))))
-            .WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
+                                        callExpression)))));
+        if (resultShouldBeDisposed)
+            callStatement = callStatement.WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
         StatementSyntax[] statements = [
             ExpressionStatement(
                 InvocationExpression(

@@ -5,15 +5,11 @@ public class ConverterTestBase : RuntimeTestBase
 {
     protected static void RunTest<T>(T input)
     {
-        using (GIL.Acquire())
-        {
-            using PyObject? pyObj = PyObject.From(input);
+        using PyObject? pyObj = PyObject.From(input);
+        Assert.NotNull(pyObj);
 
-            Assert.NotNull(pyObj);
-
-            // Convert back
-            T actual = pyObj.As<T>();
-            Assert.Equal(input, actual);
-        }
+        // Convert back
+        T actual = pyObj.As<T>();
+        Assert.Equal(input, actual);
     }
 }

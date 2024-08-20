@@ -68,11 +68,8 @@ public static class MethodReflection
                                             InvocationExpression(
                                                 MemberAccessExpression(
                                                     SyntaxKind.SimpleMemberAccessExpression,
-                                                    MemberAccessExpression(
-                                                        SyntaxKind.SimpleMemberAccessExpression,
-                                                        ThisExpression(),
-                                                        IdentifierName("td")),
-                                                    IdentifierName("ConvertFrom")))
+                                                    IdentifierName("PyObject"),
+                                                    IdentifierName("From")))
                                             .WithArgumentList(
                                                 ArgumentList(
                                                     SingletonSeparatedList(
@@ -224,16 +221,13 @@ public static class MethodReflection
             parameterGenericArgs.Add(rg);
         }
 
-        var converter =
-            GenericName(Identifier("As"))
-            .WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])));
-
         returnExpression = ReturnStatement(
                     InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
                             IdentifierName("__result_pyObject"),
-                            converter))
+                            GenericName(Identifier("As"))
+                                .WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])))))
                     .WithArgumentList(ArgumentList()));
         return returnExpression;
     }

@@ -26,12 +26,8 @@ internal unsafe partial class CPythonAPI
         {
             var keyObj = AsPyUnicodeObject(kwnames[i]);
             int result = PyDict_SetItemRaw(dict, keyObj, kwvalues[i]);
-            if (result != -1)
+            if (result == -1)
             {
-                // Add reference to the new item and key as it belongs to the dictionary now. 
-                Py_IncRefRaw(keyObj);
-                Py_IncRefRaw(kwvalues[i]);
-            } else { 
                 PyObject.ThrowPythonExceptionAsClrException();
             }
             Py_DecRefRaw(keyObj);
@@ -75,39 +71,17 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_GetItem")]
     private static partial nint PyDict_GetItem_(PyObject dict, PyObject key);
 
-
     /// <summary>
     /// Insert val into the dictionary p with a key of key. 
     /// key must be hashable; if it isn’t, TypeError will be raised.  
-    /// This function adds a reference to val and key if successful.
-    /// </summary>
-    /// <param name="dict">PyDict object</param>
-    /// <param name="key">Key</param>
-    /// <param name="value">Value</param>
-    /// <returns>Return 0 on success or -1 on failure.</returns>
-    internal static int PyDict_SetItem(PyObject dict, PyObject key, PyObject value)
-    {
-        int result = PyDict_SetItem_(dict, key, value);
-        if (result != -1)
-        {
-            // Add reference to the new item and key as it belongs to the dictionary now. 
-            Py_IncRef(value);
-            Py_IncRef(key);
-        }
-        return result;
-    }
-
-    /// <summary>
-    /// Insert val into the dictionary p with a key of key. 
-    /// key must be hashable; if it isn’t, TypeError will be raised.  
-    /// This function does not steal a reference to val.
+    /// This function adds a new reference to key and value if successful.
     /// </summary>
     /// <param name="dict">PyDict object</param>
     /// <param name="key">Key</param>
     /// <param name="value">Value</param>
     /// <returns>Return 0 on success or -1 on failure.</returns>
     [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_SetItem")]
-    private static partial int PyDict_SetItem_(PyObject dict, PyObject key, PyObject val);
+    internal static partial int PyDict_SetItem(PyObject dict, PyObject key, PyObject value);
 
     [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_SetItem")]
     private static partial int PyDict_SetItemRaw(IntPtr dict, IntPtr key, IntPtr val);

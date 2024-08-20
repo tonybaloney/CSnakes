@@ -22,7 +22,7 @@ using (GIL.Acquire())
     // e.g. call a function with this as an argument
 
     // Convert a Python int back into a BigInteger like this..
-    BigInteger integer = pyObj<BigInteger>.As();
+    BigInteger integer = pyObj.As<BigInteger>();
 }
 ```
 

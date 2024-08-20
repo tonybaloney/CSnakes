@@ -20,4 +20,7 @@ internal unsafe partial class CPythonAPI
     {
         return PyObject_IsInstance(p, PyLongType);
     }
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial nint PyLong_FromUnicodeObject(PyObject unicode, int @base);
 }

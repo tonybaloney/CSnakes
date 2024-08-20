@@ -84,7 +84,7 @@ public static partial class PythonParser
 
     public static TokenListParser<PythonToken, PythonConstant> NoneConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.None)
-        .Select(d => new PythonConstant { Type = PythonConstant.ConstantType.None })
+        .Select(d => PythonConstant.FromNone())
         .Named("None Constant");
 
     // Any constant value

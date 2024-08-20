@@ -23,6 +23,7 @@ public static class TypeReflection
                 "Dict" => CreateDictionaryType(pythonType.Arguments[0], pythonType.Arguments[1]),
                 "Mapping" => CreateDictionaryType(pythonType.Arguments[0], pythonType.Arguments[1]),
                 "Sequence" => CreateListType(pythonType.Arguments[0]),
+                "Optional" => AsPredefinedType(pythonType.Arguments[0]),
                 // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
                 _ => SyntaxFactory.ParseTypeName("PyObject"),// TODO : Should be nullable?
             };

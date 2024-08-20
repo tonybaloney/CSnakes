@@ -43,7 +43,12 @@ public class PyObject : SafeHandle
         return true;
     }
 
-    private static void ThrowPythonExceptionAsClrException()
+    /// <summary>
+    /// Throws a Python exception as a CLR exception.
+    /// </summary>
+    /// <exception cref="InvalidDataException"></exception>
+    /// <exception cref="PythonInvocationException"></exception>
+    internal static void ThrowPythonExceptionAsClrException()
     {
         using (GIL.Acquire())
         {
@@ -52,7 +57,7 @@ public class PyObject : SafeHandle
                 throw new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
             CPythonAPI.PyErr_Fetch(out nint excType, out nint excValue, out nint excTraceback);
-            
+
             if (excType == 0)
             {
                 throw new InvalidDataException("An error occurred in Python, but no exception was set.");
@@ -94,7 +99,6 @@ public class PyObject : SafeHandle
     /// <returns>A new reference to the type field.</returns>
     public PyObject GetPythonType()
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
@@ -109,7 +113,6 @@ public class PyObject : SafeHandle
     /// <returns>Attribute object (new ref)</returns>
     public PyObject GetAttr(string name)
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
@@ -119,7 +122,6 @@ public class PyObject : SafeHandle
 
     public bool HasAttr(string name)
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
@@ -133,7 +135,6 @@ public class PyObject : SafeHandle
     /// <returns>The iterator object (new ref)</returns>
     public PyObject GetIter()
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
@@ -147,7 +148,6 @@ public class PyObject : SafeHandle
     /// <returns></returns>
     public string GetRepr()
     {
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
@@ -159,38 +159,108 @@ public class PyObject : SafeHandle
 
     /// <summary>
     /// Call the object. Equivalent to (__call__)(args)
+    /// All arguments are treated as positional.
     /// </summary>
     /// <param name="args"></param>
     /// <returns>The resulting object, or NULL on error.</returns>
     public PyObject Call(params PyObject[] args)
     {
+        return CallWithArgs(args);
+    }
+
+    public PyObject CallWithArgs(PyObject[]? args = null)
+    {
         RaiseOnPythonNotInitialized();
-        // TODO: Consider moving this to a logger.
-        Debug.Assert(!IsInvalid);
+        args ??= [];
         var marshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
         var argHandles = args.Length < 16
             ? stackalloc IntPtr[args.Length]
             : new IntPtr[args.Length];
+
         for (int i = 0; i < args.Length; i++)
         {
             ref var m = ref marshallers[i];
             m.FromManaged(args[i]);
             argHandles[i] = m.ToUnmanaged();
         }
+
         try
         {
             using (GIL.Acquire())
             {
                 return new PyObject(CPythonAPI.Call(this, argHandles));
             }
-        }
-        finally
+        } finally
         {
             foreach (var m in marshallers)
             {
                 m.Free();
             }
         }
+    }
+
+    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null)
+    {
+        if (kwnames is null)
+            return CallWithArgs(args);
+        if (kwvalues is null || kwnames.Length != kwvalues.Length)
+            throw new ArgumentException("kwnames and kwvalues must be the same length.");
+        RaiseOnPythonNotInitialized();
+        args ??= [];
+
+        var argMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
+        var kwargMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[kwvalues.Length];
+        var argHandles = args.Length < 16
+            ? stackalloc IntPtr[args.Length]
+            : new IntPtr[args.Length];
+        var kwargHandles = kwvalues.Length < 16
+            ? stackalloc IntPtr[kwvalues.Length]
+            : new IntPtr[kwvalues.Length];
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            ref var m = ref argMarshallers[i];
+            m.FromManaged(args[i]);
+            argHandles[i] = m.ToUnmanaged();
+        }
+        for (int i = 0; i < kwvalues.Length; i++)
+        {
+            ref var m = ref kwargMarshallers[i];
+            m.FromManaged(kwvalues[i]);
+            kwargHandles[i] = m.ToUnmanaged();
+        }
+
+        try
+        {
+            using (GIL.Acquire())
+            {
+                return new PyObject(CPythonAPI.Call(this, argHandles, kwnames, kwargHandles));
+            }
+        }
+        finally
+        {
+            foreach (var m in argMarshallers)
+            {
+                m.Free();
+            }
+            foreach (var m in kwargMarshallers)
+            {
+                m.Free();
+            }
+        }
+    }
+
+    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)
+    {
+        // No keyword parameters supplied
+        if (kwnames is null && kwargs is null)
+            return CallWithArgs(args);
+        // Keyword args are empty and kwargs is empty. 
+        if (kwnames is not null && kwnames.Length == 0 && (kwargs is null || kwargs.Count == 0))
+            return CallWithArgs(args);
+
+        MergeKeywordArguments(kwnames ?? [], kwvalues ?? [], kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues);
+        return CallWithKeywordArguments(args, combinedKwnames, combinedKwvalues);
     }
 
     /// <summary>
@@ -200,7 +270,6 @@ public class PyObject : SafeHandle
     public override string ToString()
     {
         // TODO: Consider moving this to a logger.
-        Debug.Assert(!IsInvalid);
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
@@ -216,5 +285,30 @@ public class PyObject : SafeHandle
     {
         CPythonAPI.Py_IncRefRaw(handle);
         return new PyObject(handle);
+    }
+
+    private static void MergeKeywordArguments(string[] kwnames, PyObject[] kwvalues, IReadOnlyDictionary<string, PyObject>? kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues)
+    {
+        if (kwnames.Length != kwvalues.Length)
+            throw new ArgumentException("kwnames and kwvalues must be the same length.");
+        if (kwargs is null)
+        {
+            combinedKwnames = kwnames;
+            combinedKwvalues = kwvalues;
+            return;
+        }
+
+        var newKwnames = new List<string>(kwnames);
+        var newKwvalues = new List<PyObject>(kwvalues);
+
+        // The order must be the same as we're not submitting these in a mapping, but a parallel array.
+        foreach (var (key, value) in kwargs)
+        {
+            newKwnames.Add(key);
+            newKwvalues.Add(value);
+        }
+
+        combinedKwnames = [.. newKwnames];
+        combinedKwvalues = [.. newKwvalues];
     }
 }

@@ -65,9 +65,7 @@ internal unsafe partial class CPythonAPI
         int result = PyObject_IsInstance_(ob, type);
         if (result == -1)
         {
-            PyErr_Clear();
-            // TODO: Get the Python exception message.
-            throw new Exception("Failure calling isinstance() on object.");
+            PyObject.ThrowPythonExceptionAsClrException();
         }
         return result == 1;
     }

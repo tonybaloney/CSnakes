@@ -19,6 +19,26 @@ internal unsafe partial class CPythonAPI
         return PyObject_IsInstance(p, PyDictType);
     }
 
+    internal static nint PackDict(Span<string> kwnames, Span<IntPtr> kwvalues)
+    {
+        var dict = PyDict_New();
+        for (int i = 0; i < kwnames.Length; i ++)
+        {
+            var keyObj = AsPyUnicodeObject(kwnames[i]);
+            int result = PyDict_SetItemRaw(dict, keyObj, kwvalues[i]);
+            if (result != -1)
+            {
+                // Add reference to the new item and key as it belongs to the dictionary now. 
+                Py_IncRefRaw(keyObj);
+                Py_IncRefRaw(kwvalues[i]);
+            } else { 
+                PyObject.ThrowPythonExceptionAsClrException();
+            }
+            Py_DecRefRaw(keyObj);
+        }
+        return dict;
+    }
+
     /// <summary>
     /// Return the number of items in the dictionary as ssize_t
     /// </summary>
@@ -39,8 +59,7 @@ internal unsafe partial class CPythonAPI
         var result = PyDict_GetItem_(dict, key);
         if (result == IntPtr.Zero)
         {
-            PyErr_Clear();
-            throw new KeyNotFoundException();
+            PyObject.ThrowPythonExceptionAsClrException();
         }
         Py_IncRefRaw(result);
         return result;
@@ -89,6 +108,9 @@ internal unsafe partial class CPythonAPI
     /// <returns>Return 0 on success or -1 on failure.</returns>
     [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_SetItem")]
     private static partial int PyDict_SetItem_(PyObject dict, PyObject key, PyObject val);
+
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_SetItem")]
+    private static partial int PyDict_SetItemRaw(IntPtr dict, IntPtr key, IntPtr val);
 
     /// <summary>
     /// Get the items iterator for the dictionary.

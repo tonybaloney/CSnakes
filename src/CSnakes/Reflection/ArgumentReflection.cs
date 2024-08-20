@@ -6,21 +6,39 @@ namespace CSnakes.Reflection;
 
 public class ArgumentReflection
 {
-    private static readonly PythonTypeSpec TupleAny = new("tuple", [PythonTypeSpec.Any]);
     private static readonly PythonTypeSpec DictStrAny = new("dict", [new("str", []), PythonTypeSpec.Any]);
+    private static readonly TypeSyntax ArrayPyObject = SyntaxFactory.ParseTypeName("PyObject[]");
 
-    public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter)
+    public static ParameterSyntax? ArgumentSyntax(PythonFunctionParameter parameter)
     {
-        // Treat *args as tuple<Any> and **kwargs as dict<str, Any>
+        // The parameter / is a special syntax, not a parameter. 
+        if (parameter.ParameterType == PythonFunctionParameterType.Slash)
+        {
+            return null;
+        }
+
+        // Treat *args as list<Any>=None and **kwargs as dict<str, Any>=None
+        // TODO: Handle the user specifying *args with a type annotation like tuple[int, str]
         TypeSyntax reflectedType = parameter.ParameterType switch
         {
-            PythonFunctionParameterType.Star => TypeReflection.AsPredefinedType(TupleAny),
+            PythonFunctionParameterType.Star => ArrayPyObject,
             PythonFunctionParameterType.DoubleStar => TypeReflection.AsPredefinedType(DictStrAny),
             PythonFunctionParameterType.Normal => TypeReflection.AsPredefinedType(parameter.Type),
-            _ => throw new System.NotImplementedException()
+            _ => throw new NotImplementedException()
         };
 
-        if (parameter.DefaultValue == null)
+        // Force a default value for *args and **kwargs as null, otherwise the calling convention is strange
+        if ((parameter.ParameterType == PythonFunctionParameterType.Star ||
+             parameter.ParameterType == PythonFunctionParameterType.DoubleStar) &&
+            parameter.DefaultValue is null)
+
+        {
+            parameter.DefaultValue = PythonConstant.FromNone();
+        }
+
+        bool isNullableType = false;
+
+        if (parameter.DefaultValue is null)
         {
             return SyntaxFactory
                 .Parameter(SyntaxFactory.Identifier(Keywords.ValidIdentifier(parameter.Name.ToLowerPascalCase())))
@@ -60,6 +78,7 @@ public class ArgumentReflection
                     break;
                 case PythonConstant.ConstantType.None:
                     literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+                    isNullableType = true;
                     break;
                 case PythonConstant.ConstantType.HexidecimalInteger:
                     literalExpressionSyntax = SyntaxFactory.LiteralExpression(
@@ -73,9 +92,14 @@ public class ArgumentReflection
                     break;
                 default:
                     literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+                    isNullableType = true;
                     break;
             }
 
+            if (isNullableType)
+            {
+                reflectedType = SyntaxFactory.NullableType(reflectedType);
+            }
 
             return SyntaxFactory
                 .Parameter(SyntaxFactory.Identifier(Keywords.ValidIdentifier(parameter.Name.ToLowerPascalCase())))
@@ -85,8 +109,18 @@ public class ArgumentReflection
         }
     }
 
-    public static ParameterListSyntax ParameterListSyntax(PythonFunctionParameter[] parameters)
+    public static List<(PythonFunctionParameter, ParameterSyntax)> FunctionParametersAsParameterSyntaxPairs(PythonFunctionParameter[] parameters)
     {
-        return SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters.Select(ArgumentSyntax).ToList()));
+        List<(PythonFunctionParameter, ParameterSyntax)> parametersList = [];
+        foreach (var parameter in parameters)
+        {
+            var argument = ArgumentSyntax(parameter);
+            if (argument != null)
+            {
+                parametersList.Add((parameter, argument));
+            }
+        }
+
+        return parametersList;
     }
 }

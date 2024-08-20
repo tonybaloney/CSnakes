@@ -39,6 +39,7 @@ public class PythonConstant
         BoolValue = value;
     }
 
+    public static PythonConstant FromNone() => new PythonConstant { Type = ConstantType.None };
     public ConstantType Type { get; set; }
 
     public long IntegerValue { get; set; }

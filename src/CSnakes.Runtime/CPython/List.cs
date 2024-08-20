@@ -34,8 +34,7 @@ internal unsafe partial class CPythonAPI
         nint item = PyList_GetItem_(obj, pos);
         if (item == IntPtr.Zero)
         {
-            PyErr_Clear();
-            throw new IndexOutOfRangeException();
+            PyObject.ThrowPythonExceptionAsClrException();
         }
         Py_IncRefRaw(item);
         return item;

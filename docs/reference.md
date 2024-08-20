@@ -18,6 +18,7 @@ CSnakes supports the following typed scenarios:
 | `typing.Dict[K, V]`    | `IReadOnlyDictionary<K, V>` |
 | `typing.Mapping[K, V]` | `IReadOnlyDictionary<K, V>` |
 | `typing.Tuple[T1, T2, ...]` | `(T1, T2, ...)` |
+| `typing.Optional[T]`   | `T?`              |
 | `None` (Return)        | `void`            |
 
 
@@ -123,16 +124,6 @@ These packages only bundle the Python runtime for Windows. You also need to spec
 ...
 var pythonBuilder = services.WithPython();
 pythonBuilder.FromNuGet("3.12.4")
-```
-
-### Path Locator
-
-The Path Locator is used to find the Python runtime based on the `$PATH` environment variable, typically for Linux. This is useful for scenarios where you have installed Python from the package manager on Linux.
-
-```csharp
-...
-var pythonBuilder = services.WithPython();
-pythonBuilder.FromPath("3.12")
 ```
 
 ## Parallelism and concurrency

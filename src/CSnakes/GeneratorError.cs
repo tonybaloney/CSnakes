@@ -20,7 +20,7 @@ public class GeneratorError
         Message = message;
         StartLine = startLine;
         StartColumn = startColumn;
-        EndLine = endLine;
+        EndLine = endLine == -1 ? startLine : endLine;
         EndColumn = endColumn;
         Code = "hello";
     }

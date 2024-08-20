@@ -35,7 +35,6 @@ internal partial class PyObjectTypeConverter : TypeConverter
             return pyObject.Clone();
         }
 
-        nint handle = pyObject.DangerousGetHandle();
         if (destinationType == typeof(string) && CPythonAPI.IsPyUnicode(pyObject))
         {
             return CPythonAPI.PyUnicode_AsUTF8(pyObject);
@@ -319,7 +318,7 @@ internal partial class PyObjectTypeConverter : TypeConverter
 
     private PyObject ToPython(object? o, ITypeDescriptorContext? context, CultureInfo? culture)
     {
-        if (o == null)
+        if (o is null)
         {
             return new PyObject(CPythonAPI.GetNone());
         }

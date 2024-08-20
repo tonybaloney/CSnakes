@@ -16,7 +16,8 @@ var builder = Host.CreateDefaultBuilder(args)
         .WithHome(home)
         .WithVirtualEnvironment(venv)
         .FromNuGet("3.12.4")
-        .FromPath("3.12.4")
+        .FromMacOSInstallerLocator("3.12")
+        .FromEnvironmentVariable("Python3_ROOT_DIR", "3.12")
         .WithPipInstaller();
     });
 

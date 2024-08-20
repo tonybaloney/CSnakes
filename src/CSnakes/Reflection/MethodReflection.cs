@@ -61,20 +61,16 @@ public static class MethodReflection
                                 Identifier($"{parameter.cSharpParameter.Identifier}_pyObject"))
                             .WithInitializer(
                                 EqualsValueClause(
-                                    CastExpression(
-                                        IdentifierName("PyObject"),
-                                        PostfixUnaryExpression(
-                                            SyntaxKind.SuppressNullableWarningExpression,
-                                            InvocationExpression(
-                                                MemberAccessExpression(
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    IdentifierName("PyObject"),
-                                                    IdentifierName("From")))
-                                            .WithArgumentList(
-                                                ArgumentList(
-                                                    SingletonSeparatedList(
-                                                        Argument(
-                                                            IdentifierName(parameter.cSharpParameter.Identifier))))))))))))
+                                    InvocationExpression(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName("PyObject"),
+                                            IdentifierName("From")))
+                                        .WithArgumentList(
+                                            ArgumentList(
+                                                SingletonSeparatedList(
+                                                    Argument(
+                                                        IdentifierName(parameter.cSharpParameter.Identifier))))))))))
                 .WithUsingKeyword(
                     Token(SyntaxKind.UsingKeyword)));
         }

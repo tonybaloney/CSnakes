@@ -35,63 +35,62 @@ internal partial class PyObjectTypeConverter : TypeConverter
             return pyObject.Clone();
         }
 
-        nint handle = pyObject.GetHandle();
-        if (destinationType == typeof(string) && CPythonAPI.IsPyUnicode(handle))
+        if (destinationType == typeof(string) && CPythonAPI.IsPyUnicode(pyObject))
         {
-            return CPythonAPI.PyUnicode_AsUTF8(handle);
+            return CPythonAPI.PyUnicode_AsUTF8(pyObject);
         }
 
-        if (destinationType == typeof(byte[]) && CPythonAPI.IsBytes(handle))
+        if (destinationType == typeof(byte[]) && CPythonAPI.IsBytes(pyObject))
         {
-            return CPythonAPI.PyBytes_AsByteArray(handle);
+            return CPythonAPI.PyBytes_AsByteArray(pyObject);
         }
 
-        if (destinationType == typeof(long) && CPythonAPI.IsPyLong(handle))
+        if (destinationType == typeof(long) && CPythonAPI.IsPyLong(pyObject))
         {
-            return CPythonAPI.PyLong_AsLongLong(handle);
+            return CPythonAPI.PyLong_AsLongLong(pyObject);
         }
 
-        if (destinationType == typeof(int) && CPythonAPI.IsPyLong(handle))
+        if (destinationType == typeof(int) && CPythonAPI.IsPyLong(pyObject))
         {
-            return CPythonAPI.PyLong_AsLongLong(handle);
+            return CPythonAPI.PyLong_AsLongLong(pyObject);
         }
 
-        if (destinationType == typeof(bool) && CPythonAPI.IsPyBool(handle))
+        if (destinationType == typeof(bool) && CPythonAPI.IsPyBool(pyObject))
         {
-            return CPythonAPI.IsPyTrue(handle);
+            return CPythonAPI.IsPyTrue(pyObject);
         }
 
-        if (destinationType == typeof(double) && CPythonAPI.IsPyFloat(handle))
+        if (destinationType == typeof(double) && CPythonAPI.IsPyFloat(pyObject))
         {
-            return CPythonAPI.PyFloat_AsDouble(handle);
+            return CPythonAPI.PyFloat_AsDouble(pyObject);
         }
 
         if (destinationType.IsGenericType)
         {
-            if (IsAssignableToGenericType(destinationType, dictionaryType) && CPythonAPI.IsPyDict(handle))
+            if (IsAssignableToGenericType(destinationType, dictionaryType) && CPythonAPI.IsPyDict(pyObject))
             {
                 return ConvertToDictionary(pyObject, destinationType, context, culture);
             }
 
-            if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPyList(handle))
+            if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPyList(pyObject))
             {
                 return ConvertToList(pyObject, destinationType, context, culture);
             }
 
             // This needs to come after lists, because sequences are also maps
-            if (destinationType.IsAssignableTo(collectionType) && CPythonAPI.IsPyMappingWithItems(handle))
+            if (destinationType.IsAssignableTo(collectionType) && CPythonAPI.IsPyMappingWithItems(pyObject))
             {
                 return ConvertToDictionary(pyObject, destinationType, context, culture, useMappingProtocol: true);
             }
 
-            if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPySequence(handle))
+            if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPySequence(pyObject))
             {
                 return ConvertToListFromSequence(pyObject, destinationType, context, culture);
             }
 
             if (destinationType.IsAssignableTo(typeof(ITuple)))
             {
-                if (CPythonAPI.IsPyTuple(handle))
+                if (CPythonAPI.IsPyTuple(pyObject))
                 {
                     return ConvertToTuple(context, culture, pyObject, destinationType);
                 }
@@ -112,19 +111,19 @@ internal partial class PyObjectTypeConverter : TypeConverter
 
     private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture, bool useMappingProtocol = false)
     {
-        using PyObject items = useMappingProtocol ? new(CPythonAPI.PyMapping_Items(pyObject.GetHandle())) : new(CPythonAPI.PyDict_Items(pyObject.GetHandle()));
+        using PyObject items = useMappingProtocol ? new(CPythonAPI.PyMapping_Items(pyObject)) : new(CPythonAPI.PyDict_Items(pyObject));
         Type item1Type = destinationType.GetGenericArguments()[0];
         Type item2Type = destinationType.GetGenericArguments()[1];
         Type dictType = typeof(Dictionary<,>).MakeGenericType(item1Type, item2Type);
         IDictionary dict = (IDictionary)Activator.CreateInstance(dictType)!;
-        nint itemsLength = CPythonAPI.PyList_Size(items.GetHandle());
+        nint itemsLength = CPythonAPI.PyList_Size(items);
 
         for (nint i = 0; i < itemsLength; i++)
         {
-            using PyObject item = new(CPythonAPI.PyList_GetItem(items.GetHandle(), i));
+            using PyObject item = new(CPythonAPI.PyList_GetItem(items, i));
 
-            using PyObject item1 = new(CPythonAPI.PyTuple_GetItem(item.GetHandle(), 0));
-            using PyObject item2 = new(CPythonAPI.PyTuple_GetItem(item.GetHandle(), 1));
+            using PyObject item1 = new(CPythonAPI.PyTuple_GetItem(item, 0));
+            using PyObject item2 = new(CPythonAPI.PyTuple_GetItem(item, 1));
 
             object? convertedItem1 = AsManagedObject(item1Type, item1, context, culture);
             object? convertedItem2 = AsManagedObject(item2Type, item2, context, culture);
@@ -138,17 +137,15 @@ internal partial class PyObjectTypeConverter : TypeConverter
 
     private object? ConvertToTuple(ITypeDescriptorContext? context, CultureInfo? culture, PyObject pyObj, Type destinationType)
     {
-        var tuplePtr = pyObj.GetHandle();
-
         // We have to convert the Python values to CLR values, as if we just tried As<object>() it would
         // not parse the Python type to a CLR type, only to a new Python type.
         Type[] types = destinationType.GetGenericArguments();
         object?[] clrValues;
 
         var tupleValues = new List<PyObject>();
-        for (nint i = 0; i < CPythonAPI.PyTuple_Size(tuplePtr); i++)
+        for (nint i = 0; i < CPythonAPI.PyTuple_Size(pyObj); i++)
         {
-            PyObject value = new(CPythonAPI.PyTuple_GetItem(tuplePtr, i));
+            PyObject value = new(CPythonAPI.PyTuple_GetItem(pyObj, i));
             tupleValues.Add(value);
         }
 
@@ -197,9 +194,9 @@ internal partial class PyObjectTypeConverter : TypeConverter
         Type listType = typeof(List<>).MakeGenericType(genericArgument);
 
         IList list = (IList)Activator.CreateInstance(listType)!;
-        for (var i = 0; i < CPythonAPI.PyList_Size(pyObject.GetHandle()); i++)
+        for (var i = 0; i < CPythonAPI.PyList_Size(pyObject); i++)
         {
-            using PyObject item = new(CPythonAPI.PyList_GetItem(pyObject.GetHandle(), i));
+            using PyObject item = new(CPythonAPI.PyList_GetItem(pyObject, i));
             list.Add(AsManagedObject(genericArgument, item, context, culture));
         }
 
@@ -212,9 +209,9 @@ internal partial class PyObjectTypeConverter : TypeConverter
         Type listType = typeof(List<>).MakeGenericType(genericArgument);
 
         IList list = (IList)Activator.CreateInstance(listType)!;
-        for (var i = 0; i < CPythonAPI.PySequence_Size(pyObject.GetHandle()); i++)
+        for (var i = 0; i < CPythonAPI.PySequence_Size(pyObject); i++)
         {
-            using PyObject item = new(CPythonAPI.PySequence_GetItem(pyObject.GetHandle(), i));
+            using PyObject item = new(CPythonAPI.PySequence_GetItem(pyObject, i));
             list.Add(AsManagedObject(genericArgument, item, context, culture));
         }
 
@@ -243,10 +240,10 @@ internal partial class PyObjectTypeConverter : TypeConverter
 
         foreach (DictionaryEntry kvp in dictionary)
         {
-            int result = CPythonAPI.PyDict_SetItem(pyDict.GetHandle(), ToPython(kvp.Key, context, culture).GetHandle(), ToPython(kvp.Value, context, culture).GetHandle());
+            int result = CPythonAPI.PyDict_SetItem(pyDict, ToPython(kvp.Key, context, culture), ToPython(kvp.Value, context, culture));
             if (result == -1)
             {
-                throw new Exception("Failed to set item in dictionary");
+                PyObject.ThrowPythonExceptionAsClrException();
             }
         }
 
@@ -260,7 +257,7 @@ internal partial class PyObjectTypeConverter : TypeConverter
         foreach (var item in e)
         {
             PyObject converted = ToPython(item, context, culture);
-            int result = CPythonAPI.PyList_Append(pyList.GetHandle(), converted!.GetHandle());
+            int result = CPythonAPI.PyList_Append(pyList, converted!);
             if (result == -1)
             {
                 throw new Exception("Failed to set item in list");

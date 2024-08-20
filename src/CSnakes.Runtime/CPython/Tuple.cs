@@ -18,14 +18,14 @@ internal unsafe partial class CPythonAPI
         // This is a shortcut to a CPython optimization. Keep an empty tuple and reuse it.
         if (items.Length == 0)
         {
-            Py_IncRef(PyEmptyTuple);
+            Py_IncRefRaw(PyEmptyTuple);
             return PyEmptyTuple;
         }
 
         nint tuple = PyTuple_New(items.Length);
         for (int i = 0; i < items.Length; i++)
         {
-            PyTuple_SetItem(tuple, i, items[i]);
+            PyTuple_SetItemRaw(tuple, i, items[i]);
         }
         return tuple;
     }
@@ -46,13 +46,13 @@ internal unsafe partial class CPythonAPI
     /// <param name="pos">The position as ssize_t</param>
     /// <param name="o">The new value</param>
     /// <returns>0 on success and -1 on failure</returns>
-    internal static int PyTuple_SetItem(nint ob, nint pos, nint o)
+    internal static int PyTuple_SetItemRaw(nint ob, nint pos, nint o)
     {
         int result = PyTuple_SetItem_(ob, pos, o);
         if (result != -1)
         {
             // Add reference to the new item as it belongs to tuple now. 
-            Py_IncRef(o);
+            Py_IncRefRaw(o);
         }
         return result;
     }
@@ -67,24 +67,24 @@ internal unsafe partial class CPythonAPI
     /// <param name="pos">the index position as ssize_t</param>
     /// <returns>A new reference to the item.</returns>
     /// <exception cref="IndexOutOfRangeException"></exception>
-    internal static nint PyTuple_GetItem(nint ob, nint pos)
+    internal static nint PyTuple_GetItem(PyObject ob, nint pos)
     {
         nint item = PyTuple_GetItem_(ob, pos);
         if (item == IntPtr.Zero)
         {
             PyObject.ThrowPythonExceptionAsClrException();
         }
-        Py_IncRef(item);
+        Py_IncRefRaw(item);
         return item;
     }
 
     [LibraryImport(PythonLibraryName, EntryPoint = "PyTuple_GetItem")]
-    private static partial nint PyTuple_GetItem_(nint ob, nint pos);
+    private static partial nint PyTuple_GetItem_(PyObject ob, nint pos);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyTuple_Size(nint p);
+    internal static partial nint PyTuple_Size(PyObject p);
 
-    internal static bool IsPyTuple(nint p)
+    internal static bool IsPyTuple(PyObject p)
     {
         return PyObject_IsInstance(p, PyTupleType);
     }

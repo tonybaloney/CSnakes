@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using CSnakes.Runtime.Python;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
@@ -17,9 +18,9 @@ internal unsafe partial class CPythonAPI
     internal static partial nint PyUnicode_DecodeUTF16(char* str, nint size, IntPtr errors, IntPtr byteorder);
 
     [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller))]
-    internal static partial string? PyUnicode_AsUTF8(IntPtr s);
+    internal static partial string? PyUnicode_AsUTF8(PyObject s);
 
-    public static bool IsPyUnicode(nint p)
+    public static bool IsPyUnicode(PyObject p)
     {
         return PyObject_IsInstance(p, PyUnicodeType);
     }

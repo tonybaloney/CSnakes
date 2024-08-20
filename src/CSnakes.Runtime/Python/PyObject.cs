@@ -281,6 +281,11 @@ public class PyObject : SafeHandle
 
     public T As<T>() => (T)(td.ConvertTo(this, typeof(T)) ?? default!);
 
+    public static PyObject? From<T>(T value) => 
+        value is null ?
+            new PyObject(CPythonAPI.GetNone()) :
+            (PyObject?)td.ConvertFrom(value);
+
     internal PyObject Clone()
     {
         CPythonAPI.Py_IncRefRaw(handle);

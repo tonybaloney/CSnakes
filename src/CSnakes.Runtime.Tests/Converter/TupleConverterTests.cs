@@ -1,37 +1,33 @@
-﻿using CSnakes.Runtime.Python;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿namespace CSnakes.Runtime.Tests.Converter;
 
-namespace CSnakes.Runtime.Tests.Converter;
-
-public class TupleConverterTests : RuntimeTestBase
+public class TupleConverterTests : ConverterTestBase
 {
     [Fact]
     public void TupleConverter_SingleArgument()
     {
         Tuple<long> input = new(42);
-        TupleTestInternal(input);
+        RunTest(input);
     }
 
     [Fact]
     public void TupleConverter_TwoArguments()
     {
         (long, long) input = (42, 42);
-        TupleTestInternal(input);
+        RunTest(input);
     }
 
     [Fact]
     public void TupleConverter_ThreeArguments()
     {
         (long, long, long) input = (42, 42, 42);
-        TupleTestInternal(input);
+        RunTest(input);
     }
 
     [Fact]
     public void TupleConverter_EightArguments()
     {
         (long, long, long, long, long, long, long, long) input = (1, 2, 3, 4, 5, 6, 7, 8);
-        TupleTestInternal(input);
+        RunTest(input);
     }
 
     [Fact]
@@ -39,23 +35,6 @@ public class TupleConverterTests : RuntimeTestBase
     {
         (long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long) input =
             (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17);
-        TupleTestInternal(input);
-    }
-
-    private static void TupleTestInternal(ITuple input)
-    {
-        var td = TypeDescriptor.GetConverter(typeof(PyObject));
-        Assert.True(td.CanConvertFrom(input.GetType()));
-
-        using (GIL.Acquire())
-        {
-            using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
-            Assert.NotNull(pyObj);
-
-            // Convert back
-            object? str = td.ConvertTo(pyObj, input.GetType());
-            pyObj.Dispose();
-            Assert.Equal(input, str);
-        }
+        RunTest(input);
     }
 }

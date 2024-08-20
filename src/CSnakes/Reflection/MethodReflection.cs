@@ -61,23 +61,16 @@ public static class MethodReflection
                                 Identifier($"{parameter.cSharpParameter.Identifier}_pyObject"))
                             .WithInitializer(
                                 EqualsValueClause(
-                                    CastExpression(
-                                        IdentifierName("PyObject"),
-                                        PostfixUnaryExpression(
-                                            SyntaxKind.SuppressNullableWarningExpression,
-                                            InvocationExpression(
-                                                MemberAccessExpression(
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    MemberAccessExpression(
-                                                        SyntaxKind.SimpleMemberAccessExpression,
-                                                        ThisExpression(),
-                                                        IdentifierName("td")),
-                                                    IdentifierName("ConvertFrom")))
-                                            .WithArgumentList(
-                                                ArgumentList(
-                                                    SingletonSeparatedList(
-                                                        Argument(
-                                                            IdentifierName(parameter.cSharpParameter.Identifier))))))))))))
+                                    InvocationExpression(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName("PyObject"),
+                                            IdentifierName("From")))
+                                        .WithArgumentList(
+                                            ArgumentList(
+                                                SingletonSeparatedList(
+                                                    Argument(
+                                                        IdentifierName(parameter.cSharpParameter.Identifier))))))))))
                 .WithUsingKeyword(
                     Token(SyntaxKind.UsingKeyword)));
         }
@@ -224,16 +217,13 @@ public static class MethodReflection
             parameterGenericArgs.Add(rg);
         }
 
-        var converter =
-            GenericName(Identifier("As"))
-            .WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])));
-
         returnExpression = ReturnStatement(
                     InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
                             IdentifierName("__result_pyObject"),
-                            converter))
+                            GenericName(Identifier("As"))
+                                .WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])))))
                     .WithArgumentList(ArgumentList()));
         return returnExpression;
     }

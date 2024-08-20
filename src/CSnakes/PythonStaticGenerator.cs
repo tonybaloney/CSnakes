@@ -67,7 +67,6 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
             using System;
             using System.Collections.Generic;
-            using System.ComponentModel;
             using System.Diagnostics;
 
             using Microsoft.Extensions.Logging;
@@ -89,8 +88,6 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                 private class {{pascalFileName}}Internal : I{{pascalFileName}}
                 {
-                    private readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
-
                     private readonly PyObject module;
 
                     private readonly ILogger<IPythonEnvironment> logger;

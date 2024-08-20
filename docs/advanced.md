@@ -8,22 +8,21 @@ You can use this using the TypeConverter class to convert between `BigInteger` a
 
 ```csharp
 using CSnakes.Runtime.Python;
-using System.ComponentModel;
 using System.Numerics;
 
 const string number = "12345678987654345678764345678987654345678765";
-TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
 // Something that is too big for a long (I8)
-BigInteger input = BigInteger.Parse(number);
+BigInteger bignumber = BigInteger.Parse(number);
 
 using (GIL.Acquire())
 {
-    using PyObject? pyObj = td.ConvertFrom(input) as PyObject;
+    using PyObject? pyObj = PyObject.From(bignumber);
 
     // Do stuff with the integer object
+    // e.g. call a function with this as an argument
 
-    // Convert back
-    BigInteger integer = (BigInteger) td.ConvertTo(pyObj, typeof(BigInteger))!;
+    // Convert a Python int back into a BigInteger like this..
+    BigInteger integer = pyObj.As<BigInteger>();
 }
 ```
 
@@ -74,7 +73,7 @@ def test_int_float(a: int, b: float) -> float:
 
 The C# code to call this function needs to:
 
-1. Use the TypeConverter to convert the .NET types to `PyObject` instances and back.
+1. Convert the .NET types to `PyObject` instances and back.
 1. Use the `GIL.Acquire()` method to acquire the Global Interpreter Lock for all conversions and calls to Python.
 1. Use the `Import.ImportModule` method to import the module and store a reference once so that it can be used multiple times.
 1. Dispose the module when it is no longer needed.
@@ -85,7 +84,6 @@ using CSnakes.Runtime.Python;
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 
 using Microsoft.Extensions.Logging;
@@ -94,8 +92,6 @@ namespace CSnakes.Runtime;
 
 public class ExampleDirectIntegration
 {
-    private readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
-
     private readonly PyObject module;
 
     private readonly ILogger<IPythonEnvironment> logger;
@@ -122,8 +118,8 @@ public class ExampleDirectIntegration
         {
             logger.LogInformation("Invoking Python function: {FunctionName}", "test_int_float");
             using var __underlyingPythonFunc = this.module.GetAttr("test_int_float");
-            using PyObject a_pyObject = this.td.ConvertFrom(a) as PyObject;
-            using PyObject b_pyObject = this.td.ConvertFrom(b) as PyObject;
+            using PyObject a_pyObject = PyObject.From(a);
+            using PyObject b_pyObject = PyObject.From(b);
             using var __result_pyObject = __underlyingPythonFunc.Call(a_pyObject, b_pyObject);
             return __result_pyObject.As<double>();
         }

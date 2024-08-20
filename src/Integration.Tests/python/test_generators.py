@@ -8,3 +8,7 @@ def example_generator(length: int) -> Generator[str, int, bool]:
             yield f"Received {x}"
 
     return True
+
+def test_normal_generator() -> Generator[str, None, None]:
+    yield "one"
+    yield "two"

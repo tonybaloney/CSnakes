@@ -1,31 +1,34 @@
 ﻿using System.Collections;
 
 namespace CSnakes.Runtime.Python;
-public class GeneratorIterator<TYield, TSend, TReturn> : IEnumerator<TYield>, IEnumerable<TYield>, IGenerator<TYield, TSend, TReturn>
+public class GeneratorIterator<TYield, TSend, TReturn> : IGeneratorIterator<TYield, TSend, TReturn>
 {
     private readonly PyObject generator;
-    private readonly PyObject next_func;
-    private readonly PyObject close_func;
-    private readonly PyObject send_func;
+    private readonly PyObject nextPyFunction;
+    private readonly PyObject closePyFunction;
+    private readonly PyObject sendPyFunction;
 
-    private TYield current = default;
+    private TYield current = default!;
 
     public GeneratorIterator(PyObject generator)
     {
         this.generator = generator;
-        next_func = generator.GetAttr("__next__");
-        close_func = generator.GetAttr("close");
-        send_func = generator.GetAttr("send");
+        nextPyFunction = generator.GetAttr("__next__");
+        closePyFunction = generator.GetAttr("close");
+        sendPyFunction = generator.GetAttr("send");
     }
 
     public TYield Current => current;
 
-    object IEnumerator.Current => Current;
+    object IEnumerator.Current => Current!;
 
     public void Dispose()
     {
         generator.Dispose();
-        next_func.Dispose();
+        nextPyFunction.Dispose();
+        using PyObject close = closePyFunction.Call();
+        closePyFunction.Dispose();
+        sendPyFunction.Dispose();
     }
 
     public IEnumerator<TYield> GetEnumerator()
@@ -37,7 +40,7 @@ public class GeneratorIterator<TYield, TSend, TReturn> : IEnumerator<TYield>, IE
     {
         try
         {
-            using PyObject result = next_func.Call();
+            using PyObject result = nextPyFunction.Call();
             current = result.As<TYield>();
             return true;
         }
@@ -61,7 +64,7 @@ public class GeneratorIterator<TYield, TSend, TReturn> : IEnumerator<TYield>, IE
         try
         {
             using PyObject sendValue = PyObject.From<TSend>(value) !;
-            using PyObject result = send_func.Call(sendValue);
+            using PyObject result = sendPyFunction.Call(sendValue);
             current = result.As<TYield>();
             return current;
         }
@@ -73,11 +76,6 @@ public class GeneratorIterator<TYield, TSend, TReturn> : IEnumerator<TYield>, IE
             }
             throw;
         }
-    }
-
-    public void Close()
-    {
-        using PyObject close = close_func.Call();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

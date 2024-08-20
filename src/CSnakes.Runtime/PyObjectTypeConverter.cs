@@ -81,6 +81,11 @@ internal partial class PyObjectTypeConverter : TypeConverter
                 return ConvertToList(pyObject, destinationType, context, culture);
             }
 
+            if (IsAssignableToGenericType(destinationType, generatorIteratorType) && CPythonAPI.IsPyGenerator(pyObject))
+            {
+                return ConvertToGeneratorIterator(pyObject, destinationType, context, culture);
+            }
+
             // This needs to come after lists, because sequences are also maps
             if (destinationType.IsAssignableTo(collectionType) && CPythonAPI.IsPyMappingWithItems(pyObject))
             {
@@ -147,6 +152,7 @@ internal partial class PyObjectTypeConverter : TypeConverter
             (destinationType.IsGenericType && (
                 IsAssignableToGenericType(destinationType, dictionaryType) ||
                 IsAssignableToGenericType(destinationType, listType) ||
+                IsAssignableToGenericType(destinationType, generatorIteratorType) ||
                 destinationType.IsAssignableTo(collectionType) ||
                 destinationType.IsAssignableTo(typeof(ITuple))
             ))

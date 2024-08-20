@@ -24,6 +24,7 @@ public static class TypeReflection
                 "Mapping" => CreateDictionaryType(pythonType.Arguments[0], pythonType.Arguments[1]),
                 "Sequence" => CreateListType(pythonType.Arguments[0]),
                 "Optional" => AsPredefinedType(pythonType.Arguments[0]),
+                "Generator" => CreateGeneratorType(pythonType.Arguments[0], pythonType.Arguments[1], pythonType.Arguments[2]),
                 // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
                 _ => SyntaxFactory.ParseTypeName("PyObject"),// TODO : Should be nullable?
             };
@@ -43,6 +44,12 @@ public static class TypeReflection
     private static TypeSyntax CreateDictionaryType(PythonTypeSpec keyType, PythonTypeSpec valueType) => CreateGenericType("IReadOnlyDictionary", [
             AsPredefinedType(keyType),
             AsPredefinedType(valueType)
+            ]);
+
+    private static TypeSyntax CreateGeneratorType(PythonTypeSpec yieldType, PythonTypeSpec sendType, PythonTypeSpec returnType) => CreateGenericType("IGeneratorIterator", [
+            AsPredefinedType(yieldType),
+            AsPredefinedType(sendType),
+            AsPredefinedType(returnType)
             ]);
 
     private static TypeSyntax CreateTupleType(PythonTypeSpec[] tupleTypes)

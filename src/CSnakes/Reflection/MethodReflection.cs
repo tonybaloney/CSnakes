@@ -61,16 +61,18 @@ public static class MethodReflection
                                 Identifier($"{parameter.cSharpParameter.Identifier}_pyObject"))
                             .WithInitializer(
                                 EqualsValueClause(
-                                    InvocationExpression(
-                                        MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            IdentifierName("PyObject"),
-                                            IdentifierName("From")))
-                                        .WithArgumentList(
-                                            ArgumentList(
-                                                SingletonSeparatedList(
-                                                    Argument(
-                                                        IdentifierName(parameter.cSharpParameter.Identifier))))))))))
+                                    PostfixUnaryExpression(
+                                        SyntaxKind.SuppressNullableWarningExpression,
+                                        InvocationExpression(
+                                            MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName("PyObject"),
+                                                IdentifierName("From")))
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SingletonSeparatedList(
+                                                        Argument(
+                                                            IdentifierName(parameter.cSharpParameter.Identifier)))))))))))
                 .WithUsingKeyword(
                     Token(SyntaxKind.UsingKeyword)));
         }

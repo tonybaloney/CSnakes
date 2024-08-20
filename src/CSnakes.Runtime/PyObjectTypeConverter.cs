@@ -34,68 +34,67 @@ internal partial class PyObjectTypeConverter : TypeConverter
             return pyObject.Clone();
         }
 
-        nint handle = pyObject.GetHandle();
-        if (destinationType == typeof(string) && CPythonAPI.IsPyUnicode(handle))
+        if (destinationType == typeof(string) && CPythonAPI.IsPyUnicode(pyObject))
         {
-            return CPythonAPI.PyUnicode_AsUTF8(handle);
+            return CPythonAPI.PyUnicode_AsUTF8(pyObject);
         }
 
-        if (destinationType == typeof(byte[]) && CPythonAPI.IsBytes(handle))
+        if (destinationType == typeof(byte[]) && CPythonAPI.IsBytes(pyObject))
         {
-            return CPythonAPI.PyBytes_AsByteArray(handle);
+            return CPythonAPI.PyBytes_AsByteArray(pyObject);
         }
 
-        if (destinationType == typeof(long) && CPythonAPI.IsPyLong(handle))
+        if (destinationType == typeof(long) && CPythonAPI.IsPyLong(pyObject))
         {
-            return CPythonAPI.PyLong_AsLongLong(handle);
+            return CPythonAPI.PyLong_AsLongLong(pyObject);
         }
 
-        if (destinationType == typeof(BigInteger) && CPythonAPI.IsPyLong(handle))
+        if (destinationType == typeof(BigInteger) && CPythonAPI.IsPyLong(pyObject))
         {
             return ConvertToBigInteger(pyObject, destinationType, context, culture);
         }
 
-        if (destinationType == typeof(int) && CPythonAPI.IsPyLong(handle))
+        if (destinationType == typeof(int) && CPythonAPI.IsPyLong(pyObject))
         {
-            return CPythonAPI.PyLong_AsLongLong(handle);
+            return CPythonAPI.PyLong_AsLongLong(pyObject);
         }
 
-        if (destinationType == typeof(bool) && CPythonAPI.IsPyBool(handle))
+        if (destinationType == typeof(bool) && CPythonAPI.IsPyBool(pyObject))
         {
-            return CPythonAPI.IsPyTrue(handle);
+            return CPythonAPI.IsPyTrue(pyObject);
         }
 
-        if (destinationType == typeof(double) && CPythonAPI.IsPyFloat(handle))
+        if (destinationType == typeof(double) && CPythonAPI.IsPyFloat(pyObject))
         {
-            return CPythonAPI.PyFloat_AsDouble(handle);
+            return CPythonAPI.PyFloat_AsDouble(pyObject);
         }
 
         if (destinationType.IsGenericType)
         {
-            if (IsAssignableToGenericType(destinationType, dictionaryType) && CPythonAPI.IsPyDict(handle))
+            if (IsAssignableToGenericType(destinationType, dictionaryType) && CPythonAPI.IsPyDict(pyObject))
             {
                 return ConvertToDictionary(pyObject, destinationType, context, culture);
             }
 
-            if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPyList(handle))
+            if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPyList(pyObject))
             {
                 return ConvertToList(pyObject, destinationType, context, culture);
             }
 
             // This needs to come after lists, because sequences are also maps
-            if (destinationType.IsAssignableTo(collectionType) && CPythonAPI.IsPyMappingWithItems(handle))
+            if (destinationType.IsAssignableTo(collectionType) && CPythonAPI.IsPyMappingWithItems(pyObject))
             {
                 return ConvertToDictionary(pyObject, destinationType, context, culture, useMappingProtocol: true);
             }
 
-            if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPySequence(handle))
+            if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPySequence(pyObject))
             {
                 return ConvertToListFromSequence(pyObject, destinationType, context, culture);
             }
 
             if (destinationType.IsAssignableTo(typeof(ITuple)))
             {
-                if (CPythonAPI.IsPyTuple(handle))
+                if (CPythonAPI.IsPyTuple(pyObject))
                 {
                     return ConvertToTuple(context, culture, pyObject, destinationType);
                 }

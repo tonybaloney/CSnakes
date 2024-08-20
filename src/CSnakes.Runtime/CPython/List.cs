@@ -21,7 +21,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="obj">PyList object</param>
     /// <returns>The size as ssize_t</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyList_Size(nint obj);
+    internal static partial nint PyList_Size(PyObject obj);
 
     /// <summary>
     /// Get a reference to the item at `pos` in the list
@@ -29,14 +29,14 @@ internal unsafe partial class CPythonAPI
     /// <param name="obj">The list object</param>
     /// <param name="pos">The position as ssize_t</param>
     /// <returns>New reference to the list item</returns>
-    internal static nint PyList_GetItem(nint obj, nint pos)
+    internal static nint PyList_GetItem(PyObject obj, nint pos)
     {
         nint item = PyList_GetItem_(obj, pos);
         if (item == IntPtr.Zero)
         {
             PyObject.ThrowPythonExceptionAsClrException();
         }
-        Py_IncRef(item);
+        Py_IncRefRaw(item);
         return item;
     }
 
@@ -47,12 +47,12 @@ internal unsafe partial class CPythonAPI
     /// <param name="pos">The position as ssize_t</param>
     /// <returns>Borrowed reference to the list item</returns>
     [LibraryImport(PythonLibraryName, EntryPoint = "PyList_GetItem")]
-    private static partial nint PyList_GetItem_(nint obj, nint pos);
+    private static partial nint PyList_GetItem_(PyObject obj, nint pos);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial int PyList_Append(nint obj, nint o);
+    internal static partial int PyList_Append(PyObject obj, PyObject o);
 
-    internal static bool IsPyList(nint p)
+    internal static bool IsPyList(PyObject p)
     {
         return PyObject_IsInstance(p, PyListType);
     }

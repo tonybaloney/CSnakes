@@ -13,9 +13,9 @@ internal partial class PyObjectTypeConverter
         Type listType = typeof(List<>).MakeGenericType(genericArgument);
 
         IList list = (IList)Activator.CreateInstance(listType)!;
-        for (var i = 0; i < CPythonAPI.PyList_Size(pyObject.GetHandle()); i++)
+        for (var i = 0; i < CPythonAPI.PyList_Size(pyObject); i++)
         {
-            using PyObject item = new(CPythonAPI.PyList_GetItem(pyObject.GetHandle(), i));
+            using PyObject item = new(CPythonAPI.PyList_GetItem(pyObject, i));
             list.Add(AsManagedObject(genericArgument, item, context, culture));
         }
 
@@ -28,9 +28,9 @@ internal partial class PyObjectTypeConverter
         Type listType = typeof(List<>).MakeGenericType(genericArgument);
 
         IList list = (IList)Activator.CreateInstance(listType)!;
-        for (var i = 0; i < CPythonAPI.PySequence_Size(pyObject.GetHandle()); i++)
+        for (var i = 0; i < CPythonAPI.PySequence_Size(pyObject); i++)
         {
-            using PyObject item = new(CPythonAPI.PySequence_GetItem(pyObject.GetHandle(), i));
+            using PyObject item = new(CPythonAPI.PySequence_GetItem(pyObject, i));
             list.Add(AsManagedObject(genericArgument, item, context, culture));
         }
 
@@ -44,7 +44,7 @@ internal partial class PyObjectTypeConverter
         foreach (var item in e)
         {
             PyObject converted = ToPython(item, context, culture);
-            int result = CPythonAPI.PyList_Append(pyList.GetHandle(), converted!.GetHandle());
+            int result = CPythonAPI.PyList_Append(pyList, converted);
             if (result == -1)
             {
                 throw new Exception("Failed to set item in list");

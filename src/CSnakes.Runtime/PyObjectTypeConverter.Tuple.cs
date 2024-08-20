@@ -25,19 +25,17 @@ internal partial class PyObjectTypeConverter
         return PyTuple.CreateTuple(pyObjects);
     }
 
-        private object? ConvertToTuple(ITypeDescriptorContext? context, CultureInfo? culture, PyObject pyObj, Type destinationType)
+    private object? ConvertToTuple(ITypeDescriptorContext? context, CultureInfo? culture, PyObject pyObj, Type destinationType)
     {
-        var tuplePtr = pyObj.GetHandle();
-
         // We have to convert the Python values to CLR values, as if we just tried As<object>() it would
         // not parse the Python type to a CLR type, only to a new Python type.
         Type[] types = destinationType.GetGenericArguments();
         object?[] clrValues;
 
         var tupleValues = new List<PyObject>();
-        for (nint i = 0; i < CPythonAPI.PyTuple_Size(tuplePtr); i++)
+        for (nint i = 0; i < CPythonAPI.PyTuple_Size(pyObj); i++)
         {
-            PyObject value = new(CPythonAPI.PyTuple_GetItem(tuplePtr, i));
+            PyObject value = new(CPythonAPI.PyTuple_GetItem(pyObj, i));
             tupleValues.Add(value);
         }
 

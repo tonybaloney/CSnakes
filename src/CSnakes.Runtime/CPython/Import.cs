@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using CSnakes.Runtime.Python;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 
@@ -9,12 +10,12 @@ internal unsafe partial class CPythonAPI
     /// </summary>
     /// <param name="name">The module name</param>
     /// <returns>A new reference to module `name`</returns>
-    internal static IntPtr Import(string name)
+    internal static PyObject Import(string name)
     {
         nint pyName = AsPyUnicodeObject(name);
         nint module = PyImport_Import(pyName);
-        Py_DecRef(pyName);
-        return module;
+        Py_DecRefRaw(pyName);
+        return new(module);
     }
 
     /// <summary>

@@ -2,6 +2,7 @@ using CSnakes.Runtime.CPython;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace CSnakes.Runtime.Python;
 
@@ -21,18 +22,6 @@ public class PyObject : SafeHandle
 
     public override bool IsInvalid => handle == IntPtr.Zero;
 
-    /// <summary>
-    /// Gets the handle, or raise exception if it has been marked as invalid.
-    /// ALWAYS use this instead of DangerousGetHandle().
-    /// </summary>
-    /// <returns></returns>
-    internal IntPtr GetHandle()
-    {
-        if (handle == IntPtr.Zero)
-            throw new ObjectDisposedException($"Unable to get reference to PyObject. Object has already been disposed or is invalid.");
-        return handle;
-    }
-
     protected override bool ReleaseHandle()
     {
         if (IsInvalid)
@@ -48,7 +37,7 @@ public class PyObject : SafeHandle
         }
         using (GIL.Acquire())
         {
-            CPythonAPI.Py_DecRef(handle);
+            CPythonAPI.Py_DecRefRaw(handle);
         }
         handle = IntPtr.Zero;
         return true;
@@ -113,7 +102,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.GetType(GetHandle()));
+            return new PyObject(CPythonAPI.GetType(this));
         }
     }
 
@@ -127,7 +116,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.GetAttr(GetHandle(), name));
+            return new PyObject(CPythonAPI.GetAttr(this, name));
         }
     }
 
@@ -136,7 +125,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return CPythonAPI.HasAttr(GetHandle(), name);
+            return CPythonAPI.HasAttr(this, name);
         }
     }
 
@@ -149,7 +138,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.PyObject_GetIter(GetHandle()));
+            return new PyObject(CPythonAPI.PyObject_GetIter(this));
         }
     }
 
@@ -162,8 +151,8 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            using PyObject reprStr = new PyObject(CPythonAPI.PyObject_Repr(GetHandle()));
-            string? repr = CPythonAPI.PyUnicode_AsUTF8(reprStr.GetHandle());
+            using PyObject reprStr = new PyObject(CPythonAPI.PyObject_Repr(this));
+            string? repr = CPythonAPI.PyUnicode_AsUTF8(reprStr);
             return repr ?? string.Empty;
         }
     }
@@ -176,25 +165,37 @@ public class PyObject : SafeHandle
     /// <returns>The resulting object, or NULL on error.</returns>
     public PyObject Call(params PyObject[] args)
     {
-        RaiseOnPythonNotInitialized();
-        // TODO: Consider moving this to a logger.
-        // TODO: Stack allocate short parameter lists (<10?)
-        var argHandles = args.Select(args => args.GetHandle()).ToArray();
-        using (GIL.Acquire())
-        {
-            return new PyObject(CPythonAPI.Call(GetHandle(), argHandles));
-        }
+        return CallWithArgs(args);
     }
 
     public PyObject CallWithArgs(PyObject[]? args = null)
     {
         RaiseOnPythonNotInitialized();
         args ??= [];
-        var argHandles = args.Select(args => args.GetHandle()).ToArray();
+        var marshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
+        var argHandles = args.Length < 16
+            ? stackalloc IntPtr[args.Length]
+            : new IntPtr[args.Length];
 
-        using (GIL.Acquire())
+        for (int i = 0; i < args.Length; i++)
         {
-            return new PyObject(CPythonAPI.Call(GetHandle(), argHandles));
+            ref var m = ref marshallers[i];
+            m.FromManaged(args[i]);
+            argHandles[i] = m.ToUnmanaged();
+        }
+
+        try
+        {
+            using (GIL.Acquire())
+            {
+                return new PyObject(CPythonAPI.Call(this, argHandles));
+            }
+        } finally
+        {
+            foreach (var m in marshallers)
+            {
+                m.Free();
+            }
         }
     }
 
@@ -206,12 +207,46 @@ public class PyObject : SafeHandle
             throw new ArgumentException("kwnames and kwvalues must be the same length.");
         RaiseOnPythonNotInitialized();
         args ??= [];
-        var argHandles = args.Select(args => args.GetHandle()).ToArray();
-        var kwargHandles = kwvalues.Select(kw => kw.GetHandle()).ToArray();
 
-        using (GIL.Acquire())
+        var argMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
+        var kwargMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[kwvalues.Length];
+        var argHandles = args.Length < 16
+            ? stackalloc IntPtr[args.Length]
+            : new IntPtr[args.Length];
+        var kwargHandles = kwvalues.Length < 16
+            ? stackalloc IntPtr[kwvalues.Length]
+            : new IntPtr[kwvalues.Length];
+
+        for (int i = 0; i < args.Length; i++)
         {
-            return new PyObject(CPythonAPI.Call(GetHandle(), argHandles, kwnames, kwargHandles));
+            ref var m = ref argMarshallers[i];
+            m.FromManaged(args[i]);
+            argHandles[i] = m.ToUnmanaged();
+        }
+        for (int i = 0; i < kwvalues.Length; i++)
+        {
+            ref var m = ref kwargMarshallers[i];
+            m.FromManaged(kwvalues[i]);
+            kwargHandles[i] = m.ToUnmanaged();
+        }
+
+        try
+        {
+            using (GIL.Acquire())
+            {
+                return new PyObject(CPythonAPI.Call(this, argHandles, kwnames, kwargHandles));
+            }
+        }
+        finally
+        {
+            foreach (var m in argMarshallers)
+            {
+                m.Free();
+            }
+            foreach (var m in kwargMarshallers)
+            {
+                m.Free();
+            }
         }
     }
 
@@ -238,8 +273,8 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            using PyObject pyObjectStr = new(CPythonAPI.PyObject_Str(GetHandle()));
-            string? stringValue = CPythonAPI.PyUnicode_AsUTF8(pyObjectStr.GetHandle());
+            using PyObject pyObjectStr = new(CPythonAPI.PyObject_Str(this));
+            string? stringValue = CPythonAPI.PyUnicode_AsUTF8(pyObjectStr);
             return stringValue ?? string.Empty;
         }
     }
@@ -248,8 +283,8 @@ public class PyObject : SafeHandle
 
     internal PyObject Clone()
     {
-        CPythonAPI.Py_IncRef(GetHandle());
-        return new PyObject(GetHandle());
+        CPythonAPI.Py_IncRefRaw(handle);
+        return new PyObject(handle);
     }
 
     private static void MergeKeywordArguments(string[] kwnames, PyObject[] kwvalues, IReadOnlyDictionary<string, PyObject>? kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues)

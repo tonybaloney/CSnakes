@@ -67,17 +67,17 @@ internal unsafe partial class CPythonAPI : IDisposable
                 if (!IsInitialized)
                     throw new InvalidOperationException("Python initialization failed.");
 
-                PyUnicodeType = GetType(AsPyUnicodeObject(string.Empty));
+                PyUnicodeType = GetTypeRaw(AsPyUnicodeObject(string.Empty));
                 Py_True = PyBool_FromLong(1);
                 Py_False = PyBool_FromLong(0);
-                PyBoolType = GetType(Py_True);
+                PyBoolType = GetTypeRaw(Py_True);
                 PyEmptyTuple = PyTuple_New(0);
-                PyTupleType = GetType(PyEmptyTuple);
-                PyFloatType = GetType(PyFloat_FromDouble(0.0));
-                PyLongType = GetType(PyLong_FromLongLong(0));
-                PyListType = GetType(PyList_New(0));
-                PyDictType = GetType(PyDict_New());
-                PyBytesType = GetType(PyBytes_FromByteSpan(new byte[] { }));
+                PyTupleType = GetTypeRaw(PyEmptyTuple);
+                PyFloatType = GetTypeRaw(PyFloat_FromDouble(0.0));
+                PyLongType = GetTypeRaw(PyLong_FromLongLong(0));
+                PyListType = GetTypeRaw(PyList_New(0));
+                PyDictType = GetTypeRaw(PyDict_New());
+                PyBytesType = GetTypeRaw(PyBytes_FromByteSpan(new byte[] { }));
                 ItemsStrIntern = AsPyUnicodeObject("items");
 
                 // Import builtins module

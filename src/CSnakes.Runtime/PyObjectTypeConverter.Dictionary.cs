@@ -10,19 +10,19 @@ internal partial class PyObjectTypeConverter
 {
     private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture, bool useMappingProtocol = false)
     {
-        using PyObject items = useMappingProtocol ? new(CPythonAPI.PyMapping_Items(pyObject.GetHandle())) : new(CPythonAPI.PyDict_Items(pyObject.GetHandle()));
+        using PyObject items = useMappingProtocol ? new(CPythonAPI.PyMapping_Items(pyObject)) : new(CPythonAPI.PyDict_Items(pyObject));
         Type item1Type = destinationType.GetGenericArguments()[0];
         Type item2Type = destinationType.GetGenericArguments()[1];
         Type dictType = typeof(Dictionary<,>).MakeGenericType(item1Type, item2Type);
         IDictionary dict = (IDictionary)Activator.CreateInstance(dictType)!;
-        nint itemsLength = CPythonAPI.PyList_Size(items.GetHandle());
+        nint itemsLength = CPythonAPI.PyList_Size(items);
 
         for (nint i = 0; i < itemsLength; i++)
         {
-            using PyObject item = new(CPythonAPI.PyList_GetItem(items.GetHandle(), i));
+            using PyObject item = new(CPythonAPI.PyList_GetItem(items, i));
 
-            using PyObject item1 = new(CPythonAPI.PyTuple_GetItem(item.GetHandle(), 0));
-            using PyObject item2 = new(CPythonAPI.PyTuple_GetItem(item.GetHandle(), 1));
+            using PyObject item1 = new(CPythonAPI.PyTuple_GetItem(item, 0));
+            using PyObject item2 = new(CPythonAPI.PyTuple_GetItem(item, 1));
 
             object? convertedItem1 = AsManagedObject(item1Type, item1, context, culture);
             object? convertedItem2 = AsManagedObject(item2Type, item2, context, culture);
@@ -40,7 +40,7 @@ internal partial class PyObjectTypeConverter
 
         foreach (DictionaryEntry kvp in dictionary)
         {
-            int result = CPythonAPI.PyDict_SetItem(pyDict.GetHandle(), ToPython(kvp.Key, context, culture).GetHandle(), ToPython(kvp.Value, context, culture).GetHandle());
+            int result = CPythonAPI.PyDict_SetItem(pyDict, ToPython(kvp.Key, context, culture), ToPython(kvp.Value, context, culture));
             if (result == -1)
             {
                 throw new Exception("Failed to set item in dictionary");

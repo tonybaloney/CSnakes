@@ -1,6 +1,7 @@
 # CSnakes - a tool for embedding Python code into .NET projects
 
-[![NuGet Version](https://img.shields.io/nuget/v/CSnakes)](https://www.nuget.org/packages/CSnakes)
+[![NuGet Version](https://img.shields.io/nuget/v/CSnakes?label=CSnakes)](https://www.nuget.org/packages/CSnakes)
+[![NuGet Version](https://img.shields.io/nuget/v/CSnakes.Runtime?label=CSnakes.Runtime)](https://www.nuget.org/packages/CSnakes.Runtime)
 
 ![logo](res/logo.jpeg){ align=left width=30% }
 

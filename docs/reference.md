@@ -45,6 +45,24 @@ public void Example(long a = 123, bool b = true, string c = "hello", double d = 
 
 1. CSnakes will treat `=None` default values as nullable arguments. The Python runtime will set the value of the parameter to the `None` value at execution.
 
+## Handling None
+
+If you need to send `None` as a `PyObject` to any function call from C#, use the property `PyObject.None`:
+
+```csharp
+env.MethodToCall(PyObject.None);
+```
+
+You can also check if a PyObject is None by calling `IsNone()` on any PyObject:
+
+```csharp
+PyObject obj = env.MethodToCall();
+if (obj.IsNone())
+{
+  Console.WriteLine("The object is None");
+}
+```
+
 ## Python Locators
 
 CSnakes uses a `PythonLocator` to find the Python runtime on the host machine. The `PythonLocator` is a service that is registered with the dependency injection container and is used to find the Python runtime on the host machine.

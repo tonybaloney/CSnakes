@@ -11,6 +11,7 @@ on:
 
 env:
   DOTNET_VERSION: 8.0.x
+  DOTNET_CONFIGURATION: Release
 
 jobs:
   publish-github-packages:
@@ -30,15 +31,15 @@ jobs:
         run: dotnet restore
         working-directory: src
 
-      - name: Build release packages
-        run: dotnet build --no-restore -c Release
+      - name: Build ${{ env.DOTNET_CONFIGURATION }} packages
+        run: dotnet build --no-restore -c ${{ env.DOTNET_CONFIGURATION }}
         working-directory: src
 
       - name: Publish NuGet package CSnakes
-        run: dotnet pack src/CSnakes --no-build -c Release -o ./nuget -p:VersionSuffix='alpha.${{ github.run_number }}'
+        run: dotnet pack src/CSnakes --no-build -c ${{ env.DOTNET_CONFIGURATION }} -o ./nuget -p:VersionSuffix='alpha.${{ github.run_number }}'
 
       - name: Publish NuGet package CSnakes.Runtime
-        run: dotnet pack src/CSnakes.Runtime --no-build -c Release -o ./nuget -p:VersionSuffix='alpha.${{ github.run_number }}'
+        run: dotnet pack src/CSnakes.Runtime --no-build -c ${{ env.DOTNET_CONFIGURATION }} -o ./nuget -p:VersionSuffix='alpha.${{ github.run_number }}'
 
       - name: Publish NuGet packages as artifacts
         uses: actions/upload-artifact@v4
@@ -48,6 +49,3 @@ jobs:
 
       - name: Publish to GitHub packages
         run: dotnet nuget push ./nuget/*.nupkg --source "https://nuget.pkg.github.com/tonybaloney/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to GitHub packages (symbols)
-        run: dotnet nuget push ./nuget/*.snupkg --source "https://nuget.pkg.github.com/tonybaloney/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}

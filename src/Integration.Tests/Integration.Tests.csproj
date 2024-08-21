@@ -17,6 +17,7 @@
     <None Remove="python\test_false_returns.py" />
     <None Remove="python\test_generators.py" />
     <None Remove="python\test_keywords.py" />
+    <None Remove="python\test_none.py" />
     <None Remove="python\test_reserved.py" />
     <None Remove="python\test_tuples.py" />
   </ItemGroup>
@@ -47,6 +48,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
     <AdditionalFiles Include="python\test_keywords.py">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AdditionalFiles>
+    <AdditionalFiles Include="python\test_none.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
     <AdditionalFiles Include="python\test_reserved.py">

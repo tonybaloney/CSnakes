@@ -10,13 +10,19 @@ internal partial class PyObjectTypeConverter
     private object? ConvertToList(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
     {
         Type genericArgument = destinationType.GetGenericArguments()[0];
-        Type listType = typeof(List<>).MakeGenericType(genericArgument);
 
-        IList list = (IList)Activator.CreateInstance(listType)!;
+        if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
+        {
+            Type listType = typeof(List<>).MakeGenericType(genericArgument);
+            typeInfo = new(listType.GetConstructor([])!);
+            knownDynamicTypes[destinationType] = typeInfo;
+        }
+
+        IList list = (IList)typeInfo.ReturnTypeConstructor.Invoke([]);
         for (var i = 0; i < CPythonAPI.PyList_Size(pyObject); i++)
         {
-            using PyObject item = new(CPythonAPI.PyList_GetItem(pyObject, i));
-            list.Add(AsManagedObject(genericArgument, item, context, culture));
+            using PyObject item = PyObject.Create(CPythonAPI.PyList_GetItem(pyObject, i));
+            list.Add(ConvertTo(context, culture, item, genericArgument));
         }
 
         return list;
@@ -25,13 +31,20 @@ internal partial class PyObjectTypeConverter
     private object? ConvertToListFromSequence(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
     {
         Type genericArgument = destinationType.GetGenericArguments()[0];
-        Type listType = typeof(List<>).MakeGenericType(genericArgument);
 
-        IList list = (IList)Activator.CreateInstance(listType)!;
+        if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
+        {
+            Type listType = typeof(List<>).MakeGenericType(genericArgument);
+            typeInfo = new(listType.GetConstructor([])!);
+            knownDynamicTypes[destinationType] = typeInfo;
+        }
+
+        IList list = (IList)typeInfo.ReturnTypeConstructor.Invoke([]);
+
         for (var i = 0; i < CPythonAPI.PySequence_Size(pyObject); i++)
         {
-            using PyObject item = new(CPythonAPI.PySequence_GetItem(pyObject, i));
-            list.Add(AsManagedObject(genericArgument, item, context, culture));
+            using PyObject item = PyObject.Create(CPythonAPI.PySequence_GetItem(pyObject, i));
+            list.Add(ConvertTo(context, culture, item, genericArgument));
         }
 
         return list;
@@ -39,7 +52,7 @@ internal partial class PyObjectTypeConverter
 
     private PyObject ConvertFromList(ITypeDescriptorContext? context, CultureInfo? culture, IEnumerable e)
     {
-        PyObject pyList = new(CPythonAPI.PyList_New(0));
+        PyObject pyList = PyObject.Create(CPythonAPI.PyList_New(0));
 
         foreach (var item in e)
         {

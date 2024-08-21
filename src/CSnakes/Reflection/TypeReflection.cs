@@ -26,7 +26,7 @@ public static class TypeReflection
                 "Optional" => AsPredefinedType(pythonType.Arguments[0]),
                 "Generator" => CreateGeneratorType(pythonType.Arguments[0], pythonType.Arguments[1], pythonType.Arguments[2]),
                 // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
-                _ => SyntaxFactory.ParseTypeName("PyObject"),// TODO : Should be nullable?
+                _ => SyntaxFactory.ParseTypeName("PyObject"),
             };
         }
         return pythonType.Name switch
@@ -36,8 +36,7 @@ public static class TypeReflection
             "float" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DoubleKeyword)),
             "bool" => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword)),
             "bytes" => SyntaxFactory.ParseTypeName("byte[]"),
-            // Todo more types...
-            _ => SyntaxFactory.ParseTypeName("PyObject"),// TODO : Should be nullable?
+            _ => SyntaxFactory.ParseTypeName("PyObject"),
         };
     }
 

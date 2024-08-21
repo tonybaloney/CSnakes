@@ -8,18 +8,10 @@ internal class PyNoneObject : ImmortalPyObject
     {
     }
 
-    public override bool IsNone()
-    {
-        return true;
-    }
+    public override bool IsNone() => true;
 
-    public override string GetRepr()
-    {
-        return "None";
-    }
+    public override string GetRepr() => ToString();
 
-    public override string ToString()
-    {
-        return "None";
-    }
+    public override string ToString() => "None";
+
 }

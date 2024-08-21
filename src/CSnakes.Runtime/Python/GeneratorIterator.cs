@@ -45,7 +45,8 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
         }
         catch (PythonInvocationException pyO) when (pyO.PythonExceptionType == "StopIteration")
         {
-            return true
+            return true;
+
         }
 
     }

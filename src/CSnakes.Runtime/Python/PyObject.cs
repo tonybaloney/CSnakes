@@ -171,20 +171,10 @@ public class PyObject : SafeHandle
     /// Is the Python object None?
     /// </summary>
     /// <returns>true if None, else false</returns>
-    public virtual bool IsNone()
-    {
-        return CPythonAPI.IsNone(this);
-    }
+    public virtual bool IsNone() => CPythonAPI.IsNone(this);
 
-    public static PyObject None
-    {
-        get
-        {
-            if (none is null)
-                throw new InvalidOperationException("Python is not initialized. You cannot call this method outside of a Python Environment context.");
-            return none;
-        }
-    }
+
+    public static PyObject None { get; } = new PyNoneObject();
 
     /// <summary>
     /// Call the object. Equivalent to (__call__)(args)

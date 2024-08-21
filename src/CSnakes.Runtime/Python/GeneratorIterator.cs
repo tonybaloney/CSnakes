@@ -26,7 +26,7 @@ public class GeneratorIterator<TYield, TSend, TReturn> : IGeneratorIterator<TYie
     {
         generator.Dispose();
         nextPyFunction.Dispose();
-        using PyObject close = closePyFunction.Call();
+        closePyFunction.Call().Dispose();
         closePyFunction.Dispose();
         sendPyFunction.Dispose();
     }

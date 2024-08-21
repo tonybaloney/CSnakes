@@ -61,14 +61,11 @@ public class GeneratorIterator<TYield, TSend, TReturn> : IGeneratorIterator<TYie
             current = result.As<TYield>();
             return current;
         }
-        catch (PythonInvocationException pyO)
+        catch (PythonInvocationException pyO) when (pyO.PythonExceptionType == "StopIteration")
         {
-            if (pyO.PythonExceptionType == "StopIteration")
-            {
-                throw new ArgumentOutOfRangeException("Generator is exhausted");
-            }
-            throw;
+            return true
         }
+
     }
 
     IEnumerator IEnumerable.GetEnumerator()

@@ -51,6 +51,21 @@ public static class MethodReflection
             {
                 continue;
             }
+            bool needsConversion = true; // TODO: Skip .From for PyObject arguments. 
+            ExpressionSyntax rhs = IdentifierName(parameter.cSharpParameter.Identifier);
+            if (needsConversion)
+                rhs = 
+                    InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName("PyObject"),
+                            IdentifierName("From")))
+                        .WithArgumentList(
+                            ArgumentList(
+                                SingletonSeparatedList(
+                                    Argument(
+                                        IdentifierName(parameter.cSharpParameter.Identifier)))));
+
             pythonConversionStatements.Add(
                 LocalDeclarationStatement(
                     VariableDeclaration(
@@ -63,16 +78,8 @@ public static class MethodReflection
                                 EqualsValueClause(
                                     PostfixUnaryExpression(
                                         SyntaxKind.SuppressNullableWarningExpression,
-                                        InvocationExpression(
-                                            MemberAccessExpression(
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                IdentifierName("PyObject"),
-                                                IdentifierName("From")))
-                                            .WithArgumentList(
-                                                ArgumentList(
-                                                    SingletonSeparatedList(
-                                                        Argument(
-                                                            IdentifierName(parameter.cSharpParameter.Identifier)))))))))))
+                                        rhs
+                                        ))))))
                 .WithUsingKeyword(
                     Token(SyntaxKind.UsingKeyword)));
         }

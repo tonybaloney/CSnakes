@@ -1,4 +1,6 @@
-﻿namespace CSnakes.Runtime.CPython;
+﻿using CSnakes.Runtime.Python;
+
+namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
@@ -12,5 +14,10 @@ internal unsafe partial class CPythonAPI
     {
         Py_IncRefRaw(PyNone);
         return PyNone;
+    }
+
+    internal static bool IsNone(PyObject o)
+    {
+        return PyNone == o.DangerousGetHandle();
     }
 }

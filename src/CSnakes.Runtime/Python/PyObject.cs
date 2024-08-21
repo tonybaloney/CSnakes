@@ -158,6 +158,24 @@ public class PyObject : SafeHandle
     }
 
     /// <summary>
+    /// Is the Python object None?
+    /// </summary>
+    /// <returns>true if None, else false</returns>
+    public bool IsNone()
+    {
+        return CPythonAPI.IsNone(this);
+    }
+
+    public static PyObject None
+    {
+        get
+        {
+            // TODO: make none static. 
+            return new PyObject(CPythonAPI.GetNone());
+        }
+    }
+
+    /// <summary>
     /// Call the object. Equivalent to (__call__)(args)
     /// All arguments are treated as positional.
     /// </summary>
@@ -292,7 +310,7 @@ public class PyObject : SafeHandle
         using (GIL.Acquire())
         {
             return value is null ?
-                new PyObject(CPythonAPI.GetNone()) :
+                PyObject.None :
                 (PyObject?)td.ConvertFrom(value);
         }
     }

@@ -136,7 +136,8 @@ internal partial class PyObjectTypeConverter : TypeConverter
             ITuple t => ConvertFromTuple(context, culture, t),
             IEnumerable e => ConvertFromList(context, culture, e),
             BigInteger b => ConvertFromBigInteger(context, culture, b),
-            null => new PyObject(CPythonAPI.GetNone()),
+            PyObject pyObject => pyObject,
+            null => PyObject.None,
             _ => base.ConvertFrom(context, culture, value)
         };
 
@@ -179,7 +180,7 @@ internal partial class PyObjectTypeConverter : TypeConverter
     {
         if (o is null)
         {
-            return new PyObject(CPythonAPI.GetNone());
+            return PyObject.None;
         }
 
         var result = ConvertFrom(context, culture, o);

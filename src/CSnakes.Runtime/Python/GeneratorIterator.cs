@@ -31,10 +31,8 @@ public class GeneratorIterator<TYield, TSend, TReturn> : IGeneratorIterator<TYie
         sendPyFunction.Dispose();
     }
 
-    public IEnumerator<TYield> GetEnumerator()
-    {
-        return this;
-    }
+    public IEnumerator<TYield> GetEnumerator() => this;
+
 
     public bool MoveNext()
     {

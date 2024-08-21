@@ -6,10 +6,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Numerics;
+using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter : TypeConverter
 {
+    private readonly ConcurrentDictionary<Type, DynamicTypeInfo> knownDynamicTypes = [];
 
     /// <summary>
     /// Convert a Python object to a CLR managed object.
@@ -118,11 +121,6 @@ internal partial class PyObjectTypeConverter : TypeConverter
         throw new InvalidCastException($"Attempting to cast {destinationType} from {pyObject.GetPythonType()}");
     }
 
-    private object? AsManagedObject(Type type, PyObject p, ITypeDescriptorContext? context, CultureInfo? culture)
-    {
-        return ConvertTo(context, culture, p, type);
-    }
-
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) =>
         value switch
         {
@@ -187,4 +185,6 @@ internal partial class PyObjectTypeConverter : TypeConverter
 
         return result is null ? throw new NotImplementedException() : (PyObject)result;
     }
+
+    record DynamicTypeInfo(ConstructorInfo ReturnTypeConstructor, ConstructorInfo? TransientTypeConstructor = null);
 }

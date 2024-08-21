@@ -3,10 +3,8 @@ namespace CSnakes.Runtime.Python.Interns;
 
 internal class ImmortalPyObject(nint handle) : PyObject(handle)
 {
-    protected override bool ReleaseHandle()
-    {
-        return true;
-    }
+    protected override bool ReleaseHandle() => true;
+
 
     protected override void Dispose(bool disposing)
     {

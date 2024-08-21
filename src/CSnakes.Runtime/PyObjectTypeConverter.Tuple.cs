@@ -69,7 +69,13 @@ internal partial class PyObjectTypeConverter
             value.Dispose();
         }
 
-        ConstructorInfo ctor = destinationType.GetConstructors().First(c => c.GetParameters().Length == clrValues.Length);
-        return (ITuple)ctor.Invoke(clrValues);
+        if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
+        {
+            ConstructorInfo ctor = destinationType.GetConstructors().First(c => c.GetParameters().Length == clrValues.Length);
+            typeInfo = new(ctor);
+            knownDynamicTypes[destinationType] = typeInfo;
+        }
+
+        return (ITuple)typeInfo.ReturnTypeConstructor.Invoke(clrValues);
     }
 }

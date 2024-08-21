@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.Reflection;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
@@ -11,10 +12,20 @@ internal partial class PyObjectTypeConverter
     private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture, bool useMappingProtocol = false)
     {
         using PyObject items = useMappingProtocol ? new(CPythonAPI.PyMapping_Items(pyObject)) : new(CPythonAPI.PyDict_Items(pyObject));
+
         Type item1Type = destinationType.GetGenericArguments()[0];
         Type item2Type = destinationType.GetGenericArguments()[1];
-        Type dictType = typeof(Dictionary<,>).MakeGenericType(item1Type, item2Type);
-        IDictionary dict = (IDictionary)Activator.CreateInstance(dictType)!;
+
+        if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
+        {
+            Type dictType = typeof(Dictionary<,>).MakeGenericType(item1Type, item2Type);
+            Type returnType = typeof(ReadOnlyDictionary<,>).MakeGenericType(item1Type, item2Type);
+
+            typeInfo = new(returnType.GetConstructor([dictType])!, dictType.GetConstructor([])!);
+            knownDynamicTypes[destinationType] = typeInfo;
+        }
+
+        IDictionary dict = (IDictionary)typeInfo.TransientTypeConstructor!.Invoke([]);
         nint itemsLength = CPythonAPI.PyList_Size(items);
 
         for (nint i = 0; i < itemsLength; i++)
@@ -30,8 +41,7 @@ internal partial class PyObjectTypeConverter
             dict.Add(convertedItem1!, convertedItem2);
         }
 
-        Type returnType = typeof(ReadOnlyDictionary<,>).MakeGenericType(item1Type, item2Type);
-        return Activator.CreateInstance(returnType, dict);
+        return typeInfo.ReturnTypeConstructor.Invoke([dict]);
     }
 
     private PyObject ConvertFromDictionary(ITypeDescriptorContext? context, CultureInfo? culture, IDictionary dictionary)

@@ -171,6 +171,43 @@ public class PyObject : SafeHandle
     /// <returns>true if None, else false</returns>
     public virtual bool IsNone() => CPythonAPI.IsNone(this);
 
+    /// <summary>
+    /// Are the objects the same instance, equivalent to the `is` operator in Python
+    /// </summary>
+    /// <param name="other"></param>
+    /// <returns></returns>
+    public virtual bool Is(PyObject other)
+    {
+        return DangerousGetHandle() == other.DangerousGetHandle();
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is PyObject pyObj1) { 
+            if (Is(pyObj1))
+                return true;
+
+            using (GIL.Acquire())
+            {
+                return CPythonAPI.PyObject_Equals(this, pyObj1);
+            }
+        }
+        return base.Equals(obj);
+    }
+
+    public override int GetHashCode()
+    {
+        using (GIL.Acquire())
+        {
+            int hash = CPythonAPI.PyObject_Hash(this);
+            if (hash == -1)
+            {
+                ThrowPythonExceptionAsClrException();
+            }
+            return hash;
+        }
+    }
+
     public static PyObject None { get; } = new PyNoneObject();
 
     /// <summary>

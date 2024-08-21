@@ -1,4 +1,4 @@
-# CSnakes - a tool for embedding Python code into .NET projects
+# CSnakes - a tool for embedding Python into .NET projects
 
 > [!WARNING]  
 > This project is in prototype stage and the API is subject to change. 

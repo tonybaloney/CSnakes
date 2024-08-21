@@ -7,12 +7,10 @@ internal class ImmortalPyObject : PyObject
     {
     }
 
-    protected override bool ReleaseHandle()
-    {
-        return true;
-    }
+    protected override bool ReleaseHandle() => true;
 
-    protected override void Dispose(bool disposing)
+
+        protected override void Dispose(bool disposing)
     {
         // I am immortal!!
     }

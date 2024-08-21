@@ -2,24 +2,17 @@
 
 namespace CSnakes.Runtime.Python.Interns;
 
-internal class PyNoneObject : ImmortalPyObject
+internal sealed class PyNoneObject : ImmortalPyObject
+
 {
     public PyNoneObject() : base(CPythonAPI.GetNone())
     {
     }
 
-    public override bool IsNone()
-    {
-        return true;
-    }
+    public override bool IsNone() => true;
 
-    public override string GetRepr()
-    {
-        return "None";
-    }
+    public override string GetRepr() => ToString();
 
-    public override string ToString()
-    {
-        return "None";
-    }
+    public override string ToString() => "None";
+
 }

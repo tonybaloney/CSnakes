@@ -1,5 +1,4 @@
-﻿using CSnakes.Runtime.CPython;
-namespace CSnakes.Runtime.Python.Interns;
+﻿namespace CSnakes.Runtime.Python.Interns;
 
 internal class ImmortalPyObject : PyObject
 {
@@ -10,7 +9,7 @@ internal class ImmortalPyObject : PyObject
     protected override bool ReleaseHandle() => true;
 
 
-        protected override void Dispose(bool disposing)
+    protected override void Dispose(bool disposing)
     {
         // I am immortal!!
     }

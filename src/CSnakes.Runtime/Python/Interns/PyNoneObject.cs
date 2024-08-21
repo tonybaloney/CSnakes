@@ -14,9 +14,5 @@ internal sealed class PyNoneObject : ImmortalPyObject
 
     public override string ToString() => "None";
 
-    internal override PyObject Clone()
-    {
-        return this;
-    }
-
+    internal override PyObject Clone() => this;
 }

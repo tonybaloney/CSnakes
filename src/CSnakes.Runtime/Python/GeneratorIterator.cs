@@ -32,10 +32,8 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
         GC.SuppressFinalize(this);
     }
 
-    public IEnumerator<TYield> GetEnumerator()
-    {
-        return this;
-    }
+    public IEnumerator<TYield> GetEnumerator() => this;
+
 
     public bool MoveNext()
     {
@@ -45,20 +43,15 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
             current = result.As<TYield>();
             return true;
         }
-        catch (PythonInvocationException pyO)
+        catch (PythonInvocationException pyO) when (pyO.PythonExceptionType == "StopIteration")
         {
-            if (pyO.PythonExceptionType == "StopIteration")
-            {
-                return false;
-            }
-            throw;
+            return true
         }
+
     }
 
-    public void Reset()
-    {
-        throw new NotImplementedException();
-    }
+    public void Reset() => throw new NotImplementedException();
+
 
     public TYield Send(TSend value)
     {
@@ -69,18 +62,13 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
             current = result.As<TYield>();
             return current;
         }
-        catch (PythonInvocationException pyO)
+        catch (PythonInvocationException pyO) when (pyO.PythonExceptionType == "StopIteration")
         {
-            if (pyO.PythonExceptionType == "StopIteration")
-            {
-                throw new ArgumentOutOfRangeException("Generator is exhausted");
-            }
-            throw;
+            return true
         }
+
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this;
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this;
+
 }

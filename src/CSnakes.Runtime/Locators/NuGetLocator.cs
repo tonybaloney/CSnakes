@@ -5,13 +5,15 @@ internal class NuGetLocator(Version version) : PythonLocator(version)
 {
     public override PythonLocationMetadata LocatePython()
     {
+        var nugetPackagesOverride = Environment.GetEnvironmentVariable("NUGET_PACKAGES");
         var userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
-        if (string.IsNullOrEmpty(userProfile))
+        if (string.IsNullOrEmpty(userProfile) && string.IsNullOrEmpty(nugetPackagesOverride))
         {
-            throw new DirectoryNotFoundException("USERPROFILE environment variable not found, which is needed to locate the NuGet package cache.");
+            throw new DirectoryNotFoundException("Neither NUGET_PACKAGES or USERPROFILE environments variable were found, which are needed to locate the NuGet package cache.");
         }
-
-        string nugetPath = Path.Combine(userProfile, ".nuget", "packages", "python", $"{Version.Major}.{Version.Minor}.{Version.Build}", "tools");
+        string? globalNugetPackagesPath = string.IsNullOrEmpty(nugetPackagesOverride) ? userProfile : nugetPackagesOverride;
+        // TODO : Load optional path from nuget settings. https://learn.microsoft.com/en-us/nuget/consume-packages/managing-the-global-packages-and-cache-folders
+        string nugetPath = Path.Combine(globalNugetPackagesPath!, ".nuget", "packages", "python", $"{Version.Major}.{Version.Minor}.{Version.Build}", "tools");
         return LocatePythonInternal(nugetPath);
     }
 

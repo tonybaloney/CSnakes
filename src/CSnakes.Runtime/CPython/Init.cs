@@ -1,4 +1,5 @@
 ﻿using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python.Interns;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -83,6 +84,7 @@ internal unsafe partial class CPythonAPI : IDisposable
                 // Import builtins module
                 var builtinsMod = Import("builtins");
                 PyNone = GetAttr(builtinsMod, "None");
+                PyObject.none = new PyNoneObject();
                 Py_DecRef(builtinsMod);
             }
             PyEval_SaveThread();

@@ -11,6 +11,7 @@ namespace CSnakes.Runtime.Python;
 public class PyObject : SafeHandle
 {
     private static readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
+    internal static PyObject? none;
 
     internal PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
@@ -97,7 +98,7 @@ public class PyObject : SafeHandle
     /// Get the type for the object.
     /// </summary>
     /// <returns>A new reference to the type field.</returns>
-    public PyObject GetPythonType()
+    public virtual PyObject GetPythonType()
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
@@ -111,7 +112,7 @@ public class PyObject : SafeHandle
     /// </summary>
     /// <param name="name"></param>
     /// <returns>Attribute object (new ref)</returns>
-    public PyObject GetAttr(string name)
+    public virtual PyObject GetAttr(string name)
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
@@ -120,7 +121,7 @@ public class PyObject : SafeHandle
         }
     }
 
-    public bool HasAttr(string name)
+    public virtual bool HasAttr(string name)
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
@@ -133,7 +134,7 @@ public class PyObject : SafeHandle
     /// Get the iterator for the object. This is equivalent to iter(obj) in Python.
     /// </summary>
     /// <returns>The iterator object (new ref)</returns>
-    public PyObject GetIter()
+    public virtual PyObject GetIter()
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
@@ -146,7 +147,7 @@ public class PyObject : SafeHandle
     /// Get the results of the repr() function on the object.
     /// </summary>
     /// <returns></returns>
-    public string GetRepr()
+    public virtual string GetRepr()
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
@@ -161,7 +162,7 @@ public class PyObject : SafeHandle
     /// Is the Python object None?
     /// </summary>
     /// <returns>true if None, else false</returns>
-    public bool IsNone()
+    public virtual bool IsNone()
     {
         return CPythonAPI.IsNone(this);
     }
@@ -170,8 +171,9 @@ public class PyObject : SafeHandle
     {
         get
         {
-            // TODO: make none static. 
-            return new PyObject(CPythonAPI.GetNone());
+            if (none is null)
+                throw new InvalidOperationException("Python is not initialized. You cannot call this method outside of a Python Environment context.");
+            return none;
         }
     }
 

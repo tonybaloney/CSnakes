@@ -47,7 +47,6 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
         {
             return true;
         }
-
     }
 
     public void Reset() => throw new NotImplementedException();
@@ -64,7 +63,7 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
         }
         catch (PythonInvocationException pyO) when (pyO.PythonExceptionType == "StopIteration")
         {
-            return true;
+            throw new ArgumentOutOfRangeException("Generator is exhausted.");
         }
     }
 

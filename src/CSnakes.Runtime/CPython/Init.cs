@@ -80,11 +80,7 @@ internal unsafe partial class CPythonAPI : IDisposable
                 PyDictType = GetTypeRaw(PyDict_New());
                 PyBytesType = GetTypeRaw(PyBytes_FromByteSpan(new byte[] { }));
                 ItemsStrIntern = AsPyUnicodeObject("items");
-
-                // Import builtins module
-                var builtinsMod = Import("builtins");
-                PyNone = GetAttr(builtinsMod, "None");
-                Py_DecRef(builtinsMod);
+                PyNone = GetBuiltin("None");
             }
             PyEval_SaveThread();
         }

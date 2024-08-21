@@ -68,8 +68,6 @@ public class GeneratorIterator<TYield, TSend, TReturn> : IGeneratorIterator<TYie
 
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this;
-    }
+    IEnumerator IEnumerable.GetEnumerator() => this;
+
 }

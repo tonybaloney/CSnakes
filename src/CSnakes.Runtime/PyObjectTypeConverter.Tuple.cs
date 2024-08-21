@@ -43,7 +43,7 @@ internal partial class PyObjectTypeConverter
         if (tupleValues.Count > 8)
         {
             // We are hitting nested tuples here, which will be treated in a different way.
-            object?[] firstSeven = tupleValues.Take(7).Select((p, i) => AsManagedObject(types[i], p, context, culture)).ToArray();
+            object?[] firstSeven = tupleValues.Take(7).Select((p, i) => ConvertTo(context, culture, p, types[i])).ToArray();
 
             // Get the rest of the values and convert them to a nested tuple.
             IEnumerable<PyObject> rest = tupleValues.Skip(7);
@@ -53,14 +53,14 @@ internal partial class PyObjectTypeConverter
 
             // Use the decoder pipeline to decode the nested tuple (and its values).
             // We do this because that means if we have nested nested tuples, they'll be decoded as well.
-            object? nestedTuple = AsManagedObject(types[7], pyTuple, context, culture);
+            object? nestedTuple = ConvertTo(context, culture, pyTuple, types[7]);
 
             // Append our nested tuple to the first seven values.
             clrValues = [.. firstSeven, nestedTuple];
         }
         else
         {
-            clrValues = tupleValues.Select((p, i) => AsManagedObject(types[i], p, context, culture)).ToArray();
+            clrValues = tupleValues.Select((p, i) => ConvertTo(context, culture, p, types[i])).ToArray();
         }
 
         // Dispose of all the Python values that we captured from the Tuple.
@@ -69,7 +69,13 @@ internal partial class PyObjectTypeConverter
             value.Dispose();
         }
 
-        ConstructorInfo ctor = destinationType.GetConstructors().First(c => c.GetParameters().Length == clrValues.Length);
-        return (ITuple)ctor.Invoke(clrValues);
+        if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
+        {
+            ConstructorInfo ctor = destinationType.GetConstructors().First(c => c.GetParameters().Length == clrValues.Length);
+            typeInfo = new(ctor);
+            knownDynamicTypes[destinationType] = typeInfo;
+        }
+
+        return (ITuple)typeInfo.ReturnTypeConstructor.Invoke(clrValues);
     }
 }

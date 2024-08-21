@@ -1,34 +1,35 @@
 ﻿using System.Collections;
 
 namespace CSnakes.Runtime.Python;
-public class GeneratorIterator<TYield, TSend, TReturn> : IGeneratorIterator<TYield, TSend, TReturn>
+public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGeneratorIterator<TYield, TSend, TReturn>
 {
-    private readonly PyObject generator;
-    private readonly PyObject nextPyFunction;
-    private readonly PyObject closePyFunction;
-    private readonly PyObject sendPyFunction;
+    private readonly PyObject generator = generator;
+    private readonly PyObject nextPyFunction = generator.GetAttr("__next__");
+    private readonly PyObject closePyFunction = generator.GetAttr("close");
+    private readonly PyObject sendPyFunction = generator.GetAttr("send");
 
     private TYield current = default!;
-
-    public GeneratorIterator(PyObject generator)
-    {
-        this.generator = generator;
-        nextPyFunction = generator.GetAttr("__next__");
-        closePyFunction = generator.GetAttr("close");
-        sendPyFunction = generator.GetAttr("send");
-    }
 
     public TYield Current => current;
 
     object IEnumerator.Current => Current!;
 
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            generator.Dispose();
+            nextPyFunction.Dispose();
+            closePyFunction.Call().Dispose();
+            closePyFunction.Dispose();
+            sendPyFunction.Dispose();
+        }
+    }
+
     public void Dispose()
     {
-        generator.Dispose();
-        nextPyFunction.Dispose();
-        closePyFunction.Call().Dispose();
-        closePyFunction.Dispose();
-        sendPyFunction.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
     public IEnumerator<TYield> GetEnumerator()

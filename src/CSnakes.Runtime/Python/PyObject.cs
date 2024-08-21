@@ -162,10 +162,8 @@ public class PyObject : SafeHandle
     /// Is the Python object None?
     /// </summary>
     /// <returns>true if None, else false</returns>
-    public virtual bool IsNone()
-    {
-        return CPythonAPI.IsNone(this);
-    }
+    public virtual bool IsNone() => CPythonAPI.IsNone(this);
+
 
     public static PyObject None
     {

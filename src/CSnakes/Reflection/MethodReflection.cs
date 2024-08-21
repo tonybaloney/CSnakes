@@ -61,16 +61,18 @@ public static class MethodReflection
                                 Identifier($"{parameter.cSharpParameter.Identifier}_pyObject"))
                             .WithInitializer(
                                 EqualsValueClause(
-                                    InvocationExpression(
-                                        MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            IdentifierName("PyObject"),
-                                            IdentifierName("From")))
-                                        .WithArgumentList(
-                                            ArgumentList(
-                                                SingletonSeparatedList(
-                                                    Argument(
-                                                        IdentifierName(parameter.cSharpParameter.Identifier))))))))))
+                                    PostfixUnaryExpression(
+                                        SyntaxKind.SuppressNullableWarningExpression,
+                                        InvocationExpression(
+                                            MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName("PyObject"),
+                                                IdentifierName("From")))
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SingletonSeparatedList(
+                                                        Argument(
+                                                            IdentifierName(parameter.cSharpParameter.Identifier)))))))))))
                 .WithUsingKeyword(
                     Token(SyntaxKind.UsingKeyword)));
         }
@@ -100,6 +102,13 @@ public static class MethodReflection
             TypeSyntax s when s is PredefinedTypeSyntax p && p.Keyword.IsKind(SyntaxKind.VoidKeyword) => ReturnStatement(null),
             TypeSyntax s when s is IdentifierNameSyntax => ReturnStatement(IdentifierName("__result_pyObject")),
             _ => ProcessMethodWithReturnType(returnSyntax, parameterGenericArgs)
+        };
+
+        bool resultShouldBeDisposed = returnSyntax switch
+        {
+            TypeSyntax s when s is PredefinedTypeSyntax p && p.Keyword.IsKind(SyntaxKind.VoidKeyword) => true,
+            TypeSyntax s when s is IdentifierNameSyntax => false,
+            _ => true
         };
 
         var moduleDefinition = LocalDeclarationStatement(
@@ -142,8 +151,9 @@ public static class MethodReflection
                                     Identifier("__result_pyObject"))
                                 .WithInitializer(
                                     EqualsValueClause(
-                                        callExpression)))))
-            .WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
+                                        callExpression)))));
+        if (resultShouldBeDisposed)
+            callStatement = callStatement.WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
         StatementSyntax[] statements = [
             ExpressionStatement(
                 InvocationExpression(

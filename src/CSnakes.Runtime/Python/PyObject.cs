@@ -195,6 +195,34 @@ public class PyObject : SafeHandle
         return base.Equals(obj);
     }
 
+    public bool NotEquals(object? obj)
+    {
+        if (obj is PyObject pyObj1)
+        {
+            if (Is(pyObj1))
+                return false;
+
+            using (GIL.Acquire())
+            {
+                return CPythonAPI.PyObject_NotEquals(this, pyObj1);
+            }
+        }
+        return !base.Equals(obj);
+    }
+
+    public static bool operator ==(PyObject? left, PyObject? right)
+    {
+        if (left is null)
+            return right is null;
+        return left.Equals(right);
+    }
+    public static bool operator !=(PyObject? left, PyObject? right)
+    {
+        if (left is null)
+            return right is not null;
+        return left.NotEquals(right);
+    }
+
     public override int GetHashCode()
     {
         using (GIL.Acquire())

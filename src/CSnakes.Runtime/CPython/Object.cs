@@ -4,6 +4,14 @@ using System.Runtime.InteropServices;
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
+    /* Rich comparison opcodes */
+    const int Py_LT = 0;
+    const int Py_LE = 1;
+    const int Py_EQ = 2;
+    const int Py_NE = 3;
+    const int Py_GT = 4;
+    const int Py_GE = 5;
+
     [LibraryImport(PythonLibraryName)]
     internal static partial IntPtr PyObject_Repr(PyObject ob);
 
@@ -160,7 +168,17 @@ internal unsafe partial class CPythonAPI
 
     internal static bool PyObject_Equals(PyObject ob1, PyObject ob2)
     {
-        int result = PyObject_RichCompareBool(ob1, ob2, 2);
+        int result = PyObject_RichCompareBool(ob1, ob2, Py_EQ);
+        if (result == -1)
+        {
+            PyObject.ThrowPythonExceptionAsClrException();
+        }
+        return result == 1;
+    }
+
+    internal static bool PyObject_NotEquals(PyObject ob1, PyObject ob2)
+    {
+        int result = PyObject_RichCompareBool(ob1, ob2, Py_NE);
         if (result == -1)
         {
             PyObject.ThrowPythonExceptionAsClrException();

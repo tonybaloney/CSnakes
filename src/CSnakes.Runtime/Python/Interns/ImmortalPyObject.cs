@@ -7,4 +7,9 @@ internal class ImmortalPyObject(nint handle) : PyObject(handle)
     {
         return true;
     }
+
+    protected override void Dispose(bool disposing)
+    {
+        // I am immortal!!
+    }
 }

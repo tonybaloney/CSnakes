@@ -42,14 +42,11 @@ public class GeneratorIterator<TYield, TSend, TReturn> : IGeneratorIterator<TYie
             current = result.As<TYield>();
             return true;
         }
-        catch (PythonInvocationException pyO)
+        catch (PythonInvocationException pyO) when (pyO.PythonExceptionType == "StopIteration")
         {
-            if (pyO.PythonExceptionType == "StopIteration")
-            {
-                return false;
-            }
-            throw;
+            return true
         }
+
     }
 
     public void Reset()

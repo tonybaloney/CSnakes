@@ -16,7 +16,7 @@ internal partial class PyObjectTypeConverter
         for (var i = 0; i < CPythonAPI.PyList_Size(pyObject); i++)
         {
             using PyObject item = new(CPythonAPI.PyList_GetItem(pyObject, i));
-            list.Add(AsManagedObject(genericArgument, item, context, culture));
+            list.Add(ConvertTo(context, culture, item, genericArgument));
         }
 
         return list;
@@ -31,7 +31,7 @@ internal partial class PyObjectTypeConverter
         for (var i = 0; i < CPythonAPI.PySequence_Size(pyObject); i++)
         {
             using PyObject item = new(CPythonAPI.PySequence_GetItem(pyObject, i));
-            list.Add(AsManagedObject(genericArgument, item, context, culture));
+            list.Add(ConvertTo(context, culture, item, genericArgument));
         }
 
         return list;

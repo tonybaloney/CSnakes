@@ -24,8 +24,8 @@ internal partial class PyObjectTypeConverter
             using PyObject item1 = new(CPythonAPI.PyTuple_GetItem(item, 0));
             using PyObject item2 = new(CPythonAPI.PyTuple_GetItem(item, 1));
 
-            object? convertedItem1 = AsManagedObject(item1Type, item1, context, culture);
-            object? convertedItem2 = AsManagedObject(item2Type, item2, context, culture);
+            object? convertedItem1 = ConvertTo(context, culture, item1, item1Type);
+            object? convertedItem2 = ConvertTo(context, culture, item2, item2Type);
 
             dict.Add(convertedItem1!, convertedItem2);
         }

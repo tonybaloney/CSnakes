@@ -1,4 +1,5 @@
 using CSnakes.Runtime.CPython;
+using CSnakes.Runtime.Python.Interns;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -12,12 +13,19 @@ public class PyObject : SafeHandle
 {
     private static readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
 
-    internal PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
+    protected PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
         if (pyObject == IntPtr.Zero)
         {
             ThrowPythonExceptionAsClrException();
         }
+    }
+
+    internal static PyObject Create(IntPtr ptr)
+    {
+        if (None.DangerousGetHandle() == ptr)
+            return None;
+        return new PyObject(ptr);
     }
 
     public override bool IsInvalid => handle == IntPtr.Zero;
@@ -63,13 +71,13 @@ public class PyObject : SafeHandle
                 throw new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
 
-            using var pyExceptionType = new PyObject(excType);
+            using var pyExceptionType = Create(excType);
             PyObject? pyExceptionTraceback = excTraceback == IntPtr.Zero ? null : new PyObject(excTraceback);
 
             var pyExceptionStr = string.Empty;
             if (excValue != IntPtr.Zero)
             {
-                using PyObject pyExceptionValue = new PyObject(excValue);
+                using PyObject pyExceptionValue = Create(excValue);
                 pyExceptionStr = pyExceptionValue.ToString();
             }
              ;
@@ -97,7 +105,7 @@ public class PyObject : SafeHandle
     /// Get the type for the object.
     /// </summary>
     /// <returns>A new reference to the type field.</returns>
-    public PyObject GetPythonType()
+    public virtual PyObject GetPythonType()
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
@@ -111,16 +119,16 @@ public class PyObject : SafeHandle
     /// </summary>
     /// <param name="name"></param>
     /// <returns>Attribute object (new ref)</returns>
-    public PyObject GetAttr(string name)
+    public virtual PyObject GetAttr(string name)
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.GetAttr(this, name));
+            return Create(CPythonAPI.GetAttr(this, name));
         }
     }
 
-    public bool HasAttr(string name)
+    public virtual bool HasAttr(string name)
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
@@ -133,12 +141,12 @@ public class PyObject : SafeHandle
     /// Get the iterator for the object. This is equivalent to iter(obj) in Python.
     /// </summary>
     /// <returns>The iterator object (new ref)</returns>
-    public PyObject GetIter()
+    public virtual PyObject GetIter()
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.PyObject_GetIter(this));
+            return Create(CPythonAPI.PyObject_GetIter(this));
         }
     }
 
@@ -146,7 +154,7 @@ public class PyObject : SafeHandle
     /// Get the results of the repr() function on the object.
     /// </summary>
     /// <returns></returns>
-    public string GetRepr()
+    public virtual string GetRepr()
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
@@ -156,6 +164,14 @@ public class PyObject : SafeHandle
             return repr ?? string.Empty;
         }
     }
+
+    /// <summary>
+    /// Is the Python object None?
+    /// </summary>
+    /// <returns>true if None, else false</returns>
+    public virtual bool IsNone() => CPythonAPI.IsNone(this);
+
+    public static PyObject None { get; } = new PyNoneObject();
 
     /// <summary>
     /// Call the object. Equivalent to (__call__)(args)
@@ -188,7 +204,7 @@ public class PyObject : SafeHandle
         {
             using (GIL.Acquire())
             {
-                return new PyObject(CPythonAPI.Call(this, argHandles));
+                return Create(CPythonAPI.Call(this, argHandles));
             }
         } finally
         {
@@ -234,7 +250,7 @@ public class PyObject : SafeHandle
         {
             using (GIL.Acquire())
             {
-                return new PyObject(CPythonAPI.Call(this, argHandles, kwnames, kwargHandles));
+                return Create(CPythonAPI.Call(this, argHandles, kwnames, kwargHandles));
             }
         }
         finally
@@ -292,12 +308,12 @@ public class PyObject : SafeHandle
         using (GIL.Acquire())
         {
             return value is null ?
-                new PyObject(CPythonAPI.GetNone()) :
+                PyObject.None :
                 (PyObject?)td.ConvertFrom(value);
         }
     }
 
-    internal PyObject Clone()
+    internal virtual PyObject Clone()
     {
         CPythonAPI.Py_IncRefRaw(handle);
         return new PyObject(handle);

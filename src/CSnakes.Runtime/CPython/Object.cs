@@ -106,6 +106,9 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName)]
     internal static partial IntPtr PyObject_GetAttr(PyObject ob, IntPtr attr);
 
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyObject_GetAttr")]
+    private static partial IntPtr PyObject_GetAttrRaw(IntPtr ob, IntPtr attr);
+
     /// <summary>
     /// Does the object ob have the attr `attr`?
     /// </summary>

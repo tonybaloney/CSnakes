@@ -49,10 +49,8 @@ public class GeneratorIterator<TYield, TSend, TReturn> : IGeneratorIterator<TYie
 
     }
 
-    public void Reset()
-    {
-        throw new NotImplementedException();
-    }
+    public void Reset() => throw new NotImplementedException();
+
 
     public TYield Send(TSend value)
     {

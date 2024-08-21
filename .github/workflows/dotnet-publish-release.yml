@@ -50,15 +50,8 @@ jobs:
       - name: Publish to GitHub packages
         run: dotnet nuget push ./nuget/*.nupkg --source "https://nuget.pkg.github.com/tonybaloney/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to GitHub packages (Symbols)
-        run: dotnet nuget push ./nuget/*.snupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_API_KEY }}
-
-      - name: Publish to GitHub packages (Symbols)
-        run: dotnet nuget push ./nuget/*.snupkg --source "https://nuget.pkg.github.com/tonybaloney/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}
-
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             ./nuget/*.nupkg
-            ./nuget/*.snupkg

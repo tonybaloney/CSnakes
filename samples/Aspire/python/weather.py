@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 tracer = configure_oltp_grpc_tracing()
 logger = logging.getLogger(__name__)
 
-Psycopg2Instrumentor().instrument()
+Psycopg2Instrumentor().instrument(enable_commenter=True, commenter_options={})
 
 ado_conn_str = os.getenv("ConnectionStrings__weather")
 # Convert the connection string to a dictionary

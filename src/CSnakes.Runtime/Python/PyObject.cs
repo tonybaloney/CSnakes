@@ -1,4 +1,5 @@
 using CSnakes.Runtime.CPython;
+using CSnakes.Runtime.Python.Interns;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -11,7 +12,6 @@ namespace CSnakes.Runtime.Python;
 public class PyObject : SafeHandle
 {
     private static readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
-    internal static PyObject? none;
 
     protected PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
@@ -23,10 +23,8 @@ public class PyObject : SafeHandle
 
     internal static PyObject Create(IntPtr ptr)
     {
-        if (none is null)
-            throw new InvalidOperationException("Python is not initialized. You cannot call this method outside of a Python Environment context.");
-        if (none.DangerousGetHandle() == ptr)
-            return none;
+        if (None.DangerousGetHandle() == ptr)
+            return None;
         return new PyObject(ptr);
     }
 
@@ -73,13 +71,13 @@ public class PyObject : SafeHandle
                 throw new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
 
-            using var pyExceptionType = new PyObject(excType);
+            using var pyExceptionType = Create(excType);
             PyObject? pyExceptionTraceback = excTraceback == IntPtr.Zero ? null : new PyObject(excTraceback);
 
             var pyExceptionStr = string.Empty;
             if (excValue != IntPtr.Zero)
             {
-                using PyObject pyExceptionValue = new PyObject(excValue);
+                using PyObject pyExceptionValue = Create(excValue);
                 pyExceptionStr = pyExceptionValue.ToString();
             }
              ;
@@ -126,7 +124,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.GetAttr(this, name));
+            return Create(CPythonAPI.GetAttr(this, name));
         }
     }
 
@@ -148,7 +146,7 @@ public class PyObject : SafeHandle
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.PyObject_GetIter(this));
+            return Create(CPythonAPI.PyObject_GetIter(this));
         }
     }
 
@@ -172,7 +170,6 @@ public class PyObject : SafeHandle
     /// </summary>
     /// <returns>true if None, else false</returns>
     public virtual bool IsNone() => CPythonAPI.IsNone(this);
-
 
     public static PyObject None { get; } = new PyNoneObject();
 
@@ -207,7 +204,7 @@ public class PyObject : SafeHandle
         {
             using (GIL.Acquire())
             {
-                return new PyObject(CPythonAPI.Call(this, argHandles));
+                return Create(CPythonAPI.Call(this, argHandles));
             }
         } finally
         {
@@ -253,7 +250,7 @@ public class PyObject : SafeHandle
         {
             using (GIL.Acquire())
             {
-                return new PyObject(CPythonAPI.Call(this, argHandles, kwnames, kwargHandles));
+                return Create(CPythonAPI.Call(this, argHandles, kwnames, kwargHandles));
             }
         }
         finally
@@ -316,7 +313,7 @@ public class PyObject : SafeHandle
         }
     }
 
-    internal PyObject Clone()
+    internal virtual PyObject Clone()
     {
         CPythonAPI.Py_IncRefRaw(handle);
         return new PyObject(handle);

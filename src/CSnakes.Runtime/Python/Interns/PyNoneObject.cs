@@ -3,7 +3,6 @@
 namespace CSnakes.Runtime.Python.Interns;
 
 internal sealed class PyNoneObject : ImmortalPyObject
-
 {
     public PyNoneObject() : base(CPythonAPI.GetNone())
     {
@@ -14,5 +13,10 @@ internal sealed class PyNoneObject : ImmortalPyObject
     public override string GetRepr() => ToString();
 
     public override string ToString() => "None";
+
+    internal override PyObject Clone()
+    {
+        return this;
+    }
 
 }

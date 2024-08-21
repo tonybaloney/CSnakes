@@ -84,7 +84,6 @@ internal unsafe partial class CPythonAPI : IDisposable
                 // Import builtins module
                 var builtinsMod = Import("builtins");
                 PyNone = GetAttr(builtinsMod, "None");
-                PyObject.none = new PyNoneObject();
                 Py_DecRef(builtinsMod);
             }
             PyEval_SaveThread();

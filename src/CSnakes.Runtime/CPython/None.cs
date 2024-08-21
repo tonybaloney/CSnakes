@@ -1,6 +1,4 @@
 ﻿using CSnakes.Runtime.Python;
-using System.ComponentModel;
-
 namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI

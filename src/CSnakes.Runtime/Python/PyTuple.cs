@@ -18,7 +18,7 @@ internal static class PyTuple
                 marshallers.Add(m);
                 handles.Add(m.ToUnmanaged());
             }
-            return new(CPythonAPI.PackTuple(handles.ToArray()));
+            return PyObject.Create(CPythonAPI.PackTuple(handles.ToArray()));
         }
         finally
         {

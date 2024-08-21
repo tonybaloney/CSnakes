@@ -15,7 +15,7 @@ internal partial class PyObjectTypeConverter
         IList list = (IList)Activator.CreateInstance(listType)!;
         for (var i = 0; i < CPythonAPI.PyList_Size(pyObject); i++)
         {
-            using PyObject item = new(CPythonAPI.PyList_GetItem(pyObject, i));
+            using PyObject item = PyObject.Create(CPythonAPI.PyList_GetItem(pyObject, i));
             list.Add(AsManagedObject(genericArgument, item, context, culture));
         }
 
@@ -30,7 +30,7 @@ internal partial class PyObjectTypeConverter
         IList list = (IList)Activator.CreateInstance(listType)!;
         for (var i = 0; i < CPythonAPI.PySequence_Size(pyObject); i++)
         {
-            using PyObject item = new(CPythonAPI.PySequence_GetItem(pyObject, i));
+            using PyObject item = PyObject.Create(CPythonAPI.PySequence_GetItem(pyObject, i));
             list.Add(AsManagedObject(genericArgument, item, context, culture));
         }
 
@@ -39,7 +39,7 @@ internal partial class PyObjectTypeConverter
 
     private PyObject ConvertFromList(ITypeDescriptorContext? context, CultureInfo? culture, IEnumerable e)
     {
-        PyObject pyList = new(CPythonAPI.PyList_New(0));
+        PyObject pyList = PyObject.Create(CPythonAPI.PyList_New(0));
 
         foreach (var item in e)
         {

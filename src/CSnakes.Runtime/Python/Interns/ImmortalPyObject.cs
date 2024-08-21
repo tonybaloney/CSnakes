@@ -1,8 +1,12 @@
 ﻿using CSnakes.Runtime.CPython;
 namespace CSnakes.Runtime.Python.Interns;
 
-internal class ImmortalPyObject(nint handle) : PyObject(handle)
+internal class ImmortalPyObject : PyObject
 {
+    internal ImmortalPyObject(nint handle) : base(handle)
+    {
+    }
+
     protected override bool ReleaseHandle()
     {
         return true;

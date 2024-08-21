@@ -13,12 +13,21 @@ public class PyObject : SafeHandle
     private static readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
     internal static PyObject? none;
 
-    internal PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
+    protected PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
         if (pyObject == IntPtr.Zero)
         {
             ThrowPythonExceptionAsClrException();
         }
+    }
+
+    internal static PyObject Create(IntPtr ptr)
+    {
+        if (none is null)
+            throw new InvalidOperationException("Python is not initialized. You cannot call this method outside of a Python Environment context.");
+        if (none.DangerousGetHandle() == ptr)
+            return none;
+        return new PyObject(ptr);
     }
 
     public override bool IsInvalid => handle == IntPtr.Zero;

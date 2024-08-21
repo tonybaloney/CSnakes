@@ -15,7 +15,7 @@ internal unsafe partial class CPythonAPI
         nint pyName = AsPyUnicodeObject(name);
         nint module = PyImport_Import(pyName);
         Py_DecRefRaw(pyName);
-        return new(module);
+        return PyObject.Create(module);
     }
 
     /// <summary>

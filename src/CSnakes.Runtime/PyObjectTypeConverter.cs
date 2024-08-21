@@ -126,17 +126,17 @@ internal partial class PyObjectTypeConverter : TypeConverter
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) =>
         value switch
         {
-            string str => new PyObject(CPythonAPI.AsPyUnicodeObject(str)),
-            byte[] bytes => new PyObject(CPythonAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
-            long l => new PyObject(CPythonAPI.PyLong_FromLongLong(l)),
-            int i => new PyObject(CPythonAPI.PyLong_FromLong(i)),
-            bool b => new PyObject(CPythonAPI.PyBool_FromLong(b ? 1 : 0)),
-            double d => new PyObject(CPythonAPI.PyFloat_FromDouble(d)),
+            string str => PyObject.Create(CPythonAPI.AsPyUnicodeObject(str)),
+            byte[] bytes => PyObject.Create(CPythonAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
+            long l => PyObject.Create(CPythonAPI.PyLong_FromLongLong(l)),
+            int i => PyObject.Create(CPythonAPI.PyLong_FromLong(i)),
+            bool b => PyObject.Create(CPythonAPI.PyBool_FromLong(b ? 1 : 0)),
+            double d => PyObject.Create(CPythonAPI.PyFloat_FromDouble(d)),
             IDictionary dictionary => ConvertFromDictionary(context, culture, dictionary),
             ITuple t => ConvertFromTuple(context, culture, t),
             IEnumerable e => ConvertFromList(context, culture, e),
             BigInteger b => ConvertFromBigInteger(context, culture, b),
-            PyObject pyObject => pyObject,
+            PyObject pyObject => pyObject.Clone(),
             null => PyObject.None,
             _ => base.ConvertFrom(context, culture, value)
         };

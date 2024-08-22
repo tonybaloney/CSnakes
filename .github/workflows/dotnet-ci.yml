@@ -87,14 +87,6 @@ jobs:
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
 
-      - name: Test Report
-        uses: dorny/test-reporter@v1
-        if: success() || failure()
-        with:
-          name: .NET Tests
-          path: test-results/*.trx
-          reporter: dotnet-trx
-
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: always()

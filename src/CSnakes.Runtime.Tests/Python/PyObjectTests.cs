@@ -54,79 +54,62 @@ public class PyObjectTests : RuntimeTestBase
     }
 
     [Fact]
-    public void TestObjectIs()
+    public void TestObjectIsNone()
     {
         var obj1 = PyObject.None;
         var obj2 = PyObject.None;
         Assert.True(obj2.Is(obj2));
-
-        // Small numbers are the same object in Python
-        var obj3 = PyObject.From(42);
-        var obj4 = PyObject.From(42);
-        Assert.True(obj3!.Is(obj4!));
     }
 
     [Fact]
-    public void TestObjectEquals()
+    public void TestObjectIsSmallIntegers() {
+        // Small numbers are the same object in Python, weird implementation detail. 
+        var obj1 = PyObject.From(42);
+        var obj2 = PyObject.From(42);
+        Assert.True(obj1!.Is(obj2!));
+    }
+
+    [InlineData(null, null)]
+    [InlineData(42, 42)]
+    [InlineData(42123434, 42123434)]
+    [InlineData("Hello!", "Hello!")]
+    [InlineData(3, 3.0)]
+    [Theory]
+    public void TestObjectEquals(object? o1, object? o2)
     {
-        var obj1 = PyObject.None;
-        var obj2 = PyObject.None;
+        using var obj1 = PyObject.From(o1);
+        using var obj2 = PyObject.From(o2);
         Assert.True(obj1.Equals(obj2));
         Assert.True(obj1 == obj2);
-
-        var obj3 = PyObject.From(42);
-        var obj4 = PyObject.From(42);
-        Assert.True(obj3!.Equals(obj4!));
-        Assert.True(obj3 == obj4);
-
-        var obj5 = PyObject.From(42);
-        var obj6 = PyObject.From(43);
-        Assert.False(obj5!.Equals(obj6!));
-
-        var obj7 = PyObject.From(42123434);
-        var obj8 = PyObject.From(42123434);
-        Assert.True(obj7 == obj8);
-
-        var obj9 = PyObject.From("Hello");
-        var obj10 = PyObject.From<IEnumerable<string>>(["Hello"]);
-        Assert.False(obj9!.Equals(obj10!));
-
-        // Test rich comparisons of mixed types
-        var obj11 = PyObject.From(3.0);
-        var obj12 = PyObject.From(3);
-        Assert.True(obj11!.Equals(obj12!));
-        Assert.True(obj11 == obj12);
     }
 
-    [Fact]
-    public void TestObjectNotEquals()
+    public void TestObjectEqualsCollection()
     {
-        var obj1 = PyObject.None;
-        var obj2 = PyObject.None;
+        using var obj1 = PyObject.From<IEnumerable<string>>(["Hello!", "World!"]);
+        using var obj2 = PyObject.From<IEnumerable<string>>(["Hello!", "World!"]);
+        Assert.False(obj1.Equals(obj2));
+        Assert.False(obj1 == obj2);
+    }
+
+    [InlineData(null, true)]
+    [InlineData(42, 44)]
+    [InlineData(42123434, 421234)]
+    [InlineData("Hello!", "Hello?")]
+    [InlineData(3, 3.0)]
+    [Theory]
+    public void TestObjectNotEquals(object? o1, object? o2)
+    {
+        using var obj1 = PyObject.From(o1);
+        using var obj2 = PyObject.From(o2);
         Assert.False(obj1.NotEquals(obj2));
         Assert.False(obj1 != obj2);
+    }
 
-        var obj3 = PyObject.From(42);
-        var obj4 = PyObject.From(42);
-        Assert.False(obj3!.NotEquals(obj4!));
-        Assert.False(obj3 != obj4);
-
-        var obj5 = PyObject.From(42);
-        var obj6 = PyObject.From(43);
-        Assert.True(obj5!.NotEquals(obj6!));
-
-        var obj7 = PyObject.From(42123434);
-        var obj8 = PyObject.From(42123434);
-        Assert.False(obj7 != obj8);
-
-        var obj9 = PyObject.From("Hello");
-        var obj10 = PyObject.From<IEnumerable<string>>(["Hello"]);
-        Assert.True(obj9!.NotEquals(obj10!));
-
-        // Test rich comparisons of mixed types
-        var obj11 = PyObject.From(3.0);
-        var obj12 = PyObject.From(4);
-        Assert.True(obj11!.NotEquals(obj12!));
-        Assert.True(obj11 != obj12);
+    public void TestObjectNotEqualsCollection()
+    {
+        using var obj1 = PyObject.From<IEnumerable<string>>(["Hello!", "World!"]);
+        using var obj2 = PyObject.From<IEnumerable<string>>(["Hello?", "World?"]);
+        Assert.False(obj1.NotEquals(obj2));
+        Assert.False(obj1 != obj2);
     }
 }

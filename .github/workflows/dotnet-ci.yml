@@ -47,7 +47,7 @@ jobs:
         run: dotnet build --no-restore
         working-directory: src
       - name: Test
-        run: dotnet test --no-build --verbosity normal --collect "XPlat Code Coverage" --results-directory test-results --logger trx
+        run: dotnet test --no-build --verbosity normal --collect "XPlat Code Coverage" --results-directory test-results --logger "trx;LogFileName=test-results-${{ matrix.os }}-${{ matrix.python }}-${{ matrix.dotnet }}.trx"
         working-directory: src
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
@@ -112,6 +112,6 @@ jobs:
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: ".NET Tests $1"
+          name: ".NET Tests"
           path: "*.trx"
           reporter: dotnet-trx

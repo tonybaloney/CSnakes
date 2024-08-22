@@ -3,7 +3,6 @@
 namespace CSnakes.Runtime.Tests.Python;
 public class PyObjectTests : RuntimeTestBase
 {
-
     [Fact]
     public void TestToString()
     {
@@ -113,5 +112,49 @@ public class PyObjectTests : RuntimeTestBase
         using var obj2 = PyObject.From<IEnumerable<string>>(["Hello?", "World?"]);
         Assert.True(obj1!.NotEquals(obj2));
         Assert.True(obj1 != obj2);
+    }
+
+    [InlineData(null, null, false, false)]
+    [InlineData(0, null, false, false)]
+    [InlineData(null, 0, false, false)]
+    [InlineData(int.MaxValue, 0, false, true)]
+    [InlineData(int.MinValue, 0, true, false)]
+    [InlineData(0, int.MaxValue, true, false)]
+    [InlineData(0, int.MinValue, false, true)]
+    [InlineData(-1, 1, true, false)]
+    [InlineData(1, -1, false, true)]
+    [InlineData("a", "b", true, false)]
+    [InlineData("b", "a", false, true)]
+    [InlineData(3.0, 3.2, true, false)]
+    [Theory]
+    public void TestObjectStrictInequality(object? o1, object? o2, bool expectedLT, bool expectedGT)
+    {
+        using var obj1 = o1 is null ? null : PyObject.From(o1);
+        using var obj2 = o2 is null ? null : PyObject.From(o2);
+        Assert.Equal(expectedLT, obj1 < obj2);
+        Assert.Equal(expectedGT, obj1 > obj2);
+    }
+
+    [InlineData(null, null, true, true)]
+    [InlineData(0, null, false, false)]
+    [InlineData(null, 0, false, false)]
+    [InlineData(int.MaxValue, 0, false, true)]
+    [InlineData(int.MinValue, 0, true, false)]
+    [InlineData(0, int.MaxValue, true, false)]
+    [InlineData(0, int.MinValue, false, true)]
+    [InlineData(-1, 1, true, false)]
+    [InlineData(1, -1, false, true)]
+    [InlineData("a", "b", true, false)]
+    [InlineData("b", "a", false, true)]
+    [InlineData(3.0, 3.2, true, false)]
+    [InlineData("b", "b", true, true)]
+    [InlineData(3.0, 3.0, true, true)]
+    [Theory]
+    public void TestObjectNotStrictInequality(object? o1, object? o2, bool expectedLT, bool expectedGT)
+    {
+        using var obj1 = o1 is null ? null : PyObject.From(o1);
+        using var obj2 = o2 is null ? null : PyObject.From(o2);
+        Assert.Equal(expectedLT, obj1 <= obj2);
+        Assert.Equal(expectedGT, obj1 >= obj2);
     }
 }

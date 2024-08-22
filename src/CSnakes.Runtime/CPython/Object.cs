@@ -4,6 +4,16 @@ using System.Runtime.InteropServices;
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
+    internal enum RichComparisonType : int
+    {
+        LessThan = 0,
+        LessThanEqual = 1,
+        Equal = 2,
+        NotEqual = 3,
+        GreaterThan = 4,
+        GreaterThanEqual = 5
+    }
+
     [LibraryImport(PythonLibraryName)]
     internal static partial IntPtr PyObject_Repr(PyObject ob);
 
@@ -154,4 +164,20 @@ internal unsafe partial class CPythonAPI
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial int PyObject_SetItem(PyObject ob, PyObject key, PyObject value);
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int PyObject_Hash(PyObject ob);
+
+    internal static bool PyObject_RichCompare(PyObject ob1, PyObject ob2, RichComparisonType comparisonType)
+    {
+        int result = PyObject_RichCompareBool(ob1, ob2, comparisonType);
+        if (result == -1)
+        {
+            PyObject.ThrowPythonExceptionAsClrException();
+        }
+        return result == 1;
+    }
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int PyObject_RichCompareBool(PyObject ob1, PyObject ob2, RichComparisonType comparisonType);
 }

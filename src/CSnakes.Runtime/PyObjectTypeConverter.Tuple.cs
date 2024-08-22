@@ -43,7 +43,7 @@ internal partial class PyObjectTypeConverter
         if (tupleValues.Count > 8)
         {
             // We are hitting nested tuples here, which will be treated in a different way.
-            object?[] firstSeven = tupleValues.Take(7).Select((p, i) => ConvertTo(context, culture, p, types[i])).ToArray();
+            var firstSeven = tupleValues.Take(7).Select((p, i) => ConvertTo(context, culture, p, types[i]));
 
             // Get the rest of the values and convert them to a nested tuple.
             IEnumerable<PyObject> rest = tupleValues.Skip(7);

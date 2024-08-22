@@ -16,7 +16,7 @@ jobs:
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: .NET Tests
+          name: '.NET Tests $1'
           path: test-results/*.trx
           reporter: dotnet-trx
-          artifact: test-results
+          artifact: /test-results-(.*)/

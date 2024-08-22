@@ -47,10 +47,18 @@ jobs:
         run: dotnet build --no-restore
         working-directory: src
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --no-build --verbosity normal --collect "XPlat Code Coverage" --results-directory test-results --logger trx
         working-directory: src
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.os }}-${{ matrix.python }}-${{ matrix.dotnet }}
+          path: |
+            ${{ github.workspace }}/src/test-results/**
 
   build-samples:
     strategy:

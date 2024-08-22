@@ -72,6 +72,23 @@ internal partial class PyObjectTypeConverter : TypeConverter
             return CPythonAPI.PyFloat_AsDouble(pyObject);
         }
 
+        if (destinationType.IsAssignableTo(typeof(ITuple)))
+        {
+            if (CPythonAPI.IsPyTuple(pyObject))
+            {
+                return ConvertToTuple(context, culture, pyObject, destinationType);
+            }
+
+            var tupleTypes = destinationType.GetGenericArguments();
+            if (tupleTypes.Length > 1)
+            {
+                throw new InvalidCastException($"The type is a tuple with more than one generic argument, but the underlying Python type is not a tuple. Destination Type: {destinationType}");
+            }
+
+            var convertedValue = ConvertTo(context, culture, pyObject, tupleTypes[0]);
+            return Activator.CreateInstance(destinationType, convertedValue);
+        }
+
         if (destinationType.IsGenericType)
         {
             if (IsAssignableToGenericType(destinationType, dictionaryType) && CPythonAPI.IsPyDict(pyObject))
@@ -98,23 +115,6 @@ internal partial class PyObjectTypeConverter : TypeConverter
             if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPySequence(pyObject))
             {
                 return ConvertToListFromSequence(pyObject, destinationType, context, culture);
-            }
-
-            if (destinationType.IsAssignableTo(typeof(ITuple)))
-            {
-                if (CPythonAPI.IsPyTuple(pyObject))
-                {
-                    return ConvertToTuple(context, culture, pyObject, destinationType);
-                }
-
-                var tupleTypes = destinationType.GetGenericArguments();
-                if (tupleTypes.Length > 1)
-                {
-                    throw new InvalidCastException($"The type is a tuple with more than one generic argument, but the underlying Python type is not a tuple. Destination Type: {destinationType}");
-                }
-
-                var convertedValue = ConvertTo(context, culture, pyObject, tupleTypes[0]);
-                return Activator.CreateInstance(destinationType, convertedValue);
             }
         }
 

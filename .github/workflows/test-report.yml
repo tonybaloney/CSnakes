@@ -19,3 +19,4 @@ jobs:
           name: .NET Tests
           path: test-results/*.trx
           reporter: dotnet-trx
+          artifact: test-results

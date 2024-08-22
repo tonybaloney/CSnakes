@@ -56,9 +56,9 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: src/test-results
+          name: test-results
           path: |
-            ${{ github.workspace }}/test-results/**
+            ${{ github.workspace }}/src/test-results/**
 
   build-samples:
     strategy:

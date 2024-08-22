@@ -189,7 +189,7 @@ public class PyObject : SafeHandle
 
             using (GIL.Acquire())
             {
-                return CPythonAPI.PyObject_Equals(this, pyObj1);
+                return CPythonAPI.PyObject_RichCompare(this, pyObj1, CPythonAPI.RichComparisonType.Equal);
             }
         }
         return base.Equals(obj);
@@ -204,7 +204,7 @@ public class PyObject : SafeHandle
 
             using (GIL.Acquire())
             {
-                return CPythonAPI.PyObject_NotEquals(this, pyObj1);
+                return CPythonAPI.PyObject_RichCompare(this, pyObj1, CPythonAPI.RichComparisonType.NotEqual);
             }
         }
         return !base.Equals(obj);

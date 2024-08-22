@@ -1,7 +1,7 @@
 name: "Test Report"
 on:
   workflow_run:
-    workflows: ["NET CI"]
+    workflows: [".NET CI"]
     types:
       - completed
 permissions:

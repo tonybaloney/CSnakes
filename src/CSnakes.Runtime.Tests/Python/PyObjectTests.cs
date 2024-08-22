@@ -79,37 +79,39 @@ public class PyObjectTests : RuntimeTestBase
     {
         using var obj1 = PyObject.From(o1);
         using var obj2 = PyObject.From(o2);
-        Assert.True(obj1.Equals(obj2));
+        Assert.True(obj1!.Equals(obj2));
         Assert.True(obj1 == obj2);
     }
 
+    [Fact]
     public void TestObjectEqualsCollection()
     {
         using var obj1 = PyObject.From<IEnumerable<string>>(["Hello!", "World!"]);
         using var obj2 = PyObject.From<IEnumerable<string>>(["Hello!", "World!"]);
-        Assert.False(obj1.Equals(obj2));
-        Assert.False(obj1 == obj2);
+        Assert.True(obj1!.Equals(obj2));
+        Assert.True(obj1 == obj2);
     }
 
     [InlineData(null, true)]
     [InlineData(42, 44)]
     [InlineData(42123434, 421234)]
     [InlineData("Hello!", "Hello?")]
-    [InlineData(3, 3.0)]
+    [InlineData(3, 3.2)]
     [Theory]
     public void TestObjectNotEquals(object? o1, object? o2)
     {
         using var obj1 = PyObject.From(o1);
         using var obj2 = PyObject.From(o2);
-        Assert.False(obj1.NotEquals(obj2));
-        Assert.False(obj1 != obj2);
+        Assert.True(obj1!.NotEquals(obj2));
+        Assert.True(obj1 != obj2);
     }
 
+    [Fact]
     public void TestObjectNotEqualsCollection()
     {
         using var obj1 = PyObject.From<IEnumerable<string>>(["Hello!", "World!"]);
         using var obj2 = PyObject.From<IEnumerable<string>>(["Hello?", "World?"]);
-        Assert.False(obj1.NotEquals(obj2));
-        Assert.False(obj1 != obj2);
+        Assert.True(obj1!.NotEquals(obj2));
+        Assert.True(obj1 != obj2);
     }
 }

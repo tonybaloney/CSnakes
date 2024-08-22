@@ -30,7 +30,7 @@ internal partial class PyObjectTypeConverter
         // We have to convert the Python values to CLR values, as if we just tried As<object>() it would
         // not parse the Python type to a CLR type, only to a new Python type.
         Type[] types = destinationType.GetGenericArguments();
-        object?[] clrValues;
+        IEnumerable<object?> clrValues;
 
         var tupleValues = new List<PyObject>();
         for (nint i = 0; i < CPythonAPI.PyTuple_Size(pyObj); i++)
@@ -43,7 +43,7 @@ internal partial class PyObjectTypeConverter
         if (tupleValues.Count > 8)
         {
             // We are hitting nested tuples here, which will be treated in a different way.
-            var firstSeven = tupleValues.Take(7).Select((p, i) => ConvertTo(context, culture, p, types[i]));
+            IEnumerable<object?> firstSeven = tupleValues.Take(7).Select((p, i) => ConvertTo(context, culture, p, types[i]));
 
             // Get the rest of the values and convert them to a nested tuple.
             IEnumerable<PyObject> rest = tupleValues.Skip(7);
@@ -60,22 +60,16 @@ internal partial class PyObjectTypeConverter
         }
         else
         {
-            clrValues = tupleValues.Select((p, i) => ConvertTo(context, culture, p, types[i])).ToArray();
-        }
-
-        // Dispose of all the Python values that we captured from the Tuple.
-        foreach (var value in tupleValues)
-        {
-            value.Dispose();
+            clrValues = tupleValues.Select((p, i) => ConvertTo(context, culture, p, types[i]));
         }
 
         if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
         {
-            ConstructorInfo ctor = destinationType.GetConstructors().First(c => c.GetParameters().Length == clrValues.Length);
+            ConstructorInfo ctor = destinationType.GetConstructors().First(c => c.GetParameters().Length == clrValues.Count());
             typeInfo = new(ctor);
             knownDynamicTypes[destinationType] = typeInfo;
         }
 
-        return (ITuple)typeInfo.ReturnTypeConstructor.Invoke(clrValues);
+        return (ITuple)typeInfo.ReturnTypeConstructor.Invoke([..clrValues]);
     }
 }

@@ -45,17 +45,15 @@ internal partial class PyObjectTypeConverter
 
     private PyObject ConvertFromDictionary(ITypeDescriptorContext? context, CultureInfo? culture, IDictionary dictionary)
     {
-        PyObject pyDict = PyObject.Create(CPythonAPI.PyDict_New());
+        List<PyObject> keys = new();
+        List<PyObject> values = new();
 
         foreach (DictionaryEntry kvp in dictionary)
         {
-            int result = CPythonAPI.PyDict_SetItem(pyDict, ToPython(kvp.Key, context, culture), ToPython(kvp.Value, context, culture));
-            if (result == -1)
-            {
-                PyObject.ThrowPythonExceptionAsClrException();
-            }
+            keys.Add(ToPython(kvp.Key, context, culture));
+            values.Add(ToPython(kvp.Value, context, culture));
         }
 
-        return pyDict;
+        return Pack.CreateDictionary(keys, values);
     }
 }

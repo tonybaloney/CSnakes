@@ -33,15 +33,35 @@ internal partial class PyObjectTypeConverter
             // 1. The item, which could be inlined as it's only used to call PyTuple_GetItem.
             // 2. The key, which we need to recursively convert -- although if this is a string, which it mostly is, then we _could_ avoid this.
             // 3. The value, which we need to recursively convert.
-            using PyObject kvpTuple = PyObject.Create(CPythonAPI.PyList_GetItem(items, i));
+            nint kvpTuple = CPythonAPI.PyList_GetItem(items, i);
 
-            using PyObject key = PyObject.Create(CPythonAPI.PyTuple_GetItem(kvpTuple, 0));
-            using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItem(kvpTuple, 1));
+            // Optimize keys as string because this is the most common case.
+            if (keyType == typeof(string))
+            {
+                nint itemKey = CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 0);
+                using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 1));
 
-            object? convertedKey = ConvertTo(key, keyType);
-            object? convertedValue = ConvertTo(value, valueType);
+                string? keyAsString = CPythonAPI.PyUnicode_AsUTF8Raw(itemKey);
+                if (keyAsString is null)
+                {
+                    CPythonAPI.Py_DecRefRaw(itemKey);
+                    PyObject.ThrowPythonExceptionAsClrException();
+                }
+                object? convertedValue = ConvertTo(value, valueType);
 
-            dict.Add(convertedKey!, convertedValue);
+                dict.Add(keyAsString!, convertedValue);
+                CPythonAPI.Py_DecRefRaw(itemKey);
+            } else
+            {
+                using PyObject key = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 0));
+                using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 1));
+
+                object? convertedKey = ConvertTo(key, keyType);
+                object? convertedValue = ConvertTo(value, valueType);
+
+                dict.Add(convertedKey!, convertedValue);
+            }
+            CPythonAPI.Py_DecRefRaw(kvpTuple);
         }
 
         return typeInfo.ReturnTypeConstructor.Invoke([dict]);

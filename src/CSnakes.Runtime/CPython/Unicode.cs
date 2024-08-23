@@ -17,8 +17,17 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyUnicode_DecodeUTF16(char* str, nint size, IntPtr errors, IntPtr byteorder);
 
+    /// <summary>
+    /// Convert the string object to a UTF-8 encoded string and return a pointer to the internal buffer.
+    /// This function does a type check and returns null if the object is not a string.
+    /// </summary>
+    /// <param name="s"></param>
+    /// <returns></returns>
     [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller))]
     internal static partial string? PyUnicode_AsUTF8(PyObject s);
+
+    [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller), EntryPoint = "PyUnicode_AsUTF8")]
+    internal static partial string? PyUnicode_AsUTF8Raw(nint s);
 
     public static bool IsPyUnicode(PyObject p)
     {

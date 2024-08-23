@@ -29,7 +29,7 @@ internal partial class PyObjectTypeConverter
         PyObject[] tupleValues = new PyObject[tupleSize];
         for (nint i = 0; i < tupleValues.Length; i++)
         {
-            PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItem(pyObj, i));
+            PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, i));
             tupleValues[i] = value;
         }
 

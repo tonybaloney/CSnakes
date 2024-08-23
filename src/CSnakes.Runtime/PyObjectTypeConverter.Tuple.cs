@@ -64,6 +64,8 @@ internal partial class PyObjectTypeConverter
             for (var i = 0; i < tupleValues.Length; i++)
             {
                 clrValues[i] = ConvertTo(context, culture, tupleValues[i], types[i]);
+                // Dispose of the Python object created by PyTuple_GetItem earlier in this method.
+                tupleValues[i].Dispose();
             }
         }
 

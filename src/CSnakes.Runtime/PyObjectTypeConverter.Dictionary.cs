@@ -45,8 +45,9 @@ internal partial class PyObjectTypeConverter
 
     private PyObject ConvertFromDictionary(ITypeDescriptorContext? context, CultureInfo? culture, IDictionary dictionary)
     {
-        List<PyObject> keys = new();
-        List<PyObject> values = new();
+        int len = dictionary.Keys.Count;
+        PyObject[] keys = new[len];
+        PyObject[] values = new[len];
 
         foreach (DictionaryEntry kvp in dictionary)
         {

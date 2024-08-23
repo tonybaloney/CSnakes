@@ -51,6 +51,12 @@ public class PyObject : SafeHandle
         return true;
     }
 
+    protected override void Dispose(bool disposing)
+    {
+        disposeHandler?.Invoke();
+        base.Dispose(disposing);
+    }
+
     /// <summary>
     /// Throws a Python exception as a CLR exception.
     /// </summary>
@@ -407,5 +413,13 @@ public class PyObject : SafeHandle
 
         combinedKwnames = [.. newKwnames];
         combinedKwvalues = [.. newKwvalues];
+    }
+
+    private Action? disposeHandler;
+
+    internal PyObject RegisterDisposeHandler(Action handler)
+    {
+        disposeHandler = handler;
+        return this;
     }
 }

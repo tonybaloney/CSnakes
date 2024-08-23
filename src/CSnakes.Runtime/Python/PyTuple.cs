@@ -7,10 +7,10 @@ internal static class PyTuple
 {
     public static PyObject CreateTuple(IEnumerable<PyObject> items)
     {
-        List<SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn> marshallers = new();
+        List<SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn> marshallers = new(items.Count());
         try
         {
-            List<IntPtr> handles = new();
+            List<IntPtr> handles = new(items.Count());
             foreach (PyObject o in items)
             {
                 SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn m = default;
@@ -18,7 +18,13 @@ internal static class PyTuple
                 marshallers.Add(m);
                 handles.Add(m.ToUnmanaged());
             }
-            return PyObject.Create(CPythonAPI.PackTuple(handles.ToArray()));
+            return PyObject.Create(CPythonAPI.PackTuple(handles.ToArray()))
+                .RegisterDisposeHandler(() => {
+                    foreach (var item in items)
+                    {
+                        item.Dispose();
+                    }
+                });
         }
         finally
         {

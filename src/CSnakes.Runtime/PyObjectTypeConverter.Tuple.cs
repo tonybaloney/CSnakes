@@ -1,26 +1,24 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
-using System.ComponentModel;
-using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private PyObject ConvertFromTuple(ITypeDescriptorContext? context, CultureInfo? culture, ITuple t)
+    private PyObject ConvertFromTuple(ITuple t)
     {
         List<PyObject> pyObjects = new(t.Length);
 
         for (var i = 0; i < t.Length; i++)
         {
-            pyObjects.Add(ToPython(t[i], context, culture));
+            pyObjects.Add(ToPython(t[i]));
         }
 
         return Pack.CreateTuple(pyObjects);
     }
 
-    private object? ConvertToTuple(ITypeDescriptorContext? context, CultureInfo? culture, PyObject pyObj, Type destinationType)
+    private object? ConvertToTuple(PyObject pyObj, Type destinationType)
     {
         // We have to convert the Python values to CLR values, as if we just tried As<object>() it would
         // not parse the Python type to a CLR type, only to a new Python type.
@@ -39,7 +37,7 @@ internal partial class PyObjectTypeConverter
         if (tupleValues.Length > 8)
         {
             // We are hitting nested tuples here, which will be treated in a different way.
-            IEnumerable<object?> firstSeven = tupleValues.Take(7).Select((p, i) => ConvertTo(context, culture, p, types[i]));
+            IEnumerable<object?> firstSeven = tupleValues.Take(7).Select((p, i) => ConvertTo(p, types[i]));
 
             // Get the rest of the values and convert them to a nested tuple.
             IEnumerable<PyObject> rest = tupleValues.Skip(7);
@@ -49,7 +47,7 @@ internal partial class PyObjectTypeConverter
 
             // Use the decoder pipeline to decode the nested tuple (and its values).
             // We do this because that means if we have nested nested tuples, they'll be decoded as well.
-            object? nestedTuple = ConvertTo(context, culture, pyTuple, types[7]);
+            object? nestedTuple = ConvertTo(pyTuple, types[7]);
 
             // Append our nested tuple to the first seven values.
             clrValues = [.. firstSeven, nestedTuple];
@@ -58,7 +56,7 @@ internal partial class PyObjectTypeConverter
         {
             for (var i = 0; i < tupleValues.Length; i++)
             {
-                clrValues[i] = ConvertTo(context, culture, tupleValues[i], types[i]);
+                clrValues[i] = ConvertTo(tupleValues[i], types[i]);
                 // Dispose of the Python object created by PyTuple_GetItem earlier in this method.
                 tupleValues[i].Dispose();
             }

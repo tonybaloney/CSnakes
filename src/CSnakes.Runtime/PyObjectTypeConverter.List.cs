@@ -1,13 +1,11 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections;
-using System.ComponentModel;
-using System.Globalization;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private object? ConvertToList(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
+    private object? ConvertToList(PyObject pyObject, Type destinationType)
     {
         Type genericArgument = destinationType.GetGenericArguments()[0];
 
@@ -24,13 +22,13 @@ internal partial class PyObjectTypeConverter
         for (var i = 0; i < listSize; i++)
         {
             using PyObject item = PyObject.Create(CPythonAPI.PyList_GetItem(pyObject, i));
-            list.Add(ConvertTo(context, culture, item, genericArgument));
+            list.Add(ConvertTo(item, genericArgument));
         }
 
         return list;
     }
 
-    private object? ConvertToListFromSequence(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
+    private object? ConvertToListFromSequence(PyObject pyObject, Type destinationType)
     {
         Type genericArgument = destinationType.GetGenericArguments()[0];
 
@@ -47,19 +45,19 @@ internal partial class PyObjectTypeConverter
         for (var i = 0; i < listSize; i++)
         {
             using PyObject item = PyObject.Create(CPythonAPI.PySequence_GetItem(pyObject, i));
-            list.Add(ConvertTo(context, culture, item, genericArgument));
+            list.Add(ConvertTo(item, genericArgument));
         }
 
         return list;
     }
 
-    private PyObject ConvertFromList(ITypeDescriptorContext? context, CultureInfo? culture, IEnumerable e)
+    private PyObject ConvertFromList(IEnumerable e)
     {
         List<PyObject> pyObjects = [];
 
         foreach (object? item in e)
         {
-            pyObjects.Add(ToPython(item, context, culture));
+            pyObjects.Add(ToPython(item));
         }
 
         return Pack.CreateList(pyObjects);

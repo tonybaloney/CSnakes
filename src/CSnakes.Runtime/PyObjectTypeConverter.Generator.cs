@@ -1,12 +1,10 @@
 using CSnakes.Runtime.Python;
-using System.ComponentModel;
-using System.Globalization;
 using System.Reflection;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private object? ConvertToGeneratorIterator(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
+    private object? ConvertToGeneratorIterator(PyObject pyObject, Type destinationType)
     {
         if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
         {

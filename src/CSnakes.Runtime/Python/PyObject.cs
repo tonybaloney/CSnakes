@@ -8,10 +8,9 @@ using System.Runtime.InteropServices.Marshalling;
 namespace CSnakes.Runtime.Python;
 
 [DebuggerDisplay("PyObject: repr={GetRepr()}, type={GetPythonType().ToString()}")]
-[TypeConverter(typeof(PyObjectTypeConverter))]
 public class PyObject : SafeHandle
 {
-    private static readonly TypeConverter td = TypeDescriptor.GetConverter(typeof(PyObject));
+    private static readonly PyObjectTypeConverter td = new();
 
     protected PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {

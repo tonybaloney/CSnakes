@@ -1,16 +1,13 @@
 ﻿using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Numerics;
 using System.Collections.Concurrent;
 using System.Reflection;
 
 namespace CSnakes.Runtime;
-internal partial class PyObjectTypeConverter : TypeConverter
+internal partial class PyObjectTypeConverter
 {
     private readonly ConcurrentDictionary<Type, DynamicTypeInfo> knownDynamicTypes = [];
 
@@ -25,7 +22,7 @@ internal partial class PyObjectTypeConverter : TypeConverter
     /// <returns></returns>
     /// <exception cref="NotSupportedException">Passed object is not a PyObject</exception>
     /// <exception cref="InvalidCastException">Source/Target types do not match</exception>
-    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
+    public object? ConvertTo(object? value, Type destinationType)
     {
         if (value is not PyObject pyObject)
         {
@@ -54,7 +51,7 @@ internal partial class PyObjectTypeConverter : TypeConverter
 
         if (destinationType == typeof(BigInteger) && CPythonAPI.IsPyLong(pyObject))
         {
-            return ConvertToBigInteger(pyObject, destinationType, context, culture);
+            return ConvertToBigInteger(pyObject, destinationType);
         }
 
         if (destinationType == typeof(int) && CPythonAPI.IsPyLong(pyObject))
@@ -76,7 +73,7 @@ internal partial class PyObjectTypeConverter : TypeConverter
         {
             if (CPythonAPI.IsPyTuple(pyObject))
             {
-                return ConvertToTuple(context, culture, pyObject, destinationType);
+                return ConvertToTuple(pyObject, destinationType);
             }
 
             var tupleTypes = destinationType.GetGenericArguments();
@@ -85,7 +82,7 @@ internal partial class PyObjectTypeConverter : TypeConverter
                 throw new InvalidCastException($"The type is a tuple with more than one generic argument, but the underlying Python type is not a tuple. Destination Type: {destinationType}");
             }
 
-            var convertedValue = ConvertTo(context, culture, pyObject, tupleTypes[0]);
+            var convertedValue = ConvertTo(pyObject, tupleTypes[0]);
             return Activator.CreateInstance(destinationType, convertedValue);
         }
 
@@ -93,35 +90,35 @@ internal partial class PyObjectTypeConverter : TypeConverter
         {
             if (IsAssignableToGenericType(destinationType, dictionaryType) && CPythonAPI.IsPyDict(pyObject))
             {
-                return ConvertToDictionary(pyObject, destinationType, context, culture);
+                return ConvertToDictionary(pyObject, destinationType);
             }
 
             if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPyList(pyObject))
             {
-                return ConvertToList(pyObject, destinationType, context, culture);
+                return ConvertToList(pyObject, destinationType);
             }
 
             if (IsAssignableToGenericType(destinationType, generatorIteratorType) && CPythonAPI.IsPyGenerator(pyObject))
             {
-                return ConvertToGeneratorIterator(pyObject, destinationType, context, culture);
+                return ConvertToGeneratorIterator(pyObject, destinationType);
             }
 
             // This needs to come after lists, because sequences are also maps
             if (destinationType.IsAssignableTo(collectionType) && CPythonAPI.IsPyMappingWithItems(pyObject))
             {
-                return ConvertToDictionary(pyObject, destinationType, context, culture, useMappingProtocol: true);
+                return ConvertToDictionary(pyObject, destinationType, useMappingProtocol: true);
             }
 
             if (IsAssignableToGenericType(destinationType, listType) && CPythonAPI.IsPySequence(pyObject))
             {
-                return ConvertToListFromSequence(pyObject, destinationType, context, culture);
+                return ConvertToListFromSequence(pyObject, destinationType);
             }
         }
 
         throw new InvalidCastException($"Attempting to cast {destinationType} from {pyObject.GetPythonType()}");
     }
 
-    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) =>
+    public PyObject ConvertFrom(object value) =>
         value switch
         {
             string str => PyObject.Create(CPythonAPI.AsPyUnicodeObject(str)),
@@ -130,60 +127,25 @@ internal partial class PyObjectTypeConverter : TypeConverter
             int i => PyObject.From(i),
             bool b => PyObject.From(b),
             double d => PyObject.From(d),
-            IDictionary dictionary => ConvertFromDictionary(context, culture, dictionary),
-            ITuple t => ConvertFromTuple(context, culture, t),
-            IEnumerable e => ConvertFromList(context, culture, e),
-            BigInteger b => ConvertFromBigInteger(context, culture, b),
+            IDictionary dictionary => ConvertFromDictionary(dictionary),
+            ITuple t => ConvertFromTuple(t),
+            IEnumerable e => ConvertFromList(e),
+            BigInteger b => ConvertFromBigInteger(b),
             PyObject pyObject => pyObject.Clone(),
             null => PyObject.None,
-            _ => base.ConvertFrom(context, culture, value)
+            _ => throw new InvalidCastException($"Cannot convert {value} to PyObject")
         };
 
-    public override bool CanConvertTo(ITypeDescriptorContext? context, [NotNullWhen(true)] Type? destinationType) =>
-        destinationType is not null && (
-            destinationType == typeof(string) ||
-            destinationType == typeof(long) ||
-            destinationType == typeof(int) ||
-            destinationType == typeof(bool) ||
-            destinationType == typeof(double) ||
-            destinationType == typeof(byte[]) ||
-            destinationType == typeof(BigInteger) ||
-            (destinationType.IsGenericType && (
-                IsAssignableToGenericType(destinationType, dictionaryType) ||
-                IsAssignableToGenericType(destinationType, listType) ||
-                IsAssignableToGenericType(destinationType, generatorIteratorType) ||
-                destinationType.IsAssignableTo(collectionType) ||
-                destinationType.IsAssignableTo(typeof(ITuple))
-            ))
-        );
-
-    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) =>
-        sourceType is not null && (
-            sourceType == typeof(string) ||
-            sourceType == typeof(long) ||
-            sourceType == typeof(int) ||
-            sourceType == typeof(bool) ||
-            sourceType == typeof(double) ||
-            sourceType == typeof(byte[]) ||
-            sourceType == typeof(BigInteger) ||
-            (sourceType.IsGenericType && (
-                IsAssignableToGenericType(sourceType, dictionaryType) ||
-                IsAssignableToGenericType(sourceType, listType) ||
-                sourceType.IsAssignableTo(collectionType) ||
-                sourceType.IsAssignableTo(typeof(ITuple))
-            ))
-        );
-
-    private PyObject ToPython(object? o, ITypeDescriptorContext? context, CultureInfo? culture)
+    private PyObject ToPython(object? o)
     {
         if (o is null)
         {
             return PyObject.None;
         }
 
-        var result = ConvertFrom(context, culture, o);
+        var result = ConvertFrom(o);
 
-        return result is null ? throw new NotImplementedException() : (PyObject)result;
+        return result is null ? throw new NotImplementedException() : result;
     }
 
     record DynamicTypeInfo(ConstructorInfo ReturnTypeConstructor, ConstructorInfo? TransientTypeConstructor = null);

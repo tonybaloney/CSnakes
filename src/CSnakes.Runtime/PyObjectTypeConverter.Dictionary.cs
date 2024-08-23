@@ -2,13 +2,11 @@ using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Globalization;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture, bool useMappingProtocol = false)
+    private object? ConvertToDictionary(PyObject pyObject, Type destinationType, bool useMappingProtocol = false)
     {
         using PyObject items = useMappingProtocol ? PyObject.Create(CPythonAPI.PyMapping_Items(pyObject)) : PyObject.Create(CPythonAPI.PyDict_Items(pyObject));
 
@@ -34,8 +32,8 @@ internal partial class PyObjectTypeConverter
             using PyObject item1 = PyObject.Create(CPythonAPI.PyTuple_GetItem(item, 0));
             using PyObject item2 = PyObject.Create(CPythonAPI.PyTuple_GetItem(item, 1));
 
-            object? convertedItem1 = ConvertTo(context, culture, item1, item1Type);
-            object? convertedItem2 = ConvertTo(context, culture, item2, item2Type);
+            object? convertedItem1 = ConvertTo(item1, item1Type);
+            object? convertedItem2 = ConvertTo(item2, item2Type);
 
             dict.Add(convertedItem1!, convertedItem2);
         }
@@ -43,7 +41,7 @@ internal partial class PyObjectTypeConverter
         return typeInfo.ReturnTypeConstructor.Invoke([dict]);
     }
 
-    private PyObject ConvertFromDictionary(ITypeDescriptorContext? context, CultureInfo? culture, IDictionary dictionary)
+    private PyObject ConvertFromDictionary(IDictionary dictionary)
     {
         int len = dictionary.Keys.Count;
         PyObject[] keys = new PyObject[len];
@@ -52,8 +50,8 @@ internal partial class PyObjectTypeConverter
         int i = 0;
         foreach (DictionaryEntry kvp in dictionary)
         {
-            keys[i] = ToPython(kvp.Key, context, culture);
-            values[i] = ToPython(kvp.Value, context, culture);
+            keys[i] = ToPython(kvp.Key);
+            values[i] = ToPython(kvp.Value);
             i++;
         }
 

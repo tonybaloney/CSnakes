@@ -62,7 +62,7 @@ public class PyObjectTests : RuntimeTestBase
 
     [Fact]
     public void TestObjectIsSmallIntegers() {
-        // Small numbers are the same object in Python, weird implementation detail. 
+        // Small numbers are the same object in Python, weird implementation detail.
         var obj1 = PyObject.From(42);
         var obj2 = PyObject.From(42);
         Assert.True(obj1!.Is(obj2!));
@@ -117,12 +117,12 @@ public class PyObjectTests : RuntimeTestBase
     [InlineData(null, null, false, false)]
     [InlineData(0, null, false, false)]
     [InlineData(null, 0, false, false)]
-    [InlineData(int.MaxValue, 0, false, true)]
-    [InlineData(int.MinValue, 0, true, false)]
-    [InlineData(0, int.MaxValue, true, false)]
-    [InlineData(0, int.MinValue, false, true)]
-    [InlineData(-1, 1, true, false)]
-    [InlineData(1, -1, false, true)]
+    [InlineData(long.MaxValue, 0, false, true)]
+    [InlineData(long.MinValue, 0, true, false)]
+    [InlineData(0, long.MaxValue, true, false)]
+    [InlineData(0, long.MinValue, false, true)]
+    [InlineData((long)-1, 1, true, false)]
+    [InlineData(1, (long)-1, false, true)]
     [InlineData("a", "b", true, false)]
     [InlineData("b", "a", false, true)]
     [InlineData(3.0, 3.2, true, false)]
@@ -138,12 +138,12 @@ public class PyObjectTests : RuntimeTestBase
     [InlineData(null, null, true, true)]
     [InlineData(0, null, false, false)]
     [InlineData(null, 0, false, false)]
-    [InlineData(int.MaxValue, 0, false, true)]
-    [InlineData(int.MinValue, 0, true, false)]
-    [InlineData(0, int.MaxValue, true, false)]
-    [InlineData(0, int.MinValue, false, true)]
-    [InlineData(-1, 1, true, false)]
-    [InlineData(1, -1, false, true)]
+    [InlineData(long.MaxValue, 0, false, true)]
+    [InlineData(long.MinValue, 0, true, false)]
+    [InlineData(0, long.MaxValue, true, false)]
+    [InlineData(0, long.MinValue, false, true)]
+    [InlineData((long)-1, 1, true, false)]
+    [InlineData(1, (long)-1, false, true)]
     [InlineData("a", "b", true, false)]
     [InlineData("b", "a", false, true)]
     [InlineData(3.0, 3.2, true, false)]

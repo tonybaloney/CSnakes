@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 tracer = configure_oltp_grpc_tracing()
 logger = logging.getLogger(__name__)
 
-Psycopg2Instrumentor().instrument()
+Psycopg2Instrumentor().instrument(skip_dep_check=True, enable_commenter=True, commenter_options={})
 
 ado_conn_str = os.getenv("ConnectionStrings__weather")
 # Convert the connection string to a dictionary
@@ -24,7 +24,7 @@ cnx = psycopg2.connect(dbname=ado_conn_dict["Database"], user=ado_conn_dict["Use
 
 def get_weather_forecast(trace_id: str = None, span_id: str = None) -> List[Dict[str, Any]]:
     with tracer.start_as_current_span("generate-forecast", get_span_context(trace_id, span_id)):
-        logger.info("Generating weather forecast from Python")
+        logger.info("Generating weather forecast")
         
         # read 6 random records from the pg database
         cursor = cnx.cursor()

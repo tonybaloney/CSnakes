@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
-using System.Reflection;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
@@ -21,12 +20,12 @@ internal partial class PyObjectTypeConverter
             Type dictType = typeof(Dictionary<,>).MakeGenericType(item1Type, item2Type);
             Type returnType = typeof(ReadOnlyDictionary<,>).MakeGenericType(item1Type, item2Type);
 
-            typeInfo = new(returnType.GetConstructor([dictType])!, dictType.GetConstructor([])!);
+            typeInfo = new(returnType.GetConstructor([dictType])!, dictType.GetConstructor([typeof(int)])!);
             knownDynamicTypes[destinationType] = typeInfo;
         }
 
-        IDictionary dict = (IDictionary)typeInfo.TransientTypeConstructor!.Invoke([]);
         nint itemsLength = CPythonAPI.PyList_Size(items);
+        IDictionary dict = (IDictionary)typeInfo.TransientTypeConstructor!.Invoke([(int)itemsLength]);
 
         for (nint i = 0; i < itemsLength; i++)
         {

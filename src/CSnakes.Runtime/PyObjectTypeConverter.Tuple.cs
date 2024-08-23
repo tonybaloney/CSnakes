@@ -31,7 +31,7 @@ internal partial class PyObjectTypeConverter
         // not parse the Python type to a CLR type, only to a new Python type.
         Type[] types = destinationType.GetGenericArguments();
         nint tupleSize = CPythonAPI.PyTuple_Size(pyObj);
-        object?[] clrValues = new object[Math.Max(8, tupleSize)];
+        object?[] clrValues = new object[Math.Min(8, tupleSize)];
 
         PyObject[] tupleValues = new PyObject[tupleSize];
         for (nint i = 0; i < tupleValues.Length; i++)
@@ -75,6 +75,6 @@ internal partial class PyObjectTypeConverter
             knownDynamicTypes[destinationType] = typeInfo;
         }
 
-        return (ITuple)typeInfo.ReturnTypeConstructor.Invoke([.. clrValues.Where(x => x is not null)]);
+        return (ITuple)typeInfo.ReturnTypeConstructor.Invoke([.. clrValues]);
     }
 }

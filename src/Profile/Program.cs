@@ -26,8 +26,12 @@ ILogger logger = app.Services.GetRequiredService<ILogger<Program>>();
 
 var mod = env.App();
 const int CYCLES = 100_000;
+var stopwatch = new System.Diagnostics.Stopwatch();
+stopwatch.Start();
 for (int i = 0; i < CYCLES; i++)
 {
     var data = mod.GenerateData(i, "hello", (3.2, "testinput"), (i % 1 == 0));
 }
+stopwatch.Stop();
+logger.LogInformation($"Took {stopwatch.ElapsedMilliseconds}ms for {CYCLES} cycles");
 logger.LogInformation("Done"); 

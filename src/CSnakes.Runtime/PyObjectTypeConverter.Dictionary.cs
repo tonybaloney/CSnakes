@@ -12,13 +12,13 @@ internal partial class PyObjectTypeConverter
             PyObject.Create(CPythonAPI.PyMapping_Items(pyObject)) : 
             PyObject.Create(CPythonAPI.PyDict_Items(pyObject));
 
-        Type item1Type = destinationType.GetGenericArguments()[0];
-        Type item2Type = destinationType.GetGenericArguments()[1];
+        Type keyType = destinationType.GetGenericArguments()[0];
+        Type valueType = destinationType.GetGenericArguments()[1];
 
         if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
         {
-            Type dictType = typeof(Dictionary<,>).MakeGenericType(item1Type, item2Type);
-            Type returnType = typeof(ReadOnlyDictionary<,>).MakeGenericType(item1Type, item2Type);
+            Type dictType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
+            Type returnType = typeof(ReadOnlyDictionary<,>).MakeGenericType(keyType, valueType);
 
             typeInfo = new(returnType.GetConstructor([dictType])!, dictType.GetConstructor([typeof(int)])!);
             knownDynamicTypes[destinationType] = typeInfo;
@@ -33,15 +33,15 @@ internal partial class PyObjectTypeConverter
             // 1. The item, which could be inlined as it's only used to call PyTuple_GetItem.
             // 2. The key, which we need to recursively convert -- although if this is a string, which it mostly is, then we _could_ avoid this.
             // 3. The value, which we need to recursively convert.
-            using PyObject item = PyObject.Create(CPythonAPI.PyList_GetItem(items, i));
+            using PyObject kvpTuple = PyObject.Create(CPythonAPI.PyList_GetItem(items, i));
 
-            using PyObject item1 = PyObject.Create(CPythonAPI.PyTuple_GetItem(item, 0));
-            using PyObject item2 = PyObject.Create(CPythonAPI.PyTuple_GetItem(item, 1));
+            using PyObject key = PyObject.Create(CPythonAPI.PyTuple_GetItem(kvpTuple, 0));
+            using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItem(kvpTuple, 1));
 
-            object? convertedItem1 = ConvertTo(item1, item1Type);
-            object? convertedItem2 = ConvertTo(item2, item2Type);
+            object? convertedKey = ConvertTo(key, keyType);
+            object? convertedValue = ConvertTo(value, valueType);
 
-            dict.Add(convertedItem1!, convertedItem2);
+            dict.Add(convertedKey!, convertedValue);
         }
 
         return typeInfo.ReturnTypeConstructor.Invoke([dict]);

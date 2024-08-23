@@ -81,7 +81,7 @@ internal class PythonEnvironment : IPythonEnvironment
 
         char sep = Path.PathSeparator;
 
-        api = SetupStandardLibrary(location, sep);
+        api = SetupStandardLibrary(location);
 
         if (!string.IsNullOrEmpty(home))
         {
@@ -121,10 +121,10 @@ internal class PythonEnvironment : IPythonEnvironment
             {
                 WorkingDirectory = pythonLocation.Folder,
                 FileName = pythonLocation.PythonBinaryPath,
-                Arguments = arguments
+                Arguments = arguments,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
             };
-            startInfo.RedirectStandardError = true;
-            startInfo.RedirectStandardOutput = true;
             Process process = new() { StartInfo = startInfo };
             process.OutputDataReceived += (sender, e) =>
             {
@@ -150,7 +150,7 @@ internal class PythonEnvironment : IPythonEnvironment
         }
     }
 
-    private CPythonAPI SetupStandardLibrary(PythonLocationMetadata pythonLocationMetadata, char sep)
+    private CPythonAPI SetupStandardLibrary(PythonLocationMetadata pythonLocationMetadata)
     {
         string pythonDll = pythonLocationMetadata.LibPythonPath;
         string pythonPath = pythonLocationMetadata.PythonPath;

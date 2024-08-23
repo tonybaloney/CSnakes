@@ -10,19 +10,14 @@ internal partial class PyObjectTypeConverter
 {
     private PyObject ConvertFromTuple(ITypeDescriptorContext? context, CultureInfo? culture, ITuple t)
     {
-        List<PyObject> pyObjects = [];
+        List<PyObject> pyObjects = new(t.Length);
 
         for (var i = 0; i < t.Length; i++)
         {
-            var currentValue = t[i];
-            if (currentValue is null)
-            {
-                // TODO: handle null values
-            }
-            pyObjects.Add(ToPython(currentValue, context, culture));
+            pyObjects.Add(ToPython(t[i], context, culture));
         }
 
-        return PyTuple.CreateTuple(pyObjects);
+        return Pack.CreateTuple(pyObjects);
     }
 
     private object? ConvertToTuple(ITypeDescriptorContext? context, CultureInfo? culture, PyObject pyObj, Type destinationType)
@@ -50,7 +45,7 @@ internal partial class PyObjectTypeConverter
             IEnumerable<PyObject> rest = tupleValues.Skip(7);
 
             // Back to a Python tuple.
-            using PyObject pyTuple = PyTuple.CreateTuple(rest);
+            using PyObject pyTuple = Pack.CreateTuple(rest);
 
             // Use the decoder pipeline to decode the nested tuple (and its values).
             // We do this because that means if we have nested nested tuples, they'll be decoded as well.

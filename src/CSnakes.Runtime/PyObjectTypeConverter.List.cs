@@ -55,18 +55,13 @@ internal partial class PyObjectTypeConverter
 
     private PyObject ConvertFromList(ITypeDescriptorContext? context, CultureInfo? culture, IEnumerable e)
     {
-        PyObject pyList = PyObject.Create(CPythonAPI.PyList_New(0));
+        List<PyObject> pyObjects = [];
 
-        foreach (var item in e)
+        foreach (object? item in e)
         {
-            PyObject converted = ToPython(item, context, culture);
-            int result = CPythonAPI.PyList_Append(pyList, converted);
-            if (result == -1)
-            {
-                PyObject.ThrowPythonExceptionAsClrException();
-            }
+            pyObjects.Add(ToPython(item, context, culture));
         }
 
-        return pyList;
+        return Pack.CreateList(pyObjects);
     }
 }

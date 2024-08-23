@@ -40,6 +40,15 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet }}
+
+      - uses: actions/cache@v4
+        name: Cache NuGet packages
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-${{ matrix.dotnet }}-nuget-${{ hashFiles('src/Directory.Packages.props') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.dotnet }}-nuget-
+
       - name: Restore dependencies
         run: dotnet restore
         working-directory: src

@@ -35,9 +35,9 @@ public static class MethodReflection
         List<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList = ArgumentReflection.FunctionParametersAsParameterSyntaxPairs(function.Parameters);
 
         List<GenericNameSyntax> parameterGenericArgs = [];
-        foreach (var genericType in parameterList)
+        foreach (var (pythonParameter, cSharpParameter) in parameterList)
         {
-            if (genericType.cSharpParameter.Type is GenericNameSyntax g)
+            if (cSharpParameter.Type is GenericNameSyntax g)
             {
                 parameterGenericArgs.Add(g);
             }
@@ -45,14 +45,14 @@ public static class MethodReflection
 
         // Step 4: Build body
         var pythonConversionStatements = new List<StatementSyntax>();
-        foreach (var parameter in parameterList)
+        foreach (var (pythonParameter, cSharpParameter) in parameterList)
         {
-            if (parameter.pythonParameter.ParameterType != PythonFunctionParameterType.Normal)
+            if (pythonParameter.ParameterType != PythonFunctionParameterType.Normal)
             {
                 continue;
             }
             bool needsConversion = true; // TODO: Skip .From for PyObject arguments. 
-            ExpressionSyntax rhs = IdentifierName(parameter.cSharpParameter.Identifier);
+            ExpressionSyntax rhs = IdentifierName(cSharpParameter.Identifier);
             if (needsConversion)
                 rhs = 
                     InvocationExpression(
@@ -64,7 +64,7 @@ public static class MethodReflection
                             ArgumentList(
                                 SingletonSeparatedList(
                                     Argument(
-                                        IdentifierName(parameter.cSharpParameter.Identifier)))));
+                                        IdentifierName(cSharpParameter.Identifier)))));
 
             pythonConversionStatements.Add(
                 LocalDeclarationStatement(
@@ -73,7 +73,7 @@ public static class MethodReflection
                     .WithVariables(
                         SingletonSeparatedList(
                             VariableDeclarator(
-                                Identifier($"{parameter.cSharpParameter.Identifier}_pyObject"))
+                                Identifier($"{cSharpParameter.Identifier}_pyObject"))
                             .WithInitializer(
                                 EqualsValueClause(
                                     PostfixUnaryExpression(
@@ -167,7 +167,7 @@ public static class MethodReflection
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         IdentifierName("logger"),
-                        IdentifierName("LogInformation")))
+                        IdentifierName("LogDebug")))
                     .WithArgumentList(
                         ArgumentList(
                             SeparatedList(
@@ -266,14 +266,14 @@ public static class MethodReflection
                 .Where((arg) => arg.pythonParameter.ParameterType == PythonFunctionParameterType.Normal)
                 .Select((a) => Argument(IdentifierName($"{a.cSharpParameter.Identifier}_pyObject"))).ToList();
 
-        var starArg = parameterList.First(p => p.pythonParameter.ParameterType == PythonFunctionParameterType.Star);
+        var (pythonParameter, cSharpParameter) = parameterList.First(p => p.pythonParameter.ParameterType == PythonFunctionParameterType.Star);
         SeparatedSyntaxList<CollectionElementSyntax> collection = SeparatedList<CollectionElementSyntax>()
             .AddRange(pythonFunctionCallArguments.Select((a) => ExpressionElement(a.Expression)))
             .Add(
                 SpreadElement(
                     BinaryExpression(
                         SyntaxKind.CoalesceExpression,
-                        IdentifierName(starArg.pythonParameter.Name),
+                        IdentifierName(pythonParameter.Name),
                         CollectionExpression()
                     )
                 )

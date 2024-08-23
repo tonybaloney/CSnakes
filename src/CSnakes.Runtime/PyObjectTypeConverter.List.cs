@@ -11,15 +11,17 @@ internal partial class PyObjectTypeConverter
     {
         Type genericArgument = destinationType.GetGenericArguments()[0];
 
+        nint listSize = CPythonAPI.PySequence_Size(pyObject);
         if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
         {
             Type listType = typeof(List<>).MakeGenericType(genericArgument);
-            typeInfo = new(listType.GetConstructor([])!);
+            typeInfo = new(listType.GetConstructor([typeof(int)])!);
             knownDynamicTypes[destinationType] = typeInfo;
         }
 
-        IList list = (IList)typeInfo.ReturnTypeConstructor.Invoke([]);
-        for (var i = 0; i < CPythonAPI.PyList_Size(pyObject); i++)
+        IList list = (IList)typeInfo.ReturnTypeConstructor.Invoke([(int)listSize]);
+
+        for (var i = 0; i < listSize; i++)
         {
             using PyObject item = PyObject.Create(CPythonAPI.PyList_GetItem(pyObject, i));
             list.Add(ConvertTo(context, culture, item, genericArgument));
@@ -32,16 +34,17 @@ internal partial class PyObjectTypeConverter
     {
         Type genericArgument = destinationType.GetGenericArguments()[0];
 
+        nint listSize = CPythonAPI.PySequence_Size(pyObject);
         if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
         {
             Type listType = typeof(List<>).MakeGenericType(genericArgument);
-            typeInfo = new(listType.GetConstructor([])!);
+            typeInfo = new(listType.GetConstructor([typeof(int)])!);
             knownDynamicTypes[destinationType] = typeInfo;
         }
 
-        IList list = (IList)typeInfo.ReturnTypeConstructor.Invoke([]);
+        IList list = (IList)typeInfo.ReturnTypeConstructor.Invoke([(int)listSize]);
 
-        for (var i = 0; i < CPythonAPI.PySequence_Size(pyObject); i++)
+        for (var i = 0; i < listSize; i++)
         {
             using PyObject item = PyObject.Create(CPythonAPI.PySequence_GetItem(pyObject, i));
             list.Add(ConvertTo(context, culture, item, genericArgument));

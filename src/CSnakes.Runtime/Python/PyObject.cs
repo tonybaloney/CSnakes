@@ -193,11 +193,7 @@ public class PyObject : SafeHandle
         {
             if (Is(pyObj1))
                 return true;
-
-            using (GIL.Acquire())
-            {
-                return CPythonAPI.PyObject_RichCompare(this, pyObj1, CPythonAPI.RichComparisonType.Equal);
-            }
+            return Compare(this, pyObj1, CPythonAPI.RichComparisonType.Equal);
         }
         return base.Equals(obj);
     }
@@ -208,26 +204,83 @@ public class PyObject : SafeHandle
         {
             if (Is(pyObj1))
                 return false;
-
-            using (GIL.Acquire())
-            {
-                return CPythonAPI.PyObject_RichCompare(this, pyObj1, CPythonAPI.RichComparisonType.NotEqual);
-            }
+            return Compare(this, pyObj1, CPythonAPI.RichComparisonType.NotEqual);
         }
         return !base.Equals(obj);
     }
 
     public static bool operator ==(PyObject? left, PyObject? right)
     {
-        if (left is null)
-            return right is null;
-        return left.Equals(right);
+        return (left, right) switch
+        {
+            (null, null) => true,
+            (_, null) => false,
+            (null, _) => false,
+            (_, _) => left.Equals(right),
+        };
     }
+
     public static bool operator !=(PyObject? left, PyObject? right)
     {
-        if (left is null)
-            return right is not null;
-        return left.NotEquals(right);
+        return (left, right) switch
+        {
+            (null, null) => false,
+            (_, null) => true,
+            (null, _) => true,
+            (_, _) => left.NotEquals(right),
+        };
+    }
+
+    public static bool operator <=(PyObject? left, PyObject? right)
+    {
+        return (left, right) switch
+        {
+            (null, null) => true,
+            (_, null) => false,
+            (null, _) => false,
+            (_, _) => left.Is(right) || Compare(left, right, CPythonAPI.RichComparisonType.LessThanEqual),
+        };
+    }
+
+    public static bool operator >=(PyObject? left, PyObject? right)
+    {
+        return (left, right) switch
+        {
+            (null, null) => true,
+            (_, null) => false,
+            (null, _) => false,
+            (_, _) => left.Is(right) || Compare(left, right, CPythonAPI.RichComparisonType.GreaterThanEqual),
+        };
+    }
+
+    public static bool operator <(PyObject? left, PyObject? right)
+    {
+        return (left, right) switch
+        {
+            (null, null) => false,
+            (_, null) => false,
+            (null, _) => false,
+            (_, _) => Compare(left, right, CPythonAPI.RichComparisonType.LessThan),
+        };
+    }
+
+    public static bool operator >(PyObject? left, PyObject? right)
+    {
+        return (left, right) switch
+        {
+            (null, null) => false,
+            (_, null) => false,
+            (null, _) => false,
+            (_, _) => Compare(left, right, CPythonAPI.RichComparisonType.GreaterThan),
+        };
+    }
+
+    private static bool Compare(PyObject left, PyObject right, CPythonAPI.RichComparisonType type)
+    {
+        using (GIL.Acquire())
+        {
+            return CPythonAPI.PyObject_RichCompare(left, right, type);
+        }
     }
 
     public override int GetHashCode()

@@ -45,6 +45,7 @@ def configure_oltp_grpc_tracing(
     exporter = OTLPLogExporter(endpoint=endpoint)
     logger_provider.add_log_record_processor(BatchLogRecordProcessor(exporter))
     handler = LoggingHandler(level=logging.NOTSET, logger_provider=logger_provider)
+    handler.setFormatter(logging.Formatter("Python: %(message)s"))
 
     # Attach OTLP handler to root logger
     logging.getLogger().addHandler(handler)

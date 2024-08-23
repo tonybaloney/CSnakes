@@ -415,7 +415,7 @@ public class PyObject : SafeHandle
     {
         using (GIL.Acquire())
         {
-            return Create(CPythonAPI.PyBool_FromLong(value ? 1 : 0))!
+            return Create(CPythonAPI.PyBool_FromLong(value ? 1 : 0))!;
         }
     }
 

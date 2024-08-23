@@ -167,7 +167,7 @@ public static class MethodReflection
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         IdentifierName("logger"),
-                        IdentifierName("LogInformation")))
+                        IdentifierName("LogDebug")))
                     .WithArgumentList(
                         ArgumentList(
                             SeparatedList(

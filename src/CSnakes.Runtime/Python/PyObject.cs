@@ -189,7 +189,8 @@ public class PyObject : SafeHandle
 
     public override bool Equals(object? obj)
     {
-        if (obj is PyObject pyObj1) { 
+        if (obj is PyObject pyObj1)
+        {
             if (Is(pyObj1))
                 return true;
 
@@ -277,7 +278,8 @@ public class PyObject : SafeHandle
             {
                 return Create(CPythonAPI.Call(this, argHandles));
             }
-        } finally
+        }
+        finally
         {
             foreach (var m in marshallers)
             {
@@ -385,10 +387,37 @@ public class PyObject : SafeHandle
     }
 
     // Overload value types to avoid boxing in the generic method.
-    public static PyObject From(long value) => Create(CPythonAPI.PyLong_FromLongLong(value))!;
-    public static PyObject From(int value) => Create(CPythonAPI.PyLong_FromLong(value))!;
-    public static PyObject From(double value) => Create(CPythonAPI.PyFloat_FromDouble(value))!;
-    public static PyObject From(bool value) => Create(CPythonAPI.PyBool_FromLong(value ? 1 : 0))!;
+    public static PyObject From(long value)
+    {
+        using (GIL.Acquire())
+        {
+            return Create(CPythonAPI.PyLong_FromLongLong(value))!;
+        }
+    }
+
+    public static PyObject From(int value)
+    {
+        using (GIL.Acquire())
+        {
+            return Create(CPythonAPI.PyLong_FromLong(value))!;
+        }
+    }
+
+    public static PyObject From(double value)
+    {
+        using (GIL.Acquire())
+        {
+            return Create(CPythonAPI.PyFloat_FromDouble(value))!;
+        }
+    }
+
+    public static PyObject From(bool value)
+    {
+        using (GIL.Acquire())
+        {
+            return Create(CPythonAPI.PyBool_FromLong(value ? 1 : 0))!
+        }
+    }
 
     internal virtual PyObject Clone()
     {

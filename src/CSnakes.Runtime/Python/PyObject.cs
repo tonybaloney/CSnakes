@@ -384,6 +384,12 @@ public class PyObject : SafeHandle
         }
     }
 
+    // Overload value types to avoid boxing in the generic method.
+    public static PyObject From(long value) => Create(CPythonAPI.PyLong_FromLongLong(value))!;
+    public static PyObject From(int value) => Create(CPythonAPI.PyLong_FromLong(value))!;
+    public static PyObject From(double value) => Create(CPythonAPI.PyFloat_FromDouble(value))!;
+    public static PyObject From(bool value) => Create(CPythonAPI.PyBool_FromLong(value ? 1 : 0))!;
+
     internal virtual PyObject Clone()
     {
         CPythonAPI.Py_IncRefRaw(handle);

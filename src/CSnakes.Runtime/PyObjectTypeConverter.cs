@@ -59,7 +59,7 @@ internal partial class PyObjectTypeConverter : TypeConverter
 
         if (destinationType == typeof(int) && CPythonAPI.IsPyLong(pyObject))
         {
-            return CPythonAPI.PyLong_AsLongLong(pyObject);
+            return CPythonAPI.PyLong_AsLong(pyObject);
         }
 
         if (destinationType == typeof(bool) && CPythonAPI.IsPyBool(pyObject))

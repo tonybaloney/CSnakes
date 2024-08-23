@@ -16,6 +16,9 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName)]
     internal static partial long PyLong_AsLongLong(PyObject p);
 
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int PyLong_AsLong(PyObject p);
+
     internal static bool IsPyLong(PyObject p)
     {
         return PyObject_IsInstance(p, PyLongType);

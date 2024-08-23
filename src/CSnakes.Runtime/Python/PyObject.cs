@@ -244,6 +244,9 @@ public class PyObject : SafeHandle
     }
 
     public static PyObject None { get; } = new PyNoneObject();
+    public static PyObject True { get; } = new PyTrueObject();
+    public static PyObject False { get; } = new PyFalseObject();
+
 
     /// <summary>
     /// Call the object. Equivalent to (__call__)(args)
@@ -415,7 +418,7 @@ public class PyObject : SafeHandle
     {
         using (GIL.Acquire())
         {
-            return Create(CPythonAPI.PyBool_FromLong(value ? 1 : 0))!;
+            return value ? True : False;
         }
     }
 

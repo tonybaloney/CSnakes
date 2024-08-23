@@ -1,4 +1,4 @@
-def generate_data(a: int, b: str, c: tuple[float, str]) -> list[dict[str, tuple[int, float]]]:
+def generate_data(a: int, b: str, c: tuple[float, str], d: bool) -> list[dict[str, tuple[int, float]]]:
     return [
         {
             b: (a, c[0]),

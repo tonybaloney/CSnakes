@@ -28,6 +28,6 @@ var mod = env.App();
 const int CYCLES = 100_000;
 for (int i = 0; i < CYCLES; i++)
 {
-    var data = mod.GenerateData(i, "hello", (3.2, "testinput"));
+    var data = mod.GenerateData(i, "hello", (3.2, "testinput"), (i % 1 == 0));
 }
 logger.LogInformation("Done"); 

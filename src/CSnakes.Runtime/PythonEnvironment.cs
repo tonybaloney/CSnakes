@@ -90,7 +90,7 @@ internal class PythonEnvironment : IPythonEnvironment
 
         if (extraPaths is { Length: > 0 })
         {
-            logger.LogInformation("Adding extra paths to PYTHONPATH: {ExtraPaths}", extraPaths);
+            logger.LogDebug("Adding extra paths to PYTHONPATH: {ExtraPaths}", extraPaths);
             api.PythonPath = api.PythonPath + sep + string.Join(sep, extraPaths);
         }
         api.Initialize();
@@ -112,7 +112,7 @@ internal class PythonEnvironment : IPythonEnvironment
         }
         else
         {
-            Logger.LogInformation("Virtual environment already exists at {VirtualEnvPath}", venvPath);
+            Logger.LogDebug("Virtual environment already exists at {VirtualEnvPath}", venvPath);
         }
 
         Process ExecutePythonCommand(PythonLocationMetadata pythonLocation, string? venvPath, string arguments)
@@ -155,8 +155,8 @@ internal class PythonEnvironment : IPythonEnvironment
         string pythonDll = pythonLocationMetadata.LibPythonPath;
         string pythonPath = pythonLocationMetadata.PythonPath;
 
-        Logger.LogInformation("Python DLL: {PythonDLL}", pythonDll);
-        Logger.LogInformation("Python path: {PythonPath}", pythonPath);
+        Logger.LogDebug("Python DLL: {PythonDLL}", pythonDll);
+        Logger.LogDebug("Python path: {PythonPath}", pythonPath);
 
         var api = new CPythonAPI(pythonDll, pythonLocationMetadata.Version)
         {

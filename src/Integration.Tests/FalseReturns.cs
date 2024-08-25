@@ -77,8 +77,15 @@ public class FalseReturns : IntegrationTestBase
     public void Test_FalseReturn_Types_FloatNotInt()
     {
         var falseReturns = Env.TestFalseReturns();
-
-        Assert.Throws<PythonInvocationException>(() => falseReturns.TestIntReturnsFloat());
+        if (Env.Version.StartsWith("3.9"))
+        {
+            // Python will convert the float to an int without errors in 3.9
+            Assert.Equal(1, falseReturns.TestIntReturnsFloat());
+        }
+        else
+        {
+            Assert.Throws<PythonInvocationException>(() => falseReturns.TestIntReturnsFloat())
+        }
     }
 
     [Fact]

@@ -312,9 +312,6 @@ public class PyObject : SafeHandle
     public static PyObject None { get; } = new PyNoneObject();
     public static PyObject True { get; } = new PyTrueObject();
     public static PyObject False { get; } = new PyFalseObject();
-    public static PyObject MinusOne { get; } = new PySmallIntObject(-1);
-    public static PyObject Zero { get; } = new PySmallIntObject(0);
-    public static PyObject One { get; } = new PySmallIntObject(1);
 
 
     /// <summary>
@@ -473,9 +470,6 @@ public class PyObject : SafeHandle
     {
         using (GIL.Acquire())
         {
-            if (value == -1) return MinusOne;
-            if (value == 0) return Zero;
-            if (value == 1) return One;
             return Create(CPythonAPI.PyLong_FromLongLong(value))!;
         }
     }
@@ -484,9 +478,6 @@ public class PyObject : SafeHandle
     {
         using (GIL.Acquire())
         {
-            if (value == -1) return MinusOne;
-            if (value == 0) return Zero;
-            if (value == 1) return One;
             return Create(CPythonAPI.PyLong_FromLong(value))!;
         }
     }

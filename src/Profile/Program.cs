@@ -34,4 +34,14 @@ for (int i = 0; i < CYCLES; i++)
 }
 stopwatch.Stop();
 logger.LogInformation($"Took {stopwatch.ElapsedMilliseconds}ms for {CYCLES} cycles");
+
+// Run the test again but with the result that returns PyObject (no conversion)
+stopwatch.Restart();
+for (int i = 0; i < CYCLES; i++)
+{
+    var data = mod.GenerateDataAny(i, "hello", (3.2, "testinput"), (i % 1 == 0));
+}
+stopwatch.Stop();
+logger.LogInformation($"Took {stopwatch.ElapsedMilliseconds}ms for {CYCLES} cycles without conversions");
+
 logger.LogInformation("Done"); 

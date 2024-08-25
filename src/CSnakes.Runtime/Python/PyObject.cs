@@ -61,11 +61,11 @@ public class PyObject : SafeHandle
     /// </summary>
     /// <exception cref="InvalidDataException"></exception>
     /// <exception cref="PythonInvocationException"></exception>
-    internal static void ThrowPythonExceptionAsClrException()
+    internal static void ThrowPythonExceptionAsClrException(string? message = null)
     {
         using (GIL.Acquire())
         {
-            if (CPythonAPI.PyErr_Occurred() == 0)
+            if (!CPythonAPI.PyErr_Occurred())
             {
                 throw new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
@@ -89,7 +89,15 @@ public class PyObject : SafeHandle
             // TODO: Consider adding __qualname__ as well for module exceptions that aren't builtins
             var pyExceptionTypeStr = pyExceptionType.GetAttr("__name__").ToString();
             CPythonAPI.PyErr_Clear();
-            throw new PythonInvocationException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback);
+
+            if (string.IsNullOrEmpty(message))
+            {
+                throw new PythonInvocationException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback);
+            }
+            else
+            {
+                throw new PythonInvocationException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback, message);
+            }
         }
     }
 

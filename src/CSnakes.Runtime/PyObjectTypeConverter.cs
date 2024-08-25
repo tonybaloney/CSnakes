@@ -34,9 +34,14 @@ internal partial class PyObjectTypeConverter
             return pyObject.Clone();
         }
 
-        if (destinationType == typeof(string) && CPythonAPI.IsPyUnicode(pyObject))
+        if (destinationType == typeof(string))
         {
-            return CPythonAPI.PyUnicode_AsUTF8(pyObject);
+            var result = CPythonAPI.PyUnicode_AsUTF8(pyObject);
+            if (result is null)
+            {
+                PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to string, check that the object was a Python string.");
+            }
+            return result;
         }
 
         if (destinationType == typeof(byte[]) && CPythonAPI.IsBytes(pyObject))
@@ -44,9 +49,14 @@ internal partial class PyObjectTypeConverter
             return CPythonAPI.PyBytes_AsByteArray(pyObject);
         }
 
-        if (destinationType == typeof(long) && CPythonAPI.IsPyLong(pyObject))
+        if (destinationType == typeof(long))
         {
-            return CPythonAPI.PyLong_AsLongLong(pyObject);
+            long result = CPythonAPI.PyLong_AsLongLong(pyObject);
+            if (result == -1 && CPythonAPI.PyErr_Occurred())
+            {
+                PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to long, check that the object was a Python long or that the value wasn't too large. See InnerException for details.");
+            }
+            return result;
         }
 
         if (destinationType == typeof(BigInteger) && CPythonAPI.IsPyLong(pyObject))
@@ -54,9 +64,14 @@ internal partial class PyObjectTypeConverter
             return ConvertToBigInteger(pyObject, destinationType);
         }
 
-        if (destinationType == typeof(int) && CPythonAPI.IsPyLong(pyObject))
+        if (destinationType == typeof(int))
         {
-            return CPythonAPI.PyLong_AsLong(pyObject);
+            var result = CPythonAPI.PyLong_AsLong(pyObject);
+            if (result == -1 && CPythonAPI.PyErr_Occurred())
+            {
+                PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to int, check that the object was a Python int or that the value wasn't too large. See InnerException for details.");
+            }
+            return result;
         }
 
         if (destinationType == typeof(bool) && CPythonAPI.IsPyBool(pyObject))
@@ -64,9 +79,14 @@ internal partial class PyObjectTypeConverter
             return CPythonAPI.IsPyTrue(pyObject);
         }
 
-        if (destinationType == typeof(double) && CPythonAPI.IsPyFloat(pyObject))
+        if (destinationType == typeof(double))
         {
-            return CPythonAPI.PyFloat_AsDouble(pyObject);
+            var result = CPythonAPI.PyFloat_AsDouble(pyObject);
+            if (result == -1 && CPythonAPI.PyErr_Occurred())
+            {
+                PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to double, check that the object was a Python float. See InnerException for details.");
+            }
+            return result;
         }
 
         if (destinationType.IsAssignableTo(typeof(ITuple)))

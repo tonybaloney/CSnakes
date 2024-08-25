@@ -11,5 +11,10 @@ public class PythonInvocationException : Exception
         PythonExceptionType = exceptionType;
     }
 
+    public PythonInvocationException(string exceptionType, string message, PyObject? pythonStackTrace, string customMessage) : base(customMessage, new PythonRuntimeException(message, pythonStackTrace))
+    {
+        PythonExceptionType = exceptionType;
+    }
+
     public string PythonExceptionType { get; }
 }

@@ -32,6 +32,8 @@ def generate_data_any(a: int, b: str, c: tuple[float, str], d: bool) -> Any:
          }
         ]
 
+def empty_function() -> None:
+    pass
 
 if __name__ == "__main__":
     # Start timer

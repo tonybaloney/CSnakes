@@ -44,4 +44,13 @@ for (int i = 0; i < CYCLES; i++)
 stopwatch.Stop();
 logger.LogInformation($"Took {stopwatch.ElapsedMilliseconds}ms for {CYCLES} cycles without conversions");
 
+// Run the test again with a function that takes no arguments and returns nothing.
+stopwatch.Restart();
+for (int i = 0; i < CYCLES; i++)
+{
+    mod.EmptyFunction();
+}
+stopwatch.Stop();
+logger.LogInformation($"Took {stopwatch.ElapsedMilliseconds}ms for {CYCLES} cycles with no input or output");
+
 logger.LogInformation("Done"); 

@@ -314,6 +314,16 @@ public class PyObject : SafeHandle
     public PyObject CallWithArgs(PyObject[]? args = null)
     {
         RaiseOnPythonNotInitialized();
+
+        // Don't do any marshalling if there aren't any arguments. 
+        if (args is null || args.Length == 0)
+        {
+            using (GIL.Acquire())
+            {
+                return Create(CPythonAPI.PyObject_CallNoArgs(this));
+            }
+        }
+
         args ??= [];
         var marshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
         var argHandles = args.Length < 16

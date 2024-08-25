@@ -57,9 +57,9 @@ internal partial class PyObjectTypeConverter
 
         foreach (object? item in e)
         {
-            pyObjects.Add(ToPython(item));
+            pyObjects.Add(ConvertFrom(item));
         }
 
-        return Pack.CreateList(pyObjects);
+        return Pack.CreateList(pyObjects.ToArray());
     }
 }

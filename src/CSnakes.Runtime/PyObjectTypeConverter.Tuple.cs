@@ -8,11 +8,11 @@ internal partial class PyObjectTypeConverter
 {
     private PyObject ConvertFromTuple(ITuple t)
     {
-        List<PyObject> pyObjects = new(t.Length);
+        PyObject[] pyObjects = new PyObject[t.Length];
 
         for (var i = 0; i < t.Length; i++)
         {
-            pyObjects.Add(ToPython(t[i]));
+            pyObjects[i] = ToPython(t[i]);
         }
 
         return Pack.CreateTuple(pyObjects);
@@ -43,7 +43,7 @@ internal partial class PyObjectTypeConverter
             IEnumerable<PyObject> rest = tupleValues.Skip(7);
 
             // Back to a Python tuple.
-            using PyObject pyTuple = Pack.CreateTuple(rest);
+            using PyObject pyTuple = Pack.CreateTuple(rest.ToArray());
 
             // Use the decoder pipeline to decode the nested tuple (and its values).
             // We do this because that means if we have nested nested tuples, they'll be decoded as well.

@@ -1,6 +1,5 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python.Interns;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
@@ -11,6 +10,7 @@ namespace CSnakes.Runtime.Python;
 public class PyObject : SafeHandle
 {
     private static readonly PyObjectTypeConverter td = new();
+    private PyObject[]? disposeCollection;
 
     protected PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
@@ -52,7 +52,13 @@ public class PyObject : SafeHandle
 
     protected override void Dispose(bool disposing)
     {
-        disposeHandler?.Invoke();
+        if (disposeCollection is not null)
+        {
+            foreach (var obj in disposeCollection)
+            {
+                obj.Dispose();
+            }
+        }
         base.Dispose(disposing);
     }
 
@@ -523,11 +529,9 @@ public class PyObject : SafeHandle
         combinedKwvalues = [.. newKwvalues];
     }
 
-    private Action? disposeHandler;
-
-    internal PyObject RegisterDisposeHandler(Action handler)
+    internal PyObject RegisterDisposeCollection(PyObject[] collection)
     {
-        disposeHandler = handler;
+        disposeCollection = collection;
         return this;
     }
 }

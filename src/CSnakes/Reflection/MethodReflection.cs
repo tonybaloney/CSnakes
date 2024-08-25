@@ -54,7 +54,7 @@ public static class MethodReflection
             bool needsConversion = true; // TODO: Skip .From for PyObject arguments. 
             ExpressionSyntax rhs = IdentifierName(cSharpParameter.Identifier);
             if (needsConversion)
-                rhs = 
+                rhs =
                     InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
@@ -118,37 +118,27 @@ public static class MethodReflection
             _ => true
         };
 
-        var moduleDefinition = LocalDeclarationStatement(
-                        VariableDeclaration(
-                            IdentifierName("PyObject"))
-                        .WithVariables(
-                            SingletonSeparatedList(
-                                VariableDeclarator(
-                                    Identifier("__underlyingPythonFunc"))
-                                .WithInitializer(
-                                    EqualsValueClause(
-                                        InvocationExpression(
-                                            MemberAccessExpression(
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            ThisExpression(),
-                                            IdentifierName(
-                                                Identifier(
-                                                    TriviaList(),
-                                                    SyntaxKind.ModuleKeyword,
-                                                    "module",
-                                                    "module",
-                                                    TriviaList()))),
-                                        IdentifierName("GetAttr")),
-                                            ArgumentList(
-                                                SingletonSeparatedList(
-                                                    Argument(
-                                                        LiteralExpression(
-                                                            SyntaxKind.StringLiteralExpression,
-                                                            Literal(function.Name)))))))))))
-            .WithUsingKeyword(
-                    Token(SyntaxKind.UsingKeyword));
+        var functionObject = LocalDeclarationStatement(
+            VariableDeclaration(
+                IdentifierName("PyObject"))
+            .WithVariables(
+                SingletonSeparatedList(
+                    VariableDeclarator(
+                        Identifier("__underlyingPythonFunc"))
+                    .WithInitializer(
+                        EqualsValueClause(
+                            ElementAccessExpression(
+                                IdentifierName("functions"))
+                                .WithArgumentList(
+                                    BracketedArgumentList(
+                                        SingletonSeparatedList(
+                                            Argument(
+                                                LiteralExpression(
+                                                    SyntaxKind.StringLiteralExpression,
+                                                    Literal(function.Name)))))
+                        )))))
+            );
+
         var callStatement = LocalDeclarationStatement(
                         VariableDeclaration(
                             IdentifierName("PyObject"))
@@ -176,7 +166,7 @@ public static class MethodReflection
                                     Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(function.Name)))
                                 ])))
                     ),
-            moduleDefinition,
+            functionObject,
             .. pythonConversionStatements,
             callStatement,
             returnExpression];

@@ -47,7 +47,7 @@ internal partial class PyObjectTypeConverter
                     CPythonAPI.Py_DecRefRaw(itemKey);
                     throw PyObject.ThrowPythonExceptionAsClrException();
                 }
-                object? convertedValue = ConvertTo(value, valueType);
+                object? convertedValue = value.As(valueType);
 
                 dict.Add(keyAsString!, convertedValue);
                 CPythonAPI.Py_DecRefRaw(itemKey);
@@ -56,8 +56,8 @@ internal partial class PyObjectTypeConverter
                 using PyObject key = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 0));
                 using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 1));
 
-                object? convertedKey = ConvertTo(key, keyType);
-                object? convertedValue = ConvertTo(value, valueType);
+                object? convertedKey = key.As(keyType);
+                object? convertedValue = value.As(valueType);
 
                 dict.Add(convertedKey!, convertedValue);
             }

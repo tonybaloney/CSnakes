@@ -23,7 +23,7 @@ internal partial class PyObjectTypeConverter
         for (var i = 0; i < listSize; i++)
         {
             using PyObject item = PyObject.Create(CPythonAPI.PyList_GetItem(pyObject, i));
-            list.Add(ConvertTo(item, genericArgument));
+            list.Add(item.As(genericArgument));
         }
 
         return list;

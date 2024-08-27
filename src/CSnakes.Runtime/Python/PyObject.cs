@@ -431,26 +431,29 @@ public class PyObject : SafeHandle
         }
     }
 
-    public T As<T>()
+    public T As<T>() => (T)As(typeof(T));
+
+    internal object As(Type type)
     {
         using (GIL.Acquire())
         {
-            return typeof(T) switch
+            return type switch
             {
-                var t when t == typeof(PyObject) => (T)(object)Clone(),
-                var t when t == typeof(bool) => (T)(object)CPythonAPI.IsPyTrue(this),
-                var t when t == typeof(int) => (T)(object)CPythonAPI.PyLong_AsLong(this),
-                var t when t == typeof(long) => (T)(object)CPythonAPI.PyLong_AsLongLong(this),
-                var t when t == typeof(double) => (T)(object)CPythonAPI.PyFloat_AsDouble(this),
-                var t when t == typeof(string) => (T)(object)CPythonAPI.PyUnicode_AsUTF8(this),
-                var t when t == typeof(BigInteger) => (T)(object)PyObjectTypeConverter.ConvertToBigInteger(this, t),
-                var t when t == typeof(byte[]) => (T)(object)CPythonAPI.PyBytes_AsByteArray(this),
-                var t when t.IsAssignableTo(typeof(ITuple)) => (T)td.ConvertToTuple(this, t),
-                var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => (T)td.ConvertToGeneratorIterator(this, t),
-                var t => (T)td.ConvertTo(this, t),
+                var t when t == typeof(PyObject) => Clone(),
+                var t when t == typeof(bool) => CPythonAPI.IsPyTrue(this),
+                var t when t == typeof(int) => CPythonAPI.PyLong_AsLong(this),
+                var t when t == typeof(long) => CPythonAPI.PyLong_AsLongLong(this),
+                var t when t == typeof(double) => CPythonAPI.PyFloat_AsDouble(this),
+                var t when t == typeof(string) => CPythonAPI.PyUnicode_AsUTF8(this),
+                var t when t == typeof(BigInteger) => PyObjectTypeConverter.ConvertToBigInteger(this, t),
+                var t when t == typeof(byte[]) => CPythonAPI.PyBytes_AsByteArray(this),
+                var t when t.IsAssignableTo(typeof(ITuple)) => td.ConvertToTuple(this, t),
+                var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => td.ConvertToGeneratorIterator(this, t),
+                var t => td.ConvertTo(this, t),
             };
         }
     }
+
     public IReadOnlyCollection<TItem> AsCollection<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem>
     {
         using (GIL.Acquire())

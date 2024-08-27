@@ -20,14 +20,22 @@ internal partial class PyObjectTypeConverter
 
     internal ITuple ConvertToTuple(PyObject pyObj, Type destinationType)
     {
+        nint tupleSize = CPythonAPI.PyTuple_Size(pyObj);
+
         if (!CPythonAPI.IsPyTuple(pyObj))
         {
+            // When hitting a nested tuple that is 8, 15, etc. (the point where the CLR tuples nest), the PyObject
+            // is not a Tuple anymore, it's a raw value, so we need to convert it to a tuple.
+            if (destinationType.GetGenericArguments().Length == 1)
+            {
+                return (ITuple)Activator.CreateInstance(destinationType, pyObj.As(destinationType.GetGenericArguments()[0]))!;
+            }
+
             throw new InvalidCastException($"Cannot convert {pyObj.GetPythonType()} to a tuple.");
         }
         // We have to convert the Python values to CLR values, as if we just tried As<object>() it would
         // not parse the Python type to a CLR type, only to a new Python type.
         Type[] types = destinationType.GetGenericArguments();
-        nint tupleSize = CPythonAPI.PyTuple_Size(pyObj);
         object?[] clrValues = new object[Math.Min(8, tupleSize)];
 
         PyObject[] tupleValues = new PyObject[tupleSize];

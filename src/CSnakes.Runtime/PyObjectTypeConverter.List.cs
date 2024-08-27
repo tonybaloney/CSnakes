@@ -1,6 +1,9 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
@@ -51,6 +54,31 @@ internal partial class PyObjectTypeConverter
         return list;
     }
 
+    internal IReadOnlyCollection<TItem> ConvertToCollection<TCollection, TItem>(PyObject pyObject) where TCollection : IReadOnlyCollection<TItem>
+    {
+        nint listSize = CPythonAPI.PySequence_Size(pyObject);
+        var list = new List<TItem>((int)listSize);
+        for (var i = 0; i < listSize; i++)
+        {
+            using PyObject item = PyObject.Create(CPythonAPI.PySequence_GetItem(pyObject, i));
+            list.Add(item.As<TItem>());
+        }
+
+        return list;
+    }
+
+    private PyObject ConvertFromList(ICollection e)
+    {
+        List<PyObject> pyObjects = new(e.Count);
+
+        foreach (object? item in e)
+        {
+            pyObjects.Add(ConvertFrom(item));
+        }
+
+        return Pack.CreateList(CollectionsMarshal.AsSpan(pyObjects));
+    }
+
     private PyObject ConvertFromList(IEnumerable e)
     {
         List<PyObject> pyObjects = [];
@@ -60,6 +88,6 @@ internal partial class PyObjectTypeConverter
             pyObjects.Add(ConvertFrom(item));
         }
 
-        return Pack.CreateList(pyObjects.ToArray());
+        return Pack.CreateList(CollectionsMarshal.AsSpan(pyObjects));
     }
 }

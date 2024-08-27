@@ -12,7 +12,7 @@ internal partial class PyObjectTypeConverter
 
         for (var i = 0; i < t.Length; i++)
         {
-            pyObjects[i] = ToPython(t[i]);
+            pyObjects[i] = ConvertFrom(t[i]!); // NULL->PyNone
         }
 
         return Pack.CreateTuple(pyObjects);

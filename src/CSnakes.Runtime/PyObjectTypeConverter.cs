@@ -149,6 +149,7 @@ internal partial class PyObjectTypeConverter
             double d => PyObject.From(d),
             IDictionary dictionary => ConvertFromDictionary(dictionary),
             ITuple t => ConvertFromTuple(t),
+            ICollection l => ConvertFromList(l),
             IEnumerable e => ConvertFromList(e),
             BigInteger b => ConvertFromBigInteger(b),
             PyObject pyObject => pyObject.Clone(),

@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using CSnakes.Runtime;
+using CSnakes.Runtime.Python;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -28,28 +29,34 @@ var mod = env.App();
 const int CYCLES = 100_000;
 var stopwatch = new System.Diagnostics.Stopwatch();
 stopwatch.Start();
-for (int i = 0; i < CYCLES; i++)
-{
-    var data = mod.GenerateData(i, "hello", (3.2, "testinput"), (i % 1 == 0));
-}
-stopwatch.Stop();
-logger.LogInformation($"Took {stopwatch.ElapsedMilliseconds}ms for {CYCLES} cycles");
+//for (int i = 0; i < CYCLES; i++)
+//{
+//    var data = mod.GenerateData(i, "hello", (3.2, "testinput"), (i % 1 == 0));
+//}
+//stopwatch.Stop();
+//logger.LogInformation($"Took {stopwatch.ElapsedMilliseconds}ms for {CYCLES} cycles");
 
-// Run the test again but with the result that returns PyObject (no conversion)
-stopwatch.Restart();
-for (int i = 0; i < CYCLES; i++)
-{
-    var data = mod.GenerateDataAny(i, "hello", (3.2, "testinput"), (i % 1 == 0));
-}
-stopwatch.Stop();
-logger.LogInformation($"Took {stopwatch.ElapsedMilliseconds}ms for {CYCLES} cycles without conversions");
+//// Run the test again but with the result that returns PyObject (no conversion)
+//stopwatch.Restart();
+//for (int i = 0; i < CYCLES; i++)
+//{
+//    var data = mod.GenerateDataAny(i, "hello", (3.2, "testinput"), (i % 1 == 0));
+//}
+//stopwatch.Stop();
+//logger.LogInformation($"Took {stopwatch.ElapsedMilliseconds}ms for {CYCLES} cycles without conversions");
 
-// Run the test again with a function that takes no arguments and returns nothing.
-stopwatch.Restart();
+//// Run the test again with a function that takes no arguments and returns nothing.
+//stopwatch.Restart();
+//for (int i = 0; i < CYCLES; i++)
+//{
+//    mod.EmptyFunction();
+//}
+
 for (int i = 0; i < CYCLES; i++)
 {
-    mod.EmptyFunction();
+    PyObject.From<List<long>>([1, 2, 3, 4, 5]);
 }
+
 stopwatch.Stop();
 logger.LogInformation($"Took {stopwatch.ElapsedMilliseconds}ms for {CYCLES} cycles with no input or output");
 

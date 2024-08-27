@@ -10,7 +10,6 @@ namespace CSnakes.Runtime.Python;
 public class PyObject : SafeHandle
 {
     private static readonly PyObjectTypeConverter td = new();
-    private PyObject[]? disposeCollection;
 
     protected PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
@@ -48,18 +47,6 @@ public class PyObject : SafeHandle
         }
         handle = IntPtr.Zero;
         return true;
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposeCollection is not null)
-        {
-            foreach (var obj in disposeCollection)
-            {
-                obj.Dispose();
-            }
-        }
-        base.Dispose(disposing);
     }
 
     /// <summary>
@@ -455,6 +442,11 @@ public class PyObject : SafeHandle
         }
     }
 
+    public IReadOnlyCollection<TItem> As<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem>
+    {
+        return td.ConvertToCollection<TCollection, TItem>(this);
+    }
+
     public static PyObject? From<T>(T value)
     {
         using (GIL.Acquire())
@@ -527,11 +519,5 @@ public class PyObject : SafeHandle
 
         combinedKwnames = [.. newKwnames];
         combinedKwvalues = [.. newKwvalues];
-    }
-
-    internal PyObject RegisterDisposeCollection(PyObject[] collection)
-    {
-        disposeCollection = collection;
-        return this;
     }
 }

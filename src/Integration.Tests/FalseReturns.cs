@@ -84,7 +84,7 @@ public class FalseReturns : IntegrationTestBase
         }
         else
         {
-            Assert.Throws<PythonInvocationException>(() => falseReturns.TestIntReturnsFloat())
+            Assert.Throws<PythonInvocationException>(() => falseReturns.TestIntReturnsFloat());
         }
     }
 

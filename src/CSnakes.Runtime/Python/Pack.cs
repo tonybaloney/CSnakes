@@ -10,9 +10,9 @@ namespace CSnakes.Runtime.Python;
 /// </summary>
 internal static class Pack
 {
-    internal static PyObject CreateTuple(PyObject[] items)
+    internal static PyObject CreateTuple(Span<PyObject> items)
     {
-        List<SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn> marshallers = new(items.Count());
+        List<SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn> marshallers = new(items.Length);
         try
         {
             var handles = items.Length < 18 // .NET tuples are max 17 items. This is a performance optimization.
@@ -22,12 +22,11 @@ internal static class Pack
             for (int i = 0; i < items.Length; i++)
             {
                 SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn m = default;
-                m.FromManaged(items.ElementAt(i));
+                m.FromManaged(items[i]);
                 marshallers.Add(m);
                 handles[i] = m.ToUnmanaged();
             }
-            return PyObject.Create(CPythonAPI.PackTuple(handles))
-                .RegisterDisposeCollection(items);
+            return PyObject.Create(CPythonAPI.PackTuple(handles));
         }
         finally
         {
@@ -38,9 +37,9 @@ internal static class Pack
         }
     }
 
-    internal static PyObject CreateList(PyObject[] items)
+    internal static PyObject CreateList(Span<PyObject> items)
     {
-        PyObject pyList = PyObject.Create(CPythonAPI.PyList_New(0));
+        PyObject pyList = PyObject.Create(CPythonAPI.PyList_New(0)); // TODO: preallocate based on items.Length and use PyList_SetItem
 
         foreach (var item in items)
         {
@@ -51,7 +50,7 @@ internal static class Pack
             }
         }
 
-        return pyList.RegisterDisposeCollection(items);
+        return pyList;
     }
 
     internal static PyObject CreateDictionary(IEnumerable<PyObject> keys,  IEnumerable<PyObject> values) {
@@ -69,6 +68,6 @@ internal static class Pack
             }
         }
 
-        return pyDict.RegisterDisposeCollection([.. keys, .. values]);
+        return pyDict;
     }
 }

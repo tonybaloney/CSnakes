@@ -1,6 +1,8 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python.Interns;
 using System.Diagnostics;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
@@ -54,19 +56,19 @@ public class PyObject : SafeHandle
     /// </summary>
     /// <exception cref="InvalidDataException"></exception>
     /// <exception cref="PythonInvocationException"></exception>
-    internal static void ThrowPythonExceptionAsClrException(string? message = null)
+    internal static Exception ThrowPythonExceptionAsClrException(string? message = null)
     {
         using (GIL.Acquire())
         {
             if (!CPythonAPI.PyErr_Occurred())
             {
-                throw new InvalidDataException("An error occurred in Python, but no exception was set.");
+                return new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
             CPythonAPI.PyErr_Fetch(out nint excType, out nint excValue, out nint excTraceback);
 
             if (excType == 0)
             {
-                throw new InvalidDataException("An error occurred in Python, but no exception was set.");
+                return new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
 
             using var pyExceptionType = Create(excType);
@@ -85,12 +87,10 @@ public class PyObject : SafeHandle
 
             if (string.IsNullOrEmpty(message))
             {
-                throw new PythonInvocationException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback);
+                return new PythonInvocationException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback);
             }
-            else
-            {
-                throw new PythonInvocationException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback, message);
-            }
+
+            return new PythonInvocationException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback, message);
         }
     }
 
@@ -438,52 +438,46 @@ public class PyObject : SafeHandle
     {
         using (GIL.Acquire())
         {
-            return (T)(td.ConvertTo(this, typeof(T)) ?? default!);
-        }
-    }
-    public IReadOnlyCollection<TItem> As<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem> => td.ConvertToCollection<TItem>(this);
-    public IReadOnlyDictionary<TKey, TValue> As<TDict, TKey, TValue>() where TDict : IReadOnlyDictionary<TKey, TValue> where TKey : notnull => td.ConvertToDictionary<TKey, TValue>(this);
-
-    public static PyObject? From<T>(T value)
-    {
-        using (GIL.Acquire())
-        {
-            return value is null ?
-                PyObject.None :
-                (PyObject?)td.ConvertFrom(value);
-        }
-    }
-
-    // Overload value types to avoid boxing in the generic method.
-    public static PyObject From(long value)
-    {
-        using (GIL.Acquire())
-        {
-            return Create(CPythonAPI.PyLong_FromLongLong(value))!;
+            return typeof(T) switch
+            {
+                var t when t == typeof(PyObject) => (T)(object)Clone(),
+                var t when t == typeof(bool) => (T)(object)CPythonAPI.IsPyTrue(this),
+                var t when t == typeof(int) => (T)(object)CPythonAPI.PyLong_AsLong(this),
+                var t when t == typeof(long) => (T)(object)CPythonAPI.PyLong_AsLongLong(this),
+                var t when t == typeof(double) => (T)(object)CPythonAPI.PyFloat_AsDouble(this),
+                var t when t == typeof(string) => (T)(object)ToString(),
+                var t when t == typeof(BigInteger) => (T)(object)PyObjectTypeConverter.ConvertToBigInteger(this, t),
+                var t when t == typeof(byte[]) => (T)(object)CPythonAPI.PyBytes_AsByteArray(this),
+                var t when t.IsAssignableTo(typeof(ITuple)) => (T)td.ConvertToTuple(this, t),
+                var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => (T)td.ConvertToGeneratorIterator(this, t),
+                var t => (T)td.ConvertTo(this, t),
+            };
         }
     }
 
-    public static PyObject From(int value)
-    {
-        using (GIL.Acquire())
-        {
-            return Create(CPythonAPI.PyLong_FromLong(value))!;
-        }
-    }
+    public IReadOnlyCollection<TItem> As<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem> =>
+        td.ConvertToCollection<TItem>(this);
+    public IReadOnlyDictionary<TKey, TValue> As<TDict, TKey, TValue>() where TDict : IReadOnlyDictionary<TKey, TValue> where TKey : notnull =>
+        td.ConvertToDictionary<TKey, TValue>(this);
 
-    public static PyObject From(double value)
+    public static PyObject From<T>(T value)
     {
         using (GIL.Acquire())
         {
-            return Create(CPythonAPI.PyFloat_FromDouble(value))!;
-        }
-    }
+            if (value is null)
+                return None;
 
-    public static PyObject From(bool value)
-    {
-        using (GIL.Acquire())
-        {
-            return value ? True : False;
+            return value switch
+            {
+                PyObject pyObject => pyObject.Clone(),
+                bool b => b ? True : False,
+                int i => Create(CPythonAPI.PyLong_FromLong(i)),
+                long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
+                double d => Create(CPythonAPI.PyFloat_FromDouble(d)),
+                string s => Create(CPythonAPI.AsPyUnicodeObject(s)),
+                BigInteger bi => From(bi),
+                _ => td.ConvertFrom(value),
+            };
         }
     }
 

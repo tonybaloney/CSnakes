@@ -18,7 +18,7 @@ internal partial class PyObjectTypeConverter
         return Pack.CreateTuple(pyObjects);
     }
 
-    private object? ConvertToTuple(PyObject pyObj, Type destinationType)
+    internal ITuple ConvertToTuple(PyObject pyObj, Type destinationType)
     {
         // We have to convert the Python values to CLR values, as if we just tried As<object>() it would
         // not parse the Python type to a CLR type, only to a new Python type.

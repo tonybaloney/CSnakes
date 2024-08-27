@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private object? ConvertToDictionary(PyObject pyObject, Type destinationType, bool useMappingProtocol = false)
+    private object ConvertToDictionary(PyObject pyObject, Type destinationType, bool useMappingProtocol = false)
     {
         using PyObject items = useMappingProtocol ? 
             PyObject.Create(CPythonAPI.PyMapping_Items(pyObject)) : 

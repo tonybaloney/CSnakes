@@ -1,14 +1,12 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private object? ConvertToList(PyObject pyObject, Type destinationType)
+    private ICollection ConvertToList(PyObject pyObject, Type destinationType)
     {
         Type genericArgument = destinationType.GetGenericArguments()[0];
 
@@ -31,7 +29,7 @@ internal partial class PyObjectTypeConverter
         return list;
     }
 
-    private object? ConvertToListFromSequence(PyObject pyObject, Type destinationType)
+    private ICollection ConvertToListFromSequence(PyObject pyObject, Type destinationType)
     {
         Type genericArgument = destinationType.GetGenericArguments()[0];
 

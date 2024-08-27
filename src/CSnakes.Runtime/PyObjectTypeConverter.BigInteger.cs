@@ -5,7 +5,7 @@ using System.Numerics;
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private static object? ConvertToBigInteger(PyObject pyObject, Type destinationType) =>
+    internal static BigInteger ConvertToBigInteger(PyObject pyObject, Type destinationType) =>
         // There is no practical API for this in CPython. Use str() instead. 
         BigInteger.Parse(pyObject.ToString());
 

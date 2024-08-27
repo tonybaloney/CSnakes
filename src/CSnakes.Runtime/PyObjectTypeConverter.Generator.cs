@@ -4,7 +4,7 @@ using System.Reflection;
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private object? ConvertToGeneratorIterator(PyObject pyObject, Type destinationType)
+    internal object ConvertToGeneratorIterator(PyObject pyObject, Type destinationType)
     {
         if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
         {

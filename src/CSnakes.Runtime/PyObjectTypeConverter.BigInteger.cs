@@ -9,7 +9,7 @@ internal partial class PyObjectTypeConverter
         // There is no practical API for this in CPython. Use str() instead. 
         BigInteger.Parse(pyObject.ToString());
 
-    private static PyObject ConvertFromBigInteger(BigInteger integer)
+    internal static PyObject ConvertFromBigInteger(BigInteger integer)
     {
         using PyObject pyUnicode = PyObject.Create(CPythonAPI.AsPyUnicodeObject(integer.ToString()));
         return PyObject.Create(CPythonAPI.PyLong_FromUnicodeObject(pyUnicode, 10));

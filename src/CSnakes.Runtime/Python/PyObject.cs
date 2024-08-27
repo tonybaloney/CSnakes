@@ -454,6 +454,20 @@ public class PyObject : SafeHandle
             };
         }
     }
+    public IReadOnlyCollection<TItem> AsCollection<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem>
+    {
+        using (GIL.Acquire())
+        {
+            return td.ConvertToCollection<TItem>(this);
+        }
+    }
+    public IReadOnlyDictionary<TKey, TValue> AsDictionary<TDict, TKey, TValue>() where TDict : IReadOnlyDictionary<TKey, TValue> where TKey : notnull
+    {
+        using (GIL.Acquire())
+        {
+            return td.ConvertToDictionary<TKey, TValue>(this);
+        }
+    }
 
     public IReadOnlyCollection<TItem> As<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem> =>
         td.ConvertToCollection<TItem>(this);
@@ -475,7 +489,7 @@ public class PyObject : SafeHandle
                 long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
                 double d => Create(CPythonAPI.PyFloat_FromDouble(d)),
                 string s => Create(CPythonAPI.AsPyUnicodeObject(s)),
-                BigInteger bi => From(bi),
+                BigInteger bi => PyObjectTypeConverter.ConvertFromBigInteger(bi),
                 _ => td.ConvertFrom(value),
             };
         }

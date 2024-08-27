@@ -34,16 +34,6 @@ internal partial class PyObjectTypeConverter
             return pyObject.Clone();
         }
 
-        if (destinationType == typeof(string))
-        {
-            string? result = CPythonAPI.PyUnicode_AsUTF8(pyObject);
-            if (result is null)
-            {
-                throw PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to string, check that the object was a Python string.");
-            }
-            return result;
-        }
-
         if (destinationType == typeof(byte[]) && CPythonAPI.IsBytes(pyObject))
         {
             return CPythonAPI.PyBytes_AsByteArray(pyObject);

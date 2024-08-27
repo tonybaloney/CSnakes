@@ -166,8 +166,7 @@ public class PyObject : SafeHandle
         using (GIL.Acquire())
         {
             using PyObject reprStr = new PyObject(CPythonAPI.PyObject_Repr(this));
-            string? repr = CPythonAPI.PyUnicode_AsUTF8(reprStr);
-            return repr ?? string.Empty;
+            return CPythonAPI.PyUnicode_AsUTF8(reprStr);
         }
     }
 
@@ -424,13 +423,11 @@ public class PyObject : SafeHandle
     /// <returns>The result of `str()` on the object.</returns>
     public override string ToString()
     {
-        // TODO: Consider moving this to a logger.
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
             using PyObject pyObjectStr = new(CPythonAPI.PyObject_Str(this));
-            string? stringValue = CPythonAPI.PyUnicode_AsUTF8(pyObjectStr);
-            return stringValue ?? string.Empty;
+            return CPythonAPI.PyUnicode_AsUTF8(pyObjectStr);
         }
     }
 
@@ -445,7 +442,7 @@ public class PyObject : SafeHandle
                 var t when t == typeof(int) => (T)(object)CPythonAPI.PyLong_AsLong(this),
                 var t when t == typeof(long) => (T)(object)CPythonAPI.PyLong_AsLongLong(this),
                 var t when t == typeof(double) => (T)(object)CPythonAPI.PyFloat_AsDouble(this),
-                var t when t == typeof(string) => (T)(object)ToString(),
+                var t when t == typeof(string) => (T)(object)CPythonAPI.PyUnicode_AsUTF8(this),
                 var t when t == typeof(BigInteger) => (T)(object)PyObjectTypeConverter.ConvertToBigInteger(this, t),
                 var t when t == typeof(byte[]) => (T)(object)CPythonAPI.PyBytes_AsByteArray(this),
                 var t when t.IsAssignableTo(typeof(ITuple)) => (T)td.ConvertToTuple(this, t),

@@ -46,7 +46,7 @@ internal static class Pack
             int result = CPythonAPI.PyList_Append(pyList, item);
             if (result == -1)
             {
-                PyObject.ThrowPythonExceptionAsClrException();
+                throw PyObject.ThrowPythonExceptionAsClrException();
             }
         }
 
@@ -64,7 +64,7 @@ internal static class Pack
             int result = CPythonAPI.PyDict_SetItem(pyDict, keyEnumerator.Current, valueEnumerator.Current);
             if (result == -1)
             {
-                PyObject.ThrowPythonExceptionAsClrException();
+                throw PyObject.ThrowPythonExceptionAsClrException();
             }
         }
 

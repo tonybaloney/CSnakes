@@ -45,7 +45,7 @@ internal partial class PyObjectTypeConverter
                 if (keyAsString is null)
                 {
                     CPythonAPI.Py_DecRefRaw(itemKey);
-                    PyObject.ThrowPythonExceptionAsClrException();
+                    throw PyObject.ThrowPythonExceptionAsClrException();
                 }
                 object? convertedValue = ConvertTo(value, valueType);
 

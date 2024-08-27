@@ -59,7 +59,7 @@ internal partial class PyObjectTypeConverter
             var result = CPythonAPI.PyLong_AsLong(pyObject);
             if (result == -1 && CPythonAPI.PyErr_Occurred())
             {
-                PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to int, check that the object was a Python int or that the value wasn't too large. See InnerException for details.");
+                throw PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to int, check that the object was a Python int or that the value wasn't too large. See InnerException for details.");
             }
             return result;
         }
@@ -74,7 +74,7 @@ internal partial class PyObjectTypeConverter
             var result = CPythonAPI.PyFloat_AsDouble(pyObject);
             if (result == -1 && CPythonAPI.PyErr_Occurred())
             {
-                PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to double, check that the object was a Python float. See InnerException for details.");
+                throw PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to double, check that the object was a Python float. See InnerException for details.");
             }
             return result;
         }

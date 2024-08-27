@@ -289,7 +289,7 @@ public class PyObject : SafeHandle
             int hash = CPythonAPI.PyObject_Hash(this);
             if (hash == -1)
             {
-                ThrowPythonExceptionAsClrException();
+                throw ThrowPythonExceptionAsClrException();
             }
             return hash;
         }

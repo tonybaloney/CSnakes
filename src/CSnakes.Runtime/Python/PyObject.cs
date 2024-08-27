@@ -17,7 +17,7 @@ public class PyObject : SafeHandle
     {
         if (pyObject == IntPtr.Zero)
         {
-            ThrowPythonExceptionAsClrException();
+            throw ThrowPythonExceptionAsClrException();
         }
     }
 

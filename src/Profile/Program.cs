@@ -52,11 +52,6 @@ for (int i = 0; i < CYCLES; i++)
     mod.EmptyFunction();
 }
 
-for (int i = 0; i < CYCLES; i++)
-{
-    PyObject.From<List<long>>([1, 2, 3, 4, 5]);
-}
-
 stopwatch.Stop();
 logger.LogInformation($"Took {stopwatch.ElapsedMilliseconds}ms for {CYCLES} cycles with no input or output");
 

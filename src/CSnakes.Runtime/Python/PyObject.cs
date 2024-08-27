@@ -1,6 +1,7 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python.Interns;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
@@ -441,8 +442,8 @@ public class PyObject : SafeHandle
             return (T)(td.ConvertTo(this, typeof(T)) ?? default!);
         }
     }
-    public IReadOnlyCollection<TItem> As<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem> => td.ConvertToCollection<TItem>(this);
-    public IReadOnlyDictionary<TKey, TValue> As<TDict, TKey, TValue>() where TDict : IReadOnlyDictionary<TKey, TValue> where TKey : notnull => td.ConvertToDictionary<TKey, TValue>(this);
+    public IReadOnlyCollection<TItem> AsCollection<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem> => td.ConvertToCollection<TItem>(this);
+    public IReadOnlyDictionary<TKey, TValue> AsDictionary<TDict, TKey, TValue>() where TDict : IReadOnlyDictionary<TKey, TValue> where TKey : notnull => td.ConvertToDictionary<TKey, TValue>(this);
 
     public static PyObject? From<T>(T value)
     {

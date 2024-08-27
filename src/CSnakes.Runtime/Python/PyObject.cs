@@ -43,9 +43,16 @@ public class PyObject : SafeHandle
             Debug.WriteLine($"Python object at 0x{handle:X} was released, but Python is no longer running.");
             return true;
         }
-        using (GIL.Acquire())
+        if (GIL.IsAcquired)
         {
-            CPythonAPI.Py_DecRefRaw(handle);
+            using (GIL.Acquire())
+            {
+                CPythonAPI.Py_DecRefRaw(handle);
+            }
+        } else
+        {
+            // Probably in the GC finalizer thread, instead of causing GIL contention, put this on a queue to be processed later.
+            GIL.QueueForDisposal(handle);
         }
         handle = IntPtr.Zero;
         return true;

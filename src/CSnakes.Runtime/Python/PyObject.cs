@@ -441,11 +441,8 @@ public class PyObject : SafeHandle
             return (T)(td.ConvertTo(this, typeof(T)) ?? default!);
         }
     }
-
-    public IReadOnlyCollection<TItem> As<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem>
-    {
-        return td.ConvertToCollection<TCollection, TItem>(this);
-    }
+    public IReadOnlyCollection<TItem> As<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem> => td.ConvertToCollection<TItem>(this);
+    public IReadOnlyDictionary<TKey, TValue> As<TDict, TKey, TValue>() where TDict : IReadOnlyDictionary<TKey, TValue> where TKey : notnull => td.ConvertToDictionary<TKey, TValue>(this);
 
     public static PyObject? From<T>(T value)
     {

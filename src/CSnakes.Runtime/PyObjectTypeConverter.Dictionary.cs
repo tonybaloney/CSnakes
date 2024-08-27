@@ -67,6 +67,28 @@ internal partial class PyObjectTypeConverter
         return typeInfo.ReturnTypeConstructor.Invoke([dict]);
     }
 
+    internal IReadOnlyDictionary<TKey, TValue> ConvertToDictionary<TKey, TValue>(PyObject pyObject) where TKey : notnull
+    {
+        using PyObject items = PyObject.Create(CPythonAPI.PyMapping_Items(pyObject));
+
+        var dict = new Dictionary<TKey, TValue>();
+        nint itemsLength = CPythonAPI.PyList_Size(items);
+        for (nint i = 0; i < itemsLength; i++)
+        {
+            nint kvpTuple = CPythonAPI.PyList_GetItem(items, i);
+            using PyObject key = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 0));
+            using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 1));
+
+            TKey convertedKey = key.As<TKey>();
+            TValue convertedValue = value.As<TValue>();
+
+            dict.Add(convertedKey, convertedValue);
+            CPythonAPI.Py_DecRefRaw(kvpTuple);
+        }
+
+        return dict;
+    }
+
     private PyObject ConvertFromDictionary(IDictionary dictionary)
     {
         int len = dictionary.Keys.Count;

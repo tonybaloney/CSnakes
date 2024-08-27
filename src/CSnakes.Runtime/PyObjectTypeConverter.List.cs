@@ -54,7 +54,7 @@ internal partial class PyObjectTypeConverter
         return list;
     }
 
-    internal IReadOnlyCollection<TItem> ConvertToCollection<TCollection, TItem>(PyObject pyObject) where TCollection : IReadOnlyCollection<TItem>
+    internal IReadOnlyCollection<TItem> ConvertToCollection<TItem>(PyObject pyObject)
     {
         nint listSize = CPythonAPI.PySequence_Size(pyObject);
         var list = new List<TItem>((int)listSize);

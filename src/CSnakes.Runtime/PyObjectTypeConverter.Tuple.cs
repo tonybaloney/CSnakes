@@ -41,7 +41,7 @@ internal partial class PyObjectTypeConverter
         if (tupleValues.Length > 8)
         {
             // We are hitting nested tuples here, which will be treated in a different way.
-            IEnumerable<object?> firstSeven = tupleValues.Take(7).Select((p, i) => ConvertTo(p, types[i]));
+            IEnumerable<object?> firstSeven = tupleValues.Take(7).Select((p, i) => p.As(types[i]));
 
             // Get the rest of the values and convert them to a nested tuple.
             IEnumerable<PyObject> rest = tupleValues.Skip(7);
@@ -51,7 +51,7 @@ internal partial class PyObjectTypeConverter
 
             // Use the decoder pipeline to decode the nested tuple (and its values).
             // We do this because that means if we have nested nested tuples, they'll be decoded as well.
-            object? nestedTuple = ConvertTo(pyTuple, types[7]);
+            object? nestedTuple = pyTuple.As(types[7]);
 
             // Append our nested tuple to the first seven values.
             clrValues = [.. firstSeven, nestedTuple];
@@ -60,7 +60,7 @@ internal partial class PyObjectTypeConverter
         {
             for (var i = 0; i < tupleValues.Length; i++)
             {
-                clrValues[i] = ConvertTo(tupleValues[i], types[i]);
+                clrValues[i] = tupleValues[i].As(types[i]);
                 // Dispose of the Python object created by PyTuple_GetItem earlier in this method.
                 tupleValues[i].Dispose();
             }

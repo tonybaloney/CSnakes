@@ -20,6 +20,10 @@ internal partial class PyObjectTypeConverter
 
     internal ITuple ConvertToTuple(PyObject pyObj, Type destinationType)
     {
+        if (!CPythonAPI.IsPyTuple(pyObj))
+        {
+            throw new InvalidCastException($"Cannot convert {pyObj.GetPythonType()} to a tuple.");
+        }
         // We have to convert the Python values to CLR values, as if we just tried As<object>() it would
         // not parse the Python type to a CLR type, only to a new Python type.
         Type[] types = destinationType.GetGenericArguments();

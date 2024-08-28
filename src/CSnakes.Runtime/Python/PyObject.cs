@@ -1,5 +1,6 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python.Interns;
+using System.Collections;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -11,8 +12,6 @@ namespace CSnakes.Runtime.Python;
 [DebuggerDisplay("PyObject: repr={GetRepr()}, type={GetPythonType().ToString()}")]
 public class PyObject : SafeHandle
 {
-    private static readonly PyObjectTypeConverter td = new();
-
     protected PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
         if (pyObject == IntPtr.Zero)
@@ -454,9 +453,9 @@ public class PyObject : SafeHandle
                 var t when t == typeof(string) => CPythonAPI.PyUnicode_AsUTF8(this),
                 var t when t == typeof(BigInteger) => PyObjectTypeConverter.ConvertToBigInteger(this, t),
                 var t when t == typeof(byte[]) => CPythonAPI.PyBytes_AsByteArray(this),
-                var t when t.IsAssignableTo(typeof(ITuple)) => td.ConvertToTuple(this, t),
-                var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => td.ConvertToGeneratorIterator(this, t),
-                var t => td.ConvertTo(this, t),
+                var t when t.IsAssignableTo(typeof(ITuple)) => PyObjectTypeConverter.ConvertToTuple(this, t),
+                var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => PyObjectTypeConverter.ConvertToGeneratorIterator(this, t),
+                var t => PyObjectTypeConverter.PyObjectToManagedType(this, t),
             };
         }
     }
@@ -465,21 +464,21 @@ public class PyObject : SafeHandle
     {
         using (GIL.Acquire())
         {
-            return td.ConvertToCollection<TItem>(this);
+            return PyObjectTypeConverter.ConvertToCollection<TItem>(this);
         }
     }
     public IReadOnlyDictionary<TKey, TValue> AsDictionary<TDict, TKey, TValue>() where TDict : IReadOnlyDictionary<TKey, TValue> where TKey : notnull
     {
         using (GIL.Acquire())
         {
-            return td.ConvertToDictionary<TKey, TValue>(this);
+            return PyObjectTypeConverter.ConvertToDictionary<TKey, TValue>(this);
         }
     }
 
     public IReadOnlyCollection<TItem> As<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem> =>
-        td.ConvertToCollection<TItem>(this);
+        PyObjectTypeConverter.ConvertToCollection<TItem>(this);
     public IReadOnlyDictionary<TKey, TValue> As<TDict, TKey, TValue>() where TDict : IReadOnlyDictionary<TKey, TValue> where TKey : notnull =>
-        td.ConvertToDictionary<TKey, TValue>(this);
+        PyObjectTypeConverter.ConvertToDictionary<TKey, TValue>(this);
 
     public static PyObject From<T>(T value)
     {
@@ -496,8 +495,13 @@ public class PyObject : SafeHandle
                 long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
                 double d => Create(CPythonAPI.PyFloat_FromDouble(d)),
                 string s => Create(CPythonAPI.AsPyUnicodeObject(s)),
-                BigInteger bi => PyObjectTypeConverter.ConvertFromBigInteger(bi),
-                _ => td.ConvertFrom(value),
+                byte[] bytes => PyObject.Create(CPythonAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
+                IDictionary dictionary => PyObjectTypeConverter.ConvertFromDictionary(dictionary),
+                ITuple t => PyObjectTypeConverter.ConvertFromTuple(t),
+                ICollection l => PyObjectTypeConverter.ConvertFromList(l),
+                IEnumerable e => PyObjectTypeConverter.ConvertFromList(e),
+                BigInteger b => PyObjectTypeConverter.ConvertFromBigInteger(b),
+                _ => throw new InvalidCastException($"Cannot convert {value} to PyObject"),
             };
         }
     }

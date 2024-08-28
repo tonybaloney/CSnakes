@@ -33,6 +33,19 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName, EntryPoint = "PyFloat_AsDouble")]
     private static partial double PyFloat_AsDouble_(PyObject obj);
 
+    internal static double PyFloat_AsDouble(nint p)
+    {
+        double result = PyFloat_AsDoubleRaw_(p);
+        if (result == -1 && PyErr_Occurred())
+        {
+            throw PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to double, check that the object was a Python float. See InnerException for details.");
+        }
+        return result;
+    }
+
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyFloat_AsDouble")]
+    private static partial double PyFloat_AsDoubleRaw_(nint obj);
+
     internal static bool IsPyFloat(PyObject p)
     {
         return PyObject_IsInstance(p, PyFloatType);

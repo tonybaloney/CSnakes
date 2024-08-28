@@ -28,8 +28,21 @@ internal unsafe partial class CPythonAPI
         return result;
     }
 
+    internal static long PyLong_AsLongLong(nint p)
+    {
+        long result = PyLong_AsLongLongRaw_(p);
+        if (result == -1 && PyErr_Occurred())
+        {
+            throw PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to int, check that the object was a Python int or that the value wasn't too large. See InnerException for details.");
+        }
+        return result;
+    }
+
     [LibraryImport(PythonLibraryName, EntryPoint = "PyLong_AsLongLong")]
     private static partial long PyLong_AsLongLong_(PyObject p);
+
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyLong_AsLongLong")]
+    private static partial long PyLong_AsLongLongRaw_(nint p);
 
     /// <summary>
     /// Calls PyLong_AsLong and throws a Python Exception if an error occurs.
@@ -46,8 +59,21 @@ internal unsafe partial class CPythonAPI
         return result;
     }
 
+    internal static long PyLong_AsLong(nint p)
+    {
+        long result = PyLong_AsLongRaw_(p);
+        if (result == -1 && PyErr_Occurred())
+        {
+            throw PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to int, check that the object was a Python int or that the value wasn't too large. See InnerException for details.");
+        }
+        return result;
+    }
+
     [LibraryImport(PythonLibraryName, EntryPoint = "PyLong_AsLong")]
     private static partial int PyLong_AsLong_(PyObject p);
+
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyLong_AsLong")]
+    private static partial int PyLong_AsLongRaw_(nint p);
 
     internal static bool IsPyLong(PyObject p)
     {

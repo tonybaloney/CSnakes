@@ -29,6 +29,18 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName, EntryPoint = "Py_IncRef")]
     internal static partial void Py_IncRefRaw(nint ob);
 
+    internal static PyObject Py_NewRef(PyObject ob)
+    {
+        Py_IncRef(ob);
+        return ob;
+    }
+
+    internal static nint Py_NewRefRaw(nint ob)
+    {
+        Py_IncRefRaw(ob);
+        return ob;
+    }
+
     /// <summary>
     /// Get the Type object for the object
     /// </summary>

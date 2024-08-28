@@ -18,8 +18,7 @@ internal unsafe partial class CPythonAPI
         // This is a shortcut to a CPython optimization. Keep an empty tuple and reuse it.
         if (items.Length == 0)
         {
-            Py_IncRefRaw(PyEmptyTuple);
-            return PyEmptyTuple;
+            return Py_NewRefRaw(PyEmptyTuple);
         }
 
         nint tuple = PyTuple_New(items.Length);
@@ -74,8 +73,7 @@ internal unsafe partial class CPythonAPI
         {
             throw PyObject.ThrowPythonExceptionAsClrException();
         }
-        Py_IncRefRaw(item);
-        return item;
+        return Py_NewRefRaw(item);
     }
 
     internal static nint PyTuple_GetItemWithNewRefRaw(nint ob, nint pos)
@@ -85,8 +83,7 @@ internal unsafe partial class CPythonAPI
         {
             throw PyObject.ThrowPythonExceptionAsClrException();
         }
-        Py_IncRefRaw(item);
-        return item;
+        return Py_NewRefRaw(item);
     }
 
     [LibraryImport(PythonLibraryName, EntryPoint = "PyTuple_GetItem")]

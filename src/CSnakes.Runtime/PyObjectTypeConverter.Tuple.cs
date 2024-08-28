@@ -38,16 +38,16 @@ internal partial class PyObjectTypeConverter
         Type[] types = destinationType.GetGenericArguments();
         object?[] clrValues = new object[Math.Min(8, tupleSize)];
 
-        PyObject[] tupleValues = new PyObject[tupleSize];
-        for (nint i = 0; i < tupleValues.Length; i++)
-        {
-            PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, i));
-            tupleValues[i] = value;
-        }
-
         // If we have more than 8 python values, we are going to have a nested tuple, which we have to unpack.
-        if (tupleValues.Length > 8)
+        if (tupleSize > 8)
         {
+            PyObject[] tupleValues = new PyObject[tupleSize];
+            for (nint i = 0; i < tupleValues.Length; i++)
+            {
+                PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, i));
+                tupleValues[i] = value;
+            }
+
             // We are hitting nested tuples here, which will be treated in a different way.
             IEnumerable<object?> firstSeven = tupleValues.Take(7).Select((p, i) => p.As(types[i]));
 
@@ -66,11 +66,12 @@ internal partial class PyObjectTypeConverter
         }
         else
         {
-            for (var i = 0; i < tupleValues.Length; i++)
+            for (var i = 0; i < tupleSize; i++)
             {
-                clrValues[i] = tupleValues[i].As(types[i]);
+                nint tupleItemRaw = CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, i);
+                clrValues[i] = PyObject.As(tupleItemRaw, types[i]);
                 // Dispose of the Python object created by PyTuple_GetItem earlier in this method.
-                tupleValues[i].Dispose();
+                CPythonAPI.Py_DecRefRaw(tupleItemRaw);
             }
         }
 

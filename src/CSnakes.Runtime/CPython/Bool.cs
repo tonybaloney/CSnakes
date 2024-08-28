@@ -17,13 +17,18 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyBool_FromLong(nint value);
 
-    public static bool IsPyBool(PyObject p)
+    internal static bool IsPyBool(PyObject p)
     {
         return p.DangerousGetHandle() == Py_True || p.DangerousGetHandle() == Py_False;
     }
 
-    public static bool IsPyTrue(PyObject p)
+    internal static bool IsPyTrue(PyObject p)
     {
         return p.DangerousGetHandle() == Py_True;
+    }
+
+    internal static bool IsPyTrue(nint p)
+    {
+        return p == Py_True;
     }
 }

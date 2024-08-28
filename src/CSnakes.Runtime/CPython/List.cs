@@ -36,8 +36,7 @@ internal unsafe partial class CPythonAPI
         {
             throw PyObject.ThrowPythonExceptionAsClrException();
         }
-        Py_IncRefRaw(item);
-        return item;
+        return Py_NewRefRaw(item);
     }
 
     /// <summary>

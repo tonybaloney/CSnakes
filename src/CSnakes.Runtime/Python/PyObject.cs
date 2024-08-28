@@ -439,23 +439,41 @@ public class PyObject : SafeHandle
 
     public T As<T>() => (T)As(typeof(T));
 
-    internal object As(Type type)
+    internal object As(Type type, bool complex = false)
     {
         using (GIL.Acquire())
         {
             return type switch
             {
-                var t when t == typeof(PyObject) => Clone(),
-                var t when t == typeof(bool) => CPythonAPI.IsPyTrue(this),
-                var t when t == typeof(int) => CPythonAPI.PyLong_AsLong(this),
-                var t when t == typeof(long) => CPythonAPI.PyLong_AsLongLong(this),
-                var t when t == typeof(double) => CPythonAPI.PyFloat_AsDouble(this),
-                var t when t == typeof(string) => CPythonAPI.PyUnicode_AsUTF8(this),
+                var t when !complex && t == typeof(PyObject) => Clone(),
+                var t when !complex && t == typeof(bool) => CPythonAPI.IsPyTrue(this),
+                var t when !complex && t == typeof(int) => CPythonAPI.PyLong_AsLong(this),
+                var t when !complex && t == typeof(long) => CPythonAPI.PyLong_AsLongLong(this),
+                var t when !complex && t == typeof(double) => CPythonAPI.PyFloat_AsDouble(this),
+                var t when !complex && t == typeof(string) => CPythonAPI.PyUnicode_AsUTF8(this),
+                // Goto: the passed value is already verified to be none of the above types. 
                 var t when t == typeof(BigInteger) => PyObjectTypeConverter.ConvertToBigInteger(this, t),
                 var t when t == typeof(byte[]) => CPythonAPI.PyBytes_AsByteArray(this),
                 var t when t.IsAssignableTo(typeof(ITuple)) => PyObjectTypeConverter.ConvertToTuple(this, t),
                 var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => PyObjectTypeConverter.ConvertToGeneratorIterator(this, t),
                 var t => PyObjectTypeConverter.PyObjectToManagedType(this, t),
+            };
+        }
+    }
+
+    internal static object As(nint pyObjectRaw, Type type)
+    {
+        using (GIL.Acquire())
+        {
+            return type switch
+            {
+                var t when t == typeof(PyObject) => Create(pyObjectRaw),
+                var t when t == typeof(bool) => CPythonAPI.IsPyTrue(pyObjectRaw),
+                var t when t == typeof(int) => CPythonAPI.PyLong_AsLong(pyObjectRaw),
+                var t when t == typeof(long) => CPythonAPI.PyLong_AsLongLong(pyObjectRaw),
+                var t when t == typeof(double) => CPythonAPI.PyFloat_AsDouble(pyObjectRaw),
+                var t when t == typeof(string) => CPythonAPI.PyUnicode_AsUTF8Raw(pyObjectRaw),
+                _ => Create(CPythonAPI.Py_NewRefRaw(pyObjectRaw)).As(type, complex: true),
             };
         }
     }

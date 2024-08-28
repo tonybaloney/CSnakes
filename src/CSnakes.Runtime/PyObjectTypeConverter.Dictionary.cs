@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private object ConvertToDictionary(PyObject pyObject, Type destinationType, bool useMappingProtocol = false)
+    private static object ConvertToDictionary(PyObject pyObject, Type destinationType, bool useMappingProtocol = false)
     {
         using PyObject items = useMappingProtocol ? 
             PyObject.Create(CPythonAPI.PyMapping_Items(pyObject)) : 
@@ -67,7 +67,7 @@ internal partial class PyObjectTypeConverter
         return typeInfo.ReturnTypeConstructor.Invoke([dict]);
     }
 
-    internal IReadOnlyDictionary<TKey, TValue> ConvertToDictionary<TKey, TValue>(PyObject pyObject) where TKey : notnull
+    internal static IReadOnlyDictionary<TKey, TValue> ConvertToDictionary<TKey, TValue>(PyObject pyObject) where TKey : notnull
     {
         using PyObject items = PyObject.Create(CPythonAPI.PyMapping_Items(pyObject));
 
@@ -89,7 +89,7 @@ internal partial class PyObjectTypeConverter
         return dict;
     }
 
-    private PyObject ConvertFromDictionary(IDictionary dictionary)
+    private static PyObject ConvertFromDictionary(IDictionary dictionary)
     {
         int len = dictionary.Keys.Count;
         PyObject[] keys = new PyObject[len];
@@ -98,8 +98,8 @@ internal partial class PyObjectTypeConverter
         int i = 0;
         foreach (DictionaryEntry kvp in dictionary)
         {
-            keys[i] = ToPython(kvp.Key);
-            values[i] = ToPython(kvp.Value);
+            keys[i] = PyObject.From(kvp.Key);
+            values[i] = PyObject.From(kvp.Value);
             i++;
         }
 

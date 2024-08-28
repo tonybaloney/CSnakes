@@ -3,8 +3,7 @@
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private static ConcurrentDictionary<(Type, Type), bool> assignableGenericsMap = [];
-
+    private static readonly ConcurrentDictionary<(Type, Type), bool> assignableGenericsMap = [];
 
     public static bool IsAssignableToGenericType(Type givenType, Type genericType)
     {

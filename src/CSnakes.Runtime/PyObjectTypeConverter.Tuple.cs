@@ -6,19 +6,19 @@ using System.Runtime.CompilerServices;
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private PyObject ConvertFromTuple(ITuple t)
+    private static PyObject ConvertFromTuple(ITuple t)
     {
         PyObject[] pyObjects = new PyObject[t.Length];
 
         for (var i = 0; i < t.Length; i++)
         {
-            pyObjects[i] = ConvertFrom(t[i]!); // NULL->PyNone
+            pyObjects[i] = PyObject.From(t[i]); // NULL->PyNone
         }
 
         return Pack.CreateTuple(pyObjects);
     }
 
-    internal ITuple ConvertToTuple(PyObject pyObj, Type destinationType)
+    internal static ITuple ConvertToTuple(PyObject pyObj, Type destinationType)
     {
         if (!CPythonAPI.IsPyTuple(pyObj))
         {

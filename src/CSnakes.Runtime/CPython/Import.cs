@@ -26,7 +26,7 @@ internal unsafe partial class CPythonAPI
         nint attr = PyObject_GetAttrRaw(module, pyAttrName);
         if (attr == IntPtr.Zero)
         {
-            PyObject.ThrowPythonExceptionAsClrException();
+            throw PyObject.ThrowPythonExceptionAsClrException();
         }
         Py_DecRefRaw(pyName);
         Py_DecRefRaw(pyAttrName);

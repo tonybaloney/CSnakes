@@ -28,7 +28,7 @@ internal unsafe partial class CPythonAPI
             int result = PyDict_SetItemRaw(dict, keyObj, kwvalues[i]);
             if (result == -1)
             {
-                PyObject.ThrowPythonExceptionAsClrException();
+                throw PyObject.ThrowPythonExceptionAsClrException();
             }
             Py_DecRefRaw(keyObj);
         }
@@ -55,7 +55,7 @@ internal unsafe partial class CPythonAPI
         var result = PyDict_GetItem_(dict, key);
         if (result == IntPtr.Zero)
         {
-            PyObject.ThrowPythonExceptionAsClrException();
+            throw PyObject.ThrowPythonExceptionAsClrException();
         }
         Py_IncRefRaw(result);
         return result;

@@ -2,61 +2,107 @@ using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Globalization;
-using System.Reflection;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private object? ConvertToDictionary(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture, bool useMappingProtocol = false)
+    private object ConvertToDictionary(PyObject pyObject, Type destinationType, bool useMappingProtocol = false)
     {
-        using PyObject items = useMappingProtocol ? PyObject.Create(CPythonAPI.PyMapping_Items(pyObject)) : PyObject.Create(CPythonAPI.PyDict_Items(pyObject));
+        using PyObject items = useMappingProtocol ? 
+            PyObject.Create(CPythonAPI.PyMapping_Items(pyObject)) : 
+            PyObject.Create(CPythonAPI.PyDict_Items(pyObject));
 
-        Type item1Type = destinationType.GetGenericArguments()[0];
-        Type item2Type = destinationType.GetGenericArguments()[1];
+        Type keyType = destinationType.GetGenericArguments()[0];
+        Type valueType = destinationType.GetGenericArguments()[1];
 
         if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
         {
-            Type dictType = typeof(Dictionary<,>).MakeGenericType(item1Type, item2Type);
-            Type returnType = typeof(ReadOnlyDictionary<,>).MakeGenericType(item1Type, item2Type);
+            Type dictType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
+            Type returnType = typeof(ReadOnlyDictionary<,>).MakeGenericType(keyType, valueType);
 
-            typeInfo = new(returnType.GetConstructor([dictType])!, dictType.GetConstructor([])!);
+            typeInfo = new(returnType.GetConstructor([dictType])!, dictType.GetConstructor([typeof(int)])!);
             knownDynamicTypes[destinationType] = typeInfo;
         }
 
-        IDictionary dict = (IDictionary)typeInfo.TransientTypeConstructor!.Invoke([]);
         nint itemsLength = CPythonAPI.PyList_Size(items);
+        IDictionary dict = (IDictionary)typeInfo.TransientTypeConstructor!.Invoke([(int)itemsLength]);
 
         for (nint i = 0; i < itemsLength; i++)
         {
-            using PyObject item = PyObject.Create(CPythonAPI.PyList_GetItem(items, i));
+            // TODO: We make 3 heap allocations per item here.
+            // 1. The item, which could be inlined as it's only used to call PyTuple_GetItem.
+            // 2. The key, which we need to recursively convert -- although if this is a string, which it mostly is, then we _could_ avoid this.
+            // 3. The value, which we need to recursively convert.
+            nint kvpTuple = CPythonAPI.PyList_GetItem(items, i);
 
-            using PyObject item1 = PyObject.Create(CPythonAPI.PyTuple_GetItem(item, 0));
-            using PyObject item2 = PyObject.Create(CPythonAPI.PyTuple_GetItem(item, 1));
+            // Optimize keys as string because this is the most common case.
+            if (keyType == typeof(string))
+            {
+                nint itemKey = CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 0);
+                using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 1));
 
-            object? convertedItem1 = ConvertTo(context, culture, item1, item1Type);
-            object? convertedItem2 = ConvertTo(context, culture, item2, item2Type);
+                string? keyAsString = CPythonAPI.PyUnicode_AsUTF8Raw(itemKey);
+                if (keyAsString is null)
+                {
+                    CPythonAPI.Py_DecRefRaw(itemKey);
+                    throw PyObject.ThrowPythonExceptionAsClrException();
+                }
+                object? convertedValue = value.As(valueType);
 
-            dict.Add(convertedItem1!, convertedItem2);
+                dict.Add(keyAsString!, convertedValue);
+                CPythonAPI.Py_DecRefRaw(itemKey);
+            } else
+            {
+                using PyObject key = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 0));
+                using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 1));
+
+                object? convertedKey = key.As(keyType);
+                object? convertedValue = value.As(valueType);
+
+                dict.Add(convertedKey!, convertedValue);
+            }
+            CPythonAPI.Py_DecRefRaw(kvpTuple);
         }
 
         return typeInfo.ReturnTypeConstructor.Invoke([dict]);
     }
 
-    private PyObject ConvertFromDictionary(ITypeDescriptorContext? context, CultureInfo? culture, IDictionary dictionary)
+    internal IReadOnlyDictionary<TKey, TValue> ConvertToDictionary<TKey, TValue>(PyObject pyObject) where TKey : notnull
     {
-        PyObject pyDict = PyObject.Create(CPythonAPI.PyDict_New());
+        using PyObject items = PyObject.Create(CPythonAPI.PyMapping_Items(pyObject));
 
-        foreach (DictionaryEntry kvp in dictionary)
+        var dict = new Dictionary<TKey, TValue>();
+        nint itemsLength = CPythonAPI.PyList_Size(items);
+        for (nint i = 0; i < itemsLength; i++)
         {
-            int result = CPythonAPI.PyDict_SetItem(pyDict, ToPython(kvp.Key, context, culture), ToPython(kvp.Value, context, culture));
-            if (result == -1)
-            {
-                PyObject.ThrowPythonExceptionAsClrException();
-            }
+            nint kvpTuple = CPythonAPI.PyList_GetItem(items, i);
+            using PyObject key = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 0));
+            using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 1));
+
+            TKey convertedKey = key.As<TKey>();
+            TValue convertedValue = value.As<TValue>();
+
+            dict.Add(convertedKey, convertedValue);
+            CPythonAPI.Py_DecRefRaw(kvpTuple);
         }
 
-        return pyDict;
+        return dict;
+    }
+
+    private PyObject ConvertFromDictionary(IDictionary dictionary)
+    {
+        int len = dictionary.Keys.Count;
+        PyObject[] keys = new PyObject[len];
+        PyObject[] values = new PyObject[len];
+
+        int i = 0;
+        foreach (DictionaryEntry kvp in dictionary)
+        {
+            keys[i] = ToPython(kvp.Key);
+            values[i] = ToPython(kvp.Value);
+            i++;
+        }
+
+        return Pack.CreateDictionary(keys, values);
     }
 }

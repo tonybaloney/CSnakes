@@ -1,19 +1,15 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
-using System.ComponentModel;
-using System.Globalization;
 using System.Numerics;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private object? ConvertToBigInteger(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
-    {
+    internal static BigInteger ConvertToBigInteger(PyObject pyObject, Type destinationType) =>
         // There is no practical API for this in CPython. Use str() instead. 
-        return BigInteger.Parse(pyObject.ToString());
-    }
+        BigInteger.Parse(pyObject.ToString());
 
-    private PyObject ConvertFromBigInteger(ITypeDescriptorContext? context, CultureInfo? culture, BigInteger integer)
+    internal static PyObject ConvertFromBigInteger(BigInteger integer)
     {
         using PyObject pyUnicode = PyObject.Create(CPythonAPI.AsPyUnicodeObject(integer.ToString()));
         return PyObject.Create(CPythonAPI.PyLong_FromUnicodeObject(pyUnicode, 10));

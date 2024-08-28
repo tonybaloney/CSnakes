@@ -1,13 +1,17 @@
+using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
-using System.ComponentModel;
-using System.Globalization;
 using System.Reflection;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private object? ConvertToGeneratorIterator(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
+    internal object ConvertToGeneratorIterator(PyObject pyObject, Type destinationType)
     {
+        if (!CPythonAPI.IsPyGenerator(pyObject))
+        {
+            throw new InvalidCastException($"Cannot convert {pyObject.GetPythonType()} to a generator.");
+        }
+
         if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
         {
             Type item1Type = destinationType.GetGenericArguments()[0];

@@ -75,7 +75,7 @@ internal unsafe partial class CPythonAPI
         int result = PyObject_IsInstance_(ob, type);
         if (result == -1)
         {
-            PyObject.ThrowPythonExceptionAsClrException();
+            throw PyObject.ThrowPythonExceptionAsClrException();
         }
         return result == 1;
     }
@@ -173,7 +173,7 @@ internal unsafe partial class CPythonAPI
         int result = PyObject_RichCompareBool(ob1, ob2, comparisonType);
         if (result == -1)
         {
-            PyObject.ThrowPythonExceptionAsClrException();
+            throw PyObject.ThrowPythonExceptionAsClrException();
         }
         return result == 1;
     }

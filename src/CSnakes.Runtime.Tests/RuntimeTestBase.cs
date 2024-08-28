@@ -20,7 +20,8 @@ public class RuntimeTestBase : IDisposable
                 var pb = services.WithPython();
                 pb.WithHome(Environment.CurrentDirectory);
 
-                pb.FromNuGet(pythonVersionWindows)
+                pb
+                  .FromNuGet(pythonVersionWindows)
                   .FromMacOSInstallerLocator(pythonVersionMacOS)
                   .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux); // This last one is for GitHub Actions
 

@@ -45,7 +45,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 if (result)
                 {
                     IEnumerable<MethodDefinition> methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
-                    string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName);
+                    string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions);
                     sourceContext.AddSource($"{pascalFileName}.py.cs", source);
                     sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
                 }
@@ -53,7 +53,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
         });
     }
 
-    public static string FormatClassFromMethods(string @namespace, string pascalFileName, IEnumerable<MethodDefinition> methods, string fileName)
+    public static string FormatClassFromMethods(string @namespace, string pascalFileName, IEnumerable<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions)
     {
         var paramGenericArgs = methods
             .Select(m => m.ParameterGenericArgs)
@@ -91,20 +91,27 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     private readonly PyObject module;
 
                     private readonly ILogger<IPythonEnvironment> logger;
+                    private readonly IDictionary<string, PyObject> functions;
 
                     internal {{pascalFileName}}Internal(ILogger<IPythonEnvironment> logger)
                     {
                         this.logger = logger;
                         using (GIL.Acquire())
                         {
-                            logger.LogInformation("Importing module {ModuleName}", "{{fileName}}");
+                            logger.LogDebug("Importing module {ModuleName}", "{{fileName}}");
                             module = Import.ImportModule("{{fileName}}");
+                            functions = new Dictionary<string, PyObject>();
+                            {{ string.Join(Environment.NewLine, functions.Select(f => $"functions[\"{f.Name}\"] = module.GetAttr(\"{f.Name}\");")) }}
                         }
                     }
 
                     public void Dispose()
                     {
-                        logger.LogInformation("Disposing module {ModuleName}", "{{fileName}}");
+                        logger.LogDebug("Disposing module {ModuleName}", "{{fileName}}");
+                        foreach (var function in functions)
+                        {
+                            function.Value.Dispose();
+                        }
                         module.Dispose();
                     }
 

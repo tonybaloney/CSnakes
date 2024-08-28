@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using CSnakes.Runtime;
+using CSnakes.Runtime.Python;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -50,6 +51,7 @@ for (int i = 0; i < CYCLES; i++)
 {
     mod.EmptyFunction();
 }
+
 stopwatch.Stop();
 logger.LogInformation($"Took {stopwatch.ElapsedMilliseconds}ms for {CYCLES} cycles with no input or output");
 

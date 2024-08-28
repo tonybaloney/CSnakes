@@ -22,7 +22,7 @@ internal partial class PyObjectTypeConverter
     /// <returns></returns>
     /// <exception cref="NotSupportedException">Passed object is not a PyObject</exception>
     /// <exception cref="InvalidCastException">Source/Target types do not match</exception>
-    public object? ConvertTo(object? value, Type destinationType)
+    public object ConvertTo(object? value, Type destinationType)
     {
         if (value is not PyObject pyObject)
         {
@@ -32,16 +32,6 @@ internal partial class PyObjectTypeConverter
         if (destinationType == pyObjectType)
         {
             return pyObject.Clone();
-        }
-
-        if (destinationType == typeof(string))
-        {
-            var result = CPythonAPI.PyUnicode_AsUTF8(pyObject);
-            if (result is null)
-            {
-                PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to string, check that the object was a Python string.");
-            }
-            return result;
         }
 
         if (destinationType == typeof(byte[]) && CPythonAPI.IsBytes(pyObject))
@@ -54,7 +44,7 @@ internal partial class PyObjectTypeConverter
             long result = CPythonAPI.PyLong_AsLongLong(pyObject);
             if (result == -1 && CPythonAPI.PyErr_Occurred())
             {
-                PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to long, check that the object was a Python long or that the value wasn't too large. See InnerException for details.");
+                throw PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to long, check that the object was a Python long or that the value wasn't too large. See InnerException for details.");
             }
             return result;
         }
@@ -69,7 +59,7 @@ internal partial class PyObjectTypeConverter
             var result = CPythonAPI.PyLong_AsLong(pyObject);
             if (result == -1 && CPythonAPI.PyErr_Occurred())
             {
-                PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to int, check that the object was a Python int or that the value wasn't too large. See InnerException for details.");
+                throw PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to int, check that the object was a Python int or that the value wasn't too large. See InnerException for details.");
             }
             return result;
         }
@@ -84,7 +74,7 @@ internal partial class PyObjectTypeConverter
             var result = CPythonAPI.PyFloat_AsDouble(pyObject);
             if (result == -1 && CPythonAPI.PyErr_Occurred())
             {
-                PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to double, check that the object was a Python float. See InnerException for details.");
+                throw PyObject.ThrowPythonExceptionAsClrException("Error converting Python object to double, check that the object was a Python float. See InnerException for details.");
             }
             return result;
         }
@@ -103,7 +93,7 @@ internal partial class PyObjectTypeConverter
             }
 
             var convertedValue = ConvertTo(pyObject, tupleTypes[0]);
-            return Activator.CreateInstance(destinationType, convertedValue);
+            return Activator.CreateInstance(destinationType, convertedValue)!;
         }
 
         if (destinationType.IsGenericType)
@@ -149,6 +139,7 @@ internal partial class PyObjectTypeConverter
             double d => PyObject.From(d),
             IDictionary dictionary => ConvertFromDictionary(dictionary),
             ITuple t => ConvertFromTuple(t),
+            ICollection l => ConvertFromList(l),
             IEnumerable e => ConvertFromList(e),
             BigInteger b => ConvertFromBigInteger(b),
             PyObject pyObject => pyObject.Clone(),

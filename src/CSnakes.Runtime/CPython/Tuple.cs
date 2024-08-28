@@ -72,7 +72,7 @@ internal unsafe partial class CPythonAPI
         nint item = PyTuple_GetItem(ob, pos);
         if (item == IntPtr.Zero)
         {
-            PyObject.ThrowPythonExceptionAsClrException();
+            throw PyObject.ThrowPythonExceptionAsClrException();
         }
         Py_IncRefRaw(item);
         return item;
@@ -83,7 +83,7 @@ internal unsafe partial class CPythonAPI
         nint item = PyTuple_GetItemRaw(ob, pos);
         if (item == IntPtr.Zero)
         {
-            PyObject.ThrowPythonExceptionAsClrException();
+            throw PyObject.ThrowPythonExceptionAsClrException();
         }
         Py_IncRefRaw(item);
         return item;

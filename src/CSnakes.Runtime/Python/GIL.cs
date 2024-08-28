@@ -1,4 +1,5 @@
 ﻿using CSnakes.Runtime.CPython;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace CSnakes.Runtime.Python;
@@ -25,6 +26,7 @@ namespace CSnakes.Runtime.Python;
 public static class GIL
 {
     [ThreadStatic] private static PyGilState? currentState;
+    private static ConcurrentQueue<nint> handlesToDispose = new();
 
     internal class PyGilState : IDisposable
     {
@@ -54,8 +56,16 @@ public static class GIL
             {
                 return;
             }
+            // Before we release, take a few handles from the queue and dispose them
+            GC.SuppressFinalize(this);
+            while (handlesToDispose.TryDequeue(out nint handle))
+            {
+                CPythonAPI.Py_DecRefRaw(handle);
+            }
             CPythonAPI.PyGILState_Release(gilState);
         }
+
+        public int RecursionCount => recursionCount;
     }
 
     public static IDisposable Acquire()
@@ -70,4 +80,12 @@ public static class GIL
         }
         return currentState;
     }
+
+    internal static void QueueForDisposal(nint handle)
+    {
+        // Put the handle in a queue
+        handlesToDispose.Enqueue(handle);
+    }
+
+    public static bool IsAcquired => currentState != null && currentState.RecursionCount > 0;
 }

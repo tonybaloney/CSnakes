@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private object? ConvertToDictionary(PyObject pyObject, Type destinationType, bool useMappingProtocol = false)
+    private object ConvertToDictionary(PyObject pyObject, Type destinationType, bool useMappingProtocol = false)
     {
         using PyObject items = useMappingProtocol ? 
             PyObject.Create(CPythonAPI.PyMapping_Items(pyObject)) : 
@@ -45,9 +45,9 @@ internal partial class PyObjectTypeConverter
                 if (keyAsString is null)
                 {
                     CPythonAPI.Py_DecRefRaw(itemKey);
-                    PyObject.ThrowPythonExceptionAsClrException();
+                    throw PyObject.ThrowPythonExceptionAsClrException();
                 }
-                object? convertedValue = ConvertTo(value, valueType);
+                object? convertedValue = value.As(valueType);
 
                 dict.Add(keyAsString!, convertedValue);
                 CPythonAPI.Py_DecRefRaw(itemKey);
@@ -56,8 +56,8 @@ internal partial class PyObjectTypeConverter
                 using PyObject key = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 0));
                 using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 1));
 
-                object? convertedKey = ConvertTo(key, keyType);
-                object? convertedValue = ConvertTo(value, valueType);
+                object? convertedKey = key.As(keyType);
+                object? convertedValue = value.As(valueType);
 
                 dict.Add(convertedKey!, convertedValue);
             }
@@ -65,6 +65,28 @@ internal partial class PyObjectTypeConverter
         }
 
         return typeInfo.ReturnTypeConstructor.Invoke([dict]);
+    }
+
+    internal IReadOnlyDictionary<TKey, TValue> ConvertToDictionary<TKey, TValue>(PyObject pyObject) where TKey : notnull
+    {
+        using PyObject items = PyObject.Create(CPythonAPI.PyMapping_Items(pyObject));
+
+        var dict = new Dictionary<TKey, TValue>();
+        nint itemsLength = CPythonAPI.PyList_Size(items);
+        for (nint i = 0; i < itemsLength; i++)
+        {
+            nint kvpTuple = CPythonAPI.PyList_GetItem(items, i);
+            using PyObject key = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 0));
+            using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 1));
+
+            TKey convertedKey = key.As<TKey>();
+            TValue convertedValue = value.As<TValue>();
+
+            dict.Add(convertedKey, convertedValue);
+            CPythonAPI.Py_DecRefRaw(kvpTuple);
+        }
+
+        return dict;
     }
 
     private PyObject ConvertFromDictionary(IDictionary dictionary)

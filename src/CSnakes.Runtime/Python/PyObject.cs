@@ -1,5 +1,6 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python.Interns;
+using System.Collections;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -494,8 +495,13 @@ public class PyObject : SafeHandle
                 long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
                 double d => Create(CPythonAPI.PyFloat_FromDouble(d)),
                 string s => Create(CPythonAPI.AsPyUnicodeObject(s)),
-                BigInteger bi => PyObjectTypeConverter.ConvertFromBigInteger(bi),
-                _ => PyObjectTypeConverter.ManagedTypeToPyObject(value),
+                byte[] bytes => PyObject.Create(CPythonAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
+                IDictionary dictionary => PyObjectTypeConverter.ConvertFromDictionary(dictionary),
+                ITuple t => PyObjectTypeConverter.ConvertFromTuple(t),
+                ICollection l => PyObjectTypeConverter.ConvertFromList(l),
+                IEnumerable e => PyObjectTypeConverter.ConvertFromList(e),
+                BigInteger b => PyObjectTypeConverter.ConvertFromBigInteger(b),
+                _ => throw new InvalidCastException($"Cannot convert {value} to PyObject"),
             };
         }
     }

@@ -65,7 +65,7 @@ internal partial class PyObjectTypeConverter
         return list;
     }
 
-    private static PyObject ConvertFromList(ICollection e)
+    internal static PyObject ConvertFromList(ICollection e)
     {
         List<PyObject> pyObjects = new(e.Count);
 
@@ -77,7 +77,7 @@ internal partial class PyObjectTypeConverter
         return Pack.CreateList(CollectionsMarshal.AsSpan(pyObjects));
     }
 
-    private static PyObject ConvertFromList(IEnumerable e)
+    internal static PyObject ConvertFromList(IEnumerable e)
     {
         List<PyObject> pyObjects = [];
 

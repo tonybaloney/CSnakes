@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private static PyObject ConvertFromTuple(ITuple t)
+    internal static PyObject ConvertFromTuple(ITuple t)
     {
         PyObject[] pyObjects = new PyObject[t.Length];
 

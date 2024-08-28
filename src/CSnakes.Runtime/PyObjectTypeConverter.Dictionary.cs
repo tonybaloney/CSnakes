@@ -89,7 +89,7 @@ internal partial class PyObjectTypeConverter
         return dict;
     }
 
-    private static PyObject ConvertFromDictionary(IDictionary dictionary)
+    internal static PyObject ConvertFromDictionary(IDictionary dictionary)
     {
         int len = dictionary.Keys.Count;
         PyObject[] keys = new PyObject[len];

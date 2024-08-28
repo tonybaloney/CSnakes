@@ -8,16 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="app.py" />
+    <None Remove="marshalling_benchmarks.py" />
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="app.py">
+    <AdditionalFiles Include="marshalling_benchmarks.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
     <PackageReference Include="python" Version="3.12.4" />
   </ItemGroup>
 

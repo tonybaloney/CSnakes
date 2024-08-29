@@ -9,7 +9,8 @@ namespace CSnakes.Runtime.Python
     {
         private readonly Dictionary<TKey, TValue> _dictionary;
         private readonly PyObject _dictionaryObject;
-        public PyDictionary(PyObject dictionary) {
+
+        internal PyDictionary(PyObject dictionary) {
             _dictionaryObject = dictionary;
             _dictionary = [];
         }

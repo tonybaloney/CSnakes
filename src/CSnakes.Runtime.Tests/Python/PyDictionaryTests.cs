@@ -12,7 +12,7 @@ public class PyDictionaryTests : RuntimeTestBase
             ["Foo"] = "Bar"
         };
         var pyObject = PyObject.From(testDict);
-        var pyDict = new PyDictionary<string, string>(pyObject);
+        var pyDict = pyObject.As<IReadOnlyDictionary<string, string>>();
         Assert.NotNull(pyDict);
         Assert.Equal("World?", pyDict["Hello"]);
         Assert.Equal("Bar", pyDict["Foo"]);
@@ -29,7 +29,7 @@ public class PyDictionaryTests : RuntimeTestBase
             ["Foo"] = "Bar"
         };
         var pyObject = PyObject.From(testDict);
-        var pyDict = new PyDictionary<string, string>(pyObject);
+        var pyDict = pyObject.As<IReadOnlyDictionary<string, string>>();
         Assert.NotNull(pyDict);
         Assert.Equal(2, pyDict.Count);
         Assert.Contains("Hello", pyDict.Keys);
@@ -44,7 +44,7 @@ public class PyDictionaryTests : RuntimeTestBase
             ["Foo"] = "Bar"
         };
         var pyObject = PyObject.From(testDict);
-        var pyDict = new PyDictionary<string, string>(pyObject);
+        var pyDict = pyObject.As<IReadOnlyDictionary<string, string>>();
         Assert.NotNull(pyDict);
         Assert.Equal(2, pyDict.Count);
         Assert.Contains("World?", pyDict.Values);
@@ -60,7 +60,7 @@ public class PyDictionaryTests : RuntimeTestBase
             ["Foo"] = "Bar"
         };
         var pyObject = PyObject.From(testDict);
-        var pyDict = new PyDictionary<string, string>(pyObject);
+        var pyDict = pyObject.As<IReadOnlyDictionary<string, string>>();
         Assert.NotNull(pyDict);
         Assert.Equal(2, pyDict.Count);
     }
@@ -73,7 +73,7 @@ public class PyDictionaryTests : RuntimeTestBase
             ["Foo"] = "Bar"
         };
         var pyObject = PyObject.From(testDict);
-        var pyDict = new PyDictionary<string, string>(pyObject);
+        var pyDict = pyObject.As<IReadOnlyDictionary<string, string>>();
         Assert.NotNull(pyDict);
         Assert.True(pyDict.ContainsKey("Hello"));
         Assert.True(pyDict.ContainsKey("Foo"));
@@ -89,7 +89,7 @@ public class PyDictionaryTests : RuntimeTestBase
             ["Foo"] = "Bar"
         };
         var pyObject = PyObject.From(testDict);
-        var pyDict = new PyDictionary<string, string>(pyObject);
+        var pyDict = pyObject.As<IReadOnlyDictionary<string, string>>();
         Assert.NotNull(pyDict);
         Assert.True(pyDict.TryGetValue("Hello", out var value));
         Assert.Equal("World?", value);

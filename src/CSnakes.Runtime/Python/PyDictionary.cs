@@ -5,11 +5,11 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime.Python
 {
-    public class PyDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>
+    internal class PyDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>
     {
         private readonly Dictionary<TKey, TValue> _dictionary;
         private readonly PyObject _dictionaryObject;
-        internal PyDictionary(PyObject dictionary) {
+        public PyDictionary(PyObject dictionary) {
             _dictionaryObject = dictionary;
             _dictionary = [];
         }

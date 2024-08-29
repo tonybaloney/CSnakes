@@ -49,6 +49,7 @@ internal class PyList<TItem> : IReadOnlyList<TItem>, IDisposable
 
     public IEnumerator<TItem> GetEnumerator()
     {
+        // TODO: If someone fetches the same index multiple times, we cache the result to avoid multiple round trips to Python
         using (GIL.Acquire())
         {
             return new PyEnumerable<TItem>(_listObject);

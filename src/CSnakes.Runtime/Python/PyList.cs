@@ -7,16 +7,26 @@ internal class PyList<TItem> : IReadOnlyList<TItem>, IDisposable
 {
     private readonly PyObject _listObject;
 
+    // If someone fetches the same index multiple times, we cache the result to avoid multiple round trips to Python
+    private readonly Dictionary<long, TItem> _convertedItems = new();
+
     public PyList(PyObject listObject) => _listObject = listObject;
 
     public TItem this[int index]
     {
         get
         {
+            if (_convertedItems.TryGetValue(index, out TItem cachedValue))
+            {
+                return cachedValue;
+            }
+
             using (GIL.Acquire())
             {
                 using PyObject value = PyObject.Create(CPythonAPI.PySequence_GetItem(_listObject, index));
-                return value.As<TItem>();
+                TItem result = value.As<TItem>();
+                _convertedItems[index] = result;
+                return result;
             }
         }
     }

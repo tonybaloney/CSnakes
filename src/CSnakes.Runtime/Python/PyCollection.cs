@@ -2,7 +2,7 @@
 
 namespace CSnakes.Runtime.Python;
 
-public class PyCollection<TItem> : IReadOnlyCollection<TItem>, IReadOnlyList<TItem>
+internal class PyCollection<TItem> : IReadOnlyList<TItem>
 {
     public PyCollection(PyObject listObject)
     {

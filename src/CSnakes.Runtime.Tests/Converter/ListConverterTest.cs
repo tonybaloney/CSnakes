@@ -4,7 +4,7 @@ public class ListConverterTest : ConverterTestBase
 {
     [Fact]
     public void IEnumerableConverter() =>
-        RunTest<IReadOnlyCollection<string>>(["Hell0", "W0rld"]);
+        RunTest<IReadOnlyList<string>>(["Hell0", "W0rld"]);
 
     [Fact]
     public void ListConverter() =>

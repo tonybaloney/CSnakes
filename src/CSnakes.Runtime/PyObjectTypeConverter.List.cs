@@ -52,19 +52,6 @@ internal partial class PyObjectTypeConverter
         return list;
     }
 
-    internal static IReadOnlyCollection<TItem> ConvertToCollection<TItem>(PyObject pyObject)
-    {
-        nint listSize = CPythonAPI.PySequence_Size(pyObject);
-        var list = new List<TItem>((int)listSize);
-        for (var i = 0; i < listSize; i++)
-        {
-            using PyObject item = PyObject.Create(CPythonAPI.PySequence_GetItem(pyObject, i));
-            list.Add(item.As<TItem>());
-        }
-
-        return list;
-    }
-
     internal static PyObject ConvertFromList(ICollection e)
     {
         List<PyObject> pyObjects = new(e.Count);

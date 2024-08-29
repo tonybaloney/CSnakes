@@ -25,7 +25,7 @@ namespace CSnakes.Runtime.Python
                     using (GIL.Acquire())
                     {
                         using PyObject keyPyObject = PyObject.From<TKey>(key);
-                        using PyObject value = PyObject.Create(CPythonAPI.PyDict_GetItem(_dictionaryObject, keyPyObject));
+                        using PyObject value = PyObject.Create(CPythonAPI.PyMapping_GetItem(_dictionaryObject, keyPyObject));
                         var managedValue = value.As<TValue>();
 
                         _dictionary[key] = managedValue;
@@ -38,7 +38,7 @@ namespace CSnakes.Runtime.Python
         public IEnumerable<TKey> Keys {
             get {
                 using (GIL.Acquire()) {
-                    return new PyEnumerable<TKey>(PyObject.Create(CPythonAPI.PyDict_Keys(_dictionaryObject)));
+                    return new PyEnumerable<TKey>(PyObject.Create(CPythonAPI.PyMapping_Keys(_dictionaryObject)));
                 }
             }
         }
@@ -49,7 +49,7 @@ namespace CSnakes.Runtime.Python
             {
                 using (GIL.Acquire())
                 {
-                    return new PyEnumerable<TValue>(PyObject.Create(CPythonAPI.PyDict_Values(_dictionaryObject)));
+                    return new PyEnumerable<TValue>(PyObject.Create(CPythonAPI.PyMapping_Values(_dictionaryObject)));
                 }
             }
         }
@@ -60,7 +60,7 @@ namespace CSnakes.Runtime.Python
             {
                 using (GIL.Acquire())
                 {
-                    return (int)CPythonAPI.PyDict_Size(_dictionaryObject);
+                    return (int)CPythonAPI.PyMapping_Size(_dictionaryObject);
                 }
             }
         }
@@ -76,7 +76,7 @@ namespace CSnakes.Runtime.Python
                 using (GIL.Acquire())
                 {
                     using PyObject keyPyObject = PyObject.From<TKey>(key);
-                    return CPythonAPI.PyDict_Contains(_dictionaryObject, keyPyObject);
+                    return CPythonAPI.PyMapping_HasKey(_dictionaryObject, keyPyObject) == 1;
                 }
             }
         }
@@ -85,7 +85,7 @@ namespace CSnakes.Runtime.Python
         {
             using (GIL.Acquire())
             {
-                using var items = PyObject.Create(CPythonAPI.PyDict_Items(_dictionaryObject));
+                using var items = PyObject.Create(CPythonAPI.PyMapping_Items(_dictionaryObject));
                 return new PyKeyValuePairEnumerable<TKey, TValue>(items).GetEnumerator();
             }
         }

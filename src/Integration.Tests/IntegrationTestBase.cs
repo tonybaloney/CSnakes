@@ -22,8 +22,7 @@ public class IntegrationTestBase : IDisposable
                 var pb = services.WithPython();
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
-                pb.FromSource(@"C:\Users\anthonyshaw\source\repos\cpython", "3.12")
-                    .FromNuGet(pythonVersionWindows)
+                pb.FromNuGet(pythonVersionWindows)
                   .FromMacOSInstallerLocator(pythonVersionMacOS)
                   .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux)
                   .WithVirtualEnvironment(venvPath)

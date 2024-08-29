@@ -5,23 +5,26 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime.Python
 {
-    internal class PyDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>
+    internal class PyDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>, IDisposable
     {
         private readonly Dictionary<TKey, TValue> _dictionary;
         private readonly PyObject _dictionaryObject;
 
-        internal PyDictionary(PyObject dictionary) {
+        public PyDictionary(PyObject dictionary)
+        {
             _dictionaryObject = dictionary;
             _dictionary = [];
         }
 
-        public TValue this[TKey key] {
+        public TValue this[TKey key]
+        {
             get
             {
                 if (_dictionary.ContainsKey(key))
                 {
                     return _dictionary[key];
-                } else
+                }
+                else
                 {
                     using (GIL.Acquire())
                     {
@@ -36,9 +39,12 @@ namespace CSnakes.Runtime.Python
             }
         }
 
-        public IEnumerable<TKey> Keys {
-            get {
-                using (GIL.Acquire()) {
+        public IEnumerable<TKey> Keys
+        {
+            get
+            {
+                using (GIL.Acquire())
+                {
                     return new PyEnumerable<TKey>(PyObject.Create(CPythonAPI.PyMapping_Keys(_dictionaryObject)));
                 }
             }
@@ -80,6 +86,11 @@ namespace CSnakes.Runtime.Python
                     return CPythonAPI.PyMapping_HasKey(_dictionaryObject, keyPyObject) == 1;
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            _dictionaryObject.Dispose();
         }
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()

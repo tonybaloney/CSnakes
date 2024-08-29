@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace CSnakes.Runtime.Python;
 
-internal class PyEnumerable<TValue> : IEnumerable<TValue>, IEnumerator<TValue>
+internal class PyEnumerable<TValue> : IEnumerable<TValue>, IEnumerator<TValue>, IDisposable
 {
     private readonly PyObject _pyIterator;
     private TValue current = default!;

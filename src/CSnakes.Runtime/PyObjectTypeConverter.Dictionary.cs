@@ -1,4 +1,3 @@
-using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections;
 
@@ -19,11 +18,6 @@ internal partial class PyObjectTypeConverter
         }
 
         return typeInfo.ReturnTypeConstructor.Invoke([pyObject.Clone()]);
-    }
-
-    internal static IReadOnlyDictionary<TKey, TValue> ConvertToDictionary<TKey, TValue>(PyObject pyObject) where TKey : notnull
-    { 
-        return new PyDictionary<TKey, TValue>(pyObject);
     }
 
     internal static PyObject ConvertFromDictionary(IDictionary dictionary)

@@ -62,6 +62,22 @@ internal unsafe partial class CPythonAPI
     }
 
     /// <summary>
+    /// Does the dictionary contain the key? Raises exception on failure
+    /// </summary>
+    /// <param name="dict"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    internal static bool PyDict_Contains(PyObject dict, PyObject key)
+    {
+        int result = PyDict_Contains_(dict, key);
+        if(result == -1)
+        {
+            throw PyObject.ThrowPythonExceptionAsClrException();
+        }
+        return result == 1;
+    }
+
+    /// <summary>
     /// Return the object from dictionary p which has a key `key`. 
     /// Return NULL if the key key is not present, but without setting an exception.
     /// </summary>
@@ -93,4 +109,13 @@ internal unsafe partial class CPythonAPI
     /// <returns>New reference to the items().</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyDict_Items(PyObject dict);
+
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_Contains")]
+    private static partial int PyDict_Contains_(PyObject dict, PyObject key);
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial nint PyDict_Keys(PyObject dict);
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial nint PyDict_Values(PyObject dict);
 }

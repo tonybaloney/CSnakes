@@ -1,92 +1,29 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections;
-using System.Collections.ObjectModel;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
     private static object ConvertToDictionary(PyObject pyObject, Type destinationType, bool useMappingProtocol = false)
     {
-        using PyObject items = useMappingProtocol ? 
-            PyObject.Create(CPythonAPI.PyMapping_Items(pyObject)) : 
-            PyObject.Create(CPythonAPI.PyDict_Items(pyObject));
-
         Type keyType = destinationType.GetGenericArguments()[0];
         Type valueType = destinationType.GetGenericArguments()[1];
 
         if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
         {
-            Type dictType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
-            Type returnType = typeof(ReadOnlyDictionary<,>).MakeGenericType(keyType, valueType);
+            Type dictType = typeof(PyDictionary<,>).MakeGenericType(keyType, valueType);
 
-            typeInfo = new(returnType.GetConstructor([dictType])!, dictType.GetConstructor([typeof(int)])!);
+            typeInfo = new(dictType.GetConstructor([typeof(PyObject)])!);
             knownDynamicTypes[destinationType] = typeInfo;
         }
 
-        nint itemsLength = CPythonAPI.PyList_Size(items);
-        IDictionary dict = (IDictionary)typeInfo.TransientTypeConstructor!.Invoke([(int)itemsLength]);
-
-        for (nint i = 0; i < itemsLength; i++)
-        {
-            // TODO: We make 3 heap allocations per item here.
-            // 1. The item, which could be inlined as it's only used to call PyTuple_GetItem.
-            // 2. The key, which we need to recursively convert -- although if this is a string, which it mostly is, then we _could_ avoid this.
-            // 3. The value, which we need to recursively convert.
-            nint kvpTuple = CPythonAPI.PyList_GetItem(items, i);
-
-            // Optimize keys as string because this is the most common case.
-            if (keyType == typeof(string))
-            {
-                nint itemKey = CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 0);
-                using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 1));
-
-                string? keyAsString = CPythonAPI.PyUnicode_AsUTF8Raw(itemKey);
-                if (keyAsString is null)
-                {
-                    CPythonAPI.Py_DecRefRaw(itemKey);
-                    throw PyObject.ThrowPythonExceptionAsClrException();
-                }
-                object? convertedValue = value.As(valueType);
-
-                dict.Add(keyAsString!, convertedValue);
-                CPythonAPI.Py_DecRefRaw(itemKey);
-            } else
-            {
-                using PyObject key = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 0));
-                using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 1));
-
-                object? convertedKey = key.As(keyType);
-                object? convertedValue = value.As(valueType);
-
-                dict.Add(convertedKey!, convertedValue);
-            }
-            CPythonAPI.Py_DecRefRaw(kvpTuple);
-        }
-
-        return typeInfo.ReturnTypeConstructor.Invoke([dict]);
+        return typeInfo.ReturnTypeConstructor.Invoke([pyObject.Clone()]);
     }
 
     internal static IReadOnlyDictionary<TKey, TValue> ConvertToDictionary<TKey, TValue>(PyObject pyObject) where TKey : notnull
-    {
-        using PyObject items = PyObject.Create(CPythonAPI.PyMapping_Items(pyObject));
-
-        var dict = new Dictionary<TKey, TValue>();
-        nint itemsLength = CPythonAPI.PyList_Size(items);
-        for (nint i = 0; i < itemsLength; i++)
-        {
-            nint kvpTuple = CPythonAPI.PyList_GetItem(items, i);
-            using PyObject key = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 0));
-            using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRefRaw(kvpTuple, 1));
-
-            TKey convertedKey = key.As<TKey>();
-            TValue convertedValue = value.As<TValue>();
-
-            dict.Add(convertedKey, convertedValue);
-            CPythonAPI.Py_DecRefRaw(kvpTuple);
-        }
-
-        return dict;
+    { 
+        return new PyDictionary<TKey, TValue>(pyObject);
     }
 
     internal static PyObject ConvertFromDictionary(IDictionary dictionary)

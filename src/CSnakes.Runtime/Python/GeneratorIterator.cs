@@ -49,7 +49,7 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
         }
     }
 
-    public void Reset() => throw new NotImplementedException();
+    public void Reset() => throw new NotSupportedException();
 
 
     public TYield Send(TSend value)

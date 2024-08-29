@@ -159,22 +159,4 @@ public class PyObjectTests : RuntimeTestBase
         Assert.Equal(expectedLT, obj1 <= obj2);
         Assert.Equal(expectedGT, obj1 >= obj2);
     }
-
-    [Fact]
-    public void TestAsCollection()
-    {
-        using PyObject o = PyObject.From<IEnumerable<string>>(new[] { "Hello", "World" })!;
-        var collection = o.AsCollection<IReadOnlyCollection<string>, string>();
-        Assert.NotNull(collection);
-        Assert.Equal(2, collection!.Count());
-    }
-
-    [Fact]
-    public void TestAsDictionary()
-    {
-        using PyObject o = PyObject.From<IDictionary<string, string>>(new Dictionary<string, string> { { "Hello", "World" } })!;
-        var dictionary = o.AsDictionary<IReadOnlyDictionary<string, string>, string, string>();
-        Assert.NotNull(dictionary);
-        Assert.Equal("World", dictionary!["Hello"]);
-    }
 }

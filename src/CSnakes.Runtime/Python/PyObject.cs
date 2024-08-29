@@ -460,26 +460,6 @@ public class PyObject : SafeHandle
         }
     }
 
-    public IReadOnlyCollection<TItem> AsCollection<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem>
-    {
-        using (GIL.Acquire())
-        {
-            return PyObjectTypeConverter.ConvertToCollection<TItem>(this);
-        }
-    }
-    public IReadOnlyDictionary<TKey, TValue> AsDictionary<TDict, TKey, TValue>() where TDict : IReadOnlyDictionary<TKey, TValue> where TKey : notnull
-    {
-        using (GIL.Acquire())
-        {
-            return PyObjectTypeConverter.ConvertToDictionary<TKey, TValue>(this);
-        }
-    }
-
-    public IReadOnlyCollection<TItem> As<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem> =>
-        PyObjectTypeConverter.ConvertToCollection<TItem>(this);
-    public IReadOnlyDictionary<TKey, TValue> As<TDict, TKey, TValue>() where TDict : IReadOnlyDictionary<TKey, TValue> where TKey : notnull =>
-        PyObjectTypeConverter.ConvertToDictionary<TKey, TValue>(this);
-
     public static PyObject From<T>(T value)
     {
         using (GIL.Acquire())

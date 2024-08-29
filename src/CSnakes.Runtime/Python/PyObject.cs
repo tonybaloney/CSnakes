@@ -439,6 +439,19 @@ public class PyObject : SafeHandle
 
     public T As<T>() => (T)As(typeof(T));
 
+    /// <summary>
+    /// Unpack a tuple of 2 elements into a KeyValuePair
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key</typeparam>
+    /// <typeparam name="TValue">The type of the value</typeparam>
+    /// <returns></returns>
+    public KeyValuePair<TKey, TValue> As<TKey, TValue>() {
+        using (GIL.Acquire())
+        {
+            return PyObjectTypeConverter.ConvertToKeyValuePair<TKey, TValue>(this);
+        }
+    }
+
     internal object As(Type type)
     {
         using (GIL.Acquire())

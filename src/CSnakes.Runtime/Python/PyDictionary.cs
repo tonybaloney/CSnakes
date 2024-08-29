@@ -83,7 +83,11 @@ namespace CSnakes.Runtime.Python
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
-            throw new NotImplementedException();
+            using (GIL.Acquire())
+            {
+                using var items = PyObject.Create(CPythonAPI.PyDict_Items(_dictionaryObject));
+                return new PyKeyValuePairEnumerable<TKey, TValue>(items).GetEnumerator();
+            }
         }
 
         public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
@@ -100,9 +104,6 @@ namespace CSnakes.Runtime.Python
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 }

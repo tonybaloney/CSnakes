@@ -3,12 +3,12 @@ using System.Collections;
 
 namespace CSnakes.Runtime.Python;
 
-internal class PyEnumerable<TValue> : IEnumerable<TValue>, IEnumerator<TValue>
+internal class PyKeyValuePairEnumerable<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>, IEnumerator<KeyValuePair<TKey, TValue>>
 {
     private readonly PyObject _pyIterator;
-    private TValue current = default!;
+    private KeyValuePair<TKey, TValue> current = default!;
 
-    internal PyEnumerable(PyObject pyObject)
+    internal PyKeyValuePairEnumerable(PyObject pyObject)
     {
         using (GIL.Acquire())
         {
@@ -16,7 +16,7 @@ internal class PyEnumerable<TValue> : IEnumerable<TValue>, IEnumerator<TValue>
         }
     }
 
-    public TValue Current => current;
+    public KeyValuePair<TKey, TValue> Current => current;
 
     object IEnumerator.Current => current!;
 
@@ -25,7 +25,7 @@ internal class PyEnumerable<TValue> : IEnumerable<TValue>, IEnumerator<TValue>
         _pyIterator.Dispose();
     }
 
-    public IEnumerator<TValue> GetEnumerator() => this;
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => this;
 
     public bool MoveNext()
     {
@@ -43,7 +43,7 @@ internal class PyEnumerable<TValue> : IEnumerable<TValue>, IEnumerator<TValue>
             else
             {
                 using PyObject pyObject = PyObject.Create(result);
-                current = pyObject.As<TValue>();
+                current = pyObject.As<TKey, TValue>();
                 return true;
             }
         }

@@ -48,7 +48,8 @@ public class PyObject : SafeHandle
             {
                 CPythonAPI.Py_DecRefRaw(handle);
             }
-        } else
+        }
+        else
         {
             // Probably in the GC finalizer thread, instead of causing GIL contention, put this on a queue to be processed later.
             GIL.QueueForDisposal(handle);
@@ -149,7 +150,7 @@ public class PyObject : SafeHandle
         }
     }
 
-    
+
     internal virtual PyObject GetIter()
     {
         RaiseOnPythonNotInitialized();
@@ -455,7 +456,8 @@ public class PyObject : SafeHandle
     /// <typeparam name="TKey">The type of the key</typeparam>
     /// <typeparam name="TValue">The type of the value</typeparam>
     /// <returns></returns>
-    public KeyValuePair<TKey, TValue> As<TKey, TValue>() {
+    public KeyValuePair<TKey, TValue> As<TKey, TValue>()
+    {
         using (GIL.Acquire())
         {
             return PyObjectTypeConverter.ConvertToKeyValuePair<TKey, TValue>(this);

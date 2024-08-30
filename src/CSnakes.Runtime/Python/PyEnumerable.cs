@@ -20,10 +20,7 @@ internal class PyEnumerable<TValue> : IEnumerable<TValue>, IEnumerator<TValue>, 
 
     object IEnumerator.Current => current!;
 
-    public void Dispose()
-    {
-        _pyIterator.Dispose();
-    }
+    public void Dispose() => _pyIterator.Dispose();
 
     public IEnumerator<TValue> GetEnumerator() => this;
 
@@ -36,23 +33,19 @@ internal class PyEnumerable<TValue> : IEnumerable<TValue>, IEnumerator<TValue>, 
             {
                 throw PyObject.ThrowPythonExceptionAsClrException();
             }
-            else if (result == IntPtr.Zero)
+
+            if (result == IntPtr.Zero)
             {
                 return false;
             }
-            else
-            {
-                using PyObject pyObject = PyObject.Create(result);
-                current = pyObject.As<TValue>();
-                return true;
-            }
+
+            using PyObject pyObject = PyObject.Create(result);
+            current = pyObject.As<TValue>();
+            return true;
         }
     }
 
-    public void Reset()
-    {
-        throw new NotSupportedException("Python iterators cannot be reset");
-    }
+    public void Reset() => throw new NotSupportedException("Python iterators cannot be reset");
 
     IEnumerator IEnumerable.GetEnumerator() => this;
 }

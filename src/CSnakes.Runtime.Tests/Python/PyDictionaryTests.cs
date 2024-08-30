@@ -37,7 +37,8 @@ public class PyDictionaryTests : RuntimeTestBase
     }
 
     [Fact]
-    public void TestValues() {
+    public void TestValues()
+    {
         var testDict = new Dictionary<string, string>()
         {
             ["Hello"] = "World?",
@@ -66,7 +67,8 @@ public class PyDictionaryTests : RuntimeTestBase
     }
 
     [Fact]
-    public void TestContainsKey() {
+    public void TestContainsKey()
+    {
         var testDict = new Dictionary<string, string>()
         {
             ["Hello"] = "World?",
@@ -95,6 +97,6 @@ public class PyDictionaryTests : RuntimeTestBase
         Assert.Equal("World?", value);
         Assert.True(pyDict.TryGetValue("Foo", out value));
         Assert.Equal("Bar", value);
-        Assert.False(pyDict.TryGetValue("Bar", out value));
+        Assert.False(pyDict.TryGetValue("Bar", out _));
     }
 }

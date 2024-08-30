@@ -16,7 +16,7 @@ internal class PyList<TItem> : IReadOnlyList<TItem>, IDisposable
     {
         get
         {
-            if (_convertedItems.TryGetValue(index, out TItem cachedValue))
+            if (_convertedItems.TryGetValue(index, out TItem? cachedValue))
             {
                 return cachedValue;
             }
@@ -42,10 +42,7 @@ internal class PyList<TItem> : IReadOnlyList<TItem>, IDisposable
         }
     }
 
-    public void Dispose()
-    {
-        _listObject.Dispose();
-    }
+    public void Dispose() => _listObject.Dispose();
 
     public IEnumerator<TItem> GetEnumerator()
     {

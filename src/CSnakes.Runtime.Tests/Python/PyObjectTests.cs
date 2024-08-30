@@ -1,5 +1,4 @@
 ﻿using CSnakes.Runtime.Python;
-using System.Collections;
 
 namespace CSnakes.Runtime.Tests.Python;
 public class PyObjectTests : RuntimeTestBase

@@ -1,7 +1,6 @@
 ﻿using CSnakes.Runtime.Python;
 using System.Runtime.InteropServices;
 
-
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {

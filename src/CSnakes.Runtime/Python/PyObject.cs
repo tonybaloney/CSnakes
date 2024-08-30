@@ -149,16 +149,26 @@ public class PyObject : SafeHandle
         }
     }
 
-    /// <summary>
-    /// Get the iterator for the object. This is equivalent to iter(obj) in Python.
-    /// </summary>
-    /// <returns>The iterator object (new ref)</returns>
-    public virtual PyObject GetIter()
+    
+    internal virtual PyObject GetIter()
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
             return Create(CPythonAPI.PyObject_GetIter(this));
+        }
+    }
+
+    /// <summary>
+    /// Calls iter() on the object and returns an IEnumerable that yields values of type T.
+    /// </summary>
+    /// <typeparam name="T">The type for each item in the iterator</typeparam>
+    /// <returns></returns>
+    public IEnumerable<T> AsEnumerable<T>()
+    {
+        using (GIL.Acquire())
+        {
+            return new PyEnumerable<T>(this);
         }
     }
 

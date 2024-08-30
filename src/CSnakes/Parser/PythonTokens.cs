@@ -29,6 +29,7 @@ public enum PythonToken
     DoubleAsterisk,
 
     Identifier,
+    QualifiedIdentifier,
 
     [Token(Example = "->")]
     Arrow,

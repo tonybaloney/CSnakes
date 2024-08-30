@@ -13,7 +13,7 @@ public static class TypeReflection
         if (pythonType.HasArguments())
         {
             // Get last occurrence of ] in pythonType
-            return pythonType.Name switch
+            return pythonType.Name.Replace("typing.", "") switch
             {
                 "list" => CreateListType(pythonType.Arguments[0]),
                 "List" => CreateListType(pythonType.Arguments[0]),

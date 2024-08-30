@@ -31,7 +31,7 @@ internal partial class PyObjectTypeConverter
 
         if (CPythonAPI.IsPySequence(pyObject) && IsAssignableToGenericType(destinationType, listType))
         {
-            return ConvertToListFromSequence(pyObject, destinationType);
+            return ConvertToList(pyObject, destinationType);
         }
 
         throw new InvalidCastException($"Attempting to cast {destinationType} from {pyObject.GetPythonType()}");

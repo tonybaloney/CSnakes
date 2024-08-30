@@ -48,7 +48,8 @@ public class PyObject : SafeHandle
             {
                 CPythonAPI.Py_DecRefRaw(handle);
             }
-        } else
+        }
+        else
         {
             // Probably in the GC finalizer thread, instead of causing GIL contention, put this on a queue to be processed later.
             GIL.QueueForDisposal(handle);
@@ -149,16 +150,26 @@ public class PyObject : SafeHandle
         }
     }
 
-    /// <summary>
-    /// Get the iterator for the object. This is equivalent to iter(obj) in Python.
-    /// </summary>
-    /// <returns>The iterator object (new ref)</returns>
-    public virtual PyObject GetIter()
+
+    internal virtual PyObject GetIter()
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
             return Create(CPythonAPI.PyObject_GetIter(this));
+        }
+    }
+
+    /// <summary>
+    /// Calls iter() on the object and returns an IEnumerable that yields values of type T.
+    /// </summary>
+    /// <typeparam name="T">The type for each item in the iterator</typeparam>
+    /// <returns></returns>
+    public IEnumerable<T> AsEnumerable<T>()
+    {
+        using (GIL.Acquire())
+        {
+            return new PyEnumerable<T>(this);
         }
     }
 
@@ -439,6 +450,20 @@ public class PyObject : SafeHandle
 
     public T As<T>() => (T)As(typeof(T));
 
+    /// <summary>
+    /// Unpack a tuple of 2 elements into a KeyValuePair
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key</typeparam>
+    /// <typeparam name="TValue">The type of the value</typeparam>
+    /// <returns></returns>
+    public KeyValuePair<TKey, TValue> As<TKey, TValue>()
+    {
+        using (GIL.Acquire())
+        {
+            return PyObjectTypeConverter.ConvertToKeyValuePair<TKey, TValue>(this);
+        }
+    }
+
     internal object As(Type type)
     {
         using (GIL.Acquire())
@@ -459,26 +484,6 @@ public class PyObject : SafeHandle
             };
         }
     }
-
-    public IReadOnlyCollection<TItem> AsCollection<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem>
-    {
-        using (GIL.Acquire())
-        {
-            return PyObjectTypeConverter.ConvertToCollection<TItem>(this);
-        }
-    }
-    public IReadOnlyDictionary<TKey, TValue> AsDictionary<TDict, TKey, TValue>() where TDict : IReadOnlyDictionary<TKey, TValue> where TKey : notnull
-    {
-        using (GIL.Acquire())
-        {
-            return PyObjectTypeConverter.ConvertToDictionary<TKey, TValue>(this);
-        }
-    }
-
-    public IReadOnlyCollection<TItem> As<TCollection, TItem>() where TCollection : IReadOnlyCollection<TItem> =>
-        PyObjectTypeConverter.ConvertToCollection<TItem>(this);
-    public IReadOnlyDictionary<TKey, TValue> As<TDict, TKey, TValue>() where TDict : IReadOnlyDictionary<TKey, TValue> where TKey : notnull =>
-        PyObjectTypeConverter.ConvertToDictionary<TKey, TValue>(this);
 
     public static PyObject From<T>(T value)
     {

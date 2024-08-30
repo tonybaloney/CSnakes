@@ -54,4 +54,23 @@ internal unsafe partial class CPythonAPI
     /// <returns>New reference to the items().</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyMapping_Items(PyObject dict);
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial nint PyMapping_Keys(PyObject dict);
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial nint PyMapping_Values(PyObject dict);
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial nint PyMapping_Size(PyObject dict);
+
+    /// <summary>
+    /// Return 1 if the mapping object has the key key and 0 otherwise. 
+    /// This is equivalent to the Python expression key in o. This function always succeeds.
+    /// </summary>
+    /// <param name="dict"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int PyMapping_HasKey(PyObject dict, PyObject key);
 }

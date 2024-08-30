@@ -84,4 +84,21 @@ internal partial class PyObjectTypeConverter
 
         return (ITuple)typeInfo.ReturnTypeConstructor.Invoke([.. clrValues]);
     }
+
+    internal static KeyValuePair<TKey, TValue> ConvertToKeyValuePair<TKey, TValue>(PyObject pyObj)
+    {
+        if (!CPythonAPI.IsPyTuple(pyObj))
+        {
+            throw new InvalidCastException($"Cannot convert {pyObj.GetPythonType()} to a keyvaluepair.");
+        }
+        if (CPythonAPI.PyTuple_Size(pyObj) != 2)
+        {
+            throw new InvalidDataException("Tuple must have exactly 2 elements to be converted to a KeyValuePair.");
+        }
+
+        using PyObject key = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, 0));
+        using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, 1));
+
+        return new KeyValuePair<TKey, TValue>(key.As<TKey>(), value.As<TValue>());
+    }
 }

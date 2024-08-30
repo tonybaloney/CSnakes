@@ -39,7 +39,7 @@ Because the input and output types are more complex, we've used a list of tuple 
 This demo generates the following C# method signature:
 
 ```csharp
-public (IEnumerable<IEnumerable<double>>, double) CalculateKmeansInertia(IEnumerable<(long, long)> data, long nClusters);
+public (IReadOnlyList<IReadOnlyList<double>>, double) CalculateKmeansInertia(IReadOnlyList<(long, long)> data, long nClusters);
 ```
 
 ## Phi-3 inference demo

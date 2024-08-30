@@ -1,4 +1,3 @@
-using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections;
 using System.Runtime.InteropServices;
@@ -6,63 +5,18 @@ using System.Runtime.InteropServices;
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private static ICollection ConvertToList(PyObject pyObject, Type destinationType)
+    private static object ConvertToList(PyObject pyObject, Type destinationType)
     {
         Type genericArgument = destinationType.GetGenericArguments()[0];
 
-        nint listSize = CPythonAPI.PySequence_Size(pyObject);
         if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
         {
-            Type listType = typeof(List<>).MakeGenericType(genericArgument);
-            typeInfo = new(listType.GetConstructor([typeof(int)])!);
+            Type listType = typeof(PyList<>).MakeGenericType(genericArgument);
+            typeInfo = new(listType.GetConstructor([typeof(PyObject)])!);
             knownDynamicTypes[destinationType] = typeInfo;
         }
 
-        IList list = (IList)typeInfo.ReturnTypeConstructor.Invoke([(int)listSize]);
-
-        for (var i = 0; i < listSize; i++)
-        {
-            using PyObject item = PyObject.Create(CPythonAPI.PyList_GetItem(pyObject, i));
-            list.Add(item.As(genericArgument));
-        }
-
-        return list;
-    }
-
-    private static ICollection ConvertToListFromSequence(PyObject pyObject, Type destinationType)
-    {
-        Type genericArgument = destinationType.GetGenericArguments()[0];
-
-        nint listSize = CPythonAPI.PySequence_Size(pyObject);
-        if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
-        {
-            Type listType = typeof(List<>).MakeGenericType(genericArgument);
-            typeInfo = new(listType.GetConstructor([typeof(int)])!);
-            knownDynamicTypes[destinationType] = typeInfo;
-        }
-
-        IList list = (IList)typeInfo.ReturnTypeConstructor.Invoke([(int)listSize]);
-
-        for (var i = 0; i < listSize; i++)
-        {
-            using PyObject item = PyObject.Create(CPythonAPI.PySequence_GetItem(pyObject, i));
-            list.Add(item.As(genericArgument));
-        }
-
-        return list;
-    }
-
-    internal static IReadOnlyCollection<TItem> ConvertToCollection<TItem>(PyObject pyObject)
-    {
-        nint listSize = CPythonAPI.PySequence_Size(pyObject);
-        var list = new List<TItem>((int)listSize);
-        for (var i = 0; i < listSize; i++)
-        {
-            using PyObject item = PyObject.Create(CPythonAPI.PySequence_GetItem(pyObject, i));
-            list.Add(item.As<TItem>());
-        }
-
-        return list;
+        return typeInfo.ReturnTypeConstructor.Invoke([pyObject.Clone()]);
     }
 
     internal static PyObject ConvertFromList(ICollection e)

@@ -1,7 +1,6 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections;
-using System.Diagnostics;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter

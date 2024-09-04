@@ -1,5 +1,4 @@
 ﻿using CSnakes.Runtime.CPython;
-using System.Diagnostics;
 using System.Runtime.InteropServices.Marshalling;
 
 namespace CSnakes.Runtime.Python;

@@ -95,4 +95,12 @@ public class FalseReturns : IntegrationTestBase
 
         Assert.Throws<PythonInvocationException>(() => falseReturns.TestIntReturnsStr());
     }
+
+    [Fact]
+    public void Test_IntOverflowsSafely()
+    {
+        var falseReturns = Env.TestFalseReturns();
+
+        Assert.Throws<PythonInvocationException>(() => falseReturns.TestIntOverflows());
+    }
 }

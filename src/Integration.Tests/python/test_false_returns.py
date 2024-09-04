@@ -30,3 +30,6 @@ def test_int_returns_float() -> int:
 
 def test_int_returns_str() -> int:
     return "1"
+
+def test_int_overflows() -> int:
+    return 2**64

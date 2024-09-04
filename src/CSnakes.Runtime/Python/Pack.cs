@@ -1,4 +1,5 @@
 ﻿using CSnakes.Runtime.CPython;
+using System.Diagnostics;
 using System.Runtime.InteropServices.Marshalling;
 
 namespace CSnakes.Runtime.Python;
@@ -51,23 +52,5 @@ internal static class Pack
         }
 
         return pyList;
-    }
-
-    internal static PyObject CreateDictionary(IEnumerable<PyObject> keys,  IEnumerable<PyObject> values) {
-        PyObject pyDict = PyObject.Create(CPythonAPI.PyDict_New());
-
-        IEnumerator<PyObject> keyEnumerator = keys.GetEnumerator();
-        IEnumerator<PyObject> valueEnumerator = values.GetEnumerator();
-
-        while (keyEnumerator.MoveNext() && valueEnumerator.MoveNext())
-        {
-            int result = CPythonAPI.PyDict_SetItem(pyDict, keyEnumerator.Current, valueEnumerator.Current);
-            if (result == -1)
-            {
-                throw PyObject.ThrowPythonExceptionAsClrException();
-            }
-        }
-
-        return pyDict;
     }
 }

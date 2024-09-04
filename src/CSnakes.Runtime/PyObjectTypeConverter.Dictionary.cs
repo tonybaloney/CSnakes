@@ -1,3 +1,4 @@
+using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections;
 
@@ -22,18 +23,17 @@ internal partial class PyObjectTypeConverter
 
     internal static PyObject ConvertFromDictionary(IDictionary dictionary)
     {
-        int len = dictionary.Keys.Count;
-        PyObject[] keys = new PyObject[len];
-        PyObject[] values = new PyObject[len];
+        PyObject pyDict = PyObject.Create(CPythonAPI.PyDict_New());
 
-        int i = 0;
         foreach (DictionaryEntry kvp in dictionary)
         {
-            keys[i] = PyObject.From(kvp.Key);
-            values[i] = PyObject.From(kvp.Value);
-            i++;
+            int result = CPythonAPI.PyDict_SetItem(pyDict, PyObject.From(kvp.Key), PyObject.From(kvp.Value));
+            if (result == -1)
+            {
+                throw PyObject.ThrowPythonExceptionAsClrException();
+            }
         }
 
-        return Pack.CreateDictionary(keys, values);
+        return pyDict;
     }
 }

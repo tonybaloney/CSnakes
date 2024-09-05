@@ -45,7 +45,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
     {
         _buffer = CPythonAPI.GetBuffer(exporter);
         _disposed = false;
-        _isScalar = _buffer.ndim == 0;
+        _isScalar = _buffer.ndim == 0 || _buffer.ndim == 1;
         _format = Utf8StringMarshaller.ConvertToManaged(_buffer.format) ?? string.Empty;
     }
 
@@ -61,6 +61,10 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
     public Int64 Length => _buffer.len;
 
     public bool Scalar => _isScalar;
+
+    public bool IsReadOnly => _buffer.@readonly == 1;
+
+    public int Dimensions => _buffer.ndim;
 
     private ByteOrder GetByteOrder()
     {

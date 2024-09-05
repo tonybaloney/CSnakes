@@ -127,4 +127,13 @@ public class BufferTests : IntegrationTestBase
         Span<float> result = bufferObject.AsFloatScalar();
         Assert.Equal(1532, result.Length);
     }
+
+    [Fact]
+    public void TestFloat32MatrixBuffer()
+    {
+        var testModule = Env.TestBuffer();
+        var bufferObject = testModule.TestFloat32MatrixBuffer();
+        Assert.Equal(sizeof(float) * 100 * 100, bufferObject.Length); 
+        Assert.Equal(2, bufferObject.Dimensions);
+    }
 }

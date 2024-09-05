@@ -27,3 +27,7 @@ def test_float64_buffer() -> Buffer:
 def test_vector_buffer() -> Buffer:
     # create an array with 1532 floats between 0 and 1, similar to an embedding vector
     return np.random.rand(1532).astype(np.float32)
+
+def test_float32_matrix_buffer() -> Buffer:
+    # create an array with 100 * 100 floats between 0 and 1
+    return np.random.rand(100, 100).astype(np.float32)

@@ -2,6 +2,7 @@
 public interface IPyBuffer
 {
     Int64 Length { get; }
+    int Dimensions { get; }
 
     bool Scalar { get; }
 

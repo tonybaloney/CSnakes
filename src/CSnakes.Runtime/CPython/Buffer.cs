@@ -23,10 +23,10 @@ internal unsafe partial class CPythonAPI
         public IntPtr buf;
         public IntPtr obj;
         public nint len;
-        public int @readonly;
         public nint itemsize;
-        public byte* format;
+        public int @readonly;
         public Int32 ndim;
+        public byte* format;
         public nint* shape;
         public nint* strides;
         public nint* suboffsets;
@@ -41,7 +41,7 @@ internal unsafe partial class CPythonAPI
     internal static Py_buffer GetBuffer(PyObject p)
     {
         Py_buffer view = default;
-        if (PyObject_GetBuffer(p, &view, PyBUF.Format) != 0)
+        if (PyObject_GetBuffer(p, &view, (int)(PyBUF.Format | PyBUF.Strides)) != 0)
         {
             throw PyObject.ThrowPythonExceptionAsClrException();
         }

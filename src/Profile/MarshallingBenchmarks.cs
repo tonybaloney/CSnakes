@@ -1,8 +1,10 @@
 ﻿using CSnakes.Runtime;
 using BenchmarkDotNet.Attributes;
+using Microsoft.VSDiagnostics;
 
 namespace Profile;
 
+[CPUUsageDiagnoser]
 [MarkdownExporter]
 public class MarshallingBenchmarks: BaseBenchmark
 {

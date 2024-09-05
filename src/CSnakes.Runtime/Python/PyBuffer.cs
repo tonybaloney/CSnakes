@@ -1,7 +1,7 @@
 ﻿using CSnakes.Runtime.CPython;
 
 namespace CSnakes.Runtime.Python;
-internal class PyBuffer : IPyBuffer
+internal sealed class PyBuffer : IPyBuffer
 {
     private readonly CPythonAPI.Py_buffer _buffer;
 

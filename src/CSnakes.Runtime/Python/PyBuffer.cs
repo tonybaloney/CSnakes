@@ -9,6 +9,18 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
     private bool _isScalar;
     private string _format;
 
+    /// <summary>
+    /// Struct byte order and offset type see https://docs.python.org/3/library/struct.html#byte-order-size-and-alignment
+    /// </summary>
+    private enum ByteOrder
+    {
+        Native  = '@', // default, native byte-order, size and alignment
+        Standard = '=', // native byte-order, standard size and no alignment
+        Little = '<', // little-endian, standard size and no alignment
+        Big = '>', // big-endian, standard size and no alignment
+        Network = '!' // big-endian, standard size and no alignment
+    }
+
     public unsafe PyBuffer(PyObject exporter)
     {
         _buffer = CPythonAPI.GetBuffer(exporter);
@@ -29,6 +41,18 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
     public Int64 Length => _buffer.len;
 
     public bool Scalar => _isScalar;
+
+    private ByteOrder GetByteOrder()
+    {
+        // The first character of the format string is the byte order
+        // If the format string is empty, the byte order is native
+        // If the first character is not a byte order, the byte order is native
+        if (_format.Length == 0)
+        {
+            return ByteOrder.Native;
+        }
+        return Enum.TryParse(_format[0].ToString(), out ByteOrder byteOrder) ? byteOrder : ByteOrder.Native;
+    }
 
     private void EnsureFormat(char format)
     {

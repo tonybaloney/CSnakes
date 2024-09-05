@@ -4,14 +4,18 @@ using System.Runtime.InteropServices;
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
-    private const int PyBUF_SIMPLE = 0;
-    private const int PyBUF_WRITABLE = 0x0001;
-    private const int PyBUF_FORMAT = 0x0004;
-    private const int PyBUF_ND = 0x0008;
-    private const int PyBUF_STRIDES = (0x0010 | PyBUF_ND);
-    private const int PyBUF_C_CONTIGUOUS = (0x0020 | PyBUF_STRIDES);
-    private const int PyBUF_F_CONTIGUOUS = (0x0040 | PyBUF_STRIDES);
-    private const int PyBUF_ANY_CONTIGUOUS = (0x0080 | PyBUF_STRIDES);
+    [Flags]
+    private enum PyBUF
+    {
+        Simple = 0,
+        Writable = 0x1,
+        Format = 0x4,
+        ND = 0x8,
+        Strides = 0x10 | ND,
+        CContiguous = 0x20 | Strides,
+        FContiguous = 0x40 | Strides,
+        AnyContiguous = 0x80 | Strides,
+    }
 
     [StructLayout(LayoutKind.Sequential)]
     internal struct Py_buffer
@@ -37,7 +41,7 @@ internal unsafe partial class CPythonAPI
     internal static Py_buffer GetBuffer(PyObject p)
     {
         Py_buffer view = default;
-        if (PyObject_GetBuffer(p, &view, PyBUF_FORMAT) != 0)
+        if (PyObject_GetBuffer(p, &view, PyBUF.Format) != 0)
         {
             throw PyObject.ThrowPythonExceptionAsClrException();
         }

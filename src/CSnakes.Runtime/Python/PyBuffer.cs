@@ -30,7 +30,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
 
     public bool Scalar => _isScalar;
 
-    private unsafe void EnsureFormat(char format)
+    private void EnsureFormat(char format)
     {
         if (!_format.Contains(format))
         {
@@ -78,5 +78,12 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         EnsureScalar();
         EnsureFormat('f');
         return new Span<float>((void*)_buffer.buf, (int)(Length / sizeof(float)));
+    }
+
+    public unsafe Span<double> AsDoubleScalar()
+    {
+        EnsureScalar();
+        EnsureFormat('d');
+        return new Span<double>((void*)_buffer.buf, (int)(Length / sizeof(double)));
     }
 }

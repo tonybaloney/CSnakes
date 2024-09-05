@@ -1,29 +1,40 @@
 ﻿using CSnakes.Runtime.CPython;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace CSnakes.Runtime.Python;
-internal sealed class PyBuffer : IPyBuffer
+internal sealed class PyBuffer : IPyBuffer, IDisposable
 {
     private readonly CPythonAPI.Py_buffer _buffer;
+    private bool _disposed;
+    private bool _isScalar;
+    private string _format;
 
-    public PyBuffer(PyObject exporter)
+    public unsafe PyBuffer(PyObject exporter)
     {
         _buffer = CPythonAPI.GetBuffer(exporter);
+        _disposed = false;
+        _isScalar = _buffer.ndim == 0;
+        _format = Utf8StringMarshaller.ConvertToManaged(_buffer.format) ?? string.Empty;
     }
 
     public void Dispose()
     {
-        CPythonAPI.ReleaseBuffer(_buffer);
+        if (!_disposed)
+        {
+            CPythonAPI.ReleaseBuffer(_buffer);
+            _disposed = true;
+        }
     }
 
     public Int64 Length => _buffer.len;
 
-    public bool Scalar => _buffer.ndim == 0;
+    public bool Scalar => _isScalar;
 
     private unsafe void EnsureFormat(char format)
     {
-        if (!_buffer.format[0].Equals(format))
+        if (!_format.Contains(format))
         {
-            throw new InvalidOperationException($"Buffer is not a {format}, it is {_buffer.format[0]}");
+            throw new InvalidOperationException($"Buffer is not a {format}, it is {_format}");
         }
     }
 
@@ -39,28 +50,28 @@ internal sealed class PyBuffer : IPyBuffer
     {
         EnsureScalar();
         EnsureFormat('l'); // TODO: i is also valid
-        return new Span<Int32>((void*)_buffer.buf, (int)(Length / 4));
+        return new Span<Int32>((void*)_buffer.buf, (int)(Length / sizeof(Int32)));
     }
 
     public unsafe Span<UInt32> AsUInt32Scalar()
     {
         EnsureScalar();
         EnsureFormat('L'); // TODO: I is also valid
-        return new Span<UInt32>((void*)_buffer.buf, (int)(Length / 4));
+        return new Span<UInt32>((void*)_buffer.buf, (int)(Length / sizeof(UInt32)));
     }
 
     public unsafe Span<Int64> AsInt64Scalar()
     {
         EnsureScalar();
         EnsureFormat('q');
-        return new Span<Int64>((void*)_buffer.buf, (int)(Length / 8));
+        return new Span<Int64>((void*)_buffer.buf, (int)(Length / sizeof(Int64)));
     }
 
     public unsafe Span<UInt64> AsUInt64Scalar()
     {
         EnsureScalar();
         EnsureFormat('Q');
-        return new Span<UInt64>((void*)_buffer.buf, (int)(Length / sizeof(ulong)));
+        return new Span<UInt64>((void*)_buffer.buf, (int)(Length / sizeof(UInt64)));
     }
 
     public unsafe Span<float> AsFloatScalar() {

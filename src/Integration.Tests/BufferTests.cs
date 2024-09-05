@@ -21,4 +21,22 @@ public class BufferTests : IntegrationTestBase
         Assert.Equal((int)5, result[4]);
 
     }
+
+    [Fact]
+    public void TestBufferLargeFloatScalar()
+    {
+        // SKip if < Python 3.12
+        if (new Version(Env.Version.Split(' ')[0]) < new Version(3, 11, 0))
+        {
+            return;
+        }
+        var testModule = Env.TestBuffer();
+        var bufferObject = testModule.TestFloatScalar();
+        Assert.Equal(1532 * sizeof(float), bufferObject.Length); 
+        Assert.True(bufferObject.Scalar);
+
+        // Check the buffer contents
+        Span<float> result = bufferObject.AsFloatScalar();
+        Assert.Equal(1532, result.Length);
+    }
 }

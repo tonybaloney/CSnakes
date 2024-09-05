@@ -62,4 +62,10 @@ internal class PyBuffer : IPyBuffer
         EnsureFormat('Q');
         return new Span<UInt64>((void*)_buffer.buf, (int)(Length / 8));
     }
+
+    public unsafe Span<float> AsFloatScalar() {
+        EnsureScalar();
+        EnsureFormat('f');
+        return new Span<float>((void*)_buffer.buf, (int)(Length / 4));
+    }
 }

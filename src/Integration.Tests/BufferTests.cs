@@ -88,8 +88,8 @@ public class BufferTests : IntegrationTestBase
 
         // Check the buffer contents
         Span<float> result = bufferObject.AsFloatScalar();
-        Assert.Equal(1.1, result[0]);
-        Assert.Equal(5.5, result[4]);
+        Assert.Equal(1.1f, result[0]);
+        Assert.Equal(5.5f, result[4]);
     }
 
     [Fact]

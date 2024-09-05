@@ -5,9 +5,9 @@ public interface IPyBuffer
 
     bool Scalar { get; }
 
-    Span<Int32> AsInt32Scalar();
-    Span<Int64> AsInt64Scalar();
-    Span<UInt32> AsUInt32Scalar();
-    Span<UInt64> AsUInt64Scalar();
+    Span<int> AsInt32Scalar();
+    Span<long> AsInt64Scalar();
+    Span<uint> AsUInt32Scalar();
+    Span<ulong> AsUInt64Scalar();
     public Span<float> AsFloatScalar();
 }

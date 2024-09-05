@@ -19,7 +19,7 @@ internal unsafe partial class CPythonAPI
         public IntPtr buf;
         public IntPtr obj;
         public nint len;
-        public Int32 @readonly;
+        public int @readonly;
         public nint itemsize;
         public char* format;
         public Int32 ndim;

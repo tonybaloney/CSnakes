@@ -66,6 +66,6 @@ internal sealed class PyBuffer : IPyBuffer
     public unsafe Span<float> AsFloatScalar() {
         EnsureScalar();
         EnsureFormat('f');
-        return new Span<float>((void*)_buffer.buf, (int)(Length / 4));
+        return new Span<float>((void*)_buffer.buf, (int)(Length / sizeof(float)));
     }
 }

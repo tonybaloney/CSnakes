@@ -21,6 +21,26 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         Network = '!' // big-endian, standard size and no alignment
     }
 
+    private enum Format
+    {
+        Padding = 'x',
+        Char = 'b', // C char
+        UChar = 'B', // C unsigned char
+        Bool = '?', // C _Bool
+        Short = 'h', // C short
+        UShort = 'H', // C unsigned short
+        Int = 'i', // C int
+        UInt = 'I', // C unsigned int
+        Long = 'l', // C long
+        ULong = 'L', // C unsigned long
+        LongLong = 'q', // C long long
+        ULongLong = 'Q', // C unsigned long long
+        Float = 'f', // C float
+        Double = 'd', // C double
+        SizeT = 'n', // C size_t
+        SSizeT = 'N', // C ssize_t
+    }
+
     public unsafe PyBuffer(PyObject exporter)
     {
         _buffer = CPythonAPI.GetBuffer(exporter);

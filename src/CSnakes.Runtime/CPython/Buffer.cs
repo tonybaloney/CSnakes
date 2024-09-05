@@ -21,7 +21,7 @@ internal unsafe partial class CPythonAPI
         public nint len;
         public int @readonly;
         public nint itemsize;
-        public char* format;
+        public byte* format;
         public Int32 ndim;
         public nint* shape;
         public nint* strides;

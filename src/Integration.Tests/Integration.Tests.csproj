@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
@@ -10,6 +10,7 @@
     <None Remove="python\requirements.txt" />
     <None Remove="python\test_args.py" />
     <None Remove="python\test_basic.py" />
+    <None Remove="python\test_buffer.py" />
     <None Remove="python\test_defaults.py" />
     <None Remove="python\test_dependency.py" />
     <None Remove="python\test_dicts.py" />
@@ -27,6 +28,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
     <AdditionalFiles Include="python\test_basic.py">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AdditionalFiles>
+    <AdditionalFiles Include="python\test_buffer.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
     <AdditionalFiles Include="python\test_defaults.py">

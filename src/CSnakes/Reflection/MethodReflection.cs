@@ -28,7 +28,7 @@ public static class MethodReflection
         }
         else
         {
-            returnSyntax = TypeReflection.AsPredefinedType(returnPythonType);
+            returnSyntax = TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython);
         }
 
         // Step 3: Build arguments
@@ -107,7 +107,7 @@ public static class MethodReflection
         ReturnStatementSyntax returnExpression = returnSyntax switch
         {
             TypeSyntax s when s is PredefinedTypeSyntax p && p.Keyword.IsKind(SyntaxKind.VoidKeyword) => ReturnStatement(null),
-            TypeSyntax s when s is IdentifierNameSyntax => ReturnStatement(IdentifierName("__result_pyObject")),
+            TypeSyntax s when s is IdentifierNameSyntax && ((IdentifierNameSyntax)s)?.Identifier.ValueText == "PyObject" => ReturnStatement(IdentifierName("__result_pyObject")),
             _ => ProcessMethodWithReturnType(returnSyntax, parameterGenericArgs)
         };
 

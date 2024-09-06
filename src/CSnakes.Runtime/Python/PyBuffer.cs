@@ -46,7 +46,10 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
 
     public unsafe PyBuffer(PyObject exporter)
     {
-        _buffer = CPythonAPI.GetBuffer(exporter);
+        using (GIL.Acquire())
+        {
+            _buffer = CPythonAPI.GetBuffer(exporter);
+        }
         _disposed = false;
         _isScalar = _buffer.ndim == 0 || _buffer.ndim == 1;
         _format = Utf8StringMarshaller.ConvertToManaged(_buffer.format) ?? string.Empty;
@@ -57,7 +60,10 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
     {
         if (!_disposed)
         {
-            CPythonAPI.ReleaseBuffer(_buffer);
+            using (GIL.Acquire())
+            {
+                CPythonAPI.ReleaseBuffer(_buffer);
+            }
             _disposed = true;
         }
     }

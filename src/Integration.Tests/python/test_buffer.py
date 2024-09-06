@@ -34,3 +34,8 @@ def test_2d_int32_matrix_buffer() -> Buffer:
 def test_float32_matrix_buffer() -> Buffer:
     # create an array with 100 * 100 floats between 0 and 1
     return np.random.rand(100, 100).astype(np.float32)
+
+arr = np.zeros((2, 3), dtype=np.int32)
+
+def test_global_buffer() -> Buffer:
+    return arr

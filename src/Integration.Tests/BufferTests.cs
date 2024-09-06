@@ -150,4 +150,21 @@ public class BufferTests : IntegrationTestBase
         var matrix = bufferObject.AsFloatSpan2D();
         Assert.True(matrix[0, 0] < 1);
     }
+
+    [Fact]
+    public void TestModificationViaSpan()
+    {
+        var testModule = Env.TestBuffer();
+        var bufferObject = testModule.TestGlobalBuffer();
+        Assert.Equal(2, bufferObject.Dimensions);
+        var matrix = bufferObject.AsInt32Span2D();
+        Assert.Equal(0, matrix[0, 0]);
+
+        matrix[0, 0] = 42;
+
+        // Fetch the object again
+        var bufferObject2 = testModule.TestGlobalBuffer();
+        var matrix2 = bufferObject2.AsInt32Span2D();
+        Assert.Equal(42, matrix2[0, 0]);
+    }
 }

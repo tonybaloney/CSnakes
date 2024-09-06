@@ -290,4 +290,28 @@ public class BufferTests : IntegrationTestBase
         var matrix2 = bufferObject2.AsInt32Span2D();
         Assert.Equal(42, matrix2[0, 0]);
     }
+
+    [Fact]
+    public void TestBytesAsBuffer()
+    {
+        var testModule = Env.TestBuffer();
+        var bufferObject = testModule.TestBytesAsBuffer();
+        Assert.Equal(5, bufferObject.Length);
+        Assert.True(bufferObject.Scalar);
+        var result = bufferObject.AsByteReadOnlySpan();
+        Assert.Equal((byte)'h', result[0]);
+        Assert.Equal((byte)'o', result[4]);
+    }
+
+    [Fact]
+    public void TestByteArrayAsBuffer()
+    {
+        var testModule = Env.TestBuffer();
+        var bufferObject = testModule.TestBytearrayAsBuffer();
+        Assert.Equal(5, bufferObject.Length);
+        Assert.True(bufferObject.Scalar);
+        var result = bufferObject.AsByteSpan();
+        Assert.Equal((byte)'h', result[0]);
+        Assert.Equal((byte)'o', result[4]);
+    }
 }

@@ -8,8 +8,9 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
 {
     private readonly CPythonAPI.Py_buffer _buffer;
     private bool _disposed;
-    private bool _isScalar;
-    private string _format;
+    private readonly bool _isScalar;
+    private readonly string _format;
+    private readonly ByteOrder _byteOrder;
 
     /// <summary>
     /// Struct byte order and offset type see https://docs.python.org/3/library/struct.html#byte-order-size-and-alignment
@@ -49,6 +50,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         _disposed = false;
         _isScalar = _buffer.ndim == 0 || _buffer.ndim == 1;
         _format = Utf8StringMarshaller.ConvertToManaged(_buffer.format) ?? string.Empty;
+        _byteOrder = GetByteOrder();
     }
 
     public void Dispose()
@@ -119,6 +121,11 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
 
     private unsafe Span<T> AsSpan<T>(Format format, Format nixFormat, bool allowReadOnly = false) where T : unmanaged
     {
+        if (_byteOrder != ByteOrder.Native)
+        {
+            // TODO: support byte order conversion
+            throw new InvalidOperationException("Buffer is not in native byte order");
+        }
         EnsureScalar();
         // Ensure format for Windows and nixFormat for Linux and macOS
         EnsureFormat(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? format : nixFormat);
@@ -157,6 +164,11 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
 
     private unsafe ReadOnlySpan<T> AsReadOnlySpan<T>(Format format, Format nixFormat) where T : unmanaged
     {
+        if (_byteOrder != ByteOrder.Native)
+        {
+            // TODO: support byte order conversion
+            throw new InvalidOperationException("Buffer is not in native byte order");
+        }
         EnsureScalar();
         // Ensure format for Windows and nixFormat for Linux and macOS
         EnsureFormat(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? format : nixFormat);
@@ -185,6 +197,11 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
 
     private unsafe Span2D<T> As2DSpan<T>(Format format, Format nixFormat) where T : unmanaged
     {
+        if (_byteOrder != ByteOrder.Native)
+        {
+            // TODO: support byte order conversion
+            throw new InvalidOperationException("Buffer is not in native byte order");
+        }
         EnsureFormat(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? format : nixFormat);
         EnsureDimensions(2);
         EnsureShapeAndStrides();
@@ -226,6 +243,11 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
 
     private unsafe ReadOnlySpan2D<T> AsReadOnly2DSpan<T>(Format format, Format nixFormat) where T : unmanaged
     {
+        if (_byteOrder != ByteOrder.Native)
+        {
+            // TODO: support byte order conversion
+            throw new InvalidOperationException("Buffer is not in native byte order");
+        }
         EnsureFormat(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? format : nixFormat);
         EnsureDimensions(2);
         EnsureShapeAndStrides();

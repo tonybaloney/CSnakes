@@ -73,3 +73,9 @@ arr = np.zeros((2, 3), dtype=np.int32)
 
 def test_global_buffer() -> Buffer:
     return arr
+
+def test_bytes_as_buffer() -> Buffer:
+    return b"hello"
+
+def test_bytearray_as_buffer() -> Buffer:
+    return bytearray(b"hello")

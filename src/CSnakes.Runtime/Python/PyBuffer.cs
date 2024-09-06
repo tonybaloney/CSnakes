@@ -120,6 +120,14 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
     {
         EnsureScalar();
         EnsureFormat(format);
+        if (Length % sizeof(T) != 0)
+        {
+            throw new InvalidOperationException($"Buffer length is not a multiple of {sizeof(T)}");
+        }
+        if (_buffer.itemsize != sizeof(T))
+        {
+            throw new InvalidOperationException($"Buffer item size is {_buffer.itemsize} not {sizeof(T)}");
+        }
         return new Span<T>((void*)_buffer.buf, (int)(Length / sizeof(T)));
     }
 
@@ -140,7 +148,14 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         EnsureFormat(format);
         EnsureDimensions(2);
         EnsureShapeAndStrides();
-
+        if (_buffer.shape[0] * _buffer.shape[1] * sizeof(T) != Length)
+        {
+            throw new InvalidOperationException("Buffer length is not equal to shape");
+        }
+        if (_buffer.itemsize != sizeof(T))
+        {
+            throw new InvalidOperationException($"Buffer item size is {_buffer.itemsize} not {sizeof(T)}");
+        }
         return new Span2D<T>(
             (void*) _buffer.buf,
             (int) _buffer.shape[0],

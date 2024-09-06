@@ -33,10 +33,7 @@ internal unsafe partial class CPythonAPI
         public nint* @internal;
     }
 
-    public static bool IsBuffer(PyObject p)
-    {
-        return PyObject_CheckBuffer(p) == 1;
-    }
+    public static bool IsBuffer(PyObject p) => PyObject_CheckBuffer(p) == 1;
 
     internal static Py_buffer GetBuffer(PyObject p)
     {
@@ -48,10 +45,7 @@ internal unsafe partial class CPythonAPI
         return view;
     }
 
-    internal static void ReleaseBuffer(Py_buffer view)
-    {
-        PyBuffer_Release(&view);
-    }
+    internal static void ReleaseBuffer(Py_buffer view) => PyBuffer_Release(&view);
 
     [LibraryImport(PythonLibraryName)]
     private static partial int PyObject_CheckBuffer(PyObject ob);

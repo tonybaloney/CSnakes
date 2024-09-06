@@ -5,10 +5,6 @@ public class BufferTests : IntegrationTestBase
     [Fact]
     public void TestInt32Buffer()
     {
-        // SKip if < Python 3.12
-        if (new Version(Env.Version.Split(' ')[0]) < new Version(3, 11, 0))
-            return;
-
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestInt32Buffer();
         Assert.Equal(20, bufferObject.Length); // 5 * sizeof(int)
@@ -23,10 +19,6 @@ public class BufferTests : IntegrationTestBase
     [Fact]
     public void TestUInt32Buffer()
     {
-        // SKip if < Python 3.12
-        if (new Version(Env.Version.Split(' ')[0]) < new Version(3, 11, 0))
-            return;
-
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestUint32Buffer();
         Assert.Equal(20, bufferObject.Length); // 5 * sizeof(int)
@@ -41,10 +33,6 @@ public class BufferTests : IntegrationTestBase
     [Fact]
     public void TestInt64Buffer()
     {
-        // SKip if < Python 3.12
-        if (new Version(Env.Version.Split(' ')[0]) < new Version(3, 11, 0))
-            return;
-
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestInt64Buffer();
         Assert.Equal(sizeof(long) * 5, bufferObject.Length); // 5 * sizeof(int)
@@ -59,10 +47,6 @@ public class BufferTests : IntegrationTestBase
     [Fact]
     public void TestUInt64Buffer()
     {
-        // SKip if < Python 3.12
-        if (new Version(Env.Version.Split(' ')[0]) < new Version(3, 11, 0))
-            return;
-
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestUint64Buffer();
         Assert.Equal(sizeof(long) * 5, bufferObject.Length); // 5 * sizeof(int)
@@ -77,10 +61,6 @@ public class BufferTests : IntegrationTestBase
     [Fact]
     public void TestFloat32Buffer()
     {
-        // SKip if < Python 3.12
-        if (new Version(Env.Version.Split(' ')[0]) < new Version(3, 11, 0))
-            return;
-
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestFloat32Buffer();
         Assert.Equal(20, bufferObject.Length); // 5 * sizeof(int)
@@ -95,10 +75,6 @@ public class BufferTests : IntegrationTestBase
     [Fact]
     public void TestFloat64Buffer()
     {
-        // SKip if < Python 3.12
-        if (new Version(Env.Version.Split(' ')[0]) < new Version(3, 11, 0))
-            return;
-
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestFloat64Buffer();
         Assert.Equal(sizeof(double) * 5, bufferObject.Length); // 5 * sizeof(int)
@@ -113,11 +89,6 @@ public class BufferTests : IntegrationTestBase
     [Fact]
     public void TestBufferLargeFloatScalar()
     {
-        // SKip if < Python 3.12
-        if (new Version(Env.Version.Split(' ')[0]) < new Version(3, 11, 0))
-        {
-            return;
-        }
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestVectorBuffer();
         Assert.Equal(1532 * sizeof(float), bufferObject.Length); 

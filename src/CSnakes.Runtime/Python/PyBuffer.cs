@@ -1,4 +1,5 @@
-﻿using CSnakes.Runtime.CPython;
+﻿using CommunityToolkit.HighPerformance;
+using CSnakes.Runtime.CPython;
 using System.Runtime.InteropServices.Marshalling;
 
 namespace CSnakes.Runtime.Python;
@@ -86,6 +87,11 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         }
     }
 
+    private void EnsureFormat(Format format)
+    {
+        EnsureFormat((char)format);
+    }
+
     private void EnsureScalar()
     {
         if (!Scalar)
@@ -94,44 +100,65 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         }
     }
 
-    public unsafe Span<Int32> AsInt32Scalar()
+    private void EnsureDimensions(int dimensions)
     {
-        EnsureScalar();
-        EnsureFormat('l'); // TODO: i is also valid
-        return new Span<Int32>((void*)_buffer.buf, (int)(Length / sizeof(Int32)));
+        if (Dimensions != dimensions)
+        {
+            throw new InvalidOperationException($"Buffer is not {dimensions}D");
+        }
     }
 
-    public unsafe Span<UInt32> AsUInt32Scalar()
+    private unsafe void EnsureShapeAndStrides()
     {
-        EnsureScalar();
-        EnsureFormat('L'); // TODO: I is also valid
-        return new Span<UInt32>((void*)_buffer.buf, (int)(Length / sizeof(UInt32)));
+        if (_buffer.shape == null || _buffer.strides == null)
+        {
+            throw new InvalidOperationException("Buffer does not have shape and strides");
+        }
     }
 
-    public unsafe Span<Int64> AsInt64Scalar()
+    private unsafe Span<T> AsSpan<T>(Format format) where T : unmanaged
     {
         EnsureScalar();
-        EnsureFormat('q');
-        return new Span<Int64>((void*)_buffer.buf, (int)(Length / sizeof(Int64)));
+        EnsureFormat(format);
+        return new Span<T>((void*)_buffer.buf, (int)(Length / sizeof(T)));
     }
 
-    public unsafe Span<UInt64> AsUInt64Scalar()
+    public Span<Int32> AsInt32Span() => AsSpan<Int32>(Format.Long); // TODO: i is also valid
+
+    public Span<UInt32> AsUInt32Span() => AsSpan<UInt32>(Format.ULong); // TODO: I is also valid
+
+    public Span<Int64> AsInt64Span() => AsSpan<Int64>(Format.LongLong);
+
+    public  Span<UInt64> AsUInt64Span() => AsSpan<UInt64>(Format.ULongLong);
+
+    public  Span<float> AsFloatSpan() => AsSpan<float>(Format.Float);
+
+    public Span<double> AsDoubleSpan() => AsSpan<double>(Format.Double);
+
+    private unsafe Span2D<T> As2DSpan<T>(Format format) where T : unmanaged
     {
-        EnsureScalar();
-        EnsureFormat('Q');
-        return new Span<UInt64>((void*)_buffer.buf, (int)(Length / sizeof(UInt64)));
+        EnsureFormat(format);
+        EnsureDimensions(2);
+        EnsureShapeAndStrides();
+
+        return new Span2D<T>(
+            (void*) _buffer.buf,
+            (int) _buffer.shape[0],
+            (int) _buffer.shape[1],
+            (int)((int) _buffer.strides[0] - (_buffer.shape[1]* _buffer.itemsize)) // pitch = stride - (width * itemsize)
+        );
     }
 
-    public unsafe Span<float> AsFloatScalar() {
-        EnsureScalar();
-        EnsureFormat('f');
-        return new Span<float>((void*)_buffer.buf, (int)(Length / sizeof(float)));
-    }
+    public Span2D<int> AsInt32Span2D() => As2DSpan<int>(Format.Long);
 
-    public unsafe Span<double> AsDoubleScalar()
-    {
-        EnsureScalar();
-        EnsureFormat('d');
-        return new Span<double>((void*)_buffer.buf, (int)(Length / sizeof(double)));
-    }
+    public Span2D<uint> AsUInt32Span2D() => As2DSpan<uint>(Format.ULong);
+
+    public Span2D<long> AsInt64Span2D() => As2DSpan<long>(Format.LongLong);
+
+    public Span2D<ulong> AsUInt64Span2D() => As2DSpan<ulong>(Format.ULongLong);
+
+    public Span2D<float> AsFloatSpan2D() => As2DSpan<float>(Format.Float);
+
+    public Span2D<double> AsDoubleSpan2D() => As2DSpan<double>(Format.Double);
+
 }

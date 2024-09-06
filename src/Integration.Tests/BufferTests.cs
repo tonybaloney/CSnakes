@@ -15,7 +15,7 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.Scalar);
 
         // Check the buffer contents
-        Span<Int32> result = bufferObject.AsInt32Scalar();
+        Span<Int32> result = bufferObject.AsInt32Span();
         Assert.Equal((int)1, result[0]);
         Assert.Equal((int)5, result[4]);
     }
@@ -33,7 +33,7 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.Scalar);
 
         // Check the buffer contents
-        Span<UInt32> result = bufferObject.AsUInt32Scalar();
+        Span<UInt32> result = bufferObject.AsUInt32Span();
         Assert.Equal((uint)1, result[0]);
         Assert.Equal((uint)5, result[4]);
     }
@@ -51,7 +51,7 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.Scalar);
 
         // Check the buffer contents
-        Span<Int64> result = bufferObject.AsInt64Scalar();
+        Span<Int64> result = bufferObject.AsInt64Span();
         Assert.Equal(1L, result[0]);
         Assert.Equal(5L, result[4]);
     }
@@ -69,7 +69,7 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.Scalar);
 
         // Check the buffer contents
-        Span<UInt64> result = bufferObject.AsUInt64Scalar();
+        Span<UInt64> result = bufferObject.AsUInt64Span();
         Assert.Equal(1UL, result[0]);
         Assert.Equal(5UL, result[4]);
     }
@@ -87,7 +87,7 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.Scalar);
 
         // Check the buffer contents
-        Span<float> result = bufferObject.AsFloatScalar();
+        Span<float> result = bufferObject.AsFloatSpan();
         Assert.Equal(1.1f, result[0]);
         Assert.Equal(5.5f, result[4]);
     }
@@ -105,7 +105,7 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.Scalar);
 
         // Check the buffer contents
-        Span<double> result = bufferObject.AsDoubleScalar();
+        Span<double> result = bufferObject.AsDoubleSpan();
         Assert.Equal(1.1, result[0]);
         Assert.Equal(5.5, result[4]);
     }
@@ -124,8 +124,20 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.Scalar);
 
         // Check the buffer contents
-        Span<float> result = bufferObject.AsFloatScalar();
+        Span<float> result = bufferObject.AsFloatSpan();
         Assert.Equal(1532, result.Length);
+    }
+
+    [Fact]
+    public void TestInt32MatrixBuffer()
+    {
+        var testModule = Env.TestBuffer();
+        var bufferObject = testModule.Test2dInt32MatrixBuffer();
+        Assert.Equal(sizeof(Int32) * 3, 3, bufferObject.Length);
+        Assert.Equal(2, bufferObject.Dimensions);
+        var matrix = bufferObject.AsInt32Span2D();
+        Assert.Equal(1, matrix[0, 0]);
+        Assert.Equal(6, matrix[1, 2]);
     }
 
     [Fact]
@@ -135,5 +147,7 @@ public class BufferTests : IntegrationTestBase
         var bufferObject = testModule.TestFloat32MatrixBuffer();
         Assert.Equal(sizeof(float) * 100 * 100, bufferObject.Length); 
         Assert.Equal(2, bufferObject.Dimensions);
+        var matrix = bufferObject.AsFloatSpan2D();
+        Assert.True(matrix[0, 0] < 1);
     }
 }

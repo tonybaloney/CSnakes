@@ -314,4 +314,30 @@ public class BufferTests : IntegrationTestBase
         Assert.Equal((byte)'h', result[0]);
         Assert.Equal((byte)'o', result[4]);
     }
+
+    [Fact]
+    public void TestNonBuffer()
+    {
+        var testModule = Env.TestBuffer();
+        Assert.Throws<InvalidCastException>(testModule.TestNonBuffer);        
+    }
+
+    [Fact]
+    public void TestNonContiguousBuffer()
+    {
+        var testModule = Env.TestBuffer();
+        var array = testModule.TestNonContiguousBuffer();
+        Assert.Equal(sizeof(Int32) * 3, array.Length);
+        var result = array.AsInt32Span2D();
+        Assert.Equal(1, result[0, 0]);
+        Assert.Equal(3, result[0, 2]);
+    }
+
+    [Fact]
+    public void TestTransposedBuffer()
+    {
+        // ndarray transposed buffer is not contiguous, this should raise a clean error
+        var testModule = Env.TestBuffer();
+        Assert.Throws<PythonInvocationException>(testModule.TestTransposedBuffer);
+    }
 }

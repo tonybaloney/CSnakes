@@ -79,3 +79,12 @@ def test_bytes_as_buffer() -> Buffer:
 
 def test_bytearray_as_buffer() -> Buffer:
     return bytearray(b"hello")
+
+def test_non_buffer() -> Buffer:
+    return "hello"
+
+def test_non_contiguous_buffer() -> Buffer:
+    return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32)[::2]
+
+def test_transposed_buffer() -> Buffer:
+    return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32).T

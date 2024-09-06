@@ -96,10 +96,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         }
     }
 
-    private void EnsureFormat(Format format)
-    {
-        EnsureFormat((char)format);
-    }
+    private void EnsureFormat(Format format) => EnsureFormat((char)format);
 
     private void EnsureScalar()
     {

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
 using CSnakes.Runtime.CPython;
 using System.Runtime.InteropServices.Marshalling;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.Python;
 internal sealed class PyBuffer : IPyBuffer, IDisposable
@@ -116,10 +117,11 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         }
     }
 
-    private unsafe Span<T> AsSpan<T>(Format format) where T : unmanaged
+    private unsafe Span<T> AsSpan<T>(Format format, Format nixFormat) where T : unmanaged
     {
         EnsureScalar();
-        EnsureFormat(format);
+        // Ensure format for Windows and nixFormat for Linux and macOS
+        EnsureFormat(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? format : nixFormat);
         if (Length % sizeof(T) != 0)
         {
             throw new InvalidOperationException($"Buffer length is not a multiple of {sizeof(T)}");
@@ -131,21 +133,21 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         return new Span<T>((void*)_buffer.buf, (int)(Length / sizeof(T)));
     }
 
-    public Span<Int32> AsInt32Span() => AsSpan<Int32>(Format.Long); // TODO: i is also valid
+    public Span<Int32> AsInt32Span() => AsSpan<Int32>(Format.Long, Format.Int);
 
-    public Span<UInt32> AsUInt32Span() => AsSpan<UInt32>(Format.ULong); // TODO: I is also valid
+    public Span<UInt32> AsUInt32Span() => AsSpan<UInt32>(Format.ULong, Format.UInt);
 
-    public Span<Int64> AsInt64Span() => AsSpan<Int64>(Format.LongLong);
+    public Span<Int64> AsInt64Span() => AsSpan<Int64>(Format.LongLong, Format.Long);
 
-    public  Span<UInt64> AsUInt64Span() => AsSpan<UInt64>(Format.ULongLong);
+    public  Span<UInt64> AsUInt64Span() => AsSpan<UInt64>(Format.ULongLong, Format.ULong);
 
-    public  Span<float> AsFloatSpan() => AsSpan<float>(Format.Float);
+    public  Span<float> AsFloatSpan() => AsSpan<float>(Format.Float, Format.Float);
 
-    public Span<double> AsDoubleSpan() => AsSpan<double>(Format.Double);
+    public Span<double> AsDoubleSpan() => AsSpan<double>(Format.Double, Format.Double);
 
-    private unsafe Span2D<T> As2DSpan<T>(Format format) where T : unmanaged
+    private unsafe Span2D<T> As2DSpan<T>(Format format, Format nixFormat) where T : unmanaged
     {
-        EnsureFormat(format);
+        EnsureFormat(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? format : nixFormat);
         EnsureDimensions(2);
         EnsureShapeAndStrides();
         if (_buffer.shape[0] * _buffer.shape[1] * sizeof(T) != Length)
@@ -164,16 +166,15 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         );
     }
 
-    public Span2D<int> AsInt32Span2D() => As2DSpan<int>(Format.Long);
+    public Span2D<int> AsInt32Span2D() => As2DSpan<int>(Format.Long, Format.Int);
 
-    public Span2D<uint> AsUInt32Span2D() => As2DSpan<uint>(Format.ULong);
+    public Span2D<uint> AsUInt32Span2D() => As2DSpan<uint>(Format.ULong, Format.UInt);
 
-    public Span2D<long> AsInt64Span2D() => As2DSpan<long>(Format.LongLong);
+    public Span2D<long> AsInt64Span2D() => As2DSpan<long>(Format.LongLong, Format.Long);
 
-    public Span2D<ulong> AsUInt64Span2D() => As2DSpan<ulong>(Format.ULongLong);
+    public Span2D<ulong> AsUInt64Span2D() => As2DSpan<ulong>(Format.ULongLong, Format.ULong);
 
-    public Span2D<float> AsFloatSpan2D() => As2DSpan<float>(Format.Float);
+    public Span2D<float> AsFloatSpan2D() => As2DSpan<float>(Format.Float, Format.Float);
 
-    public Span2D<double> AsDoubleSpan2D() => As2DSpan<double>(Format.Double);
-
+    public Span2D<double> AsDoubleSpan2D() => As2DSpan<double>(Format.Double, Format.Double);
 }

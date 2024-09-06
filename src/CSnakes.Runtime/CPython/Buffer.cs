@@ -41,7 +41,7 @@ internal unsafe partial class CPythonAPI
     internal static Py_buffer GetBuffer(PyObject p)
     {
         Py_buffer view = default;
-        if (PyObject_GetBuffer(p, &view, (int)(PyBUF.Format | PyBUF.Strides)) != 0)
+        if (PyObject_GetBuffer(p, &view, (int)(PyBUF.Format | PyBUF.CContiguous)) != 0)
         {
             throw PyObject.ThrowPythonExceptionAsClrException();
         }

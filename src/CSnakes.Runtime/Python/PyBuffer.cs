@@ -119,7 +119,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
 
     private unsafe void EnsureShapeAndStrides()
     {
-        if (_buffer.shape == null || _buffer.strides == null)
+        if (_buffer.shape is null || _buffer.strides is null)
         {
             throw new InvalidOperationException("Buffer does not have shape and strides");
         }

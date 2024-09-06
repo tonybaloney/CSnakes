@@ -33,10 +33,7 @@ internal unsafe partial class CPythonAPI
         public nint* @internal;
     }
 
-    public static bool IsBuffer(PyObject p)
-    {
-        return PyObject_CheckBuffer(p) == 1;
-    }
+    public static bool IsBuffer(PyObject p) => PyObject_CheckBuffer(p) == 1;
 
     internal static Py_buffer GetBuffer(PyObject p)
     {

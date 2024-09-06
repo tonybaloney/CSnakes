@@ -3,7 +3,7 @@
 namespace CSnakes.Runtime.Python;
 public interface IPyBuffer
 {
-    Int64 Length { get; }
+    long Length { get; }
     int Dimensions { get; }
 
     bool Scalar { get; }

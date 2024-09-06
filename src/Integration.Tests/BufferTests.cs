@@ -255,11 +255,11 @@ public class BufferTests : IntegrationTestBase
     {
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestFloat322dBuffer();
-        Assert.Equal(sizeof(float) * 100 * 100, bufferObject.Length); 
+        Assert.Equal(sizeof(float) * 2 * 3, bufferObject.Length); 
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsFloatSpan2D();
-        Assert.Equal(1.1, matrix[0, 0]);
-        Assert.Equal(6.6, matrix[1, 2]);
+        Assert.Equal(1.1, matrix[0, 0], 0.00001);
+        Assert.Equal(6.6, matrix[1, 2], 0.00001);
     }
 
     [Fact]
@@ -267,7 +267,7 @@ public class BufferTests : IntegrationTestBase
     {
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestFloat642dBuffer();
-        Assert.Equal(sizeof(double) * 100 * 100, bufferObject.Length);
+        Assert.Equal(sizeof(double) * 2 * 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsDoubleSpan2D();
         Assert.Equal(1.1, matrix[0, 0]);

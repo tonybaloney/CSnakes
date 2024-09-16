@@ -36,7 +36,7 @@ jobs:
         working-directory: src
 
       - name: Publish NuGet package
-        run: dotnet pack --no-build -c ${{ env.DOTNET_CONFIGURATION }} -o ./nuget -p:VersionSuffix='beta.${{ github.run_number }}'
+        run: dotnet pack --no-build -c ${{ env.DOTNET_CONFIGURATION }} -p:VersionSuffix='beta.${{ github.run_number }}'
         working-directory: src
 
       - name: Publish NuGet packages as artifacts

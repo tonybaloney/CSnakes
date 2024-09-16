@@ -9,6 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: 8.0.x
+  DOTNET_CONFIGURATION: Release
 
 jobs:
   publish-github-packages:
@@ -29,11 +30,11 @@ jobs:
         working-directory: src
 
       - name: Build release packages
-        run: dotnet build --no-restore -c Release
+        run: dotnet build --no-restore -c ${{ env.DOTNET_CONFIGURATION }}
         working-directory: src
 
       - name: Publish NuGet package
-        run: dotnet pack --no-build -c Release -o ./nuget
+        run: dotnet pack --no-build -c ${{ env.DOTNET_CONFIGURATION }}
         working-directory: src
 
       - name: Publish NuGet packages as artifacts

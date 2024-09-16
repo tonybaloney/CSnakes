@@ -90,7 +90,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;
 
-public class ExampleDirectIntegration
+public sealed class ExampleDirectIntegration : IDisposable
 {
     private readonly PyObject module;
 

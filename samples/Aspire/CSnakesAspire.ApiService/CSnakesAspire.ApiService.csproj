@@ -25,7 +25,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="python" Version="3.12.4" Condition="'$(IsWindows)' == 'true'" />
+        <PackageReference Include="python" Version="$(PythonVersion)" Condition="'$(IsWindows)' == 'true'" />
     </ItemGroup>
 
     <ItemGroup>

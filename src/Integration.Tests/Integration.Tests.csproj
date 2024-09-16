@@ -3,63 +3,8 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-	<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-</PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="python\requirements.txt" />
-    <None Remove="python\test_args.py" />
-    <None Remove="python\test_basic.py" />
-    <None Remove="python\test_defaults.py" />
-    <None Remove="python\test_dependency.py" />
-    <None Remove="python\test_dicts.py" />
-    <None Remove="python\test_exceptions.py" />
-    <None Remove="python\test_false_returns.py" />
-    <None Remove="python\test_generators.py" />
-    <None Remove="python\test_keywords.py" />
-    <None Remove="python\test_none.py" />
-    <None Remove="python\test_reserved.py" />
-    <None Remove="python\test_tuples.py" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="python\test_args.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-    <AdditionalFiles Include="python\test_basic.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-    <AdditionalFiles Include="python\test_defaults.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-    <AdditionalFiles Include="python\test_dependency.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-    <AdditionalFiles Include="python\test_dicts.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-    <AdditionalFiles Include="python\test_exceptions.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-    <AdditionalFiles Include="python\test_false_returns.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-    <AdditionalFiles Include="python\test_generators.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-    <AdditionalFiles Include="python\test_keywords.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-    <AdditionalFiles Include="python\test_none.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-    <AdditionalFiles Include="python\test_reserved.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-    <AdditionalFiles Include="python\test_tuples.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-  </ItemGroup>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
@@ -68,7 +13,7 @@
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageReference Include="xunit" Version="2.5.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
-    <PackageReference Include="python" Version="3.12.4" />
+    <PackageReference Include="python" Version="$(PythonVersion)" />
     <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.4.0" />
   </ItemGroup>
 
@@ -77,15 +22,18 @@
     <Using Include="CSnakes.Runtime" />
   </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\CSnakes.Runtime\CSnakes.Runtime.csproj" />
-		<ProjectReference Include="..\CSnakes\CSnakes.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CSnakes.Runtime\CSnakes.Runtime.csproj" />
+    <ProjectReference Include="..\CSnakes\CSnakes.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<Content Include="python\requirements.txt">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
-	</ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="python\*.py">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AdditionalFiles>
+    <Content Include="python\requirements.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

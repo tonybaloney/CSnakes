@@ -36,6 +36,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "${{ matrix.python }}"
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -52,9 +53,13 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
         working-directory: src
+        env:
+          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+
       - name: Build
         run: dotnet build --no-restore
         working-directory: src
+
       - name: Test
         run: dotnet test --no-build --verbosity normal --collect "XPlat Code Coverage" --results-directory test-results --logger "trx;LogFileName=test-results-${{ matrix.os }}-${{ matrix.python }}-${{ matrix.dotnet }}.trx"
         working-directory: src

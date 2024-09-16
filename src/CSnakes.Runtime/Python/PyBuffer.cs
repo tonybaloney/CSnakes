@@ -102,9 +102,9 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
                     case Format.UInt:
                         return typeof(uint);
                     case Format.Long:
-                        return typeof(int);
+                        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? typeof(int) : typeof(long);
                     case Format.ULong:
-                        return typeof(uint);
+                        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? typeof(uint) : typeof(ulong);
                     case Format.LongLong:
                         return typeof(long);
                     case Format.ULongLong:
@@ -185,11 +185,13 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
             throw new InvalidOperationException("Buffer is not in native byte order");
         }
         EnsureScalar();
-        // Ensure format for Windows and nixFormat for Linux and macOS
-        EnsureFormat(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? format : nixFormat);
-        if (allowReadOnly || _buffer.@readonly != 0)
+        if (typeof(T) != GetItemType())
         {
-            throw new InvalidOperationException("Buffer is read-only, use an As[T]ReadOnlySpan method.");
+            throw new InvalidOperationException($"Buffer item type is {GetItemType()} not {typeof(T)}");
+        }
+        if (IsReadOnly)
+        {
+            throw new InvalidOperationException("Buffer is read-only, use the AsReadOnlySpan method.");
         }
         if (Length % sizeof(T) != 0)
         {
@@ -232,7 +234,10 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         }
         EnsureScalar();
         // Ensure format for Windows and nixFormat for Linux and macOS
-        EnsureFormat(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? format : nixFormat);
+        if (typeof(T) != GetItemType())
+        {
+            throw new InvalidOperationException($"Buffer item type is {GetItemType()} not {typeof(T)}");
+        }
         if (Length % sizeof(T) != 0)
         {
             throw new InvalidOperationException($"Buffer length is not a multiple of {sizeof(T)}");
@@ -266,10 +271,13 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
             // TODO: support byte order conversion
             throw new InvalidOperationException("Buffer is not in native byte order");
         }
-        EnsureFormat(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? format : nixFormat);
+        if (typeof(T) != GetItemType())
+        {
+            throw new InvalidOperationException($"Buffer item type is {GetItemType()} not {typeof(T)}");
+        }
         EnsureDimensions(2);
         EnsureShapeAndStrides();
-        if (_buffer.@readonly != 0)
+        if (IsReadOnly)
         {
             throw new InvalidOperationException("Buffer is read-only, use an As[T]ReadOnlySpan method.");
         }
@@ -315,7 +323,10 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
             // TODO: support byte order conversion
             throw new InvalidOperationException("Buffer is not in native byte order");
         }
-        EnsureFormat(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? format : nixFormat);
+        if (typeof(T) != GetItemType())
+        {
+            throw new InvalidOperationException($"Buffer item type is {GetItemType()} not {typeof(T)}");
+        }
         EnsureDimensions(2);
         EnsureShapeAndStrides();
         if (_buffer.shape[0] * _buffer.shape[1] * sizeof(T) != Length)

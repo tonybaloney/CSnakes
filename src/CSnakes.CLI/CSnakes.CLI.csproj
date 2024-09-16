@@ -7,7 +7,7 @@
         <Nullable>enable</Nullable>
 
         <PackAsTool>true</PackAsTool>
-        <ToolCommandName>botsay</ToolCommandName>
+        <ToolCommandName>csnakes</ToolCommandName>
     </PropertyGroup>
 
     <ItemGroup>

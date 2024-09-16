@@ -3,15 +3,31 @@
 public class BufferTests : IntegrationTestBase
 {
     [Fact]
+    public void TestBoolBuffer()
+    {
+        var testModule = Env.TestBuffer();
+        var bufferObject = testModule.TestBoolBuffer();
+        Assert.Equal(5, bufferObject.Length);
+        Assert.True(bufferObject.IsScalar);
+
+        // Check the buffer contents
+        Span<bool> result = bufferObject.AsBoolSpan();
+        Assert.Equal(typeof(bool), bufferObject.GetItemType());
+        Assert.True(result[0]);
+        Assert.False(result[4]);
+    }
+
+    [Fact]
     public void TestInt8Buffer()
     {
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestInt8Buffer();
         Assert.Equal(5 * sizeof(sbyte), bufferObject.Length);
-        Assert.True(bufferObject.Scalar);
+        Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
         Span<SByte> result = bufferObject.AsSByteSpan();
+        Assert.Equal(typeof(sbyte), bufferObject.GetItemType());
         Assert.Equal((sbyte)1, result[0]);
         Assert.Equal((sbyte)5, result[4]);
     }
@@ -22,10 +38,11 @@ public class BufferTests : IntegrationTestBase
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestUint8Buffer();
         Assert.Equal(5 * sizeof(byte), bufferObject.Length);
-        Assert.True(bufferObject.Scalar);
+        Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
         Span<Byte> result = bufferObject.AsByteSpan();
+        Assert.Equal(typeof(byte), bufferObject.GetItemType());
         Assert.Equal((byte)1, result[0]);
         Assert.Equal((byte)5, result[4]);
     }
@@ -35,10 +52,11 @@ public class BufferTests : IntegrationTestBase
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestInt16Buffer();
         Assert.Equal(5 * sizeof(short), bufferObject.Length);
-        Assert.True(bufferObject.Scalar);
+        Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
         Span<Int16> result = bufferObject.AsInt16Span();
+        Assert.Equal(typeof(short), bufferObject.GetItemType());
         Assert.Equal((short)1, result[0]);
         Assert.Equal((short)5, result[4]);
     }
@@ -49,10 +67,11 @@ public class BufferTests : IntegrationTestBase
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestUint16Buffer();
         Assert.Equal(5 * sizeof(ushort), bufferObject.Length);
-        Assert.True(bufferObject.Scalar);
+        Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
         Span<UInt16> result = bufferObject.AsUInt16Span();
+        Assert.Equal(typeof(ushort), bufferObject.GetItemType());
         Assert.Equal((ushort)1, result[0]);
         Assert.Equal((ushort)5, result[4]);
     }
@@ -63,10 +82,11 @@ public class BufferTests : IntegrationTestBase
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestInt32Buffer();
         Assert.Equal(20, bufferObject.Length); // 5 * sizeof(int)
-        Assert.True(bufferObject.Scalar);
+        Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
         Span<Int32> result = bufferObject.AsInt32Span();
+        Assert.Equal(typeof(int), bufferObject.GetItemType());
         Assert.Equal((int)1, result[0]);
         Assert.Equal((int)5, result[4]);
     }
@@ -77,10 +97,11 @@ public class BufferTests : IntegrationTestBase
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestUint32Buffer();
         Assert.Equal(20, bufferObject.Length); // 5 * sizeof(int)
-        Assert.True(bufferObject.Scalar);
+        Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
         Span<UInt32> result = bufferObject.AsUInt32Span();
+        Assert.Equal(typeof(uint), bufferObject.GetItemType());
         Assert.Equal((uint)1, result[0]);
         Assert.Equal((uint)5, result[4]);
     }
@@ -91,10 +112,11 @@ public class BufferTests : IntegrationTestBase
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestInt64Buffer();
         Assert.Equal(sizeof(long) * 5, bufferObject.Length); // 5 * sizeof(int)
-        Assert.True(bufferObject.Scalar);
+        Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
         Span<Int64> result = bufferObject.AsInt64Span();
+        Assert.Equal(typeof(long), bufferObject.GetItemType());
         Assert.Equal(1L, result[0]);
         Assert.Equal(5L, result[4]);
     }
@@ -105,10 +127,11 @@ public class BufferTests : IntegrationTestBase
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestUint64Buffer();
         Assert.Equal(sizeof(long) * 5, bufferObject.Length); // 5 * sizeof(int)
-        Assert.True(bufferObject.Scalar);
+        Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
         Span<UInt64> result = bufferObject.AsUInt64Span();
+        Assert.Equal(typeof(ulong), bufferObject.GetItemType());
         Assert.Equal(1UL, result[0]);
         Assert.Equal(5UL, result[4]);
     }
@@ -119,10 +142,11 @@ public class BufferTests : IntegrationTestBase
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestFloat32Buffer();
         Assert.Equal(20, bufferObject.Length); // 5 * sizeof(int)
-        Assert.True(bufferObject.Scalar);
+        Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
         Span<float> result = bufferObject.AsFloatSpan();
+        Assert.Equal(typeof(float), bufferObject.GetItemType());
         Assert.Equal(1.1f, result[0]);
         Assert.Equal(5.5f, result[4]);
     }
@@ -133,10 +157,11 @@ public class BufferTests : IntegrationTestBase
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestFloat64Buffer();
         Assert.Equal(sizeof(double) * 5, bufferObject.Length); // 5 * sizeof(int)
-        Assert.True(bufferObject.Scalar);
+        Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
         Span<double> result = bufferObject.AsDoubleSpan();
+        Assert.Equal(typeof(double), bufferObject.GetItemType());
         Assert.Equal(1.1, result[0]);
         Assert.Equal(5.5, result[4]);
     }
@@ -147,10 +172,11 @@ public class BufferTests : IntegrationTestBase
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestVectorBuffer();
         Assert.Equal(1532 * sizeof(float), bufferObject.Length); 
-        Assert.True(bufferObject.Scalar);
+        Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
         Span<float> result = bufferObject.AsFloatSpan();
+        Assert.Equal(typeof(float), bufferObject.GetItemType());
         Assert.Equal(1532, result.Length);
     }
 
@@ -162,6 +188,7 @@ public class BufferTests : IntegrationTestBase
         Assert.Equal(sizeof(sbyte) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsSByteSpan2D();
+        Assert.Equal(typeof(sbyte), bufferObject.GetItemType());
         Assert.Equal(1, matrix[0, 0]);
         Assert.Equal(6, matrix[1, 2]);
     }
@@ -174,6 +201,7 @@ public class BufferTests : IntegrationTestBase
         Assert.Equal(sizeof(byte) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsByteSpan2D();
+        Assert.Equal(typeof(byte), bufferObject.GetItemType());
         Assert.Equal(1, matrix[0, 0]);
         Assert.Equal(6, matrix[1, 2]);
     }
@@ -186,6 +214,7 @@ public class BufferTests : IntegrationTestBase
         Assert.Equal(sizeof(short) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsInt16Span2D();
+        Assert.Equal(typeof(short), bufferObject.GetItemType());
         Assert.Equal(1, matrix[0, 0]);
         Assert.Equal(6, matrix[1, 2]);
     }
@@ -198,6 +227,7 @@ public class BufferTests : IntegrationTestBase
         Assert.Equal(sizeof(ushort) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsUInt16Span2D();
+        Assert.Equal(typeof(ushort), bufferObject.GetItemType());
         Assert.Equal(1, matrix[0, 0]);
         Assert.Equal(6, matrix[1, 2]);
     }
@@ -210,6 +240,7 @@ public class BufferTests : IntegrationTestBase
         Assert.Equal(sizeof(Int32) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsInt32Span2D();
+        Assert.Equal(typeof(int), bufferObject.GetItemType());
         Assert.Equal(1, matrix[0, 0]);
         Assert.Equal(6, matrix[1, 2]);
     }
@@ -222,6 +253,7 @@ public class BufferTests : IntegrationTestBase
         Assert.Equal(sizeof(uint) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsUInt32Span2D();
+        Assert.Equal(typeof(uint), bufferObject.GetItemType());
         Assert.Equal(1U, matrix[0, 0]);
         Assert.Equal(6U, matrix[1, 2]);
     }
@@ -234,6 +266,7 @@ public class BufferTests : IntegrationTestBase
         Assert.Equal(sizeof(long) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsInt64Span2D();
+        Assert.Equal(typeof(long), bufferObject.GetItemType());
         Assert.Equal(1, matrix[0, 0]);
         Assert.Equal(6, matrix[1, 2]);
     }
@@ -246,6 +279,7 @@ public class BufferTests : IntegrationTestBase
         Assert.Equal(sizeof(ulong) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsUInt64Span2D();
+        Assert.Equal(typeof(ulong), bufferObject.GetItemType());
         Assert.Equal(1UL, matrix[0, 0]);
         Assert.Equal(6UL, matrix[1, 2]);
     }
@@ -258,6 +292,7 @@ public class BufferTests : IntegrationTestBase
         Assert.Equal(sizeof(float) * 2 * 3, bufferObject.Length); 
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsFloatSpan2D();
+        Assert.Equal(typeof(float), bufferObject.GetItemType());
         Assert.Equal(1.1, matrix[0, 0], 0.00001);
         Assert.Equal(6.6, matrix[1, 2], 0.00001);
     }
@@ -270,6 +305,7 @@ public class BufferTests : IntegrationTestBase
         Assert.Equal(sizeof(double) * 2 * 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsDoubleSpan2D();
+        Assert.Equal(typeof(double), bufferObject.GetItemType());
         Assert.Equal(1.1, matrix[0, 0]);
         Assert.Equal(6.6, matrix[1, 2]);
     }
@@ -297,8 +333,9 @@ public class BufferTests : IntegrationTestBase
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestBytesAsBuffer();
         Assert.Equal(5, bufferObject.Length);
-        Assert.True(bufferObject.Scalar);
+        Assert.True(bufferObject.IsScalar);
         var result = bufferObject.AsByteReadOnlySpan();
+        Assert.Equal(typeof(byte), bufferObject.GetItemType());
         Assert.Equal((byte)'h', result[0]);
         Assert.Equal((byte)'o', result[4]);
     }
@@ -309,8 +346,9 @@ public class BufferTests : IntegrationTestBase
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestBytearrayAsBuffer();
         Assert.Equal(5, bufferObject.Length);
-        Assert.True(bufferObject.Scalar);
+        Assert.True(bufferObject.IsScalar);
         var result = bufferObject.AsByteSpan();
+        Assert.Equal(typeof(byte), bufferObject.GetItemType());
         Assert.Equal((byte)'h', result[0]);
         Assert.Equal((byte)'o', result[4]);
     }
@@ -329,6 +367,7 @@ public class BufferTests : IntegrationTestBase
         var array = testModule.TestNonContiguousBuffer();
         Assert.Equal(sizeof(Int32) * 3, array.Length);
         var result = array.AsInt32Span2D();
+        Assert.Equal(typeof(int), array.GetItemType());
         Assert.Equal(1, result[0, 0]);
         Assert.Equal(3, result[0, 2]);
     }

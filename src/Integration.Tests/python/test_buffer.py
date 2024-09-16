@@ -5,6 +5,9 @@ except ImportError:
 
 import numpy as np
 
+def test_bool_buffer() -> Buffer:
+    return np.array([True, False, True, False, False], dtype=np.bool_)
+
 def test_int8_buffer() -> Buffer:
     return np.array([1, 2, 3, 4, 5], dtype=np.int8)
 

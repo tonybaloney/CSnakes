@@ -3,11 +3,28 @@
 namespace CSnakes.Runtime.Python;
 public interface IPyBuffer
 {
+    /// <summary>
+    /// The bit length of the buffer.
+    /// </summary>
     long Length { get; }
+
+    /// <summary>
+    /// The number of dimensions in the buffer. For a scalar, this is 1.
+    /// </summary>
     int Dimensions { get; }
 
-    bool Scalar { get; }
+    /// <summary>
+    /// Indicates if the buffer is a scalar (single dimension array).
+    /// </summary>
+    bool IsScalar { get; }
 
+    /// <summary>
+    /// Gets the item type of the values in the buffer. 
+    /// </summary>
+    /// <returns></returns>
+    Type GetItemType();
+
+    Span<bool> AsBoolSpan();
     Span<byte> AsByteSpan();
     Span<sbyte> AsSByteSpan();
     Span<short> AsInt16Span();
@@ -18,7 +35,10 @@ public interface IPyBuffer
     Span<ulong> AsUInt64Span();
     Span<float> AsFloatSpan();
     Span<double> AsDoubleSpan();
+    Span<nint> AsIntPtrSpan();
+    Span<nuint> AsUIntPtrSpan();
 
+    ReadOnlySpan<bool> AsBoolReadOnlySpan();
     ReadOnlySpan<byte> AsByteReadOnlySpan();
     ReadOnlySpan<sbyte> AsSByteReadOnlySpan();
     ReadOnlySpan<short> AsInt16ReadOnlySpan();
@@ -29,7 +49,10 @@ public interface IPyBuffer
     ReadOnlySpan<ulong> AsUInt64ReadOnlySpan();
     ReadOnlySpan<float> AsFloatReadOnlySpan();
     ReadOnlySpan<double> AsDoubleReadOnlySpan();
+    ReadOnlySpan<nint> AsIntPtrReadOnlySpan();
+    ReadOnlySpan<nuint> AsUIntPtrReadOnlySpan();
 
+    Span2D<bool> AsBoolSpan2D();
     Span2D<byte> AsByteSpan2D();
     Span2D<sbyte> AsSByteSpan2D();
     Span2D<short> AsInt16Span2D();
@@ -40,7 +63,10 @@ public interface IPyBuffer
     Span2D<ulong> AsUInt64Span2D();
     Span2D<float> AsFloatSpan2D();
     Span2D<double> AsDoubleSpan2D();
+    Span2D<nint> AsIntPtrSpan2D();
+    Span2D<nuint> AsUIntPtrSpan2D();
 
+    ReadOnlySpan2D<bool> AsBoolReadOnlySpan2D();
     ReadOnlySpan2D<byte> AsByteReadOnlySpan2D();
     ReadOnlySpan2D<sbyte> AsSByteReadOnlySpan2D();
     ReadOnlySpan2D<short> AsInt16ReadOnlySpan2D();
@@ -51,4 +77,6 @@ public interface IPyBuffer
     ReadOnlySpan2D<ulong> AsUInt64ReadOnlySpan2D();
     ReadOnlySpan2D<float> AsFloatReadOnlySpan2D();
     ReadOnlySpan2D<double> AsDoubleReadOnlySpan2D();
+    ReadOnlySpan2D<nint> AsIntPtrReadOnlySpan2D();
+    ReadOnlySpan2D<nuint> AsUIntPtrReadOnlySpan2D();
 }

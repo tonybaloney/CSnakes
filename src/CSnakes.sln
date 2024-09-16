@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{24D80700-8F01-41C7-B858-2C1B242C4EE0}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
+		NuGet.config = NuGet.config
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
@@ -20,6 +21,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSnakes.Runtime.Tests", "CSnakes.Runtime.Tests\CSnakes.Runtime.Tests.csproj", "{CB00C1F5-8C01-4FE7-82AD-7F9B4398E3F8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Profile", "Profile\Profile.csproj", "{93264FC1-2880-4959-9576-50D260039BC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSnakes.CLI", "CSnakes.CLI\CSnakes.CLI.csproj", "{F6204D07-3452-4D2F-B040-211C9EA3E627}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +54,10 @@ Global
 		{93264FC1-2880-4959-9576-50D260039BC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93264FC1-2880-4959-9576-50D260039BC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93264FC1-2880-4959-9576-50D260039BC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6204D07-3452-4D2F-B040-211C9EA3E627}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6204D07-3452-4D2F-B040-211C9EA3E627}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6204D07-3452-4D2F-B040-211C9EA3E627}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6204D07-3452-4D2F-B040-211C9EA3E627}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

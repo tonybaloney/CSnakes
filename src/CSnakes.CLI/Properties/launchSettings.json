@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "CSnakes.CLI - directory": {
+      "commandName": "Project",
+      "commandLineArgs": "-o bin/generated -d ..\\..\\..\\..\\Integration.Tests\\python\\"
+    }
+  }
+}

@@ -5,7 +5,7 @@ namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
     [Flags]
-    private enum PyBUF
+    private enum PyBUF : int
     {
         Simple = 0,
         Writable = 0x1,
@@ -20,12 +20,12 @@ internal unsafe partial class CPythonAPI
     [StructLayout(LayoutKind.Sequential)]
     internal struct Py_buffer
     {
-        public IntPtr buf;
-        public IntPtr obj;
+        public nint buf;
+        public nint obj;
         public nint len;
         public nint itemsize;
         public int @readonly;
-        public Int32 ndim;
+        public int ndim;
         public byte* format;
         public nint* shape;
         public nint* strides;

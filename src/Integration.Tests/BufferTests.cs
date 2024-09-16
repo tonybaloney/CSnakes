@@ -48,7 +48,8 @@ public class BufferTests : IntegrationTestBase
     }
 
     [Fact]
-    public void TestInt16Buffer() {
+    public void TestInt16Buffer()
+    {
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestInt16Buffer();
         Assert.Equal(5 * sizeof(short), bufferObject.Length);
@@ -171,7 +172,7 @@ public class BufferTests : IntegrationTestBase
     {
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestVectorBuffer();
-        Assert.Equal(1532 * sizeof(float), bufferObject.Length); 
+        Assert.Equal(1532 * sizeof(float), bufferObject.Length);
         Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
@@ -270,7 +271,7 @@ public class BufferTests : IntegrationTestBase
         Assert.Equal(1, matrix[0, 0]);
         Assert.Equal(6, matrix[1, 2]);
     }
-    
+
     [Fact]
     public void TestUInt64MatrixBuffer()
     {
@@ -289,7 +290,7 @@ public class BufferTests : IntegrationTestBase
     {
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestFloat322dBuffer();
-        Assert.Equal(sizeof(float) * 2 * 3, bufferObject.Length); 
+        Assert.Equal(sizeof(float) * 2 * 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsFloatSpan2D();
         Assert.Equal(typeof(float), bufferObject.GetItemType());
@@ -357,7 +358,7 @@ public class BufferTests : IntegrationTestBase
     public void TestNonBuffer()
     {
         var testModule = Env.TestBuffer();
-        Assert.Throws<InvalidCastException>(testModule.TestNonBuffer);        
+        Assert.Throws<InvalidCastException>(testModule.TestNonBuffer);
     }
 
     [Fact]

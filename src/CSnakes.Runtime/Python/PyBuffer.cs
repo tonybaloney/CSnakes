@@ -17,7 +17,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
     /// </summary>
     private enum ByteOrder
     {
-        Native  = '@', // default, native byte-order, size and alignment
+        Native = '@', // default, native byte-order, size and alignment
         Standard = '=', // native byte-order, standard size and no alignment
         Little = '<', // little-endian, standard size and no alignment
         Big = '>', // big-endian, standard size and no alignment
@@ -85,7 +85,8 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
             if (Enum.IsDefined(typeof(Format), (int)_format[i]))
             {
                 var format = (Format)_format[i];
-                switch (format) {
+                switch (format)
+                {
                     case Format.Bool:
                         return typeof(bool);
                     case Format.Char:
@@ -131,7 +132,15 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         {
             return ByteOrder.Native;
         }
-        return Enum.TryParse(_format[0].ToString(), out ByteOrder byteOrder) ? byteOrder : ByteOrder.Native;
+
+        if (Enum.IsDefined(typeof(ByteOrder), (int)_format[0]))
+        {
+            return (ByteOrder)_format[0];
+        }
+        else
+        {
+            return ByteOrder.Native;
+        }
     }
 
     private void EnsureFormat(char format)
@@ -206,9 +215,9 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
 
     public Span<long> AsInt64Span() => AsSpan<long>(Format.LongLong, Format.Long);
 
-    public  Span<ulong> AsUInt64Span() => AsSpan<ulong>(Format.ULongLong, Format.ULong);
+    public Span<ulong> AsUInt64Span() => AsSpan<ulong>(Format.ULongLong, Format.ULong);
 
-    public  Span<float> AsFloatSpan() => AsSpan<float>(Format.Float, Format.Float);
+    public Span<float> AsFloatSpan() => AsSpan<float>(Format.Float, Format.Float);
 
     public Span<double> AsDoubleSpan() => AsSpan<double>(Format.Double, Format.Double);
     public Span<nint> AsIntPtrSpan() => AsSpan<nint>(Format.SSizeT, Format.SSizeT);
@@ -242,7 +251,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
     public ReadOnlySpan<ushort> AsUInt16ReadOnlySpan() => AsReadOnlySpan<ushort>(Format.UShort, Format.UShort);
     public ReadOnlySpan<int> AsInt32ReadOnlySpan() => AsReadOnlySpan<int>(Format.Long, Format.Int);
     public ReadOnlySpan<uint> AsUInt32ReadOnlySpan() => AsReadOnlySpan<uint>(Format.ULong, Format.UInt);
-    public ReadOnlySpan<long> AsInt64ReadOnlySpan() => AsReadOnlySpan <long>(Format.LongLong, Format.Long);
+    public ReadOnlySpan<long> AsInt64ReadOnlySpan() => AsReadOnlySpan<long>(Format.LongLong, Format.Long);
     public ReadOnlySpan<ulong> AsUInt64ReadOnlySpan() => AsReadOnlySpan<ulong>(Format.ULongLong, Format.ULong);
     public ReadOnlySpan<float> AsFloatReadOnlySpan() => AsReadOnlySpan<float>(Format.Float, Format.Float);
     public ReadOnlySpan<double> AsDoubleReadOnlySpan() => AsReadOnlySpan<double>(Format.Double, Format.Double);
@@ -273,10 +282,10 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
             throw new InvalidOperationException($"Buffer item size is {_buffer.itemsize} not {sizeof(T)}");
         }
         return new Span2D<T>(
-            (void*) _buffer.buf,
-            (int) _buffer.shape[0],
-            (int) _buffer.shape[1],
-            (int)((int) _buffer.strides[0] - (_buffer.shape[1]* _buffer.itemsize)) // pitch = stride - (width * itemsize)
+            (void*)_buffer.buf,
+            (int)_buffer.shape[0],
+            (int)_buffer.shape[1],
+            (int)((int)_buffer.strides[0] - (_buffer.shape[1] * _buffer.itemsize)) // pitch = stride - (width * itemsize)
         );
     }
 

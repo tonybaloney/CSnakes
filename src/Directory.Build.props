@@ -5,6 +5,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>latest</LangVersion>
         <WarningsAsErrors>true</WarningsAsErrors>
+
+        <IsPackable>false</IsPackable>
+        <PackageOutputPath>../../nuget</PackageOutputPath>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\..\docs\res\logo.jpeg">

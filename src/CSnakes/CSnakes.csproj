@@ -3,6 +3,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <NoWarn>RS1035</NoWarn>
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -47,6 +48,5 @@
 
     <PropertyGroup>
         <GeneratePackageOnBuild>$(EnableLocalPackaging)</GeneratePackageOnBuild>
-        <PackageOutputPath>../../nuget</PackageOutputPath>
     </PropertyGroup>
 </Project>

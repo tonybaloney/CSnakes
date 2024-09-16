@@ -35,11 +35,9 @@ jobs:
         run: dotnet build --no-restore -c ${{ env.DOTNET_CONFIGURATION }}
         working-directory: src
 
-      - name: Publish NuGet package CSnakes
-        run: dotnet pack src/CSnakes --no-build -c ${{ env.DOTNET_CONFIGURATION }} -o ./nuget -p:VersionSuffix='alpha.${{ github.run_number }}'
-
-      - name: Publish NuGet package CSnakes.Runtime
-        run: dotnet pack src/CSnakes.Runtime --no-build -c ${{ env.DOTNET_CONFIGURATION }} -o ./nuget -p:VersionSuffix='alpha.${{ github.run_number }}'
+      - name: Publish NuGet package
+        run: dotnet pack --no-build -c ${{ env.DOTNET_CONFIGURATION }} -o ./nuget -p:VersionSuffix='alpha.${{ github.run_number }}'
+        working-directory: src
 
       - name: Publish NuGet packages as artifacts
         uses: actions/upload-artifact@v4

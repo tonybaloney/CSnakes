@@ -43,4 +43,17 @@ public class TestDicts : IntegrationTestBase
         Assert.Equal(1, result["dictkey1"]);
         Assert.Equal(2, result["dictkey2"]);
     }
+
+    [Fact]
+    public void TestDictionaryRoundTrip()
+    {
+        var testDicts = Env.TestDicts();
+
+        IReadOnlyDictionary<string, long> testDict = new Dictionary<string, long> { { "dictkey1", 1 }, { "dictkey2", 2 } };
+        var result = testDicts.TestDictStrInt(testDict);
+        Assert.Equal(1, result["dictkey1"]);
+
+        var roundTrip = testDicts.TestDictStrInt(result);
+        Assert.Equal(1, roundTrip["dictkey1"]);
+    }
 }

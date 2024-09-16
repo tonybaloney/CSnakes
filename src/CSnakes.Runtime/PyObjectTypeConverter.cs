@@ -1,8 +1,5 @@
 ﻿using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
-using System.Collections;
-using System.Runtime.CompilerServices;
-using System.Numerics;
 using System.Collections.Concurrent;
 using System.Reflection;
 

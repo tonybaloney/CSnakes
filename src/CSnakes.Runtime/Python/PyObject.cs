@@ -10,7 +10,7 @@ using System.Runtime.InteropServices.Marshalling;
 namespace CSnakes.Runtime.Python;
 
 [DebuggerDisplay("PyObject: repr={GetRepr()}, type={GetPythonType().ToString()}")]
-public class PyObject : SafeHandle
+public class PyObject : SafeHandle, ICloneable
 {
     protected PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
@@ -494,7 +494,7 @@ public class PyObject : SafeHandle
 
             return value switch
             {
-                PyObject pyObject => pyObject.Clone(),
+                ICloneable pyObject => pyObject.Clone(),
                 bool b => b ? True : False,
                 int i => Create(CPythonAPI.PyLong_FromLong(i)),
                 long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
@@ -540,5 +540,10 @@ public class PyObject : SafeHandle
 
         combinedKwnames = [.. newKwnames];
         combinedKwvalues = [.. newKwvalues];
+    }
+
+    PyObject ICloneable.Clone()
+    {
+        return Clone();
     }
 }

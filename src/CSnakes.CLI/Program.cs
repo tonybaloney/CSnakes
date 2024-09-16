@@ -1,4 +1,6 @@
-﻿using System.CommandLine;
+﻿using CSnakes;
+using Microsoft.CodeAnalysis.Text;
+using System.CommandLine;
 
 var fileOption = new CliOption<FileInfo?>("--file", "-f")
 {
@@ -10,9 +12,9 @@ var directoryOption = new CliOption<DirectoryInfo?>("--directory", "-d")
     Description = "Path to the directory containing the Python files to generate the C# code from."
 };
 
-var outputOption = new CliOption<FileInfo?>("--output", "-o")
+var outputOption = new CliOption<DirectoryInfo?>("--output", "-o")
 {
-    Description = "Path to the output C# file.",
+    Description = "Path to the directory to output the C# files to.",
     Required = true
 };
 
@@ -26,7 +28,7 @@ var root = new CliRootCommand("csnakes -f <file>")
 root.SetAction(result =>
 {
     FileInfo? fileInfo = result.GetValue(fileOption);
-    FileInfo? outputInfo = result.GetValue(outputOption);
+    DirectoryInfo? outputInfo = result.GetValue(outputOption);
     DirectoryInfo? directoryInfo = result.GetValue(directoryOption);
 
     if (fileInfo is null && directoryInfo is null)
@@ -47,18 +49,36 @@ root.SetAction(result =>
         return;
     }
 
-    if (fileInfo is not null)
+    FileInfo[] files = (fileInfo, directoryInfo) switch
     {
-        Console.WriteLine($"You want to generate C# from {fileInfo.FullName}");
+        (not null, _) => [fileInfo],
+        (_, not null) => directoryInfo.GetFiles("*.py"),
+        _ => throw new InvalidOperationException()
+    };
+
+    if (outputInfo.Exists)
+    {
+        outputInfo.Delete(true);
     }
 
-    if (directoryInfo is not null)
+    outputInfo.Create();
+
+    foreach (var file in files)
     {
-        var files = directoryInfo.GetFiles("*.py");
-        Console.WriteLine($"You want to generate C# from {directoryInfo.FullName}, which contains {files.Length} Python files.");
+        var sourceFile = SourceText.From(File.ReadAllText(file.FullName));
+        var pascalFileName = PythonStaticGenerator.GetPascalFileName(Path.GetFileNameWithoutExtension(file.Name));
+
+        if (PythonStaticGenerator.TryGenerateCode((error) =>
+        {
+            Console.WriteLine($"Error: {error.Message}");
+        }, pascalFileName, Path.GetFileNameWithoutExtension(file.Name), sourceFile, out var source))
+        {
+            string outputFileName = $"{pascalFileName}.py.cs";
+            File.WriteAllText(Path.Combine(outputInfo.FullName, outputFileName), source);
+        }
     }
 
-    Console.WriteLine($"The output will be written to {outputInfo.FullName}");
+    Console.WriteLine($"Generated code for {files.Length} files.");
 });
 
 await new CliConfiguration(root).InvokeAsync(args);

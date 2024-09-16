@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.Text;
 using CSnakes.Parser;
 using CSnakes.Parser.Types;
 using CSnakes.Reflection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes;
 
@@ -20,37 +21,56 @@ public class PythonStaticGenerator : IIncrementalGenerator
         {
             foreach (var file in inputFiles)
             {
-                // Add environment path
-                var @namespace = "CSnakes.Runtime";
-
-                var fileName = Path.GetFileNameWithoutExtension(file.Path);
-
-                // Convert snakecase to pascal case
-                var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
+                string filePath = file.Path;
+                var fileName = Path.GetFileNameWithoutExtension(filePath);
                 // Read the file
                 var code = file.GetText(sourceContext.CancellationToken);
-
                 if (code is null) continue;
 
-                // Parse the Python file
-                var result = PythonParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);
+                // Convert snakecase to pascal case
+                var pascalFileName = GetPascalFileName(fileName);
 
-                foreach (var error in errors)
+                Action<GeneratorError> errorReporter = error =>
                 {
-                    // Update text span
-                    Location errorLocation = Location.Create(file.Path, TextSpan.FromBounds(0, 1), new LinePositionSpan(new LinePosition(error.StartLine, error.StartColumn), new LinePosition(error.EndLine, error.EndColumn)));
+                    Location errorLocation = Location.Create(filePath, TextSpan.FromBounds(0, 1), new LinePositionSpan(new LinePosition(error.StartLine, error.StartColumn), new LinePosition(error.EndLine, error.EndColumn)));
                     sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error.Message, "PythonStaticGenerator", DiagnosticSeverity.Error, true), errorLocation));
-                }
+                };
 
-                if (result)
+                if (TryGenerateCode(errorReporter, pascalFileName, fileName, code, out string? source))
                 {
-                    IEnumerable<MethodDefinition> methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
-                    string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions);
                     sourceContext.AddSource($"{pascalFileName}.py.cs", source);
                     sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
                 }
             }
         });
+    }
+
+    public static string GetPascalFileName(string fileName) =>
+        string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
+
+    public static bool TryGenerateCode(Action<GeneratorError> errorReporter, string pascalFileName, string fileName, SourceText code, [NotNullWhen(true)] out string? source)
+    {
+        // Parse the Python file
+        var result = PythonParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);
+
+        foreach (var error in errors)
+        {
+            // Update text span
+            errorReporter(error);
+        }
+
+        if (result)
+        {
+            // Add environment path
+            var @namespace = "CSnakes.Runtime";
+
+            IEnumerable<MethodDefinition> methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
+            source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions);
+            return true;
+        }
+
+        source = null;
+        return false;
     }
 
     public static string FormatClassFromMethods(string @namespace, string pascalFileName, IEnumerable<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions)
@@ -101,7 +121,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                             logger.LogDebug("Importing module {ModuleName}", "{{fileName}}");
                             module = Import.ImportModule("{{fileName}}");
                             functions = new Dictionary<string, PyObject>();
-                            {{ string.Join(Environment.NewLine, functions.Select(f => $"functions[\"{f.Name}\"] = module.GetAttr(\"{f.Name}\");")) }}
+                            {{string.Join(Environment.NewLine, functions.Select(f => $"functions[\"{f.Name}\"] = module.GetAttr(\"{f.Name}\");"))}}
                         }
                     }
 

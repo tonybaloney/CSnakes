@@ -6,7 +6,11 @@
     },
     "CSnakes.CLI - directory": {
       "commandName": "Project",
-      "commandLineArgs": "-o bin/generated -d ..\\..\\..\\..\\Integration.Tests\\python\\"
+      "commandLineArgs": "-o ../generated -d ..\\..\\..\\..\\Integration.Tests\\python\\"
+    },
+    "CSnakes.CLI - file": {
+      "commandName": "Project",
+      "commandLineArgs": "-o ../generated -f ..\\..\\..\\..\\Profile\\marshalling_benchmarks.py"
     }
   }
 }

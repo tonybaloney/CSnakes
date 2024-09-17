@@ -29,4 +29,5 @@ public interface IPyBuffer
 
     Span2D<T> AsSpan2D<T>() where T : unmanaged;
     ReadOnlySpan2D<T> AsReadOnlySpan2D<T>() where T : unmanaged;
+
 }

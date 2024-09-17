@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
 
 namespace CSnakes.Runtime.Python;
-public static class IPyBufferExtensions
+public static class PyBufferExtensions
 {
     #region AsSpan
     public static Span<bool> AsBoolSpan(this IPyBuffer buffer) => buffer.AsSpan<bool>();

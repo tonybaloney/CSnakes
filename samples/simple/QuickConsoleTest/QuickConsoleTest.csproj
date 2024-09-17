@@ -8,7 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
-        <PackageReference Include="python" Version="3.12.4" />
+        <PackageReference Include="python" Version="$(PythonVersion)" />
     </ItemGroup>
 
     <ItemGroup>

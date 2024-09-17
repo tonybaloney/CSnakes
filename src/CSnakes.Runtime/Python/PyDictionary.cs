@@ -100,6 +100,6 @@ internal class PyDictionary<TKey, TValue>(PyObject dictionary) : IReadOnlyDictio
         return false;
     }
 
-    PyObject ICloneable.Clone() => dictionaryObject.Clone();
+    PyObject ICloneable.Clone() => _dictionaryObject.Clone();
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 }

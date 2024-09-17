@@ -28,7 +28,7 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
-        Span<SByte> result = bufferObject.AsSByteSpan();
+        Span<sbyte> result = bufferObject.AsSByteSpan();
         Assert.Equal(typeof(sbyte), bufferObject.GetItemType());
         Assert.Equal((sbyte)1, result[0]);
         Assert.Equal((sbyte)5, result[4]);
@@ -43,7 +43,7 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
-        Span<Byte> result = bufferObject.AsByteSpan();
+        Span<byte> result = bufferObject.AsByteSpan();
         Assert.Equal(typeof(byte), bufferObject.GetItemType());
         Assert.Equal((byte)1, result[0]);
         Assert.Equal((byte)5, result[4]);
@@ -58,7 +58,7 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
-        Span<Int16> result = bufferObject.AsInt16Span();
+        Span<short> result = bufferObject.AsInt16Span();
         Assert.Equal(typeof(short), bufferObject.GetItemType());
         Assert.Equal((short)1, result[0]);
         Assert.Equal((short)5, result[4]);
@@ -73,7 +73,7 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
-        Span<UInt16> result = bufferObject.AsUInt16Span();
+        Span<ushort> result = bufferObject.AsUInt16Span();
         Assert.Equal(typeof(ushort), bufferObject.GetItemType());
         Assert.Equal((ushort)1, result[0]);
         Assert.Equal((ushort)5, result[4]);
@@ -88,7 +88,7 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
-        Span<Int32> result = bufferObject.AsInt32Span();
+        Span<int> result = bufferObject.AsInt32Span();
         Assert.Equal(typeof(int), bufferObject.GetItemType());
         Assert.Equal((int)1, result[0]);
         Assert.Equal((int)5, result[4]);
@@ -103,7 +103,7 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
-        Span<UInt32> result = bufferObject.AsUInt32Span();
+        Span<uint> result = bufferObject.AsUInt32Span();
         Assert.Equal(typeof(uint), bufferObject.GetItemType());
         Assert.Equal((uint)1, result[0]);
         Assert.Equal((uint)5, result[4]);
@@ -118,7 +118,7 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
-        Span<Int64> result = bufferObject.AsInt64Span();
+        Span<long> result = bufferObject.AsInt64Span();
         Assert.Equal(typeof(long), bufferObject.GetItemType());
         Assert.Equal(1L, result[0]);
         Assert.Equal(5L, result[4]);
@@ -133,7 +133,7 @@ public class BufferTests : IntegrationTestBase
         Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
-        Span<UInt64> result = bufferObject.AsUInt64Span();
+        Span<ulong> result = bufferObject.AsUInt64Span();
         Assert.Equal(typeof(ulong), bufferObject.GetItemType());
         Assert.Equal(1UL, result[0]);
         Assert.Equal(5UL, result[4]);
@@ -240,7 +240,7 @@ public class BufferTests : IntegrationTestBase
     {
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestInt322dBuffer();
-        Assert.Equal(sizeof(Int32) * 3, 3, bufferObject.Length);
+        Assert.Equal(sizeof(int) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsInt32Span2D();
         Assert.Equal(typeof(int), bufferObject.GetItemType());
@@ -368,7 +368,7 @@ public class BufferTests : IntegrationTestBase
     {
         var testModule = Env.TestBuffer();
         var array = testModule.TestNonContiguousBuffer();
-        Assert.Equal(sizeof(Int32) * 3, array.Length);
+        Assert.Equal(sizeof(int) * 3, array.Length);
         var result = array.AsInt32Span2D();
         Assert.Equal(typeof(int), array.GetItemType());
         Assert.Equal(1, result[0, 0]);

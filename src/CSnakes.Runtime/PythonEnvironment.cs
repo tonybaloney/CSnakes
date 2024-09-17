@@ -51,6 +51,7 @@ internal class PythonEnvironment : IPythonEnvironment
         string home = options.Home;
         string[] extraPaths = options.ExtraPaths;
 
+        home = Path.GetFullPath(home);
         if (!Directory.Exists(home))
         {
             logger.LogError("Python home directory does not exist: {Home}", home);
@@ -96,23 +97,24 @@ internal class PythonEnvironment : IPythonEnvironment
         api.Initialize();
     }
 
-    private void EnsureVirtualEnvironment(PythonLocationMetadata pythonLocation, string? venvPath)
+    private void EnsureVirtualEnvironment(PythonLocationMetadata pythonLocation, string? virtualEnvironmentLocation)
     {
-        if (venvPath is null)
+        if (virtualEnvironmentLocation is null)
         {
             Logger.LogError("Virtual environment location is not set but it was requested to be created.");
-            throw new ArgumentNullException(nameof(venvPath), "Virtual environment location is not set.");
+            throw new ArgumentNullException(nameof(virtualEnvironmentLocation), "Virtual environment location is not set.");
         }
 
-        if (!Directory.Exists(venvPath))
+        virtualEnvironmentLocation = Path.GetFullPath(virtualEnvironmentLocation);
+        if (!Directory.Exists(virtualEnvironmentLocation))
         {
-            Logger.LogInformation("Creating virtual environment at {VirtualEnvPath} using {PythonBinaryPath}", venvPath, pythonLocation.PythonBinaryPath);
-            using Process process1 = ExecutePythonCommand(pythonLocation, venvPath, $"-VV");
-            using Process process2 = ExecutePythonCommand(pythonLocation, venvPath, $"-m venv {venvPath}");
+            Logger.LogInformation("Creating virtual environment at {VirtualEnvPath} using {PythonBinaryPath}", virtualEnvironmentLocation, pythonLocation.PythonBinaryPath);
+            using Process process1 = ExecutePythonCommand(pythonLocation, virtualEnvironmentLocation, $"-VV");
+            using Process process2 = ExecutePythonCommand(pythonLocation, virtualEnvironmentLocation, $"-m venv {virtualEnvironmentLocation}");
         }
         else
         {
-            Logger.LogDebug("Virtual environment already exists at {VirtualEnvPath}", venvPath);
+            Logger.LogDebug("Virtual environment already exists at {VirtualEnvPath}", virtualEnvironmentLocation);
         }
 
         Process ExecutePythonCommand(PythonLocationMetadata pythonLocation, string? venvPath, string arguments)

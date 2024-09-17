@@ -42,19 +42,19 @@ root.SetAction(result =>
     if (fileInfo is null && directoryInfo is null)
     {
         Console.Error.WriteLine("You must provide either a file or a directory.");
-        return;
+        return (int)ErrorCode.InvalidArguments;
     }
 
     if (fileInfo is not null && directoryInfo is not null)
     {
         Console.Error.WriteLine("You must provide either a file or a directory, not both.");
-        return;
+        return (int)ErrorCode.InvalidArguments;
     }
 
     if (outputInfo is null)
     {
         Console.Error.WriteLine("You must provide an output file.");
-        return;
+        return (int)ErrorCode.InvalidArguments;
     }
 
     FileInfo[] files = (fileInfo, directoryInfo) switch
@@ -86,10 +86,14 @@ root.SetAction(result =>
         {
             string outputFileName = $"{pascalFileName}.py.cs";
             File.WriteAllText(Path.Combine(outputInfo.FullName, outputFileName), source);
+        } else
+        {
+            return (int)ErrorCode.PythonSyntaxError;
         }
     }
 
     Console.Out.WriteLine($"Generated code for {files.Length} files.");
+    return (int)ErrorCode.Success;
 });
 
-await new CliConfiguration(root).InvokeAsync(args);
+return await new CliConfiguration(root).InvokeAsync(args);

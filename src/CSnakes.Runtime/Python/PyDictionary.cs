@@ -84,7 +84,7 @@ internal class PyDictionary<TKey, TValue>(PyObject dictionary) : IReadOnlyDictio
         using (GIL.Acquire())
         {
             using var items = PyObject.Create(CPythonAPI.PyMapping_Items(_dictionaryObject));
-            return new PyKeyValuePairEnumerable<TKey, TValue>(items).GetEnumerator();
+            return new PyEnumerable<KeyValuePair<TKey, TValue>, PyObjectImporter<TKey, TValue>>(items).GetEnumerator();
         }
     }
 

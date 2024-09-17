@@ -7,9 +7,6 @@ on:
     paths:
       - "src/**"
 
-env:
-  DOTNET_VERSION: 8.0.x
-
 jobs:
   publish-github-packages:
     runs-on: ubuntu-latest
@@ -20,10 +17,14 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
       - name: Restore dependencies
         run: dotnet restore
         working-directory: src

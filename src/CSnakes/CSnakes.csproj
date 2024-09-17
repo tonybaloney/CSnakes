@@ -2,7 +2,8 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <NoWarn>RS1035</NoWarn>
+    <NoWarn>$(NoWarn);RS1035</NoWarn>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,32 +12,15 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-    <PackageReference Include="Superpower">
-      <GeneratePathProperty>true</GeneratePathProperty>
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive; compile</IncludeAssets>
-    </PackageReference>
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Include="$(PKGSuperpower)\lib\netstandard2.0\Superpower.dll" CopyToOutputDirectory="PreserveNewest">
-      <Pack>True</Pack>
-      <PackagePath>analyzers/dotnet/cs</PackagePath>
-    </None>
-
     <PackageReference Include="Microsoft.SourceLink.GitHub">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Superpower" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>
 
   <PropertyGroup>
     <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
-    <PackageId>CSnakes</PackageId>
-    <Title>CSnakes</Title>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <Target Name="GetDependencyTargetPaths">
@@ -45,8 +29,5 @@
     </ItemGroup>
   </Target>
 
-  <PropertyGroup>
-    <GeneratePackageOnBuild>$(EnableLocalPackaging)</GeneratePackageOnBuild>
-    <PackageOutputPath>../../nuget</PackageOutputPath>
-  </PropertyGroup>
+  <Import Project="Packaging.targets" />
 </Project>

@@ -23,7 +23,7 @@ def example_array() -> Buffer:
 
 In this example, the `example_array` function returns a NumPy array of boolean values. The `Buffer` type hint indicates that the function returns an object that supports the Buffer Protocol.
 
-From C#, CSnakes will return an implementation of `CSnakes.Runtime.Python.IPyBuffer` that wraps the buffer and provides access to the data as a Span.
+From C#, CSnakes will return an `CSnakes.Runtime.Python.IPyBuffer` that provides access to the data as a `Span`.
 
 For example:
 

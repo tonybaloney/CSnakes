@@ -1,4 +1,6 @@
-﻿namespace Integration.Tests;
+﻿using CSnakes.Runtime.Python;
+
+namespace Integration.Tests;
 
 public class BufferTests : IntegrationTestBase
 {

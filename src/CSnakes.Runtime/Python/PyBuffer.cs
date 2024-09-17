@@ -177,7 +177,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         }
     }
 
-    private unsafe Span<T> AsSpan<T>(Format format, Format nixFormat, bool allowReadOnly = false) where T : unmanaged
+    private unsafe Span<T> AsSpanInternal<T>() where T : unmanaged
     {
         if (_byteOrder != ByteOrder.Native)
         {
@@ -204,28 +204,9 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         return new Span<T>((void*)_buffer.buf, (int)(Length / sizeof(T)));
     }
 
-    public Span<bool> AsBoolSpan() => AsSpan<bool>(Format.Bool, Format.Bool);
-    public Span<byte> AsByteSpan() => AsSpan<byte>(Format.UChar, Format.UChar);
-    public Span<sbyte> AsSByteSpan() => AsSpan<sbyte>(Format.Char, Format.Char);
+    public Span<T> AsSpan<T>() where T : unmanaged => AsSpanInternal<T>();
 
-    public Span<short> AsInt16Span() => AsSpan<short>(Format.Short, Format.Short);
-    public Span<ushort> AsUInt16Span() => AsSpan<ushort>(Format.UShort, Format.UShort);
-
-    public Span<int> AsInt32Span() => AsSpan<int>(Format.Long, Format.Int);
-
-    public Span<uint> AsUInt32Span() => AsSpan<uint>(Format.ULong, Format.UInt);
-
-    public Span<long> AsInt64Span() => AsSpan<long>(Format.LongLong, Format.Long);
-
-    public Span<ulong> AsUInt64Span() => AsSpan<ulong>(Format.ULongLong, Format.ULong);
-
-    public Span<float> AsFloatSpan() => AsSpan<float>(Format.Float, Format.Float);
-
-    public Span<double> AsDoubleSpan() => AsSpan<double>(Format.Double, Format.Double);
-    public Span<nint> AsIntPtrSpan() => AsSpan<nint>(Format.SSizeT, Format.SSizeT);
-    public Span<nuint> AsUIntPtrSpan() => AsSpan<nuint>(Format.SizeT, Format.SizeT);
-
-    private unsafe ReadOnlySpan<T> AsReadOnlySpan<T>(Format format, Format nixFormat) where T : unmanaged
+    private unsafe ReadOnlySpan<T> AsReadOnlySpanInternal<T>() where T : unmanaged
     {
         if (_byteOrder != ByteOrder.Native)
         {
@@ -249,22 +230,9 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         return new ReadOnlySpan<T>((void*)_buffer.buf, (int)(Length / sizeof(T)));
     }
 
-    public ReadOnlySpan<bool> AsBoolReadOnlySpan() => AsReadOnlySpan<bool>(Format.Bool, Format.Bool);
-    public ReadOnlySpan<byte> AsByteReadOnlySpan() => AsReadOnlySpan<byte>(Format.UChar, Format.UChar);
-    public ReadOnlySpan<sbyte> AsSByteReadOnlySpan() => AsReadOnlySpan<sbyte>(Format.Char, Format.Char);
-    public ReadOnlySpan<short> AsInt16ReadOnlySpan() => AsReadOnlySpan<short>(Format.Short, Format.Short);
-    public ReadOnlySpan<ushort> AsUInt16ReadOnlySpan() => AsReadOnlySpan<ushort>(Format.UShort, Format.UShort);
-    public ReadOnlySpan<int> AsInt32ReadOnlySpan() => AsReadOnlySpan<int>(Format.Long, Format.Int);
-    public ReadOnlySpan<uint> AsUInt32ReadOnlySpan() => AsReadOnlySpan<uint>(Format.ULong, Format.UInt);
-    public ReadOnlySpan<long> AsInt64ReadOnlySpan() => AsReadOnlySpan<long>(Format.LongLong, Format.Long);
-    public ReadOnlySpan<ulong> AsUInt64ReadOnlySpan() => AsReadOnlySpan<ulong>(Format.ULongLong, Format.ULong);
-    public ReadOnlySpan<float> AsFloatReadOnlySpan() => AsReadOnlySpan<float>(Format.Float, Format.Float);
-    public ReadOnlySpan<double> AsDoubleReadOnlySpan() => AsReadOnlySpan<double>(Format.Double, Format.Double);
-    public ReadOnlySpan<nint> AsIntPtrReadOnlySpan() => AsReadOnlySpan<nint>(Format.SSizeT, Format.SSizeT);
-    public ReadOnlySpan<nuint> AsUIntPtrReadOnlySpan() => AsReadOnlySpan<nuint>(Format.SizeT, Format.SizeT);
+    public ReadOnlySpan<T> AsReadOnlySpan<T>() where T : unmanaged => AsReadOnlySpanInternal<T>();
 
-
-    private unsafe Span2D<T> As2DSpan<T>(Format format, Format nixFormat) where T : unmanaged
+    private unsafe Span2D<T> AsSpan2DInternal<T>() where T : unmanaged
     {
         if (_byteOrder != ByteOrder.Native)
         {
@@ -297,26 +265,10 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         );
     }
 
-    public Span2D<bool> AsBoolSpan2D() => As2DSpan<bool>(Format.Bool, Format.Bool);
-    public Span2D<byte> AsByteSpan2D() => As2DSpan<byte>(Format.UChar, Format.UChar);
-    public Span2D<sbyte> AsSByteSpan2D() => As2DSpan<sbyte>(Format.Char, Format.Char);
-    public Span2D<short> AsInt16Span2D() => As2DSpan<short>(Format.Short, Format.Short);
-    public Span2D<ushort> AsUInt16Span2D() => As2DSpan<ushort>(Format.UShort, Format.UShort);
-    public Span2D<int> AsInt32Span2D() => As2DSpan<int>(Format.Long, Format.Int);
+    public Span2D<T> AsSpan2D<T>() where T : unmanaged => AsSpan2DInternal<T>();
 
-    public Span2D<uint> AsUInt32Span2D() => As2DSpan<uint>(Format.ULong, Format.UInt);
 
-    public Span2D<long> AsInt64Span2D() => As2DSpan<long>(Format.LongLong, Format.Long);
-
-    public Span2D<ulong> AsUInt64Span2D() => As2DSpan<ulong>(Format.ULongLong, Format.ULong);
-
-    public Span2D<float> AsFloatSpan2D() => As2DSpan<float>(Format.Float, Format.Float);
-
-    public Span2D<double> AsDoubleSpan2D() => As2DSpan<double>(Format.Double, Format.Double);
-    public Span2D<nint> AsIntPtrSpan2D() => As2DSpan<nint>(Format.SSizeT, Format.SSizeT);
-    public Span2D<nuint> AsUIntPtrSpan2D() => As2DSpan<nuint>(Format.SizeT, Format.SizeT);
-
-    private unsafe ReadOnlySpan2D<T> AsReadOnly2DSpan<T>(Format format, Format nixFormat) where T : unmanaged
+    private unsafe ReadOnlySpan2D<T> AsReadOnlySpan2DInternal<T>() where T : unmanaged
     {
         if (_byteOrder != ByteOrder.Native)
         {
@@ -345,17 +297,5 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         );
     }
 
-    public ReadOnlySpan2D<bool> AsBoolReadOnlySpan2D() => AsReadOnly2DSpan<bool>(Format.Bool, Format.Bool);
-    public ReadOnlySpan2D<byte> AsByteReadOnlySpan2D() => AsReadOnly2DSpan<byte>(Format.UChar, Format.UChar);
-    public ReadOnlySpan2D<sbyte> AsSByteReadOnlySpan2D() => AsReadOnly2DSpan<sbyte>(Format.Char, Format.Char);
-    public ReadOnlySpan2D<short> AsInt16ReadOnlySpan2D() => AsReadOnly2DSpan<short>(Format.Short, Format.Short);
-    public ReadOnlySpan2D<ushort> AsUInt16ReadOnlySpan2D() => AsReadOnly2DSpan<ushort>(Format.UShort, Format.UShort);
-    public ReadOnlySpan2D<int> AsInt32ReadOnlySpan2D() => AsReadOnly2DSpan<int>(Format.Long, Format.Int);
-    public ReadOnlySpan2D<uint> AsUInt32ReadOnlySpan2D() => AsReadOnly2DSpan<uint>(Format.ULong, Format.UInt);
-    public ReadOnlySpan2D<long> AsInt64ReadOnlySpan2D() => AsReadOnly2DSpan<long>(Format.LongLong, Format.Long);
-    public ReadOnlySpan2D<ulong> AsUInt64ReadOnlySpan2D() => AsReadOnly2DSpan<ulong>(Format.ULongLong, Format.ULong);
-    public ReadOnlySpan2D<float> AsFloatReadOnlySpan2D() => AsReadOnly2DSpan<float>(Format.Float, Format.Float);
-    public ReadOnlySpan2D<double> AsDoubleReadOnlySpan2D() => AsReadOnly2DSpan<double>(Format.Double, Format.Double);
-    public ReadOnlySpan2D<nint> AsIntPtrReadOnlySpan2D() => AsReadOnly2DSpan<nint>(Format.SSizeT, Format.SSizeT);
-    public ReadOnlySpan2D<nuint> AsUIntPtrReadOnlySpan2D() => AsReadOnly2DSpan<nuint>(Format.SizeT, Format.SizeT);
+    public ReadOnlySpan2D<T> AsReadOnlySpan2D<T>() where T : unmanaged => AsReadOnlySpan2DInternal<T>();
 }

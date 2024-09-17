@@ -1,12 +1,16 @@
 <Project>
-  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <WarningsAsErrors>true</WarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PythonVersion>3.12.4</PythonVersion>
+    <!-- See https://github.com/tonybaloney/CSnakes/issues/154#issuecomment-2352116849 -->
+    <PythonVersion Condition=" '$(PYTHON_VERSION)' != '' ">$(PYTHON_VERSION.Replace('alpha.','a').Replace('beta.','b').Replace('rc.','rc'))</PythonVersion>
   </PropertyGroup>
 
   <ItemGroup>

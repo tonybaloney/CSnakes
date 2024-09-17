@@ -81,7 +81,7 @@ root.SetAction(result =>
 
         if (PythonStaticGenerator.TryGenerateCode((error) =>
         {
-            Console.Error.WriteLine($"Error: {error.Message}");
+            Console.Error.WriteLine($"{file.FullName}:{error.StartLine}:{error.StartColumn}: error: {error.Message}");
         }, pascalFileName, Path.GetFileNameWithoutExtension(file.Name), sourceFile, out var source))
         {
             string outputFileName = $"{pascalFileName}.py.cs";

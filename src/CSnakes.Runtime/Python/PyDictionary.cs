@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime.Python;
 
-internal class PyDictionary<TKey, TValue>(PyObject dictionary) : IReadOnlyDictionary<TKey, TValue>, IDisposable
+internal class PyDictionary<TKey, TValue>(PyObject dictionary) : IReadOnlyDictionary<TKey, TValue>, IDisposable, ICloneable
     where TKey : notnull
 {
     private readonly Dictionary<TKey, TValue> _dictionary = [];
@@ -100,5 +100,6 @@ internal class PyDictionary<TKey, TValue>(PyObject dictionary) : IReadOnlyDictio
         return false;
     }
 
+    PyObject ICloneable.Clone() => _dictionaryObject.Clone();
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 }

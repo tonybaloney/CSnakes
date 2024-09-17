@@ -41,7 +41,12 @@ if (bufferObject.IsScalar) {
 }
 ```
 
-Since Span is writeable, you can also modify the buffer contents from C# and the changes will be reflected in the Python object.
+!!! danger
+
+	`Span` is writeable so you can also modify the buffer contents from C# and the changes will be reflected in the Python object.
+	If you have want a read-only view of the buffer, you can use the `As[T]ReadOnly` method to get a read-only Span.
+	We recommend using the read-only methods when you don't need to modify the buffer contents.
+
 
 If you want a read-only view of the buffer, you can use the `As[T]ReadOnly` method to get a read-only Span.
 
@@ -73,8 +78,6 @@ Span2D<int> result2D = result.AsIntSpan2D();
 Console.WriteLine(result2D[0, 0]); // 1
 
 ```
-
-var bufferObject = testModule.ExampleArray2D();
 
 
 ## NumPy Type Conversion

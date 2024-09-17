@@ -14,19 +14,21 @@ public static partial class PythonParser
         );
 
     public static TokenListParser<PythonToken, PythonTypeSpec?> PythonTypeDefinitionTokenizer { get; } =
-        (from name in Token.EqualTo(PythonToken.Identifier).Or(Token.EqualTo(PythonToken.None))
+    (from name in Token.EqualTo(PythonToken.Identifier).Or(Token.EqualTo(PythonToken.None)).OptionalOrDefault()
 #pragma warning disable CS8620
-         from openBracket in Token.EqualTo(PythonToken.OpenBracket)
-            .Then(_ =>
-                PythonTypeDefinitionTokenizer
-                    .AssumeNotNull()
-                    .ManyDelimitedBy(
-                        Token.EqualTo(PythonToken.Comma),
-                        Token.EqualTo(PythonToken.CloseBracket)
-                    )
-            )
+     from openBracket in Token.EqualTo(PythonToken.OpenBracket)
+        .Then(_ =>
+            PythonTypeDefinitionTokenizer
+                .AssumeNotNull()
+                .ManyDelimitedBy(
+                    Token.EqualTo(PythonToken.Comma),
+                    Token.EqualTo(PythonToken.CloseBracket)
+                )
+        )
 #pragma warning restore CS8620
-            .OptionalOrDefault()
-         select new PythonTypeSpec(name.ToStringValue(), openBracket))
-        .Named("Type Definition");
+        .OptionalOrDefault()
+     select name.HasValue ? new PythonTypeSpec(name.ToStringValue(), openBracket)
+                          : openBracket is null ? null : new PythonTypeSpec("argumentCollection__", openBracket)
+     )
+    .Named("Type Definition");
 }

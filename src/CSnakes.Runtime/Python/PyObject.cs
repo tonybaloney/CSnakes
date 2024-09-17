@@ -542,8 +542,5 @@ public class PyObject : SafeHandle, ICloneable
         combinedKwvalues = [.. newKwvalues];
     }
 
-    PyObject ICloneable.Clone()
-    {
-        return Clone();
-    }
+    PyObject ICloneable.Clone() => Clone();
 }

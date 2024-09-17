@@ -49,10 +49,6 @@ internal class PyList<TItem>(PyObject listObject) : IReadOnlyList<TItem>, IDispo
         }
     }
 
-    PyObject ICloneable.Clone()
-    {
-        return listObject.Clone();
-    }
-
+    PyObject ICloneable.Clone() => listObject.Clone();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

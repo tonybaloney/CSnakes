@@ -478,6 +478,7 @@ public class PyObject : SafeHandle, ICloneable
                 var t when t == typeof(string) => CPythonAPI.PyUnicode_AsUTF8(this),
                 var t when t == typeof(BigInteger) => PyObjectTypeConverter.ConvertToBigInteger(this, t),
                 var t when t == typeof(byte[]) => CPythonAPI.PyBytes_AsByteArray(this),
+                { IsConstructedGenericType: true } t when t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>) => PyObjectTypeConverter.ConvertToKeyValuePair(this, t.GetGenericArguments()[0], t.GetGenericArguments()[1]),
                 var t when t.IsAssignableTo(typeof(ITuple)) => PyObjectTypeConverter.ConvertToTuple(this, t),
                 var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => PyObjectTypeConverter.ConvertToGeneratorIterator(this, t),
                 var t => PyObjectTypeConverter.PyObjectToManagedType(this, t),

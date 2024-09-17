@@ -33,19 +33,19 @@ root.SetAction(result =>
 
     if (fileInfo is null && directoryInfo is null)
     {
-        Console.WriteLine("You must provide either a file or a directory.");
+        Console.Error.WriteLine("You must provide either a file or a directory.");
         return;
     }
 
     if (fileInfo is not null && directoryInfo is not null)
     {
-        Console.WriteLine("You must provide either a file or a directory, not both.");
+        Console.Error.WriteLine("You must provide either a file or a directory, not both.");
         return;
     }
 
     if (outputInfo is null)
     {
-        Console.WriteLine("You must provide an output file.");
+        Console.Error.WriteLine("You must provide an output file.");
         return;
     }
 
@@ -70,7 +70,7 @@ root.SetAction(result =>
 
         if (PythonStaticGenerator.TryGenerateCode((error) =>
         {
-            Console.WriteLine($"Error: {error.Message}");
+            Console.Error.WriteLine($"Error: {error.Message}");
         }, pascalFileName, Path.GetFileNameWithoutExtension(file.Name), sourceFile, out var source))
         {
             string outputFileName = $"{pascalFileName}.py.cs";
@@ -78,7 +78,7 @@ root.SetAction(result =>
         }
     }
 
-    Console.WriteLine($"Generated code for {files.Length} files.");
+    Console.Out.WriteLine($"Generated code for {files.Length} files.");
 });
 
 await new CliConfiguration(root).InvokeAsync(args);

@@ -80,48 +80,40 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
     {
         // The format string contains the type of the buffer, normally in the first
         // position, but the first character can also be the byte order.
-        for (int i = 0; i < _format.Length; i++)
+        foreach (char f in _format)
         {
-            if (Enum.IsDefined(typeof(Format), (int)_format[i]))
+            if (!Enum.IsDefined((Format)f))
             {
-                var format = (Format)_format[i];
-                switch (format)
-                {
-                    case Format.Bool:
-                        return typeof(bool);
-                    case Format.Char:
-                        return typeof(sbyte);
-                    case Format.UChar:
-                        return typeof(byte);
-                    case Format.Short:
-                        return typeof(short);
-                    case Format.UShort:
-                        return typeof(ushort);
-                    case Format.Int:
-                        return typeof(int);
-                    case Format.UInt:
-                        return typeof(uint);
-                    case Format.Long:
-                        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? typeof(int) : typeof(long);
-                    case Format.ULong:
-                        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? typeof(uint) : typeof(ulong);
-                    case Format.LongLong:
-                        return typeof(long);
-                    case Format.ULongLong:
-                        return typeof(ulong);
-                    case Format.Float:
-                        return typeof(float);
-                    case Format.Double:
-                        return typeof(double);
-                    case Format.SizeT:
-                        return typeof(nuint);
-                    case Format.SSizeT:
-                        return typeof(nint);
-                }
+                continue;
             }
+
+            return (Format)f switch
+            {
+                Format.Float => typeof(float),
+                Format.Double => typeof(double),
+                Format.Char => typeof(sbyte),
+                Format.UChar => typeof(byte),
+                Format.Short => typeof(short),
+                Format.UShort => typeof(ushort),
+                Format.Int => typeof(int),
+                Format.UInt => typeof(uint),
+                Format.Long => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? typeof(int) : typeof(long),
+                Format.ULong => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? typeof(uint) : typeof(ulong),
+                Format.LongLong => typeof(long),
+                Format.ULongLong => typeof(ulong),
+                Format.Bool => typeof(bool),
+                Format.SizeT => typeof(nuint),
+                Format.SSizeT => typeof(nint),
+                _ => throw new InvalidOperationException($"Format {f} not mapped to CLR type")
+            };
         }
         throw new InvalidOperationException($"Unknown format {_format}");
     }
+
+    public Span<T> AsSpan<T>() where T : unmanaged => AsSpanInternal<T>();
+    public ReadOnlySpan<T> AsReadOnlySpan<T>() where T : unmanaged => AsReadOnlySpanInternal<T>();
+    public Span2D<T> AsSpan2D<T>() where T : unmanaged => AsSpan2DInternal<T>();
+    public ReadOnlySpan2D<T> AsReadOnlySpan2D<T>() where T : unmanaged => AsReadOnlySpan2DInternal<T>();
 
     private ByteOrder GetByteOrder()
     {
@@ -133,14 +125,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
             return ByteOrder.Native;
         }
 
-        if (Enum.IsDefined(typeof(ByteOrder), (int)_format[0]))
-        {
-            return (ByteOrder)_format[0];
-        }
-        else
-        {
-            return ByteOrder.Native;
-        }
+        return Enum.IsDefined(typeof(ByteOrder), (int)_format[0]) ? (ByteOrder)_format[0] : ByteOrder.Native;
     }
 
     private void EnsureFormat(char format)
@@ -150,8 +135,6 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
             throw new InvalidOperationException($"Buffer is not a {format}, it is {_format}");
         }
     }
-
-    private void EnsureFormat(Format format) => EnsureFormat((char)format);
 
     private void EnsureScalar()
     {
@@ -176,45 +159,13 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
             throw new InvalidOperationException("Buffer does not have shape and strides");
         }
     }
-
-    private unsafe Span<T> AsSpanInternal<T>() where T : unmanaged
+    private unsafe void ValidateBufferCommon<T>() where T : unmanaged
     {
         if (_byteOrder != ByteOrder.Native)
         {
             // TODO: support byte order conversion
             throw new InvalidOperationException("Buffer is not in native byte order");
         }
-        EnsureScalar();
-        if (typeof(T) != GetItemType())
-        {
-            throw new InvalidOperationException($"Buffer item type is {GetItemType()} not {typeof(T)}");
-        }
-        if (IsReadOnly)
-        {
-            throw new InvalidOperationException("Buffer is read-only, use the AsReadOnlySpan method.");
-        }
-        if (Length % sizeof(T) != 0)
-        {
-            throw new InvalidOperationException($"Buffer length is not a multiple of {sizeof(T)}");
-        }
-        if (_buffer.itemsize != sizeof(T))
-        {
-            throw new InvalidOperationException($"Buffer item size is {_buffer.itemsize} not {sizeof(T)}");
-        }
-        return new Span<T>((void*)_buffer.buf, (int)(Length / sizeof(T)));
-    }
-
-    public Span<T> AsSpan<T>() where T : unmanaged => AsSpanInternal<T>();
-
-    private unsafe ReadOnlySpan<T> AsReadOnlySpanInternal<T>() where T : unmanaged
-    {
-        if (_byteOrder != ByteOrder.Native)
-        {
-            // TODO: support byte order conversion
-            throw new InvalidOperationException("Buffer is not in native byte order");
-        }
-        EnsureScalar();
-        // Ensure format for Windows and nixFormat for Linux and macOS
         if (typeof(T) != GetItemType())
         {
             throw new InvalidOperationException($"Buffer item type is {GetItemType()} not {typeof(T)}");
@@ -227,36 +178,44 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         {
             throw new InvalidOperationException($"Buffer item size is {_buffer.itemsize} not {sizeof(T)}");
         }
-        return new ReadOnlySpan<T>((void*)_buffer.buf, (int)(Length / sizeof(T)));
     }
 
-    public ReadOnlySpan<T> AsReadOnlySpan<T>() where T : unmanaged => AsReadOnlySpanInternal<T>();
-
-    private unsafe Span2D<T> AsSpan2DInternal<T>() where T : unmanaged
+    private unsafe void Validate2DBufferCommon<T>() where T : unmanaged
     {
-        if (_byteOrder != ByteOrder.Native)
-        {
-            // TODO: support byte order conversion
-            throw new InvalidOperationException("Buffer is not in native byte order");
-        }
-        if (typeof(T) != GetItemType())
-        {
-            throw new InvalidOperationException($"Buffer item type is {GetItemType()} not {typeof(T)}");
-        }
         EnsureDimensions(2);
         EnsureShapeAndStrides();
-        if (IsReadOnly)
-        {
-            throw new InvalidOperationException("Buffer is read-only, use an As[T]ReadOnlySpan method.");
-        }
         if (_buffer.shape[0] * _buffer.shape[1] * sizeof(T) != Length)
         {
             throw new InvalidOperationException("Buffer length is not equal to shape");
         }
-        if (_buffer.itemsize != sizeof(T))
+    }
+
+    private unsafe Span<T> AsSpanInternal<T>() where T : unmanaged
+    {
+        if (IsReadOnly)
         {
-            throw new InvalidOperationException($"Buffer item size is {_buffer.itemsize} not {sizeof(T)}");
+            throw new InvalidOperationException("Buffer is read-only, use the AsReadOnlySpan method.");
         }
+        ValidateBufferCommon<T>();
+        EnsureScalar();
+        return new Span<T>((void*)_buffer.buf, (int)(Length / sizeof(T)));
+    }
+
+    private unsafe ReadOnlySpan<T> AsReadOnlySpanInternal<T>() where T : unmanaged
+    {
+        ValidateBufferCommon<T>();
+        EnsureScalar();
+        return new ReadOnlySpan<T>((void*)_buffer.buf, (int)(Length / sizeof(T)));
+    }
+
+    private unsafe Span2D<T> AsSpan2DInternal<T>() where T : unmanaged
+    {
+        if (IsReadOnly)
+        {
+            throw new InvalidOperationException("Buffer is read-only, use an As[T]ReadOnlySpan method.");
+        }
+        ValidateBufferCommon<T>();
+        Validate2DBufferCommon<T>();
         return new Span2D<T>(
             (void*)_buffer.buf,
             (int)_buffer.shape[0],
@@ -265,30 +224,10 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         );
     }
 
-    public Span2D<T> AsSpan2D<T>() where T : unmanaged => AsSpan2DInternal<T>();
-
-
     private unsafe ReadOnlySpan2D<T> AsReadOnlySpan2DInternal<T>() where T : unmanaged
     {
-        if (_byteOrder != ByteOrder.Native)
-        {
-            // TODO: support byte order conversion
-            throw new InvalidOperationException("Buffer is not in native byte order");
-        }
-        if (typeof(T) != GetItemType())
-        {
-            throw new InvalidOperationException($"Buffer item type is {GetItemType()} not {typeof(T)}");
-        }
-        EnsureDimensions(2);
-        EnsureShapeAndStrides();
-        if (_buffer.shape[0] * _buffer.shape[1] * sizeof(T) != Length)
-        {
-            throw new InvalidOperationException("Buffer length is not equal to shape");
-        }
-        if (_buffer.itemsize != sizeof(T))
-        {
-            throw new InvalidOperationException($"Buffer item size is {_buffer.itemsize} not {sizeof(T)}");
-        }
+        ValidateBufferCommon<T>();
+        Validate2DBufferCommon<T>();
         return new ReadOnlySpan2D<T>(
             (void*)_buffer.buf,
             (int)_buffer.shape[0],
@@ -296,6 +235,4 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
             (int)((int)_buffer.strides[0] - (_buffer.shape[1] * _buffer.itemsize)) // pitch = stride - (width * itemsize)
         );
     }
-
-    public ReadOnlySpan2D<T> AsReadOnlySpan2D<T>() where T : unmanaged => AsReadOnlySpan2DInternal<T>();
 }

@@ -19,7 +19,7 @@ internal unsafe partial class CPythonAPI
 
     public static bool IsPyBool(PyObject p)
     {
-        return PyObject_IsInstance(p, PyBoolType);
+        return p.DangerousGetHandle() == Py_True || p.DangerousGetHandle() == Py_False;
     }
 
     public static bool IsPyTrue(PyObject p)

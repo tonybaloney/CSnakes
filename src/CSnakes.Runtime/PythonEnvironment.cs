@@ -51,6 +51,7 @@ internal class PythonEnvironment : IPythonEnvironment
         string home = options.Home;
         string[] extraPaths = options.ExtraPaths;
 
+        home = Path.GetFullPath(home);
         if (!Directory.Exists(home))
         {
             logger.LogError("Python home directory does not exist: {Home}", home);
@@ -81,7 +82,7 @@ internal class PythonEnvironment : IPythonEnvironment
 
         char sep = Path.PathSeparator;
 
-        api = SetupStandardLibrary(location, sep);
+        api = SetupStandardLibrary(location);
 
         if (!string.IsNullOrEmpty(home))
         {
@@ -90,29 +91,30 @@ internal class PythonEnvironment : IPythonEnvironment
 
         if (extraPaths is { Length: > 0 })
         {
-            logger.LogInformation("Adding extra paths to PYTHONPATH: {ExtraPaths}", extraPaths);
+            logger.LogDebug("Adding extra paths to PYTHONPATH: {ExtraPaths}", extraPaths);
             api.PythonPath = api.PythonPath + sep + string.Join(sep, extraPaths);
         }
         api.Initialize();
     }
 
-    private void EnsureVirtualEnvironment(PythonLocationMetadata pythonLocation, string? venvPath)
+    private void EnsureVirtualEnvironment(PythonLocationMetadata pythonLocation, string? virtualEnvironmentLocation)
     {
-        if (venvPath is null)
+        if (virtualEnvironmentLocation is null)
         {
             Logger.LogError("Virtual environment location is not set but it was requested to be created.");
-            throw new ArgumentNullException(nameof(venvPath), "Virtual environment location is not set.");
+            throw new ArgumentNullException(nameof(virtualEnvironmentLocation), "Virtual environment location is not set.");
         }
 
-        if (!Directory.Exists(venvPath))
+        virtualEnvironmentLocation = Path.GetFullPath(virtualEnvironmentLocation);
+        if (!Directory.Exists(virtualEnvironmentLocation))
         {
-            Logger.LogInformation("Creating virtual environment at {VirtualEnvPath} using {PythonBinaryPath}", venvPath, pythonLocation.PythonBinaryPath);
-            using Process process1 = ExecutePythonCommand(pythonLocation, venvPath, $"-VV");
-            using Process process2 = ExecutePythonCommand(pythonLocation, venvPath, $"-m venv {venvPath}");
+            Logger.LogInformation("Creating virtual environment at {VirtualEnvPath} using {PythonBinaryPath}", virtualEnvironmentLocation, pythonLocation.PythonBinaryPath);
+            using Process process1 = ExecutePythonCommand(pythonLocation, virtualEnvironmentLocation, $"-VV");
+            using Process process2 = ExecutePythonCommand(pythonLocation, virtualEnvironmentLocation, $"-m venv {virtualEnvironmentLocation}");
         }
         else
         {
-            Logger.LogInformation("Virtual environment already exists at {VirtualEnvPath}", venvPath);
+            Logger.LogDebug("Virtual environment already exists at {VirtualEnvPath}", virtualEnvironmentLocation);
         }
 
         Process ExecutePythonCommand(PythonLocationMetadata pythonLocation, string? venvPath, string arguments)
@@ -121,10 +123,10 @@ internal class PythonEnvironment : IPythonEnvironment
             {
                 WorkingDirectory = pythonLocation.Folder,
                 FileName = pythonLocation.PythonBinaryPath,
-                Arguments = arguments
+                Arguments = arguments,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
             };
-            startInfo.RedirectStandardError = true;
-            startInfo.RedirectStandardOutput = true;
             Process process = new() { StartInfo = startInfo };
             process.OutputDataReceived += (sender, e) =>
             {
@@ -150,13 +152,13 @@ internal class PythonEnvironment : IPythonEnvironment
         }
     }
 
-    private CPythonAPI SetupStandardLibrary(PythonLocationMetadata pythonLocationMetadata, char sep)
+    private CPythonAPI SetupStandardLibrary(PythonLocationMetadata pythonLocationMetadata)
     {
         string pythonDll = pythonLocationMetadata.LibPythonPath;
         string pythonPath = pythonLocationMetadata.PythonPath;
 
-        Logger.LogInformation("Python DLL: {PythonDLL}", pythonDll);
-        Logger.LogInformation("Python path: {PythonPath}", pythonPath);
+        Logger.LogDebug("Python DLL: {PythonDLL}", pythonDll);
+        Logger.LogDebug("Python path: {PythonPath}", pythonPath);
 
         var api = new CPythonAPI(pythonDll, pythonLocationMetadata.Version)
         {

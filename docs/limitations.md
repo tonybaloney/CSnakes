@@ -12,10 +12,6 @@ C# does not have a notion of `Tuple<T...>`, so the type annotation using `Tuple[
 
 Python's type hinting supports `Union` types, which are not supported in C#.NET. This includes both `typing.Union` and the union operator described in [PEP 604](https://peps.python.org/pep-0604/).
 
-### Optional Types
-
-CSnakes doesn't support the `typing.Optional[T]` type annotation. Instead, you can use the `None` default value to indicate that a parameter is optional.
-
 ## Classes
 
 CSnakes does not support source generation for custom types, this includes dataclasses and named tuple instances. 

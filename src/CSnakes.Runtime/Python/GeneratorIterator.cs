@@ -49,14 +49,13 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
         }
     }
 
-    public void Reset() => throw new NotImplementedException();
-
+    public void Reset() => throw new NotSupportedException();
 
     public TYield Send(TSend value)
     {
         try
         {
-            using PyObject sendValue = PyObject.From<TSend>(value) !;
+            using PyObject sendValue = PyObject.From(value);
             using PyObject result = sendPyFunction.Call(sendValue);
             current = result.As<TYield>();
             return current;

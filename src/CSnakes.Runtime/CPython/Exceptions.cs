@@ -9,8 +9,18 @@ internal unsafe partial class CPythonAPI
     /// Has an error occured. Caller must hold the GIL.
     /// </summary>
     /// <returns></returns>
-    [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyErr_Occurred();
+    internal static bool PyErr_Occurred()
+    {
+        return PyErr_Occurred_() != IntPtr.Zero;
+    }
+
+    /// <summary>
+    /// Keep this function private. Use PyErr_Occurred() instead.
+    /// It returns a borrowed reference to the exception object. USe PyErr_Fetch if you need the exception.
+    /// </summary>
+    /// <returns></returns>
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyErr_Occurred")]
+    private static partial nint PyErr_Occurred_();
 
     [LibraryImport(PythonLibraryName)]
     internal static partial void PyErr_Clear();

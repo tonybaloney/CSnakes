@@ -26,7 +26,7 @@ public static class PythonTokenizer
         .Match(Span.EqualTo("None"), PythonToken.None, requireDelimiters: true)
         .Match(Span.EqualTo("True"), PythonToken.True, requireDelimiters: true)
         .Match(Span.EqualTo("False"), PythonToken.False, requireDelimiters: true)
-        .Match(Identifier.CStyle, PythonToken.Identifier, requireDelimiters: true) // TODO: (track) Does this require delimiters?
+        .Match(PythonParser.QualifiedName, PythonToken.Identifier, requireDelimiters: true)
         .Match(PythonParser.IntegerConstantToken, PythonToken.Integer, requireDelimiters: true)
         .Match(PythonParser.DecimalConstantToken, PythonToken.Decimal, requireDelimiters: true)
         .Match(PythonParser.HexidecimalConstantToken, PythonToken.HexidecimalInteger, requireDelimiters: true)

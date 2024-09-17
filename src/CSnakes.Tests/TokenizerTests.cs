@@ -231,6 +231,28 @@ public class TokenizerTests
     }
 
     [Fact]
+    public void ParseFunctionParameterListQualifiedGenericType()
+    {
+        var code = "(a: typing.List[int], b)";
+        var tokens = PythonTokenizer.Instance.Tokenize(code);
+        var result = PythonParser.PythonParameterListTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal("a", result.Value[0].Name);
+        Assert.Equal("typing.List[int]", result.Value[0].Type.ToString());
+    }
+
+    [Fact]
+    public void ParseFunctionParameterListQualifiedBasicType()
+    {
+        var code = "(a: np.ndarray, b)";
+        var tokens = PythonTokenizer.Instance.Tokenize(code);
+        var result = PythonParser.PythonParameterListTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal("a", result.Value[0].Name);
+        Assert.Equal("np.ndarray", result.Value[0].Type.ToString());
+    }
+
+    [Fact]
     public void ParseFunctionParameterListEasy()
     {
         var code = "(a: int, b: float, c: str)";

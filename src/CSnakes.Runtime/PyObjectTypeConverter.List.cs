@@ -1,69 +1,45 @@
-using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections;
-using System.ComponentModel;
-using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    private object? ConvertToList(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
+    private static object ConvertToList(PyObject pyObject, Type destinationType)
     {
         Type genericArgument = destinationType.GetGenericArguments()[0];
 
         if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
         {
-            Type listType = typeof(List<>).MakeGenericType(genericArgument);
-            typeInfo = new(listType.GetConstructor([])!);
+            Type listType = typeof(PyList<>).MakeGenericType(genericArgument);
+            typeInfo = new(listType.GetConstructor([typeof(PyObject)])!);
             knownDynamicTypes[destinationType] = typeInfo;
         }
 
-        IList list = (IList)typeInfo.ReturnTypeConstructor.Invoke([]);
-        for (var i = 0; i < CPythonAPI.PyList_Size(pyObject); i++)
-        {
-            using PyObject item = PyObject.Create(CPythonAPI.PyList_GetItem(pyObject, i));
-            list.Add(ConvertTo(context, culture, item, genericArgument));
-        }
-
-        return list;
+        return typeInfo.ReturnTypeConstructor.Invoke([pyObject.Clone()]);
     }
 
-    private object? ConvertToListFromSequence(PyObject pyObject, Type destinationType, ITypeDescriptorContext? context, CultureInfo? culture)
+    internal static PyObject ConvertFromList(ICollection e)
     {
-        Type genericArgument = destinationType.GetGenericArguments()[0];
+        List<PyObject> pyObjects = new(e.Count);
 
-        if (!knownDynamicTypes.TryGetValue(destinationType, out DynamicTypeInfo? typeInfo))
+        foreach (object? item in e)
         {
-            Type listType = typeof(List<>).MakeGenericType(genericArgument);
-            typeInfo = new(listType.GetConstructor([])!);
-            knownDynamicTypes[destinationType] = typeInfo;
+            pyObjects.Add(PyObject.From(item));
         }
 
-        IList list = (IList)typeInfo.ReturnTypeConstructor.Invoke([]);
-
-        for (var i = 0; i < CPythonAPI.PySequence_Size(pyObject); i++)
-        {
-            using PyObject item = PyObject.Create(CPythonAPI.PySequence_GetItem(pyObject, i));
-            list.Add(ConvertTo(context, culture, item, genericArgument));
-        }
-
-        return list;
+        return Pack.CreateList(CollectionsMarshal.AsSpan(pyObjects));
     }
 
-    private PyObject ConvertFromList(ITypeDescriptorContext? context, CultureInfo? culture, IEnumerable e)
+    internal static PyObject ConvertFromList(IEnumerable e)
     {
-        PyObject pyList = PyObject.Create(CPythonAPI.PyList_New(0));
+        List<PyObject> pyObjects = [];
 
-        foreach (var item in e)
+        foreach (object? item in e)
         {
-            PyObject converted = ToPython(item, context, culture);
-            int result = CPythonAPI.PyList_Append(pyList, converted);
-            if (result == -1)
-            {
-                PyObject.ThrowPythonExceptionAsClrException();
-            }
+            pyObjects.Add(PyObject.From(item));
         }
 
-        return pyList;
+        return Pack.CreateList(CollectionsMarshal.AsSpan(pyObjects));
     }
 }

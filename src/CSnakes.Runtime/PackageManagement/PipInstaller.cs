@@ -6,11 +6,12 @@ namespace CSnakes.Runtime.PackageManagement;
 internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstaller
 {
     static readonly string pipBinaryName = $"pip{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
+    static readonly string requirementsFileName = "requirements.txt";
 
     public Task InstallPackages(string home, string? virtualEnvironmentLocation)
     {
         // TODO:Allow overriding of the requirements file name.
-        string requirementsPath = Path.Combine(home, "requirements.txt");
+        string requirementsPath = Path.GetFullPath(Path.Combine(home, requirementsFileName));
         if (File.Exists(requirementsPath))
         {
             logger.LogInformation("File {Requirements} was found.", requirementsPath);
@@ -30,11 +31,12 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
         {
             WorkingDirectory = home,
             FileName = pipBinaryName,
-            Arguments = "install -r requirements.txt"
+            Arguments = $"install -r {requirementsFileName} --disable-pip-version-check"
         };
 
         if (virtualEnvironmentLocation is not null)
         {
+            virtualEnvironmentLocation = Path.GetFullPath(virtualEnvironmentLocation);
             logger.LogInformation("Using virtual environment at {VirtualEnvironmentLocation} to install packages with pip.", virtualEnvironmentLocation);
             string venvScriptPath = Path.Combine(virtualEnvironmentLocation, RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Scripts" : "bin");
             // TODO: Check that the pip executable exists, and if not, raise an exception with actionable steps.
@@ -58,7 +60,7 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
         {
             if (!string.IsNullOrEmpty(e.Data))
             {
-                logger.LogError("{Data}", e.Data);
+                logger.LogWarning("{Data}", e.Data);
             }
         };
 

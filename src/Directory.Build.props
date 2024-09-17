@@ -1,37 +1,40 @@
 <Project>
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <LangVersion>latest</LangVersion>
-        <WarningsAsErrors>true</WarningsAsErrors>
-    </PropertyGroup>
-    <ItemGroup>
-        <None Include="..\..\docs\res\logo.jpeg">
-            <Pack>True</Pack>
-            <PackagePath>\</PackagePath>
-        </None>
-        <None Include="..\..\README.md">
-            <Pack>True</Pack>
-            <PackagePath>\</PackagePath>
-        </None>
-    </ItemGroup>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
-    <PropertyGroup>
-        <Authors>Anthony Shaw, Aaron Powell</Authors>
-        <PackageProjectUrl>https://github.com/tonybaloney/CSnakes</PackageProjectUrl>
-        <PackageIcon>logo.jpeg</PackageIcon>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <RepositoryUrl>https://github.com/tonybaloney/CSnakes</RepositoryUrl>
-        <VersionPrefix>1.0.16</VersionPrefix>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <WarningsAsErrors>true</WarningsAsErrors>
+  </PropertyGroup>
 
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <DebugType>embedded</DebugType>
-        <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-    </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\docs\res\logo.jpeg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
-    <PropertyGroup>
-        <EnableLocalPackaging>False</EnableLocalPackaging>
-    </PropertyGroup>
+  <PropertyGroup>
+    <Authors>Anthony Shaw, Aaron Powell</Authors>
+    <PackageProjectUrl>https://github.com/tonybaloney/CSnakes</PackageProjectUrl>
+    <PackageIcon>logo.jpeg</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/tonybaloney/CSnakes</RepositoryUrl>
+    <VersionPrefix>1.0.17</VersionPrefix>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <DebugType>embedded</DebugType>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EnableLocalPackaging>False</EnableLocalPackaging>
+  </PropertyGroup>
 </Project>

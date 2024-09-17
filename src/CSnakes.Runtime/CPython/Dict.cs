@@ -28,7 +28,7 @@ internal unsafe partial class CPythonAPI
             int result = PyDict_SetItemRaw(dict, keyObj, kwvalues[i]);
             if (result == -1)
             {
-                PyObject.ThrowPythonExceptionAsClrException();
+                throw PyObject.ThrowPythonExceptionAsClrException();
             }
             Py_DecRefRaw(keyObj);
         }
@@ -55,10 +55,26 @@ internal unsafe partial class CPythonAPI
         var result = PyDict_GetItem_(dict, key);
         if (result == IntPtr.Zero)
         {
-            PyObject.ThrowPythonExceptionAsClrException();
+            throw PyObject.ThrowPythonExceptionAsClrException();
         }
         Py_IncRefRaw(result);
         return result;
+    }
+
+    /// <summary>
+    /// Does the dictionary contain the key? Raises exception on failure
+    /// </summary>
+    /// <param name="dict"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    internal static bool PyDict_Contains(PyObject dict, PyObject key)
+    {
+        int result = PyDict_Contains_(dict, key);
+        if(result == -1)
+        {
+            throw PyObject.ThrowPythonExceptionAsClrException();
+        }
+        return result == 1;
     }
 
     /// <summary>
@@ -93,4 +109,13 @@ internal unsafe partial class CPythonAPI
     /// <returns>New reference to the items().</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyDict_Items(PyObject dict);
+
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_Contains")]
+    private static partial int PyDict_Contains_(PyObject dict, PyObject key);
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial nint PyDict_Keys(PyObject dict);
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial nint PyDict_Values(PyObject dict);
 }

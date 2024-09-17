@@ -11,10 +11,10 @@ CSnakes supports the following typed scenarios:
 | `str`                  | `string`          |
 | `bytes`                | `byte[]`          |
 | `bool`                 | `bool`            |
-| `list[T]`              | `IEnumerable<T>`  |
+| `list[T]`              | `IReadOnlyList<T>`  |
 | `dict[K, V]`           | `IReadOnlyDictionary<K, V>` |
 | `tuple[T1, T2, ...]`   | `(T1, T2, ...)`   |
-| `typing.Sequence[T]`   | `IEnumerable<T>`  |
+| `typing.Sequence[T]`   | `IReadOnlyList<T>`  |
 | `typing.Dict[K, V]`    | `IReadOnlyDictionary<K, V>` |
 | `typing.Mapping[K, V]` | `IReadOnlyDictionary<K, V>` |
 | `typing.Tuple[T1, T2, ...]` | `(T1, T2, ...)` |

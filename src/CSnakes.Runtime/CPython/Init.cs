@@ -62,7 +62,7 @@ internal unsafe partial class CPythonAPI : IDisposable
             // Setup type statics
             using (GIL.Acquire())
             {
-                if (PyErr_Occurred() == 1)
+                if (PyErr_Occurred())
                     throw new InvalidOperationException("Python initialization failed.");
 
                 if (!IsInitialized)

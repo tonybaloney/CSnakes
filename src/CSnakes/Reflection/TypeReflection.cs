@@ -13,7 +13,7 @@ public static class TypeReflection
         if (pythonType.HasArguments())
         {
             // Get last occurrence of ] in pythonType
-            return pythonType.Name switch
+            return pythonType.Name.Replace("typing.", "") switch
             {
                 "list" => CreateListType(pythonType.Arguments[0]),
                 "List" => CreateListType(pythonType.Arguments[0]),
@@ -70,7 +70,7 @@ public static class TypeReflection
             SyntaxFactory.Token(SyntaxKind.CloseParenToken));
     }
 
-    private static TypeSyntax CreateListType(PythonTypeSpec genericOf) => CreateGenericType("IReadOnlyCollection", [AsPredefinedType(genericOf)]);
+    private static TypeSyntax CreateListType(PythonTypeSpec genericOf) => CreateGenericType("IReadOnlyList", [AsPredefinedType(genericOf)]);
 
     internal static TypeSyntax CreateGenericType(string typeName, IEnumerable<TypeSyntax> genericArguments) =>
         SyntaxFactory.GenericName(

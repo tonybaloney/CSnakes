@@ -19,3 +19,17 @@ def test_tuple_actually_returns_float() -> tuple[float, float]:
 def test_tuple_actually_returns_list() -> tuple[list[int], list[int]]:
     return [1, 2, 3]
 
+def test_float_returns_int() -> float:
+    return 1
+
+def test_float_returns_str() -> float:
+    return "1"
+
+def test_int_returns_float() -> int:
+    return 1.0
+
+def test_int_returns_str() -> int:
+    return "1"
+
+def test_int_overflows() -> int:
+    return 2**64

@@ -49,8 +49,19 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName, EntryPoint = "PyList_GetItem")]
     private static partial nint PyList_GetItem_(PyObject obj, nint pos);
 
-    [LibraryImport(PythonLibraryName)]
-    internal static partial int PyList_Append(PyObject obj, PyObject o);
+    internal static int PyList_SetItemRaw(nint ob, nint pos, nint o)
+    {
+        int result = PyList_SetItem_(ob, pos, o);
+        if (result != -1)
+        {
+            // Add reference to the new item as it belongs to list now.
+            Py_IncRefRaw(o);
+        }
+        return result;
+    }
+
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyList_SetItem")]
+    internal static partial int PyList_SetItem_(nint obj, nint pos, nint o);
 
     internal static bool IsPyList(PyObject p)
     {

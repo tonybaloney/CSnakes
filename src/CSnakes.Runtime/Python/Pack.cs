@@ -1,4 +1,5 @@
 ﻿using CSnakes.Runtime.CPython;
+using System.Diagnostics;
 using System.Runtime.InteropServices.Marshalling;
 
 namespace CSnakes.Runtime.Python;
@@ -39,17 +40,70 @@ internal static class Pack
 
     internal static PyObject CreateList(Span<PyObject> items)
     {
-        PyObject pyList = PyObject.Create(CPythonAPI.PyList_New(0)); // TODO: preallocate based on items.Length and use PyList_SetItem
+        // As per Python/C API docs for `PyList_New`:
+        //
+        // > If len is greater than zero, the returned list object's items are set to `NULL`. Thus
+        // > you cannot use abstract API functions such as `PySequence_SetItem()` or expose the
+        // > object to Python code before setting all items to a real object with
+        // > `PyList_SetItem()`.
+        //
+        // Source: https://docs.python.org/3/c-api/list.html#c.PyList_New
 
-        foreach (var item in items)
+        nint list = 0;
+
+        List<SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn>? marshallers = null;
+
+        try
         {
-            int result = CPythonAPI.PyList_Append(pyList, item);
-            if (result == -1)
+            var handles = items.Length <= 8
+                ? stackalloc nint[items.Length]
+                : new nint[items.Length];
+
+            var uninitializedHandles = handles;
+            foreach (var item in items)
             {
-                throw PyObject.ThrowPythonExceptionAsClrException();
+                SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn m = default;
+                m.FromManaged(item);
+                marshallers ??= new(items.Length);
+                marshallers.Add(m);
+                uninitializedHandles[0] = m.ToUnmanaged();
+                uninitializedHandles = uninitializedHandles[1..];
+            }
+
+            Debug.Assert(uninitializedHandles.Length == 0);
+
+            list = CPythonAPI.PyList_New(items.Length);
+
+            var i = 0;
+            foreach (var handle in handles)
+            {
+                int result = CPythonAPI.PyList_SetItemRaw(list, i++, handle);
+                if (result == -1)
+                {
+                    throw PyObject.ThrowPythonExceptionAsClrException();
+                }
+            }
+
+            return PyObject.Create(list);
+        }
+        catch
+        {
+            if (list != 0)
+            {
+                CPythonAPI.Py_DecRefRaw(list);
+            }
+
+            throw;
+        }
+        finally
+        {
+            if (marshallers is not null)
+            {
+                foreach (var m in marshallers)
+                {
+                    m.Free();
+                }
             }
         }
-
-        return pyList;
     }
 }

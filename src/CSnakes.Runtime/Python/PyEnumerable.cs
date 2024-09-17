@@ -3,7 +3,8 @@ using System.Collections;
 
 namespace CSnakes.Runtime.Python;
 
-internal class PyEnumerable<TValue> : IEnumerable<TValue>, IEnumerator<TValue>, IDisposable
+internal class PyEnumerable<TValue, TImporter> : IEnumerable<TValue>, IEnumerator<TValue>, IDisposable
+    where TImporter : IPyObjectImporter<TValue>
 {
     private readonly PyObject _pyIterator;
     private TValue current = default!;
@@ -40,7 +41,7 @@ internal class PyEnumerable<TValue> : IEnumerable<TValue>, IEnumerator<TValue>, 
             }
 
             using PyObject pyObject = PyObject.Create(result);
-            current = pyObject.As<TValue>();
+            current = TImporter.Import(pyObject);
             return true;
         }
     }
@@ -48,4 +49,9 @@ internal class PyEnumerable<TValue> : IEnumerable<TValue>, IEnumerator<TValue>, 
     public void Reset() => throw new NotSupportedException("Python iterators cannot be reset");
 
     IEnumerator IEnumerable.GetEnumerator() => this;
+}
+
+internal class PyEnumerable<TValue> : PyEnumerable<TValue, PyObjectImporter<TValue>>
+{
+    internal PyEnumerable(PyObject pyObject) : base(pyObject) { }
 }

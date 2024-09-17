@@ -71,7 +71,7 @@ public class TypeReflectionTests
     {
         var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
         var result = PythonParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
-        Assert.True(result.HasValue, result.ErrorMessage);
+        Assert.True(result.HasValue, result.ToString());
         Assert.NotNull(result.Value);
         var reflectedType = TypeReflection.AsPredefinedType(result.Value);
         Assert.Equal(expectedType, reflectedType.ToString());

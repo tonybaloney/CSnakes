@@ -105,3 +105,9 @@ The `GetItemType()` method can be used to get the C# type of the buffer contents
 In addition to NumPy arrays, you can also use `bytes` and `bytearray` objects as buffers. The `Buffer` type hint can be used to indicate that a function returns a `bytes` or `bytearray` object that supports the Buffer Protocol.
 
 The Buffer Protocol is an efficient way to read and write bytes between C# and Python. Use `AsByteSpan` and `AsByteReadOnlySpan` to access the raw bytes of the buffer.
+
+## Handing non-contiguous arrays
+
+If the NumPy array is not C-contiguous, the Buffer conversion throw an exception. This will happen for example when you transpose a NumPy array.
+
+To convert a Fortran-contiguous array to a C-contiguous array, you can use the [`np.ascontiguousarray()` function](https://numpy.org/doc/stable/reference/generated/numpy.ascontiguousarray.html) in Python before returning the array to C#.

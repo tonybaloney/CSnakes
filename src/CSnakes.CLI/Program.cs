@@ -18,11 +18,18 @@ var outputOption = new CliOption<DirectoryInfo?>("--output", "-o")
     Required = true
 };
 
+var removeOutputOption = new CliOption<bool>("--remove-output", "-rm")
+{
+    Description = "Remove the output directory before generating the code.",
+    DefaultValueFactory = (_) => false
+};
+
 var root = new CliRootCommand("csnakes -f <file>")
 {
     fileOption,
     outputOption,
-    directoryOption
+    directoryOption,
+    removeOutputOption
 };
 
 root.SetAction(result =>
@@ -30,6 +37,7 @@ root.SetAction(result =>
     FileInfo? fileInfo = result.GetValue(fileOption);
     DirectoryInfo? outputInfo = result.GetValue(outputOption);
     DirectoryInfo? directoryInfo = result.GetValue(directoryOption);
+    bool removeOutput = result.GetValue(removeOutputOption);
 
     if (fileInfo is null && directoryInfo is null)
     {
@@ -56,12 +64,15 @@ root.SetAction(result =>
         _ => throw new InvalidOperationException()
     };
 
-    if (outputInfo.Exists)
+    if (outputInfo.Exists && removeOutput)
     {
         outputInfo.Delete(true);
+        outputInfo.Create();
     }
-
-    outputInfo.Create();
+    else if (!outputInfo.Exists)
+    {
+        outputInfo.Create();
+    }
 
     foreach (var file in files)
     {

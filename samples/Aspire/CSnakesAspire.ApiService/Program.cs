@@ -62,7 +62,7 @@ app.MapGet("/weatherforecast", (
     [FromServices] IWeather weather,
     [FromServices] ILogger<Program> logger) =>
 {
-    var rawForecast = weather.GetWeatherForecast(Activity.Current?.TraceId.ToString(), Activity.Current.SpanId.ToString());
+    var rawForecast = weather.GetWeatherForecast(Activity.Current?.TraceId.ToString(), Activity.Current?.SpanId.ToString());
 
     logger.LogInformation("Raw forecast: {RawForecast}", rawForecast);
 

@@ -13,42 +13,22 @@ public static partial class PythonParser
             .AtLeastOnceDelimitedBy(Character.EqualTo('.'))
         );
 
-    public static TokenListParser<PythonToken, PythonTypeSpec> PythonTypeNameTokenizer { get; } =
-        (from name in Token.EqualTo(PythonToken.Identifier).Or(Token.EqualTo(PythonToken.None))
-         select new PythonTypeSpec(name.ToStringValue(), [])).Named("Type Name");
-
-    public static TokenListParser<PythonToken, PythonTypeSpec> PythonTypeArgumentsTokenizer { get; } =
-        (from openBracket in Token.EqualTo(PythonToken.OpenBracket)
-         from argumentCollection in
-                PythonTypeDefinitionTokenizer
-                    .AssumeNotNull()
-                    .ManyDelimitedBy(
-                        Token.EqualTo(PythonToken.Comma)
-                    )
-         from closeBracket in Token.EqualTo(PythonToken.CloseBracket)
-         select new PythonTypeSpec("collection", argumentCollection)).Named("Type collection");
-
-    public static TokenListParser<PythonToken, PythonTypeSpec> PythonTypeNameWithArgumentsTokenizer { get; } =
-        (from name in Token.EqualTo(PythonToken.Identifier)
-         from openBracket in Token.EqualTo(PythonToken.OpenBracket)
-         from argumentCollection in
-                PythonTypeDefinitionTokenizer
-                    .AssumeNotNull()
-                    .ManyDelimitedBy(
-                        Token.EqualTo(PythonToken.Comma)
-                    )
-         from closeBracket in Token.EqualTo(PythonToken.CloseBracket)
-         select new PythonTypeSpec(name.ToStringValue(), argumentCollection)).Named("Type with arguments");
-
-    /// <summary>
-    /// Can be :
-    ///  1. a name, e.g. int, str, bool, etc.
-    ///  2. a generic type, e.g. list[int], tuple[str, int], etc.
-    ///  3. a list of parameters, e.g. type[ [int, str, bool], int]
-    /// </summary>
     public static TokenListParser<PythonToken, PythonTypeSpec?> PythonTypeDefinitionTokenizer { get; } =
-        PythonTypeNameWithArgumentsTokenizer.AsNullable()
-        //.Or(PythonTypeArgumentsTokenizer)
-        .Or(PythonTypeNameTokenizer.AsNullable())
-        .Named("Type Definition");
+    (from name in Token.EqualTo(PythonToken.Identifier).Or(Token.EqualTo(PythonToken.None)).OptionalOrDefault()
+#pragma warning disable CS8620
+     from openBracket in Token.EqualTo(PythonToken.OpenBracket)
+        .Then(_ =>
+            PythonTypeDefinitionTokenizer
+                .AssumeNotNull()
+                .ManyDelimitedBy(
+                    Token.EqualTo(PythonToken.Comma),
+                    Token.EqualTo(PythonToken.CloseBracket)
+                )
+        )
+#pragma warning restore CS8620
+        .OptionalOrDefault()
+     select name.HasValue ? new PythonTypeSpec(name.ToStringValue(), openBracket)
+                          : openBracket is null ? null : new PythonTypeSpec("argumentCollection__", openBracket)
+     )
+    .Named("Type Definition");
 }

@@ -5,15 +5,21 @@ on:
     types:
       - completed
 jobs:
-  report:
+  on-success:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       attestations: write
       id-token: write
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: nuget-packages
           run-id: ${{ github.event.workflow_run.id }}
+  on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - run: echo 'The triggering workflow failed, packages will not be published.'

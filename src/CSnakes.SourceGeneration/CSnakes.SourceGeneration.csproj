@@ -3,7 +3,6 @@
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <NoWarn>$(NoWarn);RS1035</NoWarn>
-    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +27,4 @@
       <TargetPathWithTargetPlatformMoniker Include="$(PKGSuperpower)\lib\netstandard2.0\Superpower.dll" IncludeRuntimeDependency="false" />
     </ItemGroup>
   </Target>
-
-  <Import Project="Packaging.targets" />
 </Project>

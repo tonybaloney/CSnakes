@@ -76,6 +76,7 @@ var result = testModule.ExampleArray2D();
 // Get the buffer contents as a two-dimensional Span of int
 Span2D<int> result2D = result.AsIntSpan2D();
 Console.WriteLine(result2D[0, 0]); // 1
+Console.WriteLine(result2D[2, 3]); // 6
 
 ```
 
@@ -89,7 +90,6 @@ For example:
 def example_tensor() -> Buffer:
     arr = np.zeros((2, 3, 4, 5), dtype=np.int32)
     arr[0, 0, 0, 0] = 1
-    arr[0, 0, 0, 1] = 2
     arr[1, 2, 3, 4] = 3
     return arr
 ```
@@ -103,7 +103,7 @@ var result = testModule.ExampleTensor();
 // Get the buffer contents as a N-dimensional TensorSpan of int
 TensorSpan<int> resultTensor = result.AsTensorSpan<int>(); // or AsInt32ReadOnlyTensorSpan
 Console.WriteLine(resultTensor[0, 0, 0, 0]); // 1
-Console.WriteLine(resultTensor[1, 2, 3, 4]); // 2
+Console.WriteLine(resultTensor[1, 2, 3, 4]); // 3
 ```
 
 ## NumPy Type Conversion

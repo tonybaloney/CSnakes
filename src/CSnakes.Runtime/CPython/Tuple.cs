@@ -7,6 +7,12 @@ internal unsafe partial class CPythonAPI
     private static nint PyTupleType = IntPtr.Zero;
     private static nint PyEmptyTuple = IntPtr.Zero;
 
+    public static nint GetPyEmptyTuple()
+    {
+        Py_IncRefRaw(PyEmptyTuple);
+        return PyEmptyTuple;
+    }
+
     /// <summary>
     /// Create a PyTuple from the PyObject pointers in `items`.
     /// Function handles the reference increments to items.
@@ -17,10 +23,7 @@ internal unsafe partial class CPythonAPI
     {
         // This is a shortcut to a CPython optimization. Keep an empty tuple and reuse it.
         if (items.Length == 0)
-        {
-            Py_IncRefRaw(PyEmptyTuple);
-            return PyEmptyTuple;
-        }
+            return GetPyEmptyTuple();
 
         nint tuple = PyTuple_New(items.Length);
         for (int i = 0; i < items.Length; i++)

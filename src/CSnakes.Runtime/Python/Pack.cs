@@ -11,34 +11,19 @@ namespace CSnakes.Runtime.Python;
 /// </summary>
 internal static class Pack
 {
-    internal static PyObject CreateTuple(Span<PyObject> items)
-    {
-        List<SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn> marshallers = new(items.Length);
-        try
-        {
-            var handles = items.Length < 18 // .NET tuples are max 17 items. This is a performance optimization.
-                ? stackalloc IntPtr[items.Length]
-                : new IntPtr[items.Length];
+    internal static PyObject CreateTuple(Span<PyObject> items) =>
+        PyObject.Create(CreateListOrTuple<TupleBuilder>(items));
 
-            for (int i = 0; i < items.Length; i++)
-            {
-                SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn m = default;
-                m.FromManaged(items[i]);
-                marshallers.Add(m);
-                handles[i] = m.ToUnmanaged();
-            }
-            return PyObject.Create(CPythonAPI.PackTuple(handles));
-        }
-        finally
-        {
-            foreach (var m in marshallers)
-            {
-                m.Free();
-            }
-        }
+    internal static PyObject CreateList(Span<PyObject> items) =>
+        PyObject.Create(CreateListOrTuple<ListBuilder>(items));
+
+    public interface IListOrTupleBuilder
+    {
+        static abstract nint New(nint size);
+        static abstract int SetItemRaw(nint ob, nint pos, nint o);
     }
 
-    internal static PyObject CreateList(Span<PyObject> items)
+    public sealed class ListBuilder : IListOrTupleBuilder
     {
         // As per Python/C API docs for `PyList_New`:
         //
@@ -49,7 +34,20 @@ internal static class Pack
         //
         // Source: https://docs.python.org/3/c-api/list.html#c.PyList_New
 
-        nint list = 0;
+        public static IntPtr New(IntPtr size) => CPythonAPI.PyList_New(size);
+        public static int SetItemRaw(IntPtr ob, IntPtr pos, IntPtr o) => CPythonAPI.PyList_SetItemRaw(ob, pos, o);
+    }
+
+    public sealed class TupleBuilder : IListOrTupleBuilder
+    {
+        public static IntPtr New(IntPtr size) => size == 0 ? CPythonAPI.GetPyEmptyTuple() : CPythonAPI.PyTuple_New(size);
+        public static int SetItemRaw(IntPtr ob, IntPtr pos, IntPtr o) => CPythonAPI.PyTuple_SetItemRaw(ob, pos, o);
+    }
+
+    public static nint CreateListOrTuple<TBuilder>(Span<PyObject> items)
+        where TBuilder : IListOrTupleBuilder
+    {
+        nint obj = 0;
 
         List<SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn>? marshallers = null;
 
@@ -72,25 +70,25 @@ internal static class Pack
 
             Debug.Assert(uninitializedHandles.Length == 0);
 
-            list = CPythonAPI.PyList_New(items.Length);
+            obj = TBuilder.New(items.Length);
 
             var i = 0;
             foreach (var handle in handles)
             {
-                int result = CPythonAPI.PyList_SetItemRaw(list, i++, handle);
+                int result = TBuilder.SetItemRaw(obj, i++, handle);
                 if (result == -1)
                 {
                     throw PyObject.ThrowPythonExceptionAsClrException();
                 }
             }
 
-            return PyObject.Create(list);
+            return obj;
         }
         catch
         {
-            if (list != 0)
+            if (obj != 0)
             {
-                CPythonAPI.Py_DecRefRaw(list);
+                CPythonAPI.Py_DecRefRaw(obj);
             }
 
             throw;

@@ -1,0 +1,17 @@
+name: "Test Report"
+on:
+  workflow_run:
+    workflows: [".NET CI"]
+    types:
+      - completed
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: phoenix-actions/test-reporting@v15
+        id: test-report
+        with:
+          path: "**/*.trx"
+          reporter: dotnet-trx
+          artifact: /test-results-(.*)/
+          name: ".NET Test report $1"

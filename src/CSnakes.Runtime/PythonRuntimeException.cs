@@ -6,15 +6,29 @@ public class PythonRuntimeException : Exception
     private readonly PyObject? pythonTracebackObject;
     private string[]? formattedStackTrace = null;
 
-    public PythonRuntimeException(string message, PyObject? traceback): base(message)
+    public PythonRuntimeException(PyObject? exception, PyObject? traceback): base(exception?.ToString(), GetPythonInnerException(exception))
     {
         pythonTracebackObject = traceback;
         if (traceback is null)
         {
             return;
         }
+
         Data["locals"] = traceback.GetAttr("tb_frame").GetAttr("f_locals").As<IReadOnlyDictionary<string, PyObject>>();
         Data["globals"] = traceback.GetAttr("tb_frame").GetAttr("f_globals").As<IReadOnlyDictionary<string, PyObject>>();
+    }
+
+    private static PythonRuntimeException? GetPythonInnerException(PyObject? exception)
+    {
+        if (exception is null)
+        {
+            return null;
+        }
+        if (exception.HasAttr("__cause__") && !exception.GetAttr("__cause__").IsNone())
+        {
+            return new PythonRuntimeException(exception.GetAttr("__cause__"), null);
+        }
+        return null;
     }
 
     public string[] PythonStackTrace

@@ -80,24 +80,18 @@ public class PyObject : SafeHandle, ICloneable
 
             using var pyExceptionType = Create(excType);
             PyObject? pyExceptionTraceback = excTraceback == IntPtr.Zero ? null : new PyObject(excTraceback);
+            PyObject? pyException = excValue == IntPtr.Zero ? null : Create(excValue);
 
-            var pyExceptionStr = string.Empty;
-            if (excValue != IntPtr.Zero)
-            {
-                using PyObject pyExceptionValue = Create(excValue);
-                pyExceptionStr = pyExceptionValue.ToString();
-            }
-             ;
             // TODO: Consider adding __qualname__ as well for module exceptions that aren't builtins
             var pyExceptionTypeStr = pyExceptionType.GetAttr("__name__").ToString();
             CPythonAPI.PyErr_Clear();
 
             if (string.IsNullOrEmpty(message))
             {
-                return new PythonInvocationException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback);
+                return new PythonInvocationException(pyExceptionTypeStr, pyException, pyExceptionTraceback);
             }
 
-            return new PythonInvocationException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback, message);
+            return new PythonInvocationException(pyExceptionTypeStr, pyException, pyExceptionTraceback, message);
         }
     }
 

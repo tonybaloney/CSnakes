@@ -25,4 +25,17 @@ public class ExceptionTests : IntegrationTestBase
         var topFrameGlobals = (IReadOnlyDictionary<string, PyObject>?)pythonRuntimeException.Data["globals"];
         Assert.Equal("1337", topFrameGlobals?["some_global"].ToString());
     }
+
+    [Fact]
+    public void TestNestedExceptions()
+    {
+        var testExceptionsModule = Env.TestExceptions();
+        // This should fail. The python function raises an exception.
+        var exception = Assert.Throws<PythonInvocationException>(testExceptionsModule.TestNestedPythonException);
+        Assert.NotNull(exception.InnerException);
+        Assert.Equal("This is a nested Python exception", exception.InnerException.Message);
+        Assert.Equal("ValueError", exception.PythonExceptionType);
+
+        Assert.Equal("This is a Python exception", exception.InnerException.InnerException?.Message);
+    }
 }

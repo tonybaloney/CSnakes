@@ -23,6 +23,7 @@ Check out the [getting started](getting-started.md) guide or check out the [demo
 - Uses Python type hinting to generate function signatures with .NET native types
 - Supports nested sequence and mapping types (`tuple`, `dict`, `list`)
 - Supports default values
+- Efficiently access numpy arrays as 1 or 2 dimensional Spans [1](buffers.md)
 
 ## Benefits
 

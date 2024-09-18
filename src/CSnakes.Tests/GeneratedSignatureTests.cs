@@ -36,9 +36,9 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
     [InlineData("def hello(a: int = 2147483648) -> None:\n ...\n", "void Hello(long a = 2147483648L)")]
     [InlineData("def hello(a: Optional[int] = None) -> None:\n ...\n", "void Hello(long? a = null)")]
     [InlineData("def hello(a: typing.List[int], b: typing.Dict[str, int]) -> typing.Tuple[str, int]:\n ...\n", "public (string, long) Hello(IReadOnlyList<long> a, IReadOnlyDictionary<string, long> b)")]
+    [InlineData("def hello() -> Buffer:\n ...\n", "IPyBuffer Hello()")]
     public void TestGeneratedSignature(string code, string expected)
     {
-
         var tempName = string.Format("{0}_{1:N}", "test", Guid.NewGuid().ToString("N"));
         File.WriteAllText(Path.Combine(testEnv.TempDir, $"{tempName}.py"), code);
 

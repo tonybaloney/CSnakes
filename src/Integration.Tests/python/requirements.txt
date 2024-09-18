@@ -1,1 +1,3 @@
 httpx
+numpy
+typing-extensions

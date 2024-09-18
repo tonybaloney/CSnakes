@@ -3,6 +3,7 @@ nav:
   - Home: index.md
   - Getting Started: getting-started.md
   - Reference: reference.md
+  - Buffer Protocol and NumPy Arrays: buffers.md
   - Advanced Usage: advanced.md
   - Limitations: limitations.md
   - FAQ: faq.md
@@ -22,3 +23,5 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.superfences
   - attr_list
+  - admonition
+  - pymdownx.details

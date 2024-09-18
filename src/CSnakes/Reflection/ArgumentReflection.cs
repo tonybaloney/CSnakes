@@ -22,8 +22,8 @@ public class ArgumentReflection
         TypeSyntax reflectedType = parameter.ParameterType switch
         {
             PythonFunctionParameterType.Star => ArrayPyObject,
-            PythonFunctionParameterType.DoubleStar => TypeReflection.AsPredefinedType(DictStrAny),
-            PythonFunctionParameterType.Normal => TypeReflection.AsPredefinedType(parameter.Type),
+            PythonFunctionParameterType.DoubleStar => TypeReflection.AsPredefinedType(DictStrAny, TypeReflection.ConversionDirection.ToPython),
+            PythonFunctionParameterType.Normal => TypeReflection.AsPredefinedType(parameter.Type, TypeReflection.ConversionDirection.ToPython),
             _ => throw new NotImplementedException()
         };
 

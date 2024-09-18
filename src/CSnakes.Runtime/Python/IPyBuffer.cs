@@ -1,4 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
+#if NET9_0_OR_GREATER
+using System.Numerics.Tensors;
+#endif
 
 namespace CSnakes.Runtime.Python;
 public interface IPyBuffer
@@ -29,5 +32,11 @@ public interface IPyBuffer
 
     Span2D<T> AsSpan2D<T>() where T : unmanaged;
     ReadOnlySpan2D<T> AsReadOnlySpan2D<T>() where T : unmanaged;
+
+
+#if NET9_0_OR_GREATER
+    TensorSpan<T> AsTensorSpan<T>() where T : unmanaged;
+    ReadOnlyTensorSpan<T> AsReadOnlyTensorSpan<T>() where T : unmanaged;
+#endif
 
 }

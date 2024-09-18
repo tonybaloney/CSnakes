@@ -2,6 +2,9 @@
 using CSnakes.Runtime.CPython;
 using System.Runtime.InteropServices.Marshalling;
 using System.Runtime.InteropServices;
+#if NET9_0_OR_GREATER
+using System.Numerics.Tensors;
+#endif
 
 namespace CSnakes.Runtime.Python;
 internal sealed class PyBuffer : IPyBuffer, IDisposable
@@ -75,6 +78,15 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
     public bool IsReadOnly => _buffer.@readonly == 1;
 
     public int Dimensions => _buffer.ndim == 0 ? 1 : _buffer.ndim;
+
+    private unsafe ReadOnlySpan<nint> Shape
+    {
+        get
+        {
+            EnsureShapeAndStrides();
+            return new ReadOnlySpan<nint>(_buffer.shape, _buffer.ndim);
+        }
+    }
 
     public Type GetItemType()
     {
@@ -184,7 +196,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
     {
         EnsureDimensions(2);
         EnsureShapeAndStrides();
-        if (_buffer.shape[0] * _buffer.shape[1] * sizeof(T) != Length)
+        if (Shape[0] * Shape[1] * sizeof(T) != Length)
         {
             throw new InvalidOperationException("Buffer length is not equal to shape");
         }
@@ -235,4 +247,51 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
             (int)((int)_buffer.strides[0] - (_buffer.shape[1] * _buffer.itemsize)) // pitch = stride - (width * itemsize)
         );
     }
+
+    #region Tensors
+#if NET9_0_OR_GREATER
+    private unsafe TensorSpan<T> AsTensorSpanInternal<T>() where T : unmanaged
+    {
+        if (IsReadOnly)
+        {
+            throw new InvalidOperationException("Buffer is read-only, use an As[T]ReadOnlyTensorSpan method.");
+        }
+        ValidateBufferCommon<T>();
+        EnsureShapeAndStrides();
+        nint[] strides = new nint[_buffer.ndim];
+        for (int i = 0; i < _buffer.ndim; i++)
+        {
+            strides[i] = _buffer.strides[i] / sizeof(T);
+        }
+        return new TensorSpan<T>(
+            (T*)_buffer.buf,
+            _buffer.len,
+            Shape,
+            strides
+        );
+    }
+
+    private unsafe ReadOnlyTensorSpan<T> AsReadOnlyTensorSpanInternal<T>() where T : unmanaged
+    {
+        ValidateBufferCommon<T>();
+        EnsureShapeAndStrides();
+        nint[] strides = new nint[_buffer.ndim];
+        for (int i = 0; i < _buffer.ndim; i++)
+        {
+            strides[i] = _buffer.strides[i] / sizeof(T);
+        }
+
+        return new ReadOnlyTensorSpan<T>(
+            (T*)_buffer.buf,
+            _buffer.len,
+            Shape,
+            strides
+        );
+    }
+
+    public TensorSpan<T> AsTensorSpan<T>() where T : unmanaged => AsTensorSpanInternal<T>();
+    public ReadOnlyTensorSpan<T> AsReadOnlyTensorSpan<T>() where T : unmanaged => AsReadOnlyTensorSpanInternal<T>();
+
+#endif
+    #endregion
 }

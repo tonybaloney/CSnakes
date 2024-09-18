@@ -382,4 +382,54 @@ public class BufferTests : IntegrationTestBase
         var testModule = Env.TestBuffer();
         Assert.Throws<PythonInvocationException>(testModule.TestTransposedBuffer);
     }
+
+#if NET9_0_OR_GREATER
+    [Fact]
+    public void TestNDim3Tensor()
+    {
+        var testModule = Env.TestBuffer();
+        var bufferObject = testModule.TestNdim3dBuffer();
+        Assert.Equal(3, bufferObject.Dimensions);
+        var tensor = bufferObject.AsTensorSpan<int>();
+        Assert.Equal(typeof(int), bufferObject.GetItemType());
+        Assert.Equal(1, tensor[0, 0, 0]);
+        Assert.Equal(3, tensor[1, 2, 3]);
+    }
+
+    [Fact]
+    public void TestNDim4Tensor(){
+        var testModule = Env.TestBuffer();
+        var bufferObject = testModule.TestNdim4dBuffer();
+        Assert.Equal(4, bufferObject.Dimensions);
+        var tensor = bufferObject.AsTensorSpan<int>();
+        Assert.Equal(typeof(int), bufferObject.GetItemType());
+        Assert.Equal(1, tensor[0, 0, 0, 0]);
+        Assert.Equal(3, tensor[1, 2, 3, 4]);
+    }
+
+    [Fact]
+    public void TestNDim3ReadOnlyTensor()
+    {
+        var testModule = Env.TestBuffer();
+        var bufferObject = testModule.TestNdim3dBuffer();
+        Assert.Equal(3, bufferObject.Dimensions);
+        var tensor = bufferObject.AsReadOnlyTensorSpan<int>();
+        Assert.Equal(typeof(int), bufferObject.GetItemType());
+        Assert.Equal(1, tensor[0, 0, 0]);
+        Assert.Equal(3, tensor[1, 2, 3]);
+    }
+
+    [Fact]
+    public void TestNDim4ReadOnlyTensor()
+    {
+        var testModule = Env.TestBuffer();
+        var bufferObject = testModule.TestNdim4dBuffer();
+        Assert.Equal(4, bufferObject.Dimensions);
+        var tensor = bufferObject.AsReadOnlyTensorSpan<int>();
+        Assert.Equal(typeof(int), bufferObject.GetItemType());
+        Assert.Equal(1, tensor[0, 0, 0, 0]);
+        Assert.Equal(3, tensor[1, 2, 3, 4]);
+    }
+
+#endif
 }

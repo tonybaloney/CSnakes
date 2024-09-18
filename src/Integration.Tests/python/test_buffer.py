@@ -91,3 +91,17 @@ def test_non_contiguous_buffer() -> Buffer:
 
 def test_transposed_buffer() -> Buffer:
     return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32).T
+
+def test_ndim_3d_buffer() -> Buffer:
+    arr =  np.zeros((2, 3, 4), dtype=np.int32)
+    arr[0, 0, 0] = 1
+    arr[0, 0, 1] = 2
+    arr[1, 2, 3] = 3
+    return arr
+
+def test_ndim_4d_buffer() -> Buffer:
+    arr = np.zeros((2, 3, 4, 5), dtype=np.int32)
+    arr[0, 0, 0, 0] = 1
+    arr[0, 0, 0, 1] = 2
+    arr[1, 2, 3, 4] = 3
+    return arr

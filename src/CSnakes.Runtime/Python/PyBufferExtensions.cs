@@ -1,7 +1,5 @@
 ﻿using CommunityToolkit.HighPerformance;
-#if NET9_0_OR_GREATER
-using System.Numerics.Tensors;
-#endif
+
 
 namespace CSnakes.Runtime.Python;
 public static class PyBufferExtensions
@@ -77,8 +75,5 @@ public static class PyBufferExtensions
     public static ReadOnlySpan2D<nuint> AsUIntPtrReadOnlySpan2D(this IPyBuffer buffer) => buffer.AsReadOnlySpan2D<nuint>();
     #endregion
 
-#if NET9_0_OR_GREATER
-    public static Tensor<T> AsTensor<T>(this IPyBuffer buffer) => throw new NotImplementedException();
 
-#endif
 }

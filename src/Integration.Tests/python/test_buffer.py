@@ -2,7 +2,7 @@ try:
     from collections.abc import Buffer
 except ImportError:
     from typing_extensions import Buffer
-
+from numpy.__config__ import show as show_config
 import numpy as np
 
 def test_bool_buffer() -> Buffer:

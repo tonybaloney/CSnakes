@@ -1,0 +1,19 @@
+name: "Publish NuGet packages to GitHub Packages"
+on:
+  workflow_run:
+    workflows: [".NET Publish (CI)"]
+    types:
+      - completed
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          run-id: ${{ github.event.workflow_run.id }}

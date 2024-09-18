@@ -25,6 +25,8 @@ internal static class Pack
 
     private sealed class ListBuilder : IListOrTupleBuilder
     {
+        private ListBuilder() { }
+
         // As per Python/C API docs for `PyList_New`:
         //
         // > If len is greater than zero, the returned list object's items are set to `NULL`. Thus
@@ -40,6 +42,7 @@ internal static class Pack
 
     private sealed class TupleBuilder : IListOrTupleBuilder
     {
+        private TupleBuilder() { }
         public static IntPtr New(IntPtr size) => size == 0 ? CPythonAPI.GetPyEmptyTuple() : CPythonAPI.PyTuple_New(size);
         public static int SetItemRaw(IntPtr ob, IntPtr pos, IntPtr o) => CPythonAPI.PyTuple_SetItemRaw(ob, pos, o);
     }

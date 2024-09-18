@@ -1,6 +1,9 @@
 ﻿using CSnakes.Runtime.CPython;
+using System.Buffers;
 using System.Diagnostics;
-using System.Runtime.InteropServices.Marshalling;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using PyObjectMarshaller = System.Runtime.InteropServices.Marshalling.SafeHandleMarshaller<CSnakes.Runtime.Python.PyObject>;
 
 namespace CSnakes.Runtime.Python;
 
@@ -47,45 +50,88 @@ internal static class Pack
         public static int SetItemRaw(IntPtr ob, IntPtr pos, IntPtr o) => CPythonAPI.PyTuple_SetItemRaw(ob, pos, o);
     }
 
+    const int FixedArrayLength = 8;
+
+    [InlineArray(FixedArrayLength)]
+    private struct ArrayOf8<T>
+    {
+        private T _;
+    }
+
     private static nint CreateListOrTuple<TBuilder>(Span<PyObject> items)
         where TBuilder : IListOrTupleBuilder
     {
-        nint obj = 0;
+        // Allocate initial space for the handles and marshallers on the stack.
+        // If the number of items exceeds the stack space, allocate and spill
+        // the rest into an array on the heap.
+        // TODO Consider using an array pool for the spilled handles and marshallers.
 
-        List<SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn>? marshallers = null;
+        const int stackSpillThreshold = FixedArrayLength;
+        var spillLength = Math.Max(0, items.Length - stackSpillThreshold);
+
+        Span<nint> initialHandles = stackalloc nint[Math.Min(stackSpillThreshold, items.Length)];
+        nint[]? spilledHandles = spillLength > 0 ? new nint[spillLength] : null;
+
+        var initialMarshallers = new ArrayOf8<PyObjectMarshaller.ManagedToUnmanagedIn>();
+        PyObjectMarshaller.ManagedToUnmanagedIn[]? spilledMarshallers =
+            spillLength > 0
+            ? new PyObjectMarshaller.ManagedToUnmanagedIn[spillLength]
+            : null;
+
+        var uninitializedMarshallers = MemoryMarshal.CreateSpan(ref Unsafe.As<ArrayOf8<PyObjectMarshaller.ManagedToUnmanagedIn>, PyObjectMarshaller.ManagedToUnmanagedIn>(ref initialMarshallers), stackSpillThreshold);
+        var uninitializedHandles = initialHandles;
+
+        // The following loop initializes the marshallers and handles for each
+        // item in the input span. It is assumed that no exceptions are thrown
+        // during this loop. The marshallers are freed in the finally block of
+        // the actual list/tuple initialization.
+
+        foreach (var item in items)
+        {
+            PyObjectMarshaller.ManagedToUnmanagedIn m = default;
+            m.FromManaged(item);
+
+            if (uninitializedMarshallers.IsEmpty)
+            {
+                Debug.Assert(spilledMarshallers is not null);
+                uninitializedMarshallers = spilledMarshallers;
+            }
+
+            uninitializedMarshallers[0] = m;
+            uninitializedMarshallers = uninitializedMarshallers[1..];
+
+            if (uninitializedHandles.IsEmpty)
+            {
+                Debug.Assert(spilledHandles is not null);
+                uninitializedHandles = spilledHandles;
+            }
+
+            uninitializedHandles[0] = m.ToUnmanaged();
+            uninitializedHandles = uninitializedHandles[1..];
+        }
+
+        nint obj = 0;
 
         try
         {
-            var handles = items.Length <= 8
-                ? stackalloc nint[items.Length]
-                : new nint[items.Length];
-
-            var uninitializedHandles = handles;
-            foreach (var item in items)
-            {
-                SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn m = default;
-                m.FromManaged(item);
-                marshallers ??= new(items.Length);
-                marshallers.Add(m);
-                uninitializedHandles[0] = m.ToUnmanaged();
-                uninitializedHandles = uninitializedHandles[1..];
-            }
-
-            Debug.Assert(uninitializedHandles.Length == 0);
-
             obj = TBuilder.New(items.Length);
-
-            var i = 0;
-            foreach (var handle in handles)
-            {
-                int result = TBuilder.SetItemRaw(obj, i++, handle);
-                if (result == -1)
-                {
-                    throw PyObject.ThrowPythonExceptionAsClrException();
-                }
-            }
+            SetItems(spilledHandles, SetItems(initialHandles, 0));
 
             return obj;
+
+            int SetItems(Span<nint> handles, int i)
+            {
+                foreach (var handle in handles)
+                {
+                    int result = TBuilder.SetItemRaw(obj, i++, handle);
+                    if (result == -1)
+                    {
+                        throw PyObject.ThrowPythonExceptionAsClrException();
+                    }
+                }
+
+                return i;
+            }
         }
         catch
         {
@@ -98,9 +144,21 @@ internal static class Pack
         }
         finally
         {
-            if (marshallers is not null)
+            if (spilledMarshallers is null)
             {
-                foreach (var m in marshallers)
+                foreach (var m in initialMarshallers[..items.Length])
+                {
+                    m.Free();
+                }
+            }
+            else
+            {
+                foreach (var m in initialMarshallers)
+                {
+                    m.Free();
+                }
+
+                foreach (var m in spilledMarshallers)
                 {
                     m.Free();
                 }

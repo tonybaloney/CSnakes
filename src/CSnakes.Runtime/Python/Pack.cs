@@ -17,13 +17,13 @@ internal static class Pack
     internal static PyObject CreateList(Span<PyObject> items) =>
         PyObject.Create(CreateListOrTuple<ListBuilder>(items));
 
-    public interface IListOrTupleBuilder
+    private interface IListOrTupleBuilder
     {
         static abstract nint New(nint size);
         static abstract int SetItemRaw(nint ob, nint pos, nint o);
     }
 
-    public sealed class ListBuilder : IListOrTupleBuilder
+    private sealed class ListBuilder : IListOrTupleBuilder
     {
         // As per Python/C API docs for `PyList_New`:
         //
@@ -38,13 +38,13 @@ internal static class Pack
         public static int SetItemRaw(IntPtr ob, IntPtr pos, IntPtr o) => CPythonAPI.PyList_SetItemRaw(ob, pos, o);
     }
 
-    public sealed class TupleBuilder : IListOrTupleBuilder
+    private sealed class TupleBuilder : IListOrTupleBuilder
     {
         public static IntPtr New(IntPtr size) => size == 0 ? CPythonAPI.GetPyEmptyTuple() : CPythonAPI.PyTuple_New(size);
         public static int SetItemRaw(IntPtr ob, IntPtr pos, IntPtr o) => CPythonAPI.PyTuple_SetItemRaw(ob, pos, o);
     }
 
-    public static nint CreateListOrTuple<TBuilder>(Span<PyObject> items)
+    private static nint CreateListOrTuple<TBuilder>(Span<PyObject> items)
         where TBuilder : IListOrTupleBuilder
     {
         nint obj = 0;

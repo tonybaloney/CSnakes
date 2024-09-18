@@ -1,28 +1,22 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-    </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>CSnakes.Runtime</PackageId>
+    <Title>CSnakes Runtime</Title>
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>$(EnableLocalPackaging)</GeneratePackageOnBuild>
 
-    <ItemGroup>
-        <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.3.0" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="System.Text.Json" Version="8.0.4" />
-    </ItemGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
 
-    <PropertyGroup>
-        <PackageId>CSnakes.Runtime</PackageId>
-        <Title>CSnakes Runtime</Title>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <GeneratePackageOnBuild>$(EnableLocalPackaging)</GeneratePackageOnBuild>
-        <PackageOutputPath>../../nuget</PackageOutputPath>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
+  <ItemGroup>
+	  <PackageReference Include="CommunityToolkit.HighPerformance" />
+	  <PackageReference Include="Microsoft.Extensions.Hosting" />
+      <PackageReference Include="Microsoft.SourceLink.GitHub">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Text.Json" />
+  </ItemGroup>
 
 </Project>

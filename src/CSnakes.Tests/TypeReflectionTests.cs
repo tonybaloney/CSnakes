@@ -41,6 +41,9 @@ public class TypeReflectionTests
     [InlineData("Tuple[str, list[int]]", "(string,IReadOnlyList<long>)")]
     [InlineData("Dict[str, int]", "IReadOnlyDictionary<string,long>")]
     [InlineData("Tuple[int, int, Tuple[int, int]]", "(long,long,(long,long))")]
+    [InlineData("Optional[str]", "string")]
+    [InlineData("Optional[int]", "long")]
+    [InlineData("Callable[[str], int]", "PyObject")]
     public void AsPredefinedTypeOldTypeNames(string pythonType, string expectedType) =>
         ParsingTestInternal(pythonType, expectedType);
 
@@ -68,7 +71,7 @@ public class TypeReflectionTests
     {
         var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
         var result = PythonParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
-        Assert.True(result.HasValue);
+        Assert.True(result.HasValue, result.ToString());
         Assert.NotNull(result.Value);
         var reflectedType = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.FromPython);
         Assert.Equal(expectedType, reflectedType.ToString());

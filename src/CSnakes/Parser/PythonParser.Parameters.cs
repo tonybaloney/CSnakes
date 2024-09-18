@@ -12,8 +12,9 @@ public static partial class PythonParser
 
     public static TokenListParser<PythonToken, PythonFunctionParameter> PythonParameterTokenizer { get; } =
         (from arg in PythonArgTokenizer
-         from colon in Token.EqualTo(PythonToken.Colon).Optional()
-         from type in PythonTypeDefinitionTokenizer.AssumeNotNull().OptionalOrDefault()
+         from type in Token.EqualTo(PythonToken.Colon).Optional().Then(
+                _ => PythonTypeDefinitionTokenizer.AssumeNotNull().OptionalOrDefault()
+             )
          from defaultValue in Token.EqualTo(PythonToken.Equal).Optional().Then(
                  _ => ConstantValueTokenizer.AssumeNotNull().OptionalOrDefault()
              )

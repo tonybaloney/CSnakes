@@ -425,7 +425,7 @@ public class BufferTests : IntegrationTestBase
         var testModule = Env.TestBuffer();
         var bufferObject = testModule.TestNdim4dBuffer();
         Assert.Equal(4, bufferObject.Dimensions);
-        var tensor = bufferObject.AsReadOnlyTensorSpan<int>();
+        var tensor = bufferObject.AsInt32ReadOnlyTensorSpan();
         Assert.Equal(typeof(int), bufferObject.GetItemType());
         Assert.Equal(1, tensor[0, 0, 0, 0]);
         Assert.Equal(3, tensor[1, 2, 3, 4]);

@@ -79,6 +79,32 @@ Console.WriteLine(result2D[0, 0]); // 1
 
 ```
 
+## N-dimensional Buffers (.NET 9)
+
+In .NET 9, the `IPyBuffer` interface also provides methods for working with N-dimensional buffers using the Experimental [`System.Numerics.TensorSpan` type](https://learn.microsoft.com/en-us/dotnet/api/system.numerics.tensors.tensorspan-1?view=net-8.0). You can use the `AsTensorSpan` and `AsReadOnlyTensorSpan` methods to get a N-dimensional TensorSpan of the buffer contents.
+
+For example:
+
+```python
+def example_tensor() -> Buffer:
+    arr = np.zeros((2, 3, 4, 5), dtype=np.int32)
+    arr[0, 0, 0, 0] = 1
+    arr[0, 0, 0, 1] = 2
+    arr[1, 2, 3, 4] = 3
+    return arr
+```
+
+From .NET you can access the buffer as a N-dimensional TensorSpan:
+
+```csharp
+// Where testModule is a Python module that contains the example_tensor function
+var result = testModule.ExampleTensor();
+
+// Get the buffer contents as a N-dimensional TensorSpan of int
+TensorSpan<int> resultTensor = result.AsTensorSpan();
+Console.WriteLine(resultTensor[0, 0, 0, 0]); // 1
+Console.WriteLine(resultTensor[1, 2, 3, 4]); // 2
+```
 
 ## NumPy Type Conversion
 

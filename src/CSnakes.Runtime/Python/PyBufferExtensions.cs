@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
-
+#if NET9_0_OR_GREATER
+using System.Numerics.Tensors;
+#endif
 
 namespace CSnakes.Runtime.Python;
 public static class PyBufferExtensions
@@ -75,5 +77,35 @@ public static class PyBufferExtensions
     public static ReadOnlySpan2D<nuint> AsUIntPtrReadOnlySpan2D(this IPyBuffer buffer) => buffer.AsReadOnlySpan2D<nuint>();
     #endregion
 
+    #region AsTensorSpan
+#if NET9_0_OR_GREATER
+    public static TensorSpan<bool> AsBoolTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<bool>();
+    public static TensorSpan<byte> AsByteTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<byte>();
+    public static TensorSpan<sbyte> AsSByteTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<sbyte>();
+    public static TensorSpan<short> AsInt16TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<short>();
+    public static TensorSpan<ushort> AsUInt16TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<ushort>();
+    public static TensorSpan<int> AsInt32TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<int>();
+    public static TensorSpan<uint> AsUInt32TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<uint>();
+    public static TensorSpan<long> AsInt64TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<long>();
+    public static TensorSpan<ulong> AsUInt64TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<ulong>();
+    public static TensorSpan<float> AsFloatTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<float>();
+    public static TensorSpan<double> AsDoubleTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<double>();
+    public static TensorSpan<nint> AsIntPtrTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<nint>();
+    public static TensorSpan<nuint> AsUIntPtrTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<nuint>();
 
+    public static ReadOnlyTensorSpan<bool> AsBoolReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<bool>();
+    public static ReadOnlyTensorSpan<byte> AsByteReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<byte>();
+    public static ReadOnlyTensorSpan<sbyte> AsSByteReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<sbyte>();
+    public static ReadOnlyTensorSpan<short> AsInt16ReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<short>();
+    public static ReadOnlyTensorSpan<ushort> AsUInt16ReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<ushort>();
+    public static ReadOnlyTensorSpan<int> AsInt32ReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<int>();
+    public static ReadOnlyTensorSpan<uint> AsUInt32ReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<uint>();
+    public static ReadOnlyTensorSpan<long> AsInt64ReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<long>();
+    public static ReadOnlyTensorSpan<ulong> AsUInt64ReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<ulong>();
+    public static ReadOnlyTensorSpan<float> AsFloatReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<float>();
+    public static ReadOnlyTensorSpan<double> AsDoubleReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<double>();
+    public static ReadOnlyTensorSpan<nint> AsIntPtrReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<nint>();
+    public static ReadOnlyTensorSpan<nuint> AsUIntPtrReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<nuint>();
+#endif
+    #endregion
 }

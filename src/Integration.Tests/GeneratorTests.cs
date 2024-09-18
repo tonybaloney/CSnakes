@@ -1,5 +1,5 @@
 ﻿namespace Integration.Tests;
-public class GeneratorTests: IntegrationTestBase
+public class GeneratorTests : IntegrationTestBase
 {
     [Fact]
     public void TestGenerator()
@@ -10,7 +10,7 @@ public class GeneratorTests: IntegrationTestBase
         Assert.True(generator.MoveNext());
         Assert.Equal("Item 0", generator.Current);
         Assert.Equal("Received 10", generator.Send(10));
-        Assert.Equal(["Item 1", "Item 2"], generator.ToArray());
+        Assert.Equal<string[]>(["Item 1", "Item 2"], generator.ToArray());
     }
 
     [Fact]
@@ -19,6 +19,6 @@ public class GeneratorTests: IntegrationTestBase
         // Test the most likely scenario of TSend and TReturn being None
         var mod = Env.TestGenerators();
         var generator = mod.TestNormalGenerator();
-        Assert.Equal(["one", "two"], generator.ToArray());
+        Assert.Equal<string[]>(["one", "two"], generator.ToArray());
     }
 }

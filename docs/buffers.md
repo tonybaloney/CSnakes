@@ -101,7 +101,7 @@ From .NET you can access the buffer as a N-dimensional TensorSpan:
 var result = testModule.ExampleTensor();
 
 // Get the buffer contents as a N-dimensional TensorSpan of int
-TensorSpan<int> resultTensor = result.AsTensorSpan();
+TensorSpan<int> resultTensor = result.AsTensorSpan<int>(); // or AsInt32ReadOnlyTensorSpan
 Console.WriteLine(resultTensor[0, 0, 0, 0]); // 1
 Console.WriteLine(resultTensor[1, 2, 3, 4]); // 2
 ```

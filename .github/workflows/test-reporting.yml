@@ -11,7 +11,7 @@ jobs:
       - uses: phoenix-actions/test-reporting@v15
         id: test-report
         with:
-          path: "*.trx"
+          path: "**/*.trx"
           reporter: dotnet-trx
           artifact: /test-results-(.*)/
           name: ".NET Test report $1"

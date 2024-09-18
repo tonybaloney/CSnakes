@@ -15,4 +15,3 @@ jobs:
           reporter: dotnet-trx
           artifact: /test-results-(.*)/
           name: ".NET Test report $1"
-          output-to: step-summary

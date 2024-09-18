@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CSnakes.Runtime\CSnakes.Runtime.csproj" />
-    <ProjectReference Include="..\CSnakes\CSnakes.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>

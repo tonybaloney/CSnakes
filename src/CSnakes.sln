@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSnakes", "CSnakes\CSnakes.csproj", "{3912E0F4-493B-4B26-A44D-B095F6CF7538}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSnakes.SourceGeneration", "CSnakes.SourceGeneration\CSnakes.SourceGeneration.csproj", "{3912E0F4-493B-4B26-A44D-B095F6CF7538}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSnakes.Runtime", "CSnakes.Runtime\CSnakes.Runtime.csproj", "{9BAB43D1-017F-4470-B898-42022328D17F}"
 EndProject
@@ -21,6 +21,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSnakes.Runtime.Tests", "CSnakes.Runtime.Tests\CSnakes.Runtime.Tests.csproj", "{CB00C1F5-8C01-4FE7-82AD-7F9B4398E3F8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Profile", "Profile\Profile.csproj", "{93264FC1-2880-4959-9576-50D260039BC2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4374E3D5-3A2C-47F8-B33E-F3C43A20B530}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E52DC71C-FB58-4E57-9CCA-8A78EAA49123}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +59,14 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3912E0F4-493B-4B26-A44D-B095F6CF7538} = {4374E3D5-3A2C-47F8-B33E-F3C43A20B530}
+		{9BAB43D1-017F-4470-B898-42022328D17F} = {4374E3D5-3A2C-47F8-B33E-F3C43A20B530}
+		{E01D5C27-CB38-4A0D-B297-33E1E10C1A82} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
+		{F179777C-913A-46FE-BE2F-15A59EAB7E88} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
+		{CB00C1F5-8C01-4FE7-82AD-7F9B4398E3F8} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
+		{93264FC1-2880-4959-9576-50D260039BC2} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4ACC77F9-1BB8-42DE-B647-01C458922F49}

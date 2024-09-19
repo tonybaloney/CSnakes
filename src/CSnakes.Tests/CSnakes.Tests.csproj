@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CSnakes.Runtime\CSnakes.Runtime.csproj" />
-    <ProjectReference Include="..\CSnakes\CSnakes.csproj" />
+    <ProjectReference Include="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.csproj" />
   </ItemGroup>
 
   <ItemGroup>

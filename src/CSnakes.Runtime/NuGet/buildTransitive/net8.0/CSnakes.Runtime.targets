@@ -1,0 +1,19 @@
+<Project>
+  <Target Name="_CSnakes_Runtime_GatherAnalyzers">
+
+    <ItemGroup>
+      <_CSnakes_Runtime_Analyzer Include="@(Analyzer)" Condition="'%(Analyzer.NuGetPackageId)' == 'CSnakes.Runtime'" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="_CSnakes_Runtime_RemoveAnalyzers" 
+          Condition="'$(DisableCSnakesRuntimeSourceGenerator)' == 'true'"
+          AfterTargets="ResolvePackageDependenciesForBuild;ResolveNuGetPackageAssets"
+          DependsOnTargets="_CSnakes_Runtime_GatherAnalyzers">
+
+    <!-- Remove all our analyzers -->
+    <ItemGroup>
+      <Analyzer Remove="@(_CSnakes_Runtime_Analyzer)" />
+    </ItemGroup>
+  </Target>
+</Project>

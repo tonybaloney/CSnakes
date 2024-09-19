@@ -31,10 +31,17 @@ internal unsafe partial class CPythonAPI : IDisposable
         }
     }
 
-    const int RTLD_LAZY=0x1;
-    const int RTLD_NOW=0x2;
-    const int RTLD_LOCAL=0x4;
-    const int RTLD_GLOBAL=0x8;
+    [Flags]
+    private enum RTLD : int
+    {
+        LOCAL = 0,
+        LAZY  = 1,
+        NOW = 2,
+        NOLOAD=4,
+        DEEPBIND=8,
+        GLOBAL=0x00100
+    }
+
 
     [LibraryImport("libdl.so.2", StringMarshalling = StringMarshalling.Utf8)]
     private static partial nint dlopen(string path, int flags);
@@ -45,8 +52,7 @@ internal unsafe partial class CPythonAPI : IDisposable
         if (libraryName == PythonLibraryName)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)){
-                // TODO: find how to load libdl.so without hardcoding the path
-                return dlopen(pythonLibraryPath!, RTLD_LAZY | RTLD_GLOBAL);
+                return dlopen(pythonLibraryPath!, (int)(RTLD.LAZY | RTLD.GLOBAL));
             }
 
             return NativeLibrary.Load(pythonLibraryPath!, assembly, null);

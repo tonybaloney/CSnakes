@@ -31,10 +31,24 @@ internal unsafe partial class CPythonAPI : IDisposable
         }
     }
 
+    const int RTLD_LAZY=0x1;
+    const int RTLD_NOW=0x2;
+    const int RTLD_LOCAL=0x4;
+    const int RTLD_GLOBAL=0x8;
+
+    [LibraryImport("/usr/lib/x86_64-linux-gnu/libdl.so.2", StringMarshalling = StringMarshalling.Utf8)]
+    private static partial nint dlopen(string path, int flags);
+
+
     private static IntPtr DllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
     {
         if (libraryName == PythonLibraryName)
         {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)){
+                // TODO: find how to load libdl.so without hardcoding the path
+                return dlopen(pythonLibraryPath!, RTLD_NOW | RTLD_GLOBAL);
+            }
+
             return NativeLibrary.Load(pythonLibraryPath!, assembly, null);
         }
         return NativeLibrary.Load(libraryName, assembly, searchPath);

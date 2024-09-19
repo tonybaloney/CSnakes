@@ -57,7 +57,6 @@ jobs:
         working-directory: src
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
-          LD_PRELOAD: /opt/hostedtoolcache/Python/${{ steps.installpython.outputs.python-version }}/x64/lib/libpython3.so
 
       - name: Upload test results
         uses: actions/upload-artifact@v4

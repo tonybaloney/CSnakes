@@ -1,10 +1,12 @@
 ﻿using CSnakes.Runtime.Python;
+using Xunit;
 
 namespace Integration.Tests;
 
 public class BufferTests : IntegrationTestBase
 {
     [Fact]
+    [Trait("requires", "numpy")]
     public void TestBoolBuffer()
     {
         var testModule = Env.TestBuffer();

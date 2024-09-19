@@ -82,7 +82,7 @@ Console.WriteLine(result2D[2, 3]); // 6
 
 ## N-dimensional Buffers (.NET 9)
 
-In .NET 9, the `IPyBuffer` interface also provides methods for working with N-dimensional buffers using the Experimental [`System.Numerics.TensorSpan` type](https://learn.microsoft.com/en-us/dotnet/api/system.numerics.tensors.tensorspan-1?view=net-8.0). You can use the `AsTensorSpan` and `AsReadOnlyTensorSpan` methods to get a N-dimensional TensorSpan of the buffer contents.
+In .NET 9, the `IPyBuffer` interface also provides methods for working with N-dimensional buffers using the Experimental [`System.Numerics.Tensors.TensorSpan` type](https://learn.microsoft.com/en-us/dotnet/api/system.numerics.tensors.tensorspan-1?view=net-8.0). You can use the `AsTensorSpan` and `AsReadOnlyTensorSpan` methods to get a N-dimensional TensorSpan of the buffer contents.
 
 For example:
 

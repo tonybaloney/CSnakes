@@ -1,3 +1,9 @@
 <Project>
   <Import Project="Packaging.targets" Condition=" '$(IsPackable)' == 'true' " />
+
+  <Target Name="_SetVSTestLogger" BeforeTargets="VSTest" Condition=" '$(TrxLogFileNameSuffix)' != '' ">
+  <PropertyGroup>
+    <VSTestLogger>trx%3BLogFileName=$(AssemblyName)-$(TrxLogFileNameSuffix)-$(TargetFramework).trx</VSTestLogger>
+  </PropertyGroup>
+  </Target>
 </Project>

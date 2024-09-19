@@ -53,11 +53,19 @@ jobs:
         working-directory: src
 
       - name: Test
-        run: dotnet test --no-build --verbosity normal --collect "XPlat Code Coverage" --results-directory test-results --logger "trx;LogFileName=test-results-${{ matrix.os }}-${{ matrix.python }}.trx" -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}-tfm.binlog
+        run: dotnet test --no-build --verbosity m --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog
         working-directory: src
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
           LD_PRELOAD: /opt/hostedtoolcache/Python/${{ steps.installpython.outputs.python-version }}/x64/lib/libpython3.so
+
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-${{ matrix.os }}-${{ matrix.python }}
+          path: |
+            ${{ github.workspace }}/*.binlog
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -66,7 +74,6 @@ jobs:
           name: test-results-${{ matrix.os }}-${{ matrix.python }}
           path: |
             ${{ github.workspace }}/src/test-results/**
-            ${{ github.workspace }}/*.binlog
 
   build-samples:
     strategy:

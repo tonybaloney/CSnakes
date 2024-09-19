@@ -53,7 +53,7 @@ jobs:
         working-directory: src
 
       - name: Test
-        run: dotnet test --no-build --verbosity normal --collect "XPlat Code Coverage" --results-directory test-results --logger "trx;LogFileName=test-results-${{ matrix.os }}-${{ matrix.python }}.trx" -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}-tfm.binlog
+        run: dotnet test --no-build --verbosity m --collect "XPlat Code Coverage" --results-directory test-results --logger:"console;verbosity=normal" /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}-tfm.binlog
         working-directory: src
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}

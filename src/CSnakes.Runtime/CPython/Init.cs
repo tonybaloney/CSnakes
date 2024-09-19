@@ -35,11 +35,11 @@ internal unsafe partial class CPythonAPI : IDisposable
     private enum RTLD : int
     {
         LOCAL = 0,
-        LAZY  = 1,
+        LAZY = 1,
         NOW = 2,
-        NOLOAD=4,
-        DEEPBIND=8,
-        GLOBAL=0x00100
+        NOLOAD = 4,
+        DEEPBIND = 8,
+        GLOBAL = 0x00100
     }
 
 

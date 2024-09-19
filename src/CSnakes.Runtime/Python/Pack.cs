@@ -1,4 +1,5 @@
 ﻿using CSnakes.Runtime.CPython;
+using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -57,25 +58,52 @@ internal static class Pack
         private T _;
     }
 
+    /// <remarks>
+    /// The disposal of the rental is not idempotent!
+    /// </remarks>
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    private readonly struct RentedArray<T>(ArrayPool<T> pool, int length) : IDisposable
+    {
+        private readonly T[] array = pool.Rent(length);
+
+        public int Length => length;
+        public Span<T> Span => this.array.AsSpan(0, length);
+        public void Dispose() => pool.Return(this.array);
+
+        public Span<T>.Enumerator GetEnumerator() => this.Span.GetEnumerator();
+
+        public static implicit operator Span<T>(RentedArray<T> rented) => rented.Span;
+
+        private string DebuggerDisplay => $"Length = {Length} (Capacity = {this.array.Length})";
+    }
+
+    private static class ArrayPools
+    {
+        private const int MaxLength = 100;
+        private const int MaxPerBucket = 10;
+
+        private static readonly ArrayPool<nint> Handles = ArrayPool<nint>.Create(MaxLength, MaxPerBucket);
+        private static readonly ArrayPool<PyObjectMarshaller.ManagedToUnmanagedIn> Marshallers = ArrayPool<PyObjectMarshaller.ManagedToUnmanagedIn>.Create(MaxLength, MaxPerBucket);
+
+        public static RentedArray<nint> RentHandles(int length) => new(Handles, length);
+        public static RentedArray<PyObjectMarshaller.ManagedToUnmanagedIn> RentMarshallers(int length) => new(Marshallers, length);
+    }
+
     private static nint CreateListOrTuple<TBuilder>(Span<PyObject> items)
         where TBuilder : IListOrTupleBuilder
     {
         // Allocate initial space for the handles and marshallers on the stack.
         // If the number of items exceeds the stack space, allocate and spill
         // the rest into an array on the heap.
-        // TODO Consider using an array pool for the spilled handles and marshallers.
 
         const int stackSpillThreshold = FixedArrayLength;
         var spillLength = Math.Max(0, items.Length - stackSpillThreshold);
 
         Span<nint> initialHandles = stackalloc nint[Math.Min(stackSpillThreshold, items.Length)];
-        nint[]? spilledHandles = spillLength > 0 ? new nint[spillLength] : null;
+        using var spilledHandles = ArrayPools.RentHandles(spillLength);
 
         var initialMarshallers = new ArrayOf8<PyObjectMarshaller.ManagedToUnmanagedIn>();
-        PyObjectMarshaller.ManagedToUnmanagedIn[]? spilledMarshallers =
-            spillLength > 0
-            ? new PyObjectMarshaller.ManagedToUnmanagedIn[spillLength]
-            : null;
+        using var spilledMarshallers = ArrayPools.RentMarshallers(spillLength);
 
         var uninitializedMarshallers = MemoryMarshal.CreateSpan(ref Unsafe.As<ArrayOf8<PyObjectMarshaller.ManagedToUnmanagedIn>, PyObjectMarshaller.ManagedToUnmanagedIn>(ref initialMarshallers), stackSpillThreshold);
         var uninitializedHandles = initialHandles;
@@ -90,19 +118,17 @@ internal static class Pack
             PyObjectMarshaller.ManagedToUnmanagedIn m = default;
             m.FromManaged(item);
 
-            if (uninitializedMarshallers.IsEmpty)
+            if (uninitializedMarshallers.IsEmpty && spilledMarshallers is { Length: > 0 } sms)
             {
-                Debug.Assert(spilledMarshallers is not null);
-                uninitializedMarshallers = spilledMarshallers;
+                uninitializedMarshallers = sms;
             }
 
             uninitializedMarshallers[0] = m;
             uninitializedMarshallers = uninitializedMarshallers[1..];
 
-            if (uninitializedHandles.IsEmpty)
+            if (uninitializedHandles.IsEmpty && spilledHandles is { Length: > 0 } shs)
             {
-                Debug.Assert(spilledHandles is not null);
-                uninitializedHandles = spilledHandles;
+                uninitializedHandles = shs;
             }
 
             uninitializedHandles[0] = m.ToUnmanaged();
@@ -143,14 +169,7 @@ internal static class Pack
         }
         finally
         {
-            if (spilledMarshallers is null)
-            {
-                foreach (var m in initialMarshallers[..items.Length])
-                {
-                    m.Free();
-                }
-            }
-            else
+            if (spilledMarshallers.Length > 0)
             {
                 foreach (var m in initialMarshallers)
                 {
@@ -158,6 +177,13 @@ internal static class Pack
                 }
 
                 foreach (var m in spilledMarshallers)
+                {
+                    m.Free();
+                }
+            }
+            else
+            {
+                foreach (var m in initialMarshallers[..items.Length])
                 {
                     m.Free();
                 }

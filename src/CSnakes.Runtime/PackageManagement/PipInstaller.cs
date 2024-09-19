@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.PackageManagement;
+
 internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstaller
 {
     static readonly string pipBinaryName = $"pip{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";

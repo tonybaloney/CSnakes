@@ -97,7 +97,7 @@ public abstract class PythonLocator(Version version)
     /// <param name="folder">The folder path to search for Python.</param>
     /// <returns>The metadata of the located Python installation.</returns>
     /// <exception cref="DirectoryNotFoundException">Python not found at the specified folder.</exception>
-    protected PythonLocationMetadata LocatePythonInternal(string folder, bool freeThreaded = false)
+    protected virtual PythonLocationMetadata LocatePythonInternal(string folder, bool freeThreaded = false)
     {
         if (!Directory.Exists(folder))
         {

@@ -36,7 +36,7 @@ internal unsafe partial class CPythonAPI : IDisposable
     const int RTLD_LOCAL=0x4;
     const int RTLD_GLOBAL=0x8;
 
-    [LibraryImport("/usr/lib/x86_64-linux-gnu/libdl.so.2", StringMarshalling = StringMarshalling.Utf8)]
+    [LibraryImport("libdl.so.2", StringMarshalling = StringMarshalling.Utf8)]
     private static partial nint dlopen(string path, int flags);
 
 

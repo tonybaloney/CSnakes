@@ -46,7 +46,7 @@ internal unsafe partial class CPythonAPI : IDisposable
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)){
                 // TODO: find how to load libdl.so without hardcoding the path
-                return dlopen(pythonLibraryPath!, RTLD_NOW | RTLD_GLOBAL);
+                return dlopen(pythonLibraryPath!, RTLD_LAZY | RTLD_GLOBAL);
             }
 
             return NativeLibrary.Load(pythonLibraryPath!, assembly, null);

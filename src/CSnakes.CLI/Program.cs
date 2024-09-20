@@ -15,7 +15,6 @@ var directoryOption = new CliOption<DirectoryInfo?>("--directory", "-d")
 var outputOption = new CliOption<DirectoryInfo?>("--output", "-o")
 {
     Description = "Path to the directory to output the C# files to.",
-    Required = true
 };
 
 var removeOutputOption = new CliOption<bool>("--remove-output", "-rm")
@@ -24,7 +23,7 @@ var removeOutputOption = new CliOption<bool>("--remove-output", "-rm")
     DefaultValueFactory = (_) => false
 };
 
-var root = new CliRootCommand("csnakes -f <file>")
+var root = new CliRootCommand("Creates C# wrapper to call Python code.")
 {
     fileOption,
     outputOption,
@@ -51,9 +50,9 @@ root.SetAction(result =>
         return (int)ErrorCode.InvalidArguments;
     }
 
-    if (outputInfo is null)
+    if (directoryInfo is not null && outputInfo is null)
     {
-        Console.Error.WriteLine("You must provide an output file.");
+        Console.Error.WriteLine("Streaming output to stdout for bulk files is not supported.");
         return (int)ErrorCode.InvalidArguments;
     }
 
@@ -64,12 +63,12 @@ root.SetAction(result =>
         _ => throw new InvalidOperationException()
     };
 
-    if (outputInfo.Exists && removeOutput)
+    if (outputInfo is not null && outputInfo.Exists && removeOutput)
     {
         outputInfo.Delete(true);
         outputInfo.Create();
     }
-    else if (!outputInfo.Exists)
+    else if (outputInfo is not null && !outputInfo.Exists)
     {
         outputInfo.Create();
     }
@@ -85,14 +84,27 @@ root.SetAction(result =>
         }, pascalFileName, Path.GetFileNameWithoutExtension(file.Name), sourceFile, out var source))
         {
             string outputFileName = $"{pascalFileName}.py.cs";
-            File.WriteAllText(Path.Combine(outputInfo.FullName, outputFileName), source);
-        } else
+            if (outputInfo is not null)
+            {
+                File.WriteAllText(Path.Combine(outputInfo.FullName, outputFileName), source);
+            }
+            else
+            {
+                Console.Out.WriteLine(source);
+            }
+        }
+        else
         {
             return (int)ErrorCode.PythonSyntaxError;
         }
     }
 
-    Console.Out.WriteLine($"Generated code for {files.Length} files.");
+    if (outputInfo is not null)
+    {
+        // only write this message if we're writing to a file
+        // otherwise we're writing something that'd be invalid Python code
+        Console.Out.WriteLine($"Generated code for {files.Length} files.");
+    }
     return (int)ErrorCode.Success;
 });
 

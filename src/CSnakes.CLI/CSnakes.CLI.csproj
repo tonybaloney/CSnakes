@@ -12,12 +12,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CSnakes\CSnakes.csproj" />
+        <ProjectReference Include="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24324.3" />
-        <PackageReference Include="Superpower" Version="3.0.0" />
+        <PackageReference Include="System.CommandLine" />
+        <PackageReference Include="Superpower" />
     </ItemGroup>
 
 </Project>

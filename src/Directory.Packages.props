@@ -20,6 +20,11 @@
     <PackageVersion Include="Superpower" Version="3.0.0" />
   </ItemGroup>
 
+  <!-- CLI dependencies -->
+  <ItemGroup>
+    <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.24324.3" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageVersion Include="System.Text.Json" Version="8.0.4" />

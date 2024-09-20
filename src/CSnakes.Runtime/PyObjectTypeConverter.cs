@@ -1,8 +1,5 @@
 ﻿using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
-using System.Collections;
-using System.Runtime.CompilerServices;
-using System.Numerics;
 using System.Collections.Concurrent;
 using System.Reflection;
 
@@ -32,6 +29,11 @@ internal partial class PyObjectTypeConverter
         if (CPythonAPI.IsPySequence(pyObject) && IsAssignableToGenericType(destinationType, listType))
         {
             return ConvertToList(pyObject, destinationType);
+        }
+
+        if (CPythonAPI.IsBuffer(pyObject) && destinationType.IsAssignableTo(bufferType))
+        {
+            return new PyBuffer(pyObject);
         }
 
         throw new InvalidCastException($"Attempting to cast {destinationType} from {pyObject.GetPythonType()}");

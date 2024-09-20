@@ -56,7 +56,16 @@ public static class IServiceCollectionExtensions
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
     public static IPythonEnvironmentBuilder FromNuGet(this IPythonEnvironmentBuilder builder, string version)
     {
-        builder.Services.AddSingleton<PythonLocator>(new NuGetLocator(ParsePythonVersion(version)));
+        // See https://github.com/tonybaloney/CSnakes/issues/154#issuecomment-2352116849
+        version = version.Replace("alpha.", "a").Replace("beta.", "b").Replace("rc.", "rc");
+
+        // If a supplied version only consists of 2 tokens - e.g., 1.10 or 2.14 - then append an extra token
+        if (version.Count(c => c == '.') < 2)
+        {
+            version = $"{version}.0";
+        }
+
+        builder.Services.AddSingleton<PythonLocator>(new NuGetLocator(version, ParsePythonVersion(version)));
         return builder;
     }
 

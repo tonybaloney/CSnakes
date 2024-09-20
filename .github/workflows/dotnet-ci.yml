@@ -15,112 +15,97 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
         python: ["3.9", "3.10", "3.11", "3.12", "3.13.0-rc.1"]
-        dotnet: ["8.0.x"]
-        include:
-          - os: windows-latest
-            python: "3.12"
-            dotnet: "6.0.x"
-          - os: windows-latest
-            python: "3.12"
-            dotnet: "7.0.x"
-          - os: windows-latest
-            python: "3.12"
-            dotnet: "9.0.x"
       fail-fast: false
     runs-on: "${{ matrix.os }}"
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Python
         id: installpython
         uses: actions/setup-python@v5
         with:
           python-version: "${{ matrix.python }}"
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ matrix.dotnet }}
+          dotnet-version: |
+            8.0.x
+            9.0.x
 
       - uses: actions/cache@v4
         name: Cache NuGet packages
         with:
           path: ~/.nuget/packages
-          key: ${{ runner.os }}-${{ matrix.dotnet }}-nuget-${{ hashFiles('src/Directory.Packages.props') }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('src/Directory.Packages.props') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.dotnet }}-nuget-
+            ${{ runner.os }}-nuget-
 
       - name: Restore dependencies
-        run: dotnet restore
-        working-directory: src
-      - name: Build
-        run: dotnet build --no-restore
-        working-directory: src
-      - name: Test
-        run: dotnet test --no-build --verbosity normal --collect "XPlat Code Coverage" --results-directory test-results --logger "trx;LogFileName=test-results-${{ matrix.os }}-${{ matrix.python }}-${{ matrix.dotnet }}.trx"
+        run: dotnet restore -bl:${{ github.workspace }}/restore-${{ matrix.os }}-${{ matrix.python }}.binlog
         working-directory: src
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+
+      - name: Build
+        run: dotnet build --no-restore -bl:${{ github.workspace }}/build-${{ matrix.os }}-${{ matrix.python }}.binlog
+        working-directory: src
+
+      - name: Test
+        run: dotnet test --no-build --verbosity normal --collect "XPlat Code Coverage" --results-directory test-results --logger "trx;LogFileName=test-results-${{ matrix.os }}-${{ matrix.python }}.trx" -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}-tfm.binlog
+        working-directory: src
+        env:
+          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          LD_PRELOAD: /opt/hostedtoolcache/Python/${{ steps.installpython.outputs.python-version }}/x64/lib/libpython3.so
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results-${{ matrix.os }}-${{ matrix.python }}-${{ matrix.dotnet }}
+          name: test-results-${{ matrix.os }}-${{ matrix.python }}
           path: |
             ${{ github.workspace }}/src/test-results/**
+            ${{ github.workspace }}/*.binlog
 
   build-samples:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
         python: ["3.12"]
-        dotnet: ["8.0.x"]
         sample: ["simple", "Aspire"]
       fail-fast: false
     runs-on: "${{ matrix.os }}"
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Python
         id: installpython
         uses: actions/setup-python@v5
         with:
           python-version: "${{ matrix.python }}"
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ matrix.dotnet }}
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
       - name: Install Aspire workload
         run: dotnet workload install aspire
+
       - name: Restore dependencies
         run: dotnet restore "${{ matrix.sample }}"
         working-directory: samples
+
       - name: Build
         run: dotnet build --no-restore "${{ matrix.sample }}"
         working-directory: samples
+
       - name: Test
         run: dotnet test --no-build --verbosity normal "${{ matrix.sample }}"
         working-directory: samples
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
-
-  test-reporting:
-    permissions:
-      contents: read
-      actions: read
-      checks: write
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
-
-      - name: Test Report
-        uses: dorny/test-reporter@v1
-        if: success() || failure()
-        with:
-          name: ".NET Tests"
-          path: "*.trx"
-          reporter: dotnet-trx

@@ -1,27 +1,27 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <IsPackable>true</IsPackable>
-    </PropertyGroup>
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="System.Text.Json" Version="8.0.4" />
-    </ItemGroup>
+    <!-- Tensor<T> and related APIs in System.Numerics.Tensors are experimental in .NET 9 -->
+    <NoWarn>$(NoWarn);SYSLIB5001</NoWarn>
+  </PropertyGroup>
 
-    <PropertyGroup>
-        <PackageId>CSnakes.Runtime</PackageId>
-        <Title>CSnakes Runtime</Title>
-    </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.HighPerformance" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+      <PackageReference Include="Microsoft.SourceLink.GitHub">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Numerics.Tensors" Condition="'$(TargetFramework)' == 'net9.0'" />
+    <PackageReference Include="System.Text.Json" />
+  </ItemGroup>
 
-    <PropertyGroup>
-        <GeneratePackageOnBuild>$(EnableLocalPackaging)</GeneratePackageOnBuild>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
+  <ItemGroup>
+    <!-- Reference the source generator purely for packaging purposes -->
+    <ProjectReference Include="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
 
+  <Import Project="Packaging.targets" />
 </Project>

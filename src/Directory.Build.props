@@ -1,40 +1,19 @@
 <Project>
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <LangVersion>latest</LangVersion>
-        <WarningsAsErrors>true</WarningsAsErrors>
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <WarningsAsErrors>true</WarningsAsErrors>
+  </PropertyGroup>
 
-        <IsPackable>false</IsPackable>
-        <PackageOutputPath>../../nuget</PackageOutputPath>
-    </PropertyGroup>
-    <ItemGroup>
-        <None Include="..\..\docs\res\logo.jpeg">
-            <Pack>True</Pack>
-            <PackagePath>\</PackagePath>
-        </None>
-        <None Include="..\..\README.md">
-            <Pack>True</Pack>
-            <PackagePath>\</PackagePath>
-        </None>
-    </ItemGroup>
+  <PropertyGroup>
+    <ContinuousIntegrationBuild>false</ContinuousIntegrationBuild>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
-    <PropertyGroup>
-        <Authors>Anthony Shaw, Aaron Powell</Authors>
-        <PackageProjectUrl>https://github.com/tonybaloney/CSnakes</PackageProjectUrl>
-        <PackageIcon>logo.jpeg</PackageIcon>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <RepositoryUrl>https://github.com/tonybaloney/CSnakes</RepositoryUrl>
-        <VersionPrefix>1.0.18</VersionPrefix>
+    <IsPackable>false</IsPackable>
+    <EnableLocalPackaging>true</EnableLocalPackaging>
+  </PropertyGroup>
 
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <DebugType>embedded</DebugType>
-        <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <EnableLocalPackaging>False</EnableLocalPackaging>
-    </PropertyGroup>
+  <Import Project="Packaging.props" />
 </Project>

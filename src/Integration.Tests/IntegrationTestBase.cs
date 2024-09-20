@@ -10,7 +10,7 @@ public class IntegrationTestBase : IDisposable
 
     public IntegrationTestBase()
     {
-        string pythonVersionWindows = "3.12.4";
+        string pythonVersionWindows = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.4";
         string pythonVersionMacOS = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
         string pythonVersionLinux = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
         string venvPath = Path.Join(Environment.CurrentDirectory, "python", ".venv");

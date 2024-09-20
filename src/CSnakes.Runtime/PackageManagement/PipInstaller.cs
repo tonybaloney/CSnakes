@@ -11,7 +11,7 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
     public Task InstallPackages(string home, string? virtualEnvironmentLocation)
     {
         // TODO:Allow overriding of the requirements file name.
-        string requirementsPath = Path.Combine(home, requirementsFileName);
+        string requirementsPath = Path.GetFullPath(Path.Combine(home, requirementsFileName));
         if (File.Exists(requirementsPath))
         {
             logger.LogInformation("File {Requirements} was found.", requirementsPath);
@@ -36,6 +36,7 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
 
         if (virtualEnvironmentLocation is not null)
         {
+            virtualEnvironmentLocation = Path.GetFullPath(virtualEnvironmentLocation);
             logger.LogInformation("Using virtual environment at {VirtualEnvironmentLocation} to install packages with pip.", virtualEnvironmentLocation);
             string venvScriptPath = Path.Combine(virtualEnvironmentLocation, RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Scripts" : "bin");
             // TODO: Check that the pip executable exists, and if not, raise an exception with actionable steps.

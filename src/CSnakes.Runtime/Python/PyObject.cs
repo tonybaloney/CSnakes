@@ -10,7 +10,7 @@ using System.Runtime.InteropServices.Marshalling;
 namespace CSnakes.Runtime.Python;
 
 [DebuggerDisplay("PyObject: repr={GetRepr()}, type={GetPythonType().ToString()}")]
-public class PyObject : SafeHandle
+public class PyObject : SafeHandle, ICloneable
 {
     protected PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
@@ -80,24 +80,18 @@ public class PyObject : SafeHandle
 
             using var pyExceptionType = Create(excType);
             PyObject? pyExceptionTraceback = excTraceback == IntPtr.Zero ? null : new PyObject(excTraceback);
+            PyObject? pyException = excValue == IntPtr.Zero ? null : Create(excValue);
 
-            var pyExceptionStr = string.Empty;
-            if (excValue != IntPtr.Zero)
-            {
-                using PyObject pyExceptionValue = Create(excValue);
-                pyExceptionStr = pyExceptionValue.ToString();
-            }
-             ;
             // TODO: Consider adding __qualname__ as well for module exceptions that aren't builtins
             var pyExceptionTypeStr = pyExceptionType.GetAttr("__name__").ToString();
             CPythonAPI.PyErr_Clear();
 
             if (string.IsNullOrEmpty(message))
             {
-                return new PythonInvocationException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback);
+                return new PythonInvocationException(pyExceptionTypeStr, pyException, pyExceptionTraceback);
             }
 
-            return new PythonInvocationException(pyExceptionTypeStr, pyExceptionStr, pyExceptionTraceback, message);
+            return new PythonInvocationException(pyExceptionTypeStr, pyException, pyExceptionTraceback, message);
         }
     }
 
@@ -494,7 +488,7 @@ public class PyObject : SafeHandle
 
             return value switch
             {
-                PyObject pyObject => pyObject.Clone(),
+                ICloneable pyObject => pyObject.Clone(),
                 bool b => b ? True : False,
                 int i => Create(CPythonAPI.PyLong_FromLong(i)),
                 long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
@@ -541,4 +535,6 @@ public class PyObject : SafeHandle
         combinedKwnames = [.. newKwnames];
         combinedKwvalues = [.. newKwvalues];
     }
+
+    PyObject ICloneable.Clone() => Clone();
 }

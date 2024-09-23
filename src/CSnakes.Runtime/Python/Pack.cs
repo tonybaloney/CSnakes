@@ -59,34 +59,86 @@ internal static class Pack
         private T _;
     }
 
-    private class StockArray<T>(int length)
+    [DebuggerDisplay($"{{{nameof(DebuggerDisplay)}(),nq}}")]
+    struct RentalState
     {
-        private T[]? array;
+        private bool returned;
 
-        public Span<T> GetArray(int minimumLength)
-        {
-            if (minimumLength == 0)
-                return [];
+        /// <remarks>
+        /// This method should only be called from a state manager like <see
+        /// cref="RentedArray{T}"/>. It should not be called directly from user
+        /// code and thus is named "dangerous" to attract attention.
+        /// </remarks>
+        public void DangerousReturn() => returned = true;
 
-            if (minimumLength > length)
-                return new T[minimumLength];
+        public static implicit operator bool(RentalState b) => !b.returned;
 
-            return (this.array ??= new T[length])[..minimumLength];
-        }
+        private string DebuggerDisplay() => this ? "rented" : "returned";
     }
 
-    static class ThreadStatics
+    [DebuggerDisplay($"{{{nameof(DebuggerDisplay)}(),nq}}")]
+    private ref struct RentedArray<T>
     {
-        [ThreadStatic]
-        private static StockArray<nint>? spilledHandles;
+        private readonly T[] array;
+        private ref RentalState rented;
+        private readonly ArrayPool<T> pool;
+        private readonly Span<T> span;
 
-        [ThreadStatic]
-        private static StockArray<PyObjectMarshaller.ManagedToUnmanagedIn>? spilledMarshallers;
+        public RentedArray(ArrayPool<T> pool, int length, ref RentalState rental)
+        {
+            Debug.Assert(rental);
+            this.rented = ref rental;
+            this.pool = pool;
+            this.array = pool.Rent(length);
+            this.span = array.AsSpan(..length);
+        }
 
-        private const int StockArrayThresholdLength = 100;
+        public int Length => Span.Length;
 
-        public static StockArray<nint> SpilledHandles => spilledHandles ??= new StockArray<nint>(StockArrayThresholdLength);
-        public static StockArray<PyObjectMarshaller.ManagedToUnmanagedIn> SpilledMarshallers => spilledMarshallers ??= new StockArray<PyObjectMarshaller.ManagedToUnmanagedIn>(StockArrayThresholdLength);
+        private Span<T> Span
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                if (!this.rented)
+                {
+                    ThrowObjectDisposedException();
+                }
+
+                return this.span;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (!this.rented)
+                return;
+
+            this.rented.DangerousReturn();
+            this.pool.Return(this.array);
+        }
+
+        public Span<T>.Enumerator GetEnumerator() => Span.GetEnumerator();
+
+        public static implicit operator Span<T>(RentedArray<T> rented) => rented.Span;
+
+        private string DebuggerDisplay() =>
+            this.rented ? $"Length = {Length} (Capacity = {this.array.Length})" : "(returned)";
+
+        [DoesNotReturn]
+        private void ThrowObjectDisposedException() => throw new ObjectDisposedException(nameof(RentedArray<T>));
+    }
+
+    private static class ArrayPools
+    {
+        private const int MaxLength = 100;
+        private const int MaxPerBucket = 10;
+
+        private static readonly ArrayPool<nint> Handles = ArrayPool<nint>.Create(MaxLength, MaxPerBucket);
+        private static readonly ArrayPool<PyObjectMarshaller.ManagedToUnmanagedIn> Marshallers = ArrayPool<PyObjectMarshaller.ManagedToUnmanagedIn>.Create(MaxLength, MaxPerBucket);
+
+        public static RentedArray<nint> RentHandles(int length, ref RentalState rental) => new(Handles, length, ref rental);
+        public static RentedArray<PyObjectMarshaller.ManagedToUnmanagedIn> RentMarshallers(int length, ref RentalState returned) => new(Marshallers, length, ref returned);
     }
 
     private static nint CreateListOrTuple<TBuilder>(Span<PyObject> items)
@@ -100,10 +152,12 @@ internal static class Pack
         var spillLength = Math.Max(0, items.Length - stackSpillThreshold);
 
         Span<nint> initialHandles = stackalloc nint[Math.Min(stackSpillThreshold, items.Length)];
-        var spilledHandles = ThreadStatics.SpilledHandles.GetArray(spillLength);
+        var spilledHandlesRental = new RentalState();
+        using var spilledHandles = ArrayPools.RentHandles(spillLength, ref spilledHandlesRental);
 
         var initialMarshallers = new ArrayOf8<PyObjectMarshaller.ManagedToUnmanagedIn>();
-        var spilledMarshallers = ThreadStatics.SpilledMarshallers.GetArray(spillLength);
+        var spilledMarshallersRental = new RentalState();
+        using var spilledMarshallers = ArrayPools.RentMarshallers(spillLength, ref spilledMarshallersRental);
 
         scoped var uninitializedMarshallers = MemoryMarshal.CreateSpan(ref Unsafe.As<ArrayOf8<PyObjectMarshaller.ManagedToUnmanagedIn>, PyObjectMarshaller.ManagedToUnmanagedIn>(ref initialMarshallers), stackSpillThreshold);
         var uninitializedHandles = initialHandles;

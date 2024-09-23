@@ -49,6 +49,8 @@ internal unsafe partial class CPythonAPI : IDisposable
     {
         if (libraryName == PythonLibraryName)
         {
+            // Override default dlopen flags on linux to allow global symbol resolution (required in extension modules)
+            // See https://github.com/tonybaloney/CSnakes/issues/112#issuecomment-2290643468
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)){
                 return dlopen(pythonLibraryPath!, (int)(RTLD.LAZY | RTLD.GLOBAL));
             }

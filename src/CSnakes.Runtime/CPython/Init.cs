@@ -45,7 +45,6 @@ internal unsafe partial class CPythonAPI : IDisposable
     [LibraryImport("libdl.so.2", StringMarshalling = StringMarshalling.Utf8)]
     private static partial nint dlopen(string path, int flags);
 
-
     private static IntPtr DllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
     {
         if (libraryName == PythonLibraryName)

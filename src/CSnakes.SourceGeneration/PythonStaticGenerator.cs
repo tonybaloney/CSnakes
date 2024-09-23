@@ -48,7 +48,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
     public static string GetPascalFileName(string fileName) =>
         string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
 
-    public static bool TryGenerateCode(Action<GeneratorError> errorReporter, string pascalFileName, string fileName, SourceText code, /* [NotNullWhen(true)] */ out string? source)
+    public static bool TryGenerateCode(Action<GeneratorError> errorReporter, string pascalFileName, string fileName, SourceText code, [NotNullWhen(true)] out string? source)
     {
         // Parse the Python file
         var result = PythonParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);

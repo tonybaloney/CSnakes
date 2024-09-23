@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime.Tests;
+
 public class RuntimeTestBase : IDisposable
 {
     protected readonly IPythonEnvironment env;

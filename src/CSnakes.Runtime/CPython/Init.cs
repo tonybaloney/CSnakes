@@ -42,7 +42,6 @@ internal unsafe partial class CPythonAPI : IDisposable
         GLOBAL = 0x00100
     }
 
-
     [LibraryImport("libdl.so.2", StringMarshalling = StringMarshalling.Utf8)]
     private static partial nint dlopen(string path, int flags);
 

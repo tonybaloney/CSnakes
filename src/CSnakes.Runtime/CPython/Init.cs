@@ -31,10 +31,30 @@ internal unsafe partial class CPythonAPI : IDisposable
         }
     }
 
+    [Flags]
+    private enum RTLD : int
+    {
+        LOCAL = 0,
+        LAZY = 1,
+        NOW = 2,
+        NOLOAD = 4,
+        DEEPBIND = 8,
+        GLOBAL = 0x00100
+    }
+
+    [LibraryImport("libdl.so.2", StringMarshalling = StringMarshalling.Utf8)]
+    private static partial nint dlopen(string path, int flags);
+
     private static IntPtr DllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
     {
         if (libraryName == PythonLibraryName)
         {
+            // Override default dlopen flags on linux to allow global symbol resolution (required in extension modules)
+            // See https://github.com/tonybaloney/CSnakes/issues/112#issuecomment-2290643468
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)){
+                return dlopen(pythonLibraryPath!, (int)(RTLD.LAZY | RTLD.GLOBAL));
+            }
+
             return NativeLibrary.Load(pythonLibraryPath!, assembly, null);
         }
         return NativeLibrary.Load(libraryName, assembly, searchPath);

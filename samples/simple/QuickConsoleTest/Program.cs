@@ -60,10 +60,8 @@ static void RunKmeansDemo(IPythonEnvironment env)
         (10, 2), (10, 4), (10, 0)
     ];
 
-    var inertiaResult = kmeansExample.CalculateKmeansInertia(data, 4);
-    var centroids = JsonSerializer.Serialize(inertiaResult.Item1);
-    var inertia = inertiaResult.Item2;
-    Console.WriteLine($"KMeans inertia for 4 clusters is {centroids}, inertia is {inertia}");
+    var (centroids, inertia)= kmeansExample.CalculateKmeansInertia(data, 4);
+    Console.WriteLine($"KMeans inertia for 4 clusters is {JsonSerializer.Serialize(centroids)}, inertia is {inertia}");
 }
 
 static void RunAIDemo(IPythonEnvironment env)

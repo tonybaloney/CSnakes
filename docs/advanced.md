@@ -30,9 +30,9 @@ using (GIL.Acquire())
 
 Python 3.13 introduced a new feature called "free-threading mode" which allows the Python interpreter to run in a multi-threaded environment without the Global Interpreter Lock (GIL). This is a significant change to the Python runtime and can have a big impact on the performance of Python code running in a multi-threaded environment.
 
-CSnakes supports free-threading mode, but it is disabled by default. 
+CSnakes supports free-threading mode, but it is disabled by default.
 
-To use free-threading you currently need to compile CPython from source, so the free-threading flag is only available in the `SourceLocator`.
+To use free-threading you currently need to compile CPython from source, so the free-threading flag is only available in the `SourceLocator` and `MacOSInstallerLocator`.
 
 Here's how you would compile CPython 3.13 on Windows with free-threading and use it from CSnakes:
 
@@ -50,7 +50,7 @@ app = Host.CreateDefaultBuilder()
     .ConfigureServices((context, services) =>
     {
         var pb = services.WithPython();
-        pb.WithHome(Environment.CurrentDirectory); // Path to your Python modules. 
+        pb.WithHome(Environment.CurrentDirectory); // Path to your Python modules.
         pb.FromSource(@"C:\path\to\cpython\", false, true);
     })
     .Build();
@@ -62,7 +62,7 @@ Whilst free-threading mode is **supported** at a high-level from CSnakes, it is 
 
 ## Calling Python without the Source Generator
 
-The Source Generator library is a useful tool for creating the boilerplate code to invoke a Python function from a `PythonEnvironment` instance and convert the types based on the type annotations in the Python function. 
+The Source Generator library is a useful tool for creating the boilerplate code to invoke a Python function from a `PythonEnvironment` instance and convert the types based on the type annotations in the Python function.
 
 It is still possible to call Python code without the Source Generator, but you will need to write the boilerplate code yourself. Here's an example of how you can call a Python function without the Source Generator to call a Python function in a module called `test_basic`:
 

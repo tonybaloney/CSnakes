@@ -27,12 +27,12 @@ internal class SourceLocator(string folder, Version version, bool debug = true, 
         }
     }
 
-    protected override string GetPythonPath(string folder)
+    protected override string GetPythonPath(string folder, bool freeThreaded = false)
     {
         return Path.Combine(folder, "..", "..", "Lib") + Path.PathSeparator + folder;
     }
 
-    protected override string GetPythonExecutablePath(string folder)
+    protected override string GetPythonExecutablePath(string folder, bool freeThreaded = false)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && Debug)
         {

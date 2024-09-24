@@ -202,9 +202,9 @@ public class PythonLocatorTests
 
         protected override string GetLibPythonPath(string folder, bool freeThreaded = false) => "GetLibPythonPath";
 
-        protected override string GetPythonExecutablePath(string folder) => "GetPythonExecutablePath";
+        protected override string GetPythonExecutablePath(string folder, bool freeThreaded = false) => "GetPythonExecutablePath";
 
-        protected override string GetPythonPath(string folder) => "GetPythonPath";
+        protected override string GetPythonPath(string folder, bool freeThreaded = false) => "GetPythonPath";
     }
 
 }

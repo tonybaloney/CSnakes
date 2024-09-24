@@ -22,21 +22,22 @@ public abstract class PythonLocator(Version version)
     /// <returns>The metadata of the located Python installation.</returns>
     public abstract PythonLocationMetadata LocatePython();
 
-    protected virtual string GetPythonExecutablePath(string folder)
+    protected virtual string GetPythonExecutablePath(string folder, bool freeThreaded = false)
     {
+        string suffix = freeThreaded ? "t" : "";
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            return Path.Combine(folder, "python.exe");
+            return Path.Combine(folder, $"python{suffix}.exe");
         }
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            return Path.Combine(folder, "bin", "python3");
+            return Path.Combine(folder, "bin", $"python3{suffix}");
         }
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            return Path.Combine(folder, "bin", "python3");
+            return Path.Combine(folder, "bin", $"python3{suffix}");
         }
 
         throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
@@ -68,9 +69,10 @@ public abstract class PythonLocator(Version version)
     /// </summary>
     /// <param name="folder">The base folder</param>
     /// <returns></returns>
-    protected virtual string GetPythonPath(string folder)
+    protected virtual string GetPythonPath(string folder, bool freeThreaded = false)
     {
         char sep = Path.PathSeparator;
+        string suffix = freeThreaded ? "t" : "";
 
         // Add standard library to PYTHONPATH
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -80,7 +82,7 @@ public abstract class PythonLocator(Version version)
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            return Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}") + sep + Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}", "lib-dynload");
+            return Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}{suffix}") + sep + Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}{suffix}", "lib-dynload");
         }
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -104,7 +106,7 @@ public abstract class PythonLocator(Version version)
             throw new DirectoryNotFoundException($"Python not found in '{folder}'.");
         }
 
-        return new PythonLocationMetadata(folder, Version, GetLibPythonPath(folder, freeThreaded), GetPythonPath(folder), GetPythonExecutablePath(folder));
+        return new PythonLocationMetadata(folder, Version, GetLibPythonPath(folder, freeThreaded), GetPythonPath(folder, freeThreaded), GetPythonExecutablePath(folder, freeThreaded), default, freeThreaded);
     }
 
     /// <summary>

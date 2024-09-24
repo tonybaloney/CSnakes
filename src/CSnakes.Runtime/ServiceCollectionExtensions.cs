@@ -114,9 +114,9 @@ public static class ServiceCollectionExtensions
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
     /// <param name="version">The version of the Windows Installer package.</param>
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    public static IPythonEnvironmentBuilder FromMacOSInstallerLocator(this IPythonEnvironmentBuilder builder, string version)
+    public static IPythonEnvironmentBuilder FromMacOSInstallerLocator(this IPythonEnvironmentBuilder builder, string version, bool freeThreaded = false)
     {
-        builder.Services.AddSingleton<PythonLocator>(new MacOSInstallerLocator(ParsePythonVersion(version)));
+        builder.Services.AddSingleton<PythonLocator>(new MacOSInstallerLocator(ParsePythonVersion(version), freeThreaded));
         return builder;
     }
 

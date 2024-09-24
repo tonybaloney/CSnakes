@@ -14,6 +14,7 @@ public class RuntimeTestBase : IDisposable
         string pythonVersionWindows = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.4";
         string pythonVersionMacOS = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
         string pythonVersionLinux = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
+        bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "true";
 
         app = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
@@ -23,7 +24,7 @@ public class RuntimeTestBase : IDisposable
 
                 pb
                   .FromNuGet(pythonVersionWindows)
-                  .FromMacOSInstallerLocator(pythonVersionMacOS)
+                  .FromMacOSInstallerLocator(pythonVersionMacOS, freeThreaded)
                   .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux); // This last one is for GitHub Actions
 
                 services.AddLogging(builder => builder.AddXUnit());

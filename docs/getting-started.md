@@ -5,7 +5,7 @@ To get started with CSnakes, you need to:
 * [Install Python](#installing-python)
 * [Put your Python files into a C# Project](#configuring-a-c-project-for-csnakes)
 * [Use type annotations for the functions you want to call from C#](#using-type-annotations-for-reflection)
-* [Install the `CSnakes` and `CSnakes.Runtime` packages into the project](#installing-the-nuget-packages-for-csnakes)
+* [Install the `CSnakes.Runtime` package into the project](#installing-the-nuget-packages-for-csnakes)
 * [Mark them for source generation](#marking-files-for-generation)
 * [Install the `CSnakes.Runtime` nuget package in the C# Project you want to execute the Python code from](#building-the-project)
 * [Setup a Virtual Environment (Optional)](#using-virtual-environments)
@@ -32,18 +32,15 @@ To setup a C# project for CSnakes, you need to:
 1. Create a new C# project or open an existing one.
 2. Add your Python files to the project.
 3. Mark the Python files as "Additional Files" in the project file.
-4. Install the `CSnakes` and `CSnakes.Runtime` NuGet packages.
+4. Install the `CSnakes.Runtime` NuGet package.
 5. Create a `PythonEnvironment` in C# and create an instance of the Python module.
 6. Call any Python code. 
 
-### Installing the NuGet packages
+### Installing the NuGet package
 
-CSnakes has two nuget packages that you need to install in your C# project:
+CSnakes is bundled into a single nuget package, [`CSnakes.Runtime`](https://www.nuget.org/packages/CSnakes.Runtime/). This package includes the source generator and runtime libraries.
 
-1. [`CSnakes`](https://www.nuget.org/packages/CSnakes/) - the source generator that will create the C# classes from your Python files. Install this in the project that contains the Python files.
-2. [`CSnakes.Runtime`](https://www.nuget.org/packages/CSnakes.Runtime/) - the runtime that will execute the Python code. Install this in the project that will call the Python code.
-
-If you are using one project for both the Python code and the C# code, you can install both packages in the same project.
+Source Generation is recommended for the best experience, but you can also use the runtime library directly if you prefer, see [Calling Python without the Source Generator](advanced.md#calling-python-without-the-source-generator).
 
 ## Adding Python files
 
@@ -67,6 +64,7 @@ For CSnakes to run the source generator over Python files, you need to mark the 
         <AdditionalFiles Include="demo.py">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
+    </ItemGroup>
 ```
 
 Or, in Visual Studio change the properties of the file and set **Build Action** to **Csharp analyzer additional file**.

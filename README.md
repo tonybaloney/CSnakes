@@ -5,7 +5,7 @@
 
 [Documentation](https://tonybaloney.github.io/CSnakes/)
 
-[![NuGet Version](https://img.shields.io/nuget/v/CSnakes?label=CSnakes)](https://www.nuget.org/packages/CSnakes)
+[![NuGet Version](https://img.shields.io/nuget/v/CSnakes.Runtime?label=CSnakes.Runtime)](https://www.nuget.org/packages/CSnakes.Runtime)
 
 <img src="docs/res/logo.jpeg" alt="drawing" width="200"/> 
 

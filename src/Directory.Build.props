@@ -12,7 +12,9 @@
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
     <IsPackable>false</IsPackable>
-    <EnableLocalPackaging>true</EnableLocalPackaging>
+    <EnableLocalPackaging>false</EnableLocalPackaging>
+    <!-- Forcably disable local packaging during CI to avoid extra packages being generated -->
+    <EnableLocalPackaging Condition="'$(ContinuousIntegrationBuild)' == 'true'">false</EnableLocalPackaging>
   </PropertyGroup>
 
   <Import Project="Packaging.props" />

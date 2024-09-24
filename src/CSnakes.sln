@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 		Directory.Packages.props = Directory.Packages.props
+		NuGet.config = NuGet.config
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
@@ -20,7 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Integration.Tests", "Integr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSnakes.Runtime.Tests", "CSnakes.Runtime.Tests\CSnakes.Runtime.Tests.csproj", "{CB00C1F5-8C01-4FE7-82AD-7F9B4398E3F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Profile", "Profile\Profile.csproj", "{93264FC1-2880-4959-9576-50D260039BC2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Profile", "Profile\Profile.csproj", "{93264FC1-2880-4959-9576-50D260039BC2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSnakes.CLI", "CSnakes.CLI\CSnakes.CLI.csproj", "{F6204D07-3452-4D2F-B040-211C9EA3E627}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4374E3D5-3A2C-47F8-B33E-F3C43A20B530}"
 EndProject
@@ -58,6 +61,10 @@ Global
 		{93264FC1-2880-4959-9576-50D260039BC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93264FC1-2880-4959-9576-50D260039BC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93264FC1-2880-4959-9576-50D260039BC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6204D07-3452-4D2F-B040-211C9EA3E627}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6204D07-3452-4D2F-B040-211C9EA3E627}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6204D07-3452-4D2F-B040-211C9EA3E627}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6204D07-3452-4D2F-B040-211C9EA3E627}.Release|Any CPU.Build.0 = Release|Any CPU
 		{641C9CD0-8529-4666-8F27-ECEB7F72043C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{641C9CD0-8529-4666-8F27-ECEB7F72043C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{641C9CD0-8529-4666-8F27-ECEB7F72043C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -73,6 +80,7 @@ Global
 		{F179777C-913A-46FE-BE2F-15A59EAB7E88} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
 		{CB00C1F5-8C01-4FE7-82AD-7F9B4398E3F8} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
 		{93264FC1-2880-4959-9576-50D260039BC2} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
+		{F6204D07-3452-4D2F-B040-211C9EA3E627} = {4374E3D5-3A2C-47F8-B33E-F3C43A20B530}
 		{641C9CD0-8529-4666-8F27-ECEB7F72043C} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

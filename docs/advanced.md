@@ -62,9 +62,32 @@ Whilst free-threading mode is **supported** at a high-level from CSnakes, it is 
 
 ## Calling Python without the Source Generator
 
-The Source Generator library is a useful tool for creating the boilerplate code to invoke a Python function from a `PythonEnvironment` instance and convert the types based on the type annotations in the Python function. 
+The Source Generator library is a useful tool for creating the boilerplate code to invoke a Python function from a `PythonEnvironment` instance and convert the types based on the type annotations in the Python function.
 
-It is still possible to call Python code without the Source Generator, but you will need to write the boilerplate code yourself. Here's an example of how you can call a Python function without the Source Generator to call a Python function in a module called `test_basic`:
+It is still possible to call Python code without the Source Generator, you can either generate the C# with the CSnakes CLI, or you will need to write the boilerplate code yourself.
+
+## Using the CLI
+
+The CSnakes CLI can generate the boilerplate code for you to call a Python function from a module, and it will output a C# file that you can include in your project.
+
+1. Install the CSnakes CLI:
+
+    ```bash
+    dotnet tool install -g CSnakes.CLI
+    ```
+
+1. Run the CLI to generate the C# code:
+
+    ```bash
+    csnakes --file test_basic.py --output ./generated
+    ```
+
+!!! note
+    If you want to generate multiple files, use the `--directory` option instead of `--file` and provide a directory path.
+
+## Writing the boilerplate code yourself
+
+Here's an example of how you can call a Python function without the Source Generator to call a Python function in a module called `test_basic`:
 
 ```python
 def test_int_float(a: int, b: float) -> float:

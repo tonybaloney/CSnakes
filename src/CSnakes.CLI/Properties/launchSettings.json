@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CSnakes.CLI - directory": {
+      "commandName": "Project",
+      "commandLineArgs": "-o ../generated -d ..\\..\\..\\..\\Integration.Tests\\python\\"
+    }
+  }
+}

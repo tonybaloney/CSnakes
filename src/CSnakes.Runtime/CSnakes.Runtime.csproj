@@ -22,6 +22,4 @@
     <!-- Reference the source generator purely for packaging purposes -->
     <ProjectReference Include="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
-
-  <Import Project="Packaging.targets" />
 </Project>

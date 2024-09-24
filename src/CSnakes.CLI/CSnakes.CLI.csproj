@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>csnakes</ToolCommandName>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.CommandLine" />
+        <PackageReference Include="Superpower" />
+    </ItemGroup>
+</Project>

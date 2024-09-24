@@ -106,7 +106,7 @@ public abstract class PythonLocator(Version version)
             throw new DirectoryNotFoundException($"Python not found in '{folder}'.");
         }
 
-        return new PythonLocationMetadata(folder, Version, GetLibPythonPath(folder, freeThreaded), GetPythonPath(folder, freeThreaded), GetPythonExecutablePath(folder, freeThreaded));
+        return new PythonLocationMetadata(folder, Version, GetLibPythonPath(folder, freeThreaded), GetPythonPath(folder, freeThreaded), GetPythonExecutablePath(folder, freeThreaded), default, freeThreaded);
     }
 
     /// <summary>

@@ -16,7 +16,6 @@
 
     <ItemGroup>
         <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.2.0" />
-        <PackageReference Include="CSnakes" Version="1.*" />
         <PackageReference Include="CSnakes.Runtime" Version="1.*" />
     </ItemGroup>
 

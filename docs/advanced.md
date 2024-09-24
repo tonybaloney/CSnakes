@@ -126,3 +126,13 @@ public sealed class ExampleDirectIntegration : IDisposable
     }
 }
 ```
+
+### Disabling the Source Generator
+
+The Source Generator will only activate on files that are marked as `AdditionalFiles` in the project file. If you want to disable the Source Generator, you can remove the `AdditionalFiles` entry from the project file.
+
+Alternatively , you can disable the Source Generator by setting the `DisableCSnakesRuntimeSourceGenerator` property in the project file:
+
+```xml
+<DisableCSnakesRuntimeSourceGenerator>true</DisableCSnakesRuntimeSourceGenerator>
+```

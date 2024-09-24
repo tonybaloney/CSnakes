@@ -33,8 +33,7 @@ var bufferObject = testModule.ExampleArray();
 
 // check if the buffer is scalar (single dimensional)
 if (bufferObject.IsScalar) {
-
-// Get the buffer contents as a Span of bool
+    // Get the buffer contents as a Span of bool
 	Span<bool> result = bufferObject.AsBoolSpan();
 	Console.WriteLine(result[0]); // True
 	Console.WriteLine(result[4]); // False
@@ -110,21 +109,23 @@ Console.WriteLine(resultTensor[1, 2, 3, 4]); // 3
 
 The Numpy dtypes are mapped to C# types as follows:
 
-| NumPy dtype | C# Type | Span Method | ReadOnly Span Method | Span2D Method | ReadOnly Span2D Method |
-|-------------|---------|-------------|----------------------|---------------|------------------------|
-| `bool`      | `bool`  | `AsBoolSpan`| `AsBoolReadOnlySpan` | `AsBoolSpan2D`| `AsBoolReadOnlySpan2D` |
-| `int8`      | `sbyte` | `AsSByteSpan`| `AsSByteReadOnlySpan` | `AsSByteSpan2D`| `AsSByteReadOnlySpan2D` |
-| `int16`     | `short` | `AsShortSpan`| `AsShortReadOnlySpan` | `AsShortSpan2D`| `AsShortReadOnlySpan2D` |
-| `int32`     | `int`   | `AsIntSpan`  | `AsIntReadOnlySpan`   | `AsIntSpan2D`  | `AsIntReadOnlySpan2D`   |
-| `int64`     | `long`  | `AsLongSpan` | `AsLongReadOnlySpan`  | `AsLongSpan2D` | `AsLongReadOnlySpan2D`  |
-| `uint8`     | `byte`  | `AsByteSpan` | `AsByteReadOnlySpan`  | `AsByteSpan2D` | `AsByteReadOnlySpan2D`  |
-| `uint16`    | `ushort`| `AsUShortSpan`| `AsUShortReadOnlySpan`| `AsUShortSpan2D`| `AsUShortReadOnlySpan2D`|
-| `uint32`    | `uint`  | `AsUIntSpan` | `AsUIntReadOnlySpan`  | `AsUIntSpan2D` | `AsUIntReadOnlySpan2D`  |
-| `uint64`    | `ulong` | `AsULongSpan`| `AsULongReadOnlySpan` | `AsULongSpan2D`| `AsULongReadOnlySpan2D` |
-| `float32`   | `float` | `AsFloatSpan`| `AsFloatReadOnlySpan` | `AsFloatSpan2D`| `AsFloatReadOnlySpan2D` |
-| `float64`   | `double`| `AsDoubleSpan`| `AsDoubleReadOnlySpan`| `AsDoubleSpan2D`| `AsDoubleReadOnlySpan2D`|
+| NumPy dtype | C# Type  | Span Method    | ReadOnly Span Method   | Span2D Method    | ReadOnly Span2D Method   | TensorSpan Method    | ReadOnly TensorSpan Method   |
+|-------------|----------|----------------|------------------------|------------------|--------------------------|----------------------|------------------------------|
+| `bool`      | `bool`   | `AsBoolSpan`   | `AsBoolReadOnlySpan`   | `AsBoolSpan2D`   | `AsBoolReadOnlySpan2D`   | `AsBoolTensorSpan`   | `AsBoolReadOnlyTensorSpan`   |
+| `int8`      | `sbyte`  | `AsSByteSpan`  | `AsSByteReadOnlySpan`  | `AsSByteSpan2D`  | `AsSByteReadOnlySpan2D`  | `AsSByteTensorSpan`  | `AsSByteReadOnlyTensorSpan`  |
+| `int16`     | `short`  | `AsInt16Span`  | `AsInt16ReadOnlySpan`  | `AsInt16Span2D`  | `AsInt16ReadOnlySpan2D`  | `AsInt16TensorSpan`  | `AsInt16ReadOnlyTensorSpan`  |
+| `int32`     | `int`    | `AsInt32pan`   | `AsInt32ReadOnlySpan`  | `AsInt32pan2D`   | `AsInt32ReadOnlySpan2D`  | `AsInt32TensorSpan`  | `AsInt32ReadOnlyTensorSpan`  |
+| `int64`     | `long`   | `AsInt64Span`  | `AsInt64ReadOnlySpan`  | `AsInt64Span2D`  | `AsInt64ReadOnlySpan2D`  | `AsInt64TensorSpan`  | `AsInt64ReadOnlyTensorSpan`  |
+| `uint8`     | `byte`   | `AsByteSpan`   | `AsByteReadOnlySpan`   | `AsByteSpan2D`   | `AsByteReadOnlySpan2D`   | `AsByteTensorSpan`   | `AsByteReadOnlyTensorSpan`   |
+| `uint16`    | `ushort` | `AsUInt16Span` | `AsUInt16ReadOnlySpan` | `AsUInt16Span2D` | `AsUInt16ReadOnlySpan2D` | `AsUInt16TensorSpan` | `AsUInt16ReadOnlyTensorSpan` |
+| `uint32`    | `uint`   | `AsUInt32Span` | `AsUInt32ReadOnlySpan` | `AsUInt32Span2D` | `AsUInt32ReadOnlySpan2D` | `AsUInt32TensorSpan` | `AsUInt32ReadOnlyTensorSpan` |
+| `uint64`    | `ulong`  | `AsUInt64Span` | `AsUInt64ReadOnlySpan` | `AsUInt64Span2D` | `AsUInt64ReadOnlySpan2D` | `AsUInt64TensorSpan` | `AsUInt64ReadOnlyTensorSpan` |
+| `float32`   | `float`  | `AsFloatSpan`  | `AsFloatReadOnlySpan`  | `AsFloatSpan2D`  | `AsFloatReadOnlySpan2D`  | `AsFloatTensorSpan`  | `AsFloatReadOnlyTensorSpan`  |
+| `float64`   | `double` | `AsDoubleSpan` | `AsDoubleReadOnlySpan` | `AsDoubleSpan2D` | `AsDoubleReadOnlySpan2D` | `AsDoubleTensorSpan` | `AsDoubleReadOnlyTensorSpan` |
 
 The `GetItemType()` method can be used to get the C# type of the buffer contents. 
+
+You can also use generic methods such as `AsSpan<T>` and `AsReadOnlySpan<T>` to get a Span of the buffer contents with the specified type. If the requested type does not match the buffer contents, an exception will be thrown.
 
 ## Bytes objects as buffers
 

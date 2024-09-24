@@ -2,9 +2,10 @@
 using Microsoft.CodeAnalysis.Text;
 using System.CommandLine;
 
-var fileOption = new CliOption<FileInfo?>("--file", "-f")
+var fileSpatArguments = new CliArgument<FileInfo[]>("FILE")
 {
-    Description = "Path to the Python file to generate the C# code from."
+    Description = "Path to the Python file(s) to generate the C# code from.",
+    Arity = ArgumentArity.ZeroOrMore
 };
 
 var directoryOption = new CliOption<DirectoryInfo?>("--directory", "-d")
@@ -25,26 +26,26 @@ var removeOutputOption = new CliOption<bool>("--remove-output", "-rm")
 
 var root = new CliRootCommand("Creates C# wrapper to call Python code.")
 {
-    fileOption,
     outputOption,
     directoryOption,
-    removeOutputOption
+    removeOutputOption,
+    fileSpatArguments
 };
 
 root.SetAction(result =>
 {
-    FileInfo? fileInfo = result.GetValue(fileOption);
     DirectoryInfo? outputInfo = result.GetValue(outputOption);
     DirectoryInfo? directoryInfo = result.GetValue(directoryOption);
     bool removeOutput = result.GetValue(removeOutputOption);
+    FileInfo[] splattedFiles = result.GetValue(fileSpatArguments) ?? [];
 
-    if (fileInfo is null && directoryInfo is null)
+    if (directoryInfo is null && splattedFiles.Length == 0)
     {
-        Console.Error.WriteLine("You must provide either a file or a directory.");
+        Console.Error.WriteLine("You must provide either a directory or some files.");
         return (int)ErrorCode.InvalidArguments;
     }
 
-    if (fileInfo is not null && directoryInfo is not null)
+    if (directoryInfo is not null && splattedFiles.Length > 0)
     {
         Console.Error.WriteLine("You must provide either a file or a directory, not both.");
         return (int)ErrorCode.InvalidArguments;
@@ -56,9 +57,9 @@ root.SetAction(result =>
         return (int)ErrorCode.InvalidArguments;
     }
 
-    FileInfo[] files = (fileInfo, directoryInfo) switch
+    FileInfo[] files = (splattedFiles, directoryInfo) switch
     {
-        (not null, _) => [fileInfo],
+        ({ Length: > 0 }, _) => splattedFiles,
         (_, not null) => directoryInfo.GetFiles("*.py"),
         _ => throw new InvalidOperationException()
     };

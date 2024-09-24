@@ -63,7 +63,10 @@ internal class PythonEnvironment : IPythonEnvironment
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 venvLibPath = Path.Combine(options.VirtualEnvironmentPath, "Lib", "site-packages");
             else
-                venvLibPath = Path.Combine(options.VirtualEnvironmentPath, "lib", $"python{location.Version.Major}.{location.Version.Minor}", "site-packages");
+            {
+                string suffix = location.FreeThreaded ? "t" : "";
+                venvLibPath = Path.Combine(options.VirtualEnvironmentPath, "lib", $"python{location.Version.Major}.{location.Version.Minor}{suffix}", "site-packages");
+            }
             logger.LogDebug("Adding virtual environment site-packages to extra paths: {VenvLibPath}", venvLibPath);
             extraPaths = [.. options.ExtraPaths, venvLibPath];
 

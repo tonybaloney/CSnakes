@@ -14,7 +14,13 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        python: ["3.9", "3.10", "3.11", "3.12", "3.13.0-rc.1"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13.0-rc.2"]
+        free-threaded: [false]
+        include:
+          - os: windows-latest
+            python: "3.13.0-rc.2"
+            free-threaded: true
+
       fail-fast: false
     runs-on: "${{ matrix.os }}"
 
@@ -57,6 +63,7 @@ jobs:
         working-directory: src
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          PYTHON_FREETHREADED: ${{ matrix.free-threaded }}
 
       - name: Upload logs
         uses: actions/upload-artifact@v4
@@ -115,3 +122,4 @@ jobs:
         working-directory: samples
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+

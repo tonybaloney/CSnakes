@@ -69,7 +69,7 @@ public static class ServiceCollectionExtensions
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
     /// <param name="version">The version of the NuGet package.</param>
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    public static IPythonEnvironmentBuilder FromNuGet(this IPythonEnvironmentBuilder builder, string version)
+    public static IPythonEnvironmentBuilder FromNuGet(this IPythonEnvironmentBuilder builder, string version, bool freeThreaded = false)
     {
         // See https://github.com/tonybaloney/CSnakes/issues/154#issuecomment-2352116849
         version = version.Replace("alpha.", "a").Replace("beta.", "b").Replace("rc.", "rc");
@@ -80,7 +80,7 @@ public static class ServiceCollectionExtensions
             version = $"{version}.0";
         }
 
-        builder.Services.AddSingleton<PythonLocator>(new NuGetLocator(version, ParsePythonVersion(version)));
+        builder.Services.AddSingleton<PythonLocator>(new NuGetLocator(version, ParsePythonVersion(version), freeThreaded));
         return builder;
     }
 

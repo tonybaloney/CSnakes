@@ -114,11 +114,11 @@ internal static class Pack
         try
         {
             obj = TBuilder.New(items.Length);
-            SetItems(spilledHandles, SetItems(initialHandles, 0));
+            SetItems(obj, spilledHandles, SetItems(obj, initialHandles, 0));
 
             return obj;
 
-            int SetItems(Span<nint> handles, int i)
+            static int SetItems(nint obj, Span<nint> handles, int i)
             {
                 foreach (var handle in handles)
                 {

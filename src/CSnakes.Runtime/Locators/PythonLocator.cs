@@ -27,6 +27,8 @@ public abstract class PythonLocator(Version version)
         string suffix = freeThreaded ? "t" : "";
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
+            if (freeThreaded)
+                return Path.Combine(folder, $"python{Version.Major}.{Version.Minor}{suffix}.exe");
             return Path.Combine(folder, $"python{suffix}.exe");
         }
 

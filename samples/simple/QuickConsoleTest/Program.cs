@@ -9,8 +9,9 @@ using System.Text.Json;
 var builder = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
-        var home = Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency");
+        var home = FindExamplePythonDependencyFolder(Environment.CurrentDirectory);
         var venv = Path.Join(home, ".venv");
+
         services
         .WithPython()
         .WithHome(home)
@@ -60,7 +61,7 @@ static void RunKmeansDemo(IPythonEnvironment env)
         (10, 2), (10, 4), (10, 0)
     ];
 
-    var (centroids, inertia)= kmeansExample.CalculateKmeansInertia(data, 4);
+    var (centroids, inertia) = kmeansExample.CalculateKmeansInertia(data, 4);
     Console.WriteLine($"KMeans inertia for 4 clusters is {JsonSerializer.Serialize(centroids)}, inertia is {inertia}");
 }
 
@@ -69,4 +70,26 @@ static void RunAIDemo(IPythonEnvironment env)
     var phi3demo = env.Phi3Demo();
     // var result = phi3demo.Phi3InferenceDemo("What kind of food is Brie?");
     // Console.WriteLine(result);
+}
+
+static string FindExamplePythonDependencyFolder(string startDirectory)
+{
+    var currentDirectory = startDirectory;
+
+    while (true)
+    {
+        var potentialHome = Path.Combine(currentDirectory, "ExamplePythonDependency");
+        if (Directory.Exists(potentialHome))
+        {
+            return potentialHome;
+        }
+
+        var parentDirectory = Directory.GetParent(currentDirectory);
+        if (parentDirectory == null)
+        {
+            throw new DirectoryNotFoundException("The 'ExamplePythonDependency' folder was not found in any parent directory.");
+        }
+
+        currentDirectory = parentDirectory.FullName;
+    }
 }

@@ -53,7 +53,7 @@ static void RunDictionaryDemo(IPythonEnvironment env)
 
 static void RunKmeansDemo(IPythonEnvironment env)
 {
-    // That was boring, how about scikit-learn
+    // Get the centroids and inertia of a test matrix from scikit-learn kmeans algorithm
     var kmeansExample = env.KmeansExample();
     List<(long, long)> data = [
         (1, 2), (1, 4), (1, 0),
@@ -61,7 +61,16 @@ static void RunKmeansDemo(IPythonEnvironment env)
     ];
 
     var (centroids, inertia)= kmeansExample.CalculateKmeansInertia(data, 4);
-    Console.WriteLine($"KMeans inertia for 4 clusters is {JsonSerializer.Serialize(centroids)}, inertia is {inertia}");
+    var resultMatrix = centroids.AsReadOnlySpan2D<double>();
+    Console.WriteLine($"KMeans inertia is {inertia}, centroids are:");
+    for (int i = 0; i < resultMatrix.Height; i++)
+    {
+        for (var j = 0; j < resultMatrix.Width; j++)
+        {
+            Console.Write(resultMatrix[i, j].ToString().PadLeft(10));
+        }
+        Console.Write("\n");
+    }
 }
 
 static void RunAIDemo(IPythonEnvironment env)

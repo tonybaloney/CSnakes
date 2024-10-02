@@ -11,7 +11,7 @@
 
 CSnakes is a .NET Source Generator and Runtime that you can use to embed Python code and libraries into your .NET Solution without the need for REST, HTTP, or Microservices.
 
-![image](docs/res/architecture_simple.png)
+![Architecture diagram of CSnakes](docs/res/architecture_simple.png)
 
 ## Features
 

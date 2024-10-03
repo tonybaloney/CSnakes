@@ -22,6 +22,8 @@ else
                 <th>Date</th>
                 <th>Temp. (C)</th>
                 <th>Temp. (F)</th>
+                <th>Precipitation (mm)</th>
+                <th>Wind (km/h)</th>
                 <th>Summary</th>
             </tr>
         </thead>
@@ -30,8 +32,10 @@ else
             {
                 <tr>
                     <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
+                    <td>@Math.Round(forecast.TemperatureMinC, 1) - @Math.Round(forecast.TemperatureMaxC, 1)</td>
+                    <td>@Math.Round(forecast.TemperatureMinF, 1) - @Math.Round(forecast.TemperatureMaxF, 1)</td>
+                    <td>@forecast.Precipitation</td>
+                    <td>@forecast.Wind</td>
                     <td>@forecast.Summary</td>
                 </tr>
             }
@@ -40,7 +44,7 @@ else
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private WeatherRecord[]? forecasts;
 
     protected override async Task OnInitializedAsync()
     {

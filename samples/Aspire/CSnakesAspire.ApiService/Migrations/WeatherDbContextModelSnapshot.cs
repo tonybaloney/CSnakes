@@ -33,16 +33,29 @@ namespace CSnakesAspire.ApiService.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Summary")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("TemperatureC")
-                        .HasColumnType("integer");
+                    b.Property<int>("TemperatureMinC")
+                        .HasColumnType("float");
+
+                    b.Property<int>("TemperatureMaxC")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Precipitation")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Wind")
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
-                    b.ToTable("WeatherForecasts");
+                    b.ToTable("WeatherRecords");
                 });
 #pragma warning restore 612, 618
         }

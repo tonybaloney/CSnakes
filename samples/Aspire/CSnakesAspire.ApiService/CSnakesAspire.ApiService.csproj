@@ -7,7 +7,18 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="Data\seattle-weather.csv" />
+    </ItemGroup>
+
+    <ItemGroup>
       <AdditionalFiles Include="..\python\weather.py" Link="python\weather.py" />
+      <None Include="..\python\requirements.txt" Link="python\requirements.txt" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="Data\seattle-weather.csv">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>

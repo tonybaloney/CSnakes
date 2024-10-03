@@ -62,12 +62,20 @@ app.MapGet("/weatherforecast", (
     [FromServices] IWeather weather,
     [FromServices] ILogger<Program> logger) =>
 {
-    var rawForecast = weather.GetWeatherForecast(Activity.Current?.TraceId.ToString(), Activity.Current?.SpanId.ToString());
+    var rawForecast = weather.GetWeatherForecast(7, Activity.Current?.TraceId.ToString(), Activity.Current?.SpanId.ToString());
 
     logger.LogInformation("Raw forecast: {RawForecast}", rawForecast);
 
     var forecast = rawForecast
-        .Select(f => new WeatherForecast(DateOnly.FromDateTime(DateTime.Parse(f["Date"].ToString())), f["TemperatureC"].As<long>(), f["Summary"].ToString()));
+        .Select(f => new WeatherRecord(
+            f["City"].ToString(),
+            DateOnly.FromDateTime(DateTime.Parse(f["Date"].ToString())),
+            (float)f["Precipitation"].As<double>(),
+            (float)f["TemperatureMinC"].As<double>(),
+            (float)f["TemperatureMaxC"].As<double>(),
+            (float)f["Wind"].As<double>(),
+            f["Summary"].ToString()
+        ));
     return forecast;
 });
 

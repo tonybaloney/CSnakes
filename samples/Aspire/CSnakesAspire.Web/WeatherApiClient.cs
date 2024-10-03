@@ -2,11 +2,11 @@ namespace CSnakesAspire.Web;
 
 public class WeatherApiClient(HttpClient httpClient)
 {
-    public async Task<WeatherForecast[]> GetWeatherAsync(int maxItems = 10, CancellationToken cancellationToken = default)
+    public async Task<WeatherRecord[]> GetWeatherAsync(int maxItems = 10, CancellationToken cancellationToken = default)
     {
-        List<WeatherForecast>? forecasts = null;
+        List<WeatherRecord>? forecasts = null;
 
-        await foreach (var forecast in httpClient.GetFromJsonAsAsyncEnumerable<WeatherForecast>("/weatherforecast", cancellationToken))
+        await foreach (var forecast in httpClient.GetFromJsonAsAsyncEnumerable<WeatherRecord>("/weatherforecast", cancellationToken))
         {
             if (forecasts?.Count >= maxItems)
             {
@@ -23,7 +23,8 @@ public class WeatherApiClient(HttpClient httpClient)
     }
 }
 
-public record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+public record WeatherRecord(string City, DateOnly Date, float Precipitation, float TemperatureMinC, float TemperatureMaxC, float Wind, string? Summary)
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    public float TemperatureMinF => 32.0f + (TemperatureMinC / 0.5556f);
+    public float TemperatureMaxF => 32.0f + (TemperatureMaxC / 0.5556f);
 }

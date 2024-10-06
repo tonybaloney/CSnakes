@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using CSnakes.Parser;
+using CSnakes.Parser.Types;
 using Superpower;
 
 namespace CSnakes.Tests;
@@ -490,8 +491,9 @@ if __name__ == '__main__':
 
         Assert.True(result.HasValue);
         Assert.NotNull(result.Value);
-        Assert.True(result.Value?.IsInteger);
-        Assert.Equal(expectedValue, result.Value?.IntegerValue);
+        var value = result.Value as PythonConstant.Integer;
+        Assert.NotNull(value);
+        Assert.Equal(expectedValue, value.Value);
     }
 
     [Theory]
@@ -517,8 +519,9 @@ if __name__ == '__main__':
         var result = PythonParser.DecimalConstantTokenizer.TryParse(tokens);
 
         Assert.True(result.HasValue);
-        Assert.NotNull(result.Value);
-        Assert.Equal(expectedValue, result.Value?.FloatValue);
+        var value = result.Value as PythonConstant.Float;
+        Assert.NotNull(value);
+        Assert.Equal(expectedValue, value.Value);
     }
 }
 

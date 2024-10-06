@@ -1,77 +1,55 @@
 ﻿namespace CSnakes.Parser.Types;
 
-public class PythonConstant
+public abstract class PythonConstant
 {
-    public enum ConstantType
+    public abstract override string ToString();
+
+    public class Integer(long value) : PythonConstant
     {
-        Integer,
-        HexidecimalInteger,
-        BinaryInteger,
-        Float,
-        String,
-        Bool,
-        None,
+        public long Value { get; } = value;
+        public override string ToString() => Value.ToString();
     }
 
-    public PythonConstant() { }
-
-    public PythonConstant(long value)
+    public sealed class HexidecimalInteger(long value) : Integer(value)
     {
-        Type = ConstantType.Integer;
-        IntegerValue = value;
+        public override string ToString() => $"0x{Value:X}";
     }
 
-    public PythonConstant(double value)
+    public sealed class BinaryInteger(long value) : Integer(value)
     {
-        Type = ConstantType.Float;
-        FloatValue = value;
+        public override string ToString() => $"0b{Value:X}";
     }
 
-    public PythonConstant(string value)
+    public sealed class Float(double value) : PythonConstant
     {
-        Type = ConstantType.String;
-        StringValue = value;
+        public double Value { get; } = value;
+        public override string ToString() => Value.ToString();
     }
 
-    public PythonConstant(bool value)
+    public sealed class String(string value) : PythonConstant
     {
-        Type = ConstantType.Bool;
-        BoolValue = value;
+        public string Value { get; } = value;
+        public override string ToString() => Value;
     }
 
-    public static PythonConstant FromNone() => new PythonConstant { Type = ConstantType.None };
-    public ConstantType Type { get; set; }
-
-    public long IntegerValue { get; set; }
-
-    public string? StringValue { get; set; }
-
-    public double FloatValue { get; set; }
-
-    public bool BoolValue { get; set; }
-
-    public bool IsInteger { get => Type == ConstantType.Integer || Type == ConstantType.BinaryInteger || Type == ConstantType.HexidecimalInteger; }
-
-    public override string ToString()
+    public sealed class Bool : PythonConstant
     {
-        switch (Type)
-        {
-            case ConstantType.Integer:
-                return IntegerValue.ToString();
-            case ConstantType.HexidecimalInteger:
-                return $"0x{IntegerValue:X}";
-            case ConstantType.BinaryInteger:
-                return $"0b{IntegerValue:X}";
-            case ConstantType.Float:
-                return FloatValue.ToString();
-            case ConstantType.Bool:
-                return BoolValue.ToString();
-            case ConstantType.String:
-                return StringValue ?? throw new ArgumentNullException(nameof(StringValue));
-            case ConstantType.None:
-                return "None";
-            default:
-                return "unknown";
-        }
+        public static readonly Bool True = new(true);
+        public static readonly Bool False = new(false);
+
+        private Bool(bool value) => Value = value;
+
+        public bool Value { get; }
+
+        public override string ToString() => Value.ToString();
+    }
+
+    public sealed class None : PythonConstant
+    {
+        public static readonly None Value = new();
+
+        private None() { }
+
+        public override string ToString() => "None";
     }
 }

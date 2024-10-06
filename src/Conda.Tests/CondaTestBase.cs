@@ -11,10 +11,15 @@ public class CondaTestBase : IDisposable
     public CondaTestBase()
     {
         string pythonVersion = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
-        string condaEnv = string.Empty;
-        if (OperatingSystem.IsWindows())
-            condaEnv = Environment.GetEnvironmentVariable("LOCALAPPDATA") ?? "";
-        condaEnv = Path.Join(condaEnv, "anaconda3");
+        string condaEnv = Environment.GetEnvironmentVariable("CONDA_HOME") ?? string.Empty;
+
+        if (string.IsNullOrEmpty(condaEnv))
+        {
+            if (OperatingSystem.IsWindows())
+                condaEnv = Environment.GetEnvironmentVariable("LOCALAPPDATA") ?? "";
+            condaEnv = Path.Join(condaEnv, "anaconda3");
+
+        }
 
         app = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>

@@ -28,46 +28,12 @@ internal class VenvEnvironmentManagement : IEnvironmentManagement
         if (!Directory.Exists(path))
         {
             logger.LogInformation("Creating virtual environment at {VirtualEnvPath} using {PythonBinaryPath}", fullPath, pythonLocation.PythonBinaryPath);
-            using Process process1 = ExecutePythonCommand(pythonLocation, fullPath, $"-VV");
-            using Process process2 = ExecutePythonCommand(pythonLocation, fullPath, $"-m venv {fullPath}");
+            using Process process1 = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, $"-VV");
+            using Process process2 = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, $"-m venv {fullPath}");
         }
         else
         {
             logger.LogDebug("Virtual environment already exists at {VirtualEnvPath}", fullPath);
-        }
-
-        Process ExecutePythonCommand(PythonLocationMetadata pythonLocation, string? venvPath, string arguments)
-        {
-            ProcessStartInfo startInfo = new()
-            {
-                WorkingDirectory = pythonLocation.Folder,
-                FileName = pythonLocation.PythonBinaryPath,
-                Arguments = arguments,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true
-            };
-            Process process = new() { StartInfo = startInfo };
-            process.OutputDataReceived += (sender, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    logger.LogInformation("{Data}", e.Data);
-                }
-            };
-
-            process.ErrorDataReceived += (sender, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    logger.LogError("{Data}", e.Data);
-                }
-            };
-
-            process.Start();
-            process.BeginErrorReadLine();
-            process.BeginOutputReadLine();
-            process.WaitForExit();
-            return process;
         }
     }
 

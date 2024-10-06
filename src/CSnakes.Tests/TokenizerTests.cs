@@ -489,9 +489,8 @@ if __name__ == '__main__':
         var result = PythonParser.ConstantValueTokenizer.TryParse(tokens);
 
         Assert.True(result.HasValue);
-        Assert.NotNull(result.Value);
-        Assert.True(result.Value?.IsInteger);
-        Assert.Equal(expectedValue, result.Value?.IntegerValue);
+        Assert.True(result.Value.IsInteger);
+        Assert.Equal(expectedValue, result.Value.IntegerValue);
     }
 
     [Theory]
@@ -517,8 +516,7 @@ if __name__ == '__main__':
         var result = PythonParser.DecimalConstantTokenizer.TryParse(tokens);
 
         Assert.True(result.HasValue);
-        Assert.NotNull(result.Value);
-        Assert.Equal(expectedValue, result.Value?.FloatValue);
+        Assert.Equal(expectedValue, result.Value.FloatValue);
     }
 }
 

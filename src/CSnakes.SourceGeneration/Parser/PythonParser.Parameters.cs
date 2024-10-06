@@ -16,7 +16,7 @@ public static partial class PythonParser
                 _ => PythonTypeDefinitionTokenizer.AssumeNotNull().OptionalOrDefault()
              )
          from defaultValue in Token.EqualTo(PythonToken.Equal).Optional().Then(
-                 _ => ConstantValueTokenizer.AssumeNotNull().OptionalOrDefault()
+                 _ => ConstantValueTokenizer.Optional()
              )
          select new PythonFunctionParameter(arg.Name, type, defaultValue, arg.ParameterType))
         .Named("Parameter");

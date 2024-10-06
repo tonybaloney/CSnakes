@@ -68,13 +68,13 @@ public static partial class PythonParser
 
     public static TokenListParser<PythonToken, PythonConstant> HexidecimalIntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.HexidecimalInteger)
-        .Select(d => new PythonConstant { Type = PythonConstant.ConstantType.HexidecimalInteger, IntegerValue = long.Parse(d.ToStringValue().Substring(2).Replace("_", ""), NumberStyles.HexNumber) })
+        .Select(d => PythonConstant.HexadecimalInteger(long.Parse(d.ToStringValue().Substring(2).Replace("_", ""), NumberStyles.HexNumber)))
         .Named("Hexidecimal Integer Constant");
 
     public static TokenListParser<PythonToken, PythonConstant> BinaryIntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.BinaryInteger)
         // TODO: Consider Binary Format specifier introduced in .NET 8 https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings#binary-format-specifier-b
-        .Select(d => new PythonConstant { Type = PythonConstant.ConstantType.BinaryInteger, IntegerValue = (long)Convert.ToUInt64(d.ToStringValue().Substring(2).Replace("_", ""), 2) })
+        .Select(d => PythonConstant.BinaryInteger((long)Convert.ToUInt64(d.ToStringValue().Substring(2).Replace("_", ""), 2)))
         .Named("Binary Integer Constant");
 
     public static TokenListParser<PythonToken, PythonConstant> BoolConstantTokenizer { get; } =
@@ -84,19 +84,19 @@ public static partial class PythonParser
 
     public static TokenListParser<PythonToken, PythonConstant> NoneConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.None)
-        .Select(d => PythonConstant.FromNone())
+        .Select(d => PythonConstant.None)
         .Named("None Constant");
 
     // Any constant value
-    public static TokenListParser<PythonToken, PythonConstant?> ConstantValueTokenizer { get; } =
-        DecimalConstantTokenizer.AsNullable()
-        .Or(IntegerConstantTokenizer.AsNullable())
-        .Or(HexidecimalIntegerConstantTokenizer.AsNullable())
-        .Or(BinaryIntegerConstantTokenizer.AsNullable())
-        .Or(BoolConstantTokenizer.AsNullable())
-        .Or(NoneConstantTokenizer.AsNullable())
-        .Or(DoubleQuotedStringConstantTokenizer.AsNullable())
-        .Or(SingleQuotedStringConstantTokenizer.AsNullable())
+    public static TokenListParser<PythonToken, PythonConstant> ConstantValueTokenizer { get; } =
+        DecimalConstantTokenizer
+        .Or(IntegerConstantTokenizer)
+        .Or(HexidecimalIntegerConstantTokenizer)
+        .Or(BinaryIntegerConstantTokenizer)
+        .Or(BoolConstantTokenizer)
+        .Or(NoneConstantTokenizer)
+        .Or(DoubleQuotedStringConstantTokenizer)
+        .Or(SingleQuotedStringConstantTokenizer)
         .Named("Constant");
 
     static class ConstantParsers

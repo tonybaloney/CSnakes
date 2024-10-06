@@ -1,56 +1,80 @@
-﻿namespace CSnakes.Parser.Types;
+﻿using System.Runtime.InteropServices;
 
-public class PythonConstant
+namespace CSnakes.Parser.Types;
+
+public readonly struct PythonConstant
 {
     public enum ConstantType
     {
+        None,
         Integer,
         HexidecimalInteger,
         BinaryInteger,
         Float,
         String,
         Bool,
-        None,
     }
 
-    public PythonConstant() { }
+    readonly Union union;   // union storage for value primitives (bool, long & double)
+    readonly string? str;   // storage for string reference
 
-    public PythonConstant(long value)
+    private PythonConstant(ConstantType type, string str) :
+        this(type, default, str) { }
+
+    private PythonConstant(ConstantType type, Union union, string? str = null) =>
+        (Type, this.union, this.str) = (type, union, str);
+
+
+    /// <summary>
+    /// Represents a union of all the primitive types supported by <see cref="PythonConstant"/>.
+    /// This structure occupies the memory of the largest field as opposed to the sum of all fields
+    /// since they are all physically stored at the beginning of the structure and permit to
+    /// optimise space.
+    /// </summary>
+
+    [StructLayout(LayoutKind.Explicit)]
+    private readonly struct Union
     {
-        Type = ConstantType.Integer;
-        IntegerValue = value;
+        [FieldOffset(0)] public readonly bool Boolean;
+        [FieldOffset(0)] public readonly long Int64;
+        [FieldOffset(0)] public readonly double Double;
+
+        public Union(bool value)   => this.Boolean = value;
+        public Union(long value)   => this.Int64 = value;
+        public Union(double value) => this.Double = value;
     }
 
-    public PythonConstant(double value)
-    {
-        Type = ConstantType.Float;
-        FloatValue = value;
-    }
+    public PythonConstant()             : this(ConstantType.None, default(Union)) { }
+    public PythonConstant(long value)   : this(ConstantType.Integer, new Union(value)) { }
+    public PythonConstant(double value) : this(ConstantType.Float, new Union(value)) { }
+    public PythonConstant(string value) : this(ConstantType.String, value) { }
+    public PythonConstant(bool value)   : this(ConstantType.Bool, new Union(value)) { }
 
-    public PythonConstant(string value)
-    {
-        Type = ConstantType.String;
-        StringValue = value;
-    }
+    public static readonly PythonConstant None = new();
 
-    public PythonConstant(bool value)
-    {
-        Type = ConstantType.Bool;
-        BoolValue = value;
-    }
+    public static PythonConstant HexadecimalInteger(long value) =>
+        new(ConstantType.HexidecimalInteger, new Union(value));
 
-    public static PythonConstant FromNone() => new PythonConstant { Type = ConstantType.None };
-    public ConstantType Type { get; set; }
+    public static PythonConstant BinaryInteger(long value) =>
+        new(ConstantType.BinaryInteger, new Union(value));
 
-    public long IntegerValue { get; set; }
+    public ConstantType Type { get; }
 
-    public string? StringValue { get; set; }
+    public long? BinaryIntegerValue => Type is ConstantType.BinaryInteger ? this.union.Int64 : null;
 
-    public double FloatValue { get; set; }
+    public long? HexidecimalIntegerValue => Type is ConstantType.HexidecimalInteger ? this.union.Int64 : null;
 
-    public bool BoolValue { get; set; }
+    public long? IntegerValue => IsInteger ? this.union.Int64 : null;
 
-    public bool IsInteger { get => Type == ConstantType.Integer || Type == ConstantType.BinaryInteger || Type == ConstantType.HexidecimalInteger; }
+    public string? StringValue => Type is ConstantType.String ? this.str : null;
+
+    public double? FloatValue => Type is ConstantType.Float ? this.union.Double : null;
+
+    public bool? BoolValue => Type is ConstantType.Bool ? this.union.Boolean : null;
+
+    public bool IsInteger => Type is ConstantType.Integer or ConstantType.BinaryInteger or ConstantType.HexidecimalInteger;
+
+    public bool IsNone => Type is ConstantType.None;
 
     public override string ToString()
     {

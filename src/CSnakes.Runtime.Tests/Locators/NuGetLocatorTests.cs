@@ -4,38 +4,44 @@ using Microsoft.TestUtilities;
 namespace CSnakes.Runtime.Tests.Locators;
 
 [Collection("Sequential")]
-public class NuGetLocatorTests
+public sealed class NuGetLocatorTests : IDisposable
 {
     private const string PythonNugetVersion = "3.9";
     private static readonly Version PythonVersion = new(3, 9);
+
+    private const string UserProfileEnvVarName = "USERPROFILE";
+    private const string NugetPackagesEnvVarName = "NUGET_PACKAGES";
+
+    private readonly string? initialUserProfileEnvVar = Environment.GetEnvironmentVariable(UserProfileEnvVarName);
+    private readonly string? initialNuGetPackagesEnvVar = Environment.GetEnvironmentVariable(NugetPackagesEnvVarName);
+
+    public void Dispose()
+    {
+        Environment.SetEnvironmentVariable(UserProfileEnvVarName, initialUserProfileEnvVar);
+        Environment.SetEnvironmentVariable(NugetPackagesEnvVarName, initialNuGetPackagesEnvVar);
+    }
 
     [ConditionalTheory]
     [OSSkipCondition(OperatingSystems.Linux | OperatingSystems.MacOSX)]
     [MemberData(nameof(GetValues))]
     public void LocatePython_returns_expected_when_environmentVariables_set(string envVarName, string envVarValue, string expectedPath)
     {
-        string? presetValue = Environment.GetEnvironmentVariable(envVarName);
+        if (!NugetPackagesEnvVarName.Equals(envVarValue, StringComparison.OrdinalIgnoreCase))
+            Environment.SetEnvironmentVariable(NugetPackagesEnvVarName, null);
 
-        try
-        {
-            Environment.SetEnvironmentVariable(envVarName, envVarValue);
-            MockNuGetLocator locator = new(PythonNugetVersion, PythonVersion);
+        Environment.SetEnvironmentVariable(envVarName, envVarValue);
+        MockNuGetLocator locator = new(PythonNugetVersion, PythonVersion);
 
-            PythonLocationMetadata result = locator.LocatePython();
+        PythonLocationMetadata result = locator.LocatePython();
 
-            Assert.NotNull(result);
-            Assert.Equal(expectedPath, result.Folder);
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable(envVarName, presetValue);
-        }
+        Assert.NotNull(result);
+        Assert.Equal(expectedPath, result.Folder);
     }
 
     public static IEnumerable<object[]> GetValues()
     {
-        yield return new object[] { "USERPROFILE", @"C:\NuGetPackages", $@"C:\NuGetPackages\.nuget\packages\python\{PythonNugetVersion}\tools" };
-        yield return new object[] { "NUGET_PACKAGES", @"C:\NuGetPackages", $@"C:\NuGetPackages\python\{PythonNugetVersion}\tools" };
+        yield return new object[] { UserProfileEnvVarName, @"C:\NuGetPackages", $@"C:\NuGetPackages\.nuget\packages\python\{PythonNugetVersion}\tools" };
+        yield return new object[] { NugetPackagesEnvVarName, @"C:\NuGetPackages", $@"C:\NuGetPackages\python\{PythonNugetVersion}\tools" };
     }
 
     [ConditionalTheory]
@@ -46,23 +52,12 @@ public class NuGetLocatorTests
     [InlineData("", "")]
     public void LocatePython_should_throw_DirectoryNotFoundException_if_environmentVariables_unset(string? valueUSERPROFILE, string? valueNUGET_PACKAGES)
     {
-        string? presetUSERPROFILE = Environment.GetEnvironmentVariable("USERPROFILE");
-        string? presetNUGET_PACKAGES = Environment.GetEnvironmentVariable("NUGET_PACKAGES");
+        Environment.SetEnvironmentVariable(UserProfileEnvVarName, valueUSERPROFILE);
+        Environment.SetEnvironmentVariable(NugetPackagesEnvVarName, valueNUGET_PACKAGES);
+        MockNuGetLocator locator = new(PythonNugetVersion, PythonVersion);
 
-        try
-        {
-            Environment.SetEnvironmentVariable("USERPROFILE", valueUSERPROFILE);
-            Environment.SetEnvironmentVariable("NUGET_PACKAGES", valueNUGET_PACKAGES);
-            MockNuGetLocator locator = new(PythonNugetVersion, PythonVersion);
-
-            var ex = Assert.Throws<DirectoryNotFoundException>(locator.LocatePython);
-            Assert.Equal("Neither NUGET_PACKAGES or USERPROFILE environments variable were found, which are needed to locate the NuGet package cache.", ex.Message);
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable("USERPROFILE", presetUSERPROFILE);
-            Environment.SetEnvironmentVariable("NUGET_PACKAGES", presetNUGET_PACKAGES);
-        }
+        var ex = Assert.Throws<DirectoryNotFoundException>(locator.LocatePython);
+        Assert.Equal($"Neither {NugetPackagesEnvVarName} or {UserProfileEnvVarName} environments variable were found, which are needed to locate the NuGet package cache.", ex.Message);
     }
 
     [ConditionalFact]

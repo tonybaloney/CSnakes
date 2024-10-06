@@ -13,9 +13,18 @@ public interface IPythonEnvironmentBuilder
     /// Sets the virtual environment path for the Python environment being built.
     /// </summary>
     /// <param name="path">The path to the virtual environment.</param>
-    /// <param name="ensureVirtualEnvironment">Indicates whether to ensure the virtual environment exists.</param>
+    /// <param name="ensureEnvironment">Indicates whether to ensure the virtual environment exists.</param>
     /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    IPythonEnvironmentBuilder WithVirtualEnvironment(string path, bool ensureVirtualEnvironment = true);
+    IPythonEnvironmentBuilder WithVirtualEnvironment(string path, bool ensureEnvironment = true);
+
+
+    /// <summary>
+    /// Sets the virtual environment path for the Python environment being built to a named conda environment.
+    /// </summary>
+    /// <param name="name">The name of the conda environment.</param>
+    /// <param name="ensureEnvironment">Indicates whether to ensure the conda environment exists.</param>
+    /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
+    IPythonEnvironmentBuilder WithCondaEnvironment(string name, bool ensureEnvironment = true);
 
     /// <summary>
     /// Sets the home directory for the Python environment being built.

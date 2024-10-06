@@ -1,9 +1,8 @@
 ﻿using CSnakes.Runtime.CPython;
+using CSnakes.Runtime.EnvironmentManagement;
 using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime;
 
@@ -17,13 +16,13 @@ internal class PythonEnvironment : IPythonEnvironment
     private static IPythonEnvironment? pythonEnvironment;
     private readonly static object locker = new();
 
-    public static IPythonEnvironment GetPythonEnvironment(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options, Microsoft.Extensions.Logging.ILogger<IPythonEnvironment> logger)
+    public static IPythonEnvironment GetPythonEnvironment(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options, ILogger<IPythonEnvironment> logger, IEnvironmentManagement? environmentManager = null)
     {
         if (pythonEnvironment is null)
         {
             lock (locker)
             {
-                pythonEnvironment ??= new PythonEnvironment(locators, packageInstallers, options, logger);
+                pythonEnvironment ??= new PythonEnvironment(locators, packageInstallers, options, logger, environmentManager);
             }
         }
         return pythonEnvironment;
@@ -33,7 +32,8 @@ internal class PythonEnvironment : IPythonEnvironment
         IEnumerable<PythonLocator> locators,
         IEnumerable<IPythonPackageInstaller> packageInstallers,
         PythonEnvironmentOptions options,
-        ILogger<IPythonEnvironment> logger)
+        ILogger<IPythonEnvironment> logger,
+        IEnvironmentManagement? environmentManager = null)
     {
         Logger = logger;
 
@@ -58,29 +58,18 @@ internal class PythonEnvironment : IPythonEnvironment
             throw new DirectoryNotFoundException("Python home directory does not exist.");
         }
 
-        if (!string.IsNullOrEmpty(options.VirtualEnvironmentPath)) {
-            string venvLibPath = string.Empty;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                venvLibPath = Path.Combine(options.VirtualEnvironmentPath, "Lib", "site-packages");
-            else
-            {
-                string suffix = location.FreeThreaded ? "t" : "";
-                venvLibPath = Path.Combine(options.VirtualEnvironmentPath, "lib", $"python{location.Version.Major}.{location.Version.Minor}{suffix}", "site-packages");
-            }
-            logger.LogDebug("Adding virtual environment site-packages to extra paths: {VenvLibPath}", venvLibPath);
-            extraPaths = [.. options.ExtraPaths, venvLibPath];
+        if (environmentManager is not null) {
+            
+            extraPaths = [.. options.ExtraPaths, environmentManager.GetExtraPackagePath(logger, location!)];
 
-            if (options.EnsureVirtualEnvironment)
-            {
-                EnsureVirtualEnvironment(location, options.VirtualEnvironmentPath);
-            }
+            environmentManager.EnsureEnvironment(logger, location);
         }
 
         logger.LogInformation("Setting up Python environment from {PythonLocation} using home of {Home}", location.Folder, home);
 
         foreach (var installer in packageInstallers)
         {
-            installer.InstallPackages(home, options.VirtualEnvironmentPath);
+            installer.InstallPackages(home, environmentManager);
         }
 
         char sep = Path.PathSeparator;
@@ -98,61 +87,6 @@ internal class PythonEnvironment : IPythonEnvironment
             api.PythonPath = api.PythonPath + sep + string.Join(sep, extraPaths);
         }
         api.Initialize();
-    }
-
-    private void EnsureVirtualEnvironment(PythonLocationMetadata pythonLocation, string? virtualEnvironmentLocation)
-    {
-        if (virtualEnvironmentLocation is null)
-        {
-            Logger.LogError("Virtual environment location is not set but it was requested to be created.");
-            throw new ArgumentNullException(nameof(virtualEnvironmentLocation), "Virtual environment location is not set.");
-        }
-
-        virtualEnvironmentLocation = Path.GetFullPath(virtualEnvironmentLocation);
-        if (!Directory.Exists(virtualEnvironmentLocation))
-        {
-            Logger.LogInformation("Creating virtual environment at {VirtualEnvPath} using {PythonBinaryPath}", virtualEnvironmentLocation, pythonLocation.PythonBinaryPath);
-            using Process process1 = ExecutePythonCommand(pythonLocation, virtualEnvironmentLocation, $"-VV");
-            using Process process2 = ExecutePythonCommand(pythonLocation, virtualEnvironmentLocation, $"-m venv {virtualEnvironmentLocation}");
-        }
-        else
-        {
-            Logger.LogDebug("Virtual environment already exists at {VirtualEnvPath}", virtualEnvironmentLocation);
-        }
-
-        Process ExecutePythonCommand(PythonLocationMetadata pythonLocation, string? venvPath, string arguments)
-        {
-            ProcessStartInfo startInfo = new()
-            {
-                WorkingDirectory = pythonLocation.Folder,
-                FileName = pythonLocation.PythonBinaryPath,
-                Arguments = arguments,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true
-            };
-            Process process = new() { StartInfo = startInfo };
-            process.OutputDataReceived += (sender, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    Logger.LogInformation("{Data}", e.Data);
-                }
-            };
-
-            process.ErrorDataReceived += (sender, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    Logger.LogError("{Data}", e.Data);
-                }
-            };
-
-            process.Start();
-            process.BeginErrorReadLine();
-            process.BeginOutputReadLine();
-            process.WaitForExit();
-            return process;
-        }
     }
 
     private CPythonAPI SetupStandardLibrary(PythonLocationMetadata pythonLocationMetadata)

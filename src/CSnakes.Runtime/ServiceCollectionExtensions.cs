@@ -1,4 +1,5 @@
-﻿using CSnakes.Runtime.Locators;
+﻿using CSnakes.Runtime.EnvironmentManagement;
+using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -27,10 +28,11 @@ public static class ServiceCollectionExtensions
             var locators = sp.GetServices<PythonLocator>();
             var installers = sp.GetServices<IPythonPackageInstaller>();
             var logger = sp.GetRequiredService<ILogger<IPythonEnvironment>>();
+            var environmentManager = sp.GetService<IEnvironmentManagement>();
 
             var options = envBuilder.GetOptions();
 
-            return PythonEnvironment.GetPythonEnvironment(locators, installers, options, logger);
+            return PythonEnvironment.GetPythonEnvironment(locators, installers, options, logger, environmentManager);
         });
 
         return pythonBuilder;
@@ -149,6 +151,21 @@ public static class ServiceCollectionExtensions
     public static IPythonEnvironmentBuilder FromFolder(this IPythonEnvironmentBuilder builder, string folder, string version)
     {
         builder.Services.AddSingleton<PythonLocator>(new FolderLocator(folder, ParsePythonVersion(version)));
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds a Python locator using Python from a conda environment
+    /// </summary>
+    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
+    /// <param name="condaHome">The path to the conda root.</param>
+    /// <param name="version">The version of the Python installation.</param>
+    /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
+    public static IPythonEnvironmentBuilder FromConda(this IPythonEnvironmentBuilder builder, string condaHome, string version)
+    {
+        var condaLocator = new CondaLocator(condaHome, ParsePythonVersion(version));
+        builder.Services.AddSingleton<PythonLocator>(condaLocator);
+        builder.Services.AddSingleton<CondaLocator>(condaLocator);
         return builder;
     }
 

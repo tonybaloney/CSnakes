@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CSnakes.Runtime.EnvironmentManagement;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -9,14 +10,14 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
     static readonly string pipBinaryName = $"pip{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
     static readonly string requirementsFileName = "requirements.txt";
 
-    public Task InstallPackages(string home, string? virtualEnvironmentLocation)
+    public Task InstallPackages(string home, IEnvironmentManagement? environmentManager)
     {
         // TODO:Allow overriding of the requirements file name.
         string requirementsPath = Path.GetFullPath(Path.Combine(home, requirementsFileName));
         if (File.Exists(requirementsPath))
         {
             logger.LogInformation("File {Requirements} was found.", requirementsPath);
-            InstallPackagesWithPip(home, virtualEnvironmentLocation);
+            InstallPackagesWithPip(home, environmentManager);
         }
         else
         {
@@ -26,7 +27,7 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
         return Task.CompletedTask;
     }
 
-    private void InstallPackagesWithPip(string home, string? virtualEnvironmentLocation)
+    private void InstallPackagesWithPip(string home, IEnvironmentManagement? environmentManager)
     {
         ProcessStartInfo startInfo = new()
         {
@@ -35,9 +36,9 @@ internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstal
             Arguments = $"install -r {requirementsFileName} --disable-pip-version-check"
         };
 
-        if (virtualEnvironmentLocation is not null)
+        if (environmentManager is not null)
         {
-            virtualEnvironmentLocation = Path.GetFullPath(virtualEnvironmentLocation);
+            string virtualEnvironmentLocation = Path.GetFullPath(environmentManager.GetPath());
             logger.LogInformation("Using virtual environment at {VirtualEnvironmentLocation} to install packages with pip.", virtualEnvironmentLocation);
             string venvScriptPath = Path.Combine(virtualEnvironmentLocation, RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Scripts" : "bin");
             // TODO: Check that the pip executable exists, and if not, raise an exception with actionable steps.

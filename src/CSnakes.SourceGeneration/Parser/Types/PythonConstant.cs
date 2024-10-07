@@ -60,42 +60,25 @@ public readonly struct PythonConstant
 
     public ConstantType Type { get; }
 
-    public long? BinaryIntegerValue => Type is ConstantType.BinaryInteger ? this.union.Int64 : null;
+    public long?   BinaryIntegerValue      => Type is ConstantType.BinaryInteger ? this.union.Int64 : null;
+    public long?   HexidecimalIntegerValue => Type is ConstantType.HexidecimalInteger ? this.union.Int64 : null;
+    public long?   IntegerValue            => IsInteger ? this.union.Int64 : null;
+    public string? StringValue             => Type is ConstantType.String ? this.str : null;
+    public double? FloatValue              => Type is ConstantType.Float ? this.union.Double : null;
+    public bool?   BoolValue               => Type is ConstantType.Bool ? this.union.Boolean : null;
 
-    public long? HexidecimalIntegerValue => Type is ConstantType.HexidecimalInteger ? this.union.Int64 : null;
-
-    public long? IntegerValue => IsInteger ? this.union.Int64 : null;
-
-    public string? StringValue => Type is ConstantType.String ? this.str : null;
-
-    public double? FloatValue => Type is ConstantType.Float ? this.union.Double : null;
-
-    public bool? BoolValue => Type is ConstantType.Bool ? this.union.Boolean : null;
-
+    public bool IsNone    => Type is ConstantType.None;
     public bool IsInteger => Type is ConstantType.Integer or ConstantType.BinaryInteger or ConstantType.HexidecimalInteger;
 
-    public bool IsNone => Type is ConstantType.None;
-
-    public override string ToString()
+    public override string ToString() => Type switch
     {
-        switch (Type)
-        {
-            case ConstantType.Integer:
-                return IntegerValue.ToString();
-            case ConstantType.HexidecimalInteger:
-                return $"0x{IntegerValue:X}";
-            case ConstantType.BinaryInteger:
-                return $"0b{IntegerValue:X}";
-            case ConstantType.Float:
-                return FloatValue.ToString();
-            case ConstantType.Bool:
-                return BoolValue.ToString();
-            case ConstantType.String:
-                return StringValue ?? throw new ArgumentNullException(nameof(StringValue));
-            case ConstantType.None:
-                return "None";
-            default:
-                return "unknown";
-        }
-    }
+        ConstantType.Integer => IntegerValue.ToString(),
+        ConstantType.HexidecimalInteger => $"0x{IntegerValue:X}",
+        ConstantType.BinaryInteger => $"0b{IntegerValue:X}",
+        ConstantType.Float => FloatValue.ToString(),
+        ConstantType.Bool => BoolValue.ToString(),
+        ConstantType.String => StringValue ?? throw new ArgumentNullException(nameof(StringValue)),
+        ConstantType.None => "None",
+        _ => "unknown"
+    };
 }

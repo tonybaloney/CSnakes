@@ -127,16 +127,10 @@ public static class MethodReflection
                         Identifier("__underlyingPythonFunc"))
                     .WithInitializer(
                         EqualsValueClause(
-                            ElementAccessExpression(
-                                IdentifierName("functions"))
-                                .WithArgumentList(
-                                    BracketedArgumentList(
-                                        SingletonSeparatedList(
-                                            Argument(
-                                                LiteralExpression(
-                                                    SyntaxKind.StringLiteralExpression,
-                                                    Literal(function.Name)))))
-                        )))))
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                ThisExpression(),
+                                IdentifierName($"__func_{function.Name}"))))))
             );
 
         var callStatement = LocalDeclarationStatement(

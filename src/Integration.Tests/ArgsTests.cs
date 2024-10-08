@@ -2,7 +2,7 @@
 using System.ComponentModel;
 
 namespace Integration.Tests;
-public class ArgsTests : IntegrationTestBase
+public class ArgsTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
     public void PositionalOnly()

@@ -1,6 +1,6 @@
 ﻿namespace Integration.Tests;
 
-public class FalseReturns : IntegrationTestBase
+public class FalseReturns(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
     public void TestFalseReturn_StringNotInt()

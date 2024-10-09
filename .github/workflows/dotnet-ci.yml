@@ -20,7 +20,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+      - uses: conda-incubator/setup-miniconda@v3
+        id: setup-conda
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
       - name: Setup Python
         id: installpython
         uses: actions/setup-python@v5

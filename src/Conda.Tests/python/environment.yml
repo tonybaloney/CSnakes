@@ -1,0 +1,4 @@
+name: csnakes_test
+dependencies:
+  - numpy
+  - httpx

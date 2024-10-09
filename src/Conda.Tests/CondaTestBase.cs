@@ -21,7 +21,7 @@ public class CondaTestBase : IDisposable
 
         }
         var condaBinPath = OperatingSystem.IsWindows() ? Path.Join(condaEnv, "Scripts", "conda.exe") : Path.Join("bin", "conda");
-
+        var environmentSpecPath = Path.Join(Environment.CurrentDirectory, "python", "environment.yml");
         app = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
@@ -29,7 +29,7 @@ public class CondaTestBase : IDisposable
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
                 pb.FromConda(condaBinPath)
-                  .WithCondaEnvironment("test", true);
+                  .WithCondaEnvironment("csnakes_test", environmentSpecPath);
 
                 services.AddLogging(builder => builder.AddXUnit());
             })

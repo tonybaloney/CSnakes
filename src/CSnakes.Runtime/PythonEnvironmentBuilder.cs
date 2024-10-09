@@ -17,14 +17,14 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
         return this;
     }
 
-    public IPythonEnvironmentBuilder WithCondaEnvironment(string name, bool ensureExists = true)
+    public IPythonEnvironmentBuilder WithCondaEnvironment(string name, string environmentSpecPath, bool ensureExists = true)
     {
         Services.AddSingleton<IEnvironmentManagement>(
             sp => {
                 try
                 {
                     var condaLocator = sp.GetRequiredService<CondaLocator>();
-                    var condaEnvManager = new CondaEnvironmentManagement(name, ensureExists, condaLocator);
+                    var condaEnvManager = new CondaEnvironmentManagement(name, ensureExists, condaLocator, environmentSpecPath);
                     return condaEnvManager;
                 }
                 catch (InvalidOperationException)

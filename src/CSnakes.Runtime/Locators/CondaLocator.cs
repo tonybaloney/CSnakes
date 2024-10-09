@@ -20,7 +20,7 @@ internal class CondaLocator : PythonLocator
         var (process, result) = ExecuteCondaCommand($"info --json");
         if (process.ExitCode != 0)
         {
-            logger.LogError("Failed to determine Python version from Conda {Error}.", process.StandardError.ReadToEnd());
+            logger.LogError("Failed to determine Python version from Conda {Error}.", result);
             throw new InvalidOperationException("Could not determine Python version from Conda.");
         }
 

@@ -1,6 +1,8 @@
 ﻿using CSnakes.Runtime.Locators;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel;
 using System.Diagnostics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CSnakes.Runtime.EnvironmentManagement;
 internal class VenvEnvironmentManagement : IEnvironmentManagement
@@ -28,8 +30,18 @@ internal class VenvEnvironmentManagement : IEnvironmentManagement
         if (!Directory.Exists(path))
         {
             logger.LogInformation("Creating virtual environment at {VirtualEnvPath} using {PythonBinaryPath}", fullPath, pythonLocation.PythonBinaryPath);
-            using Process process1 = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, $"-VV");
-            using Process process2 = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, $"-m venv {fullPath}");
+            var (process1, _, _) = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, $"-VV");
+            var (process2, _, error) = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, $"-m venv {fullPath}");
+
+            if (process1.ExitCode != 0 || process2.ExitCode != 0)
+            {
+                logger.LogError("Failed to create virtual environment.");
+                process1.Dispose();
+                process2.Dispose();
+                throw new InvalidOperationException($"Could not create virtual environment. {error}");
+            }
+            process1.Dispose();
+            process2.Dispose();
         }
         else
         {

@@ -6,7 +6,7 @@ namespace CSnakes.Runtime
 {
     internal static class ProcessUtils
     {
-        internal static Process ExecutePythonCommand(ILogger logger, PythonLocationMetadata pythonLocation, string arguments)
+        internal static (Process proc, string? result, string? errors) ExecutePythonCommand(ILogger logger, PythonLocationMetadata pythonLocation, string arguments)
         {
             ProcessStartInfo startInfo = new()
             {
@@ -16,11 +16,10 @@ namespace CSnakes.Runtime
                 RedirectStandardError = true,
                 RedirectStandardOutput = true
             };
-            var (process, _) = ExecuteCommand(logger, startInfo);
-            return process;
+            return ExecuteCommand(logger, startInfo);
         }
 
-        internal static (Process proc, string? result) ExecuteCommand(ILogger logger, string fileName, string arguments)
+        internal static (Process proc, string? result, string? errors) ExecuteCommand(ILogger logger, string fileName, string arguments)
         {
             ProcessStartInfo startInfo = new()
             {
@@ -32,9 +31,10 @@ namespace CSnakes.Runtime
             return ExecuteCommand(logger, startInfo);
         }
 
-        private static (Process proc, string? result) ExecuteCommand(ILogger logger, ProcessStartInfo startInfo) { 
+        private static (Process proc, string? result, string? errors) ExecuteCommand(ILogger logger, ProcessStartInfo startInfo) { 
             Process process = new() { StartInfo = startInfo };
             string? result = null;
+            string? errors = null;
             process.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
@@ -48,6 +48,7 @@ namespace CSnakes.Runtime
             {
                 if (!string.IsNullOrEmpty(e.Data))
                 {
+                    errors += e.Data;
                     logger.LogError("{Data}", e.Data);
                 }
             };
@@ -56,7 +57,7 @@ namespace CSnakes.Runtime
             process.BeginErrorReadLine();
             process.BeginOutputReadLine();
             process.WaitForExit();
-            return (process, result);
+            return (process, result, errors);
         }
     }
 }

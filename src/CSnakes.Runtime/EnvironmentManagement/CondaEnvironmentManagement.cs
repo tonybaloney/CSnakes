@@ -15,12 +15,14 @@ internal class CondaEnvironmentManagement(string name, bool ensureExists, CondaL
         {
             logger.LogInformation("Creating conda environment at {fullPath} using {PythonBinaryPath}", fullPath, pythonLocation.PythonBinaryPath);
             // TODO: Shell escape the name
-            var (process, result) = conda.ExecuteCondaCommand($"env create -n {name} -f {environmentSpecPath}");
+            var (process, _, error) = conda.ExecuteCondaCommand($"env create -n {name} -f {environmentSpecPath}");
             if (process.ExitCode != 0)
             {
-                logger.LogError("Failed to create conda environment {Error}.", result);
+                logger.LogError("Failed to create conda environment {Error}.", error);
+                process.Dispose();
                 throw new InvalidOperationException("Could not create conda environment.");
             }
+            process.Dispose();
         }
         else
         {

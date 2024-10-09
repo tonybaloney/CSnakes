@@ -11,7 +11,7 @@ public class CondaTestBase : IDisposable
     public CondaTestBase()
     {
         string pythonVersion = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
-        string condaEnv = Environment.GetEnvironmentVariable("CONDA_HOME") ?? string.Empty;
+        string condaEnv = Environment.GetEnvironmentVariable("CONDA") ?? string.Empty;
 
         if (string.IsNullOrEmpty(condaEnv))
         {

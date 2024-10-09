@@ -5,10 +5,9 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.PackageManagement;
 
-internal class PipInstaller(ILogger<PipInstaller> logger) : IPythonPackageInstaller
+internal class PipInstaller(ILogger<PipInstaller> logger, string requirementsFileName) : IPythonPackageInstaller
 {
     static readonly string pipBinaryName = $"pip{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
-    static readonly string requirementsFileName = "requirements.txt";
 
     public Task InstallPackages(string home, IEnvironmentManagement? environmentManager)
     {

@@ -183,10 +183,17 @@ public static partial class ServiceCollectionExtensions
     /// Adds a pip package installer to the service collection.
     /// </summary>
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the installer to.</param>
+    /// <param name="requirementsPath">The path to the requirements file.</param>
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    public static IPythonEnvironmentBuilder WithPipInstaller(this IPythonEnvironmentBuilder builder)
+    public static IPythonEnvironmentBuilder WithPipInstaller(this IPythonEnvironmentBuilder builder, string requirementsPath = "requirements.txt")
     {
-        builder.Services.AddSingleton<IPythonPackageInstaller, PipInstaller>();
+        builder.Services.AddSingleton<IPythonPackageInstaller>(
+            sp =>
+            {
+                var logger = sp.GetRequiredService<ILogger<PipInstaller>>();
+                return new PipInstaller(logger, requirementsPath);
+            }
+        );
         return builder;
     }
 

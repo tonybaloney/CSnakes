@@ -1,4 +1,5 @@
-﻿using CSnakes.Runtime.Python;
+﻿using CSnakes.Runtime.CPython;
+using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime;
 public class PythonRuntimeException : Exception
@@ -47,6 +48,14 @@ public class PythonRuntimeException : Exception
 
     private static string[] FormatPythonStackTrace(PyObject pythonStackTrace)
     {
+        if (!CPythonAPI.IsInitialized)
+        {
+            // For why check and bail out here, see:
+            // https://github.com/tonybaloney/CSnakes/issues/241
+
+            return [];
+        }
+
         using (GIL.Acquire())
         {
             using var tracebackModule = Import.ImportModule("traceback");

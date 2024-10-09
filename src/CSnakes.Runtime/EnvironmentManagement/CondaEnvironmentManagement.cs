@@ -20,7 +20,7 @@ internal class CondaEnvironmentManagement(string name, bool ensureExists, CondaL
             {
                 logger.LogError("Failed to create conda environment {Error}.", error);
                 process.Dispose();
-                throw new InvalidOperationException("Could not create conda environment.");
+                throw new InvalidOperationException($"Could not create conda environment : {error}");
             }
             process.Dispose();
         }

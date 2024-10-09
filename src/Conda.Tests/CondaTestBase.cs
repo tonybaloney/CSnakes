@@ -10,7 +10,6 @@ public class CondaTestBase : IDisposable
 
     public CondaTestBase()
     {
-        string pythonVersion = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
         string condaEnv = Environment.GetEnvironmentVariable("CONDA") ?? string.Empty;
 
         if (string.IsNullOrEmpty(condaEnv))
@@ -20,7 +19,7 @@ public class CondaTestBase : IDisposable
             condaEnv = Path.Join(condaEnv, "anaconda3");
 
         }
-        var condaBinPath = OperatingSystem.IsWindows() ? Path.Join(condaEnv, "Scripts", "conda.exe") : Path.Join("bin", "conda");
+        var condaBinPath = OperatingSystem.IsWindows() ? Path.Join(condaEnv, "Scripts", "conda.exe") : Path.Join(condaEnv, "bin", "conda");
         var environmentSpecPath = Path.Join(Environment.CurrentDirectory, "python", "environment.yml");
         app = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>

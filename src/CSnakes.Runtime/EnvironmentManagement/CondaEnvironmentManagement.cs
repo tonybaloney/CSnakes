@@ -27,6 +27,7 @@ internal class CondaEnvironmentManagement(string name, bool ensureExists, CondaL
         else
         {
             logger.LogDebug("Conda environment already exists at {fullPath}", fullPath);
+            // TODO: Check if the environment is up to date
         }
     }
 

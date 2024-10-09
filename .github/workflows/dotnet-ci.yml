@@ -25,6 +25,8 @@ jobs:
         with:
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
+      - name: cleanup conda-incubator/setup-miniconda
+        run: conda clean --all --yes
       - name: Setup Python
         id: installpython
         uses: actions/setup-python@v5

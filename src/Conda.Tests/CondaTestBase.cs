@@ -20,6 +20,7 @@ public class CondaTestBase : IDisposable
             condaEnv = Path.Join(condaEnv, "anaconda3");
 
         }
+        var condaBinPath = OperatingSystem.IsWindows() ? Path.Join(condaEnv, "Scripts", "conda.exe") : Path.Join("bin", "conda");
 
         app = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
@@ -27,7 +28,7 @@ public class CondaTestBase : IDisposable
                 var pb = services.WithPython();
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
-                pb.FromConda(condaEnv ?? "", pythonVersion)
+                pb.FromConda(condaBinPath)
                   .WithCondaEnvironment("test", true);
 
                 services.AddLogging(builder => builder.AddXUnit());

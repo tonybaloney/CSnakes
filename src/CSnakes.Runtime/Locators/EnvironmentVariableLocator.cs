@@ -1,7 +1,9 @@
 ﻿namespace CSnakes.Runtime.Locators;
 
-internal class EnvironmentVariableLocator(string variable, Version version) : PythonLocator(version)
+internal class EnvironmentVariableLocator(string variable, Version version) : PythonLocator
 {
+    protected override Version Version { get; } = version;
+
     public override PythonLocationMetadata LocatePython()
     {
         var envValue = Environment.GetEnvironmentVariable(variable);

@@ -8,7 +8,7 @@ internal class CondaEnvironmentManagement : IEnvironmentManagement
 {
     private readonly string name;
     private readonly bool ensureExists;
-    private CondaLocator conda;
+    private readonly CondaLocator conda;
 
     internal CondaEnvironmentManagement(string name, bool ensureExists, CondaLocator conda)
     {
@@ -27,8 +27,13 @@ internal class CondaEnvironmentManagement : IEnvironmentManagement
         if (!Directory.Exists(fullPath))
         {
             logger.LogInformation("Creating conda environment at {fullPath} using {PythonBinaryPath}", fullPath, pythonLocation.PythonBinaryPath);
-            using Process process1 = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, $"-VV");
-            using Process process2 = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, $"-m conda env create -n {name}");
+            // TODO: Shell escape the name
+            var (process, _) = conda.ExecuteCondaCommand($"env create -n {name}");
+            if (process.ExitCode != 0)
+            {
+                logger.LogError("Failed to create conda environment {Error}.", process.StandardError.ReadToEnd());
+                throw new InvalidOperationException("Could not create conda environment.");
+            }
         }
         else
         {
@@ -38,6 +43,7 @@ internal class CondaEnvironmentManagement : IEnvironmentManagement
 
     public string GetPath()
     {
+        // TODO: Conda environments are not always in the same location. Resolve the path correctly. 
         return Path.Combine(conda.CondaHome, "envs", name);
     }
 }

@@ -2,8 +2,10 @@
 
 namespace CSnakes.Runtime.Locators;
 
-internal class SourceLocator(string folder, Version version, bool debug = true, bool freeThreaded = false) : PythonLocator(version)
+internal class SourceLocator(string folder, Version version, bool debug = true, bool freeThreaded = false) : PythonLocator
 {
+    protected override Version Version { get; } = version;
+
     protected bool Debug => debug;
 
     protected override string GetLibPythonPath(string folder, bool freeThreaded = false)

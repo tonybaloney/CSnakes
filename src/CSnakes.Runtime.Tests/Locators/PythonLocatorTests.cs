@@ -1,5 +1,6 @@
 ﻿using CSnakes.Runtime.Locators;
 using Microsoft.TestUtilities;
+using System;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.Tests.Locators;
@@ -174,12 +175,9 @@ public class PythonLocatorTests
         Assert.Equal(folder, result.Folder);
     }
 
-    private class MockPythonLocator : PythonLocator
+    private class MockPythonLocator(Version version) : PythonLocator
     {
-        public MockPythonLocator(Version version)
-            : base(version)
-        {
-        }
+        protected override Version Version { get; } = version;
 
         public string GetPythonExecutablePathReal(string folder) => base.GetPythonExecutablePath(folder);
 

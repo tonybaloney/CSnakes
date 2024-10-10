@@ -2,8 +2,10 @@
 
 namespace CSnakes.Runtime.Locators;
 
-internal class NuGetLocator(string nugetVersion, Version version) : PythonLocator(version)
+internal class NuGetLocator(string nugetVersion, Version version) : PythonLocator
 {
+    protected override Version Version { get; } = version;
+
     public override PythonLocationMetadata LocatePython()
     {
         var globalNugetPackagesPath = (NuGetPackages: Environment.GetEnvironmentVariable("NUGET_PACKAGES"),

@@ -1,8 +1,10 @@
 ﻿using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.Locators;
-internal class WindowsInstallerLocator(Version version) : PythonLocator(version)
+internal class WindowsInstallerLocator(Version version) : PythonLocator
 {
+    protected override Version Version { get; } = version;
+
     readonly string programFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
 
     public override PythonLocationMetadata LocatePython()

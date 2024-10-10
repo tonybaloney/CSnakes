@@ -1,4 +1,5 @@
-﻿using CSnakes.Runtime.Locators;
+﻿using CSnakes.Runtime.EnvironmentManagement;
+using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -8,7 +9,7 @@ namespace CSnakes.Runtime;
 /// <summary>
 /// Extension methods for <see cref="IServiceCollection"/> to configure Python-related services.
 /// </summary>
-public static class ServiceCollectionExtensions
+public static partial class ServiceCollectionExtensions
 {
     /// <summary>
     /// Adds Python-related services to the service collection with the specified Python home directory.
@@ -27,10 +28,11 @@ public static class ServiceCollectionExtensions
             var locators = sp.GetServices<PythonLocator>();
             var installers = sp.GetServices<IPythonPackageInstaller>();
             var logger = sp.GetRequiredService<ILogger<IPythonEnvironment>>();
+            var environmentManager = sp.GetService<IEnvironmentManagement>();
 
             var options = envBuilder.GetOptions();
 
-            return PythonEnvironment.GetPythonEnvironment(locators, installers, options, logger);
+            return PythonEnvironment.GetPythonEnvironment(locators, installers, options, logger, environmentManager);
         });
 
         return pythonBuilder;
@@ -39,7 +41,7 @@ public static class ServiceCollectionExtensions
     public static Version ParsePythonVersion(string version)
     {
         // Remove non -numeric characters except .
-        Match versionMatch = Regex.Match(version, "^(\\d+(\\.\\d+)*)");
+        Match versionMatch = VersionParseExpr().Match(version);
         if (!versionMatch.Success)
         {
             throw new InvalidOperationException($"Invalid Python version: '{version}'");
@@ -153,13 +155,48 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
+    /// Adds a Python locator using Python from a conda environment
+    /// </summary>
+    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
+    /// <param name="condaBinaryPath">The path to the conda binary.</param>
+    /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
+    public static IPythonEnvironmentBuilder FromConda(this IPythonEnvironmentBuilder builder, string condaBinaryPath)
+    {
+        builder.Services.AddSingleton<CondaLocator>(
+            sp =>
+            {
+                var logger = sp.GetRequiredService<ILogger<IPythonEnvironment>>();
+                return new CondaLocator(logger, condaBinaryPath);
+            }
+        );
+        builder.Services.AddSingleton<PythonLocator>(
+            sp =>
+            {
+                var condaLocator = sp.GetRequiredService<CondaLocator>();
+                return condaLocator;
+            }
+        );
+        return builder;
+    }
+
+    /// <summary>
     /// Adds a pip package installer to the service collection.
     /// </summary>
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the installer to.</param>
+    /// <param name="requirementsPath">The path to the requirements file.</param>
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    public static IPythonEnvironmentBuilder WithPipInstaller(this IPythonEnvironmentBuilder builder)
+    public static IPythonEnvironmentBuilder WithPipInstaller(this IPythonEnvironmentBuilder builder, string requirementsPath = "requirements.txt")
     {
-        builder.Services.AddSingleton<IPythonPackageInstaller, PipInstaller>();
+        builder.Services.AddSingleton<IPythonPackageInstaller>(
+            sp =>
+            {
+                var logger = sp.GetRequiredService<ILogger<PipInstaller>>();
+                return new PipInstaller(logger, requirementsPath);
+            }
+        );
         return builder;
     }
+
+    [GeneratedRegex("^(\\d+(\\.\\d+)*)")]
+    private static partial Regex VersionParseExpr();
 }

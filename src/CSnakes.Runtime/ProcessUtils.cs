@@ -1,6 +1,7 @@
 ﻿using CSnakes.Runtime.Locators;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CSnakes.Runtime
 {
@@ -30,6 +31,22 @@ namespace CSnakes.Runtime
             };
             return ExecuteCommand(logger, startInfo);
         }
+
+        internal static bool ExecuteShellCommand(ILogger logger, string fileName, string arguments)
+        {
+            logger.LogInformation("Executing shell command {FileName} {Arguments}", fileName, arguments);
+            ProcessStartInfo startInfo = new()
+            {
+                FileName = fileName,
+                Arguments = arguments,
+                UseShellExecute = true,
+            };
+            Process process = new() { StartInfo = startInfo };
+            process.Start();
+            process.WaitForExit();
+            return process.ExitCode == 0;
+        }
+
 
         private static (Process proc, string? result, string? errors) ExecuteCommand(ILogger logger, ProcessStartInfo startInfo) { 
             Process process = new() { StartInfo = startInfo };

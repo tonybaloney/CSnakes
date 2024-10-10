@@ -138,6 +138,15 @@ internal unsafe partial class CPythonAPI : IDisposable
                         return;
 
                     Debug.WriteLine("Calling Py_Finalize()");
+
+                    // Acquire the GIL only to dispose it immediately because `PyGILState_Release`
+                    // is not available after `Py_Finalize` is called. This is done primarily to
+                    // trigger the disposal of handles that have been queued before the Python
+                    // runtime is finalized.
+
+                    GIL.Acquire().Dispose();
+
+                    PyGILState_Ensure();
                     Py_Finalize();
                 }
             }

@@ -1,6 +1,6 @@
 namespace Integration.Tests;
 
-public class BasicTests : IntegrationTestBase
+public class BasicTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
     public void TestBasic_TestIntFloat()

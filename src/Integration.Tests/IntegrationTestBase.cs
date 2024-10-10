@@ -3,12 +3,21 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Integration.Tests;
-public class IntegrationTestBase : IDisposable
+
+/// <seealso href="https://xunit.net/docs/shared-context.html#collection-fixture"/>
+[CollectionDefinition(Name)]
+public sealed class PythonEnvironmentCollection : ICollectionFixture<PythonEnvironmentFixture>
+{
+    public const string Name = "PythonEnvironment";
+}
+
+/// <seealso href="https://xunit.net/docs/shared-context.html#collection-fixture"/>
+public sealed class PythonEnvironmentFixture : IDisposable
 {
     private readonly IPythonEnvironment env;
     private readonly IHost app;
 
-    public IntegrationTestBase()
+    public PythonEnvironmentFixture()
     {
         string pythonVersionWindows = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.4";
         string pythonVersionMacOS = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
@@ -37,9 +46,17 @@ public class IntegrationTestBase : IDisposable
 
     public void Dispose()
     {
+        env.Dispose();
+        app.Dispose();
         GC.SuppressFinalize(this);
         GC.Collect();
     }
 
     public IPythonEnvironment Env => env;
+}
+
+[Collection(PythonEnvironmentCollection.Name)]
+public abstract class IntegrationTestBase(PythonEnvironmentFixture fixture)
+{
+    public IPythonEnvironment Env { get; } = fixture.Env;
 }

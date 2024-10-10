@@ -1,5 +1,5 @@
 ﻿namespace Integration.Tests;
-public class GeneratorTests : IntegrationTestBase
+public class GeneratorTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
     public void TestGenerator()

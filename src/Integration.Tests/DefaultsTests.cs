@@ -1,5 +1,5 @@
 ﻿namespace Integration.Tests;
-public class DefaultsTests : IntegrationTestBase
+public class DefaultsTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
     public void TestDefault_StrArg()

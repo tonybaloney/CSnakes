@@ -2,7 +2,7 @@
 
 namespace Integration.Tests;
 
-public class TestDependency : IntegrationTestBase
+public class TestDependency(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
     public void VerifyInstalledPackage()

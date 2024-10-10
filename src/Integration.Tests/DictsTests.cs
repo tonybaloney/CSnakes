@@ -1,5 +1,5 @@
 ﻿namespace Integration.Tests;
-public class TestDicts : IntegrationTestBase
+public class TestDicts(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
     public void TestDicts_TestDictStrInt()

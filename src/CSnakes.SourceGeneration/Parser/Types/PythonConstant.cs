@@ -1,4 +1,6 @@
-﻿namespace CSnakes.Parser.Types;
+﻿using System.Globalization;
+
+namespace CSnakes.Parser.Types;
 
 public abstract class PythonConstant
 {
@@ -23,7 +25,7 @@ public abstract class PythonConstant
     public sealed class Float(double value) : PythonConstant
     {
         public double Value { get; } = value;
-        public override string ToString() => Value.ToString();
+        public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
     }
 
     public sealed class String(string value) : PythonConstant

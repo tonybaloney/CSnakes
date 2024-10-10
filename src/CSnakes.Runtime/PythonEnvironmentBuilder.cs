@@ -17,14 +17,17 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
         return this;
     }
 
-    public IPythonEnvironmentBuilder WithCondaEnvironment(string name, string environmentSpecPath, bool ensureExists = true)
+    public IPythonEnvironmentBuilder WithCondaEnvironment(string name, string? environmentSpecPath = null, bool ensureEnvironment = false)
     {
+        if (ensureEnvironment)
+            throw new InvalidOperationException("Automated Conda environment creation not yet supported. Conda environments must be created manually.");
+
         Services.AddSingleton<IEnvironmentManagement>(
             sp => {
                 try
                 {
                     var condaLocator = sp.GetRequiredService<CondaLocator>();
-                    var condaEnvManager = new CondaEnvironmentManagement(name, ensureExists, condaLocator, environmentSpecPath);
+                    var condaEnvManager = new CondaEnvironmentManagement(name, ensureEnvironment, condaLocator, environmentSpecPath);
                     return condaEnvManager;
                 }
                 catch (InvalidOperationException)

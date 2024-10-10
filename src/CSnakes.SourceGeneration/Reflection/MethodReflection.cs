@@ -106,15 +106,15 @@ public static class MethodReflection
 
         ReturnStatementSyntax returnExpression = returnSyntax switch
         {
-            TypeSyntax s when s is PredefinedTypeSyntax p && p.Keyword.IsKind(SyntaxKind.VoidKeyword) => ReturnStatement(null),
-            TypeSyntax s when s is IdentifierNameSyntax && ((IdentifierNameSyntax)s)?.Identifier.ValueText == "PyObject" => ReturnStatement(IdentifierName("__result_pyObject")),
+            PredefinedTypeSyntax s when s.Keyword.IsKind(SyntaxKind.VoidKeyword) => ReturnStatement(null),
+            IdentifierNameSyntax { Identifier.ValueText: "PyObject" } => ReturnStatement(IdentifierName("__result_pyObject")),
             _ => ProcessMethodWithReturnType(returnSyntax, parameterGenericArgs)
         };
 
         bool resultShouldBeDisposed = returnSyntax switch
         {
-            TypeSyntax s when s is PredefinedTypeSyntax p && p.Keyword.IsKind(SyntaxKind.VoidKeyword) => true,
-            TypeSyntax s when s is IdentifierNameSyntax => false,
+            PredefinedTypeSyntax s when s.Keyword.IsKind(SyntaxKind.VoidKeyword) => true,
+            IdentifierNameSyntax => false,
             _ => true
         };
 

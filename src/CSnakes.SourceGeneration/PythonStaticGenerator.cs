@@ -117,7 +117,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     {{methods.Select(m => m.Syntax).Compile()}}
                 }
             }
-            public interface I{{pascalFileName}}
+            public interface I{{pascalFileName}} : IDisposable
             {
                 {{string.Join(Environment.NewLine, methods.Select(m => m.Syntax).Select(m => $"{m.ReturnType.NormalizeWhitespace()} {m.Identifier.Text}{m.ParameterList.NormalizeWhitespace()};"))}}
             }

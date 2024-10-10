@@ -18,8 +18,8 @@ public class PythonConstantTests
 
             try
             {
-                var n = new PythonConstant.Float(3.14);
-                Assert.Equal("3.14", n.ToString());
+                var n = new PythonConstant.Float(1_737.4);
+                Assert.Equal("1737.4", n.ToString());
             }
             finally
             {

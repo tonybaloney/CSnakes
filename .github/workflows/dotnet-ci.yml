@@ -14,7 +14,13 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        python: ["3.9", "3.10", "3.11", "3.12", "3.13.0-rc.1"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13.0-rc.2"]
+        free-threaded: [false]
+        include:
+          - os: windows-latest
+            python: "3.13.0-rc.2"
+            free-threaded: true
+
       fail-fast: false
     runs-on: "${{ matrix.os }}"
 
@@ -43,26 +49,27 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore dependencies
-        run: dotnet restore -bl:${{ github.workspace }}/restore-${{ matrix.os }}-${{ matrix.python }}.binlog
+        run: dotnet restore -bl:${{ github.workspace }}/restore-${{ matrix.os }}-${{ matrix.python }}-${{ matrix.free-threaded }}.binlog
         working-directory: src
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
 
       - name: Build
-        run: dotnet build --no-restore -bl:${{ github.workspace }}/build-${{ matrix.os }}-${{ matrix.python }}.binlog
+        run: dotnet build --no-restore -bl:${{ github.workspace }}/build-${{ matrix.os }}-${{ matrix.python }}-${{ matrix.free-threaded }}.binlog
         working-directory: src
 
       - name: Test
-        run: dotnet test --no-build --verbosity m --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog
+        run: dotnet test --no-build --verbosity m --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }}-${{ matrix.free-threaded }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}-${{ matrix.free-threaded }}.binlog
         working-directory: src
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          PYTHON_FREETHREADED: ${{ matrix.free-threaded }}
 
       - name: Upload logs
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: logs-${{ matrix.os }}-${{ matrix.python }}
+          name: logs-${{ matrix.os }}-${{ matrix.python }}-${{ matrix.free-threaded }}
           path: |
             ${{ github.workspace }}/*.binlog
 
@@ -70,7 +77,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results-${{ matrix.os }}-${{ matrix.python }}
+          name: test-results-${{ matrix.os }}-${{ matrix.python }}-${{ matrix.free-threaded }}
           path: |
             ${{ github.workspace }}/src/test-results/**
 
@@ -115,3 +122,4 @@ jobs:
         working-directory: samples
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+

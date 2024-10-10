@@ -22,7 +22,7 @@ public class IntegrationTestBase : IDisposable
                 var pb = services.WithPython();
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
-                pb.FromNuGet(pythonVersionWindows)
+                pb.FromNuGet(pythonVersionWindows, freeThreaded)
                   .FromMacOSInstallerLocator(pythonVersionMacOS, freeThreaded)
                   .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux)
                   .WithVirtualEnvironment(venvPath)

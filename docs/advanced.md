@@ -32,18 +32,10 @@ Python 3.13 introduced a new feature called "free-threading mode" which allows t
 
 CSnakes supports free-threading mode, but it is disabled by default.
 
-To use free-threading you currently need to compile CPython from source, so the free-threading flag is only available in the `SourceLocator` and `MacOSInstallerLocator`.
+To use free-threading you currently need to compile CPython from source, so the free-threading flag is only available in the `SourceLocator`, `MacOSInstallerLocator`, and `NugetLocator`.
 
-Here's how you would compile CPython 3.13 on Windows with free-threading and use it from CSnakes:
 
-```cmd
-git clone git@github.com:python/cpython.git
-cd cpython
-git checkout 3.13
-PCBuild\build.bat -t build -c Release --disable-gil
-```
-
-Then you can use the `SourceLocator` via the `.FromSource()` extension method to find the compiled Python runtime:
+Here's how you would use the `NugetLocator` to load the free-threaded version of Python 3.13:
 
 ```csharp
 app = Host.CreateDefaultBuilder()
@@ -51,7 +43,7 @@ app = Host.CreateDefaultBuilder()
     {
         var pb = services.WithPython();
         pb.WithHome(Environment.CurrentDirectory); // Path to your Python modules.
-        pb.FromSource(@"C:\path\to\cpython\", false, true);
+        pb.FromNuGet("3.13.0-rc2", freeThreaded: true)
     })
     .Build();
 

@@ -23,7 +23,7 @@ public class PythonConstantTests
             }
             finally
             {
-                CultureInfo.CurrentCulture= oldCulture;
+                CultureInfo.CurrentCulture = oldCulture;
             }
         }
     }

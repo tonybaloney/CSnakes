@@ -48,6 +48,11 @@ internal class CondaLocator : PythonLocator
         return ProcessUtils.ExecuteCommand(logger, condaBinaryPath, arguments);
     }
 
+    internal bool ExecuteCondaShellCommand(string arguments)
+    {
+        return ProcessUtils.ExecuteShellCommand(logger, condaBinaryPath, arguments);
+    }
+
     public override PythonLocationMetadata LocatePython() =>
         LocatePythonInternal(folder);
 

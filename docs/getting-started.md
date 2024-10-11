@@ -113,7 +113,7 @@ Check out the sample project in the [samples](https://github.com/tonybaloney/CSn
 
 ## Using Virtual Environments
 
-Since most Python projects require external dependencies outside of the Python standard library, CSnakes supports execution within a Python virtual environment.
+Since most Python projects require external dependencies outside of the Python standard library, CSnakes supports execution within a Python virtual environment and Conda environments.
 
 Use the `.WithVirtualEnvironment` method to specify the path to the virtual environment.
 
@@ -127,6 +127,8 @@ services
     // Python locators
     .WithPipInstaller(); // Optional - installs packages listed in requirements.txt on startup
 ```
+
+See [Environment and Package Management](environments.md) for more information on managing Python environments and dependencies.
 
 ## Calling CSnakes code from C#.NET
 

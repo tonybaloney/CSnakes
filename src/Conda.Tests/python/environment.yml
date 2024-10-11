@@ -1,0 +1,3 @@
+name: csnakes_test
+dependencies:
+  - httpx

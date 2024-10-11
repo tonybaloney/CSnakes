@@ -110,8 +110,8 @@ This locator is also very useful for GitHub Actions `setup-python` actions, wher
 
 ```csharp
 ...
-var pythonBuilder = services.WithPython();
-pythonBuilder.FromEnvironmentVariable("Python3_ROOT_DIR", "3.12")
+var pythonBuilder = services.WithPython()
+                            .FromEnvironmentVariable("Python3_ROOT_DIR", "3.12");
 ```
 
 ### Folder Locator
@@ -120,8 +120,8 @@ The `.FromFolder()` method allows you to specify a folder that contains the Pyth
 
 ```csharp
 ...
-var pythonBuilder = services.WithPython();
-pythonBuilder.FromFolder(@"C:\path\to\python\3.12", "3.12")
+var pythonBuilder = services.WithPython()
+                            .FromFolder(@"C:\path\to\python\3.12", "3.12");
 ```
 
 ### Source Locator
@@ -132,8 +132,8 @@ It optionally takes a `bool` parameter to specify that the binary is debug mode 
 
 ```csharp
 ...
-var pythonBuilder = services.WithPython();
-pythonBuilder.FromSource(@"C:\path\to\cpython\", "3.13", debug: true,  freeThreaded: true)
+var pythonBuilder = services.WithPython()
+                            .FromSource(@"C:\path\to\cpython\", "3.13", debug: true,  freeThreaded: true);
 ```
 
 ### MacOS Installer Locator
@@ -142,8 +142,8 @@ The MacOS Installer Locator is used to find the Python runtime on MacOS. This is
 
 ```csharp
 ...
-var pythonBuilder = services.WithPython();
-pythonBuilder.FromMacOSInstaller("3.12")
+var pythonBuilder = services.WithPython()
+                            .FromMacOSInstaller("3.12");
 ```
 
 ### Windows Installer Locator
@@ -152,8 +152,8 @@ The Windows Installer Locator is used to find the Python runtime on Windows. Thi
 
 ```csharp
 ...
-var pythonBuilder = services.WithPython();
-pythonBuilder.FromWindowsInstaller("3.12")
+var pythonBuilder = services.WithPython()
+                            .FromWindowsInstaller("3.12");
 ```
 
 ### Windows Store Locator
@@ -162,8 +162,8 @@ The Windows Store Locator is used to find the Python runtime on Windows from the
 
 ```csharp
 ...
-var pythonBuilder = services.WithPython();
-pythonBuilder.FromWindowsStore("3.12")
+var pythonBuilder = services.WithPython()
+                            .FromWindowsStore("3.12")
 ```
 
 ### Nuget Locator
@@ -174,9 +174,23 @@ These packages only bundle the Python runtime for Windows. You also need to spec
 
 ```csharp
 ...
-var pythonBuilder = services.WithPython();
-pythonBuilder.FromNuGet("3.12.4")
+var pythonBuilder = services.WithPython()
+                            .FromNuGet("3.12.4");
 ```
+
+### Conda Locator
+
+The Conda Locator is used to find the Python runtime from a Conda environment. This is useful for scenarios where you have installed Python from the Anaconda or miniconda distribution of Python. Upon environment creation, CSnakes will run `conda info --json` to get the path to the Python runtime.
+
+This Locator should be called with the path to the Conda executable:
+
+```csharp
+...
+var pythonBuilder = services.WithPython()
+                            .FromConda(@"C:\path\to\conda");
+```
+
+The Conda Locator should be combined with the `WithCondaEnvironment` method to specify the name of the Conda environment you want to use. See [Environment and Package Management](environments.md) for more information on managing Python environments and dependencies.
 
 ## Parallelism and concurrency
 

@@ -7,7 +7,6 @@
     <!-- warning NU5128: Add lib or ref assemblies for the netstandard2.0 target framework -->
     <NoWarn>$(NoWarn);NU5128</NoWarn>
 
-    <DevelopmentDependency>true</DevelopmentDependency>
     <GeneratePackageOnBuild>$(EnableLocalPackaging)</GeneratePackageOnBuild>
   </PropertyGroup>
 

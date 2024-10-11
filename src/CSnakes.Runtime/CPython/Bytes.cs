@@ -11,7 +11,7 @@ internal unsafe partial class CPythonAPI
         return PyObject_IsInstance(p, PyBytesType);
     }
 
-    internal static nint PyBytes_FromByteSpan(Span<byte> bytes)
+    internal static nint PyBytes_FromByteSpan(ReadOnlySpan<byte> bytes)
     {
         fixed (byte* b = bytes)
         {

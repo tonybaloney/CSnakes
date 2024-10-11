@@ -19,7 +19,7 @@ internal unsafe partial class CPythonAPI
         return PyObject_IsInstance(p, PyDictType);
     }
 
-    internal static nint PackDict(Span<string> kwnames, Span<IntPtr> kwvalues)
+    internal static nint PackDict(ReadOnlySpan<string> kwnames, ReadOnlySpan<IntPtr> kwvalues)
     {
         var dict = PyDict_New();
         for (int i = 0; i < kwnames.Length; i ++)

@@ -7,16 +7,16 @@ using PyObjectMarshaller = System.Runtime.InteropServices.Marshalling.SafeHandle
 namespace CSnakes.Runtime.Python;
 
 /// <summary>
-/// These methods are used internally to create a PyObject where the Dispose() call will dispose all items in 
+/// These methods are used internally to create a PyObject where the Dispose() call will dispose all items in
 /// the collection inside the same call stack. This avoids the .NET GC Finalizer thread from disposing the items
 /// that were created and creating a GIL contention issue when other code is running.
 /// </summary>
 internal static class Pack
 {
-    internal static PyObject CreateTuple(Span<PyObject> items) =>
+    internal static PyObject CreateTuple(ReadOnlySpan<PyObject> items) =>
         PyObject.Create(CreateListOrTuple<TupleBuilder>(items));
 
-    internal static PyObject CreateList(Span<PyObject> items) =>
+    internal static PyObject CreateList(ReadOnlySpan<PyObject> items) =>
         PyObject.Create(CreateListOrTuple<ListBuilder>(items));
 
     private interface IListOrTupleBuilder
@@ -57,7 +57,7 @@ internal static class Pack
         private T _;
     }
 
-    private static nint CreateListOrTuple<TBuilder>(Span<PyObject> items)
+    private static nint CreateListOrTuple<TBuilder>(ReadOnlySpan<PyObject> items)
         where TBuilder : IListOrTupleBuilder
     {
         // Allocate initial space for the handles and marshallers on the stack.

@@ -91,7 +91,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                 private class {{pascalFileName}}Internal : I{{pascalFileName}}
                 {
-                    private readonly PyObject module;
+                    private PyObject module;
 
                     private readonly ILogger<IPythonEnvironment> logger;
                     {{string.Join(Environment.NewLine, functionNames.Select(f => $"private readonly PyObject {f.Field};")) }}
@@ -104,6 +104,17 @@ public class PythonStaticGenerator : IIncrementalGenerator
                             logger.LogDebug("Importing module {ModuleName}", "{{fileName}}");
                             module = Import.ImportModule("{{fileName}}");
                             {{ string.Join(Environment.NewLine, functionNames.Select(f => $"this.{f.Field} = module.GetAttr(\"{f.Attr}\");")) }}
+                        }
+                    }
+
+                    /// <summary>
+                    /// Reload the module, useful for development if the Python code has changed.
+                    /// </summary>
+                    public void ReloadModule() {
+                        logger.LogDebug("Reloading module {ModuleName}", "{{fileName}}");
+                        using (GIL.Acquire())
+                        {
+                            module = Import.ReloadModule(module);
                         }
                     }
 

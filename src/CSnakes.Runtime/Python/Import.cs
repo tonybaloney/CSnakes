@@ -8,4 +8,11 @@ public static class Import
     {
         return CPythonAPI.Import(module);
     }
+
+    public static PyObject ReloadModule(PyObject module)
+    {
+        var newModule = CPythonAPI.ReloadModule(module);
+        module.Dispose();
+        return newModule;
+    }
 }

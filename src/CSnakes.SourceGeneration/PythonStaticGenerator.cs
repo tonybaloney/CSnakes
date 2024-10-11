@@ -94,7 +94,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     private PyObject module;
 
                     private readonly ILogger<IPythonEnvironment> logger;
-                    {{string.Join(Environment.NewLine, functionNames.Select(f => $"private readonly PyObject {f.Field};")) }}
+                    {{string.Join(Environment.NewLine, functionNames.Select(f => $"private PyObject {f.Field};")) }}
 
                     internal {{pascalFileName}}Internal(ILogger<IPythonEnvironment> logger)
                     {
@@ -115,6 +115,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                         using (GIL.Acquire())
                         {
                             module = Import.ReloadModule(module);
+                            {{string.Join(Environment.NewLine, functionNames.Select(f => $"this.{f.Field} = module.GetAttr(\"{f.Attr}\");"))}}
                         }
                     }
 
@@ -130,6 +131,11 @@ public class PythonStaticGenerator : IIncrementalGenerator
             }
             public interface I{{pascalFileName}} : IDisposable
             {
+                /// <summary>
+                /// Reload the module, useful for development if the Python code has changed.
+                /// </summary>
+                public void ReloadModule();
+
                 {{string.Join(Environment.NewLine, methods.Select(m => m.Syntax).Select(m => $"{m.ReturnType.NormalizeWhitespace()} {m.Identifier.Text}{m.ParameterList.NormalizeWhitespace()};"))}}
             }
             """;

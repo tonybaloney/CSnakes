@@ -14,42 +14,38 @@ public class PythonStaticGenerator : IIncrementalGenerator
     {
         // System.Diagnostics.Debugger.Launch();
         var pythonFilesPipeline = context.AdditionalTextsProvider
-            .Where(static text => Path.GetExtension(text.Path) == ".py")
-            .Collect();
+            .Where(static text => Path.GetExtension(text.Path) == ".py");
 
-        context.RegisterSourceOutput(pythonFilesPipeline, static (sourceContext, inputFiles) =>
+        context.RegisterSourceOutput(pythonFilesPipeline, static (sourceContext, file) =>
         {
-            foreach (var file in inputFiles)
+            // Add environment path
+            var @namespace = "CSnakes.Runtime";
+
+            var fileName = Path.GetFileNameWithoutExtension(file.Path);
+
+            // Convert snake_case to PascalCase
+            var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
+            // Read the file
+            var code = file.GetText(sourceContext.CancellationToken);
+
+            if (code is null) return;
+
+            // Parse the Python file
+            var result = PythonParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);
+
+            foreach (var error in errors)
             {
-                // Add environment path
-                var @namespace = "CSnakes.Runtime";
+                // Update text span
+                Location errorLocation = Location.Create(file.Path, TextSpan.FromBounds(0, 1), new LinePositionSpan(new LinePosition(error.StartLine, error.StartColumn), new LinePosition(error.EndLine, error.EndColumn)));
+                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error.Message, "PythonStaticGenerator", DiagnosticSeverity.Error, true), errorLocation));
+            }
 
-                var fileName = Path.GetFileNameWithoutExtension(file.Path);
-
-                // Convert snakecase to pascal case
-                var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
-                // Read the file
-                var code = file.GetText(sourceContext.CancellationToken);
-
-                if (code is null) continue;
-
-                // Parse the Python file
-                var result = PythonParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);
-
-                foreach (var error in errors)
-                {
-                    // Update text span
-                    Location errorLocation = Location.Create(file.Path, TextSpan.FromBounds(0, 1), new LinePositionSpan(new LinePosition(error.StartLine, error.StartColumn), new LinePosition(error.EndLine, error.EndColumn)));
-                    sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error.Message, "PythonStaticGenerator", DiagnosticSeverity.Error, true), errorLocation));
-                }
-
-                if (result)
-                {
-                    IEnumerable<MethodDefinition> methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
-                    string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions);
-                    sourceContext.AddSource($"{pascalFileName}.py.cs", source);
-                    sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
-                }
+            if (result)
+            {
+                IEnumerable<MethodDefinition> methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
+                string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions);
+                sourceContext.AddSource($"{pascalFileName}.py.cs", source);
+                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
             }
         });
     }

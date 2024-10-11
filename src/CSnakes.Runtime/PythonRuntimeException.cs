@@ -50,9 +50,6 @@ public class PythonRuntimeException : Exception
     {
         if (!CPythonAPI.IsInitialized)
         {
-            // For why check and bail out here, see:
-            // https://github.com/tonybaloney/CSnakes/issues/241
-
             return [];
         }
 

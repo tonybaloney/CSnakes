@@ -5,7 +5,7 @@
     <PackageIcon>logo.jpeg</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/tonybaloney/CSnakes</RepositoryUrl>
-    <VersionPrefix>1.0.19</VersionPrefix>
+    <VersionPrefix>1.0.20</VersionPrefix>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

@@ -1,22 +1,12 @@
 ﻿using CSnakes.Runtime.Locators;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel;
-using System.Diagnostics;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CSnakes.Runtime.EnvironmentManagement;
-internal class VenvEnvironmentManagement : IEnvironmentManagement
+internal class VenvEnvironmentManagement(ILogger logger, string path, bool ensureExists) : IEnvironmentManagement
 {
-    private readonly string path;
-    private readonly bool ensureExists;
+    ILogger IEnvironmentManagement.Logger => logger;
 
-    internal VenvEnvironmentManagement(string path, bool ensureExists)
-    {
-        this.path = path;
-        this.ensureExists = ensureExists;
-    }
-
-    public void EnsureEnvironment(ILogger logger, PythonLocationMetadata pythonLocation)
+    public void EnsureEnvironment(PythonLocationMetadata pythonLocation)
     {
         if (!ensureExists)
             return;

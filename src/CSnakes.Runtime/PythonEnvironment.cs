@@ -60,9 +60,9 @@ internal class PythonEnvironment : IPythonEnvironment
 
         if (environmentManager is not null) {
             
-            extraPaths = [.. options.ExtraPaths, environmentManager.GetExtraPackagePath(logger, location!)];
+            extraPaths = [.. options.ExtraPaths, environmentManager.GetExtraPackagePath(location!)];
 
-            environmentManager.EnsureEnvironment(logger, location);
+            environmentManager.EnsureEnvironment(location);
         }
 
         logger.LogInformation("Setting up Python environment from {PythonLocation} using home of {Home}", location.Folder, home);

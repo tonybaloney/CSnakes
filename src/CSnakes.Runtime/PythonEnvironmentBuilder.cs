@@ -1,6 +1,7 @@
 ﻿using CSnakes.Runtime.EnvironmentManagement;
 using CSnakes.Runtime.Locators;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;
 
@@ -13,7 +14,12 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
 
     public IPythonEnvironmentBuilder WithVirtualEnvironment(string path, bool ensureExists = true)
     {
-        Services.AddSingleton<IEnvironmentManagement>(new VenvEnvironmentManagement(path, ensureExists));
+        Services.AddSingleton<IEnvironmentManagement>(
+            sp =>
+            {
+                var logger = sp.GetRequiredService<ILogger>();
+                return new VenvEnvironmentManagement(logger, path, ensureExists);
+            });
         return this;
     }
 
@@ -27,7 +33,8 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
                 try
                 {
                     var condaLocator = sp.GetRequiredService<CondaLocator>();
-                    var condaEnvManager = new CondaEnvironmentManagement(name, ensureEnvironment, condaLocator, environmentSpecPath);
+                    var logger = sp.GetRequiredService<ILogger>();
+                    var condaEnvManager = new CondaEnvironmentManagement(logger, name, ensureEnvironment, condaLocator, environmentSpecPath);
                     return condaEnvManager;
                 }
                 catch (InvalidOperationException)

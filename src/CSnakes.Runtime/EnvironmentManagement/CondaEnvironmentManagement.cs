@@ -2,9 +2,13 @@
 using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime.EnvironmentManagement;
-internal class CondaEnvironmentManagement(string name, bool ensureExists, CondaLocator conda, string? environmentSpecPath) : IEnvironmentManagement
+#pragma warning disable CS9113 // Parameter is unread. There for future use.
+internal class CondaEnvironmentManagement(ILogger logger, string name, bool ensureExists, CondaLocator conda, string? environmentSpecPath) : IEnvironmentManagement
+#pragma warning restore CS9113 // Parameter is unread.
 {
-    public void EnsureEnvironment(ILogger logger, PythonLocationMetadata pythonLocation)
+    ILogger IEnvironmentManagement.Logger => logger;
+
+    public void EnsureEnvironment(PythonLocationMetadata pythonLocation)
     {
         if (!ensureExists)
             return;

@@ -19,13 +19,14 @@ public interface IPythonEnvironmentBuilder
 
 
     /// <summary>
-    /// Sets the virtual environment path for the Python environment being built to a named conda environment.
+    /// Sets the virtual environment path for the Python environment to a named conda environment.
+    /// This requires Python to be installed via Conda and usage of the <see cref="ServiceCollectionExtensions.FromConda(IPythonEnvironmentBuilder, string)"/> locator. 
     /// </summary>
-    /// <param name="name">The name of the conda environment.</param>
-    /// <param name="environmentSpecPath">The path to the conda environment specification file (environment.yml).</param>
-    /// <param name="ensureEnvironment">Indicates whether to ensure the conda environment exists.</param>
+    /// <param name="name">The name of the conda environment to use.</param>
+    /// <param name="environmentSpecPath">The path to the conda environment specification file (environment.yml), used if ensureEnvironment = true.</param>
+    /// <param name="ensureEnvironment">Indicates whether to create the conda environment if it doesn't exist (not yet supported).</param>
     /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    IPythonEnvironmentBuilder WithCondaEnvironment(string name, string environmentSpecPath, bool ensureEnvironment = true);
+    IPythonEnvironmentBuilder WithCondaEnvironment(string name, string? environmentSpecPath = null, bool ensureEnvironment = false);
 
     /// <summary>
     /// Sets the home directory for the Python environment being built.

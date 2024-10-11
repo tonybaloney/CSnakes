@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime.EnvironmentManagement;
-internal class CondaEnvironmentManagement(string name, bool ensureExists, CondaLocator conda, string environmentSpecPath) : IEnvironmentManagement
+internal class CondaEnvironmentManagement(string name, bool ensureExists, CondaLocator conda, string? environmentSpecPath) : IEnvironmentManagement
 {
     public void EnsureEnvironment(ILogger logger, PythonLocationMetadata pythonLocation)
     {
@@ -13,14 +13,14 @@ internal class CondaEnvironmentManagement(string name, bool ensureExists, CondaL
         var fullPath = Path.GetFullPath(GetPath());
         if (!Directory.Exists(fullPath))
         {
-            logger.LogInformation("Creating conda environment at {fullPath} using {PythonBinaryPath}", fullPath, pythonLocation.PythonBinaryPath);
-            // TODO: Shell escape the name
-            var result = conda.ExecuteCondaShellCommand($"env create -n {name} -f {environmentSpecPath}");
-            if (!result)
-            {
-                logger.LogError("Failed to create conda environment.");
-                throw new InvalidOperationException("Could not create conda environment");
-            }
+            logger.LogError("Cannot find conda environment at {fullPath}.", fullPath);
+            // TODO: Automate the creation of the conda environments. 
+            //var result = conda.ExecuteCondaShellCommand($"env create -n {name} -f {environmentSpecPath}");
+            //if (!result)
+            //{
+            //    logger.LogError("Failed to create conda environment.");
+            //    throw new InvalidOperationException("Could not create conda environment");
+            //}
         }
         else
         {

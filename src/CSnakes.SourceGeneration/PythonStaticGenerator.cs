@@ -71,8 +71,11 @@ public class PythonStaticGenerator : IIncrementalGenerator
             using System;
             using System.Collections.Generic;
             using System.Diagnostics;
+            using System.Reflection.Metadata;
 
             using Microsoft.Extensions.Logging;
+
+            [assembly: MetadataUpdateHandler(typeof({{@namespace}}.{{pascalFileName}}Extensions))]
 
             namespace {{@namespace}};
             public static class {{pascalFileName}}Extensions
@@ -87,6 +90,10 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     }
                     Debug.Assert(!env.IsDisposed());
                     return instance;
+                }
+
+                public static void UpdateApplication(Type[]? updatedTypes) {
+                    instance?.ReloadModule();
                 }
 
                 private class {{pascalFileName}}Internal : I{{pascalFileName}}

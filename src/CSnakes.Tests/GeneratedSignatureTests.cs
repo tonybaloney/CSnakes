@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using CSnakes.Parser;
 using CSnakes.Reflection;
 using System.ComponentModel;
+using Basic.Reference.Assemblies;
 
 namespace CSnakes.Tests;
 
@@ -55,19 +56,15 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
         string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test", functions);
         var tree = CSharpSyntaxTree.ParseText(compiledCode);
         var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-            .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
-            .AddReferences(MetadataReference.CreateFromFile(typeof(IList<>).Assembly.Location))
-            .AddReferences(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location))
-            .AddReferences(MetadataReference.CreateFromFile(typeof(TypeConverter).Assembly.Location))
-            .AddReferences(MetadataReference.CreateFromFile(typeof(IReadOnlyDictionary<,>).Assembly.Location))
+#if NET8_0
+            .WithReferenceAssemblies(ReferenceAssemblyKind.Net80)
+#elif NET9_0
+            .WithReferenceAssemblies(ReferenceAssemblyKind.Net90)
+#else
+#error Unsupported .NET tareget
+#endif
             .AddReferences(MetadataReference.CreateFromFile(typeof(IPythonEnvironmentBuilder).Assembly.Location))
             .AddReferences(MetadataReference.CreateFromFile(typeof(ILogger<>).Assembly.Location))
-            .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "netstandard").Location)) // TODO: (track) Ensure 2.0
-            .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Runtime").Location))
-            .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Collections").Location))
-            .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.ComponentModel").Location))
-            .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Linq.Expressions").Location))
-
             .AddSyntaxTrees(tree);
         var result = compilation.Emit(testEnv.TempDir + "/HelloWorld.dll");
         // TODO : Log compiler warnings. 

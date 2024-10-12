@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
 using CSnakes.Parser;
 using CSnakes.Reflection;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.ComponentModel;
 
 namespace CSnakes.Tests;
@@ -35,7 +36,7 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
     [InlineData("def hello(a: int = 0b10101010) -> None:\n ...\n", "void Hello(long a = 0b10101010)")]
     [InlineData("def hello(a: int = 2147483648) -> None:\n ...\n", "void Hello(long a = 2147483648L)")]
     [InlineData("def hello(a: Optional[int] = None) -> None:\n ...\n", "void Hello(long? a = null)")]
-    [InlineData("def hello(a: typing.List[int], b: typing.Dict[str, int]) -> typing.Tuple[str, int]:\n ...\n", "public (string, long) Hello(IReadOnlyList<long> a, IReadOnlyDictionary<string, long> b)")]
+    [InlineData("def hello(a: typing.List[int], b: typing.Dict[str, int]) -> typing.Tuple[str, int]:\n ...\n", "(string, long) Hello(IReadOnlyList<long> a, IReadOnlyDictionary<string, long> b)")]
     [InlineData("def hello() -> Buffer:\n ...\n", "IPyBuffer Hello()")]
     public void TestGeneratedSignature(string code, string expected)
     {
@@ -48,12 +49,26 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
         PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
         var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test");
-        var csharp = module.Select(m => m.Syntax).Compile();
-        Assert.Contains(expected, csharp);
 
         // Check that the sample C# code compiles
         string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test", functions);
+
         var tree = CSharpSyntaxTree.ParseText(compiledCode);
+
+        Assert.Empty(from d in tree.GetDiagnostics()
+                     where d.Severity == DiagnosticSeverity.Error
+                     select d.ToString());
+
+        var interfaceDeclaration = Assert.Single(tree.GetRoot()
+                                                     .DescendantNodes()
+                                                     .OfType<InterfaceDeclarationSyntax>());
+
+        var methodDeclaration = Assert.Single(interfaceDeclaration.Members.OfType<MethodDeclarationSyntax>());
+
+        string signature = methodDeclaration.ToString();
+
+        Assert.Equal($"{expected};", signature);
+
         var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
             .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
             .AddReferences(MetadataReference.CreateFromFile(typeof(IList<>).Assembly.Location))

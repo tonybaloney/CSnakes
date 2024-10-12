@@ -30,6 +30,9 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
             if (code is null) return;
 
+            // Calculate hash of code
+            var hash = code.ToString().GetHashCode();
+
             // Parse the Python file
             var result = PythonParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);
 
@@ -43,14 +46,14 @@ public class PythonStaticGenerator : IIncrementalGenerator
             if (result)
             {
                 IEnumerable<MethodDefinition> methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
-                string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions);
+                string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions, hash);
                 sourceContext.AddSource($"{pascalFileName}.py.cs", source);
                 sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
             }
         });
     }
 
-    public static string FormatClassFromMethods(string @namespace, string pascalFileName, IEnumerable<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions)
+    public static string FormatClassFromMethods(string @namespace, string pascalFileName, IEnumerable<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions, int hash)
     {
         var paramGenericArgs = methods
             .Select(m => m.ParameterGenericArgs)
@@ -77,6 +80,10 @@ public class PythonStaticGenerator : IIncrementalGenerator
             public static class {{pascalFileName}}Extensions
             {
                 private static I{{pascalFileName}}? instance;
+
+                #pragma warning disable CS0414 // Field is used for hot reload
+                private static int _hash = {{hash}};
+                #pragma warning restore CS0414 // Field is used for hot reload
 
                 public static I{{pascalFileName}} {{pascalFileName}}(this IPythonEnvironment env)
                 {

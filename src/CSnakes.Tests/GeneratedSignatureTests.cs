@@ -59,7 +59,7 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
 #if NET8_0
             .WithReferenceAssemblies(ReferenceAssemblyKind.Net80)
 #elif NET9_0
-            .WithReferenceAssemblies(Net90.References.All)
+            .WithReferences(Net90.References.All)
 #else
 #error Unsupported .NET tareget
 #endif

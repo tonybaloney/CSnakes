@@ -14,7 +14,7 @@ internal class PythonEnvironment : IPythonEnvironment
     private bool disposedValue;
 
     private static IPythonEnvironment? pythonEnvironment;
-    private readonly static object locker = new();
+    private readonly static Lock locker = new();
 
     public static IPythonEnvironment GetPythonEnvironment(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options, ILogger<IPythonEnvironment> logger, IEnvironmentManagement? environmentManager = null)
     {

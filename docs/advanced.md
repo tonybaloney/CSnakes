@@ -136,3 +136,11 @@ Alternatively , you can disable the Source Generator by setting the `DisableCSna
 ```xml
 <DisableCSnakesRuntimeSourceGenerator>true</DisableCSnakesRuntimeSourceGenerator>
 ```
+
+## Hot Reload
+
+CSnakes supports [hot reload](https://learn.microsoft.com/visualstudio/debugger/hot-reload?view=vs-2022) of Python code in Visual Studio and supported IDEs. This means that you can make changes to your Python code and see the changes reflected in your C# code without restarting the application.
+
+This feature is enabled in the generated classes in CSnakes. When you make changes to the Python code, the modules are reloaded in the .NET runtime and subsequent calls to the Python code will use the new code.
+
+To enable Hot Reload, see the [VS 2022](https://learn.microsoft.com/visualstudio/debugger/hot-reload?view=vs-2022) documentation.

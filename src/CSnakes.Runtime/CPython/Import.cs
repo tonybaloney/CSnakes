@@ -45,7 +45,8 @@ internal unsafe partial class CPythonAPI
     /// <param name="name">The name of the module as a PyUnicode object.</param>
     /// <returns>A new reference to module `name`</returns>
     [LibraryImport(PythonLibraryName)]
-    protected static partial nint PyImport_Import(nint name);
+    internal static partial nint PyImport_Import(nint name);
+
 
     /// <summary>
     /// Reload a module. Return a new reference to the reloaded module, or NULL with an exception set on failure (the module still exists in this case).
@@ -53,5 +54,6 @@ internal unsafe partial class CPythonAPI
     /// <param name="module"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    protected static partial nint PyImport_ReloadModule(PyObject module);
+    internal static partial nint PyImport_ReloadModule(PyObject module);
+
 }

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using CSnakes.Parser;
 using CSnakes.Reflection;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Immutable;
 using System.ComponentModel;
 
 namespace CSnakes.Tests;
@@ -48,27 +49,13 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
         // create a Python scope
         PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
-        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test");
+        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test").ToImmutableArray();
+        var method = Assert.Single(module);
+        Assert.Equal($"public {expected}", method.Syntax.WithBody(null).NormalizeWhitespace().ToString());
 
         // Check that the sample C# code compiles
         string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test", functions);
-
         var tree = CSharpSyntaxTree.ParseText(compiledCode);
-
-        Assert.Empty(from d in tree.GetDiagnostics()
-                     where d.Severity == DiagnosticSeverity.Error
-                     select d.ToString());
-
-        var interfaceDeclaration = Assert.Single(tree.GetRoot()
-                                                     .DescendantNodes()
-                                                     .OfType<InterfaceDeclarationSyntax>());
-
-        var methodDeclaration = Assert.Single(interfaceDeclaration.Members.OfType<MethodDeclarationSyntax>());
-
-        string signature = methodDeclaration.ToString();
-
-        Assert.Equal($"{expected};", signature);
-
         var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
             .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
             .AddReferences(MetadataReference.CreateFromFile(typeof(IList<>).Assembly.Location))

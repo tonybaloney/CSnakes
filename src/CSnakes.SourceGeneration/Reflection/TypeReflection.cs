@@ -20,19 +20,18 @@ public static class TypeReflection
         if (pythonType.HasArguments())
         {
             // Get last occurrence of ] in pythonType
-            return pythonType.Name.Replace("typing.", "") switch
+            return pythonType.Name switch
             {
                 "list" => CreateListType(pythonType.Arguments[0], direction),
-                "List" => CreateListType(pythonType.Arguments[0], direction),
-                "Tuple" => CreateTupleType(pythonType.Arguments, direction),
                 "tuple" => CreateTupleType(pythonType.Arguments, direction),
                 "dict" => CreateDictionaryType(pythonType.Arguments[0], pythonType.Arguments[1], direction),
-                "Dict" => CreateDictionaryType(pythonType.Arguments[0], pythonType.Arguments[1], direction),
-                "Mapping" => CreateDictionaryType(pythonType.Arguments[0], pythonType.Arguments[1], direction),
-                "Sequence" => CreateListType(pythonType.Arguments[0], direction),
-                "Optional" => AsPredefinedType(pythonType.Arguments[0], direction),
-                "Generator" => CreateGeneratorType(pythonType.Arguments[0], pythonType.Arguments[1], pythonType.Arguments[2], direction),
-                
+                "typing.List" or "List" => CreateListType(pythonType.Arguments[0], direction),
+                "typing.Tuple" or "Tuple" => CreateTupleType(pythonType.Arguments, direction),
+                "typing.Dict" or "Dict" => CreateDictionaryType(pythonType.Arguments[0], pythonType.Arguments[1], direction),
+                "typing.Mapping" or "Mapping" => CreateDictionaryType(pythonType.Arguments[0], pythonType.Arguments[1], direction),
+                "typing.Sequence" or "Sequence" => CreateListType(pythonType.Arguments[0], direction),
+                "typing.Optional" or "Optional" => AsPredefinedType(pythonType.Arguments[0], direction),
+                "typing.Generator" or "Generator" => CreateGeneratorType(pythonType.Arguments[0], pythonType.Arguments[1], pythonType.Arguments[2], direction),
                 // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
                 _ => SyntaxFactory.ParseTypeName("PyObject"),
             };

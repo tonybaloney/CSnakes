@@ -4,6 +4,7 @@ using CSnakes.Parser;
 using CSnakes.Parser.Types;
 using CSnakes.Reflection;
 using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace CSnakes;
 
@@ -115,10 +116,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                         }
                     }
 
-                    /// <summary>
-                    /// Reload the module, useful for development if the Python code has changed.
-                    /// </summary>
-                    public void ReloadModule() {
+                    void IReloadableModuleImport.ReloadModule() {
                         logger.LogDebug("Reloading module {ModuleName}", "{{fileName}}");
                         using (GIL.Acquire())
                         {
@@ -137,14 +135,16 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     {{methods.Select(m => m.Syntax).Compile()}}
                 }
             }
-            public interface I{{pascalFileName}} : IDisposable
+            public interface I{{pascalFileName}} : IReloadableModuleImport
             {
-                /// <summary>
-                /// Reload the module, useful for development if the Python code has changed.
-                /// </summary>
-                public void ReloadModule();
-
-                {{string.Join(Environment.NewLine, methods.Select(m => m.Syntax).Select(m => $"{m.ReturnType.NormalizeWhitespace()} {m.Identifier.Text}{m.ParameterList.NormalizeWhitespace()};"))}}
+                {{string.Join(Environment.NewLine, methods.Select(m => m.Syntax)
+                                                          .Select(m => m.Identifier.Text == "ReloadModule"
+                                                                       // This prevents the warning:
+                                                                       // > warning CS0108: 'IFooBar.ReloadModule()' hides inherited member 'IReloadableModuleImport.ReloadModule()'. Use the new keyword if hiding was intended.
+                                                                       // because `IReloadableModuleImport` already has a `ReloadModule` method.
+                                                                       ? m.AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword))
+                                                                       : m)
+                                                          .Select(m => $"{m.WithBody(null).NormalizeWhitespace()};"))}}
             }
             """;
     }

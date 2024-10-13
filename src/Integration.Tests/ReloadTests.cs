@@ -10,7 +10,11 @@ public class ReloadTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
         // Change test_reload.py to return 42
         File.WriteAllText(
             Path.Join(Environment.CurrentDirectory, "python", "test_reload.py"),
-            "def test_number() -> int:\n    return 42\n"
+            """
+            def test_number() -> int:
+                return 42
+
+            """
         );
 
         testModule.ReloadModule();

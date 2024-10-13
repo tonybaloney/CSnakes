@@ -9,9 +9,9 @@ public class ImportTests : RuntimeTestBase
     {
         using (GIL.Acquire())
         {
-            using PyObject? sys = Import.ImportModule("sys");
+            using PyObject sys = Import.ImportModule("sys");
             Assert.NotNull(sys);
-            Assert.Equal("<module 'sys' (built-in)>", sys!.ToString());
+            Assert.Equal("<module 'sys' (built-in)>", sys.ToString());
         }
     }
 

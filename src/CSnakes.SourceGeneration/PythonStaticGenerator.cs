@@ -31,7 +31,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             if (code is null) return;
 
             // Calculate hash of code
-            var hash = code.ToString().GetHashCode();
+            var hash = code.GetContentHash();
 
             // Parse the Python file
             var result = PythonParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);
@@ -53,7 +53,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
         });
     }
 
-    public static string FormatClassFromMethods(string @namespace, string pascalFileName, IEnumerable<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions, int hash)
+    public static string FormatClassFromMethods(string @namespace, string pascalFileName, IEnumerable<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions, ImmutableArray<byte> hash)
     {
         var paramGenericArgs = methods
             .Select(m => m.ParameterGenericArgs)
@@ -81,9 +81,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             {
                 private static I{{pascalFileName}}? instance;
 
-                #pragma warning disable CS0414 // Field is used for hot reload
-                private static int _hash = {{hash}};
-                #pragma warning restore CS0414 // Field is used for hot reload
+                private static ReadOnlySpan<byte> HotReloadHash => "{{HexString(hash.AsSpan())}}"u8;
 
                 public static I{{pascalFileName}} {{pascalFileName}}(this IPythonEnvironment env)
                 {
@@ -149,5 +147,20 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 {{string.Join(Environment.NewLine, methods.Select(m => m.Syntax).Select(m => $"{m.ReturnType.NormalizeWhitespace()} {m.Identifier.Text}{m.ParameterList.NormalizeWhitespace()};"))}}
             }
             """;
+    }
+
+    private static string HexString(ReadOnlySpan<byte> bytes)
+    {
+        const string hexChars = "0123456789abcdef";
+
+        var chars = new char[bytes.Length * 2];
+        var i = 0;
+        foreach (var b in bytes)
+        {
+            chars[i++] = hexChars[b >> 4];
+            chars[i++] = hexChars[b & 0xF];
+        }
+
+        return new string(chars);
     }
 }

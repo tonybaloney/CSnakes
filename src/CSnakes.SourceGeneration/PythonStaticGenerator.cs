@@ -124,7 +124,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                         logger.LogDebug("Reloading module {ModuleName}", "{{fileName}}");
                         using (GIL.Acquire())
                         {
-                            module = Import.ReloadModule(module);
+                            Import.ReloadModule(ref module);
                             {{string.Join(Environment.NewLine, functionNames.Select(f => $"this.{f.Field} = module.GetAttr(\"{f.Attr}\");"))}}
                         }
                     }

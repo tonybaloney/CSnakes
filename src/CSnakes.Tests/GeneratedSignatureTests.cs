@@ -24,6 +24,7 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
     [InlineData("def hello_world(name: str, age: int) -> str:\n    ...\n", "string HelloWorld(string name, long age)")]
     [InlineData("def hello_world(numbers: list[float]) -> list[int]:\n    ...\n", "IReadOnlyList<long> HelloWorld(IReadOnlyList<double> numbers)")]
     [InlineData("def hello_world(numbers: List[float]) -> List[int]:\n    ...\n", "IReadOnlyList<long> HelloWorld(IReadOnlyList<double> numbers)")]
+    [InlineData("def hello_world(numbers: Sequence[float]) -> typing.Sequence[int]:\n    ...\n", "IReadOnlyList<long> HelloWorld(IReadOnlyList<double> numbers)")]
     [InlineData("def hello_world(value: tuple[int]) -> None:\n    ...\n", "void HelloWorld(ValueTuple<long> value)")]
     [InlineData("def hello_world(a: bool, b: str, c: list[tuple[int, float]]) -> bool: \n ...\n", "bool HelloWorld(bool a, string b, IReadOnlyList<(long, double)> c)")]
     [InlineData("def hello_world(a: bool = True, b: str = None) -> bool: \n ...\n", "bool HelloWorld(bool a = true, string? b = null)")]
@@ -36,8 +37,12 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
     [InlineData("def hello(a: int = 0xdeadbeef) -> None:\n ...\n", "void Hello(long a = 0xDEADBEEF)")]
     [InlineData("def hello(a: int = 0b10101010) -> None:\n ...\n", "void Hello(long a = 0b10101010)")]
     [InlineData("def hello(a: int = 2147483648) -> None:\n ...\n", "void Hello(long a = 2147483648L)")]
-    [InlineData("def hello(a: Optional[int] = None) -> None:\n ...\n", "void Hello(long? a = null)")]
+    [InlineData("def hello(a: Optional[int] = None, b: typing.Optional[int] = None) -> None:\n ...\n", "void Hello(long? a = null, long? b = null)")]
     [InlineData("def hello(a: typing.List[int], b: typing.Dict[str, int]) -> typing.Tuple[str, int]:\n ...\n", "(string, long) Hello(IReadOnlyList<long> a, IReadOnlyDictionary<string, long> b)")]
+    [InlineData("def hello(a: Dict[int, str]) -> typing.Dict[str, int]:\n ...\n", "IReadOnlyDictionary<string, long> Hello(IReadOnlyDictionary<long, string> a)")]
+    [InlineData("def hello(a: Mapping[int, str]) -> typing.Mapping[str, int]:\n ...\n", "IReadOnlyDictionary<string, long> Hello(IReadOnlyDictionary<long, string> a)")]
+    [InlineData("def hello() -> Generator[int, str, bool]:\n ...\n", "IGeneratorIterator<long, string, bool> Hello()")]
+    [InlineData("def hello() -> typing.Generator[int, str, bool]:\n ...\n", "IGeneratorIterator<long, string, bool> Hello()")]
     [InlineData("def hello() -> Buffer:\n ...\n", "IPyBuffer Hello()")]
     public void TestGeneratedSignature(string code, string expected)
     {

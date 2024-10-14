@@ -10,7 +10,7 @@ using System.Runtime.InteropServices.Marshalling;
 namespace CSnakes.Runtime.Python;
 
 [DebuggerDisplay("PyObject: repr={GetRepr()}, type={GetPythonType().ToString()}")]
-public class PyObject : SafeHandle, ICloneable
+public partial class PyObject : SafeHandle, ICloneable
 {
     protected PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
@@ -306,11 +306,6 @@ public class PyObject : SafeHandle, ICloneable
         }
     }
 
-    public static PyObject None { get; } = new PyNoneObject();
-    public static PyObject True { get; } = new PyTrueObject();
-    public static PyObject False { get; } = new PyFalseObject();
-
-
     /// <summary>
     /// Call the object. Equivalent to (__call__)(args)
     /// All arguments are treated as positional.
@@ -491,6 +486,9 @@ public class PyObject : SafeHandle, ICloneable
             {
                 ICloneable pyObject => pyObject.Clone(),
                 bool b => b ? True : False,
+                int i when i == 0 => Zero,
+                int i when i == 1 => One,
+                int i when i == -1 => NegativeOne,
                 int i => Create(CPythonAPI.PyLong_FromLong(i)),
                 long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
                 double d => Create(CPythonAPI.PyFloat_FromDouble(d)),

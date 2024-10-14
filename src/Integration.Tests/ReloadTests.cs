@@ -3,6 +3,9 @@
 public class ReloadTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     private const string originalCode = """
+def reload_module() -> None:
+    pass
+
 def test_number() -> int:
     return 52
 """;
@@ -18,7 +21,7 @@ def test_number() -> int:
     {
         ResetCode();
         var testModule = Env.TestReload();
-        testModule.ReloadModule();
+        ((IReloadableModuleImport)testModule).ReloadModule();
         Assert.Equal(52, testModule.TestNumber());
         // Change test_reload.py to return 42
         ResetCode(
@@ -29,7 +32,7 @@ def test_number() -> int:
             """
         );
 
-        testModule.ReloadModule();
+        ((IReloadableModuleImport)testModule).ReloadModule();
         Assert.Equal(42, testModule.TestNumber());
     }
 
@@ -38,7 +41,7 @@ def test_number() -> int:
     {
         ResetCode();
         var testModule = Env.TestReload();
-        testModule.ReloadModule();
+        ((IReloadableModuleImport)testModule).ReloadModule();
         Assert.Equal(52, testModule.TestNumber());
         // Change test_reload.py to return 42
         ResetCode(
@@ -49,7 +52,7 @@ def test_number() -> int:
             """
         );
 
-        testModule.ReloadModule();
+        ((IReloadableModuleImport)testModule).ReloadModule();
         Assert.Equal(52, testModule.TestNumber());
     }
 
@@ -58,7 +61,7 @@ def test_number() -> int:
     {
         ResetCode();
         var testModule = Env.TestReload();
-        testModule.ReloadModule();
+        ((IReloadableModuleImport)testModule).ReloadModule();
 
         Assert.Equal(52, testModule.TestNumber());
         // Change test_reload.py to return 42
@@ -70,7 +73,7 @@ def test_number() -> int:
             """
         );
 
-        testModule.ReloadModule();
+        ((IReloadableModuleImport)testModule).ReloadModule();
         Assert.Throws<PythonInvocationException>(() => testModule.TestNumber());
     }
 }

@@ -2,10 +2,12 @@
 
 namespace CSnakes.Runtime.Python.Interns;
 
-internal sealed class PyFalseObject : ImmortalPyObject
+internal sealed class PyFalseObject() : ImmortalPyObject(GetFalseHandle())
 {
-    public PyFalseObject() : base(CPythonAPI.PyBool_FromLong(0))
+    private static nint GetFalseHandle()
     {
+        using (GIL.Acquire())
+            return CPythonAPI.PyBool_FromLong(0);
     }
 
     public override bool IsNone() => false;

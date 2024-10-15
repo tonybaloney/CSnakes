@@ -1,8 +1,6 @@
-﻿using CSnakes.Runtime.CPython;
+﻿namespace CSnakes.Runtime.Python.Interns;
 
-namespace CSnakes.Runtime.Python.Interns;
-
-internal sealed class PyNegativeOneObject() : ImmortalPyObject(CPythonAPI.PyLong_FromLong(-1))
+internal sealed class PyNegativeOneObject() : ImmortalSmallInteger(-1)
 {
     public override bool IsNone() => false;
     public override string GetRepr() => ToString();

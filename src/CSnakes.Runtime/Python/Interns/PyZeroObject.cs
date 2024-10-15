@@ -1,8 +1,6 @@
-﻿using CSnakes.Runtime.CPython;
+﻿namespace CSnakes.Runtime.Python.Interns;
 
-namespace CSnakes.Runtime.Python.Interns;
-
-internal sealed class PyZeroObject() : ImmortalPyObject(CPythonAPI.PyLong_FromLong(0))
+internal sealed class PyZeroObject() : ImmortalSmallInteger(0)
 {
     public override bool IsNone() => false;
     public override string GetRepr() => ToString();

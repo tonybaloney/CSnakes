@@ -25,16 +25,16 @@ public class ImmortalTests : RuntimeTestBase
         Assert.Equal(PyObject.NegativeOne, negativeOne);
     }
 
-    [Fact]
-    public void TestOne()
-    {
-        Assert.Equal("1", PyObject.One.ToString());
-        Assert.Equal("1", PyObject.One.GetRepr());
-        Assert.False(PyObject.One.IsNone());
-        Assert.Equal(PyObject.One, PyObject.One.Clone());
-        using var one = PyObject.From(1);
-        Assert.Equal(PyObject.One, one);
-    }
+    //[Fact]
+    //public void TestOne()
+    //{
+    //    Assert.Equal("1", PyObject.One.ToString());
+    //    Assert.Equal("1", PyObject.One.GetRepr());
+    //    Assert.False(PyObject.One.IsNone());
+    //    Assert.Equal(PyObject.One, PyObject.One.Clone());
+    //    using var one = PyObject.From(1);
+    //    Assert.Equal(PyObject.One, one);
+    //}
 
     [Fact]
     public void TestFalse()

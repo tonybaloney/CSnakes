@@ -63,12 +63,12 @@ internal unsafe partial class CPythonAPI
     /// <param name="pos">the index position as ssize_t</param>
     /// <returns>A new reference to the item.</returns>
     /// <exception cref="IndexOutOfRangeException"></exception>
-    internal static nint PyTuple_GetItemWithNewRef(PyObject ob, nint pos)
+    internal static nint PyTuple_GetItemWithNewRef(PythonObject ob, nint pos)
     {
         nint item = PyTuple_GetItem(ob.DangerousGetHandle(), pos);
         if (item == IntPtr.Zero)
         {
-            throw PyObject.ThrowPythonExceptionAsClrException();
+            throw PythonObject.ThrowPythonExceptionAsClrException();
         }
         Py_IncRef(item);
         return item;
@@ -79,7 +79,7 @@ internal unsafe partial class CPythonAPI
         nint item = PyTuple_GetItemRaw(ob, pos);
         if (item == IntPtr.Zero)
         {
-            throw PyObject.ThrowPythonExceptionAsClrException();
+            throw PythonObject.ThrowPythonExceptionAsClrException();
         }
         Py_IncRef(item);
         return item;
@@ -88,7 +88,7 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName, EntryPoint = "PyTuple_GetItem")]
     private static partial nint PyTuple_GetItemRaw(nint ob, nint pos);
 
-    internal static bool IsPyTuple(PyObject p)
+    internal static bool IsPyTuple(PythonObject p)
     {
         return PyObject_IsInstance(p, PyTupleType);
     }

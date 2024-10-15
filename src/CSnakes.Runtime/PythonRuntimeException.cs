@@ -4,10 +4,10 @@ using CSnakes.Runtime.Python;
 namespace CSnakes.Runtime;
 public class PythonRuntimeException : Exception
 {
-    private readonly PyObject? pythonTracebackObject;
+    private readonly PythonObject? pythonTracebackObject;
     private string[]? formattedStackTrace = null;
 
-    public PythonRuntimeException(PyObject? exception, PyObject? traceback): base(exception?.ToString(), GetPythonInnerException(exception))
+    public PythonRuntimeException(PythonObject? exception, PythonObject? traceback): base(exception?.ToString(), GetPythonInnerException(exception))
     {
         pythonTracebackObject = traceback;
         if (traceback is null)
@@ -15,11 +15,11 @@ public class PythonRuntimeException : Exception
             return;
         }
 
-        Data["locals"] = traceback.GetAttr("tb_frame").GetAttr("f_locals").As<IReadOnlyDictionary<string, PyObject>>();
-        Data["globals"] = traceback.GetAttr("tb_frame").GetAttr("f_globals").As<IReadOnlyDictionary<string, PyObject>>();
+        Data["locals"] = traceback.GetAttr("tb_frame").GetAttr("f_locals").As<IReadOnlyDictionary<string, PythonObject>>();
+        Data["globals"] = traceback.GetAttr("tb_frame").GetAttr("f_globals").As<IReadOnlyDictionary<string, PythonObject>>();
     }
 
-    private static PythonRuntimeException? GetPythonInnerException(PyObject? exception)
+    private static PythonRuntimeException? GetPythonInnerException(PythonObject? exception)
     {
         if (exception is null)
         {
@@ -46,7 +46,7 @@ public class PythonRuntimeException : Exception
         }
     }
 
-    private static string[] FormatPythonStackTrace(PyObject pythonStackTrace)
+    private static string[] FormatPythonStackTrace(PythonObject pythonStackTrace)
     {
         if (!CPythonAPI.IsInitialized)
         {

@@ -7,14 +7,14 @@ public class NoneTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(f
     public void TestReturnsNoneIsNone()
     {
         var mod = Env.TestNone();
-        using PyObject result = mod.ReturnsNone();
+        using PythonObject result = mod.ReturnsNone();
         Assert.True(result.IsNone());
     }
 
     [Fact]
     public void TestNullArgAsNone()
     {
-        PyObject none = PyObject.None;
+        PythonObject none = PythonObject.None;
         Assert.True(none.IsNone());
         // Give to function
         var mod = Env.TestNone();

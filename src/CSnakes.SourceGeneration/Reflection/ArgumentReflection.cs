@@ -7,7 +7,7 @@ namespace CSnakes.Reflection;
 public class ArgumentReflection
 {
     private static readonly PythonTypeSpec DictStrAny = new("dict", [new("str", []), PythonTypeSpec.Any]);
-    private static readonly TypeSyntax ArrayPyObject = SyntaxFactory.ParseTypeName("PyObject[]");
+    private static readonly TypeSyntax ArrayPyObject = SyntaxFactory.ParseTypeName("PythonObject[]");
 
     public static ParameterSyntax? ArgumentSyntax(PythonFunctionParameter parameter)
     {

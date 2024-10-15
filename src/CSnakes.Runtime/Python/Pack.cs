@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using PyObjectMarshaller = System.Runtime.InteropServices.Marshalling.SafeHandleMarshaller<CSnakes.Runtime.Python.PyObject>;
+using PyObjectMarshaller = System.Runtime.InteropServices.Marshalling.SafeHandleMarshaller<CSnakes.Runtime.Python.PythonObject>;
 
 namespace CSnakes.Runtime.Python;
 
@@ -13,11 +13,11 @@ namespace CSnakes.Runtime.Python;
 /// </summary>
 internal static class Pack
 {
-    internal static PyObject CreateTuple(Span<PyObject> items) =>
-        PyObject.Create(CreateListOrTuple<TupleBuilder>(items));
+    internal static PythonObject CreateTuple(Span<PythonObject> items) =>
+        PythonObject.Create(CreateListOrTuple<TupleBuilder>(items));
 
-    internal static PyObject CreateList(Span<PyObject> items) =>
-        PyObject.Create(CreateListOrTuple<ListBuilder>(items));
+    internal static PythonObject CreateList(Span<PythonObject> items) =>
+        PythonObject.Create(CreateListOrTuple<ListBuilder>(items));
 
     private interface IListOrTupleBuilder
     {
@@ -57,7 +57,7 @@ internal static class Pack
         private T _;
     }
 
-    private static nint CreateListOrTuple<TBuilder>(Span<PyObject> items)
+    private static nint CreateListOrTuple<TBuilder>(Span<PythonObject> items)
         where TBuilder : IListOrTupleBuilder
     {
         // Allocate initial space for the handles and marshallers on the stack.
@@ -125,7 +125,7 @@ internal static class Pack
                     int result = TBuilder.SetItemRaw(obj, i++, handle);
                     if (result == -1)
                     {
-                        throw PyObject.ThrowPythonExceptionAsClrException();
+                        throw PythonObject.ThrowPythonExceptionAsClrException();
                     }
                 }
 

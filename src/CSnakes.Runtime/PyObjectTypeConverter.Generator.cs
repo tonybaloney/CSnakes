@@ -5,7 +5,7 @@ using System.Reflection;
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    internal static object ConvertToGeneratorIterator(PyObject pyObject, Type destinationType)
+    internal static object ConvertToGeneratorIterator(PythonObject pyObject, Type destinationType)
     {
         if (!CPythonAPI.IsPyGenerator(pyObject))
         {

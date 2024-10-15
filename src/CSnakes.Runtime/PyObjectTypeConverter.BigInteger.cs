@@ -5,13 +5,13 @@ using System.Numerics;
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    internal static BigInteger ConvertToBigInteger(PyObject pyObject, Type destinationType) =>
+    internal static BigInteger ConvertToBigInteger(PythonObject pyObject, Type destinationType) =>
         // There is no practical API for this in CPython. Use str() instead. 
         BigInteger.Parse(pyObject.ToString());
 
-    internal static PyObject ConvertFromBigInteger(BigInteger integer)
+    internal static PythonObject ConvertFromBigInteger(BigInteger integer)
     {
-        using PyObject pyUnicode = PyObject.Create(CPythonAPI.AsPyUnicodeObject(integer.ToString()));
-        return PyObject.Create(CPythonAPI.PyLong_FromUnicodeObject(pyUnicode.DangerousGetHandle(), 10));
+        using PythonObject pyUnicode = PythonObject.Create(CPythonAPI.AsPyUnicodeObject(integer.ToString()));
+        return PythonObject.Create(CPythonAPI.PyLong_FromUnicodeObject(pyUnicode.DangerousGetHandle(), 10));
     }
 }

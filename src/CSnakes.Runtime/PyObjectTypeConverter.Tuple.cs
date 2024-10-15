@@ -6,19 +6,19 @@ using System.Runtime.CompilerServices;
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    internal static PyObject ConvertFromTuple(ITuple t)
+    internal static PythonObject ConvertFromTuple(ITuple t)
     {
-        PyObject[] pyObjects = new PyObject[t.Length];
+        PythonObject[] pyObjects = new PythonObject[t.Length];
 
         for (var i = 0; i < t.Length; i++)
         {
-            pyObjects[i] = PyObject.From(t[i]); // NULL->PyNone
+            pyObjects[i] = PythonObject.From(t[i]); // NULL->PyNone
         }
 
         return Pack.CreateTuple(pyObjects);
     }
 
-    internal static ITuple ConvertToTuple(PyObject pyObj, Type destinationType)
+    internal static ITuple ConvertToTuple(PythonObject pyObj, Type destinationType)
     {
         if (!CPythonAPI.IsPyTuple(pyObj))
         {
@@ -38,10 +38,10 @@ internal partial class PyObjectTypeConverter
         Type[] types = destinationType.GetGenericArguments();
         object?[] clrValues = new object[Math.Min(8, tupleSize)];
 
-        PyObject[] tupleValues = new PyObject[tupleSize];
+        PythonObject[] tupleValues = new PythonObject[tupleSize];
         for (nint i = 0; i < tupleValues.Length; i++)
         {
-            PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, i));
+            PythonObject value = PythonObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, i));
             tupleValues[i] = value;
         }
 
@@ -52,10 +52,10 @@ internal partial class PyObjectTypeConverter
             IEnumerable<object?> firstSeven = tupleValues.Take(7).Select((p, i) => p.As(types[i]));
 
             // Get the rest of the values and convert them to a nested tuple.
-            IEnumerable<PyObject> rest = tupleValues.Skip(7);
+            IEnumerable<PythonObject> rest = tupleValues.Skip(7);
 
             // Back to a Python tuple.
-            using PyObject pyTuple = Pack.CreateTuple(rest.ToArray());
+            using PythonObject pyTuple = Pack.CreateTuple(rest.ToArray());
 
             // Use the decoder pipeline to decode the nested tuple (and its values).
             // We do this because that means if we have nested nested tuples, they'll be decoded as well.
@@ -85,7 +85,7 @@ internal partial class PyObjectTypeConverter
         return (ITuple)typeInfo.ReturnTypeConstructor.Invoke([.. clrValues]);
     }
 
-    internal static KeyValuePair<TKey, TValue> ConvertToKeyValuePair<TKey, TValue>(PyObject pyObj)
+    internal static KeyValuePair<TKey, TValue> ConvertToKeyValuePair<TKey, TValue>(PythonObject pyObj)
     {
         if (!CPythonAPI.IsPyTuple(pyObj))
         {
@@ -96,8 +96,8 @@ internal partial class PyObjectTypeConverter
             throw new InvalidDataException("Tuple must have exactly 2 elements to be converted to a KeyValuePair.");
         }
 
-        using PyObject key = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, 0));
-        using PyObject value = PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, 1));
+        using PythonObject key = PythonObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, 0));
+        using PythonObject value = PythonObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, 1));
 
         return new KeyValuePair<TKey, TValue>(key.As<TKey>(), value.As<TValue>());
     }

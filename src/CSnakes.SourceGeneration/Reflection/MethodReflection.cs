@@ -51,14 +51,14 @@ public static class MethodReflection
             {
                 continue;
             }
-            bool needsConversion = true; // TODO: Skip .From for PyObject arguments. 
+            bool needsConversion = true; // TODO: Skip .From for PythonObject arguments. 
             ExpressionSyntax rhs = IdentifierName(cSharpParameter.Identifier);
             if (needsConversion)
                 rhs =
                     InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("PyObject"),
+                            IdentifierName("PythonObject"),
                             IdentifierName("From")))
                         .WithArgumentList(
                             ArgumentList(
@@ -69,7 +69,7 @@ public static class MethodReflection
             pythonConversionStatements.Add(
                 LocalDeclarationStatement(
                     VariableDeclaration(
-                        IdentifierName("PyObject"))
+                        IdentifierName("PythonObject"))
                     .WithVariables(
                         SingletonSeparatedList(
                             VariableDeclarator(
@@ -107,7 +107,7 @@ public static class MethodReflection
         ReturnStatementSyntax returnExpression = returnSyntax switch
         {
             PredefinedTypeSyntax s when s.Keyword.IsKind(SyntaxKind.VoidKeyword) => ReturnStatement(null),
-            IdentifierNameSyntax { Identifier.ValueText: "PyObject" } => ReturnStatement(IdentifierName("__result_pyObject")),
+            IdentifierNameSyntax { Identifier.ValueText: "PythonObject" } => ReturnStatement(IdentifierName("__result_pyObject")),
             _ => ProcessMethodWithReturnType(returnSyntax, parameterGenericArgs)
         };
 
@@ -120,7 +120,7 @@ public static class MethodReflection
 
         var functionObject = LocalDeclarationStatement(
             VariableDeclaration(
-                IdentifierName("PyObject"))
+                IdentifierName("PythonObject"))
             .WithVariables(
                 SingletonSeparatedList(
                     VariableDeclarator(
@@ -135,7 +135,7 @@ public static class MethodReflection
 
         var callStatement = LocalDeclarationStatement(
                         VariableDeclaration(
-                            IdentifierName("PyObject"))
+                            IdentifierName("PythonObject"))
                         .WithVariables(
                             SingletonSeparatedList(
                                 VariableDeclarator(
@@ -309,7 +309,7 @@ public static class MethodReflection
                 )
             ));
 
-        // Create a collection of the converted PyObject identifiers for keyword-only values
+        // Create a collection of the converted PythonObject identifiers for keyword-only values
         ArgumentSyntax kwvalues = Argument(CollectionExpression(
             SeparatedList<CollectionElementSyntax>(
                 parameterList.Where((arg) => arg.pythonParameter.IsKeywordOnly && arg.pythonParameter.ParameterType == PythonFunctionParameterType.Normal)

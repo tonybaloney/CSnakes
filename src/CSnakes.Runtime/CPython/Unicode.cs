@@ -19,10 +19,10 @@ internal unsafe partial class CPythonAPI
     /// </summary>
     /// <param name="s"></param>
     /// <returns></returns>
-    internal static string PyUnicode_AsUTF8(PyObject s)
+    internal static string PyUnicode_AsUTF8(PythonObject s)
     {
         var result = PyUnicode_AsUTF8_(s);
-        return result is null ? throw PyObject.ThrowPythonExceptionAsClrException() : result;
+        return result is null ? throw PythonObject.ThrowPythonExceptionAsClrException() : result;
     }
 
     /// <summary>
@@ -32,12 +32,12 @@ internal unsafe partial class CPythonAPI
     /// <param name="s"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller), EntryPoint = "PyUnicode_AsUTF8")]
-    private static partial string? PyUnicode_AsUTF8_(PyObject s);
+    private static partial string? PyUnicode_AsUTF8_(PythonObject s);
 
     [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller), EntryPoint = "PyUnicode_AsUTF8")]
     internal static partial string? PyUnicode_AsUTF8Raw(nint s);
 
-    public static bool IsPyUnicode(PyObject p)
+    public static bool IsPyUnicode(PythonObject p)
     {
         return PyObject_IsInstance(p, PyUnicodeType);
     }

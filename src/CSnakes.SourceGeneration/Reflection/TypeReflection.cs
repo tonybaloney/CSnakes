@@ -33,7 +33,7 @@ public static class TypeReflection
                 "typing.Optional" or "Optional" => AsPredefinedType(pythonType.Arguments[0], direction),
                 "typing.Generator" or "Generator" => CreateGeneratorType(pythonType.Arguments[0], pythonType.Arguments[1], pythonType.Arguments[2], direction),
                 // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
-                _ => SyntaxFactory.ParseTypeName("PyObject"),
+                _ => SyntaxFactory.ParseTypeName("PythonObject"),
             };
         }
         return (pythonType.Name, direction) switch
@@ -44,7 +44,7 @@ public static class TypeReflection
             ("bool", _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword)),
             ("bytes", _) => SyntaxFactory.ParseTypeName("byte[]"),
             ("Buffer" or "typing.Buffer" or "collections.abc.Buffer", ConversionDirection.FromPython) => SyntaxFactory.ParseTypeName("IPyBuffer"),
-            _ => SyntaxFactory.ParseTypeName("PyObject"),
+            _ => SyntaxFactory.ParseTypeName("PythonObject"),
         };
     }
 

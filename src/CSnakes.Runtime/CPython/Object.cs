@@ -9,7 +9,7 @@ internal unsafe partial class CPythonAPI
     /// </summary>
     /// <param name="ob">The Python object</param>
     /// <returns>A new reference to the type.</returns>
-    internal static IntPtr GetType(PyObject ob) {
+    internal static IntPtr GetType(PythonObject ob) {
         return PyObject_Type(ob.DangerousGetHandle());
     }
 
@@ -35,17 +35,17 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName, EntryPoint = "PyObject_Type")]
     private static partial nint PyObject_TypeRaw(nint ob);
 
-    internal static bool PyObject_IsInstance(PyObject ob, IntPtr type)
+    internal static bool PyObject_IsInstance(PythonObject ob, IntPtr type)
     {
         int result = PyObject_IsInstance(ob.DangerousGetHandle(), type);
         if (result == -1)
         {
-            throw PyObject.ThrowPythonExceptionAsClrException();
+            throw PythonObject.ThrowPythonExceptionAsClrException();
         }
         return result == 1;
     }
 
-    internal static IntPtr GetAttr(PyObject ob, string name)
+    internal static IntPtr GetAttr(PythonObject ob, string name)
     {
         /* TODO: Consider interning/caching the name value */
         nint pyName = AsPyUnicodeObject(name);
@@ -54,7 +54,7 @@ internal unsafe partial class CPythonAPI
         return pyAttr;
     }
 
-    internal static bool HasAttr(PyObject ob, string name)
+    internal static bool HasAttr(PythonObject ob, string name)
     {
         nint pyName = AsPyUnicodeObject(name);
         int hasAttr = PyObject_HasAttr(ob, pyName);
@@ -69,7 +69,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="attr">The attribute as a PyUnicode object</param>
     /// <returns>1 on success, 0 if the attr does not exist</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial int PyObject_HasAttr(PyObject ob, IntPtr attr);
+    internal static partial int PyObject_HasAttr(PythonObject ob, IntPtr attr);
 
     /// <summary>
     /// Get the iterator for the given object
@@ -77,7 +77,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="ob"></param>
     /// <returns>A new reference to the iterator</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial IntPtr PyObject_GetIter(PyObject ob);
+    internal static partial IntPtr PyObject_GetIter(PythonObject ob);
 
     /// <summary>
     /// Get the str(ob) form of the object
@@ -85,7 +85,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="ob">The Python object</param>
     /// <returns>A new reference to the string representation</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyObject_Str(PyObject ob);
+    internal static partial nint PyObject_Str(PythonObject ob);
 
     /// <summary>
     /// Implements ob[key]
@@ -94,7 +94,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="key"></param>
     /// <returns>A new reference to the object item if it exists, else NULL</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyObject_GetItem(PyObject ob, PyObject key);
+    internal static partial nint PyObject_GetItem(PythonObject ob, PythonObject key);
 
     /// <summary>
     /// Set ob[key] = value
@@ -106,21 +106,21 @@ internal unsafe partial class CPythonAPI
     /// <param name="value"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial int PyObject_SetItem(PyObject ob, PyObject key, PyObject value);
+    internal static partial int PyObject_SetItem(PythonObject ob, PythonObject key, PythonObject value);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial int PyObject_Hash(PyObject ob);
+    internal static partial int PyObject_Hash(PythonObject ob);
 
-    internal static bool PyObject_RichCompare(PyObject ob1, PyObject ob2, RichComparisonType comparisonType)
+    internal static bool PyObject_RichCompare(PythonObject ob1, PythonObject ob2, RichComparisonType comparisonType)
     {
         int result = PyObject_RichCompareBool(ob1, ob2, comparisonType);
         if (result == -1)
         {
-            throw PyObject.ThrowPythonExceptionAsClrException();
+            throw PythonObject.ThrowPythonExceptionAsClrException();
         }
         return result == 1;
     }
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial int PyObject_RichCompareBool(PyObject ob1, PyObject ob2, RichComparisonType comparisonType);
+    internal static partial int PyObject_RichCompareBool(PythonObject ob1, PythonObject ob2, RichComparisonType comparisonType);
 }

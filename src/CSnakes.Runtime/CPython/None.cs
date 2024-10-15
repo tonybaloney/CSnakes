@@ -19,7 +19,7 @@ internal unsafe partial class CPythonAPI
         return PyNone;
     }
 
-    internal static bool IsNone(PyObject o)
+    internal static bool IsNone(PythonObject o)
     {
         return PyNone == o.DangerousGetHandle();
     }

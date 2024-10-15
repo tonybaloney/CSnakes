@@ -6,7 +6,7 @@ public class PyObjectTests : RuntimeTestBase
     [Fact]
     public void TestToString()
     {
-        using PyObject? pyObj = PyObject.From("Hello, World!");
+        using PythonObject? pyObj = PythonObject.From("Hello, World!");
         Assert.NotNull(pyObj);
         Assert.Equal("Hello, World!", pyObj!.ToString());
     }
@@ -14,7 +14,7 @@ public class PyObjectTests : RuntimeTestBase
     [Fact]
     public void TestObjectType()
     {
-        using PyObject? pyObj = PyObject.From("Hello, World!");
+        using PythonObject? pyObj = PythonObject.From("Hello, World!");
         Assert.NotNull(pyObj);
         Assert.Equal("<class 'str'>", pyObj!.GetPythonType().ToString());
     }
@@ -22,10 +22,10 @@ public class PyObjectTests : RuntimeTestBase
     [Fact]
     public void TestObjectGetAttr()
     {
-        using PyObject? pyObj = PyObject.From("Hello, World!");
+        using PythonObject? pyObj = PythonObject.From("Hello, World!");
         Assert.NotNull(pyObj);
         Assert.True(pyObj!.HasAttr("__doc__"));
-        using PyObject? pyObjDoc = pyObj!.GetAttr("__doc__");
+        using PythonObject? pyObjDoc = pyObj!.GetAttr("__doc__");
         Assert.NotNull(pyObjDoc);
         Assert.Contains("Create a new string ", pyObjDoc!.ToString());
     }
@@ -33,7 +33,7 @@ public class PyObjectTests : RuntimeTestBase
     [Fact]
     public void TestObjectGetRepr()
     {
-        using PyObject? pyObj = PyObject.From("hello");
+        using PythonObject? pyObj = PythonObject.From("hello");
         Assert.NotNull(pyObj);
         string pyObjDoc = pyObj!.GetRepr();
         Assert.False(string.IsNullOrEmpty(pyObjDoc));
@@ -45,7 +45,7 @@ public class PyObjectTests : RuntimeTestBase
     {
         using (GIL.Acquire())
         {
-            using PyObject? pyObj = PyObject.From("hello");
+            using PythonObject? pyObj = PythonObject.From("hello");
             Assert.NotNull(pyObj);
             pyObj.Dispose();
             Assert.Throws<ObjectDisposedException>(() => pyObj!.ToString());
@@ -55,8 +55,8 @@ public class PyObjectTests : RuntimeTestBase
     [Fact]
     public void TestObjectIsNone()
     {
-        var obj1 = PyObject.None;
-        var obj2 = PyObject.None;
+        var obj1 = PythonObject.None;
+        var obj2 = PythonObject.None;
         Assert.True(obj2.Is(obj2));
     }
 
@@ -64,8 +64,8 @@ public class PyObjectTests : RuntimeTestBase
     public void TestObjectIsSmallIntegers()
     {
         // Small numbers are the same object in Python, weird implementation detail.
-        var obj1 = PyObject.From(42);
-        var obj2 = PyObject.From(42);
+        var obj1 = PythonObject.From(42);
+        var obj2 = PythonObject.From(42);
         Assert.True(obj1!.Is(obj2!));
     }
 
@@ -77,8 +77,8 @@ public class PyObjectTests : RuntimeTestBase
     [Theory]
     public void TestObjectEquals(object? o1, object? o2)
     {
-        using var obj1 = PyObject.From(o1);
-        using var obj2 = PyObject.From(o2);
+        using var obj1 = PythonObject.From(o1);
+        using var obj2 = PythonObject.From(o2);
         Assert.True(obj1!.Equals(obj2));
         Assert.True(obj1 == obj2);
     }
@@ -86,8 +86,8 @@ public class PyObjectTests : RuntimeTestBase
     [Fact]
     public void TestObjectEqualsCollection()
     {
-        using var obj1 = PyObject.From<IEnumerable<string>>(["Hello!", "World!"]);
-        using var obj2 = PyObject.From<IEnumerable<string>>(["Hello!", "World!"]);
+        using var obj1 = PythonObject.From<IEnumerable<string>>(["Hello!", "World!"]);
+        using var obj2 = PythonObject.From<IEnumerable<string>>(["Hello!", "World!"]);
         Assert.True(obj1!.Equals(obj2));
         Assert.True(obj1 == obj2);
     }
@@ -100,8 +100,8 @@ public class PyObjectTests : RuntimeTestBase
     [Theory]
     public void TestObjectNotEquals(object? o1, object? o2)
     {
-        using var obj1 = PyObject.From(o1);
-        using var obj2 = PyObject.From(o2);
+        using var obj1 = PythonObject.From(o1);
+        using var obj2 = PythonObject.From(o2);
         Assert.True(obj1!.NotEquals(obj2));
         Assert.True(obj1 != obj2);
     }
@@ -109,8 +109,8 @@ public class PyObjectTests : RuntimeTestBase
     [Fact]
     public void TestObjectNotEqualsCollection()
     {
-        using var obj1 = PyObject.From<IEnumerable<string>>(["Hello!", "World!"]);
-        using var obj2 = PyObject.From<IEnumerable<string>>(["Hello?", "World?"]);
+        using var obj1 = PythonObject.From<IEnumerable<string>>(["Hello!", "World!"]);
+        using var obj2 = PythonObject.From<IEnumerable<string>>(["Hello?", "World?"]);
         Assert.True(obj1!.NotEquals(obj2));
         Assert.True(obj1 != obj2);
     }
@@ -130,8 +130,8 @@ public class PyObjectTests : RuntimeTestBase
     [Theory]
     public void TestObjectStrictInequality(object? o1, object? o2, bool expectedLT, bool expectedGT)
     {
-        using var obj1 = o1 is null ? null : PyObject.From(o1);
-        using var obj2 = o2 is null ? null : PyObject.From(o2);
+        using var obj1 = o1 is null ? null : PythonObject.From(o1);
+        using var obj2 = o2 is null ? null : PythonObject.From(o2);
         Assert.Equal(expectedLT, obj1 < obj2);
         Assert.Equal(expectedGT, obj1 > obj2);
     }
@@ -153,8 +153,8 @@ public class PyObjectTests : RuntimeTestBase
     [Theory]
     public void TestObjectNotStrictInequality(object? o1, object? o2, bool expectedLT, bool expectedGT)
     {
-        using var obj1 = o1 is null ? null : PyObject.From(o1);
-        using var obj2 = o2 is null ? null : PyObject.From(o2);
+        using var obj1 = o1 is null ? null : PythonObject.From(o1);
+        using var obj2 = o2 is null ? null : PythonObject.From(o2);
         Assert.Equal(expectedLT, obj1 <= obj2);
         Assert.Equal(expectedGT, obj1 >= obj2);
     }

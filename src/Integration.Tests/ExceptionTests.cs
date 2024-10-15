@@ -18,11 +18,11 @@ public class ExceptionTests(PythonEnvironmentFixture fixture) : IntegrationTestB
         Assert.Contains("in test_raise_python_exception", pythonRuntimeException.PythonStackTrace[0]);
         // Get the frame locals from the inner exception
         Assert.NotNull(pythonRuntimeException.Data["locals"]);
-        var topFrameLocals = (IReadOnlyDictionary<string, PyObject>?) pythonRuntimeException.Data["locals"];
+        var topFrameLocals = (IReadOnlyDictionary<string, PythonObject>?) pythonRuntimeException.Data["locals"];
         Assert.NotNull(topFrameLocals);
         Assert.Equal(1, topFrameLocals["a"].As<long>());
         Assert.Equal(2, topFrameLocals["b"].As<long>());
-        var topFrameGlobals = (IReadOnlyDictionary<string, PyObject>?)pythonRuntimeException.Data["globals"];
+        var topFrameGlobals = (IReadOnlyDictionary<string, PythonObject>?)pythonRuntimeException.Data["globals"];
         Assert.Equal("1337", topFrameGlobals?["some_global"].ToString());
     }
 

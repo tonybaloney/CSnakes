@@ -5,7 +5,7 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
-    internal static IntPtr Call(PyObject callable, Span<IntPtr> args)
+    internal static IntPtr Call(PythonObject callable, Span<IntPtr> args)
     {
         // These options are used for efficiency. Don't create a tuple if its not required. 
         if (args.Length == 0)
@@ -32,7 +32,7 @@ internal unsafe partial class CPythonAPI
         }
     }
 
-    internal static IntPtr Call(PyObject callable, Span<IntPtr> args, Span<string> kwnames, Span<IntPtr> kwvalues)
+    internal static IntPtr Call(PythonObject callable, Span<IntPtr> args, Span<string> kwnames, Span<IntPtr> kwvalues)
     {
         // These options are used for efficiency. Don't create a tuple if its not required. 
         if (false /* TODO: Implement vectorcall for kwargs*/ && 
@@ -60,7 +60,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="callable"></param>
     /// <returns>A new reference to the result, or null on failure</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial IntPtr PyObject_CallNoArgs(PyObject callable);
+    internal static partial IntPtr PyObject_CallNoArgs(PythonObject callable);
 
     /// <summary>
     /// Call a callable with one argument (3.11+)
@@ -69,7 +69,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="arg1">The first argument</param>
     /// <returns>A new reference to the result, or null on failure</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial IntPtr PyObject_CallOneArg(PyObject callable, IntPtr arg1);
+    internal static partial IntPtr PyObject_CallOneArg(PythonObject callable, IntPtr arg1);
 
 
     /// <summary>
@@ -80,8 +80,8 @@ internal unsafe partial class CPythonAPI
     /// <param name="kwargs">A PyDict of keyword arguments</param>
     /// <returns>A new reference to the result, or null on failure</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial IntPtr PyObject_Call(PyObject callable, IntPtr args, IntPtr kwargs);
+    internal static partial IntPtr PyObject_Call(PythonObject callable, IntPtr args, IntPtr kwargs);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyObject_Vectorcall(PyObject callable, IntPtr* args, nuint nargsf, IntPtr kwnames);
+    internal static partial nint PyObject_Vectorcall(PythonObject callable, IntPtr* args, nuint nargsf, IntPtr kwnames);
 }

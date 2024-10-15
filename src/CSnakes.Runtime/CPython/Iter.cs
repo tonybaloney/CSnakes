@@ -14,5 +14,5 @@ internal unsafe partial class CPythonAPI
     /// <param name="iter"></param>
     /// <returns>New refernce to the next item</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyIter_Next(PyObject iter);
+    internal static partial nint PyIter_Next(PythonObject iter);
 }

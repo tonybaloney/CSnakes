@@ -8,7 +8,7 @@ internal partial class PyObjectTypeConverter
 {
     private static readonly ConcurrentDictionary<Type, DynamicTypeInfo> knownDynamicTypes = [];
 
-    public static object PyObjectToManagedType(PyObject pyObject, Type destinationType)
+    public static object PyObjectToManagedType(PythonObject pyObject, Type destinationType)
     {
         if (CPythonAPI.IsPyDict(pyObject) && IsAssignableToGenericType(destinationType, dictionaryType))
         {

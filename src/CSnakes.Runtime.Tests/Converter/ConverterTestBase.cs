@@ -5,7 +5,7 @@ public class ConverterTestBase : RuntimeTestBase
 {
     protected static void RunTest<T>(T input)
     {
-        using PyObject? pyObj = PyObject.From(input);
+        using PythonObject? pyObj = PythonObject.From(input);
         Assert.NotNull(pyObj);
 
         // Convert back

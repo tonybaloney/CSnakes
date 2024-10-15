@@ -13,12 +13,12 @@ internal unsafe partial class CPythonAPI
     /// <param name="obj">The list object</param>
     /// <param name="pos">The position as ssize_t</param>
     /// <returns>New reference to the list item</returns>
-    internal static nint PyList_GetItem(PyObject obj, nint pos)
+    internal static nint PyList_GetItem(PythonObject obj, nint pos)
     {
         nint item = PyList_GetItem_(obj, pos);
         if (item == IntPtr.Zero)
         {
-            throw PyObject.ThrowPythonExceptionAsClrException();
+            throw PythonObject.ThrowPythonExceptionAsClrException();
         }
         Py_IncRef(item);
         return item;
@@ -31,7 +31,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="pos">The position as ssize_t</param>
     /// <returns>Borrowed reference to the list item</returns>
     [LibraryImport(PythonLibraryName, EntryPoint = "PyList_GetItem")]
-    private static partial nint PyList_GetItem_(PyObject obj, nint pos);
+    private static partial nint PyList_GetItem_(PythonObject obj, nint pos);
 
     internal static int PyList_SetItemRaw(nint ob, nint pos, nint o)
     {
@@ -47,7 +47,7 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName, EntryPoint = "PyList_SetItem")]
     internal static partial int PyList_SetItem_(nint obj, nint pos, nint o);
 
-    internal static bool IsPyList(PyObject p)
+    internal static bool IsPyList(PythonObject p)
     {
         return PyObject_IsInstance(p, PyListType);
     }

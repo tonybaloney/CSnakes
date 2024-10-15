@@ -10,12 +10,12 @@ internal unsafe partial class CPythonAPI
     /// </summary>
     /// <param name="name">The module name</param>
     /// <returns>A new reference to module `name`</returns>
-    internal static PyObject Import(string name)
+    internal static PythonObject Import(string name)
     {
         nint pyName = AsPyUnicodeObject(name);
         nint module = PyImport_Import(pyName);
         Py_DecRef(pyName);
-        return PyObject.Create(module);
+        return PythonObject.Create(module);
     }
 
     protected static nint GetBuiltin(string name)
@@ -26,7 +26,7 @@ internal unsafe partial class CPythonAPI
         nint attr = PyObject_GetAttr(module, pyAttrName);
         if (attr == IntPtr.Zero)
         {
-            throw PyObject.ThrowPythonExceptionAsClrException();
+            throw PythonObject.ThrowPythonExceptionAsClrException();
         }
         Py_DecRef(pyName);
         Py_DecRef(pyAttrName);

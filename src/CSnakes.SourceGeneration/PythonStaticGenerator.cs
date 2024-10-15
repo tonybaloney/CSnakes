@@ -91,10 +91,10 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                 private class {{pascalFileName}}Internal : I{{pascalFileName}}
                 {
-                    private readonly PyObject module;
+                    private readonly PythonObject module;
 
                     private readonly ILogger<IPythonEnvironment> logger;
-                    {{string.Join(Environment.NewLine, functionNames.Select(f => $"private readonly PyObject {f.Field};")) }}
+                    {{string.Join(Environment.NewLine, functionNames.Select(f => $"private readonly PythonObject {f.Field};")) }}
 
                     internal {{pascalFileName}}Internal(ILogger<IPythonEnvironment> logger)
                     {

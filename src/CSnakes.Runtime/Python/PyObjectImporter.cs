@@ -2,7 +2,7 @@
 
 internal interface IPyObjectImporter<out T>
 {
-    static abstract T Import(PyObject pyObj);
+    static abstract T Import(PythonObject pyObj);
 }
 
 internal sealed class PyObjectImporter<T> :
@@ -10,7 +10,7 @@ internal sealed class PyObjectImporter<T> :
 {
     private PyObjectImporter() { }
 
-    public static T Import(PyObject pyObj) => pyObj.As<T>();
+    public static T Import(PythonObject pyObj) => pyObj.As<T>();
 }
 
 internal sealed class PyObjectImporter<TKey, TValue> :
@@ -18,5 +18,5 @@ internal sealed class PyObjectImporter<TKey, TValue> :
 {
     private PyObjectImporter() { }
 
-    public static KeyValuePair<TKey, TValue> Import(PyObject pyObj) => pyObj.As<TKey, TValue>();
+    public static KeyValuePair<TKey, TValue> Import(PythonObject pyObj) => pyObj.As<TKey, TValue>();
 }

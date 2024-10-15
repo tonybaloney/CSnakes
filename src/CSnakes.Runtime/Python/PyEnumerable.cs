@@ -6,10 +6,10 @@ namespace CSnakes.Runtime.Python;
 internal class PyEnumerable<TValue, TImporter> : IEnumerable<TValue>, IEnumerator<TValue>, IDisposable
     where TImporter : IPyObjectImporter<TValue>
 {
-    private readonly PyObject _pyIterator;
+    private readonly PythonObject _pyIterator;
     private TValue current = default!;
 
-    internal PyEnumerable(PyObject pyObject)
+    internal PyEnumerable(PythonObject pyObject)
     {
         using (GIL.Acquire())
         {
@@ -32,7 +32,7 @@ internal class PyEnumerable<TValue, TImporter> : IEnumerable<TValue>, IEnumerato
             nint result = CPythonAPI.PyIter_Next(_pyIterator);
             if (result == IntPtr.Zero && CPythonAPI.IsPyErrOccurred())
             {
-                throw PyObject.ThrowPythonExceptionAsClrException();
+                throw PythonObject.ThrowPythonExceptionAsClrException();
             }
 
             if (result == IntPtr.Zero)
@@ -40,7 +40,7 @@ internal class PyEnumerable<TValue, TImporter> : IEnumerable<TValue>, IEnumerato
                 return false;
             }
 
-            using PyObject pyObject = PyObject.Create(result);
+            using PythonObject pyObject = PythonObject.Create(result);
             current = TImporter.Import(pyObject);
             return true;
         }
@@ -53,5 +53,5 @@ internal class PyEnumerable<TValue, TImporter> : IEnumerable<TValue>, IEnumerato
 
 internal class PyEnumerable<TValue> : PyEnumerable<TValue, PyObjectImporter<TValue>>
 {
-    internal PyEnumerable(PyObject pyObject) : base(pyObject) { }
+    internal PyEnumerable(PythonObject pyObject) : base(pyObject) { }
 }

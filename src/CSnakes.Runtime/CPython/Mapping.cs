@@ -6,7 +6,7 @@ namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
     private static nint ItemsStrIntern = IntPtr.Zero;
-    public static bool IsPyMappingWithItems(PyObject p)
+    public static bool IsPyMappingWithItems(PythonObject p)
     {
         return PyMapping_Check(p) == 1 && PyObject_HasAttr(p, ItemsStrIntern) == 1;
     }
@@ -19,7 +19,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="p"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial int PyMapping_Check(PyObject ob);
+    internal static partial int PyMapping_Check(PythonObject ob);
 
     /// <summary>
     /// Return the object from dictionary p which has a key `key`. 
@@ -28,7 +28,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="key">Key Object</param>
     /// <exception cref="KeyNotFoundException">If the key is not found</exception>
     /// <returns>New reference.</returns>
-    internal static nint PyMapping_GetItem(PyObject map, PyObject key)
+    internal static nint PyMapping_GetItem(PythonObject map, PythonObject key)
     { 
         return PyObject_GetItem(map, key);
     }
@@ -42,7 +42,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="key">Key</param>
     /// <param name="value">Value</param>
     /// <returns>Return 0 on success or -1 on failure.</returns>
-    internal static bool PyMapping_SetItem(PyObject dict, PyObject key, PyObject value)
+    internal static bool PyMapping_SetItem(PythonObject dict, PythonObject key, PythonObject value)
     {
         return PyObject_SetItem(dict, key, value) == 0;
     }
@@ -53,16 +53,16 @@ internal unsafe partial class CPythonAPI
     /// <param name="dict">Object that implements the mapping protocol</param>
     /// <returns>New reference to the items().</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyMapping_Items(PyObject dict);
+    internal static partial nint PyMapping_Items(PythonObject dict);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyMapping_Keys(PyObject dict);
+    internal static partial nint PyMapping_Keys(PythonObject dict);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyMapping_Values(PyObject dict);
+    internal static partial nint PyMapping_Values(PythonObject dict);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyMapping_Size(PyObject dict);
+    internal static partial nint PyMapping_Size(PythonObject dict);
 
     /// <summary>
     /// Return 1 if the mapping object has the key key and 0 otherwise. 
@@ -72,5 +72,5 @@ internal unsafe partial class CPythonAPI
     /// <param name="key"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial int PyMapping_HasKey(PyObject dict, PyObject key);
+    internal static partial int PyMapping_HasKey(PythonObject dict, PythonObject key);
 }

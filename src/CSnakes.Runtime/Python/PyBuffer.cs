@@ -47,7 +47,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         SSizeT = 'N', // C ssize_t
     }
 
-    public unsafe PyBuffer(PyObject exporter)
+    public unsafe PyBuffer(PythonObject exporter)
     {
         using (GIL.Acquire())
         {

@@ -14,5 +14,5 @@ internal sealed class PyTrueObject : ImmortalPyObject
 
     public override string ToString() => "True";
 
-    internal override PyObject Clone() => this;
+    internal override PythonObject Clone() => this;
 }

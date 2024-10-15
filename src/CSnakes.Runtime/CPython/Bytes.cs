@@ -6,7 +6,7 @@ internal unsafe partial class CPythonAPI
 {
     private static nint PyBytesType = IntPtr.Zero;
 
-    public static bool IsBytes(PyObject p)
+    public static bool IsBytes(PythonObject p)
     {
         return PyObject_IsInstance(p, PyBytesType);
     }
@@ -19,7 +19,7 @@ internal unsafe partial class CPythonAPI
         }
     }
 
-    internal static byte[] PyBytes_AsByteArray(PyObject bytes)
+    internal static byte[] PyBytes_AsByteArray(PythonObject bytes)
     {
         byte* ptr = PyBytes_AsString(bytes);
         nint size = PyBytes_Size(bytes);
@@ -30,8 +30,8 @@ internal unsafe partial class CPythonAPI
 
 
     [LibraryImport(PythonLibraryName)]
-    private static partial byte* PyBytes_AsString(PyObject ob);
+    private static partial byte* PyBytes_AsString(PythonObject ob);
 
     [LibraryImport(PythonLibraryName)]
-    private static partial nint PyBytes_Size(PyObject ob);
+    private static partial nint PyBytes_Size(PythonObject ob);
 }

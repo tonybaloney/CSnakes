@@ -4,7 +4,7 @@ namespace CSnakes.Runtime.Python;
 
 public static class Import
 {
-    public static PyObject ImportModule(string module)
+    public static PythonObject ImportModule(string module)
     {
         return CPythonAPI.Import(module);
     }

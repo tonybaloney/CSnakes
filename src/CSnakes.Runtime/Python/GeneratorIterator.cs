@@ -1,12 +1,12 @@
 ﻿using System.Collections;
 
 namespace CSnakes.Runtime.Python;
-public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGeneratorIterator<TYield, TSend, TReturn>
+public class GeneratorIterator<TYield, TSend, TReturn>(PythonObject generator) : IGeneratorIterator<TYield, TSend, TReturn>
 {
-    private readonly PyObject generator = generator;
-    private readonly PyObject nextPyFunction = generator.GetAttr("__next__");
-    private readonly PyObject closePyFunction = generator.GetAttr("close");
-    private readonly PyObject sendPyFunction = generator.GetAttr("send");
+    private readonly PythonObject generator = generator;
+    private readonly PythonObject nextPyFunction = generator.GetAttr("__next__");
+    private readonly PythonObject closePyFunction = generator.GetAttr("close");
+    private readonly PythonObject sendPyFunction = generator.GetAttr("send");
 
     private TYield current = default!;
 
@@ -39,7 +39,7 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
     {
         try
         {
-            using PyObject result = nextPyFunction.Call();
+            using PythonObject result = nextPyFunction.Call();
             current = result.As<TYield>();
             return true;
         }
@@ -55,8 +55,8 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
     {
         try
         {
-            using PyObject sendValue = PyObject.From(value);
-            using PyObject result = sendPyFunction.Call(sendValue);
+            using PythonObject sendValue = PythonObject.From(value);
+            using PythonObject result = sendPyFunction.Call(sendValue);
             current = result.As<TYield>();
             return current;
         }

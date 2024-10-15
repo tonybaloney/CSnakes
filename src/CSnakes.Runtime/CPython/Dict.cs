@@ -8,7 +8,7 @@ internal unsafe partial class CPythonAPI
     private static nint PyDictType = IntPtr.Zero;
 
 
-    public static bool IsPyDict(PyObject p)
+    public static bool IsPyDict(PythonObject p)
     {
         return PyObject_IsInstance(p, PyDictType);
     }
@@ -22,7 +22,7 @@ internal unsafe partial class CPythonAPI
             int result = PyDict_SetItemRaw(dict, keyObj, kwvalues[i]);
             if (result == -1)
             {
-                throw PyObject.ThrowPythonExceptionAsClrException();
+                throw PythonObject.ThrowPythonExceptionAsClrException();
             }
             Py_DecRef(keyObj);
         }
@@ -35,7 +35,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="p"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyDict_Size(PyObject dict);
+    internal static partial nint PyDict_Size(PythonObject dict);
 
     /// <summary>
     /// Return the object from dictionary p which has a key `key`. 
@@ -44,12 +44,12 @@ internal unsafe partial class CPythonAPI
     /// <param name="key">Key Object</param>
     /// <exception cref="KeyNotFoundException">If the key is not found</exception>
     /// <returns>New reference.</returns>
-    internal static nint PyDict_GetItem(PyObject dict, PyObject key)
+    internal static nint PyDict_GetItem(PythonObject dict, PythonObject key)
     {
         var result = PyDict_GetItem_(dict, key);
         if (result == IntPtr.Zero)
         {
-            throw PyObject.ThrowPythonExceptionAsClrException();
+            throw PythonObject.ThrowPythonExceptionAsClrException();
         }
         Py_IncRef(result);
         return result;
@@ -61,12 +61,12 @@ internal unsafe partial class CPythonAPI
     /// <param name="dict"></param>
     /// <param name="key"></param>
     /// <returns></returns>
-    internal static bool PyDict_Contains(PyObject dict, PyObject key)
+    internal static bool PyDict_Contains(PythonObject dict, PythonObject key)
     {
         int result = PyDict_Contains_(dict, key);
         if(result == -1)
         {
-            throw PyObject.ThrowPythonExceptionAsClrException();
+            throw PythonObject.ThrowPythonExceptionAsClrException();
         }
         return result == 1;
     }
@@ -79,7 +79,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="key">Key Object</param>
     /// <returns>Borrowed reference.</returns>
     [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_GetItem")]
-    private static partial nint PyDict_GetItem_(PyObject dict, PyObject key);
+    private static partial nint PyDict_GetItem_(PythonObject dict, PythonObject key);
 
     /// <summary>
     /// Insert val into the dictionary p with a key of key. 
@@ -91,7 +91,7 @@ internal unsafe partial class CPythonAPI
     /// <param name="value">Value</param>
     /// <returns>Return 0 on success or -1 on failure.</returns>
     [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_SetItem")]
-    internal static partial int PyDict_SetItem(PyObject dict, PyObject key, PyObject value);
+    internal static partial int PyDict_SetItem(PythonObject dict, PythonObject key, PythonObject value);
 
     [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_SetItem")]
     private static partial int PyDict_SetItemRaw(IntPtr dict, IntPtr key, IntPtr val);
@@ -102,14 +102,14 @@ internal unsafe partial class CPythonAPI
     /// <param name="dict">PyDict object</param>
     /// <returns>New reference to the items().</returns>
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyDict_Items(PyObject dict);
+    internal static partial nint PyDict_Items(PythonObject dict);
 
     [LibraryImport(PythonLibraryName, EntryPoint = "PyDict_Contains")]
-    private static partial int PyDict_Contains_(PyObject dict, PyObject key);
+    private static partial int PyDict_Contains_(PythonObject dict, PythonObject key);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyDict_Keys(PyObject dict);
+    internal static partial nint PyDict_Keys(PythonObject dict);
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyDict_Values(PyObject dict);
+    internal static partial nint PyDict_Values(PythonObject dict);
 }

@@ -9,10 +9,10 @@ using System.Runtime.InteropServices.Marshalling;
 
 namespace CSnakes.Runtime.Python;
 
-[DebuggerDisplay("PyObject: repr={GetRepr()}, type={GetPythonType().ToString()}")]
-public class PyObject : SafeHandle, ICloneable
+[DebuggerDisplay("PythonObject: repr={GetRepr()}, type={GetPythonType().ToString()}")]
+public class PythonObject : SafeHandle, ICloneable
 {
-    protected PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
+    protected PythonObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
         if (pyObject == IntPtr.Zero)
         {
@@ -20,11 +20,11 @@ public class PyObject : SafeHandle, ICloneable
         }
     }
 
-    internal static PyObject Create(IntPtr ptr)
+    internal static PythonObject Create(IntPtr ptr)
     {
         if (None.DangerousGetHandle() == ptr)
             return None;
-        return new PyObject(ptr);
+        return new PythonObject(ptr);
     }
 
     public override bool IsInvalid => handle == IntPtr.Zero;
@@ -79,8 +79,8 @@ public class PyObject : SafeHandle, ICloneable
             }
 
             using var pyExceptionType = Create(excType);
-            PyObject? pyExceptionTraceback = excTraceback == IntPtr.Zero ? null : new PyObject(excTraceback);
-            PyObject? pyException = excValue == IntPtr.Zero ? null : Create(excValue);
+            PythonObject? pyExceptionTraceback = excTraceback == IntPtr.Zero ? null : new PythonObject(excTraceback);
+            PythonObject? pyException = excValue == IntPtr.Zero ? null : Create(excValue);
 
             // TODO: Consider adding __qualname__ as well for module exceptions that aren't builtins
             var pyExceptionTypeStr = pyExceptionType.GetAttr("__name__").ToString();
@@ -112,12 +112,12 @@ public class PyObject : SafeHandle, ICloneable
     /// Get the type for the object.
     /// </summary>
     /// <returns>A new reference to the type field.</returns>
-    public virtual PyObject GetPythonType()
+    public virtual PythonObject GetPythonType()
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PyObject(CPythonAPI.GetType(this));
+            return new PythonObject(CPythonAPI.GetType(this));
         }
     }
 
@@ -126,7 +126,7 @@ public class PyObject : SafeHandle, ICloneable
     /// </summary>
     /// <param name="name"></param>
     /// <returns>Attribute object (new ref)</returns>
-    public virtual PyObject GetAttr(string name)
+    public virtual PythonObject GetAttr(string name)
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
@@ -145,7 +145,7 @@ public class PyObject : SafeHandle, ICloneable
     }
 
 
-    internal virtual PyObject GetIter()
+    internal virtual PythonObject GetIter()
     {
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
@@ -176,7 +176,7 @@ public class PyObject : SafeHandle, ICloneable
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            using PyObject reprStr = new PyObject(CPythonAPI.PyObject_Repr(this.DangerousGetHandle()));
+            using PythonObject reprStr = new PythonObject(CPythonAPI.PyObject_Repr(this.DangerousGetHandle()));
             return CPythonAPI.PyUnicode_AsUTF8(reprStr);
         }
     }
@@ -192,14 +192,14 @@ public class PyObject : SafeHandle, ICloneable
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public virtual bool Is(PyObject other)
+    public virtual bool Is(PythonObject other)
     {
         return DangerousGetHandle() == other.DangerousGetHandle();
     }
 
     public override bool Equals(object? obj)
     {
-        if (obj is PyObject pyObj1)
+        if (obj is PythonObject pyObj1)
         {
             if (Is(pyObj1))
                 return true;
@@ -210,7 +210,7 @@ public class PyObject : SafeHandle, ICloneable
 
     public bool NotEquals(object? obj)
     {
-        if (obj is PyObject pyObj1)
+        if (obj is PythonObject pyObj1)
         {
             if (Is(pyObj1))
                 return false;
@@ -219,7 +219,7 @@ public class PyObject : SafeHandle, ICloneable
         return !base.Equals(obj);
     }
 
-    public static bool operator ==(PyObject? left, PyObject? right)
+    public static bool operator ==(PythonObject? left, PythonObject? right)
     {
         return (left, right) switch
         {
@@ -230,7 +230,7 @@ public class PyObject : SafeHandle, ICloneable
         };
     }
 
-    public static bool operator !=(PyObject? left, PyObject? right)
+    public static bool operator !=(PythonObject? left, PythonObject? right)
     {
         return (left, right) switch
         {
@@ -241,7 +241,7 @@ public class PyObject : SafeHandle, ICloneable
         };
     }
 
-    public static bool operator <=(PyObject? left, PyObject? right)
+    public static bool operator <=(PythonObject? left, PythonObject? right)
     {
         return (left, right) switch
         {
@@ -252,7 +252,7 @@ public class PyObject : SafeHandle, ICloneable
         };
     }
 
-    public static bool operator >=(PyObject? left, PyObject? right)
+    public static bool operator >=(PythonObject? left, PythonObject? right)
     {
         return (left, right) switch
         {
@@ -263,7 +263,7 @@ public class PyObject : SafeHandle, ICloneable
         };
     }
 
-    public static bool operator <(PyObject? left, PyObject? right)
+    public static bool operator <(PythonObject? left, PythonObject? right)
     {
         return (left, right) switch
         {
@@ -274,7 +274,7 @@ public class PyObject : SafeHandle, ICloneable
         };
     }
 
-    public static bool operator >(PyObject? left, PyObject? right)
+    public static bool operator >(PythonObject? left, PythonObject? right)
     {
         return (left, right) switch
         {
@@ -285,7 +285,7 @@ public class PyObject : SafeHandle, ICloneable
         };
     }
 
-    private static bool Compare(PyObject left, PyObject right, CPythonAPI.RichComparisonType type)
+    private static bool Compare(PythonObject left, PythonObject right, CPythonAPI.RichComparisonType type)
     {
         using (GIL.Acquire())
         {
@@ -306,9 +306,9 @@ public class PyObject : SafeHandle, ICloneable
         }
     }
 
-    public static PyObject None { get; } = new PyNoneObject();
-    public static PyObject True { get; } = new PyTrueObject();
-    public static PyObject False { get; } = new PyFalseObject();
+    public static PythonObject None { get; } = new PyNoneObject();
+    public static PythonObject True { get; } = new PyTrueObject();
+    public static PythonObject False { get; } = new PyFalseObject();
 
 
     /// <summary>
@@ -317,12 +317,12 @@ public class PyObject : SafeHandle, ICloneable
     /// </summary>
     /// <param name="args"></param>
     /// <returns>The resulting object, or NULL on error.</returns>
-    public PyObject Call(params PyObject[] args)
+    public PythonObject Call(params PythonObject[] args)
     {
         return CallWithArgs(args);
     }
 
-    public PyObject CallWithArgs(PyObject[]? args = null)
+    public PythonObject CallWithArgs(PythonObject[]? args = null)
     {
         RaiseOnPythonNotInitialized();
 
@@ -336,7 +336,7 @@ public class PyObject : SafeHandle, ICloneable
         }
 
         args ??= [];
-        var marshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
+        var marshallers = new SafeHandleMarshaller<PythonObject>.ManagedToUnmanagedIn[args.Length];
         var argHandles = args.Length < 16
             ? stackalloc IntPtr[args.Length]
             : new IntPtr[args.Length];
@@ -364,7 +364,7 @@ public class PyObject : SafeHandle, ICloneable
         }
     }
 
-    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null)
+    public PythonObject CallWithKeywordArguments(PythonObject[]? args = null, string[]? kwnames = null, PythonObject[]? kwvalues = null)
     {
         if (kwnames is null)
             return CallWithArgs(args);
@@ -373,8 +373,8 @@ public class PyObject : SafeHandle, ICloneable
         RaiseOnPythonNotInitialized();
         args ??= [];
 
-        var argMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
-        var kwargMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[kwvalues.Length];
+        var argMarshallers = new SafeHandleMarshaller<PythonObject>.ManagedToUnmanagedIn[args.Length];
+        var kwargMarshallers = new SafeHandleMarshaller<PythonObject>.ManagedToUnmanagedIn[kwvalues.Length];
         var argHandles = args.Length < 16
             ? stackalloc IntPtr[args.Length]
             : new IntPtr[args.Length];
@@ -415,7 +415,7 @@ public class PyObject : SafeHandle, ICloneable
         }
     }
 
-    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)
+    public PythonObject CallWithKeywordArguments(PythonObject[]? args = null, string[]? kwnames = null, PythonObject[]? kwvalues = null, IReadOnlyDictionary<string, PythonObject>? kwargs = null)
     {
         // No keyword parameters supplied
         if (kwnames is null && kwargs is null)
@@ -424,7 +424,7 @@ public class PyObject : SafeHandle, ICloneable
         if (kwnames is not null && kwnames.Length == 0 && (kwargs is null || kwargs.Count == 0))
             return CallWithArgs(args);
 
-        MergeKeywordArguments(kwnames ?? [], kwvalues ?? [], kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues);
+        MergeKeywordArguments(kwnames ?? [], kwvalues ?? [], kwargs, out string[] combinedKwnames, out PythonObject[] combinedKwvalues);
         return CallWithKeywordArguments(args, combinedKwnames, combinedKwvalues);
     }
 
@@ -437,7 +437,7 @@ public class PyObject : SafeHandle, ICloneable
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            using PyObject pyObjectStr = new(CPythonAPI.PyObject_Str(this));
+            using PythonObject pyObjectStr = new(CPythonAPI.PyObject_Str(this));
             return CPythonAPI.PyUnicode_AsUTF8(pyObjectStr);
         }
     }
@@ -464,7 +464,7 @@ public class PyObject : SafeHandle, ICloneable
         {
             return type switch
             {
-                var t when t == typeof(PyObject) => Clone(),
+                var t when t == typeof(PythonObject) => Clone(),
                 var t when t == typeof(bool) => CPythonAPI.IsPyTrue(this),
                 var t when t == typeof(int) => CPythonAPI.PyLong_AsLong(this),
                 var t when t == typeof(long) => CPythonAPI.PyLong_AsLongLong(this),
@@ -480,7 +480,7 @@ public class PyObject : SafeHandle, ICloneable
         }
     }
 
-    public static PyObject From<T>(T value)
+    public static PythonObject From<T>(T value)
     {
         using (GIL.Acquire())
         {
@@ -496,7 +496,7 @@ public class PyObject : SafeHandle, ICloneable
                 double d => Create(CPythonAPI.PyFloat_FromDouble(d)),
                 float f => Create(CPythonAPI.PyFloat_FromDouble((double)f)),
                 string s => Create(CPythonAPI.AsPyUnicodeObject(s)),
-                byte[] bytes => PyObject.Create(CPythonAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
+                byte[] bytes => PythonObject.Create(CPythonAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
                 IDictionary dictionary => PyObjectTypeConverter.ConvertFromDictionary(dictionary),
                 ITuple t => PyObjectTypeConverter.ConvertFromTuple(t),
                 ICollection l => PyObjectTypeConverter.ConvertFromList(l),
@@ -507,13 +507,13 @@ public class PyObject : SafeHandle, ICloneable
         }
     }
 
-    internal virtual PyObject Clone()
+    internal virtual PythonObject Clone()
     {
         CPythonAPI.Py_IncRef(handle);
-        return new PyObject(handle);
+        return new PythonObject(handle);
     }
 
-    private static void MergeKeywordArguments(string[] kwnames, PyObject[] kwvalues, IReadOnlyDictionary<string, PyObject>? kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues)
+    private static void MergeKeywordArguments(string[] kwnames, PythonObject[] kwvalues, IReadOnlyDictionary<string, PythonObject>? kwargs, out string[] combinedKwnames, out PythonObject[] combinedKwvalues)
     {
         if (kwnames.Length != kwvalues.Length)
             throw new ArgumentException("kwnames and kwvalues must be the same length.");
@@ -525,7 +525,7 @@ public class PyObject : SafeHandle, ICloneable
         }
 
         var newKwnames = new List<string>(kwnames);
-        var newKwvalues = new List<PyObject>(kwvalues);
+        var newKwvalues = new List<PythonObject>(kwvalues);
 
         // The order must be the same as we're not submitting these in a mapping, but a parallel array.
         foreach (var (key, value) in kwargs)
@@ -538,5 +538,5 @@ public class PyObject : SafeHandle, ICloneable
         combinedKwvalues = [.. newKwvalues];
     }
 
-    PyObject ICloneable.Clone() => Clone();
+    PythonObject ICloneable.Clone() => Clone();
 }

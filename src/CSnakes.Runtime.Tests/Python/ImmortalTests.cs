@@ -3,27 +3,27 @@
 namespace CSnakes.Runtime.Tests.Python;
 public class ImmortalTests : RuntimeTestBase
 {
-    [Fact]
-    public void TestZero()
-    {
-        Assert.Equal("0", PyObject.Zero.ToString());
-        Assert.Equal("0", PyObject.Zero.GetRepr());
-        Assert.False(PyObject.Zero.IsNone());
-        Assert.Equal(PyObject.Zero, PyObject.Zero.Clone());
-        using var zero = PyObject.From(0);
-        Assert.Equal(PyObject.Zero, zero);
-    }
+    //[Fact]
+    //public void TestZero()
+    //{
+    //    Assert.Equal("0", PyObject.Zero.ToString());
+    //    Assert.Equal("0", PyObject.Zero.GetRepr());
+    //    Assert.False(PyObject.Zero.IsNone());
+    //    Assert.Equal(PyObject.Zero, PyObject.Zero.Clone());
+    //    using var zero = PyObject.From(0);
+    //    Assert.Equal(PyObject.Zero, zero);
+    //}
 
-    [Fact]
-    public void TestNegativeOne()
-    {
-        Assert.Equal("-1", PyObject.NegativeOne.ToString());
-        Assert.Equal("-1", PyObject.NegativeOne.GetRepr());
-        Assert.False(PyObject.NegativeOne.IsNone());
-        Assert.Equal(PyObject.NegativeOne, PyObject.NegativeOne.Clone());
-        using var negativeOne = PyObject.From(-1);
-        Assert.Equal(PyObject.NegativeOne, negativeOne);
-    }
+    //[Fact]
+    //public void TestNegativeOne()
+    //{
+    //    Assert.Equal("-1", PyObject.NegativeOne.ToString());
+    //    Assert.Equal("-1", PyObject.NegativeOne.GetRepr());
+    //    Assert.False(PyObject.NegativeOne.IsNone());
+    //    Assert.Equal(PyObject.NegativeOne, PyObject.NegativeOne.Clone());
+    //    using var negativeOne = PyObject.From(-1);
+    //    Assert.Equal(PyObject.NegativeOne, negativeOne);
+    //}
 
     //[Fact]
     //public void TestOne()

@@ -10,6 +10,7 @@ public class MPyOPtr : SafeHandle
 {
     #region creation
     public static MPyOPtr Steal(pyoPtr pyObjectPtr) => new MPyOPtr(pyObjectPtr);
+    public static MPyOPtr ByIncRef(pyoPtr pyObjectPtr) => new MPyOPtr(pyObjectPtr, false, true);
     #endregion
 
     #region SafeHandle logic

@@ -3,9 +3,6 @@ using pyoPtr = nint;
 
 internal unsafe partial class CAPI
 {
-    protected static pyoPtr _PyNone = IntPtr.Zero;
-    public static pyoPtr PtrToPyNone => _PyNone;
-
     /// <summary>
     /// Get the None object.
     /// </summary>

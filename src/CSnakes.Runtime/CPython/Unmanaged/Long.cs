@@ -5,9 +5,6 @@ using pyoPtr = nint;
 
 internal unsafe partial class CAPI
 {
-    protected static nint _PyLongType = IntPtr.Zero;
-    public static pyoPtr PtrToPyLongType => _PyLongType;
-
     /// <summary>
     /// Calls PyLong_AsLongLong and throws a Python Exception if an error occurs.
     /// </summary>

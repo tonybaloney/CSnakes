@@ -2,12 +2,6 @@
 
 internal unsafe partial class CAPI
 {
-
-    public static bool IsPyMappingWithItems(MPyOPtr p)
-    {
-        return PyMapping_Check(p) == 1 && PyObject_HasAttr(p, _ItemsStr) == 1;
-    }
-
     /// <summary>
     /// Return the object from dictionary p which has a key `key`. 
     /// </summary>

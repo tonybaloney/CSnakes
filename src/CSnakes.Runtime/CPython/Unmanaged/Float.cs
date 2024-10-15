@@ -5,9 +5,6 @@ using pyoPtr = nint;
 
 internal unsafe partial class CAPI
 {
-    protected static pyoPtr _PyFloatType = IntPtr.Zero;
-    public static pyoPtr PtrToPyFloatType => _PyFloatType;
-
     internal static double DoubleFromPyFloat(pyoPtr p)
     {
         double result = PyFloat_AsDouble(p);

@@ -5,10 +5,6 @@ using pyoPtr = nint;
 
 internal unsafe partial class CAPI
 {
-    protected static pyoPtr _PyBytesType = IntPtr.Zero;
-
-    public static pyoPtr PtrToPyBytesType => _PyBytesType;
-
     internal static pyoPtr ByteSpanToPyBytes(Span<byte> bytes)
     {
         fixed (byte* b = bytes)

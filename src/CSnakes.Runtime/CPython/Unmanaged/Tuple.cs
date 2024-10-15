@@ -5,10 +5,6 @@ using pyoPtr = nint;
 
 internal unsafe partial class CAPI
 {
-    protected static pyoPtr _PyTupleType = IntPtr.Zero;
-    protected static pyoPtr _PyEmptyTuple = IntPtr.Zero;
-    public static pyoPtr PtrToPyTupleType => _PyTupleType;
-
     public static pyoPtr GetPyEmptyTuple()
     {
         Py_IncRef(_PyEmptyTuple);

@@ -15,6 +15,4 @@ internal unsafe partial class CAPI
     /// <param name="p"></param>
     /// <returns></returns>
     internal static long LongFromPyLong(MPyOPtr p) => LongFromPyLong(p.DangerousGetHandle());
-
-    internal static bool IsPyLong(MPyOPtr p) => IsInstance(p, _PyLongType);
 }

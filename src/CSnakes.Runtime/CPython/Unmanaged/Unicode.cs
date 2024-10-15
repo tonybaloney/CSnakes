@@ -5,9 +5,6 @@ using pyoPtr = nint;
 
 internal unsafe partial class CAPI
 {
-    protected static pyoPtr _PyUnicodeType = IntPtr.Zero;
-    public static pyoPtr PtrToPyUnicodeType => _PyUnicodeType;
-
     internal static pyoPtr AsPyUnicodeObject(string s)
     {
         fixed (char* c = s)

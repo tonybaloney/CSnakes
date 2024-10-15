@@ -42,7 +42,4 @@ internal unsafe partial class CAPI
         Py_IncRef(item);
         return item;
     }
-
-    internal static bool IsPyTuple(MPyOPtr p) => IsInstance(p, _PyTupleType);
-
 }

@@ -5,9 +5,6 @@ using pyoPtr = nint;
 
 internal unsafe partial class CAPI
 {
-    public static bool IsPyDict(MPyOPtr p) => IsInstance(p, _PyDictType);
-
-
     /// <summary>
     /// Return the object from dictionary p which has a key `key`. 
     /// </summary>
@@ -15,7 +12,7 @@ internal unsafe partial class CAPI
     /// <param name="key">Key Object</param>
     /// <exception cref="KeyNotFoundException">If the key is not found</exception>
     /// <returns>New reference.</returns>
-    internal static pyoPtr PyDict_GetItem(MPyOPtr dict, MPyOPtr key)
+    internal static pyoPtr GetItemInPyDict(MPyOPtr dict, MPyOPtr key)
     {
         var result = PyDict_GetItem(dict.DangerousGetHandle(), key.DangerousGetHandle());
         if (result == IntPtr.Zero)

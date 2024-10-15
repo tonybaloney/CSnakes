@@ -5,10 +5,6 @@ using pyoPtr = nint;
 
 internal unsafe partial class CAPI
 {
-    protected static pyoPtr _PyDictType = IntPtr.Zero;
-    public static pyoPtr PtrToPyDictType => _PyDictType;
-
-
     internal static nint PackDict(Span<string> kwnames, Span<pyoPtr> kwvalues)
     {
         var dict = PyDict_New();

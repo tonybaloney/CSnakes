@@ -1,6 +1,4 @@
 ﻿namespace CSnakes.Runtime.CPython;
-
-using CSnakes.Runtime.Python;
 using pyoPtr = nint;
 
 internal unsafe partial class CAPI
@@ -12,8 +10,8 @@ internal unsafe partial class CAPI
     /// <returns>A new reference to module `name`</returns>
     internal static MPyOPtr Import(string name)
     {
-        nint pyName = AsPyUnicodeObject(name);
-        nint module = PyImport_Import(pyName);
+        pyoPtr pyName = AsPyUnicodeObject(name);
+        pyoPtr module = PyImport_Import(pyName);
         Py_DecRef(pyName);
         return MPyOPtr.Steal(module);
     }

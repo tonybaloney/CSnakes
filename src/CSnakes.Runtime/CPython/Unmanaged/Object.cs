@@ -14,11 +14,24 @@ internal unsafe partial class CAPI
         return pyAttr;
     }
 
+    internal static pyoPtr GetAttr(pyoPtr ob, pyoPtr name)
+    {
+        /* TODO: Consider interning/caching the name value */
+        nint pyAttr = PyObject_GetAttr(ob, name);
+        return pyAttr;
+    }
+
     internal static bool HasAttr(pyoPtr ob, string name)
     {
         nint pyName = AsPyUnicodeObject(name);
         int hasAttr = PyObject_HasAttr(ob, pyName);
         Py_DecRef(pyName);
+        return hasAttr == 1;
+    }
+
+    internal static bool HasAttr(pyoPtr ob, pyoPtr name)
+    {
+        int hasAttr = PyObject_HasAttr(ob, name);
         return hasAttr == 1;
     }
 

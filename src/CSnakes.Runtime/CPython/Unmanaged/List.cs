@@ -5,10 +5,6 @@ using pyoPtr = nint;
 
 internal unsafe partial class CAPI
 {
-    protected static pyoPtr _PyListType = IntPtr.Zero;
-    public static pyoPtr PtrToPyListType => _PyListType;
-
-
     /// <summary>
     /// Get a reference to the item at `pos` in the list
     /// </summary>

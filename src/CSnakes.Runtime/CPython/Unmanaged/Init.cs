@@ -88,19 +88,7 @@ internal unsafe partial class CAPI : IDisposable
                 if (!IsInitialized)
                     throw new InvalidOperationException("Python initialization failed.");
 
-                _PyUnicodeType = PyObject_Type(AsPyUnicodeObject(string.Empty));
-                _PyTrue = PyBool_FromLong(1);
-                _PyFalse = PyBool_FromLong(0);
-                _PyBoolType = PyObject_Type(_PyTrue);
-                _PyEmptyTuple = PyTuple_New(0);
-                _PyTupleType = PyObject_Type(_PyEmptyTuple);
-                _PyFloatType = PyObject_Type(PyFloat_FromDouble(0.0));
-                _PyLongType = PyObject_Type(PyLong_FromLongLong(0));
-                _PyListType = PyObject_Type(PyList_New(0));
-                _PyDictType = PyObject_Type(PyDict_New());
-                _PyBytesType = PyObject_Type(ByteSpanToPyBytes(new byte[] { }));
-                _ItemsStr = AsPyUnicodeObject("items");
-                _PyNone = GetBuiltin("None");
+                InitializeTypesAndStaticObjects();
             }
             PyEval_SaveThread();
         }

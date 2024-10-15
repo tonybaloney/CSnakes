@@ -3,9 +3,6 @@ using pyoPtr = nint;
 
 internal unsafe partial class CAPI
 {
-    protected static pyoPtr _ItemsStr = IntPtr.Zero;
-    public static pyoPtr PtrToItemsStr => _ItemsStr;
-
     /// <summary>
     /// Return the object from dictionary p which has a key `key`. 
     /// </summary>

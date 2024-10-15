@@ -3,7 +3,7 @@
 namespace CSnakes.Runtime.CPython;
 using PyOPtr = nint;
 
-internal unsafe partial class CPythonAPI
+internal unsafe partial class CAPI
 {
 
     #region PyObject

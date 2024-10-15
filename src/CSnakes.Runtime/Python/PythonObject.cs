@@ -33,7 +33,7 @@ public class PythonObject : SafeHandle, ICloneable
     {
         if (IsInvalid)
             return true;
-        if (!CPythonAPI.IsInitialized)
+        if (!CAPI.IsInitialized)
         {
             // The Python environment has been disposed, and therefore Python has freed it's memory pools.
             // Don't run decref since the Python process isn't running and this pointer will point somewhere else.
@@ -46,7 +46,7 @@ public class PythonObject : SafeHandle, ICloneable
         {
             using (GIL.Acquire())
             {
-                CPythonAPI.Py_DecRef(handle);
+                CAPI.Py_DecRef(handle);
             }
         }
         else
@@ -67,11 +67,11 @@ public class PythonObject : SafeHandle, ICloneable
     {
         using (GIL.Acquire())
         {
-            if (!CPythonAPI.IsPyErrOccurred())
+            if (!CAPI.IsPyErrOccurred())
             {
                 return new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
-            CPythonAPI.PyErr_Fetch(out nint excType, out nint excValue, out nint excTraceback);
+            CAPI.PyErr_Fetch(out nint excType, out nint excValue, out nint excTraceback);
 
             if (excType == 0)
             {
@@ -84,7 +84,7 @@ public class PythonObject : SafeHandle, ICloneable
 
             // TODO: Consider adding __qualname__ as well for module exceptions that aren't builtins
             var pyExceptionTypeStr = pyExceptionType.GetAttr("__name__").ToString();
-            CPythonAPI.PyErr_Clear();
+            CAPI.PyErr_Clear();
 
             if (string.IsNullOrEmpty(message))
             {
@@ -102,7 +102,7 @@ public class PythonObject : SafeHandle, ICloneable
     /// <exception cref="InvalidOperationException"></exception>
     private static void RaiseOnPythonNotInitialized()
     {
-        if (!CPythonAPI.IsInitialized)
+        if (!CAPI.IsInitialized)
         {
             throw new InvalidOperationException("Python is not initialized. You cannot call this method outside of a Python Environment context.");
         }
@@ -117,7 +117,7 @@ public class PythonObject : SafeHandle, ICloneable
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PythonObject(CPythonAPI.GetType(this));
+            return new PythonObject(CAPI.GetType(this));
         }
     }
 
@@ -131,7 +131,7 @@ public class PythonObject : SafeHandle, ICloneable
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return Create(CPythonAPI.GetAttr(this, name));
+            return Create(CAPI.GetAttr(this, name));
         }
     }
 
@@ -140,7 +140,7 @@ public class PythonObject : SafeHandle, ICloneable
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return CPythonAPI.HasAttr(this, name);
+            return CAPI.HasAttr(this, name);
         }
     }
 
@@ -150,7 +150,7 @@ public class PythonObject : SafeHandle, ICloneable
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return Create(CPythonAPI.PyObject_GetIter(this));
+            return Create(CAPI.PyObject_GetIter(this));
         }
     }
 
@@ -176,8 +176,8 @@ public class PythonObject : SafeHandle, ICloneable
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            using PythonObject reprStr = new PythonObject(CPythonAPI.PyObject_Repr(this.DangerousGetHandle()));
-            return CPythonAPI.PyUnicode_AsUTF8(reprStr);
+            using PythonObject reprStr = new PythonObject(CAPI.PyObject_Repr(this.DangerousGetHandle()));
+            return CAPI.PyUnicode_AsUTF8(reprStr);
         }
     }
 
@@ -185,7 +185,7 @@ public class PythonObject : SafeHandle, ICloneable
     /// Is the Python object None?
     /// </summary>
     /// <returns>true if None, else false</returns>
-    public virtual bool IsNone() => CPythonAPI.IsNone(this);
+    public virtual bool IsNone() => CAPI.IsNone(this);
 
     /// <summary>
     /// Are the objects the same instance, equivalent to the `is` operator in Python
@@ -203,7 +203,7 @@ public class PythonObject : SafeHandle, ICloneable
         {
             if (Is(pyObj1))
                 return true;
-            return Compare(this, pyObj1, CPythonAPI.RichComparisonType.Equal);
+            return Compare(this, pyObj1, CAPI.RichComparisonType.Equal);
         }
         return base.Equals(obj);
     }
@@ -214,7 +214,7 @@ public class PythonObject : SafeHandle, ICloneable
         {
             if (Is(pyObj1))
                 return false;
-            return Compare(this, pyObj1, CPythonAPI.RichComparisonType.NotEqual);
+            return Compare(this, pyObj1, CAPI.RichComparisonType.NotEqual);
         }
         return !base.Equals(obj);
     }
@@ -248,7 +248,7 @@ public class PythonObject : SafeHandle, ICloneable
             (null, null) => true,
             (_, null) => false,
             (null, _) => false,
-            (_, _) => left.Is(right) || Compare(left, right, CPythonAPI.RichComparisonType.LessThanEqual),
+            (_, _) => left.Is(right) || Compare(left, right, CAPI.RichComparisonType.LessThanEqual),
         };
     }
 
@@ -259,7 +259,7 @@ public class PythonObject : SafeHandle, ICloneable
             (null, null) => true,
             (_, null) => false,
             (null, _) => false,
-            (_, _) => left.Is(right) || Compare(left, right, CPythonAPI.RichComparisonType.GreaterThanEqual),
+            (_, _) => left.Is(right) || Compare(left, right, CAPI.RichComparisonType.GreaterThanEqual),
         };
     }
 
@@ -270,7 +270,7 @@ public class PythonObject : SafeHandle, ICloneable
             (null, null) => false,
             (_, null) => false,
             (null, _) => false,
-            (_, _) => Compare(left, right, CPythonAPI.RichComparisonType.LessThan),
+            (_, _) => Compare(left, right, CAPI.RichComparisonType.LessThan),
         };
     }
 
@@ -281,15 +281,15 @@ public class PythonObject : SafeHandle, ICloneable
             (null, null) => false,
             (_, null) => false,
             (null, _) => false,
-            (_, _) => Compare(left, right, CPythonAPI.RichComparisonType.GreaterThan),
+            (_, _) => Compare(left, right, CAPI.RichComparisonType.GreaterThan),
         };
     }
 
-    private static bool Compare(PythonObject left, PythonObject right, CPythonAPI.RichComparisonType type)
+    private static bool Compare(PythonObject left, PythonObject right, CAPI.RichComparisonType type)
     {
         using (GIL.Acquire())
         {
-            return CPythonAPI.PyObject_RichCompare(left, right, type);
+            return CAPI.PyObject_RichCompare(left, right, type);
         }
     }
 
@@ -297,7 +297,7 @@ public class PythonObject : SafeHandle, ICloneable
     {
         using (GIL.Acquire())
         {
-            int hash = CPythonAPI.PyObject_Hash(this);
+            int hash = CAPI.PyObject_Hash(this);
             if (hash == -1)
             {
                 throw ThrowPythonExceptionAsClrException();
@@ -331,7 +331,7 @@ public class PythonObject : SafeHandle, ICloneable
         {
             using (GIL.Acquire())
             {
-                return Create(CPythonAPI.PyObject_CallNoArgs(this));
+                return Create(CAPI.PyObject_CallNoArgs(this));
             }
         }
 
@@ -352,7 +352,7 @@ public class PythonObject : SafeHandle, ICloneable
         {
             using (GIL.Acquire())
             {
-                return Create(CPythonAPI.Call(this, argHandles));
+                return Create(CAPI.Call(this, argHandles));
             }
         }
         finally
@@ -399,7 +399,7 @@ public class PythonObject : SafeHandle, ICloneable
         {
             using (GIL.Acquire())
             {
-                return Create(CPythonAPI.Call(this, argHandles, kwnames, kwargHandles));
+                return Create(CAPI.Call(this, argHandles, kwnames, kwargHandles));
             }
         }
         finally
@@ -437,8 +437,8 @@ public class PythonObject : SafeHandle, ICloneable
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            using PythonObject pyObjectStr = new(CPythonAPI.PyObject_Str(this));
-            return CPythonAPI.PyUnicode_AsUTF8(pyObjectStr);
+            using PythonObject pyObjectStr = new(CAPI.PyObject_Str(this));
+            return CAPI.PyUnicode_AsUTF8(pyObjectStr);
         }
     }
 
@@ -465,14 +465,14 @@ public class PythonObject : SafeHandle, ICloneable
             return type switch
             {
                 var t when t == typeof(PythonObject) => Clone(),
-                var t when t == typeof(bool) => CPythonAPI.IsPyTrue(this),
-                var t when t == typeof(int) => CPythonAPI.PyLong_AsLong(this),
-                var t when t == typeof(long) => CPythonAPI.PyLong_AsLongLong(this),
-                var t when t == typeof(double) => CPythonAPI.PyFloat_AsDouble(this),
-                var t when t == typeof(float) => (float)CPythonAPI.PyFloat_AsDouble(this),
-                var t when t == typeof(string) => CPythonAPI.PyUnicode_AsUTF8(this),
+                var t when t == typeof(bool) => CAPI.IsPyTrue(this),
+                var t when t == typeof(int) => CAPI.PyLong_AsLong(this),
+                var t when t == typeof(long) => CAPI.PyLong_AsLongLong(this),
+                var t when t == typeof(double) => CAPI.PyFloat_AsDouble(this),
+                var t when t == typeof(float) => (float)CAPI.PyFloat_AsDouble(this),
+                var t when t == typeof(string) => CAPI.PyUnicode_AsUTF8(this),
                 var t when t == typeof(BigInteger) => PyObjectTypeConverter.ConvertToBigInteger(this, t),
-                var t when t == typeof(byte[]) => CPythonAPI.PyBytes_AsByteArray(this),
+                var t when t == typeof(byte[]) => CAPI.PyBytes_AsByteArray(this),
                 var t when t.IsAssignableTo(typeof(ITuple)) => PyObjectTypeConverter.ConvertToTuple(this, t),
                 var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => PyObjectTypeConverter.ConvertToGeneratorIterator(this, t),
                 var t => PyObjectTypeConverter.PyObjectToManagedType(this, t),
@@ -491,12 +491,12 @@ public class PythonObject : SafeHandle, ICloneable
             {
                 ICloneable pyObject => pyObject.Clone(),
                 bool b => b ? True : False,
-                int i => Create(CPythonAPI.PyLong_FromLong(i)),
-                long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
-                double d => Create(CPythonAPI.PyFloat_FromDouble(d)),
-                float f => Create(CPythonAPI.PyFloat_FromDouble((double)f)),
-                string s => Create(CPythonAPI.AsPyUnicodeObject(s)),
-                byte[] bytes => PythonObject.Create(CPythonAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
+                int i => Create(CAPI.PyLong_FromLong(i)),
+                long l => Create(CAPI.PyLong_FromLongLong(l)),
+                double d => Create(CAPI.PyFloat_FromDouble(d)),
+                float f => Create(CAPI.PyFloat_FromDouble((double)f)),
+                string s => Create(CAPI.AsPyUnicodeObject(s)),
+                byte[] bytes => PythonObject.Create(CAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
                 IDictionary dictionary => PyObjectTypeConverter.ConvertFromDictionary(dictionary),
                 ITuple t => PyObjectTypeConverter.ConvertFromTuple(t),
                 ICollection l => PyObjectTypeConverter.ConvertFromList(l),
@@ -509,7 +509,7 @@ public class PythonObject : SafeHandle, ICloneable
 
     internal virtual PythonObject Clone()
     {
-        CPythonAPI.Py_IncRef(handle);
+        CAPI.Py_IncRef(handle);
         return new PythonObject(handle);
     }
 

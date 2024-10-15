@@ -20,7 +20,7 @@ internal partial class PyObjectTypeConverter
 
     internal static ITuple ConvertToTuple(PythonObject pyObj, Type destinationType)
     {
-        if (!CPythonAPI.IsPyTuple(pyObj))
+        if (!CAPI.IsPyTuple(pyObj))
         {
             // When hitting a nested tuple that is 8, 15, etc. (the point where the CLR tuples nest), the PyObject
             // is not a Tuple anymore, it's a raw value, so we need to convert it to a tuple.
@@ -31,7 +31,7 @@ internal partial class PyObjectTypeConverter
 
             throw new InvalidCastException($"Cannot convert {pyObj.GetPythonType()} to a tuple.");
         }
-        nint tupleSize = CPythonAPI.PyTuple_Size(pyObj.DangerousGetHandle());
+        nint tupleSize = CAPI.PyTuple_Size(pyObj.DangerousGetHandle());
 
         // We have to convert the Python values to CLR values, as if we just tried As<object>() it would
         // not parse the Python type to a CLR type, only to a new Python type.
@@ -41,7 +41,7 @@ internal partial class PyObjectTypeConverter
         PythonObject[] tupleValues = new PythonObject[tupleSize];
         for (nint i = 0; i < tupleValues.Length; i++)
         {
-            PythonObject value = PythonObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, i));
+            PythonObject value = PythonObject.Create(CAPI.PyTuple_GetItemWithNewRef(pyObj, i));
             tupleValues[i] = value;
         }
 
@@ -87,17 +87,17 @@ internal partial class PyObjectTypeConverter
 
     internal static KeyValuePair<TKey, TValue> ConvertToKeyValuePair<TKey, TValue>(PythonObject pyObj)
     {
-        if (!CPythonAPI.IsPyTuple(pyObj))
+        if (!CAPI.IsPyTuple(pyObj))
         {
             throw new InvalidCastException($"Cannot convert {pyObj.GetPythonType()} to a keyvaluepair.");
         }
-        if (CPythonAPI.PyTuple_Size(pyObj.DangerousGetHandle()) != 2)
+        if (CAPI.PyTuple_Size(pyObj.DangerousGetHandle()) != 2)
         {
             throw new InvalidDataException("Tuple must have exactly 2 elements to be converted to a KeyValuePair.");
         }
 
-        using PythonObject key = PythonObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, 0));
-        using PythonObject value = PythonObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(pyObj, 1));
+        using PythonObject key = PythonObject.Create(CAPI.PyTuple_GetItemWithNewRef(pyObj, 0));
+        using PythonObject value = PythonObject.Create(CAPI.PyTuple_GetItemWithNewRef(pyObj, 1));
 
         return new KeyValuePair<TKey, TValue>(key.As<TKey>(), value.As<TValue>());
     }

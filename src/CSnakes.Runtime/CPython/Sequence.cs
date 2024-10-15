@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 
-internal unsafe partial class CPythonAPI
+internal unsafe partial class CAPI
 {
     public static bool IsPySequence(PythonObject p)
     {

@@ -1,7 +1,7 @@
 ﻿using CSnakes.Runtime.Python;
 namespace CSnakes.Runtime.CPython;
 
-internal unsafe partial class CPythonAPI
+internal unsafe partial class CAPI
 {
     private static nint PyNone = IntPtr.Zero;
 

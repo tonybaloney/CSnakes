@@ -48,7 +48,7 @@ public class PythonRuntimeException : Exception
 
     private static string[] FormatPythonStackTrace(PythonObject pythonStackTrace)
     {
-        if (!CPythonAPI.IsInitialized)
+        if (!CAPI.IsInitialized)
         {
             return [];
         }

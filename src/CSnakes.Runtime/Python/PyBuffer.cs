@@ -9,7 +9,7 @@ using System.Numerics.Tensors;
 namespace CSnakes.Runtime.Python;
 internal sealed class PyBuffer : IPyBuffer, IDisposable
 {
-    private readonly CPythonAPI.PyBuffer _buffer;
+    private readonly CAPI.PyBuffer _buffer;
     private bool _disposed;
     private readonly bool _isScalar;
     private readonly string _format;
@@ -51,7 +51,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
     {
         using (GIL.Acquire())
         {
-            _buffer = CPythonAPI.GetBuffer(exporter);
+            _buffer = CAPI.GetBuffer(exporter);
         }
         _disposed = false;
         _isScalar = _buffer.ndim == 0 || _buffer.ndim == 1;
@@ -65,7 +65,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         {
             using (GIL.Acquire())
             {
-                CPythonAPI.ReleaseBuffer(_buffer);
+                CAPI.ReleaseBuffer(_buffer);
             }
             _disposed = true;
         }

@@ -21,7 +21,7 @@ internal class PyDictionary<TKey, TValue>(PythonObject dictionary) : IReadOnlyDi
             using (GIL.Acquire())
             {
                 using PythonObject keyPyObject = PythonObject.From(key);
-                using PythonObject pyObjValue = PythonObject.Create(CPythonAPI.PyMapping_GetItem(_dictionaryObject, keyPyObject));
+                using PythonObject pyObjValue = PythonObject.Create(CAPI.PyMapping_GetItem(_dictionaryObject, keyPyObject));
                 TValue managedValue = pyObjValue.As<TValue>();
 
                 _dictionary[key] = managedValue;
@@ -36,7 +36,7 @@ internal class PyDictionary<TKey, TValue>(PythonObject dictionary) : IReadOnlyDi
         {
             using (GIL.Acquire())
             {
-                return new PyEnumerable<TKey>(PythonObject.Create(CPythonAPI.PyMapping_Keys(_dictionaryObject)));
+                return new PyEnumerable<TKey>(PythonObject.Create(CAPI.PyMapping_Keys(_dictionaryObject)));
             }
         }
     }
@@ -47,7 +47,7 @@ internal class PyDictionary<TKey, TValue>(PythonObject dictionary) : IReadOnlyDi
         {
             using (GIL.Acquire())
             {
-                return new PyEnumerable<TValue>(PythonObject.Create(CPythonAPI.PyMapping_Values(_dictionaryObject)));
+                return new PyEnumerable<TValue>(PythonObject.Create(CAPI.PyMapping_Values(_dictionaryObject)));
             }
         }
     }
@@ -58,7 +58,7 @@ internal class PyDictionary<TKey, TValue>(PythonObject dictionary) : IReadOnlyDi
         {
             using (GIL.Acquire())
             {
-                return (int)CPythonAPI.PyMapping_Size(_dictionaryObject);
+                return (int)CAPI.PyMapping_Size(_dictionaryObject);
             }
         }
     }
@@ -73,7 +73,7 @@ internal class PyDictionary<TKey, TValue>(PythonObject dictionary) : IReadOnlyDi
         using (GIL.Acquire())
         {
             using PythonObject keyPyObject = PythonObject.From(key);
-            return CPythonAPI.PyMapping_HasKey(_dictionaryObject, keyPyObject) == 1;
+            return CAPI.PyMapping_HasKey(_dictionaryObject, keyPyObject) == 1;
         }
     }
 
@@ -83,7 +83,7 @@ internal class PyDictionary<TKey, TValue>(PythonObject dictionary) : IReadOnlyDi
     {
         using (GIL.Acquire())
         {
-            using var items = PythonObject.Create(CPythonAPI.PyMapping_Items(_dictionaryObject));
+            using var items = PythonObject.Create(CAPI.PyMapping_Items(_dictionaryObject));
             return new PyEnumerable<KeyValuePair<TKey, TValue>, PyObjectImporter<TKey, TValue>>(items).GetEnumerator();
         }
     }

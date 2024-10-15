@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 
-internal unsafe partial class CPythonAPI
+internal unsafe partial class CAPI
 {
     private static nint PyBoolType = IntPtr.Zero;
     private static nint Py_True = IntPtr.Zero;

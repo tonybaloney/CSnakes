@@ -6,6 +6,6 @@ public static class Import
 {
     public static PythonObject ImportModule(string module)
     {
-        return CPythonAPI.Import(module);
+        return CAPI.Import(module);
     }
 }

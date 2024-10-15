@@ -2,7 +2,7 @@
 
 namespace CSnakes.Runtime.CPython;
 
-internal unsafe partial class CPythonAPI
+internal unsafe partial class CAPI
 {
 
     /// <summary>

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 
-internal unsafe partial class CPythonAPI : IDisposable
+internal unsafe partial class CAPI : IDisposable
 {
     private const string PythonLibraryName = "csnakes_python";
     public string PythonPath { get; internal set; } = string.Empty;
@@ -16,13 +16,13 @@ internal unsafe partial class CPythonAPI : IDisposable
     private static Version PythonVersion = new("0.0.0");
     private bool disposedValue = false;
 
-    public CPythonAPI(string pythonLibraryPath, Version version)
+    public CAPI(string pythonLibraryPath, Version version)
     {
         PythonVersion = version;
-        CPythonAPI.pythonLibraryPath = pythonLibraryPath;
+        CAPI.pythonLibraryPath = pythonLibraryPath;
         try
         {
-            NativeLibrary.SetDllImportResolver(typeof(CPythonAPI).Assembly, DllImportResolver);
+            NativeLibrary.SetDllImportResolver(typeof(CAPI).Assembly, DllImportResolver);
         }
         catch (InvalidOperationException)
         {

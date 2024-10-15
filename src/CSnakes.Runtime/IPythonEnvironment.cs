@@ -9,7 +9,7 @@ public interface IPythonEnvironment : IDisposable
     {
         get
         {
-            return CPythonAPI.Py_GetVersion() ?? "No version available";
+            return CAPI.Py_GetVersion() ?? "No version available";
         }
     }
 

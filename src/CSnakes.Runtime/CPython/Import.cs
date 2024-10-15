@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 
-internal unsafe partial class CPythonAPI
+internal unsafe partial class CAPI
 {
     /// <summary>
     /// Import a module and return a reference to it.

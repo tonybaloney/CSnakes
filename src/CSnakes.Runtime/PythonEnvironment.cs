@@ -10,7 +10,7 @@ internal class PythonEnvironment : IPythonEnvironment
 {
     public ILogger<IPythonEnvironment> Logger { get; private set; }
 
-    private readonly CPythonAPI api;
+    private readonly CAPI api;
     private bool disposedValue;
 
     private static IPythonEnvironment? pythonEnvironment;
@@ -89,7 +89,7 @@ internal class PythonEnvironment : IPythonEnvironment
         api.Initialize();
     }
 
-    private CPythonAPI SetupStandardLibrary(PythonLocationMetadata pythonLocationMetadata)
+    private CAPI SetupStandardLibrary(PythonLocationMetadata pythonLocationMetadata)
     {
         string pythonDll = pythonLocationMetadata.LibPythonPath;
         string pythonPath = pythonLocationMetadata.PythonPath;
@@ -97,7 +97,7 @@ internal class PythonEnvironment : IPythonEnvironment
         Logger.LogDebug("Python DLL: {PythonDLL}", pythonDll);
         Logger.LogDebug("Python path: {PythonPath}", pythonPath);
 
-        var api = new CPythonAPI(pythonDll, pythonLocationMetadata.Version)
+        var api = new CAPI(pythonDll, pythonLocationMetadata.Version)
         {
             PythonPath = pythonPath
         };

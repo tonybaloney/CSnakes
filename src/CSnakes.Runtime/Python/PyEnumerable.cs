@@ -29,8 +29,8 @@ internal class PyEnumerable<TValue, TImporter> : IEnumerable<TValue>, IEnumerato
     {
         using (GIL.Acquire())
         {
-            nint result = CPythonAPI.PyIter_Next(_pyIterator);
-            if (result == IntPtr.Zero && CPythonAPI.IsPyErrOccurred())
+            nint result = CAPI.PyIter_Next(_pyIterator);
+            if (result == IntPtr.Zero && CAPI.IsPyErrOccurred())
             {
                 throw PythonObject.ThrowPythonExceptionAsClrException();
             }

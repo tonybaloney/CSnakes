@@ -41,7 +41,7 @@ internal partial class PyObjectTypeConverter
         PythonObject[] tupleValues = new PythonObject[tupleSize];
         for (nint i = 0; i < tupleValues.Length; i++)
         {
-            PythonObject value = PythonObject.Create(CAPI.PyTuple_GetItemWithNewRef(pyObj, i));
+            PythonObject value = PythonObject.Create(CAPI.GetItemOfPyTuple(pyObj, i));
             tupleValues[i] = value;
         }
 
@@ -96,8 +96,8 @@ internal partial class PyObjectTypeConverter
             throw new InvalidDataException("Tuple must have exactly 2 elements to be converted to a KeyValuePair.");
         }
 
-        using PythonObject key = PythonObject.Create(CAPI.PyTuple_GetItemWithNewRef(pyObj, 0));
-        using PythonObject value = PythonObject.Create(CAPI.PyTuple_GetItemWithNewRef(pyObj, 1));
+        using PythonObject key = PythonObject.Create(CAPI.GetItemOfPyTuple(pyObj, 0));
+        using PythonObject value = PythonObject.Create(CAPI.GetItemOfPyTuple(pyObj, 1));
 
         return new KeyValuePair<TKey, TValue>(key.As<TKey>(), value.As<TValue>());
     }

@@ -1,26 +1,9 @@
-﻿using CSnakes.Runtime.Python;
-namespace CSnakes.Runtime.CPython;
+﻿namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CAPI
 {
-    private static nint PyNone = IntPtr.Zero;
-
-    /// <summary>
-    /// Get the None object.
-    /// </summary>
-    /// <returns>A new reference to None. In newer versions of Python, None is immortal anyway.</returns>
-    internal static nint GetNone()
+    internal static bool IsNone(MPyOPtr o)
     {
-        if (PyNone == IntPtr.Zero)
-        {
-            throw new InvalidOperationException("Python is not initialized. You cannot call this method outside of a Python Environment context.");
-        }
-        Py_IncRef(PyNone);
-        return PyNone;
-    }
-
-    internal static bool IsNone(PythonObject o)
-    {
-        return PyNone == o.DangerousGetHandle();
+        return _PyNone == o.DangerousGetHandle();
     }
 }

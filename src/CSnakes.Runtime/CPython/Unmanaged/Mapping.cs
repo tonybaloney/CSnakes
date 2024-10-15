@@ -1,12 +1,10 @@
-﻿namespace CSnakes.Runtime.CPython;
+﻿namespace CSnakes.Runtime.CPython.Unmanaged;
+using pyoPtr = nint;
 
 internal unsafe partial class CAPI
 {
-
-    public static bool IsPyMappingWithItems(MPyOPtr p)
-    {
-        return PyMapping_Check(p) == 1 && PyObject_HasAttr(p, _ItemsStr) == 1;
-    }
+    protected static pyoPtr _ItemsStr = IntPtr.Zero;
+    public static pyoPtr PtrToItemsStr => _ItemsStr;
 
     /// <summary>
     /// Return the object from dictionary p which has a key `key`. 
@@ -15,7 +13,7 @@ internal unsafe partial class CAPI
     /// <param name="key">Key Object</param>
     /// <exception cref="KeyNotFoundException">If the key is not found</exception>
     /// <returns>New reference.</returns>
-    internal static nint GetItemOfPyMapping(MPyOPtr map, MPyOPtr key) => PyObject_GetItem(map, key);
+    internal static nint GetItemOfPyMapping(pyoPtr map, pyoPtr key) => PyObject_GetItem(map, key);
 
     /// <summary>
     /// Insert val into the dictionary p with a key of key. 
@@ -26,5 +24,6 @@ internal unsafe partial class CAPI
     /// <param name="key">Key</param>
     /// <param name="value">Value</param>
     /// <returns>Return 0 on success or -1 on failure.</returns>
-    internal static bool SetItemInPyMapping(MPyOPtr dict, MPyOPtr key, MPyOPtr value) => PyObject_SetItem(dict, key, value) == 0;
+    internal static bool SetItemInPyMapping(pyoPtr dict, pyoPtr key, pyoPtr value) => PyObject_SetItem(dict, key, value) == 0;
+
 }

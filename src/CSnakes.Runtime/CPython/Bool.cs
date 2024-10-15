@@ -1,21 +1,14 @@
-﻿using CSnakes.Runtime.Python;
-using System.Runtime.InteropServices;
-
-namespace CSnakes.Runtime.CPython;
+﻿namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CAPI
 {
-    private static nint PyBoolType = IntPtr.Zero;
-    private static nint Py_True = IntPtr.Zero;
-    private static nint Py_False = IntPtr.Zero;
-
-    public static bool IsPyBool(PythonObject p)
+    public static bool IsPyBool(MPyOPtr p)
     {
-        return p.DangerousGetHandle() == Py_True || p.DangerousGetHandle() == Py_False;
+        return p.DangerousGetHandle() == _PyTrue || p.DangerousGetHandle() == _PyFalse;
     }
 
-    public static bool IsPyTrue(PythonObject p)
+    public static bool IsPyTrue(MPyOPtr p)
     {
-        return p.DangerousGetHandle() == Py_True;
+        return p.DangerousGetHandle() == _PyTrue;
     }
 }

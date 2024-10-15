@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace CSnakes.Runtime.CPython;
+namespace CSnakes.Runtime.CPython.Unmanaged;
+
 internal unsafe partial class CAPI
 {
     internal static int GetNativeThreadId()

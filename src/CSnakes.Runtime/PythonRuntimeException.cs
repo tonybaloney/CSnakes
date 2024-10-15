@@ -56,7 +56,7 @@ public class PythonRuntimeException : Exception
         using (GIL.Acquire())
         {
             using var tracebackModule = Import.ImportModule("traceback");
-            using var formatTbFunction = tracebackModule.GetAttr("format_tb");
+            using var formatTbFunction = PythonObject.Create(tracebackModule.GetAttr("format_tb"));
             using var formattedStackTrace = formatTbFunction.Call(pythonStackTrace);
 
             return [.. formattedStackTrace.As<IReadOnlyList<string>>()];

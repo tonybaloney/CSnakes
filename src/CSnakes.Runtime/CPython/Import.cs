@@ -1,7 +1,7 @@
-﻿using CSnakes.Runtime.Python;
-using System.Runtime.InteropServices;
+﻿namespace CSnakes.Runtime.CPython;
 
-namespace CSnakes.Runtime.CPython;
+using CSnakes.Runtime.Python;
+using pyoPtr = nint;
 
 internal unsafe partial class CAPI
 {
@@ -10,26 +10,11 @@ internal unsafe partial class CAPI
     /// </summary>
     /// <param name="name">The module name</param>
     /// <returns>A new reference to module `name`</returns>
-    internal static PythonObject Import(string name)
+    internal static MPyOPtr Import(string name)
     {
         nint pyName = AsPyUnicodeObject(name);
         nint module = PyImport_Import(pyName);
         Py_DecRef(pyName);
-        return PythonObject.Create(module);
+        return MPyOPtr.Steal(module);
     }
-
-    protected static nint GetBuiltin(string name)
-    {
-        nint pyName = AsPyUnicodeObject("builtins");
-        nint pyAttrName = AsPyUnicodeObject(name);
-        nint module = PyImport_Import(pyName);
-        nint attr = PyObject_GetAttr(module, pyAttrName);
-        if (attr == IntPtr.Zero)
-        {
-            throw PythonObject.ThrowPythonExceptionAsClrException();
-        }
-        Py_DecRef(pyName);
-        Py_DecRef(pyAttrName);
-        return attr;
-    } 
 }

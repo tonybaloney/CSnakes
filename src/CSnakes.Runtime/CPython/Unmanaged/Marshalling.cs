@@ -1,7 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace CSnakes.Runtime.CPython;
+namespace CSnakes.Runtime.CPython.Unmanaged;
+using pyoPtr = nint;
 
 [CustomMarshaller(typeof(string), MarshalMode.Default, typeof(NonFreeUtf8StringMarshaller))]
 internal static unsafe class NonFreeUtf8StringMarshaller

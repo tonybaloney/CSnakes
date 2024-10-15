@@ -1,20 +1,14 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace CSnakes.Runtime.CPython;
-using PyOPtr = nint;
+namespace CSnakes.Runtime.CPython.Unmanaged;
+using pyoPtr = nint;
 
 internal unsafe partial class CAPI
 {
 
     #region PyObject
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyObject_Repr(PyOPtr ob);
-
-    [LibraryImport(PythonLibraryName)]
-    public static partial void Py_DecRef(PyOPtr ob);
-
-    [LibraryImport(PythonLibraryName)]
-    public static partial void Py_IncRef(PyOPtr ob);
+    public static partial nint PyObject_Repr(pyoPtr ob);
 
     /// <summary>
     /// When o is non-NULL, returns a type object corresponding to the object type of object o. 
@@ -25,7 +19,7 @@ internal unsafe partial class CAPI
     /// <param name="ob">The python object</param>
     /// <returns>A new reference to the Type object for the given Python object</returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyObject_Type(PyOPtr ob);
+    public static partial nint PyObject_Type(pyoPtr ob);
 
     /// <summary>
     /// Return 1 if inst is an instance of the class cls or a subclass of cls, or 0 if not. 
@@ -35,11 +29,11 @@ internal unsafe partial class CAPI
     /// <param name="type">The Python type object</param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyObject_IsInstance(PyOPtr ob, PyOPtr type);
+    public static partial int PyObject_IsInstance(pyoPtr ob, pyoPtr type);
 
 
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyObject_GetAttr(PyOPtr ob, PyOPtr attr);
+    public static partial nint PyObject_GetAttr(pyoPtr ob, pyoPtr attr);
 
     /// <summary>
     /// Does the object ob have the attr `attr`?
@@ -48,7 +42,7 @@ internal unsafe partial class CAPI
     /// <param name="attr">The attribute as a PyUnicode object</param>
     /// <returns>1 on success, 0 if the attr does not exist</returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyObject_HasAttr(PyOPtr ob, PyOPtr attr);
+    public static partial int PyObject_HasAttr(pyoPtr ob, pyoPtr attr);
 
     /// <summary>
     /// Get the iterator for the given object
@@ -56,7 +50,7 @@ internal unsafe partial class CAPI
     /// <param name="ob"></param>
     /// <returns>A new reference to the iterator</returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyObject_GetIter(PyOPtr ob);
+    public static partial nint PyObject_GetIter(pyoPtr ob);
 
     /// <summary>
     /// Get the str(ob) form of the object
@@ -64,7 +58,7 @@ internal unsafe partial class CAPI
     /// <param name="ob">The Python object</param>
     /// <returns>A new reference to the string representation</returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyObject_Str(nint ob);
+    public static partial nint PyObject_Str(pyoPtr ob);
 
     /// <summary>
     /// Implements ob[key]
@@ -73,7 +67,7 @@ internal unsafe partial class CAPI
     /// <param name="key"></param>
     /// <returns>A new reference to the object item if it exists, else NULL</returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyObject_GetItem(PyOPtr ob, PyOPtr key);
+    public static partial nint PyObject_GetItem(pyoPtr ob, pyoPtr key);
 
     /// <summary>
     /// Set ob[key] = value
@@ -85,10 +79,10 @@ internal unsafe partial class CAPI
     /// <param name="value"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyObject_SetItem(PyOPtr ob, PyOPtr key, PyOPtr value);
+    public static partial int PyObject_SetItem(pyoPtr ob, pyoPtr key, pyoPtr value);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyObject_Hash(PyOPtr ob);
+    public static partial int PyObject_Hash(pyoPtr ob);
 
 
     public enum RichComparisonType : int
@@ -102,7 +96,38 @@ internal unsafe partial class CAPI
     }
 
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyObject_RichCompareBool(PyOPtr ob1, PyOPtr ob2, RichComparisonType comparisonType);
+    public static partial int PyObject_RichCompareBool(pyoPtr ob1, pyoPtr ob2, RichComparisonType comparisonType);
+
+    /// <summary>
+    /// Call a callable with no arguments (3.9+)
+    /// </summary>
+    /// <param name="callable"></param>
+    /// <returns>A new reference to the result, or null on failure</returns>
+    [LibraryImport(PythonLibraryName)]
+    public static partial nint PyObject_CallNoArgs(pyoPtr callable);
+
+    /// <summary>
+    /// Call a callable with one argument (3.11+)
+    /// </summary>
+    /// <param name="callable">Callable object</param>
+    /// <param name="arg1">The first argument</param>
+    /// <returns>A new reference to the result, or null on failure</returns>
+    [LibraryImport(PythonLibraryName)]
+    public static partial nint PyObject_CallOneArg(pyoPtr callable, pyoPtr arg1);
+
+
+    /// <summary>
+    /// Call a callable with many arguments
+    /// </summary>
+    /// <param name="callable">Callable object</param>
+    /// <param name="args">A PyTuple of positional arguments</param>
+    /// <param name="kwargs">A PyDict of keyword arguments</param>
+    /// <returns>A new reference to the result, or null on failure</returns>
+    [LibraryImport(PythonLibraryName)]
+    public static partial nint PyObject_Call(pyoPtr callable, pyoPtr args, pyoPtr kwargs);
+
+    [LibraryImport(PythonLibraryName)]
+    public static partial nint PyObject_Vectorcall(pyoPtr callable, pyoPtr* args, nuint nargsf, pyoPtr kwnames);
     #endregion
 
     #region PyBool
@@ -146,10 +171,10 @@ internal unsafe partial class CAPI
     }
 
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyObject_CheckBuffer(PyOPtr ob);
+    public static partial int PyObject_CheckBuffer(pyoPtr ob);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyObject_GetBuffer(PyOPtr ob, PyBuffer* view, int flags);
+    public static partial int PyObject_GetBuffer(pyoPtr ob, PyBuffer* view, int flags);
 
     [LibraryImport(PythonLibraryName)]
     public static partial void PyBuffer_Release(PyBuffer* view);
@@ -160,10 +185,10 @@ internal unsafe partial class CAPI
     public static partial nint PyBytes_FromStringAndSize(byte* v, nint len);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial byte* PyBytes_AsString(PyOPtr ob);
+    public static partial byte* PyBytes_AsString(pyoPtr ob);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyBytes_Size(PyOPtr ob);
+    public static partial nint PyBytes_Size(pyoPtr ob);
     #endregion
 
     #region PyDict
@@ -181,7 +206,7 @@ internal unsafe partial class CAPI
     /// <param name="p"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyDict_Size(PyOPtr dict);
+    public static partial nint PyDict_Size(pyoPtr dict);
 
 
     /// <summary>
@@ -192,7 +217,7 @@ internal unsafe partial class CAPI
     /// <param name="key">Key Object</param>
     /// <returns>Borrowed reference.</returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyDict_GetItem(PyOPtr dict, PyOPtr key);
+    public static partial nint PyDict_GetItem(pyoPtr dict, pyoPtr key);
 
     /// <summary>
     /// Insert val into the dictionary p with a key of key. 
@@ -205,7 +230,7 @@ internal unsafe partial class CAPI
     /// <returns>Return 0 on success or -1 on failure.</returns>
 
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyDict_SetItem(PyOPtr dict, PyOPtr key, PyOPtr val);
+    public static partial int PyDict_SetItem(pyoPtr dict, pyoPtr key, pyoPtr val);
 
     /// <summary>
     /// Get the items iterator for the dictionary.
@@ -213,54 +238,21 @@ internal unsafe partial class CAPI
     /// <param name="dict">PyDict object</param>
     /// <returns>New reference to the items().</returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyDict_Items(PyOPtr dict);
+    public static partial nint PyDict_Items(pyoPtr dict);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyDict_Contains(PyOPtr dict, PyOPtr key);
+    public static partial int PyDict_Contains(pyoPtr dict, pyoPtr key);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyDict_Keys(PyOPtr dict);
+    public static partial nint PyDict_Keys(pyoPtr dict);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyDict_Values(PyOPtr dict);
+    public static partial nint PyDict_Values(pyoPtr dict);
     #endregion
 
     #region PyModule
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyModule_GetDict(PyOPtr module);
-    #endregion
-
-    #region PyObject
-    /// <summary>
-    /// Call a callable with no arguments (3.9+)
-    /// </summary>
-    /// <param name="callable"></param>
-    /// <returns>A new reference to the result, or null on failure</returns>
-    [LibraryImport(PythonLibraryName)]
-    public static partial nint PyObject_CallNoArgs(PyOPtr callable);
-
-    /// <summary>
-    /// Call a callable with one argument (3.11+)
-    /// </summary>
-    /// <param name="callable">Callable object</param>
-    /// <param name="arg1">The first argument</param>
-    /// <returns>A new reference to the result, or null on failure</returns>
-    [LibraryImport(PythonLibraryName)]
-    public static partial nint PyObject_CallOneArg(PyOPtr callable, PyOPtr arg1);
-
-
-    /// <summary>
-    /// Call a callable with many arguments
-    /// </summary>
-    /// <param name="callable">Callable object</param>
-    /// <param name="args">A PyTuple of positional arguments</param>
-    /// <param name="kwargs">A PyDict of keyword arguments</param>
-    /// <returns>A new reference to the result, or null on failure</returns>
-    [LibraryImport(PythonLibraryName)]
-    public static partial nint PyObject_Call(PyOPtr callable, PyOPtr args, PyOPtr kwargs);
-
-    [LibraryImport(PythonLibraryName)]
-    public static partial nint PyObject_Vectorcall(PyOPtr callable, PyOPtr* args, nuint nargsf, PyOPtr kwnames);
+    public static partial nint PyModule_GetDict(pyoPtr module);
     #endregion
 
     #region PyErr
@@ -305,13 +297,13 @@ internal unsafe partial class CAPI
     /// </summary>
     /// <param name="p"></param>
     /// <returns>The double value</returns>
-    [LibraryImport(PythonLibraryName, EntryPoint = "PyFloat_AsDouble")]
-    public static partial double PyFloat_AsDouble_(PyOPtr obj);
+    [LibraryImport(PythonLibraryName)]
+    public static partial double PyFloat_AsDouble(pyoPtr obj);
     #endregion
 
     #region PyGen
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyGen_New(nint frame);
+    public static partial pyoPtr PyGen_New(nint frame);
     #endregion
 
     #region PyGILState
@@ -354,10 +346,10 @@ internal unsafe partial class CAPI
     /// <param name="name">The name of the module as a PyUnicode object.</param>
     /// <returns>A new reference to module `name`</returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyImport_Import(PyOPtr name);
+    public static partial nint PyImport_Import(pyoPtr name);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyImport_AddModule(PyOPtr name);
+    public static partial nint PyImport_AddModule(pyoPtr name);
     #endregion
 
     #region Py
@@ -382,6 +374,13 @@ internal unsafe partial class CAPI
     [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath", StringMarshallingCustomType = typeof(Utf32StringMarshaller), StringMarshalling = StringMarshalling.Custom)]
     internal static partial void Py_SetPath_UCS4_UTF32(string path);
     */
+
+
+    [LibraryImport(PythonLibraryName)]
+    public static partial void Py_DecRef(pyoPtr ob);
+
+    [LibraryImport(PythonLibraryName)]
+    public static partial void Py_IncRef(pyoPtr ob);
     #endregion
 
     #region PyIter
@@ -395,7 +394,7 @@ internal unsafe partial class CAPI
     /// <param name="iter"></param>
     /// <returns>New refernce to the next item</returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyIter_Next(PyOPtr iter);
+    public static partial nint PyIter_Next(pyoPtr iter);
     #endregion
 
     #region PyList
@@ -413,7 +412,7 @@ internal unsafe partial class CAPI
     /// <param name="obj">PyList object</param>
     /// <returns>The size as ssize_t</returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyList_Size(PyOPtr obj);
+    public static partial nint PyList_Size(pyoPtr obj);
 
     /// <summary>
     /// Get a reference to the item at `pos` in the list
@@ -422,11 +421,11 @@ internal unsafe partial class CAPI
     /// <param name="pos">The position as ssize_t</param>
     /// <returns>Borrowed reference to the list item</returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyList_GetItem(PyOPtr obj, nint pos);
+    public static partial nint PyList_GetItem(pyoPtr obj, nint pos);
 
 
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyList_SetItem(PyOPtr obj, nint pos, PyOPtr o);
+    public static partial int PyList_SetItem(pyoPtr obj, nint pos, pyoPtr o);
     #endregion
 
     #region PyLong
@@ -437,13 +436,13 @@ internal unsafe partial class CAPI
     public static partial nint PyLong_FromLongLong(long v);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial long PyLong_AsLongLong(PyOPtr p);
+    public static partial long PyLong_AsLongLong(pyoPtr p);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyLong_AsLong(PyOPtr p);
+    public static partial int PyLong_AsLong(pyoPtr p);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyLong_FromUnicodeObject(PyOPtr unicode, int @base);
+    public static partial nint PyLong_FromUnicodeObject(pyoPtr unicode, int @base);
     #endregion
 
     #region PyMapping
@@ -455,7 +454,7 @@ internal unsafe partial class CAPI
     /// <param name="p"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyMapping_Check(PyOPtr ob);
+    public static partial int PyMapping_Check(pyoPtr ob);
 
     /// <summary>
     /// Get the items iterator for the mapping.
@@ -463,16 +462,16 @@ internal unsafe partial class CAPI
     /// <param name="dict">Object that implements the mapping protocol</param>
     /// <returns>New reference to the items().</returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyMapping_Items(PyOPtr dict);
+    public static partial nint PyMapping_Items(pyoPtr dict);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyMapping_Keys(PyOPtr dict);
+    public static partial nint PyMapping_Keys(pyoPtr dict);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyMapping_Values(PyOPtr dict);
+    public static partial nint PyMapping_Values(pyoPtr dict);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyMapping_Size(PyOPtr dict);
+    public static partial nint PyMapping_Size(pyoPtr dict);
 
     /// <summary>
     /// Return 1 if the mapping object has the key key and 0 otherwise. 
@@ -482,7 +481,7 @@ internal unsafe partial class CAPI
     /// <param name="key"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyMapping_HasKey(PyOPtr dict, PyOPtr key);
+    public static partial int PyMapping_HasKey(pyoPtr dict, pyoPtr key);
     #endregion
 
     #region PyRun
@@ -502,7 +501,7 @@ internal unsafe partial class CAPI
 
 
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyRun_StringFlags(byte* source, Token start, PyOPtr globals, PyOPtr locals, PyCompilerFlags* flags);
+    public static partial int PyRun_StringFlags(byte* source, Token start, pyoPtr globals, pyoPtr locals, PyCompilerFlags* flags);
     #endregion
 
     #region PyTuple
@@ -516,21 +515,21 @@ internal unsafe partial class CAPI
 
 
     [LibraryImport(PythonLibraryName)]
-    public static partial int PyTuple_SetItem(PyOPtr ob, nint pos, PyOPtr o);
+    public static partial int PyTuple_SetItem(pyoPtr ob, nint pos, pyoPtr o);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyTuple_GetItem(PyOPtr ob, nint pos);
+    public static partial nint PyTuple_GetItem(pyoPtr ob, nint pos);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyTuple_Size(nint p);
+    public static partial nint PyTuple_Size(pyoPtr p);
     #endregion
 
     #region PyUnicode
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PyUnicode_DecodeUTF16(char* str, nint size, PyOPtr errors, PyOPtr byteorder);
+    public static partial nint PyUnicode_DecodeUTF16(char* str, nint size, pyoPtr errors, pyoPtr byteorder);
 
     [LibraryImport(PythonLibraryName)]
-    public static partial byte* PyUnicode_AsUTF8(PyOPtr s);
+    public static partial byte* PyUnicode_AsUTF8(pyoPtr s);
     #endregion
 
     #region PySequence
@@ -543,7 +542,7 @@ internal unsafe partial class CAPI
     /// <param name="p"></param>
     /// <returns></returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial int PySequence_Check(PyOPtr ob);
+    public static partial int PySequence_Check(pyoPtr ob);
 
     /// <summary>
     /// Return the number of items in the sequence object as ssize_t
@@ -551,7 +550,7 @@ internal unsafe partial class CAPI
     /// <param name="seq">Sequence object</param>
     /// <returns>Number of items in the sequence</returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PySequence_Size(nint seq);
+    public static partial nint PySequence_Size(pyoPtr seq);
 
     /// <summary>
     /// Return the ith element of o, or NULL on failure. This is the equivalent of the Python expression o[i].
@@ -560,6 +559,7 @@ internal unsafe partial class CAPI
     /// <param name="index">Index</param>
     /// <returns>New reference to the item or NULL.</returns>
     [LibraryImport(PythonLibraryName)]
-    public static partial nint PySequence_GetItem(PyOPtr seq, nint index);
+    public static partial nint PySequence_GetItem(pyoPtr seq, nint index);
     #endregion
+
 }

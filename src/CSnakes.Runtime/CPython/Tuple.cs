@@ -1,39 +1,9 @@
 ﻿using CSnakes.Runtime.Python;
-using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
+
 internal unsafe partial class CAPI
 {
-    private static nint PyTupleType = IntPtr.Zero;
-    private static nint PyEmptyTuple = IntPtr.Zero;
-
-    public static nint GetPyEmptyTuple()
-    {
-        Py_IncRef(PyEmptyTuple);
-        return PyEmptyTuple;
-    }
-
-    /// <summary>
-    /// Create a PyTuple from the PyObject pointers in `items`.
-    /// Function handles the reference increments to items.
-    /// </summary>
-    /// <param name="items">An array of pointers to PyObject</param>
-    /// <returns>A new reference to the resulting tuple object.</returns>
-    internal static nint PackTuple(Span<IntPtr> items)
-    {
-        // This is a shortcut to a CPython optimization. Keep an empty tuple and reuse it.
-        if (items.Length == 0)
-            return GetPyEmptyTuple();
-
-        nint tuple = PyTuple_New(items.Length);
-        for (int i = 0; i < items.Length; i++)
-        {
-            PyTuple_SetItemRaw(tuple, i, items[i]);
-        }
-        return tuple;
-    }
-
-
     /// <summary>
     /// Set the Tuple Item at position `pos` to the object `o`.
     /// Adds a new reference to `o` if it was set successfully.
@@ -42,19 +12,18 @@ internal unsafe partial class CAPI
     /// <param name="pos">The position as ssize_t</param>
     /// <param name="o">The new value</param>
     /// <returns>0 on success and -1 on failure</returns>
-    internal static int PyTuple_SetItemRaw(nint ob, nint pos, nint o)
+    internal static int SetItemInPyTuple(MPyOPtr ob, nint pos, MPyOPtr o)
     {
-        int result = PyTuple_SetItem_(ob, pos, o);
+        int result = PyTuple_SetItem(ob, pos, o);
         if (result != -1)
         {
             // Add reference to the new item as it belongs to tuple now. 
-            Py_IncRef(o);
+            Py_IncRef(o.DangerousGetHandle());
         }
         return result;
     }
 
-    [LibraryImport(PythonLibraryName, EntryPoint = "PyTuple_SetItem")]
-    private static partial int PyTuple_SetItem_(nint ob, nint pos, nint o);
+
 
     /// <summary>
     /// Get an item at position `pos` from a PyTuple.
@@ -63,9 +32,9 @@ internal unsafe partial class CAPI
     /// <param name="pos">the index position as ssize_t</param>
     /// <returns>A new reference to the item.</returns>
     /// <exception cref="IndexOutOfRangeException"></exception>
-    internal static nint PyTuple_GetItemWithNewRef(PythonObject ob, nint pos)
+    internal static nint GetItemOfPyTuple(MPyOPtr ob, nint pos)
     {
-        nint item = PyTuple_GetItem(ob.DangerousGetHandle(), pos);
+        nint item = PyTuple_GetItem(ob, pos);
         if (item == IntPtr.Zero)
         {
             throw PythonObject.ThrowPythonExceptionAsClrException();
@@ -74,22 +43,6 @@ internal unsafe partial class CAPI
         return item;
     }
 
-    internal static nint PyTuple_GetItemWithNewRefRaw(nint ob, nint pos)
-    {
-        nint item = PyTuple_GetItemRaw(ob, pos);
-        if (item == IntPtr.Zero)
-        {
-            throw PythonObject.ThrowPythonExceptionAsClrException();
-        }
-        Py_IncRef(item);
-        return item;
-    }
+    internal static bool IsPyTuple(MPyOPtr p) => IsInstance(p, _PyTupleType);
 
-    [LibraryImport(PythonLibraryName, EntryPoint = "PyTuple_GetItem")]
-    private static partial nint PyTuple_GetItemRaw(nint ob, nint pos);
-
-    internal static bool IsPyTuple(PythonObject p)
-    {
-        return PyObject_IsInstance(p, PyTupleType);
-    }
 }

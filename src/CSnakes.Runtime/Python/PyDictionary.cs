@@ -21,7 +21,7 @@ internal class PyDictionary<TKey, TValue>(PythonObject dictionary) : IReadOnlyDi
             using (GIL.Acquire())
             {
                 using PythonObject keyPyObject = PythonObject.From(key);
-                using PythonObject pyObjValue = PythonObject.Create(CAPI.PyMapping_GetItem(_dictionaryObject, keyPyObject));
+                using PythonObject pyObjValue = PythonObject.Create(CAPI.GetItemOfPyMapping(_dictionaryObject, keyPyObject));
                 TValue managedValue = pyObjValue.As<TValue>();
 
                 _dictionary[key] = managedValue;

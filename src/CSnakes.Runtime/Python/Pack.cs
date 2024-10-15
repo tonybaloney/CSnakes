@@ -39,14 +39,14 @@ internal static class Pack
         // Source: https://docs.python.org/3/c-api/list.html#c.PyList_New
 
         public static IntPtr New(IntPtr size) => CAPI.PyList_New(size);
-        public static int SetItemRaw(IntPtr ob, IntPtr pos, IntPtr o) => CAPI.PyList_SetItemRaw(ob, pos, o);
+        public static int SetItemRaw(IntPtr ob, IntPtr pos, IntPtr o) => CAPI.PyList_SetItem(ob, pos, o);
     }
 
     private sealed class TupleBuilder : IListOrTupleBuilder
     {
         private TupleBuilder() { }
         public static IntPtr New(IntPtr size) => size == 0 ? CAPI.GetPyEmptyTuple() : CAPI.PyTuple_New(size);
-        public static int SetItemRaw(IntPtr ob, IntPtr pos, IntPtr o) => CAPI.PyTuple_SetItemRaw(ob, pos, o);
+        public static int SetItemRaw(IntPtr ob, IntPtr pos, IntPtr o) => CAPI.SetItemInPyTuple(ob, pos, o);
     }
 
     const int FixedArrayLength = 8;

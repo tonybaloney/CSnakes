@@ -3,31 +3,35 @@ using CSnakes.Runtime.Python.Interns;
 using System.Collections;
 using System.Diagnostics;
 using System.Numerics;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
 namespace CSnakes.Runtime.Python;
+using pyoPtr = nint;
 
 [DebuggerDisplay("PythonObject: repr={GetRepr()}, type={GetPythonType().ToString()}")]
-public class PythonObject : SafeHandle, ICloneable
+public class PythonObject : MPyOPtr, ICloneable
 {
-    protected PythonObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
-    {
-        if (pyObject == IntPtr.Zero)
-        {
-            throw ThrowPythonExceptionAsClrException();
-        }
-    }
+    protected PythonObject(pyoPtr pyObject, bool ownsHandle = true, bool incRef = false) : base(pyObject, ownsHandle, incRef) { }
 
-    internal static PythonObject Create(IntPtr ptr)
+    public static PythonObject Create(pyoPtr ptr)
     {
         if (None.DangerousGetHandle() == ptr)
             return None;
         return new PythonObject(ptr);
     }
 
-    public override bool IsInvalid => handle == IntPtr.Zero;
+    public static PythonObject Create(MPyOPtr ob)
+    {
+        if (None.DangerousGetHandle() == ob.DangerousGetHandle())
+            return None;
+
+        var pyoPtr = ob.DangerousGetHandle();
+        var result = new PythonObject(pyoPtr, false, true);
+        return result;
+    }
+
 
     protected override bool ReleaseHandle()
     {
@@ -117,7 +121,7 @@ public class PythonObject : SafeHandle, ICloneable
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            return new PythonObject(CAPI.GetType(this));
+            return new PythonObject(CAPI.PyObject_Type(this));
         }
     }
 
@@ -177,7 +181,7 @@ public class PythonObject : SafeHandle, ICloneable
         using (GIL.Acquire())
         {
             using PythonObject reprStr = new PythonObject(CAPI.PyObject_Repr(this.DangerousGetHandle()));
-            return CAPI.PyUnicode_AsUTF8(reprStr);
+            return CAPI.StringFromPyUnicodeToUTF8(reprStr);
         }
     }
 
@@ -289,7 +293,7 @@ public class PythonObject : SafeHandle, ICloneable
     {
         using (GIL.Acquire())
         {
-            return CAPI.PyObject_RichCompare(left, right, type);
+            return CAPI.RichComparePyObjects(left, right, type);
         }
     }
 
@@ -438,7 +442,7 @@ public class PythonObject : SafeHandle, ICloneable
         using (GIL.Acquire())
         {
             using PythonObject pyObjectStr = new(CAPI.PyObject_Str(this));
-            return CAPI.PyUnicode_AsUTF8(pyObjectStr);
+            return CAPI.StringFromPyUnicodeToUTF8(pyObjectStr);
         }
     }
 
@@ -466,13 +470,13 @@ public class PythonObject : SafeHandle, ICloneable
             {
                 var t when t == typeof(PythonObject) => Clone(),
                 var t when t == typeof(bool) => CAPI.IsPyTrue(this),
-                var t when t == typeof(int) => CAPI.PyLong_AsLong(this),
-                var t when t == typeof(long) => CAPI.PyLong_AsLongLong(this),
-                var t when t == typeof(double) => CAPI.PyFloat_AsDouble(this),
-                var t when t == typeof(float) => (float)CAPI.PyFloat_AsDouble(this),
-                var t when t == typeof(string) => CAPI.PyUnicode_AsUTF8(this),
+                var t when t == typeof(int) => CAPI.LongFromPyLong(this),
+                var t when t == typeof(long) => CAPI.LongLongFromPyLong(this),
+                var t when t == typeof(double) => CAPI.DoubleFromPyFloat(this),
+                var t when t == typeof(float) => (float)CAPI.DoubleFromPyFloat(this),
+                var t when t == typeof(string) => CAPI.StringFromPyUnicodeToUTF8(this),
                 var t when t == typeof(BigInteger) => PyObjectTypeConverter.ConvertToBigInteger(this, t),
-                var t when t == typeof(byte[]) => CAPI.PyBytes_AsByteArray(this),
+                var t when t == typeof(byte[]) => CAPI.ByteArrayFromPyBytes(this),
                 var t when t.IsAssignableTo(typeof(ITuple)) => PyObjectTypeConverter.ConvertToTuple(this, t),
                 var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => PyObjectTypeConverter.ConvertToGeneratorIterator(this, t),
                 var t => PyObjectTypeConverter.PyObjectToManagedType(this, t),
@@ -489,6 +493,7 @@ public class PythonObject : SafeHandle, ICloneable
 
             return value switch
             {
+                MPyOPtr mpyoPtr => Create(mpyoPtr),
                 ICloneable pyObject => pyObject.Clone(),
                 bool b => b ? True : False,
                 int i => Create(CAPI.PyLong_FromLong(i)),
@@ -496,13 +501,13 @@ public class PythonObject : SafeHandle, ICloneable
                 double d => Create(CAPI.PyFloat_FromDouble(d)),
                 float f => Create(CAPI.PyFloat_FromDouble((double)f)),
                 string s => Create(CAPI.AsPyUnicodeObject(s)),
-                byte[] bytes => PythonObject.Create(CAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
+                byte[] bytes => Create(CAPI.ByteSpanToPyBytes(bytes.AsSpan())),
                 IDictionary dictionary => PyObjectTypeConverter.ConvertFromDictionary(dictionary),
                 ITuple t => PyObjectTypeConverter.ConvertFromTuple(t),
                 ICollection l => PyObjectTypeConverter.ConvertFromList(l),
                 IEnumerable e => PyObjectTypeConverter.ConvertFromList(e),
                 BigInteger b => PyObjectTypeConverter.ConvertFromBigInteger(b),
-                _ => throw new InvalidCastException($"Cannot convert {value} to PyObject"),
+                _ => throw new InvalidCastException($"Cannot convert {value} to PythonObject"),
             };
         }
     }

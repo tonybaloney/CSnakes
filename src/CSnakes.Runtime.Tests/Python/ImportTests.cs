@@ -1,4 +1,3 @@
-﻿
 using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Python;

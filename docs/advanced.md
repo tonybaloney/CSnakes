@@ -156,3 +156,5 @@ Beyond the C# [limitations](https://learn.microsoft.com/visualstudio/debugger/su
 - Changing the type of a function argument
 - Changing the name of a function
 - Changing the name of a module
+
+The Hot Reload feature is useful for iterating on the __body__ of a Python function, without having to restart the debugger or application.

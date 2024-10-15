@@ -18,6 +18,12 @@ internal unsafe partial class CPythonAPI
         return PyObject.Create(module);
     }
 
+    internal static PyObject ReloadModule(PyObject module)
+    {
+        nint reloaded = PyImport_ReloadModule(module);
+        return PyObject.Create(reloaded);
+    }
+
     protected static nint GetBuiltin(string name)
     {
         nint pyName = AsPyUnicodeObject("builtins");
@@ -40,4 +46,14 @@ internal unsafe partial class CPythonAPI
     /// <returns>A new reference to module `name`</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyImport_Import(nint name);
+
+
+    /// <summary>
+    /// Reload a module. Return a new reference to the reloaded module, or NULL with an exception set on failure (the module still exists in this case).
+    /// </summary>
+    /// <param name="module"></param>
+    /// <returns></returns>
+    [LibraryImport(PythonLibraryName)]
+    internal static partial nint PyImport_ReloadModule(PyObject module);
+
 }

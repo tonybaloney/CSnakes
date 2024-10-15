@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace Integration.Tests;
+﻿namespace Integration.Tests;
 
 public class TestDependency(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {

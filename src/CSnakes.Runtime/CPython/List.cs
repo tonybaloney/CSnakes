@@ -8,22 +8,6 @@ internal unsafe partial class CPythonAPI
     private static nint PyListType = IntPtr.Zero;
 
     /// <summary>
-    /// Create a new list of length `size`
-    /// </summary>
-    /// <param name="size">Size as ssize_t</param>
-    /// <returns>A new reference to the list</returns>
-    [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyList_New(nint size);
-
-    /// <summary>
-    /// Get the size of the list
-    /// </summary>
-    /// <param name="obj">PyList object</param>
-    /// <returns>The size as ssize_t</returns>
-    [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyList_Size(PyObject obj);
-
-    /// <summary>
     /// Get a reference to the item at `pos` in the list
     /// </summary>
     /// <param name="obj">The list object</param>
@@ -36,7 +20,7 @@ internal unsafe partial class CPythonAPI
         {
             throw PyObject.ThrowPythonExceptionAsClrException();
         }
-        Py_IncRefRaw(item);
+        Py_IncRef(item);
         return item;
     }
 
@@ -55,7 +39,7 @@ internal unsafe partial class CPythonAPI
         if (result != -1)
         {
             // Add reference to the new item as it belongs to list now.
-            Py_IncRefRaw(o);
+            Py_IncRef(o);
         }
         return result;
     }

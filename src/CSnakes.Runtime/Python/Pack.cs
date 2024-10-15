@@ -136,7 +136,7 @@ internal static class Pack
         {
             if (obj != 0)
             {
-                CPythonAPI.Py_DecRefRaw(obj);
+                CPythonAPI.Py_DecRef(obj);
             }
 
             throw;

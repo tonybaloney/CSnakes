@@ -9,7 +9,7 @@ using System.Numerics.Tensors;
 namespace CSnakes.Runtime.Python;
 internal sealed class PyBuffer : IPyBuffer, IDisposable
 {
-    private readonly CPythonAPI.Py_buffer _buffer;
+    private readonly CPythonAPI.PyBuffer _buffer;
     private bool _disposed;
     private readonly bool _isScalar;
     private readonly string _format;

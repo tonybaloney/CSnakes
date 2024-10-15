@@ -7,12 +7,6 @@ internal unsafe partial class CPythonAPI
 {
     private static nint PyDictType = IntPtr.Zero;
 
-    /// <summary>
-    /// Create a new dictionary object.
-    /// </summary>
-    /// <returns>Return a new empty dictionary, or NULL on failure.</returns>
-    [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyDict_New();
 
     public static bool IsPyDict(PyObject p)
     {
@@ -30,7 +24,7 @@ internal unsafe partial class CPythonAPI
             {
                 throw PyObject.ThrowPythonExceptionAsClrException();
             }
-            Py_DecRefRaw(keyObj);
+            Py_DecRef(keyObj);
         }
         return dict;
     }
@@ -57,7 +51,7 @@ internal unsafe partial class CPythonAPI
         {
             throw PyObject.ThrowPythonExceptionAsClrException();
         }
-        Py_IncRefRaw(result);
+        Py_IncRef(result);
         return result;
     }
 

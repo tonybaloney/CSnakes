@@ -27,7 +27,7 @@ internal unsafe partial class CPythonAPI
         {
             var argsTuple = PackTuple(args);
             var result = PyObject_Call(callable, argsTuple, IntPtr.Zero);
-            Py_DecRefRaw(argsTuple);
+            Py_DecRef(argsTuple);
             return result;
         }
     }
@@ -48,8 +48,8 @@ internal unsafe partial class CPythonAPI
             var argsTuple = PackTuple(args);
             var kwargsDict = PackDict(kwnames, kwvalues);
             var result = PyObject_Call(callable, argsTuple, kwargsDict);
-            Py_DecRefRaw(argsTuple);
-            Py_DecRefRaw(kwargsDict);
+            Py_DecRef(argsTuple);
+            Py_DecRef(kwargsDict);
             return result;
         }
     }

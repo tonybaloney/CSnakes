@@ -14,9 +14,6 @@ internal unsafe partial class CPythonAPI
         }
     }
 
-    [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyUnicode_DecodeUTF16(char* str, nint size, IntPtr errors, IntPtr byteorder);
-
     /// <summary>
     /// Calls PyUnicode_AsUTF8 and throws a Python Exception if an error occurs.
     /// </summary>

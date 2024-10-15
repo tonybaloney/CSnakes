@@ -60,7 +60,7 @@ public static class GIL
             GC.SuppressFinalize(this);
             while (handlesToDispose.TryDequeue(out nint handle))
             {
-                CPythonAPI.Py_DecRefRaw(handle);
+                CPythonAPI.Py_DecRef(handle);
             }
             CPythonAPI.PyGILState_Release(gilState);
         }

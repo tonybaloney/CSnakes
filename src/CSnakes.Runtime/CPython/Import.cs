@@ -14,7 +14,7 @@ internal unsafe partial class CPythonAPI
     {
         nint pyName = AsPyUnicodeObject(name);
         nint module = PyImport_Import(pyName);
-        Py_DecRefRaw(pyName);
+        Py_DecRef(pyName);
         return PyObject.Create(module);
     }
 
@@ -23,21 +23,13 @@ internal unsafe partial class CPythonAPI
         nint pyName = AsPyUnicodeObject("builtins");
         nint pyAttrName = AsPyUnicodeObject(name);
         nint module = PyImport_Import(pyName);
-        nint attr = PyObject_GetAttrRaw(module, pyAttrName);
+        nint attr = PyObject_GetAttr(module, pyAttrName);
         if (attr == IntPtr.Zero)
         {
             throw PyObject.ThrowPythonExceptionAsClrException();
         }
-        Py_DecRefRaw(pyName);
-        Py_DecRefRaw(pyAttrName);
+        Py_DecRef(pyName);
+        Py_DecRef(pyAttrName);
         return attr;
     } 
-
-    /// <summary>
-    /// Import and return a reference to the module `name`
-    /// </summary>
-    /// <param name="name">The name of the module as a PyUnicode object.</param>
-    /// <returns>A new reference to module `name`</returns>
-    [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyImport_Import(nint name);
 }

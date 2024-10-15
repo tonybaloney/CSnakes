@@ -15,7 +15,7 @@ internal unsafe partial class CPythonAPI
         {
             throw new InvalidOperationException("Python is not initialized. You cannot call this method outside of a Python Environment context.");
         }
-        Py_IncRefRaw(PyNone);
+        Py_IncRef(PyNone);
         return PyNone;
     }
 

@@ -12,6 +12,6 @@ internal partial class PyObjectTypeConverter
     internal static PyObject ConvertFromBigInteger(BigInteger integer)
     {
         using PyObject pyUnicode = PyObject.Create(CPythonAPI.AsPyUnicodeObject(integer.ToString()));
-        return PyObject.Create(CPythonAPI.PyLong_FromUnicodeObject(pyUnicode, 10));
+        return PyObject.Create(CPythonAPI.PyLong_FromUnicodeObject(pyUnicode.DangerousGetHandle(), 10));
     }
 }

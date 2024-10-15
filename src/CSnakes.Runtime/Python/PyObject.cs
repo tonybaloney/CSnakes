@@ -46,7 +46,7 @@ public class PyObject : SafeHandle, ICloneable
         {
             using (GIL.Acquire())
             {
-                CPythonAPI.Py_DecRefRaw(handle);
+                CPythonAPI.Py_DecRef(handle);
             }
         }
         else
@@ -67,7 +67,7 @@ public class PyObject : SafeHandle, ICloneable
     {
         using (GIL.Acquire())
         {
-            if (!CPythonAPI.PyErr_Occurred())
+            if (!CPythonAPI.IsPyErrOccurred())
             {
                 return new InvalidDataException("An error occurred in Python, but no exception was set.");
             }
@@ -176,7 +176,7 @@ public class PyObject : SafeHandle, ICloneable
         RaiseOnPythonNotInitialized();
         using (GIL.Acquire())
         {
-            using PyObject reprStr = new PyObject(CPythonAPI.PyObject_Repr(this));
+            using PyObject reprStr = new PyObject(CPythonAPI.PyObject_Repr(this.DangerousGetHandle()));
             return CPythonAPI.PyUnicode_AsUTF8(reprStr);
         }
     }
@@ -509,7 +509,7 @@ public class PyObject : SafeHandle, ICloneable
 
     internal virtual PyObject Clone()
     {
-        CPythonAPI.Py_IncRefRaw(handle);
+        CPythonAPI.Py_IncRef(handle);
         return new PyObject(handle);
     }
 

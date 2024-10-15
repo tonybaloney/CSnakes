@@ -28,8 +28,6 @@ internal unsafe partial class CPythonAPI
         return byteArray;
     }
 
-    [LibraryImport(PythonLibraryName)]
-    private static partial nint PyBytes_FromStringAndSize(byte* v, nint len);
 
     [LibraryImport(PythonLibraryName)]
     private static partial byte* PyBytes_AsString(PyObject ob);

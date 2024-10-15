@@ -82,7 +82,7 @@ internal unsafe partial class CPythonAPI : IDisposable
             // Setup type statics
             using (GIL.Acquire())
             {
-                if (PyErr_Occurred())
+                if (IsPyErrOccurred())
                     throw new InvalidOperationException("Python initialization failed.");
 
                 if (!IsInitialized)
@@ -110,15 +110,6 @@ internal unsafe partial class CPythonAPI : IDisposable
 
     [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller))]
     internal static partial string? Py_GetVersion();
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial void Py_Initialize();
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial void Py_Finalize();
-
-    [LibraryImport(PythonLibraryName)]
-    internal static partial int Py_IsInitialized();
 
     [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath")]
     internal static partial void Py_SetPath_UCS2_UTF16([MarshalAs(UnmanagedType.LPWStr)] string path);

@@ -31,7 +31,7 @@ internal partial class PyObjectTypeConverter
 
             throw new InvalidCastException($"Cannot convert {pyObj.GetPythonType()} to a tuple.");
         }
-        nint tupleSize = CPythonAPI.PyTuple_Size(pyObj);
+        nint tupleSize = CPythonAPI.PyTuple_Size(pyObj.DangerousGetHandle());
 
         // We have to convert the Python values to CLR values, as if we just tried As<object>() it would
         // not parse the Python type to a CLR type, only to a new Python type.
@@ -91,7 +91,7 @@ internal partial class PyObjectTypeConverter
         {
             throw new InvalidCastException($"Cannot convert {pyObj.GetPythonType()} to a keyvaluepair.");
         }
-        if (CPythonAPI.PyTuple_Size(pyObj) != 2)
+        if (CPythonAPI.PyTuple_Size(pyObj.DangerousGetHandle()) != 2)
         {
             throw new InvalidDataException("Tuple must have exactly 2 elements to be converted to a KeyValuePair.");
         }

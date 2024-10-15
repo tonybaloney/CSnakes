@@ -121,6 +121,8 @@ public class PythonStaticGenerator : IIncrementalGenerator
                         using (GIL.Acquire())
                         {
                             Import.ReloadModule(ref module);
+                            // Dispose old functions
+                            {{string.Join(Environment.NewLine, functionNames.Select(f => $"this.{f.Field}.Dispose();"))}}
                             {{string.Join(Environment.NewLine, functionNames.Select(f => $"this.{f.Field} = module.GetAttr(\"{f.Attr}\");"))}}
                         }
                     }

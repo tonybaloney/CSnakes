@@ -65,6 +65,7 @@ public static class TestClassExtensions
                 // Dispose old functions
                 this.__func_returns_none.Dispose();
                 this.__func_test_none_result.Dispose();
+                // Bind to new functions
                 this.__func_returns_none = module.GetAttr("returns_none");
                 this.__func_test_none_result = module.GetAttr("test_none_result");
             }

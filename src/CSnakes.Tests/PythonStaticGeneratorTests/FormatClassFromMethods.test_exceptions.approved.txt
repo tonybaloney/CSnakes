@@ -65,6 +65,7 @@ public static class TestClassExtensions
                 // Dispose old functions
                 this.__func_test_raise_python_exception.Dispose();
                 this.__func_test_nested_python_exception.Dispose();
+                // Bind to new functions
                 this.__func_test_raise_python_exception = module.GetAttr("test_raise_python_exception");
                 this.__func_test_nested_python_exception = module.GetAttr("test_nested_python_exception");
             }

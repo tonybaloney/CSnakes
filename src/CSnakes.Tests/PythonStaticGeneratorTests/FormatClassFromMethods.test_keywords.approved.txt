@@ -65,6 +65,7 @@ public static class TestClassExtensions
                 // Dispose old functions
                 this.__func_test_keyword_only.Dispose();
                 this.__func_test_named_keyword_only.Dispose();
+                // Bind to new functions
                 this.__func_test_keyword_only = module.GetAttr("test_keyword_only");
                 this.__func_test_named_keyword_only = module.GetAttr("test_named_keyword_only");
             }

@@ -95,6 +95,7 @@ public static class TestClassExtensions
                 this.__func_test_int_returns_float.Dispose();
                 this.__func_test_int_returns_str.Dispose();
                 this.__func_test_int_overflows.Dispose();
+                // Bind to new functions
                 this.__func_test_str_actually_returns_int = module.GetAttr("test_str_actually_returns_int");
                 this.__func_test_str_actually_returns_float = module.GetAttr("test_str_actually_returns_float");
                 this.__func_test_str_actually_returns_list = module.GetAttr("test_str_actually_returns_list");

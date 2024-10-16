@@ -110,6 +110,7 @@ public static class TestClassExtensions
                 this.__func_tuple_15.Dispose();
                 this.__func_tuple_16.Dispose();
                 this.__func_tuple_17.Dispose();
+                // Bind to new functions
                 this.__func_tuple_1 = module.GetAttr("tuple_1");
                 this.__func_tuple_2 = module.GetAttr("tuple_2");
                 this.__func_tuple_3 = module.GetAttr("tuple_3");

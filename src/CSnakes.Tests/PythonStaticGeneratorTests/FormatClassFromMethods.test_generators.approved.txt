@@ -65,6 +65,7 @@ public static class TestClassExtensions
                 // Dispose old functions
                 this.__func_example_generator.Dispose();
                 this.__func_test_normal_generator.Dispose();
+                // Bind to new functions
                 this.__func_example_generator = module.GetAttr("example_generator");
                 this.__func_test_normal_generator = module.GetAttr("test_normal_generator");
             }

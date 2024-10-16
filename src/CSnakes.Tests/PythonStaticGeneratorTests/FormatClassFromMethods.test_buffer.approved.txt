@@ -149,6 +149,7 @@ public static class TestClassExtensions
                 this.__func_test_transposed_buffer.Dispose();
                 this.__func_test_ndim_3d_buffer.Dispose();
                 this.__func_test_ndim_4d_buffer.Dispose();
+                // Bind to new functions
                 this.__func_test_bool_buffer = module.GetAttr("test_bool_buffer");
                 this.__func_test_int8_buffer = module.GetAttr("test_int8_buffer");
                 this.__func_test_uint8_buffer = module.GetAttr("test_uint8_buffer");

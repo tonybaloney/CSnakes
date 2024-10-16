@@ -133,6 +133,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             {{              Lines(IndentationLevel.Four,
                                   from f in functionNames
                                   select $"this.{f.Field}.Dispose();") }}
+                            // Bind to new functions
             {{              Lines(IndentationLevel.Four,
                                   from f in functionNames
                                   select $"this.{f.Field} = module.GetAttr(\"{f.Attr}\");") }}

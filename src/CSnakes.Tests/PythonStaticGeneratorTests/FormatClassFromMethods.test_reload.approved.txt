@@ -65,6 +65,7 @@ public static class TestClassExtensions
                 // Dispose old functions
                 this.__func_test_number.Dispose();
                 this.__func_reload_module.Dispose();
+                // Bind to new functions
                 this.__func_test_number = module.GetAttr("test_number");
                 this.__func_reload_module = module.GetAttr("reload_module");
             }

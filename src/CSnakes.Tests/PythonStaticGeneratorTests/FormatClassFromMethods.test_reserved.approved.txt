@@ -62,6 +62,7 @@ public static class TestClassExtensions
                 Import.ReloadModule(ref module);
                 // Dispose old functions
                 this.__func_switch.Dispose();
+                // Bind to new functions
                 this.__func_switch = module.GetAttr("switch");
             }
         }

@@ -92,6 +92,7 @@ public static class TestClassExtensions
                 this.__func_test_bytes.Dispose();
                 this.__func_test_sequence.Dispose();
                 this.__func_test_none_result.Dispose();
+                // Bind to new functions
                 this.__func_test_int_float = module.GetAttr("test_int_float");
                 this.__func_test_int_int = module.GetAttr("test_int_int");
                 this.__func_test_float_float = module.GetAttr("test_float_float");

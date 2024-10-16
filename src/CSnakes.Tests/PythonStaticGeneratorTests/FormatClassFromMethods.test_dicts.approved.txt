@@ -71,6 +71,7 @@ public static class TestClassExtensions
                 this.__func_test_dict_str_list_int.Dispose();
                 this.__func_test_dict_str_dict_int.Dispose();
                 this.__func_test_mapping.Dispose();
+                // Bind to new functions
                 this.__func_test_dict_str_int = module.GetAttr("test_dict_str_int");
                 this.__func_test_dict_str_list_int = module.GetAttr("test_dict_str_list_int");
                 this.__func_test_dict_str_dict_int = module.GetAttr("test_dict_str_dict_int");

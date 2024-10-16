@@ -83,6 +83,7 @@ public static class TestClassExtensions
                 this.__func_test_optional_str.Dispose();
                 this.__func_test_optional_list.Dispose();
                 this.__func_test_optional_any.Dispose();
+                // Bind to new functions
                 this.__func_test_default_str_arg = module.GetAttr("test_default_str_arg");
                 this.__func_test_default_int_arg = module.GetAttr("test_default_int_arg");
                 this.__func_test_default_float_arg = module.GetAttr("test_default_float_arg");

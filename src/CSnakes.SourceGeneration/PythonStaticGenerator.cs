@@ -46,7 +46,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
             if (result)
             {
-                IEnumerable<MethodDefinition> methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
+                var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName).ToImmutableArray();
                 string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions, hash);
                 sourceContext.AddSource($"{pascalFileName}.py.cs", source);
                 sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
@@ -54,7 +54,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
         });
     }
 
-    public static string FormatClassFromMethods(string @namespace, string pascalFileName, IEnumerable<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions, ImmutableArray<byte> hash)
+    public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions, ImmutableArray<byte> hash)
     {
         var paramGenericArgs = methods
             .Select(m => m.ParameterGenericArgs)

@@ -7,7 +7,7 @@ namespace CSnakes.Reflection;
 
 public static class ModuleReflection
 {
-    public static IEnumerable<MethodDefinition> MethodsFromFunctionDefinitions(PythonFunctionDefinition[] functions, string moduleName)
+    public static IEnumerable<MethodDefinition> MethodsFromFunctionDefinitions(IEnumerable<PythonFunctionDefinition> functions, string moduleName)
     {
         return functions.Select(function => MethodReflection.FromMethod(function, moduleName));
     }

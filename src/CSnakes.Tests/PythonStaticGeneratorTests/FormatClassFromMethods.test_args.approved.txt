@@ -19,7 +19,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "f1fa8fc563a0275a101752e22be2d99a"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "fb3f77ef96b716122ce4f1a0f0115065"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {

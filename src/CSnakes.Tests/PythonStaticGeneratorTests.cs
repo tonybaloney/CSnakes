@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.Text;
 using Shouldly;
 using System.Collections.Immutable;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace CSnakes.Tests;
 
@@ -26,7 +27,8 @@ public class PythonStaticGeneratorTests
         {
             Assert.NotNull(stream);
             using var reader = new StreamReader(stream);
-            sourceText = SourceText.From(reader.ReadToEnd());
+            string normalizedText = Regex.Replace(reader.ReadToEnd(), @"\r?\n", "\n");
+            sourceText = SourceText.From(normalizedText);
         }
 
         // create a Python scope

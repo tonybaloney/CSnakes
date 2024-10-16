@@ -7,7 +7,7 @@ namespace CSnakes.Runtime;
 
 internal partial class PythonEnvironmentBuilder(IServiceCollection services) : IPythonEnvironmentBuilder
 {
-    private readonly string[] extraPaths = [];
+    private List<string> extraPaths = new();
     private string home = Environment.CurrentDirectory;
 
     public IServiceCollection Services { get; } = services;
@@ -51,6 +51,12 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
         return this;
     }
 
+    public IPythonEnvironmentBuilder WithExtraPaths(List<string> paths)
+    {
+        if (paths != null) this.extraPaths = paths;
+        return this;
+    }
+
     public PythonEnvironmentOptions GetOptions() =>
-        new(home, extraPaths);
+        new(home, extraPaths.ToArray());
 }

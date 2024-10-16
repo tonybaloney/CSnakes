@@ -35,6 +35,15 @@ public interface IPythonEnvironmentBuilder
     /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
     IPythonEnvironmentBuilder WithHome(string home);
 
+
+    /// <summary>
+    /// Sets a list of directory to be searched for the Python environment being built.
+    /// </summary>
+    /// <param name="home">The home directory path.</param>
+    /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
+    public IPythonEnvironmentBuilder WithExtraPaths(List<string> paths);
+
+
     /// <summary>
     /// Gets the options for the Python environment being built.
     /// </summary>

@@ -31,7 +31,6 @@ public class PythonStaticGeneratorTests
             sourceText = SourceText.From(normalizedText);
         }
 
-        // create a Python scope
         _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
 

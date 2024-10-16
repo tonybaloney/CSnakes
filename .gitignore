@@ -487,3 +487,6 @@ $RECYCLE.BIN/
 
 .venv
 site/
+
+# Snapshot test files
+*.received.*

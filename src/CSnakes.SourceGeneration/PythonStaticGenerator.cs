@@ -104,8 +104,8 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 private class {{pascalFileName}}Internal : I{{pascalFileName}}
                 {
                     private PyObject module;
-
                     private readonly ILogger<IPythonEnvironment> logger;
+
             {{      Lines(IndentationLevel.Two,
                           from f in functionNames
                           select $"private PyObject {f.Field};") }}

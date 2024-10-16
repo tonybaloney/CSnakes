@@ -39,8 +39,8 @@ public static class TestClassExtensions
     private class TestClassInternal : ITestClass
     {
         private PyObject module;
-
         private readonly ILogger<IPythonEnvironment> logger;
+
         private PyObject __func_test_number;
         private PyObject __func_reload_module;
 

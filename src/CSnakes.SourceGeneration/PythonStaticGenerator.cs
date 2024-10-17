@@ -3,6 +3,8 @@ using Microsoft.CodeAnalysis.Text;
 using CSnakes.Parser;
 using CSnakes.Parser.Types;
 using CSnakes.Reflection;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace CSnakes;
 
@@ -13,51 +15,52 @@ public class PythonStaticGenerator : IIncrementalGenerator
     {
         // System.Diagnostics.Debugger.Launch();
         var pythonFilesPipeline = context.AdditionalTextsProvider
-            .Where(static text => Path.GetExtension(text.Path) == ".py")
-            .Collect();
+            .Where(static text => Path.GetExtension(text.Path) == ".py");
 
-        context.RegisterSourceOutput(pythonFilesPipeline, static (sourceContext, inputFiles) =>
+        context.RegisterSourceOutput(pythonFilesPipeline, static (sourceContext, file) =>
         {
-            foreach (var file in inputFiles)
+            // Add environment path
+            var @namespace = "CSnakes.Runtime";
+
+            var fileName = Path.GetFileNameWithoutExtension(file.Path);
+
+            // Convert snake_case to PascalCase
+            var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
+            // Read the file
+            var code = file.GetText(sourceContext.CancellationToken);
+
+            if (code is null) return;
+
+            // Calculate hash of code
+            var hash = code.GetContentHash();
+
+            // Parse the Python file
+            var result = PythonParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);
+
+            foreach (var error in errors)
             {
-                // Add environment path
-                var @namespace = "CSnakes.Runtime";
+                // Update text span
+                Location errorLocation = Location.Create(file.Path, TextSpan.FromBounds(0, 1), new LinePositionSpan(new LinePosition(error.StartLine, error.StartColumn), new LinePosition(error.EndLine, error.EndColumn)));
+                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error.Message, "PythonStaticGenerator", DiagnosticSeverity.Error, true), errorLocation));
+            }
 
-                var fileName = Path.GetFileNameWithoutExtension(file.Path);
-
-                // Convert snakecase to pascal case
-                var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
-                // Read the file
-                var code = file.GetText(sourceContext.CancellationToken);
-
-                if (code is null) continue;
-
-                // Parse the Python file
-                var result = PythonParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);
-
-                foreach (var error in errors)
-                {
-                    // Update text span
-                    Location errorLocation = Location.Create(file.Path, TextSpan.FromBounds(0, 1), new LinePositionSpan(new LinePosition(error.StartLine, error.StartColumn), new LinePosition(error.EndLine, error.EndColumn)));
-                    sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error.Message, "PythonStaticGenerator", DiagnosticSeverity.Error, true), errorLocation));
-                }
-
-                if (result)
-                {
-                    IEnumerable<MethodDefinition> methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
-                    string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions);
-                    sourceContext.AddSource($"{pascalFileName}.py.cs", source);
-                    sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
-                }
+            if (result)
+            {
+                IEnumerable<MethodDefinition> methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName);
+                string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions, hash);
+                sourceContext.AddSource($"{pascalFileName}.py.cs", source);
+                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
             }
         });
     }
 
-    public static string FormatClassFromMethods(string @namespace, string pascalFileName, IEnumerable<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions)
+    public static string FormatClassFromMethods(string @namespace, string pascalFileName, IEnumerable<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions, ImmutableArray<byte> hash)
     {
         var paramGenericArgs = methods
             .Select(m => m.ParameterGenericArgs)
             .Where(l => l is not null && l.Any());
+
+        var functionNames = functions.Select(f => (Attr: f.Name, Field: $"__func_{f.Name}")).ToImmutableArray();
 
         return $$"""
             // <auto-generated/>
@@ -68,13 +71,18 @@ public class PythonStaticGenerator : IIncrementalGenerator
             using System;
             using System.Collections.Generic;
             using System.Diagnostics;
+            using System.Reflection.Metadata;
 
             using Microsoft.Extensions.Logging;
+
+            [assembly: MetadataUpdateHandler(typeof({{@namespace}}.{{pascalFileName}}Extensions))]
 
             namespace {{@namespace}};
             public static class {{pascalFileName}}Extensions
             {
                 private static I{{pascalFileName}}? instance;
+
+                private static ReadOnlySpan<byte> HotReloadHash => "{{HexString(hash.AsSpan())}}"u8;
 
                 public static I{{pascalFileName}} {{pascalFileName}}(this IPythonEnvironment env)
                 {
@@ -86,12 +94,16 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     return instance;
                 }
 
+                public static void UpdateApplication(Type[]? updatedTypes) {
+                    instance?.ReloadModule();
+                }
+
                 private class {{pascalFileName}}Internal : I{{pascalFileName}}
                 {
-                    private readonly PyObject module;
+                    private PyObject module;
 
                     private readonly ILogger<IPythonEnvironment> logger;
-                    private readonly IDictionary<string, PyObject> functions;
+                    {{string.Join(Environment.NewLine, functionNames.Select(f => $"private PyObject {f.Field};")) }}
 
                     internal {{pascalFileName}}Internal(ILogger<IPythonEnvironment> logger)
                     {
@@ -100,28 +112,57 @@ public class PythonStaticGenerator : IIncrementalGenerator
                         {
                             logger.LogDebug("Importing module {ModuleName}", "{{fileName}}");
                             module = Import.ImportModule("{{fileName}}");
-                            functions = new Dictionary<string, PyObject>();
-                            {{ string.Join(Environment.NewLine, functions.Select(f => $"functions[\"{f.Name}\"] = module.GetAttr(\"{f.Name}\");")) }}
+                            {{ string.Join(Environment.NewLine, functionNames.Select(f => $"this.{f.Field} = module.GetAttr(\"{f.Attr}\");")) }}
+                        }
+                    }
+
+                    void IReloadableModuleImport.ReloadModule() {
+                        logger.LogDebug("Reloading module {ModuleName}", "{{fileName}}");
+                        using (GIL.Acquire())
+                        {
+                            Import.ReloadModule(ref module);
+                            // Dispose old functions
+                            {{string.Join(Environment.NewLine, functionNames.Select(f => $"this.{f.Field}.Dispose();"))}}
+                            {{string.Join(Environment.NewLine, functionNames.Select(f => $"this.{f.Field} = module.GetAttr(\"{f.Attr}\");"))}}
                         }
                     }
 
                     public void Dispose()
                     {
                         logger.LogDebug("Disposing module {ModuleName}", "{{fileName}}");
-                        foreach (var function in functions)
-                        {
-                            function.Value.Dispose();
-                        }
+                        {{ string.Join(Environment.NewLine, functionNames.Select(f => $"this.{f.Field}.Dispose();")) }}
                         module.Dispose();
                     }
 
                     {{methods.Select(m => m.Syntax).Compile()}}
                 }
             }
-            public interface I{{pascalFileName}}
+            public interface I{{pascalFileName}} : IReloadableModuleImport
             {
-                {{string.Join(Environment.NewLine, methods.Select(m => m.Syntax).Select(m => $"{m.ReturnType.NormalizeWhitespace()} {m.Identifier.Text}{m.ParameterList.NormalizeWhitespace()};"))}}
+                {{string.Join(Environment.NewLine, methods.Select(m => m.Syntax)
+                                                          .Select(m => m.Identifier.Text == "ReloadModule"
+                                                                       // This prevents the warning:
+                                                                       // > warning CS0108: 'IFooBar.ReloadModule()' hides inherited member 'IReloadableModuleImport.ReloadModule()'. Use the new keyword if hiding was intended.
+                                                                       // because `IReloadableModuleImport` already has a `ReloadModule` method.
+                                                                       ? m.AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword))
+                                                                       : m)
+                                                          .Select(m => $"{m.WithBody(null).NormalizeWhitespace()};"))}}
             }
             """;
+    }
+
+    private static string HexString(ReadOnlySpan<byte> bytes)
+    {
+        const string hexChars = "0123456789abcdef";
+
+        var chars = new char[bytes.Length * 2];
+        var i = 0;
+        foreach (var b in bytes)
+        {
+            chars[i++] = hexChars[b >> 4];
+            chars[i++] = hexChars[b & 0xF];
+        }
+
+        return new string(chars);
     }
 }

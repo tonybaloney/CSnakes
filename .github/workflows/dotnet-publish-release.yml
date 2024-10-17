@@ -29,7 +29,7 @@ jobs:
             9.0.x
 
       - name: Restore dependencies
-        run: dotnet restore -c ${{ env.DOTNET_CONFIGURATION }}
+        run: dotnet restore
         working-directory: src
 
       - name: Build ${{ env.DOTNET_CONFIGURATION }} packages

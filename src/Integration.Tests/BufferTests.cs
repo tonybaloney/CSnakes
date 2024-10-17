@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Integration.Tests;
 
-public class BufferTests : IntegrationTestBase
+public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
     [Trait("requires", "numpy")]

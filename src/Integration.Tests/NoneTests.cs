@@ -1,7 +1,7 @@
 ﻿using CSnakes.Runtime.Python;
 
 namespace Integration.Tests;
-public class NoneTests : IntegrationTestBase
+public class NoneTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
     public void TestReturnsNoneIsNone()

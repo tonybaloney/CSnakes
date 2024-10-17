@@ -1,6 +1,6 @@
 ﻿namespace Integration.Tests;
 
-public class TupleTests : IntegrationTestBase
+public class TupleTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     ITestTuples TestTuples => Env.TestTuples();
 

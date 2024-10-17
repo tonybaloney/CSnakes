@@ -10,7 +10,7 @@ using System.Runtime.InteropServices.Marshalling;
 namespace CSnakes.Runtime.Python;
 
 [DebuggerDisplay("PyObject: repr={GetRepr()}, type={GetPythonType().ToString()}")]
-public class PyObject : SafeHandle, ICloneable
+public partial class PyObject : SafeHandle, ICloneable
 {
     protected PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
@@ -306,11 +306,6 @@ public class PyObject : SafeHandle, ICloneable
         }
     }
 
-    public static PyObject None { get; } = new PyNoneObject();
-    public static PyObject True { get; } = new PyTrueObject();
-    public static PyObject False { get; } = new PyFalseObject();
-
-
     /// <summary>
     /// Call the object. Equivalent to (__call__)(args)
     /// All arguments are treated as positional.
@@ -469,6 +464,7 @@ public class PyObject : SafeHandle, ICloneable
                 var t when t == typeof(int) => CPythonAPI.PyLong_AsLong(this),
                 var t when t == typeof(long) => CPythonAPI.PyLong_AsLongLong(this),
                 var t when t == typeof(double) => CPythonAPI.PyFloat_AsDouble(this),
+                var t when t == typeof(float) => (float)CPythonAPI.PyFloat_AsDouble(this),
                 var t when t == typeof(string) => CPythonAPI.PyUnicode_AsUTF8(this),
                 var t when t == typeof(BigInteger) => PyObjectTypeConverter.ConvertToBigInteger(this, t),
                 var t when t == typeof(byte[]) => CPythonAPI.PyBytes_AsByteArray(this),
@@ -490,9 +486,13 @@ public class PyObject : SafeHandle, ICloneable
             {
                 ICloneable pyObject => pyObject.Clone(),
                 bool b => b ? True : False,
+                int i when i == 0 => Zero,
+                int i when i == 1 => One,
+                int i when i == -1 => NegativeOne,
                 int i => Create(CPythonAPI.PyLong_FromLong(i)),
                 long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
                 double d => Create(CPythonAPI.PyFloat_FromDouble(d)),
+                float f => Create(CPythonAPI.PyFloat_FromDouble((double)f)),
                 string s => Create(CPythonAPI.AsPyUnicodeObject(s)),
                 byte[] bytes => PyObject.Create(CPythonAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
                 IDictionary dictionary => PyObjectTypeConverter.ConvertFromDictionary(dictionary),

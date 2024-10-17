@@ -2,7 +2,7 @@ using CSnakes.Runtime.Python;
 
 namespace Integration.Tests;
 
-public class ExceptionTests : IntegrationTestBase
+public class ExceptionTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
     public void TestExceptions_TestRaisePythonException()

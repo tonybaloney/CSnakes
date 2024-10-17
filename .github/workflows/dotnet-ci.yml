@@ -14,13 +14,21 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        python: ["3.9", "3.10", "3.11", "3.12", "3.13.0-rc.1"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
       fail-fast: false
     runs-on: "${{ matrix.os }}"
 
     steps:
       - uses: actions/checkout@v4
-
+      - uses: conda-incubator/setup-miniconda@v3
+        id: setup-conda
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
+          activate-environment: csnakes_test
+          environment-file: src/Conda.Tests/python/environment.yml
+      - name: cleanup conda-incubator/setup-miniconda
+        run: conda clean --all --yes
       - name: Setup Python
         id: installpython
         uses: actions/setup-python@v5
@@ -53,7 +61,7 @@ jobs:
         working-directory: src
 
       - name: Test
-        run: dotnet test --no-build --verbosity m --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog
+        run: dotnet test --no-build --blame --verbosity m --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog
         working-directory: src
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}

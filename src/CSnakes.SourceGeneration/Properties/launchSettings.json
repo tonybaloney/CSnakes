@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Integration.Tests": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\Integration.Tests\\Integration.Tests.csproj"
+    }
+  }
+}

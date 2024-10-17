@@ -3,6 +3,7 @@ nav:
   - Home: index.md
   - Getting Started: getting-started.md
   - Reference: reference.md
+  - Environment and Package Management: environments.md
   - Buffer Protocol and NumPy Arrays: buffers.md
   - Advanced Usage: advanced.md
   - Limitations: limitations.md

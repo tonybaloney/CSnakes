@@ -24,6 +24,7 @@ Check out the [getting started](getting-started.md) guide or check out the [demo
 - Supports [CPython 3.13 "free-threading" mode](advanced.md#free-threading-mode)
 - Supports [nested sequence and mapping types (`tuple`, `dict`, `list`)](reference.md)
 - Supports [default values](reference.md#default-values)
+- Supports [Hot Reload](advanced.md#hot-reload) of Python code in Visual Studio and supported IDEs
 
 
 ## Benefits

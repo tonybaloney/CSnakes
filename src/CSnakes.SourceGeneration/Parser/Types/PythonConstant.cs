@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
+using System.Globalization;
 
 namespace CSnakes.Parser.Types;
 
@@ -24,6 +25,11 @@ public readonly struct PythonConstant
     private PythonConstant(ConstantType type, Union union, string? str = null) =>
         (Type, this.union, this.str) = (type, union, str);
 
+    public sealed class Float(double value) : PythonConstant
+    {
+        public double Value { get; } = value;
+        public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
+    }
 
     /// <summary>
     /// Represents a union of all the primitive types supported by <see cref="PythonConstant"/>.

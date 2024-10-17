@@ -19,7 +19,7 @@ internal unsafe partial class CPythonAPI
     /// </summary>
     /// <param name="items">An array of pointers to PyObject</param>
     /// <returns>A new reference to the resulting tuple object.</returns>
-    internal static nint PackTuple(Span<IntPtr> items)
+    internal static nint PackTuple(ReadOnlySpan<IntPtr> items)
     {
         // This is a shortcut to a CPython optimization. Keep an empty tuple and reuse it.
         if (items.Length == 0)

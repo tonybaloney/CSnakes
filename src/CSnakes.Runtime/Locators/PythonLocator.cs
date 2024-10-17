@@ -9,12 +9,12 @@ namespace CSnakes.Runtime.Locators;
 /// Initializes a new instance of the <see cref="PythonLocator"/> class.
 /// </remarks>
 /// <param name="version">The version of Python.</param>
-public abstract class PythonLocator(Version version)
+public abstract class PythonLocator
 {
     /// <summary>
     /// Gets the version of Python.
     /// </summary>
-    protected Version Version { get ; } = version;
+    protected abstract Version Version { get; }
 
     /// <summary>
     /// Locates the Python installation.

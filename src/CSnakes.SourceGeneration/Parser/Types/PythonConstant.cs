@@ -1,5 +1,5 @@
+﻿using System.Globalization;
 using System.Runtime.InteropServices;
-using System.Globalization;
 
 namespace CSnakes.Parser.Types;
 
@@ -25,11 +25,6 @@ public readonly struct PythonConstant
     private PythonConstant(ConstantType type, Union union, string? str = null) =>
         (Type, this.union, this.str) = (type, union, str);
 
-    public sealed class Float(double value) : PythonConstant
-    {
-        public double Value { get; } = value;
-        public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
-    }
 
     /// <summary>
     /// Represents a union of all the primitive types supported by <see cref="PythonConstant"/>.
@@ -78,12 +73,12 @@ public readonly struct PythonConstant
 
     public override string ToString() => Type switch
     {
-        ConstantType.Integer => IntegerValue.ToString(),
-        ConstantType.HexidecimalInteger => $"0x{IntegerValue:X}",
-        ConstantType.BinaryInteger => $"0b{IntegerValue:X}",
-        ConstantType.Float => FloatValue.ToString(),
-        ConstantType.Bool => BoolValue.ToString(),
-        ConstantType.String => StringValue ?? throw new ArgumentNullException(nameof(StringValue)),
+        ConstantType.Integer => this.union.Int64.ToString(),
+        ConstantType.HexidecimalInteger => $"0x{this.union.Int64:X}",
+        ConstantType.BinaryInteger => $"0b{this.union.Int64:X}",
+        ConstantType.Float => this.union.Double.ToString(CultureInfo.InvariantCulture),
+        ConstantType.Bool => this.union.Boolean.ToString(),
+        ConstantType.String => this.str ?? string.Empty,
         ConstantType.None => "None",
         _ => "unknown"
     };

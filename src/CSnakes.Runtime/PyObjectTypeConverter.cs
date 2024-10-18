@@ -44,6 +44,12 @@ internal partial class PyObjectTypeConverter
             var instance = Activator.CreateInstance(destinationType) ?? throw new InvalidOperationException($"Failed to create instance of {destinationType}");
             foreach (var property in properties)
             {
+                if (property.Name == "Self")
+                {
+                    property.SetValue(instance, pyObject);
+                    continue;
+                }
+
                 var pythonNameAttribute = property.GetCustomAttribute<PythonNameAttribute>();
                 string attrName = pythonNameAttribute?.Name ?? ToSnakeCase(property.Name);
                 var value = pyObject.GetAttr(attrName);

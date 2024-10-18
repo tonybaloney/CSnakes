@@ -7,7 +7,7 @@ namespace CSnakes.Reflection;
 
 public static class ModuleReflection
 {
-    public static IEnumerable<MethodDefinition> MethodsFromFunctionDefinitions(PythonFunctionDefinition[] functions, string moduleName)
+    public static IEnumerable<MethodDefinition> MethodsFromFunctionDefinitions(IEnumerable<PythonFunctionDefinition> functions, string moduleName)
     {
         return functions.Select(function => MethodReflection.FromMethod(function, moduleName));
     }
@@ -15,9 +15,12 @@ public static class ModuleReflection
     public static string Compile(this IEnumerable<MethodDeclarationSyntax> methods)
     {
         using StringWriter sw = new();
-        foreach (var method in methods)
+        foreach (var (i, method) in methods.Select((m, i) => (i, m)))
         {
+            if (i > 0)
+                sw.WriteLine();
             method.NormalizeWhitespace().WriteTo(sw);
+            sw.WriteLine();
         }
         return sw.ToString();
     }

@@ -2,6 +2,7 @@
 using CSnakes.Runtime.Python;
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Text;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
@@ -36,7 +37,55 @@ internal partial class PyObjectTypeConverter
             return new PyBuffer(pyObject);
         }
 
+        // Need to find a better way to detect that a PyObject is a class instance
+        if (pyObject.GetPythonType().ToString().StartsWith("<class"))
+        {
+            var properties = destinationType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.SetProperty);
+            var instance = Activator.CreateInstance(destinationType) ?? throw new InvalidOperationException($"Failed to create instance of {destinationType}");
+            foreach (var property in properties)
+            {
+                if (property.Name == "Self")
+                {
+                    property.SetValue(instance, pyObject);
+                    continue;
+                }
+
+                var pythonNameAttribute = property.GetCustomAttribute<PythonNameAttribute>();
+                string attrName = pythonNameAttribute?.Name ?? ToSnakeCase(property.Name);
+                var value = pyObject.GetAttr(attrName);
+                property.SetValue(instance, value.As(property.PropertyType));
+            }
+            return instance;
+        }
+
         throw new InvalidCastException($"Attempting to cast {destinationType} from {pyObject.GetPythonType()}");
+    }
+
+    private static string ToSnakeCase(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return value;
+        }
+
+        var stringBuilder = new StringBuilder();
+        for (int i = 0; i < value.Length; i++)
+        {
+            if (char.IsUpper(value[i]))
+            {
+                if (i > 0)
+                {
+                    stringBuilder.Append('_');
+                }
+                stringBuilder.Append(char.ToLower(value[i]));
+            }
+            else
+            {
+                stringBuilder.Append(value[i]);
+            }
+        }
+
+        return stringBuilder.ToString();
     }
 
     record DynamicTypeInfo(ConstructorInfo ReturnTypeConstructor, ConstructorInfo? TransientTypeConstructor = null);

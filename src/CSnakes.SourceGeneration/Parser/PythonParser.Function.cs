@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.Text;
 using CSnakes.Parser.Types;
 using Superpower;
 using Superpower.Model;
@@ -14,8 +14,8 @@ public static partial class PythonParser
         (from @async in Token.EqualTo(PythonToken.Async).OptionalOrDefault()
          from def in Token.EqualTo(PythonToken.Def)
          from name in Token.EqualTo(PythonToken.Identifier)
-         from parameters in PythonParameterListParser.AssumeNotNull()
-         from arrow in Token.EqualTo(PythonToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionParser.AssumeNotNull().OptionalOrDefault())
+         from parameters in PythonParameterListParser
+         from arrow in Token.EqualTo(PythonToken.Arrow).Then(returnType => PythonTypeDefinitionParser).AsNullable().OptionalOrDefault()
          from colon in Token.EqualTo(PythonToken.Colon)
          select new PythonFunctionDefinition(name.ToStringValue(), arrow, parameters, async.HasValue))
         .Named("Function Definition");

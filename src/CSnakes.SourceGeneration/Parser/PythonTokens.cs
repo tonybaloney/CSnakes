@@ -1,4 +1,4 @@
-﻿using Superpower.Display;
+using Superpower.Display;
 
 namespace CSnakes.Parser;
 
@@ -57,5 +57,20 @@ public enum PythonToken
     None,
 
     [Token(Example = "...")]
-    Ellipsis
+    Ellipsis,
+
+    [Token(Example = ", /")]
+    CommaSlash,
+
+    [Token(Example = ", *")]
+    CommaStar,
+
+    [Token(Example = ", **")]
+    CommaStarStar,
+
+    [Token(Example = ", *,")]
+    CommaStarComma,
+
+    [Token(Example = ", )")]
+    CommaCloseParenthesis,
 }

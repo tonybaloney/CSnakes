@@ -11,36 +11,21 @@ public class ArgumentReflection
 
     public static ParameterSyntax? ArgumentSyntax(PythonFunctionParameter parameter)
     {
-        // The parameter / is a special syntax, not a parameter.
-        if (parameter.ParameterType == PythonFunctionParameterType.Slash)
-        {
-            return null;
-        }
-
         // Treat *args as list<Any>=None and **kwargs as dict<str, Any>=None
         // TODO: Handle the user specifying *args with a type annotation like tuple[int, str]
-        TypeSyntax reflectedType = parameter.ParameterType switch
+        var (reflectedType, defaultValue) = parameter switch
         {
-            PythonFunctionParameterType.Star => ArrayPyObject,
-            PythonFunctionParameterType.DoubleStar => TypeReflection.AsPredefinedType(DictStrAny, TypeReflection.ConversionDirection.ToPython),
-            PythonFunctionParameterType.Normal => TypeReflection.AsPredefinedType(parameter.Type, TypeReflection.ConversionDirection.ToPython),
+            PythonFunctionParameter.Star => (ArrayPyObject, PythonConstant.None.Value),
+            PythonFunctionParameter.DoubleStar => (TypeReflection.AsPredefinedType(DictStrAny, TypeReflection.ConversionDirection.ToPython), PythonConstant.None.Value),
+            PythonFunctionParameter.Normal { Type: var type, DefaultValue: var dv } => (TypeReflection.AsPredefinedType(type, TypeReflection.ConversionDirection.ToPython), dv),
             _ => throw new NotImplementedException()
         };
-
-        // Force a default value for *args and **kwargs as null, otherwise the calling convention is strange
-        if ((parameter.ParameterType == PythonFunctionParameterType.Star ||
-             parameter.ParameterType == PythonFunctionParameterType.DoubleStar) &&
-            parameter.DefaultValue is null)
-
-        {
-            parameter.DefaultValue = PythonConstant.None.Value;
-        }
 
         bool isNullableType = false;
 
         LiteralExpressionSyntax? literalExpressionSyntax;
 
-        switch (parameter.DefaultValue)
+        switch (defaultValue)
         {
             case null:
                 literalExpressionSyntax = null;
@@ -98,15 +83,15 @@ public class ArgumentReflection
             .WithDefault(literalExpressionSyntax is not null ? SyntaxFactory.EqualsValueClause(literalExpressionSyntax) : null);
     }
 
-    public static List<(PythonFunctionParameter, ParameterSyntax)> FunctionParametersAsParameterSyntaxPairs(PythonFunctionParameter[] parameters)
+    public static List<(PythonFunctionParameterListEntryKind, PythonFunctionParameter, ParameterSyntax)> FunctionParametersAsParameterSyntaxPairs(PythonFunctionParameterList parameters)
     {
-        List<(PythonFunctionParameter, ParameterSyntax)> parametersList = [];
-        foreach (var parameter in parameters)
+        List<(PythonFunctionParameterListEntryKind, PythonFunctionParameter, ParameterSyntax)> parametersList = [];
+        foreach (var (kind, parameter) in parameters)
         {
             var argument = ArgumentSyntax(parameter);
             if (argument != null)
             {
-                parametersList.Add((parameter, argument));
+                parametersList.Add((kind, parameter, argument));
             }
         }
 

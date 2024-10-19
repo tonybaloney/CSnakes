@@ -1,8 +1,9 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using CSnakes.Parser;
 using CSnakes.Parser.Types;
 using Superpower;
+using Superpower.Model;
 
 namespace CSnakes.Tests;
 public class TokenizerTests
@@ -92,8 +93,9 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize(code);
         var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal(expectedName, result.Value.Name);
-        Assert.Equal(expectedType, result.Value.Type.ToString());
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value);
+        Assert.Equal(expectedName, param.Name);
+        Assert.Equal(expectedType, param.Type.ToString());
     }
 
     [Fact]
@@ -102,8 +104,9 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize("a");
         var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value.Name);
-        Assert.False(result.Value.HasTypeAnnotation());
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value);
+        Assert.Equal("a", param.Name);
+        Assert.False(param.HasTypeAnnotation());
     }
 
     [Fact]
@@ -112,9 +115,10 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize("a = 1");
         var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value.Name);
-        Assert.Equal("1", result.Value.DefaultValue?.ToString());
-        Assert.False(result.Value.HasTypeAnnotation());
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value);
+        Assert.Equal("a", param.Name);
+        Assert.Equal("1", param.DefaultValue?.ToString());
+        Assert.False(param.HasTypeAnnotation());
     }
 
     [Theory]
@@ -127,9 +131,10 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize($"a = {value}");
         var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value.Name);
-        Assert.Equal(value, result.Value.DefaultValue?.ToString());
-        Assert.False(result.Value.HasTypeAnnotation());
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value);
+        Assert.Equal("a", param.Name);
+        Assert.Equal(value, param.DefaultValue?.ToString());
+        Assert.False(param.HasTypeAnnotation());
     }
 
     [Fact]
@@ -138,9 +143,10 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize($"a = 'hello'");
         var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value.Name);
-        Assert.Equal("hello", result.Value.DefaultValue?.ToString());
-        Assert.False(result.Value.HasTypeAnnotation());
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value);
+        Assert.Equal("a", param.Name);
+        Assert.Equal("hello", param.DefaultValue?.ToString());
+        Assert.False(param.HasTypeAnnotation());
     }
 
     [Fact]
@@ -149,9 +155,10 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize($"a = \"hello\"");
         var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value.Name);
-        Assert.Equal("hello", result.Value.DefaultValue?.ToString());
-        Assert.False(result.Value.HasTypeAnnotation());
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value);
+        Assert.Equal("a", param.Name);
+        Assert.Equal("hello", param.DefaultValue?.ToString());
+        Assert.False(param.HasTypeAnnotation());
     }
 
     [Fact]
@@ -160,9 +167,10 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize($"a: float = -1.1");
         var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value.Name);
-        Assert.Equal("-1.1", result.Value.DefaultValue?.ToString());
-        Assert.True(result.Value.HasTypeAnnotation());
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value);
+        Assert.Equal("a", param.Name);
+        Assert.Equal("-1.1", param.DefaultValue?.ToString());
+        Assert.True(param.HasTypeAnnotation());
     }
 
     [Fact]
@@ -171,20 +179,22 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize($"a: int = 1234");
         var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value.Name);
-        Assert.Equal("1234", result.Value.DefaultValue?.ToString());
-        Assert.True(result.Value.HasTypeAnnotation());
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value);
+        Assert.Equal("a", param.Name);
+        Assert.Equal("1234", param.DefaultValue?.ToString());
+        Assert.True(param.HasTypeAnnotation());
     }
 
     [Fact]
-    public void ParseFunctionParameterDefaultBoolTrue()
+    public void ParseFunctionParameterDefaultBool()
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"a: bool = True");
         var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value.Name);
-        Assert.Equal("True", result.Value.DefaultValue?.ToString());
-        Assert.True(result.Value.HasTypeAnnotation());
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value);
+        Assert.Equal("a", param.Name);
+        Assert.Equal("True", param.DefaultValue?.ToString());
+        Assert.True(param.HasTypeAnnotation());
     }
 
     [Fact]
@@ -193,9 +203,10 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize($"a: bool = False");
         var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value.Name);
-        Assert.Equal("False", result.Value.DefaultValue?.ToString());
-        Assert.True(result.Value.HasTypeAnnotation());
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value);
+        Assert.Equal("a", param.Name);
+        Assert.Equal("False", param.DefaultValue?.ToString());
+        Assert.True(param.HasTypeAnnotation());
     }
 
     [Fact]
@@ -204,9 +215,24 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize($"a: bool = None");
         var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value.Name);
-        Assert.Equal("None", result.Value.DefaultValue?.ToString());
-        Assert.True(result.Value.HasTypeAnnotation());
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value);
+        Assert.Equal("a", param.Name);
+        Assert.Equal("None", param.DefaultValue?.ToString());
+        Assert.True(param.HasTypeAnnotation());
+    }
+
+    [Theory]
+    [InlineData("*args", "args", typeof(PythonFunctionParameter.Star))]
+    [InlineData("**kwargs", "kwargs", typeof(PythonFunctionParameter.DoubleStar))]
+    public void ParseFunctionSpecialParameter(string source, string expectedName, Type expectedParameterType)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize($"({source})");
+        var result = PythonParser.PythonParameterListParser.TryParse(tokens);
+        Assert.True(result.HasValue);
+        var parameter = Assert.Single(result.Value).Parameter;
+        Assert.Equal(expectedName, parameter.Name);
+        Assert.IsType(expectedParameterType, parameter);
+        Assert.False(((PythonFunctionParameter.Regular)parameter).HasTypeAnnotation());
     }
 
     [Fact]
@@ -216,8 +242,9 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize(code);
         var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value[0].Name);
-        Assert.Equal("list[int]", result.Value[0].Type.ToString());
+        Assert.Equal("a", result.Value[0].Parameter.Name);
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value[0].Parameter);
+        Assert.Equal("list[int]", param.Type.ToString());
     }
 
     [Fact]
@@ -227,8 +254,9 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize(code);
         var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value[0].Name);
-        Assert.Equal("list[int]", result.Value[0].Type.ToString());
+        Assert.Equal("a", result.Value[0].Parameter.Name);
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value[0].Parameter);
+        Assert.Equal("list[int]", param.Type.ToString());
     }
 
     [Fact]
@@ -238,8 +266,9 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize(code);
         var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value[0].Name);
-        Assert.Equal("typing.List[int]", result.Value[0].Type.ToString());
+        Assert.Equal("a", result.Value[0].Parameter.Name);
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value[0].Parameter);
+        Assert.Equal("typing.List[int]", param.Type.ToString());
     }
 
     [Fact]
@@ -249,8 +278,9 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize(code);
         var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value[0].Name);
-        Assert.Equal("np.ndarray", result.Value[0].Type.ToString());
+        Assert.Equal("a", result.Value[0].Parameter.Name);
+        var param = Assert.IsType<PythonFunctionParameter.Normal>(result.Value[0].Parameter);
+        Assert.Equal("np.ndarray", param.Type.ToString());
     }
 
     [Fact]
@@ -260,12 +290,15 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize(code);
         var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value[0].Name);
-        Assert.Equal("int", result.Value[0].Type.Name);
-        Assert.Equal("b", result.Value[1].Name);
-        Assert.Equal("float", result.Value[1].Type.Name);
-        Assert.Equal("c", result.Value[2].Name);
-        Assert.Equal("str", result.Value[2].Type.Name);
+        var a = Assert.IsType<PythonFunctionParameter.Normal>(result.Value[0].Parameter);
+        Assert.Equal("a", a.Name);
+        Assert.Equal("int", a.Type.Name);
+        var b = Assert.IsType<PythonFunctionParameter.Normal>(result.Value[1].Parameter);
+        Assert.Equal("b", b.Name);
+        Assert.Equal("float", b.Type.Name);
+        var c = Assert.IsType<PythonFunctionParameter.Normal>(result.Value[2].Parameter);
+        Assert.Equal("c", c.Name);
+        Assert.Equal("str", c.Type.Name);
     }
 
     [Fact]
@@ -275,12 +308,15 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize(code);
         var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value[0].Name);
-        Assert.Equal("Any", result.Value[0].Type.Name);
-        Assert.Equal("b", result.Value[1].Name);
-        Assert.Equal("Any", result.Value[1].Type.Name);
-        Assert.Equal("c", result.Value[2].Name);
-        Assert.Equal("Any", result.Value[2].Type.Name);
+        var a = Assert.IsType<PythonFunctionParameter.Normal>(result.Value[0].Parameter);
+        Assert.Equal("a", a.Name);
+        Assert.Equal("Any", a.Type.Name);
+        var b = Assert.IsType<PythonFunctionParameter.Normal>(result.Value[1].Parameter);
+        Assert.Equal("b", b.Name);
+        Assert.Equal("Any", b.Type.Name);
+        var c = Assert.IsType<PythonFunctionParameter.Normal>(result.Value[2].Parameter);
+        Assert.Equal("c", c.Name);
+        Assert.Equal("Any", c.Type.Name);
     }
 
     [Fact]
@@ -290,12 +326,15 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize(code);
         var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        Assert.Equal("a", result.Value[0].Name);
-        Assert.Equal("Any", result.Value[0].Type.Name);
-        Assert.Equal("b", result.Value[1].Name);
-        Assert.Equal("Any", result.Value[1].Type.Name);
-        Assert.Equal("c", result.Value[2].Name);
-        Assert.Equal("Any", result.Value[2].Type.Name);
+        var a = Assert.IsType<PythonFunctionParameter.Normal>(result.Value[0].Parameter);
+        Assert.Equal("a", a.Name);
+        Assert.Equal("Any", a.Type.Name);
+        var b = Assert.IsType<PythonFunctionParameter.Normal>(result.Value[1].Parameter);
+        Assert.Equal("b", b.Name);
+        Assert.Equal("Any", b.Type.Name);
+        var c = Assert.IsType<PythonFunctionParameter.Normal>(result.Value[2].Parameter);
+        Assert.Equal("c", c.Name);
+        Assert.Equal("Any", c.Type.Name);
     }
 
     [Fact]
@@ -306,10 +345,12 @@ public class TokenizerTests
 
         Assert.True(result.HasValue);
         Assert.Equal("foo", result.Value.Name);
-        Assert.Equal("a", result.Value.Parameters[0].Name);
-        Assert.Equal("int", result.Value.Parameters[0].Type.Name);
-        Assert.Equal("b", result.Value.Parameters[1].Name);
-        Assert.Equal("str", result.Value.Parameters[1].Type.Name);
+        var a = Assert.IsType<PythonFunctionParameter.Normal>(result.Value.Parameters[0].Parameter);
+        Assert.Equal("a", a.Name);
+        Assert.Equal("int", a.Type.Name);
+        var b = Assert.IsType<PythonFunctionParameter.Normal>(result.Value.Parameters[1].Parameter);
+        Assert.Equal("b", b.Name);
+        Assert.Equal("str", b.Type.Name);
         Assert.Equal("None", result.Value.ReturnType.Name);
     }
 
@@ -330,6 +371,16 @@ public class TokenizerTests
         Assert.True(tokens.IsAtEnd == false, "Tokenize failed");
         var result = PythonParser.PythonFunctionDefinitionParser.TryParse(tokens);
         Assert.True(result.HasValue, result.ToString());
+    }
+
+    [Theory]
+    [InlineData("def foo() None:", "Syntax error (line 1, column 11): unexpected none `None`, expected `:`.")]
+    public void InvalidFunctionDefinition(string code, string expectedError)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize(code);
+        var result = PythonParser.PythonFunctionDefinitionParser.TryParse(tokens);
+        Assert.False(result.HasValue);
+        Assert.Equal(expectedError, result.ToString());
     }
 
     [Fact]
@@ -357,17 +408,21 @@ if __name__ == '__main__':
         Assert.NotNull(functions);
         Assert.Equal(2, functions.Length);
         Assert.Equal("bar", functions[0].Name);
-        Assert.Equal("a", functions[0].Parameters[0].Name);
-        Assert.Equal("int", functions[0].Parameters[0].Type.Name);
-        Assert.Equal("b", functions[0].Parameters[1].Name);
-        Assert.Equal("str", functions[0].Parameters[1].Type.Name);
+        var a = Assert.IsType<PythonFunctionParameter.Normal>(functions[0].Parameters[0].Parameter);
+        Assert.Equal("a", a.Name);
+        Assert.Equal("int", a.Type.Name);
+        var b = Assert.IsType<PythonFunctionParameter.Normal>(functions[0].Parameters[1].Parameter);
+        Assert.Equal("b", b.Name);
+        Assert.Equal("str", b.Type.Name);
         Assert.Equal("None", functions[0].ReturnType.Name);
 
         Assert.Equal("baz", functions[1].Name);
-        Assert.Equal("c", functions[1].Parameters[0].Name);
-        Assert.Equal("float", functions[1].Parameters[0].Type.Name);
-        Assert.Equal("d", functions[1].Parameters[1].Name);
-        Assert.Equal("bool", functions[1].Parameters[1].Type.Name);
+        var c = Assert.IsType<PythonFunctionParameter.Normal>(functions[1].Parameters[0].Parameter);
+        Assert.Equal("c", c.Name);
+        Assert.Equal("float", c.Type.Name);
+        var d = Assert.IsType<PythonFunctionParameter.Normal>(functions[1].Parameters[1].Parameter);
+        Assert.Equal("d", d.Name);
+        Assert.Equal("bool", d.Type.Name);
         Assert.Equal("None", functions[1].ReturnType.Name);
     }
 
@@ -377,7 +432,7 @@ if __name__ == '__main__':
         var code = @"
 import foo
 
-def bar(a: int, 
+def bar(a: int,
         b: str) -> None:
     pass
 
@@ -391,13 +446,15 @@ if __name__ == '__main__':
         _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
         Assert.NotNull(functions);
-        Assert.Single(functions);
-        Assert.Equal("bar", functions[0].Name);
-        Assert.Equal("a", functions[0].Parameters[0].Name);
-        Assert.Equal("int", functions[0].Parameters[0].Type.Name);
-        Assert.Equal("b", functions[0].Parameters[1].Name);
-        Assert.Equal("str", functions[0].Parameters[1].Type.Name);
-        Assert.Equal("None", functions[0].ReturnType.Name);
+        var function = Assert.Single(functions);
+        Assert.Equal("bar", function.Name);
+        var a = Assert.IsType<PythonFunctionParameter.Normal>(function.Parameters[0].Parameter);
+        Assert.Equal("a", a.Name);
+        Assert.Equal("int", a.Type.Name);
+        var b = Assert.IsType<PythonFunctionParameter.Normal>(function.Parameters[1].Parameter);
+        Assert.Equal("b", b.Name);
+        Assert.Equal("str", b.Type.Name);
+        Assert.Equal("None", function.ReturnType.Name);
     }
 
     [Fact]
@@ -416,8 +473,8 @@ if __name__ == '__main__':
     [Fact]
     public void ParseFunctionTrailingSpaceAfterColon()
     {
-        var code = @"def bar(a: int, 
-        b: str) -> None:   
+        var code = @"def bar(a: int,
+        b: str) -> None:
     pass"; // There is a trailing space after None:
         SourceText sourceText = SourceText.From(code);
         _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
@@ -430,20 +487,22 @@ if __name__ == '__main__':
     [Fact]
     public void ParseFunctionNoBlankLineAtEnd()
     {
-        var code = @"def bar(a: int, 
+        var code = @"def bar(a: int,
         b: str) -> None:
     pass";
         SourceText sourceText = SourceText.From(code);
         _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
         Assert.NotNull(functions);
-        Assert.Single(functions);
-        Assert.Equal("bar", functions[0].Name);
-        Assert.Equal("a", functions[0].Parameters[0].Name);
-        Assert.Equal("int", functions[0].Parameters[0].Type.Name);
-        Assert.Equal("b", functions[0].Parameters[1].Name);
-        Assert.Equal("str", functions[0].Parameters[1].Type.Name);
-        Assert.Equal("None", functions[0].ReturnType.Name);
+        var function = Assert.Single(functions);
+        Assert.Equal("bar", function.Name);
+        var a = Assert.IsType<PythonFunctionParameter.Normal>(function.Parameters[0].Parameter);
+        Assert.Equal("a", a.Name);
+        Assert.Equal("int", a.Type.Name);
+        var b = Assert.IsType<PythonFunctionParameter.Normal>(function.Parameters[1].Parameter);
+        Assert.Equal("b", b.Name);
+        Assert.Equal("str", b.Type.Name);
+        Assert.Equal("None", function.ReturnType.Name);
     }
 
     [Fact]
@@ -461,9 +520,9 @@ if __name__ == '__main__':
         Assert.NotEmpty(errors);
         Assert.Equal(3, errors[0].StartLine);
         Assert.Equal(5, errors[0].EndLine);
-        Assert.Equal(21, errors[0].StartColumn);
-        Assert.Equal(22, errors[0].EndColumn);
-        Assert.Equal("unexpected identifier `str`, expected `)`", errors[0].Message);
+        Assert.Equal(19, errors[0].StartColumn);
+        Assert.Equal(20, errors[0].EndColumn);
+        Assert.Equal("unexpected `=`, expected Type Definition", errors[0].Message);
     }
 
     [Fact]
@@ -539,4 +598,3 @@ if __name__ == '__main__':
         Assert.Equal(expectedValue, value.Value);
     }
 }
-

@@ -55,10 +55,10 @@ public static class MethodReflection
         }
 
         // Step 3: Build arguments
-        List<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList = ArgumentReflection.FunctionParametersAsParameterSyntaxPairs(function.Parameters);
+        List<(PythonFunctionParameterListEntryKind kind, PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList = ArgumentReflection.FunctionParametersAsParameterSyntaxPairs(function.Parameters);
 
         List<GenericNameSyntax> parameterGenericArgs = [];
-        foreach (var (pythonParameter, cSharpParameter) in parameterList)
+        foreach (var (_, _, cSharpParameter) in parameterList)
         {
             if (cSharpParameter.Type is GenericNameSyntax g)
             {
@@ -68,13 +68,13 @@ public static class MethodReflection
 
         // Step 4: Build body
         var pythonConversionStatements = new List<StatementSyntax>();
-        foreach (var (pythonParameter, cSharpParameter) in parameterList)
+        foreach (var (_, pythonParameter, cSharpParameter) in parameterList)
         {
-            if (pythonParameter.ParameterType != PythonFunctionParameterType.Normal)
+            if (pythonParameter is not PythonFunctionParameter.Normal)
             {
                 continue;
             }
-            bool needsConversion = true; // TODO: Skip .From for PyObject arguments. 
+            bool needsConversion = true; // TODO: Skip .From for PyObject arguments.
             ExpressionSyntax rhs = IdentifierName(cSharpParameter.Identifier);
             if (needsConversion)
                 rhs =
@@ -110,16 +110,14 @@ public static class MethodReflection
         InvocationExpressionSyntax? callExpression = null;
 
         // IF no *args, *kwargs or keyword-only args
-        if (parameterList.All((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.Normal))
+        if (function.Parameters is { Keyword.IsEmpty: true, VariadicPositional: null, VariadicKeyword: null })
         {
-            callExpression = GenerateParamsCall(parameterList);
+            callExpression = GenerateParamsCall(from p in parameterList select (p.pythonParameter, p.cSharpParameter));
         }
-        else if (parameterList.Any((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.Star) &&
-                 !parameterList.Any((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.DoubleStar) &&
-                 !parameterList.Any((a) => a.pythonParameter.IsKeywordOnly))
+        else if (function.Parameters is { VariadicPositional: not null, Keyword.IsEmpty: true, VariadicKeyword: null })
         {
             // IF *args but no kwargs or keyword-only arguments
-            callExpression = GenerateArgsCall(parameterList);
+            callExpression = GenerateArgsCall(from p in parameterList select (p.pythonParameter, p.cSharpParameter));
         }
         else
         {
@@ -256,19 +254,19 @@ public static class MethodReflection
         // 3. Any *args argument
         // 4. Any **kwargs argument
         var methodParameters = parameterList
-            .Where((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.Normal && !a.pythonParameter.IsKeywordOnly)
+            .Where((a) => a is (PythonFunctionParameterListEntryKind.Positional or PythonFunctionParameterListEntryKind.Regular, _, _))
             .Select((a) => a.cSharpParameter)
             .Concat(
                 parameterList
-                    .Where((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.Normal && a.pythonParameter.IsKeywordOnly)
+                    .Where((a) => a is (PythonFunctionParameterListEntryKind.Keyword, _, _))
                     .Select((a) => a.cSharpParameter)
             ).Concat(
                 parameterList
-                    .Where((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.Star)
+                    .Where((a) => a is (PythonFunctionParameterListEntryKind.VariadicPositional, _, _))
                     .Select((a) => a.cSharpParameter)
             ).Concat(
                 parameterList
-                    .Where((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.DoubleStar)
+                    .Where((a) => a is (PythonFunctionParameterListEntryKind.VariadicKeyword, _, _))
                     .Select((a) => a.cSharpParameter)
             );
 
@@ -351,10 +349,10 @@ public static class MethodReflection
         // Use CallWithArgs([arg1, arg2, ..args ?? []])
         IEnumerable<ArgumentSyntax> pythonFunctionCallArguments =
             parameterList
-                .Where((arg) => arg.pythonParameter.ParameterType == PythonFunctionParameterType.Normal)
+                .Where((arg) => arg.pythonParameter is PythonFunctionParameter.Normal)
                 .Select((a) => Argument(IdentifierName($"{a.cSharpParameter.Identifier}_pyObject"))).ToList();
 
-        var (pythonParameter, cSharpParameter) = parameterList.First(p => p.pythonParameter.ParameterType == PythonFunctionParameterType.Star);
+        var (pythonParameter, cSharpParameter) = parameterList.First(p => p.pythonParameter is PythonFunctionParameter.Star);
         SeparatedSyntaxList<CollectionElementSyntax> collection = SeparatedList<CollectionElementSyntax>()
             .AddRange(pythonFunctionCallArguments.Select((a) => ExpressionElement(a.Expression)))
             .Add(
@@ -376,27 +374,26 @@ public static class MethodReflection
                     ArgumentList(SeparatedList(pythonFunctionCallArguments)));
     }
 
-    private static InvocationExpressionSyntax GenerateKeywordCall(IEnumerable<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList)
+    private static InvocationExpressionSyntax GenerateKeywordCall(List<(PythonFunctionParameterListEntryKind kind, PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList)
     {
         // Same as args, use a collection expression for all the positional args
         // [arg1, arg2, .. args ?? []]
         // Create a collection of string constants for the keyword-only names
         IEnumerable<ArgumentSyntax> positionalArgumentsForCollection =
             parameterList
-                .Where((arg) => arg.pythonParameter.ParameterType == PythonFunctionParameterType.Normal &&
-                                !arg.pythonParameter.IsKeywordOnly)
+                .Where((arg) => arg is (PythonFunctionParameterListEntryKind.Positional or PythonFunctionParameterListEntryKind.Regular, _, _))
                 .Select((a) => Argument(IdentifierName($"{a.cSharpParameter.Identifier}_pyObject"))).ToList();
 
         SeparatedSyntaxList<CollectionElementSyntax> collection = SeparatedList<CollectionElementSyntax>()
             .AddRange(positionalArgumentsForCollection.Select((a) => ExpressionElement(a.Expression)));
 
-        if (parameterList.Any((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.Star))
+        if (parameterList.Any((a) => a.pythonParameter is PythonFunctionParameter.Star))
         {
             collection = collection.Add(
                 SpreadElement(
                     BinaryExpression(
                         SyntaxKind.CoalesceExpression,
-                        IdentifierName(parameterList.First(p => p.pythonParameter.ParameterType == PythonFunctionParameterType.Star).pythonParameter.Name),
+                        IdentifierName(parameterList.First(p => p.pythonParameter is PythonFunctionParameter.Star).pythonParameter.Name),
                         CollectionExpression()
                     )
                 )
@@ -406,7 +403,7 @@ public static class MethodReflection
         // Create a collection of string constants for the keyword-only names
         ArgumentSyntax kwnames = Argument(CollectionExpression(
             SeparatedList<CollectionElementSyntax>(
-                parameterList.Where((arg) => arg.pythonParameter.IsKeywordOnly && arg.pythonParameter.ParameterType == PythonFunctionParameterType.Normal)
+                parameterList.Where((arg) => arg is (PythonFunctionParameterListEntryKind.Keyword, _, _))
                     .Select(
                         (a) => ExpressionElement(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(a.pythonParameter.Name)))
                     )
@@ -416,7 +413,7 @@ public static class MethodReflection
         // Create a collection of the converted PyObject identifiers for keyword-only values
         ArgumentSyntax kwvalues = Argument(CollectionExpression(
             SeparatedList<CollectionElementSyntax>(
-                parameterList.Where((arg) => arg.pythonParameter.IsKeywordOnly && arg.pythonParameter.ParameterType == PythonFunctionParameterType.Normal)
+                parameterList.Where((arg) => arg is (PythonFunctionParameterListEntryKind.Keyword, _, _))
                     .Select(
                         (a) => ExpressionElement(IdentifierName($"{a.cSharpParameter.Identifier}_pyObject")))
                     )
@@ -425,10 +422,10 @@ public static class MethodReflection
 
         ArgumentSyntax kwargsArgument;
         // If there is a kwargs dictionary, add it to the arguments
-        if (parameterList.Any((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.DoubleStar))
+        if (parameterList.Any((a) => a.pythonParameter is PythonFunctionParameter.DoubleStar))
         {
             // TODO: The internal name might be mutated
-            kwargsArgument = Argument(IdentifierName(parameterList.First(p => p.pythonParameter.ParameterType == PythonFunctionParameterType.DoubleStar).pythonParameter.Name));
+            kwargsArgument = Argument(IdentifierName(parameterList.First(p => p.pythonParameter is PythonFunctionParameter.DoubleStar).pythonParameter.Name));
         }
         else
         {

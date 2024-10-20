@@ -1,4 +1,6 @@
-﻿namespace Integration.Tests;
+﻿using System.Text.RegularExpressions;
+
+namespace Integration.Tests;
 public class GeneratorTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
@@ -12,7 +14,11 @@ public class GeneratorTests(PythonEnvironmentFixture fixture) : IntegrationTestB
         Assert.True(generator.Send(10));
         Assert.Equal("Received 10", generator.Current);
         Assert.Equal<string[]>(["Item 1", "Item 2"], generator.ToArray());
-        Assert.True(generator.Return);
+
+        string version = Regex.Match(Env.Version, @"^[0-9]+\.[0-9]+").Value;
+        Assert.NotEqual(string.Empty, version);
+        if (new Version(version) > new Version(3, 11))
+            Assert.True(generator.Return);
     }
 
     [Fact]

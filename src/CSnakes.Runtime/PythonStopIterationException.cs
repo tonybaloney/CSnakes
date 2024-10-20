@@ -6,10 +6,10 @@ public sealed class PythonStopIterationException : PythonRuntimeException
 {
     private PyObject? value;
 
-    public PythonStopIterationException(PyObject exception, PyObject? traceback) : base(exception, traceback)
+    public PythonStopIterationException(PyObject? exception, PyObject? traceback) : base(exception, traceback)
     {
         const string attr = "value";
-        this.value = exception.HasAttr(attr) && exception.GetAttr(attr) is var value ? value : PyObject.None;
+        this.value = exception?.HasAttr(attr) is true && exception.GetAttr(attr) is var value ? value : PyObject.None;
     }
 
     /// <summary>

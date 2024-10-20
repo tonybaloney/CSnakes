@@ -1,6 +1,6 @@
 ﻿namespace CSnakes.Runtime.Python;
 
-public interface IGeneratorIterator<TYield, TSend, TReturn>: IEnumerator<TYield>, IEnumerable<TYield>, IGeneratorIterator
+public interface IGeneratorIterator<out TYield, in TSend, out TReturn>: IEnumerator<TYield>, IEnumerable<TYield>, IGeneratorIterator
 {
     TYield Send(TSend value);
 }

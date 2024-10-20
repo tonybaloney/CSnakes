@@ -12,9 +12,7 @@ public class GeneratorTests(PythonEnvironmentFixture fixture) : IntegrationTestB
         Assert.True(generator.Send(10));
         Assert.Equal("Received 10", generator.Current);
         Assert.Equal<string[]>(["Item 1", "Item 2"], generator.ToArray());
-
-        if (PythonVersion > new Version(3, 11))
-            Assert.True(generator.Return);
+        Assert.True(generator.Return);
     }
 
     [Fact]

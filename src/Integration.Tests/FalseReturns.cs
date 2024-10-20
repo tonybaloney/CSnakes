@@ -77,7 +77,7 @@ public class FalseReturns(PythonEnvironmentFixture fixture) : IntegrationTestBas
     public void Test_FalseReturn_Types_FloatNotInt()
     {
         var falseReturns = Env.TestFalseReturns();
-        if (PythonVersion is { Major: 3, Minor: 9 })
+        if (Env.Version.StartsWith("3.9"))
         {
             // Python will convert the float to an int without errors in 3.9
             Assert.Equal(1, falseReturns.TestIntReturnsFloat());

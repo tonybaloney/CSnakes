@@ -8,8 +8,30 @@ public sealed class PythonStopIterationException : PythonRuntimeException
 
     public PythonStopIterationException(PyObject? exception, PyObject? traceback) : base(exception, traceback)
     {
-        const string attr = "value";
-        this.value = exception?.HasAttr(attr) is true && exception.GetAttr(attr) is var value ? value : PyObject.None;
+        // `PyObject` uses the `PyErr_Fetch` API to get the exception and traceback. Unfortunately,
+        // it looks like there was a regression with Python version 3.12. Prior to 3.12, the
+        // `PyErr_Fetch` API would return the exception's value in `p_value`:
+        // https://github.com/python/cpython/blob/0c47759eee3e170e04a5dae82f12f6b375ae78f7/Python/errors.c#L430
+        //
+        // In version 3.12+, it was changed to return the exception object:
+        // https://github.com/python/cpython/blob/v3.12.0/Python/errors.c#L503
+        //
+        // So to get at the value of the `StopIteration` exception, check if the object type name is
+        // indeed `StopIteration` and only then get the `value` attribute. Otherwise, assume that
+        // the object is the exception's value!
+
+        if (exception is { } valueOrError)
+        {
+            using var type = valueOrError.GetPythonType();
+            using var typeName = type.GetAttr("__name__");
+            this.value = typeName.As<string>() == "StopIteration"
+                       ? valueOrError.GetAttr("value")
+                       : valueOrError;
+        }
+        else
+        {
+            this.value = PyObject.None;
+        }
     }
 
     /// <summary>

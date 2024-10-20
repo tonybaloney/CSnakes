@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions;
 
 namespace Integration.Tests;
 
@@ -58,5 +59,9 @@ public sealed class PythonEnvironmentFixture : IDisposable
 [Collection(PythonEnvironmentCollection.Name)]
 public abstract class IntegrationTestBase(PythonEnvironmentFixture fixture)
 {
+    private Version? version;
+
     public IPythonEnvironment Env { get; } = fixture.Env;
+
+    public Version PythonVersion => this.version ??= new Version(Regex.Match(Env.Version, @"^[1-9][0-9]*\.[0-9]+").Value);
 }

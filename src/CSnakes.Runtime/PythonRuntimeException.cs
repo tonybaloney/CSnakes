@@ -19,18 +19,13 @@ public class PythonRuntimeException : Exception
         Data["globals"] = traceback.GetAttr("tb_frame").GetAttr("f_globals").As<IReadOnlyDictionary<string, PyObject>>();
     }
 
-    private static PythonRuntimeException? GetPythonInnerException(PyObject? exception)
-    {
-        if (exception is null)
-        {
-            return null;
-        }
-        if (exception.HasAttr("__cause__") && !exception.GetAttr("__cause__").IsNone())
-        {
-            return new PythonRuntimeException(exception.GetAttr("__cause__"), null);
-        }
-        return null;
-    }
+    private static PythonRuntimeException? GetPythonInnerException(PyObject? exception) =>
+        exception is { } someException
+        && someException.HasAttr("__cause__")
+        && someException.GetAttr("__cause__") is var cause
+        && !cause.IsNone()
+            ? new PythonRuntimeException(cause, null)
+            : null;
 
     public string[] PythonStackTrace
     {

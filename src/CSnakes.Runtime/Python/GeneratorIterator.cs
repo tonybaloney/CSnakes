@@ -9,8 +9,10 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
     private readonly PyObject sendPyFunction = generator.GetAttr("send");
 
     private TYield current = default!;
+    private TReturn @return = default!;
 
     public TYield Current => current;
+    public TReturn Return => @return;
 
     object IEnumerator.Current => Current!;
 
@@ -34,38 +36,36 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
 
     public IEnumerator<TYield> GetEnumerator() => this;
 
-
-    public bool MoveNext()
-    {
-        try
-        {
-            using PyObject result = nextPyFunction.Call();
-            current = result.As<TYield>();
-            return true;
-        }
-        catch (PythonInvocationException pyO) when (pyO.PythonExceptionType == "StopIteration")
-        {
-            return false;
-        }
-    }
+    public bool MoveNext() => Send(PyObject.None);
 
     public void Reset() => throw new NotSupportedException();
 
-    public TYield Send(TSend value)
+    public bool Send(TSend value)
+    {
+        using PyObject sendValue = PyObject.From(value);
+        return Send(sendValue);
+    }
+
+    private bool Send(PyObject value)
     {
         try
         {
-            using PyObject sendValue = PyObject.From(value);
-            using PyObject result = sendPyFunction.Call(sendValue);
+            using PyObject result = sendPyFunction.Call(value);
             current = result.As<TYield>();
-            return current;
+            return true;
         }
-        catch (PythonInvocationException pyO) when (pyO.PythonExceptionType == "StopIteration")
+        catch (PythonInvocationException ex)
         {
-            throw new ArgumentOutOfRangeException("Generator is exhausted.");
+            if (ex.InnerException is PythonStopIterationException stopIteration)
+            {
+                using var @return = stopIteration.TakeValue();
+                this.@return = @return.As<TReturn>();
+                return false;
+            }
+
+            throw;
         }
     }
 
     IEnumerator IEnumerable.GetEnumerator() => this;
-
 }

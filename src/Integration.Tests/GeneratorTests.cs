@@ -9,8 +9,10 @@ public class GeneratorTests(PythonEnvironmentFixture fixture) : IntegrationTestB
 
         Assert.True(generator.MoveNext());
         Assert.Equal("Item 0", generator.Current);
-        Assert.Equal("Received 10", generator.Send(10));
+        Assert.True(generator.Send(10));
+        Assert.Equal("Received 10", generator.Current);
         Assert.Equal<string[]>(["Item 1", "Item 2"], generator.ToArray());
+        Assert.True(generator.Return);
     }
 
     [Fact]

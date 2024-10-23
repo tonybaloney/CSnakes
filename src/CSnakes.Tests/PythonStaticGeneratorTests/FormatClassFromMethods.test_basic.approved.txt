@@ -266,17 +266,96 @@ public static class TestClassExtensions
     }
 }
 
+/// <summary>
+/// Represent functions of the Python module <c>test</c>.
+/// </summary>
 public interface ITestClass : IReloadableModuleImport
 {
+    /// <summary>
+    /// Invokes the Python function <c>test_int_float</c>:
+    /// <code><![CDATA[
+    /// def test_int_float(a: int, b: float) -> float: ...
+    /// ]]></code>
+    /// </summary>
     double TestIntFloat(long a, double b);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_int_int</c>:
+    /// <code><![CDATA[
+    /// def test_int_int(a: int, b: int) -> int: ...
+    /// ]]></code>
+    /// </summary>
     long TestIntInt(long a, long b);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_float_float</c>:
+    /// <code><![CDATA[
+    /// def test_float_float(a: float, b: float) -> float: ...
+    /// ]]></code>
+    /// </summary>
     double TestFloatFloat(double a, double b);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_float_int</c>:
+    /// <code><![CDATA[
+    /// def test_float_int(a: float, b: int) -> float: ...
+    /// ]]></code>
+    /// </summary>
     double TestFloatInt(double a, long b);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_list_of_ints</c>:
+    /// <code><![CDATA[
+    /// def test_list_of_ints(a: list[int]) -> list[int]: ...
+    /// ]]></code>
+    /// </summary>
     IReadOnlyList<long> TestListOfInts(IReadOnlyList<long> a);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_two_strings</c>:
+    /// <code><![CDATA[
+    /// def test_two_strings(a: str, b: str) -> str: ...
+    /// ]]></code>
+    /// </summary>
     string TestTwoStrings(string a, string b);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_two_lists_of_strings</c>:
+    /// <code><![CDATA[
+    /// def test_two_lists_of_strings(a: list[str], b: list[str]) -> list[str]: ...
+    /// ]]></code>
+    /// </summary>
     IReadOnlyList<string> TestTwoListsOfStrings(IReadOnlyList<string> a, IReadOnlyList<string> b);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_two_dicts</c>:
+    /// <code><![CDATA[
+    /// def test_two_dicts(a: dict[str, int], b: dict[str, int]) -> dict[str, int]: ...
+    /// ]]></code>
+    /// </summary>
     IReadOnlyDictionary<string, long> TestTwoDicts(IReadOnlyDictionary<string, long> a, IReadOnlyDictionary<string, long> b);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_bytes</c>:
+    /// <code><![CDATA[
+    /// def test_bytes(a: bytes) -> bytes: ...
+    /// ]]></code>
+    /// </summary>
     byte[] TestBytes(byte[] a);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_sequence</c>:
+    /// <code><![CDATA[
+    /// def test_sequence(a: Sequence[int], start: int, end: int) -> Sequence[int]: ...
+    /// ]]></code>
+    /// </summary>
     IReadOnlyList<long> TestSequence(IReadOnlyList<long> a, long start, long end);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_none_result</c>:
+    /// <code><![CDATA[
+    /// def test_none_result() -> None: ...
+    /// ]]></code>
+    /// </summary>
     void TestNoneResult();
 }

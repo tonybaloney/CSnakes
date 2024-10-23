@@ -263,18 +263,104 @@ public static class TestClassExtensions
     }
 }
 
+/// <summary>
+/// Represent functions of the Python module <c>test</c>.
+/// </summary>
 public interface ITestClass : IReloadableModuleImport
 {
+    /// <summary>
+    /// Invokes the Python function <c>test_str_actually_returns_int</c>:
+    /// <code><![CDATA[
+    /// def test_str_actually_returns_int() -> str: ...
+    /// ]]></code>
+    /// </summary>
     string TestStrActuallyReturnsInt();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_str_actually_returns_float</c>:
+    /// <code><![CDATA[
+    /// def test_str_actually_returns_float() -> str: ...
+    /// ]]></code>
+    /// </summary>
     string TestStrActuallyReturnsFloat();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_str_actually_returns_list</c>:
+    /// <code><![CDATA[
+    /// def test_str_actually_returns_list() -> str: ...
+    /// ]]></code>
+    /// </summary>
     string TestStrActuallyReturnsList();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_str_actually_returns_tuple</c>:
+    /// <code><![CDATA[
+    /// def test_str_actually_returns_tuple() -> str: ...
+    /// ]]></code>
+    /// </summary>
     string TestStrActuallyReturnsTuple();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_tuple_actually_returns_int</c>:
+    /// <code><![CDATA[
+    /// def test_tuple_actually_returns_int() -> tuple[int, int]: ...
+    /// ]]></code>
+    /// </summary>
     (long, long) TestTupleActuallyReturnsInt();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_tuple_actually_returns_float</c>:
+    /// <code><![CDATA[
+    /// def test_tuple_actually_returns_float() -> tuple[float, float]: ...
+    /// ]]></code>
+    /// </summary>
     (double, double) TestTupleActuallyReturnsFloat();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_tuple_actually_returns_list</c>:
+    /// <code><![CDATA[
+    /// def test_tuple_actually_returns_list() -> tuple[list[int], list[int]]: ...
+    /// ]]></code>
+    /// </summary>
     (IReadOnlyList<long>, IReadOnlyList<long>) TestTupleActuallyReturnsList();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_float_returns_int</c>:
+    /// <code><![CDATA[
+    /// def test_float_returns_int() -> float: ...
+    /// ]]></code>
+    /// </summary>
     double TestFloatReturnsInt();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_float_returns_str</c>:
+    /// <code><![CDATA[
+    /// def test_float_returns_str() -> float: ...
+    /// ]]></code>
+    /// </summary>
     double TestFloatReturnsStr();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_int_returns_float</c>:
+    /// <code><![CDATA[
+    /// def test_int_returns_float() -> int: ...
+    /// ]]></code>
+    /// </summary>
     long TestIntReturnsFloat();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_int_returns_str</c>:
+    /// <code><![CDATA[
+    /// def test_int_returns_str() -> int: ...
+    /// ]]></code>
+    /// </summary>
     long TestIntReturnsStr();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_int_overflows</c>:
+    /// <code><![CDATA[
+    /// def test_int_overflows() -> int: ...
+    /// ]]></code>
+    /// </summary>
     long TestIntOverflows();
 }

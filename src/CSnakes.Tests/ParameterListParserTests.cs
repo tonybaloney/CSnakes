@@ -32,7 +32,7 @@ public class ParameterListParserTests
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"({input})");
         var result = PythonParser.PythonParameterListParser.Parse(tokens);
-        Assert.Equal(expected, string.Join(", ", from p in result select p.Parameter.Name));
+        Assert.Equal(expected, string.Join(", ", from p in result select p.Name));
     }
 
     [Theory]
@@ -46,6 +46,7 @@ public class ParameterListParserTests
     [InlineData("*args, *", "Syntax error (line 1, column 7): unexpected `, *`, expected `)` or `, )`.")]
     [InlineData("*, *args", "Syntax error (line 1, column 3): unexpected `, *`, expected Parameter or `,`.")]
     [InlineData("*args, /", "Syntax error (line 1, column 7): unexpected `, /`, expected `)` or `, )`.")]
+    [InlineData("a, *args, /", "Syntax error (line 1, column 10): unexpected `, /`, expected `)` or `, )`.")]
     [InlineData("*args, a, b, c, /", "Syntax error (line 1, column 16): unexpected `, /`, expected `)` or `, )`.")]
     [InlineData("**kwargs, a", "Syntax error (line 1, column 10): unexpected `,`, expected `)` or `, )`.")]
     [InlineData("**a, **b", "Syntax error (line 1, column 5): unexpected `, **`, expected `)` or `, )`.")]

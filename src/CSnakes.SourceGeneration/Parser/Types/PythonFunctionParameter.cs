@@ -1,102 +1,129 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
-using PythonFunctionParameterListEntry = (CSnakes.Parser.Types.PythonFunctionParameterListEntryKind Kind, CSnakes.Parser.Types.PythonFunctionParameter Parameter);
+using System.Text;
 
 namespace CSnakes.Parser.Types;
-public enum PythonFunctionParameterListEntryKind
+public abstract class PythonFunctionParameter(string name, PythonTypeSpec? type, PythonConstant? defaultValue)
 {
-    Positional,
-    Regular,
-    VariadicPositional,
-    Keyword,
-    VariadicKeyword
+    public string Name { get; } = name;
+    public PythonTypeSpec Type => type ?? PythonTypeSpec.Any;
+    public PythonConstant? DefaultValue { get; } = defaultValue;
+    public bool HasTypeAnnotation() => type is not null;
+
+    public abstract class Unit(string name, PythonTypeSpec? type, PythonConstant? defaultValue) :
+        PythonFunctionParameter(name, type, defaultValue);
+
+    public abstract class Variadic(string name, PythonTypeSpec? type) :
+        PythonFunctionParameter(name, type, PythonConstant.None.Value);
+
+    public sealed class Positional(string name, PythonTypeSpec? type, PythonConstant? defaultValue) :
+        Unit(name, type, defaultValue);
+
+    public sealed class Normal(string name, PythonTypeSpec? type, PythonConstant? defaultValue) :
+        Unit(name, type, defaultValue);
+
+    public sealed class VariadicPositional(string name, PythonTypeSpec? type) :
+        Variadic(name, type);
+
+    public sealed class Keyword(string name, PythonTypeSpec? type, PythonConstant? defaultValue) :
+        Unit(name, type, defaultValue);
+
+    public sealed class VariadicKeyword(string name, PythonTypeSpec? type) :
+        Variadic(name, type);
 }
 
-public sealed class PythonFunctionParameterList(ImmutableArray<PythonFunctionParameter> positional = default,
-                                                ImmutableArray<PythonFunctionParameter> regular = default,
-                                                PythonFunctionParameter? varpos = null,
-                                                ImmutableArray<PythonFunctionParameter> keyword = default,
-                                                PythonFunctionParameter? varkw = null) :
-    IReadOnlyList<PythonFunctionParameterListEntry>
+/// <remarks>
+/// The order of the parameters is inspired by <see
+/// href="https://docs.python.org/3/library/ast.html#ast.arguments"><c>ast.arguments</c></see>.
+/// </remarks>
+public sealed class PythonFunctionParameterList(ImmutableArray<PythonFunctionParameter.Positional> positional = default,
+                                                ImmutableArray<PythonFunctionParameter.Normal> regular = default,
+                                                PythonFunctionParameter.VariadicPositional? varpos = null,
+                                                ImmutableArray<PythonFunctionParameter.Keyword> keyword = default,
+                                                PythonFunctionParameter.VariadicKeyword? varkw = null) :
+    IReadOnlyList<PythonFunctionParameter>
 {
     public static readonly PythonFunctionParameterList Empty = new();
 
-    public ImmutableArray<PythonFunctionParameter> Positional { get; } = positional.IsDefault ? [] : positional;
-    public ImmutableArray<PythonFunctionParameter> Regular { get; } = regular.IsDefault ? [] : regular;
-    public PythonFunctionParameter? VariadicPositional { get; } = varpos;
-    public ImmutableArray<PythonFunctionParameter> Keyword { get; } = keyword.IsDefault ? [] : keyword;
-    public PythonFunctionParameter? VariadicKeyword { get; } = varkw;
+    private ImmutableArray<PythonFunctionParameter> all;
+    private string? stringRepresentation;
 
-    public PythonFunctionParameterList WithPositional(ImmutableArray<PythonFunctionParameter> value) =>
+    public ImmutableArray<PythonFunctionParameter.Positional> Positional { get; } = positional.IsDefault ? [] : positional;
+    public ImmutableArray<PythonFunctionParameter.Normal> Regular { get; } = regular.IsDefault ? [] : regular;
+    public PythonFunctionParameter.VariadicPositional? VariadicPositional { get; } = varpos;
+    public ImmutableArray<PythonFunctionParameter.Keyword> Keyword { get; } = keyword.IsDefault ? [] : keyword;
+    public PythonFunctionParameter.VariadicKeyword? VariadicKeyword { get; } = varkw;
+
+    public PythonFunctionParameterList WithPositional(ImmutableArray<PythonFunctionParameter.Positional> value) =>
         value == Positional ? this : new(value.IsDefault ? [] : value, Regular, VariadicPositional, Keyword, VariadicKeyword);
 
-    public PythonFunctionParameterList WithRegular(ImmutableArray<PythonFunctionParameter> value) =>
+    public PythonFunctionParameterList WithRegular(ImmutableArray<PythonFunctionParameter.Normal> value) =>
         value == Regular ? this : new(Positional, value.IsDefault ? [] : value, VariadicPositional, Keyword, VariadicKeyword);
 
-    public PythonFunctionParameterList WithVariadicKeyword(PythonFunctionParameter? value) =>
+    public PythonFunctionParameterList WithVariadicKeyword(PythonFunctionParameter.VariadicKeyword? value) =>
         value == VariadicKeyword ? this : new(Positional, Regular, VariadicPositional, Keyword, value);
 
-    private ImmutableArray<PythonFunctionParameterListEntry> all;
+    private ImmutableArray<PythonFunctionParameter> All => all.IsDefault ? all = [..this] : all;
 
-    private ImmutableArray<PythonFunctionParameterListEntry> All => all.IsDefault ? all = GetAll() : all;
-
-    private ImmutableArray<PythonFunctionParameterListEntry> GetAll()
+    public IEnumerator<PythonFunctionParameter> GetEnumerator()
     {
-        var count =
-            Positional.Length
-            + Regular.Length
-            + (VariadicPositional is not null ? 1 : 0)
-            + Keyword.Length + (VariadicKeyword is not null ? 1 : 0);
+        foreach (var p in Positional)
+            yield return p;
 
-        var array = ImmutableArray.CreateBuilder<PythonFunctionParameterListEntry>(count);
-        array.AddRange(from p in Positional select (PythonFunctionParameterListEntryKind.Positional, p));
-        array.AddRange(from p in Regular select (PythonFunctionParameterListEntryKind.Regular, p));
-        if (VariadicPositional is { } varpos)
-            array.Add((PythonFunctionParameterListEntryKind.VariadicPositional, varpos));
-        array.AddRange(from p in Keyword select (PythonFunctionParameterListEntryKind.Keyword, p));
-        if (VariadicKeyword is { } varkw)
-            array.Add((PythonFunctionParameterListEntryKind.VariadicKeyword, varkw));
-        return array.MoveToImmutable();
+        foreach (var p in Regular)
+            yield return p;
+
+        if (VariadicPositional is { } vpp)
+            yield return vpp;
+
+        foreach (var p in Keyword)
+            yield return p;
+
+        if (VariadicKeyword is { } vkp)
+            yield return vkp;
     }
-
-    public IEnumerator<PythonFunctionParameterListEntry> GetEnumerator() => All.AsEnumerable().GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public int Count => All.Length;
+    public int Count => Positional.Length
+                        + Regular.Length
+                        + (VariadicPositional is not null ? 1 : 0)
+                        + Keyword.Length
+                        + (VariadicKeyword is not null ? 1 : 0);
 
-    public PythonFunctionParameterListEntry this[int index] => All[index];
-}
+    public PythonFunctionParameter this[int index] => All[index];
 
-public abstract class PythonFunctionParameter
-{
-    protected PythonFunctionParameter(string name) => Name = name;
+    public override string ToString() => stringRepresentation ??= BuildString();
 
-    public string Name { get; }
-
-    public abstract class Regular : PythonFunctionParameter
+    private string BuildString()
     {
-        private readonly PythonTypeSpec? type;
+        var sb = new StringBuilder("(");
 
-        protected Regular(string name, PythonTypeSpec? type, PythonConstant? defaultValue) : base(name)
+        if (Positional.Any())
         {
-            this.type = type;
-            DefaultValue = defaultValue;
+            foreach (var p in Positional)
+                _ = sb.Append(p.Name).Append(", ");
+            _ = sb.Append("/");
         }
 
-        public PythonTypeSpec Type => type ?? PythonTypeSpec.Any;
-        public PythonConstant? DefaultValue { get; }
-        public bool HasTypeAnnotation() => this.type is not null;
+        StringBuilder Delimit() => sb.Length > 1 ? sb.Append(", ") : sb;
+
+        foreach (var p in Regular)
+            _ = Delimit().Append(p.Name);
+
+        if (VariadicPositional is { } vpp)
+            _ = Delimit().Append('*').Append(vpp.Name);
+
+        if (Keyword.Any())
+        {
+            _ = Delimit().Append('*');
+            foreach (var p in Keyword)
+                _ = sb.Append(", ").Append(p.Name);
+        }
+
+        if (VariadicKeyword is { } vkp)
+            _ = Delimit().Append("**").Append(vkp.Name);
+
+        return sb.Append(")").ToString();
     }
-
-    // Force a default value for *args and **kwargs as null, otherwise the calling convention is strange
-
-    public sealed class Star(string name, PythonTypeSpec? type) :
-        Regular(name, type, PythonConstant.None.Value);
-
-    public sealed class DoubleStar(string name, PythonTypeSpec? type) :
-        Regular(name, type, PythonConstant.None.Value);
-
-    public sealed class Normal(string name, PythonTypeSpec? type, PythonConstant? defaultValue) :
-        Regular(name, type, defaultValue);
 }

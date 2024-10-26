@@ -2,6 +2,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using CSnakes.Parser.Types;
+using System.Collections;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CSnakes.Reflection;
@@ -55,10 +58,7 @@ public static class MethodReflection
         }
 
         // Step 3: Build arguments
-        var parameterList =
-            function.Parameters.Select(p => (pythonParameter: p,
-                                             cSharpParameter: ArgumentReflection.ArgumentSyntax(p)))
-                    .ToList();
+        var parameterList = function.Parameters.ZipMap(ArgumentReflection.ArgumentSyntax);
 
         List<GenericNameSyntax> parameterGenericArgs = [];
         foreach (var (_, cSharpParameter) in parameterList)
@@ -115,17 +115,17 @@ public static class MethodReflection
         // IF no *args, *kwargs or keyword-only args
         if (function.Parameters is { Keyword.IsEmpty: true, VariadicPositional: null, VariadicKeyword: null })
         {
-            callExpression = GenerateParamsCall(from p in parameterList select (p.pythonParameter, p.cSharpParameter));
+            callExpression = GenerateParamsCall(parameterList);
         }
-        else if (function.Parameters is { VariadicPositional: not null, Keyword.IsEmpty: true, VariadicKeyword: null })
+        else if (GenerateArgsCall(function, parameterList) is { } argsCallExpression)
         {
             // IF *args but no kwargs or keyword-only arguments
-            callExpression = GenerateArgsCall(from p in parameterList select (p.pythonParameter, p.cSharpParameter));
+            callExpression = argsCallExpression;
         }
         else
         {
             // Support everything.
-            callExpression = GenerateKeywordCall(parameterList);
+            callExpression = GenerateKeywordCall(function, parameterList);
         }
 
         ReturnStatementSyntax returnExpression = returnSyntax switch
@@ -256,18 +256,17 @@ public static class MethodReflection
         // 2. All keyword-only arguments
         // 3. Any *args argument
         // 4. Any **kwargs argument
-        var methodParameters = parameterList
-            .Where((a) => a is (PythonFunctionParameter.Positional or PythonFunctionParameter.Normal, _))
-            .Select((a) => a.cSharpParameter)
-            .Concat(
-                parameterList
-                    .Where((a) => a is (PythonFunctionParameter.Keyword, _))
-                    .Select((a) => a.cSharpParameter)
-            ).Concat(
-                parameterList
-                    .Where((a) => a is (PythonFunctionParameter.Variadic, _))
-                    .Select((a) => a.cSharpParameter)
-            );
+        var methodParameters =
+            from ps in new[]
+            {
+                parameterList.PositionalData,
+                parameterList.RegularData,
+                parameterList.KeywordData,
+                parameterList.TryGetVariadicPositional(out var vpd) ? [vpd] : [],
+                parameterList.TryGetVariadicKeyword(out var vkd) ? [vkd] : [],
+            }
+            from p in ps
+            select p;
 
         var modifiers = function.IsAsync ? TokenList(
                     Token(SyntaxKind.PublicKeyword),
@@ -330,35 +329,38 @@ public static class MethodReflection
         return returnExpression;
     }
 
-    private static InvocationExpressionSyntax GenerateParamsCall(IEnumerable<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList)
+    private static InvocationExpressionSyntax GenerateParamsCall(ParameterList<ParameterSyntax> parameterList)
     {
-        IEnumerable<ArgumentSyntax> pythonFunctionCallArguments = parameterList.Select((a) => Argument(IdentifierName($"{a.cSharpParameter.Identifier}_pyObject"))).ToList();
-
         return InvocationExpression(
             MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
                 IdentifierName("__underlyingPythonFunc"),
                 IdentifierName("Call")),
-            ArgumentList(SeparatedList(pythonFunctionCallArguments)));
+            ArgumentList(SeparatedList(from a in parameterList
+                                       select Argument(IdentifierName($"{a.Data.Identifier}_pyObject")))));
     }
 
-    private static InvocationExpressionSyntax GenerateArgsCall(IEnumerable<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList)
+    private static InvocationExpressionSyntax? GenerateArgsCall(PythonFunctionDefinition function, ParameterList<ParameterSyntax> parameterList)
     {
+        if (function.Parameters is not { VariadicPositional: { } vpp, Keyword.IsEmpty: true, VariadicKeyword: null })
+        {
+            return null;
+        }
+
         // Merge the positional arguments and the *args into a single collection
         // Use CallWithArgs([arg1, arg2, ..args ?? []])
-        IEnumerable<ArgumentSyntax> pythonFunctionCallArguments =
-            parameterList
-                .Where((arg) => arg.pythonParameter is PythonFunctionParameter.Normal)
-                .Select((a) => Argument(IdentifierName($"{a.cSharpParameter.Identifier}_pyObject"))).ToList();
+        var pythonFunctionCallArguments =
+            parameterList.PositionalData.Concat(parameterList.RegularData)
+                .Select((a) => Argument(IdentifierName($"{a.Identifier}_pyObject")))
+               .ToList();
 
-        var (pythonParameter, _) = parameterList.First(p => p.pythonParameter is PythonFunctionParameter.VariadicPositional);
-        SeparatedSyntaxList<CollectionElementSyntax> collection = SeparatedList<CollectionElementSyntax>()
-            .AddRange(pythonFunctionCallArguments.Select((a) => ExpressionElement(a.Expression)))
+        var collection =
+            SeparatedList<CollectionElementSyntax>(pythonFunctionCallArguments.Select((a) => ExpressionElement(a.Expression)))
             .Add(
                 SpreadElement(
                     BinaryExpression(
                         SyntaxKind.CoalesceExpression,
-                        IdentifierName(pythonParameter.Name),
+                        IdentifierName(vpp.Name),
                         CollectionExpression()
                     )
                 )
@@ -373,26 +375,24 @@ public static class MethodReflection
                     ArgumentList(SeparatedList(pythonFunctionCallArguments)));
     }
 
-    private static InvocationExpressionSyntax GenerateKeywordCall(List<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList)
+    private static InvocationExpressionSyntax GenerateKeywordCall(PythonFunctionDefinition function, ParameterList<ParameterSyntax> parameterList)
     {
         // Same as args, use a collection expression for all the positional args
         // [arg1, arg2, .. args ?? []]
         // Create a collection of string constants for the keyword-only names
-        IEnumerable<ArgumentSyntax> positionalArgumentsForCollection =
-            parameterList
-                .Where((arg) => arg is (PythonFunctionParameter.Positional or PythonFunctionParameter.Normal, _))
-                .Select((a) => Argument(IdentifierName($"{a.cSharpParameter.Identifier}_pyObject"))).ToList();
+        ;
 
-        SeparatedSyntaxList<CollectionElementSyntax> collection = SeparatedList<CollectionElementSyntax>()
-            .AddRange(positionalArgumentsForCollection.Select((a) => ExpressionElement(a.Expression)));
+        var collection =
+            SeparatedList<CollectionElementSyntax>(from a in parameterList.PositionalData.Concat(parameterList.RegularData)
+                                                   select ExpressionElement(IdentifierName($"{a.Identifier}_pyObject")));
 
-        if (parameterList.Any((a) => a.pythonParameter is PythonFunctionParameter.VariadicPositional))
+        if (function.Parameters.VariadicPositional is { Name: var vpp })
         {
             collection = collection.Add(
                 SpreadElement(
                     BinaryExpression(
                         SyntaxKind.CoalesceExpression,
-                        IdentifierName(parameterList.First(p => p.pythonParameter is PythonFunctionParameter.VariadicPositional).pythonParameter.Name),
+                        IdentifierName(vpp),
                         CollectionExpression()
                     )
                 )
@@ -402,29 +402,24 @@ public static class MethodReflection
         // Create a collection of string constants for the keyword-only names
         ArgumentSyntax kwnames = Argument(CollectionExpression(
             SeparatedList<CollectionElementSyntax>(
-                parameterList.Where((arg) => arg is (PythonFunctionParameter.Keyword, _))
-                    .Select(
-                        (a) => ExpressionElement(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(a.pythonParameter.Name)))
-                    )
-                )
-            ));
+                from a in function.Parameters.Keyword
+                select ExpressionElement(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(a.Name)))
+            )));
 
         // Create a collection of the converted PyObject identifiers for keyword-only values
         ArgumentSyntax kwvalues = Argument(CollectionExpression(
             SeparatedList<CollectionElementSyntax>(
-                parameterList.Where((arg) => arg is (PythonFunctionParameter.Keyword, _))
-                    .Select(
-                        (a) => ExpressionElement(IdentifierName($"{a.cSharpParameter.Identifier}_pyObject")))
-                    )
+                from a in parameterList.KeywordData
+                select ExpressionElement(IdentifierName($"{a.Identifier}_pyObject")))
                 )
             );
 
         ArgumentSyntax kwargsArgument;
         // If there is a kwargs dictionary, add it to the arguments
-        if (parameterList.Any((a) => a.pythonParameter is PythonFunctionParameter.VariadicKeyword))
+        if (function.Parameters.VariadicKeyword is { Name: var vkp })
         {
             // TODO: The internal name might be mutated
-            kwargsArgument = Argument(IdentifierName(parameterList.First(p => p.pythonParameter is PythonFunctionParameter.VariadicKeyword).pythonParameter.Name));
+            kwargsArgument = Argument(IdentifierName(vkp));
         }
         else
         {
@@ -444,5 +439,52 @@ public static class MethodReflection
                         IdentifierName("__underlyingPythonFunc"),
                         IdentifierName("CallWithKeywordArguments")),
                     ArgumentList(SeparatedList(pythonFunctionCallArguments)));
+    }
+}
+
+file static class PythonFunctionParameterListExtensions
+{
+    public static ParameterList<T> ZipMap<T>(this PythonFunctionParameterList parameters, Func<PythonFunctionParameter, T> selector) =>
+        new(parameters, [..from p in parameters select selector(p)]);
+}
+
+internal sealed class ParameterList<T>(PythonFunctionParameterList parameters, ImmutableArray<T> data) :
+    IReadOnlyList<(PythonFunctionParameter Parameter, T Data)>
+{
+    private int PositionalIndex => 0;
+    private int RegularIndex => parameters.Positional.Length;
+    private int? VariadicPositionalIndex => parameters.VariadicPositional is not null ? RegularIndex + parameters.Regular.Length : null;
+    private int KeywordIndex => VariadicPositionalIndex + 1 ?? RegularIndex + parameters.Regular.Length;
+    private int? VariadicKeywordIndex => parameters.VariadicKeyword is not null ? KeywordIndex + parameters.Keyword.Length : null;
+
+    public int Count => parameters.Count;
+
+    public (PythonFunctionParameter Parameter, T Data) this[int index] => (parameters[index], data[index]);
+
+    public IEnumerator<(PythonFunctionParameter Parameter, T Data)> GetEnumerator() =>
+        parameters.Zip(data, ValueTuple.Create).GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerable<T> PositionalData => data[PositionalIndex..RegularIndex];
+    public IEnumerable<T> RegularData => data[RegularIndex..(VariadicPositionalIndex ?? KeywordIndex)];
+    public IEnumerable<T> KeywordData => data[VariadicKeywordIndex is { } vki ? KeywordIndex..vki : KeywordIndex..];
+
+    public bool TryGetVariadicPositional([NotNullWhen(true)] out T? result) =>
+        TryGet(VariadicPositionalIndex, out result);
+
+    public bool TryGetVariadicKeyword([NotNullWhen(true)] out T? result) =>
+        TryGet(VariadicKeywordIndex, out result);
+
+    private bool TryGet(int? index, [NotNullWhen(true)] out T? result)
+    {
+        if (index is { } i)
+        {
+            result = data[i];
+            return true;
+        }
+
+        result = default;
+        return false;
     }
 }

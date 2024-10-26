@@ -52,7 +52,7 @@ public static partial class PythonParser
         var starParameters =
             Parse.OneOf(from vp in PythonParameterParser
                         from ks in commaParameters.OptionalOrDefault([])
-                        select new PythonFunctionParameterList(varpos: new PythonFunctionParameter.VariadicPositional(vp.Name, vp.Type),
+                        select new PythonFunctionParameterList(varpos: (true, new PythonFunctionParameter.VariadicPositional(vp.Name, vp.Type)),
                                                                keyword: [..ks]),
                         from ks in commaParameters
                         select new PythonFunctionParameterList(keyword: [..ks]));
@@ -63,7 +63,7 @@ public static partial class PythonParser
                      .IgnoreThen(starParameters)
                      .OptionalOrDefault(PythonFunctionParameterList.Empty)
             from kwargParameter in optionalKwargParameterParser
-            select namedArgParameters.WithVariadicKeyword(kwargParameter);
+            select kwargParameter is { } some ? namedArgParameters.WithVariadicKeyword((true, some)) : namedArgParameters;
 
         var b =
             from rps in OptionalPythonParameterParser.Select(p => new PythonFunctionParameter.Normal(p.Name, p.TypeSpec, p.DefaultValue))
@@ -82,12 +82,12 @@ public static partial class PythonParser
         return Parse.OneOf(// "**" ...
                            from vkp in Token.EqualTo(PythonToken.DoubleAsterisk)
                                             .IgnoreThen(PythonParameterParser)
-                           select new PythonFunctionParameterList(varkw: new PythonFunctionParameter.VariadicKeyword(vkp.Name, vkp.Type)),
+                           select new PythonFunctionParameterList(varkw: (true, new PythonFunctionParameter.VariadicKeyword(vkp.Name, vkp.Type))),
                            // "*" ...
                            from kps in Token.EqualTo(PythonToken.Asterisk)
                                             .IgnoreThen(starParameters)
                            from vkp in optionalKwargParameterParser
-                           select kps.WithVariadicKeyword(vkp),
+                           select vkp is { } some ? kps.WithVariadicKeyword((true, some)) : kps,
                            // ( arg "," )+ "/" ...
                            a.Try(),
                            b)

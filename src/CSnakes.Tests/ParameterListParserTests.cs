@@ -1,4 +1,5 @@
 using CSnakes.Parser;
+using CSnakes.Parser.Types;
 using Superpower;
 
 namespace CSnakes.Tests;
@@ -32,7 +33,7 @@ public class ParameterListParserTests
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"({input})");
         var result = PythonParser.PythonParameterListParser.Parse(tokens);
-        Assert.Equal(expected, string.Join(", ", from p in result select p.Name));
+        Assert.Equal(expected, string.Join(", ", from p in result.Enumerable() select p.Name));
     }
 
     [Theory]

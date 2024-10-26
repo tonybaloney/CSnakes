@@ -9,11 +9,11 @@ using ParsedTokens = Superpower.Model.TokenList<CSnakes.Parser.PythonToken>;
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
-    public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionTokenizer { get; } =
+    public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionParser { get; } =
         (from def in Token.EqualTo(PythonToken.Def)
          from name in Token.EqualTo(PythonToken.Identifier)
-         from parameters in PythonParameterListTokenizer.AssumeNotNull()
-         from arrow in Token.EqualTo(PythonToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionTokenizer.AssumeNotNull().OptionalOrDefault())
+         from parameters in PythonParameterListParser.AssumeNotNull()
+         from arrow in Token.EqualTo(PythonToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionParser.AssumeNotNull().OptionalOrDefault())
          from colon in Token.EqualTo(PythonToken.Colon)
          select new PythonFunctionDefinition(name.ToStringValue(), arrow, parameters))
         .Named("Function Definition");
@@ -90,7 +90,7 @@ public static partial class PythonParser
         foreach ((IEnumerable<TextLine> currentLines, ParsedTokens tokens) in functionLines)
         {
             TokenListParserResult<PythonToken, PythonFunctionDefinition> functionDefinition =
-                PythonFunctionDefinitionTokenizer.TryParse(tokens);
+                PythonFunctionDefinitionParser.TryParse(tokens);
             if (functionDefinition.HasValue)
             {
                 functionDefinitions.Add(functionDefinition.Value);

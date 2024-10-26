@@ -18,7 +18,13 @@ public static partial class PythonParser
          from defaultValue in Token.EqualTo(PythonToken.Equal).Optional().Then(
                  _ => ConstantValueTokenizer.AssumeNotNull().OptionalOrDefault()
              )
-         select new PythonFunctionParameter(arg.Name, type, defaultValue, arg.ParameterType))
+         select new PythonFunctionParameter(arg.Name, type,
+                                            // Force a default value for *args and **kwargs as null, otherwise the calling convention is strange
+                                            arg.ParameterType is PythonFunctionParameterType.Star or PythonFunctionParameterType.DoubleStar
+                                                && defaultValue is null
+                                                ? PythonConstant.None.Value
+                                                : defaultValue,
+                                            arg.ParameterType))
         .Named("Parameter");
 
     public static TokenListParser<PythonToken, PythonFunctionParameter?> ParameterOrSlash { get; } =

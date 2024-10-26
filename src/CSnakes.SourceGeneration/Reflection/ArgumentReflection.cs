@@ -9,15 +9,17 @@ public class ArgumentReflection
     private static readonly PythonTypeSpec DictStrAny = new("dict", [new("str", []), PythonTypeSpec.Any]);
     private static readonly TypeSyntax ArrayPyObject = SyntaxFactory.ParseTypeName("PyObject[]");
 
-    public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter)
+    public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter) =>
+        ArgumentSyntax(parameter, PythonFunctionParameterType.Normal);
+
+    public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter,
+                                                 PythonFunctionParameterType parameterType)
     {
-        // Treat *args as list<Any>=None and **kwargs as dict<str, Any>=None
-        // TODO: Handle the user specifying *args with a type annotation like tuple[int, str]
-        var (reflectedType, defaultValue) = parameter switch
+        var (reflectedType, defaultValue) = (parameterType, parameter) switch
         {
-            PythonFunctionParameter.VariadicPositional => (ArrayPyObject, PythonConstant.None.Value),
-            PythonFunctionParameter.VariadicKeyword => (TypeReflection.AsPredefinedType(DictStrAny, TypeReflection.ConversionDirection.ToPython), PythonConstant.None.Value),
-            PythonFunctionParameter.Unit { Type: var type, DefaultValue: var dv } => (TypeReflection.AsPredefinedType(type, TypeReflection.ConversionDirection.ToPython), dv),
+            (PythonFunctionParameterType.Star, _) => (ArrayPyObject, PythonConstant.None.Value),
+            (PythonFunctionParameterType.DoubleStar, _) => (TypeReflection.AsPredefinedType(DictStrAny, TypeReflection.ConversionDirection.ToPython), PythonConstant.None.Value),
+            (PythonFunctionParameterType.Normal, { Type: var type, DefaultValue: var dv }) => (TypeReflection.AsPredefinedType(type, TypeReflection.ConversionDirection.ToPython), dv),
             _ => throw new NotImplementedException()
         };
 

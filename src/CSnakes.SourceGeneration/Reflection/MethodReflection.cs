@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using CSharpParameterList = CSnakes.Parser.Types.PythonFunctionParameterList<Microsoft.CodeAnalysis.CSharp.Syntax.ParameterSyntax, Microsoft.CodeAnalysis.CSharp.Syntax.ParameterSyntax, Microsoft.CodeAnalysis.CSharp.Syntax.ParameterSyntax, Microsoft.CodeAnalysis.CSharp.Syntax.ParameterSyntax, Microsoft.CodeAnalysis.CSharp.Syntax.ParameterSyntax>;
+using CSharpParameterList = CSnakes.Parser.Types.PythonFunctionParameterList<Microsoft.CodeAnalysis.CSharp.Syntax.ParameterSyntax>;
 
 namespace CSnakes.Reflection;
 public class MethodDefinition(MethodDeclarationSyntax syntax, IEnumerable<GenericNameSyntax> parameterGenericArgs)
@@ -18,6 +18,9 @@ public class MethodDefinition(MethodDeclarationSyntax syntax, IEnumerable<Generi
 
 public static class MethodReflection
 {
+    private static readonly PythonTypeSpec DictStrAny = new("dict", [new("str", []), PythonTypeSpec.Any]);
+    private static readonly TypeSyntax ArrayPyObject = SyntaxFactory.ParseTypeName("PyObject[]");
+
     public static MethodDefinition FromMethod(PythonFunctionDefinition function, string moduleName)
     {
         // Step 1: Determine the return type of the method
@@ -62,9 +65,9 @@ public static class MethodReflection
         var cSharpParameterList =
             function.Parameters.Map(ArgumentReflection.ArgumentSyntax,
                                     ArgumentReflection.ArgumentSyntax,
+                                    p => ArgumentReflection.ArgumentSyntax(p, PythonFunctionParameterType.Star),
                                     ArgumentReflection.ArgumentSyntax,
-                                    ArgumentReflection.ArgumentSyntax,
-                                    ArgumentReflection.ArgumentSyntax);
+                                    p => ArgumentReflection.ArgumentSyntax(p, PythonFunctionParameterType.DoubleStar));
 
         List<GenericNameSyntax> parameterGenericArgs = [];
         foreach (var cSharpParameter in cSharpParameterList.Enumerable())

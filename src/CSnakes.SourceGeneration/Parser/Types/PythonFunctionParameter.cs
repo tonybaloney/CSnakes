@@ -41,9 +41,9 @@ public abstract class PythonFunctionParameter(string name, PythonTypeSpec? type,
 public sealed class PythonFunctionParameterList<TPositional, TRegular, TVariadicPositional, TKeyword, TVariadicKeyword>(
     ImmutableArray<TPositional> positional = default,
     ImmutableArray<TRegular> regular = default,
-    (bool, TVariadicPositional) varpos = default,
+    TVariadicPositional? varpos = default,
     ImmutableArray<TKeyword> keyword = default,
-    (bool, TVariadicKeyword) varkw = default)
+    TVariadicKeyword? varkw = default)
 {
     public static readonly PythonFunctionParameterList<TPositional, TRegular, TVariadicPositional, TKeyword, TVariadicKeyword> Empty = new();
 
@@ -51,9 +51,9 @@ public sealed class PythonFunctionParameterList<TPositional, TRegular, TVariadic
 
     public ImmutableArray<TPositional> Positional { get; } = positional.IsDefault ? [] : positional;
     public ImmutableArray<TRegular> Regular { get; } = regular.IsDefault ? [] : regular;
-    public (bool, TVariadicPositional) VariadicPositional { get; } = varpos;
+    public TVariadicPositional? VariadicPositional { get; } = varpos;
     public ImmutableArray<TKeyword> Keyword { get; } = keyword.IsDefault ? [] : keyword;
-    public (bool, TVariadicKeyword) VariadicKeyword { get; } = varkw;
+    public TVariadicKeyword? VariadicKeyword { get; } = varkw;
 
     public PythonFunctionParameterList<TPositional, TRegular, TVariadicPositional, TKeyword, TVariadicKeyword>
         WithPositional(ImmutableArray<TPositional> value) =>
@@ -64,11 +64,11 @@ public sealed class PythonFunctionParameterList<TPositional, TRegular, TVariadic
         new(Positional, value.IsDefault ? [] : value, VariadicPositional, Keyword, VariadicKeyword);
 
     public PythonFunctionParameterList<TPositional, TRegular, TVariadicPositional, TKeyword, TVariadicKeyword>
-        WithVariadicPositional((bool, TVariadicPositional) value) =>
+        WithVariadicPositional(TVariadicPositional? value) =>
         new(Positional, Regular, value, Keyword, VariadicKeyword);
 
     public PythonFunctionParameterList<TPositional, TRegular, TVariadicPositional, TKeyword, TVariadicKeyword>
-        WithVariadicKeyword((bool, TVariadicKeyword) value) =>
+        WithVariadicKeyword(TVariadicKeyword? value) =>
         new(Positional, Regular, VariadicPositional, Keyword, value);
 
     public IEnumerable<T> Enumerable<T>(Func<TPositional, T> positionalProjector,
@@ -83,13 +83,13 @@ public sealed class PythonFunctionParameterList<TPositional, TRegular, TVariadic
         foreach (var p in Regular)
             yield return regularProjector(p);
 
-        if (VariadicPositional is (true, var vpp))
+        if (VariadicPositional is { } vpp)
             yield return variadicPositionalProjector(vpp);
 
         foreach (var p in Keyword)
             yield return keywordProjector(p);
 
-        if (VariadicKeyword is (true, var vkp))
+        if (VariadicKeyword is { } vkp)
             yield return variadicKeywordProjector(vkp);
     }
 
@@ -99,18 +99,20 @@ public sealed class PythonFunctionParameterList<TPositional, TRegular, TVariadic
             Func<TRegular, TRegular2> regularProjector,
             Func<TVariadicPositional, TVariadicPositional2> variadicPositionalProjector,
             Func<TKeyword, TKeyword2> keywordProjector,
-            Func<TVariadicKeyword, TVariadicKeyword2> variadicKeywordProjector) =>
+            Func<TVariadicKeyword, TVariadicKeyword2> variadicKeywordProjector)
+        where TVariadicPositional2 : class
+        where TVariadicKeyword2: class =>
         new([..Positional.Select(positionalProjector)],
             [..Regular.Select(regularProjector)],
-            VariadicPositional is (true, var vpp) ? (true, variadicPositionalProjector(vpp)) : default,
+            VariadicPositional is { } vpp ? variadicPositionalProjector(vpp) : null,
             [..Keyword.Select(keywordProjector)],
-            VariadicKeyword is (true, var vkp) ? (true, variadicKeywordProjector(vkp)) : default);
+            VariadicKeyword is { } vkp ? variadicKeywordProjector(vkp) : null);
 
     public int Count => Positional.Length
                         + Regular.Length
-                        + (VariadicPositional is (true, _) ? 1 : 0)
+                        + (VariadicPositional is not null ? 1 : 0)
                         + Keyword.Length
-                        + (VariadicKeyword is (true, _) ? 1 : 0);
+                        + (VariadicKeyword is not null ? 1 : 0);
 
     public override string ToString() => stringRepresentation ??= BuildString();
 
@@ -130,7 +132,7 @@ public sealed class PythonFunctionParameterList<TPositional, TRegular, TVariadic
         foreach (var p in Regular)
             _ = Delimit().Append(p);
 
-        if (VariadicPositional is (true, var vpp))
+        if (VariadicPositional is { } vpp)
             _ = Delimit().Append('*').Append(vpp);
 
         if (Keyword.Any())
@@ -140,7 +142,7 @@ public sealed class PythonFunctionParameterList<TPositional, TRegular, TVariadic
                 _ = sb.Append(", ").Append(p);
         }
 
-        if (VariadicKeyword is (true, var vkp))
+        if (VariadicKeyword is { } vkp)
             _ = Delimit().Append("**").Append(vkp);
 
         return sb.Append(")").ToString();
@@ -149,7 +151,8 @@ public sealed class PythonFunctionParameterList<TPositional, TRegular, TVariadic
 
 public static class PythonFunctionParameterListExtensions
 {
-    public static IEnumerable<T> Enumerable<T>(this PythonFunctionParameterList<T, T, T, T, T> list) =>
+    public static IEnumerable<T> Enumerable<T>(this PythonFunctionParameterList<T, T, T, T, T> list)
+        where T : class =>
         list.Enumerable(x => x, x => x, x => x, x => x, x => x);
 
     public static IEnumerable<PythonFunctionParameter> Enumerable(this PythonFunctionParameterList list) =>

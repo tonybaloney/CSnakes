@@ -61,10 +61,10 @@ public static class MethodReflection
         // Step 3: Build arguments
         var cSharpParameterList =
             function.Parameters.Map(ArgumentReflection.ArgumentSyntax,
-                                     ArgumentReflection.ArgumentSyntax,
-                                     ArgumentReflection.ArgumentSyntax,
-                                     ArgumentReflection.ArgumentSyntax,
-                                     ArgumentReflection.ArgumentSyntax);
+                                    ArgumentReflection.ArgumentSyntax,
+                                    ArgumentReflection.ArgumentSyntax,
+                                    ArgumentReflection.ArgumentSyntax,
+                                    ArgumentReflection.ArgumentSyntax);
 
         List<GenericNameSyntax> parameterGenericArgs = [];
         foreach (var cSharpParameter in cSharpParameterList.Enumerable())
@@ -117,7 +117,7 @@ public static class MethodReflection
         InvocationExpressionSyntax? callExpression = null;
 
         // IF no *args, *kwargs or keyword-only args
-        if (function.Parameters is { Keyword.IsEmpty: true, VariadicPositional: (false, _), VariadicKeyword: (false, _) })
+        if (function.Parameters is { Keyword.IsEmpty: true, VariadicPositional: null, VariadicKeyword: null })
         {
             callExpression = GenerateParamsCall(cSharpParameterList);
         }
@@ -266,8 +266,8 @@ public static class MethodReflection
                 cSharpParameterList.Positional,
                 cSharpParameterList.Regular,
                 cSharpParameterList.Keyword,
-                cSharpParameterList.VariadicPositional is (true, var vpd) ? [vpd] : [],
-                cSharpParameterList.VariadicKeyword is (true, var vkd) ? [vkd] : [],
+                cSharpParameterList.VariadicPositional is { } vpd ? [vpd] : [],
+                cSharpParameterList.VariadicKeyword is {} vkd ? [vkd] : [],
             }
             from p in ps
             select p;
@@ -346,7 +346,7 @@ public static class MethodReflection
 
     private static InvocationExpressionSyntax? GenerateArgsCall(PythonFunctionDefinition function, CSharpParameterList parameterList)
     {
-        if (function.Parameters is not { VariadicPositional: (true, var vpp), Keyword.IsEmpty: true, VariadicKeyword: (false, _) })
+        if (function.Parameters is not { VariadicPositional: { } vpp, Keyword.IsEmpty: true, VariadicKeyword: null })
         {
             return null;
         }
@@ -389,7 +389,7 @@ public static class MethodReflection
             SeparatedList<CollectionElementSyntax>(from a in parameterList.Positional.Concat(parameterList.Regular)
                                                    select ExpressionElement(IdentifierName($"{a.Identifier}_pyObject")));
 
-        if (function.Parameters.VariadicPositional is (true, var vpp))
+        if (function.Parameters.VariadicPositional is { } vpp)
         {
             collection = collection.Add(
                 SpreadElement(
@@ -419,7 +419,7 @@ public static class MethodReflection
 
         ArgumentSyntax kwargsArgument;
         // If there is a kwargs dictionary, add it to the arguments
-        if (function.Parameters.VariadicKeyword is (true, var vkp))
+        if (function.Parameters.VariadicKeyword is { } vkp)
         {
             // TODO: The internal name might be mutated
             kwargsArgument = Argument(IdentifierName(vkp.Name));

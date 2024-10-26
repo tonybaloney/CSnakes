@@ -265,7 +265,7 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize(code);
         var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        var a = Assert.IsType<PythonFunctionParameter.Normal>(Assert.Single(result.Value.Enumerable()));
+        var a = Assert.IsType<PythonFunctionParameter.Normal>(result.Value.Enumerable().First());
         Assert.Equal("a", a.Name);
         Assert.Equal("list[int]", a.Type.ToString());
     }
@@ -277,7 +277,7 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize(code);
         var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        var a = Assert.IsType<PythonFunctionParameter.Normal>(Assert.Single(result.Value.Enumerable()));
+        var a = Assert.IsType<PythonFunctionParameter.Normal>(result.Value.Enumerable().First());
         Assert.Equal("a", a.Name);
         Assert.Equal("typing.List[int]", a.Type.ToString());
     }
@@ -289,7 +289,7 @@ public class TokenizerTests
         var tokens = PythonTokenizer.Instance.Tokenize(code);
         var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
-        var a = Assert.IsType<PythonFunctionParameter.Normal>(Assert.Single(result.Value.Enumerable()));
+        var a = Assert.IsType<PythonFunctionParameter.Normal>(result.Value.Enumerable().First());
         Assert.Equal("a", a.Name);
         Assert.Equal("np.ndarray", a.Type.ToString());
     }

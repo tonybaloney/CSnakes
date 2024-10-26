@@ -5,7 +5,7 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
-    internal static IntPtr Call(PyObject callable, Span<IntPtr> args)
+    internal static IntPtr Call(PyObject callable, ReadOnlySpan<IntPtr> args)
     {
         // These options are used for efficiency. Don't create a tuple if its not required. 
         if (args.Length == 0)
@@ -32,7 +32,7 @@ internal unsafe partial class CPythonAPI
         }
     }
 
-    internal static IntPtr Call(PyObject callable, Span<IntPtr> args, Span<string> kwnames, Span<IntPtr> kwvalues)
+    internal static IntPtr Call(PyObject callable, ReadOnlySpan<IntPtr> args, ReadOnlySpan<string> kwnames, ReadOnlySpan<IntPtr> kwvalues)
     {
         // These options are used for efficiency. Don't create a tuple if its not required. 
         if (false /* TODO: Implement vectorcall for kwargs*/ && 

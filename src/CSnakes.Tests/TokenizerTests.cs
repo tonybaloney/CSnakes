@@ -90,7 +90,7 @@ public class TokenizerTests
     public void ParseFunctionParameter(string code, string expectedName, string expectedType)
     {
         var tokens = PythonTokenizer.Instance.Tokenize(code);
-        var result = PythonParser.PythonParameterTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal(expectedName, result.Value.Name);
         Assert.Equal(expectedType, result.Value.Type.ToString());
@@ -100,7 +100,7 @@ public class TokenizerTests
     public void ParseFunctionParameterNoType()
     {
         var tokens = PythonTokenizer.Instance.Tokenize("a");
-        var result = PythonParser.PythonParameterTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.False(result.Value.HasTypeAnnotation());
@@ -110,7 +110,7 @@ public class TokenizerTests
     public void ParseFunctionParameterDefault()
     {
         var tokens = PythonTokenizer.Instance.Tokenize("a = 1");
-        var result = PythonParser.PythonParameterTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.Equal("1", result.Value.DefaultValue?.ToString());
@@ -125,7 +125,7 @@ public class TokenizerTests
     public void ParseFunctionParameterDefaultValuesNoType(string value)
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"a = {value}");
-        var result = PythonParser.PythonParameterTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.Equal(value, result.Value.DefaultValue?.ToString());
@@ -136,7 +136,7 @@ public class TokenizerTests
     public void ParseFunctionParameterDefaultSingleQuotedString()
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"a = 'hello'");
-        var result = PythonParser.PythonParameterTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.Equal("hello", result.Value.DefaultValue?.ToString());
@@ -147,7 +147,7 @@ public class TokenizerTests
     public void ParseFunctionParameterDefaultDoubleQuotedString()
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"a = \"hello\"");
-        var result = PythonParser.PythonParameterTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.Equal("hello", result.Value.DefaultValue?.ToString());
@@ -158,7 +158,7 @@ public class TokenizerTests
     public void ParseFunctionParameterDefaultDouble()
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"a: float = -1.1");
-        var result = PythonParser.PythonParameterTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.Equal("-1.1", result.Value.DefaultValue?.ToString());
@@ -169,7 +169,7 @@ public class TokenizerTests
     public void ParseFunctionParameterDefaultInt()
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"a: int = 1234");
-        var result = PythonParser.PythonParameterTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.Equal("1234", result.Value.DefaultValue?.ToString());
@@ -180,7 +180,7 @@ public class TokenizerTests
     public void ParseFunctionParameterDefaultBoolTrue()
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"a: bool = True");
-        var result = PythonParser.PythonParameterTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.Equal("True", result.Value.DefaultValue?.ToString());
@@ -191,7 +191,7 @@ public class TokenizerTests
     public void ParseFunctionParameterDefaultBoolFalse()
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"a: bool = False");
-        var result = PythonParser.PythonParameterTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.Equal("False", result.Value.DefaultValue?.ToString());
@@ -202,7 +202,7 @@ public class TokenizerTests
     public void ParseFunctionParameterDefaultNone()
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"a: bool = None");
-        var result = PythonParser.PythonParameterTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value.Name);
         Assert.Equal("None", result.Value.DefaultValue?.ToString());
@@ -214,7 +214,7 @@ public class TokenizerTests
     {
         var code = "(a: list[int])";
         var tokens = PythonTokenizer.Instance.Tokenize(code);
-        var result = PythonParser.PythonParameterListTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value[0].Name);
         Assert.Equal("list[int]", result.Value[0].Type.ToString());
@@ -225,7 +225,7 @@ public class TokenizerTests
     {
         var code = "(a: list[int], b)";
         var tokens = PythonTokenizer.Instance.Tokenize(code);
-        var result = PythonParser.PythonParameterListTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value[0].Name);
         Assert.Equal("list[int]", result.Value[0].Type.ToString());
@@ -236,7 +236,7 @@ public class TokenizerTests
     {
         var code = "(a: typing.List[int], b)";
         var tokens = PythonTokenizer.Instance.Tokenize(code);
-        var result = PythonParser.PythonParameterListTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value[0].Name);
         Assert.Equal("typing.List[int]", result.Value[0].Type.ToString());
@@ -247,7 +247,7 @@ public class TokenizerTests
     {
         var code = "(a: np.ndarray, b)";
         var tokens = PythonTokenizer.Instance.Tokenize(code);
-        var result = PythonParser.PythonParameterListTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value[0].Name);
         Assert.Equal("np.ndarray", result.Value[0].Type.ToString());
@@ -258,7 +258,7 @@ public class TokenizerTests
     {
         var code = "(a: int, b: float, c: str)";
         var tokens = PythonTokenizer.Instance.Tokenize(code);
-        var result = PythonParser.PythonParameterListTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value[0].Name);
         Assert.Equal("int", result.Value[0].Type.Name);
@@ -273,7 +273,7 @@ public class TokenizerTests
     {
         var code = "(a, b, c)";
         var tokens = PythonTokenizer.Instance.Tokenize(code);
-        var result = PythonParser.PythonParameterListTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonParameterListParser.TryParse(tokens);
         Assert.True(result.HasValue);
         Assert.Equal("a", result.Value[0].Name);
         Assert.Equal("Any", result.Value[0].Type.Name);
@@ -287,7 +287,7 @@ public class TokenizerTests
     public void ParseFunctionDefinition()
     {
         var tokens = PythonTokenizer.Instance.Tokenize("def foo(a: int, b: str) -> None:");
-        var result = PythonParser.PythonFunctionDefinitionTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonFunctionDefinitionParser.TryParse(tokens);
 
         Assert.True(result.HasValue);
         Assert.Equal("foo", result.Value.Name);
@@ -313,7 +313,7 @@ public class TokenizerTests
     {
         var tokens = PythonTokenizer.Instance.Tokenize(code);
         Assert.True(tokens.IsAtEnd == false, "Tokenize failed");
-        var result = PythonParser.PythonFunctionDefinitionTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonFunctionDefinitionParser.TryParse(tokens);
         Assert.True(result.HasValue, result.ToString());
     }
 

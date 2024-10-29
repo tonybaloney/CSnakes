@@ -1,4 +1,11 @@
-﻿using CSnakes.Runtime.CPython;
+﻿#if NET9_0_OR_GREATER
+// https://learn.microsoft.com/dotnet/csharp/language-reference/statements/lock#guidelines
+global using Lock = System.Threading.Lock;
+#else
+global using Lock = object;
+#endif
+
+using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.EnvironmentManagement;
 using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
@@ -14,7 +21,7 @@ internal class PythonEnvironment : IPythonEnvironment
     private bool disposedValue;
 
     private static IPythonEnvironment? pythonEnvironment;
-    private readonly static object locker = new();
+    private readonly static Lock locker = new();
 
     public static IPythonEnvironment GetPythonEnvironment(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options, ILogger<IPythonEnvironment> logger, IEnvironmentManagement? environmentManager = null)
     {

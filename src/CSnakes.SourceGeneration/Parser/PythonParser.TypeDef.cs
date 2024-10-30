@@ -13,12 +13,12 @@ public static partial class PythonParser
             .AtLeastOnceDelimitedBy(Character.EqualTo('.'))
         );
 
-    public static TokenListParser<PythonToken, PythonTypeSpec?> PythonTypeDefinitionTokenizer { get; } =
+    public static TokenListParser<PythonToken, PythonTypeSpec?> PythonTypeDefinitionParser { get; } =
     (from name in Token.EqualTo(PythonToken.Identifier).Or(Token.EqualTo(PythonToken.None)).OptionalOrDefault()
 #pragma warning disable CS8620
      from openBracket in Token.EqualTo(PythonToken.OpenBracket)
         .Then(_ =>
-            PythonTypeDefinitionTokenizer
+            PythonTypeDefinitionParser
                 .AssumeNotNull()
                 .ManyDelimitedBy(
                     Token.EqualTo(PythonToken.Comma),

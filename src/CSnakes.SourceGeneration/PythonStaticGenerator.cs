@@ -154,7 +154,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             }
 
             /// <summary>
-            /// Represent functions of the Python module <c>{{fileName}}</c>.
+            /// Represents functions of the Python module <c>{{fileName}}</c>.
             /// </summary>
             public interface I{{pascalFileName}} : IReloadableModuleImport
             {

@@ -184,7 +184,7 @@ public static class TestClassExtensions
 }
 
 /// <summary>
-/// Represent functions of the Python module <c>test</c>.
+/// Represents functions of the Python module <c>test</c>.
 /// </summary>
 public interface ITestClass : IReloadableModuleImport
 {

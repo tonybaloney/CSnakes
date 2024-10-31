@@ -8,7 +8,7 @@ public class AttributeTests : RuntimeTestBase
     {
         using (GIL.Acquire())
         {
-            using PyObject sys = Import.ImportModule("sys");
+            using PyObject sys = Import.ImportModule("os");
             Assert.NotNull(sys);
             Assert.True(sys.HasAttr("__file__"));
         }
@@ -19,7 +19,7 @@ public class AttributeTests : RuntimeTestBase
     {
         using (GIL.Acquire())
         {
-            using PyObject sys = Import.ImportModule("sys");
+            using PyObject sys = Import.ImportModule("os");
             Assert.NotNull(sys);
             Assert.True(sys.HasAttr("__name__"));
         }

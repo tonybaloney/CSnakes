@@ -67,4 +67,7 @@ internal unsafe partial class CPythonAPI
     {
         return PyObject_IsInstance(p, PyListType);
     }
+
+    [LibraryImport(PythonLibraryName)]
+    public static partial int PyList_Append(nint obj, nint o);
 }

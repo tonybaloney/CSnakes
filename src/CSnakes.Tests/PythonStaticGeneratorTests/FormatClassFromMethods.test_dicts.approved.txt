@@ -139,10 +139,40 @@ public static class TestClassExtensions
     }
 }
 
+/// <summary>
+/// Represents functions of the Python module <c>test</c>.
+/// </summary>
 public interface ITestClass : IReloadableModuleImport
 {
+    /// <summary>
+    /// Invokes the Python function <c>test_dict_str_int</c>:
+    /// <code><![CDATA[
+    /// def test_dict_str_int(a: dict[str, int]) -> dict[str, int]: ...
+    /// ]]></code>
+    /// </summary>
     IReadOnlyDictionary<string, long> TestDictStrInt(IReadOnlyDictionary<string, long> a);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_dict_str_list_int</c>:
+    /// <code><![CDATA[
+    /// def test_dict_str_list_int(a: dict[str, list[int]]) -> dict[str, list[int]]: ...
+    /// ]]></code>
+    /// </summary>
     IReadOnlyDictionary<string, IReadOnlyList<long>> TestDictStrListInt(IReadOnlyDictionary<string, IReadOnlyList<long>> a);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_dict_str_dict_int</c>:
+    /// <code><![CDATA[
+    /// def test_dict_str_dict_int(a: dict[str, dict[str, int]]) -> dict[str, dict[str, int]]: ...
+    /// ]]></code>
+    /// </summary>
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, long>> TestDictStrDictInt(IReadOnlyDictionary<string, IReadOnlyDictionary<string, long>> a);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_mapping</c>:
+    /// <code><![CDATA[
+    /// def test_mapping(a: Mapping[str, int]) -> Mapping[str, int]: ...
+    /// ]]></code>
+    /// </summary>
     IReadOnlyDictionary<string, long> TestMapping(IReadOnlyDictionary<string, long> a);
 }

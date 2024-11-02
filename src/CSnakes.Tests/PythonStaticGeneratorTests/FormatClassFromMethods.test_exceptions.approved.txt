@@ -103,8 +103,24 @@ public static class TestClassExtensions
     }
 }
 
+/// <summary>
+/// Represents functions of the Python module <c>test</c>.
+/// </summary>
 public interface ITestClass : IReloadableModuleImport
 {
+    /// <summary>
+    /// Invokes the Python function <c>test_raise_python_exception</c>:
+    /// <code><![CDATA[
+    /// def test_raise_python_exception() -> str: ...
+    /// ]]></code>
+    /// </summary>
     string TestRaisePythonException();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_nested_python_exception</c>:
+    /// <code><![CDATA[
+    /// def test_nested_python_exception() -> str: ...
+    /// ]]></code>
+    /// </summary>
     string TestNestedPythonException();
 }

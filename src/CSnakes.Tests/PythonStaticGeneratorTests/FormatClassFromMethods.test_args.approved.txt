@@ -183,12 +183,56 @@ public static class TestClassExtensions
     }
 }
 
+/// <summary>
+/// Represents functions of the Python module <c>test</c>.
+/// </summary>
 public interface ITestClass : IReloadableModuleImport
 {
+    /// <summary>
+    /// Invokes the Python function <c>positional_only_args</c>:
+    /// <code><![CDATA[
+    /// def positional_only_args(a: int, /, b: int, c: int) -> int: ...
+    /// ]]></code>
+    /// </summary>
     long PositionalOnlyArgs(long a, long b, long c);
+
+    /// <summary>
+    /// Invokes the Python function <c>collect_star_args</c>:
+    /// <code><![CDATA[
+    /// def collect_star_args(a: int, b: int, *args) -> int: ...
+    /// ]]></code>
+    /// </summary>
     long CollectStarArgs(long a, long b, PyObject[]? args = null);
+
+    /// <summary>
+    /// Invokes the Python function <c>keyword_only_args</c>:
+    /// <code><![CDATA[
+    /// def keyword_only_args(a: int, *, b: int, c: int) -> int: ...
+    /// ]]></code>
+    /// </summary>
     long KeywordOnlyArgs(long a, long b, long c, PyObject[]? args = null);
+
+    /// <summary>
+    /// Invokes the Python function <c>collect_star_star_kwargs</c>:
+    /// <code><![CDATA[
+    /// def collect_star_star_kwargs(a: int, b: int, **kwargs) -> int: ...
+    /// ]]></code>
+    /// </summary>
     long CollectStarStarKwargs(long a, long b, IReadOnlyDictionary<string, PyObject>? kwargs = null);
+
+    /// <summary>
+    /// Invokes the Python function <c>positional_and_kwargs</c>:
+    /// <code><![CDATA[
+    /// def positional_and_kwargs(a: int, b: int, *, c: int, **kwargs) -> int: ...
+    /// ]]></code>
+    /// </summary>
     long PositionalAndKwargs(long a, long b, long c, PyObject[]? args = null, IReadOnlyDictionary<string, PyObject>? kwargs = null);
+
+    /// <summary>
+    /// Invokes the Python function <c>collect_star_args_and_keyword_only_args</c>:
+    /// <code><![CDATA[
+    /// def collect_star_args_and_keyword_only_args(a: int, b: int, *args, c: int) -> int: ...
+    /// ]]></code>
+    /// </summary>
     long CollectStarArgsAndKeywordOnlyArgs(long a, long b, long c, PyObject[]? args = null);
 }

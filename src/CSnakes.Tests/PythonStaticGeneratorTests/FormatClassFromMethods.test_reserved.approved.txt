@@ -88,7 +88,16 @@ public static class TestClassExtensions
     }
 }
 
+/// <summary>
+/// Represents functions of the Python module <c>test</c>.
+/// </summary>
 public interface ITestClass : IReloadableModuleImport
 {
+    /// <summary>
+    /// Invokes the Python function <c>switch</c>:
+    /// <code><![CDATA[
+    /// def switch(new: bool) -> None: ...
+    /// ]]></code>
+    /// </summary>
     void Switch(bool @new);
 }

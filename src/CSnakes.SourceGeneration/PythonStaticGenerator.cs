@@ -153,21 +153,47 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 }
             }
 
+            /// <summary>
+            /// Represents functions of the Python module <c>{{fileName}}</c>.
+            /// </summary>
             public interface I{{pascalFileName}} : IReloadableModuleImport
             {
             {{  Lines(IndentationLevel.One,
-                      from m in methods
-                      select m.Syntax into m
-                      select m.Identifier.Text == "ReloadModule"
-                             // This prevents the warning:
-                             // > warning CS0108: 'IFooBar.ReloadModule()' hides inherited member 'IReloadableModuleImport.ReloadModule()'. Use the new keyword if hiding was intended.
-                             // because `IReloadableModuleImport` already has a `ReloadModule` method.
-                             ? m.AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword))
-                             : m
-                      into m
-                      select $"{m.WithModifiers(m.Modifiers.RemoveAt(m.Modifiers.IndexOf(SyntaxKind.PublicKeyword)))
-                                 .WithBody(null)
-                                 .NormalizeWhitespace()};") }}
+                      Enumerable.Skip(count: 1, source:
+                          from m in methods.Zip(functions, (m, f) => new
+                          {
+                              m.Syntax,
+                              FunctionName = f.Name,
+                              f.SourceLines,
+                          })
+                          let s = m.Syntax.Identifier.Text == "ReloadModule"
+                                 // This prevents the warning:
+                                 // > warning CS0108: 'IFooBar.ReloadModule()' hides inherited member 'IReloadableModuleImport.ReloadModule()'. Use the new keyword if hiding was intended.
+                                 // because `IReloadableModuleImport` already has a `ReloadModule` method.
+                                 ? m.Syntax.AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword))
+                                 : m.Syntax
+                          from lines in new string[][]
+                          {
+
+                              [
+                                  "",
+                                  "/// <summary>",
+                                  $"/// Invokes the Python function <c>{m.FunctionName}</c>:",
+                                  "/// <code><![CDATA[",
+                                  ..from line in m.SourceLines
+                                    select line.ToString() into line
+                                    select $"/// {line}{(line.EndsWith(":") ? " ..." : null)}",
+                                  "/// ]]></code>",
+                                  "/// </summary>"
+                              ],
+                              [
+                                  $"{s.WithModifiers(s.Modifiers.RemoveAt(s.Modifiers.IndexOf(SyntaxKind.PublicKeyword)))
+                                      .WithBody(null)
+                                      .NormalizeWhitespace()};"
+                              ]
+                          }
+                          from line in lines
+                          select line)) }}
             }
 
             """;

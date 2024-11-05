@@ -23,4 +23,30 @@ public class GeneratorTests(PythonEnvironmentFixture fixture) : IntegrationTestB
         var generator = mod.TestNormalGenerator();
         Assert.Equal<string[]>(["one", "two"], generator.ToArray());
     }
+
+    [Fact]
+    public void TestGeneratorAsCallback()
+    {
+        var mod = Env.TestGenerators();
+        var generator = mod.ExampleGenerator(3);
+
+        var callback = new Action<string>(
+            // This is the callback that will be called from the generator
+            s => Assert.Equal(generator.Current, s)
+        );
+
+        // Wait for the generator to finish
+        var task = Task.Run(() =>
+        {
+            while (generator.MoveNext())
+            {
+                // Simulate a callback
+                callback(generator.Current);
+                // Optionally send a value back to the generator
+                generator.Send(10);
+            }
+            // Optionally return a value from the generator
+            Assert.True(generator.Return);
+        });
+    }
 }

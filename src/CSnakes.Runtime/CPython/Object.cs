@@ -180,4 +180,7 @@ internal unsafe partial class CPythonAPI
 
     [LibraryImport(PythonLibraryName)]
     internal static partial int PyObject_RichCompareBool(PyObject ob1, PyObject ob2, RichComparisonType comparisonType);
+
+    [LibraryImport(PythonLibraryName, EntryPoint= "PyObject_RichCompareBool")]
+    internal static partial int PyObject_RichCompareBoolRaw(nint ob1, nint ob2, RichComparisonType comparisonType);
 }

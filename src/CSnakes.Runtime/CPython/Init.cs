@@ -72,10 +72,6 @@ internal unsafe partial class CPythonAPI : IDisposable
     {
         lock (initLock)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                Py_SetPath_UCS2_UTF16(PythonPath);
-            else
-                Py_SetPath_UCS4_UTF32(PythonPath);
             Debug.WriteLine($"Initializing Python on thread {GetNativeThreadId()}");
             Py_Initialize();
 
@@ -87,6 +83,9 @@ internal unsafe partial class CPythonAPI : IDisposable
 
                 if (!IsInitialized)
                     throw new InvalidOperationException("Python initialization failed.");
+
+                // update sys.path by adding missing paths of PythonPath
+                AppendMissingPathsToSysPath(PythonPath.Split(Path.PathSeparator));
 
                 PyUnicodeType = GetTypeRaw(AsPyUnicodeObject(string.Empty));
                 Py_True = PyBool_FromLong(1);
@@ -119,12 +118,6 @@ internal unsafe partial class CPythonAPI : IDisposable
 
     [LibraryImport(PythonLibraryName)]
     internal static partial int Py_IsInitialized();
-
-    [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath")]
-    internal static partial void Py_SetPath_UCS2_UTF16([MarshalAs(UnmanagedType.LPWStr)] string path);
-
-    [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath", StringMarshallingCustomType = typeof(Utf32StringMarshaller), StringMarshalling = StringMarshalling.Custom)]
-    internal static partial void Py_SetPath_UCS4_UTF32(string path);
 
     protected virtual void Dispose(bool disposing)
     {
@@ -160,4 +153,37 @@ internal unsafe partial class CPythonAPI : IDisposable
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+
+# region AppendMissingPathsToSysPath
+    public void AppendMissingPathsToSysPath(string[] paths)
+    {
+        var pyoPtrSysName = AsPyUnicodeObject("sys");
+        var pyoPtrSysModule = PyImport_Import(pyoPtrSysName);
+        Py_DecRefRaw(pyoPtrSysModule);
+        if (pyoPtrSysModule == IntPtr.Zero) PyObject.ThrowPythonExceptionAsClrException();
+        var pyoPtrPathAttr = AsPyUnicodeObject("path");
+        var pyoPtrPathList = PyObject_GetAttrRaw(pyoPtrSysModule, pyoPtrPathAttr);
+        Py_DecRefRaw(pyoPtrPathAttr);
+        if (pyoPtrSysModule == IntPtr.Zero) PyObject.ThrowPythonExceptionAsClrException();
+        foreach (var path in paths)
+        {
+            var pyoPtrPythonPath = AsPyUnicodeObject(path);
+            bool found = false;
+            for (int i = 0; i < PyList_SizeRaw(pyoPtrPathList); i++)
+            {
+                var pyoPtrSysPath = PyList_GetItemRaw(pyoPtrPathList, i);
+                if (pyoPtrSysPath == IntPtr.Zero)
+                    continue;
+                found = PyObject_RichCompareBoolRaw(pyoPtrPythonPath, pyoPtrSysPath, RichComparisonType.Equal) == 1;
+                if (found)
+                    break;
+            }
+            if (found == false)
+                PyList_AppendRaw(pyoPtrPathList, pyoPtrPythonPath);
+            Py_DecRefRaw(pyoPtrPythonPath);
+        }
+        Py_DecRefRaw(pyoPtrPathList);
+        Py_DecRefRaw(pyoPtrSysModule);
+    }
+    #endregion
 }

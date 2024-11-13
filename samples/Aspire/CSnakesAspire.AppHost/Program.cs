@@ -5,10 +5,12 @@ var pg = builder.AddPostgres("postgres")
     .AddDatabase("weather");
 
 var apiService = builder.AddProject<Projects.CSnakesAspire_ApiService>("apiservice")
-    .WithReference(pg);
+    .WithReference(pg)
+    .WaitFor(pg);
 
 builder.AddProject<Projects.CSnakesAspire_Web>("webfrontend")
     .WithExternalHttpEndpoints()
-    .WithReference(apiService);
+    .WithReference(apiService)
+    .WaitFor(apiService);
 
 builder.Build().Run();

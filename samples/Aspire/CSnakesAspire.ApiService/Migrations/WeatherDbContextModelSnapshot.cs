@@ -17,7 +17,7 @@ namespace CSnakesAspire.ApiService.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -30,28 +30,28 @@ namespace CSnakesAspire.ApiService.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<float>("Precipitation")
+                        .HasColumnType("real");
 
                     b.Property<string>("Summary")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("TemperatureMinC")
-                        .HasColumnType("float");
+                    b.Property<float>("TemperatureMaxC")
+                        .HasColumnType("real");
 
-                    b.Property<int>("TemperatureMaxC")
-                        .HasColumnType("float");
+                    b.Property<float>("TemperatureMinC")
+                        .HasColumnType("real");
 
-                    b.Property<int>("Precipitation")
-                        .HasColumnType("float");
-
-                    b.Property<int>("Wind")
-                        .HasColumnType("float");
+                    b.Property<float>("Wind")
+                        .HasColumnType("real");
 
                     b.HasKey("Id");
 

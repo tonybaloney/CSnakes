@@ -87,7 +87,7 @@ def get_weather_chart(days: int = 7, trace_id: str = None, span_id: str = None) 
         cursor.close()
         cnx.commit()
 
-        df.plot(x='Date', y='Precipitation', title='Precipitation')
+        df.plot(x='Date', y=['Precipitation', 'TemperatureMinC', 'TemperatureMaxC'], title=f'Weather for the past {days} days')
 
         outstream = BytesIO()
         plt.savefig(outstream, format='png', dpi=300)

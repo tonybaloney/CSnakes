@@ -6,7 +6,8 @@ var pg = builder.AddPostgres("postgres")
 
 var apiService = builder.AddProject<Projects.CSnakesAspire_ApiService>("apiservice")
     .WithReference(pg)
-    .WaitFor(pg);
+    .WaitFor(pg)
+    .WithHttpHealthCheck("/health");
 
 builder.AddProject<Projects.CSnakesAspire_Web>("webfrontend")
     .WithExternalHttpEndpoints()

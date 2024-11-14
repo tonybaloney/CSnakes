@@ -86,11 +86,7 @@ app.MapGet("/weatherchart", (
     var chart = weather.GetWeatherChart(7, Activity.Current?.TraceId.ToString(), Activity.Current?.SpanId.ToString());
     var chartBytes = chart.AsReadOnlySpan<byte>();
 
-    // Return the image as a stream.
-    return Results.Stream(async responseStream =>
-    {
-        await responseStream.WriteAsync(chart.AsReadOnlySpan<byte>().ToArray());
-    }, "image/png");
+    return Results.File(chartBytes.ToArray(), "image/png");
 });
 
 app.MapDefaultEndpoints();

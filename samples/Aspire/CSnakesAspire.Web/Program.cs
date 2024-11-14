@@ -35,6 +35,11 @@ app.UseAntiforgery();
 
 app.UseOutputCache();
 
+app.MapGet("/weather/chart", async (WeatherApiClient weatherApiClient) =>
+{
+    return TypedResults.File(await weatherApiClient.GetWeatherChart(), "image/png");
+});
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

@@ -21,6 +21,11 @@ public class WeatherApiClient(HttpClient httpClient)
 
         return forecasts?.ToArray() ?? [];
     }
+
+    public async Task<byte[]> GetWeatherChart(CancellationToken cancellationToken = default)
+    {
+        return await httpClient.GetByteArrayAsync("/weatherchart", cancellationToken);
+    }
 }
 
 public record WeatherRecord(string City, DateOnly Date, float Precipitation, float TemperatureMinC, float TemperatureMaxC, float Wind, string? Summary)

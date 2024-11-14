@@ -3,6 +3,7 @@ using CSnakesAspire.ApiService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using System.Buffers;
 using System.Diagnostics;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,12 +82,13 @@ app.MapGet("/weatherforecast", (
 
 app.MapGet("/weatherchart", (
     [FromServices] IWeather weather,
-    [FromServices] ILogger<Program> logger) =>
+    HttpResponse response) =>
 {
     var chart = weather.GetWeatherChart(7, Activity.Current?.TraceId.ToString(), Activity.Current?.SpanId.ToString());
     var chartBytes = chart.AsReadOnlySpan<byte>();
 
-    return Results.File(chartBytes.ToArray(), "image/png");
+    response.ContentType = "image/png";
+    response.BodyWriter.Write(chartBytes);
 });
 
 app.MapDefaultEndpoints();

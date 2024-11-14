@@ -78,9 +78,9 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
 
     public async ValueTask<bool> MoveNextAsync()
     {
-        using var result = await sendPyFunction.CallAsync(PyObject.None);
-        current = result.As<TYield>();
-        return true;
+        return await Task.Run(() => Send(PyObject.None));
     }
+
+    public IAsyncEnumerator<TYield> GetAsyncEnumerator(CancellationToken cancellationToken = default) => this;
     #endregion
 }

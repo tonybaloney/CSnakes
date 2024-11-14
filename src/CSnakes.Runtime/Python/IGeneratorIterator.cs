@@ -2,7 +2,10 @@
 
 namespace CSnakes.Runtime.Python;
 
-public interface IGeneratorIterator<out TYield, in TSend, out TReturn>: IEnumerator<TYield>, IEnumerable<TYield>, IGeneratorIterator, IAsyncEnumerator<TYield>
+public interface IGeneratorIterator<out TYield, in TSend, out TReturn>:
+    IEnumerator<TYield>, IEnumerable<TYield>,
+    IGeneratorIterator,
+    IAsyncEnumerator<TYield>, IAsyncEnumerable<TYield>
 {
     /// <remarks>
     /// The value is undefined until either <see cref="IEnumerator.MoveNext"/> or <see cref="Send"/>

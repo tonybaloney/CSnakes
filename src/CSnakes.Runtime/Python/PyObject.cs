@@ -317,11 +317,6 @@ public partial class PyObject : SafeHandle, ICloneable
         return CallWithArgs(args);
     }
 
-    internal async Task<PyObject> CallAsync(params PyObject[] args)
-    {
-        return await Task.Run(() => CallWithArgs(args));
-    }
-
     public PyObject CallWithArgs(PyObject[]? args = null)
     {
         RaiseOnPythonNotInitialized();

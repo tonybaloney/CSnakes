@@ -1,16 +1,22 @@
 from typing import List, Dict, Any
+from collections.abc import Buffer
 from datetime import datetime, timedelta, date
-from otlp_tracing import configure_oltp_grpc_tracing, get_span_context
 
 import psycopg2
 import psycopg2.extras
+
 import os
 import logging
+from io import BytesIO
+
+from otlp_tracing import configure_oltp_grpc_tracing, get_span_context
 from opentelemetry.instrumentation.psycopg2 import Psycopg2Instrumentor
-import csv
-import pathlib
+
 import pandas as pd
-import numpy as np
+from meteostat import Point, Daily
+from geopy.geocoders import Nominatim
+from matplotlib import pyplot as plt
+
 
 logging.basicConfig(level=logging.INFO)
 tracer = configure_oltp_grpc_tracing()
@@ -34,7 +40,8 @@ def get_weather_forecast(days: int = 7, trace_id: str = None, span_id: str = Non
 
         # read 6 random records from the pg database
         cursor = cnx.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cursor.execute(f"""SELECT "City", "Date", "Precipitation", "TemperatureMinC", "TemperatureMaxC", "Wind", "Summary", EXTRACT(DOY FROM "Date") as "DOY" FROM public."WeatherRecords" WHERE EXTRACT(DOY FROM "Date") >= %s AND EXTRACT(DOY FROM "Date") <= %s;""", (start.strftime('%j'), end.strftime('%j')))
+        cursor.execute(f"""SELECT "City", "Date", "Precipitation", "TemperatureMinC", "TemperatureMaxC", "Wind", "Summary", EXTRACT(DOY FROM "Date") as "DOY"
+                           FROM public."WeatherRecords" WHERE EXTRACT(DOY FROM "Date") >= %s AND EXTRACT(DOY FROM "Date") <= %s;""", (start.strftime('%j'), end.strftime('%j')))
 
         # Convert the records to a list of dictionaries
         df = pd.DataFrame(cursor.fetchall(), columns=["City", "Date", "Precipitation", "TemperatureMinC", "TemperatureMaxC", "Wind", "Summary", "DOY"])
@@ -61,24 +68,78 @@ def get_weather_forecast(days: int = 7, trace_id: str = None, span_id: str = Non
 
     return estimates
 
-def seed_database() -> None:
+
+def get_weather_chart(days: int = 7, trace_id: str = None, span_id: str = None) -> Buffer:
+    with tracer.start_as_current_span("generate-chart", get_span_context(trace_id, span_id)):
+        logger.info("Generating weather chart")
+
+        # Get last 7 days
+        start = date.today() - timedelta(days=days)
+        end = date.today()
+
+        # read 6 random records from the pg database
+        cursor = cnx.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute(f"""SELECT "City", "Date", "Precipitation", "TemperatureMinC", "TemperatureMaxC"
+                           FROM public."WeatherRecords" WHERE "Date" >= %s AND "Date" <= %s;""", (start, end))
+
+        # Convert the records to a list of dictionaries
+        df = pd.DataFrame(cursor.fetchall(), columns=["City", "Date", "Precipitation", "TemperatureMinC", "TemperatureMaxC"])
+        cursor.close()
+        cnx.commit()
+
+        df.plot(x='Date', y='Precipitation', title='Precipitation')
+
+        outstream = BytesIO()
+        plt.savefig(outstream, format='png', dpi=300)
+        return outstream.getbuffer()
+
+
+def seed_database(location: str = "Seattle, USA", from_year: int = 2016) -> None:
+    geolocator = Nominatim(user_agent="weatherBot", timeout=10)
+
+    geolocation = geolocator.geocode(location)
+    point = Point(geolocation.latitude, geolocation.longitude)
+    data = Daily(point, start=datetime(from_year, 1, 1), end=datetime.today())
+    data = data.fetch()
+
+    data = data.rename(columns={'prcp': 'precipitation',
+                                'tmin': 'temp_min',
+                                'tmax': 'temp_max',
+                                'wspd': 'wind'})
+    
+    # add "weather" column to summarise weather conditions. Start as blank
+    data['weather'] = ''
+
+    # if snow, set weather to snow
+    data.loc[data['snow'] > 0, 'weather'] = 'snow'
+    # if lots of rain, set weather to rain
+    data.loc[data['precipitation'] > 10, 'weather'] = 'rain'
+    # if some precipitation between 0 and 10, set weather to drizzle
+    data.loc[(data['precipitation'] > 0) & (data['precipitation'] <=10), 'weather'] = 'drizzle'
+    # if no precipitation, set weather to clear
+    data.loc[data['precipitation'] == 0, 'weather'] = 'sun'
+    # drop columns we don't need
+    data = data.drop(columns=['tavg', 'wdir', 'snow', 'wpgt', 'pres', 'tsun'])
+    
+    # reorder columns to date, precipitation, temp_min, temp_max, wind
+    data = data[['precipitation', 'temp_max', 'temp_min', 'wind', 'weather']]
+
+    data.index.name = 'date'
+
     with tracer.start_as_current_span("seed-database"):
         logger.info("Seeding database from Python")
-        data_dir = pathlib.Path(os.getcwd())
-        data_file = data_dir / "Data" / "seattle-weather.csv"
-        with open(data_file) as f:
-            weather_history = csv.DictReader(f)
 
-            # write to pg database
-            cursor = cnx.cursor()
-            counter = 0
-            for row in weather_history:
-                cursor.execute("""INSERT INTO public."WeatherRecords"(
-                            "City", "Date", "Precipitation", "TemperatureMinC", "TemperatureMaxC", "Wind", "Summary")
-                            VALUES (%s, %s, %s, %s, %s, %s, %s);""", ("Seattle", row["date"], row["precipitation"], row["temp_min"], row["temp_max"], row["wind"], row["weather"]))
-                counter += 1
+        # write to pg database
+        cursor = cnx.cursor()
+        counter = 0
+        for index, row in data.iterrows():
+            index: datetime
+            cursor.execute("""INSERT INTO public."WeatherRecords"(
+                        "City", "Date", "Precipitation", "TemperatureMinC", "TemperatureMaxC", "Wind", "Summary")
+                        VALUES (%s, %s, %s, %s, %s, %s, %s);""", (location, index.strftime("%Y-%m-%d"), row["precipitation"], row["temp_min"], row["temp_max"], row["wind"], row["weather"]))
+            counter += 1
 
-            logger.info(f"Database seeded with {counter} records")
-            cursor.close()
-            cnx.commit()
+        logger.info(f"Database seeded with {counter} records")
+        cursor.close()
+        cnx.commit()
 

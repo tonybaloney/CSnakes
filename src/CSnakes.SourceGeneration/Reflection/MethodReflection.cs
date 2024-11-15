@@ -157,7 +157,11 @@ public static class MethodReflection
                                 IdentifierName($"__func_{function.Name}"))))))
             );
 
-        var callStatement = LocalDeclarationStatement(
+        LocalDeclarationStatementSyntax callStatement;
+
+        if (!function.IsAsync)
+        {
+            callStatement = LocalDeclarationStatement(
                         VariableDeclaration(
                             IdentifierName("PyObject"))
                         .WithVariables(
@@ -167,10 +171,23 @@ public static class MethodReflection
                                 .WithInitializer(
                                     EqualsValueClause(
                                         callExpression)))));
-        if (resultShouldBeDisposed)
+            
+        } else
+        {
+            callStatement = LocalDeclarationStatement(
+                        VariableDeclaration(
+                            IdentifierName("PyObject"))
+                        .WithVariables(
+                            SingletonSeparatedList(
+                                VariableDeclarator(
+                                    Identifier("__result_pyObject"))
+                                )));
+            
+        }
+        if (resultShouldBeDisposed && !function.IsAsync)
             callStatement = callStatement.WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
-        StatementSyntax[] statements = [
-            ExpressionStatement(
+
+        var logStatement = ExpressionStatement(
                 InvocationExpression(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
@@ -183,22 +200,56 @@ public static class MethodReflection
                                     Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Invoking Python function: {FunctionName}"))),
                                     Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(function.Name)))
                                 ])))
-                    ),
-            functionObject,
-            .. pythonConversionStatements,
-            callStatement,
-            returnExpression];
-        var body = Block(
-            UsingStatement(
-                null,
-                InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("GIL"),
-                        IdentifierName("Acquire"))),
-                Block(statements)
-                ));
+                    );
+        
+        BlockSyntax body;
+        if (function.IsAsync)
+        {
+            ExpressionStatementSyntax localCallStatement = ExpressionStatement(
+                AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName("__result_pyObject"),
+                    callExpression));
 
+            StatementSyntax[] statements = [
+                logStatement,
+                functionObject,
+                .. pythonConversionStatements,
+                localCallStatement
+                ];
+
+            body = Block(
+                callStatement,
+                UsingStatement(
+                    null,
+                    InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName("GIL"),
+                            IdentifierName("Acquire"))),
+                    Block(statements)
+                    ),
+                returnExpression);
+        } else
+        {
+            StatementSyntax[] statements = [
+                logStatement,
+                functionObject,
+                .. pythonConversionStatements,
+                callStatement,
+                returnExpression];
+            body = Block(
+                UsingStatement(
+                    null,
+                    InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName("GIL"),
+                            IdentifierName("Acquire"))),
+                    Block(statements)
+                    ));
+        }
+            
         // Sort the method parameters into this order
         // 1. All positional arguments
         // 2. All keyword-only arguments

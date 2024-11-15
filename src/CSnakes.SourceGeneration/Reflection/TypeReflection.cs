@@ -2,7 +2,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using CSnakes.Parser.Types;
-using System.ComponentModel;
 
 namespace CSnakes.Reflection;
 
@@ -32,6 +31,7 @@ public static class TypeReflection
                 "typing.Sequence" or "Sequence" => CreateListType(pythonType.Arguments[0], direction),
                 "typing.Optional" or "Optional" => AsPredefinedType(pythonType.Arguments[0], direction),
                 "typing.Generator" or "Generator" => CreateGeneratorType(pythonType.Arguments[0], pythonType.Arguments[1], pythonType.Arguments[2], direction),
+                "typing.Coroutine" or "Coroutine" => CreateCoroutineType(pythonType.Arguments[0], pythonType.Arguments[1], pythonType.Arguments[2], direction),
                 // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
                 _ => SyntaxFactory.ParseTypeName("PyObject"),
             };
@@ -54,6 +54,12 @@ public static class TypeReflection
             ]);
 
     private static TypeSyntax CreateGeneratorType(PythonTypeSpec yieldType, PythonTypeSpec sendType, PythonTypeSpec returnType, ConversionDirection direction) => CreateGenericType("IGeneratorIterator", [
+            AsPredefinedType(yieldType, direction),
+            AsPredefinedType(sendType, direction),
+            AsPredefinedType(returnType, direction)
+            ]);
+
+    private static TypeSyntax CreateCoroutineType(PythonTypeSpec yieldType, PythonTypeSpec sendType, PythonTypeSpec returnType, ConversionDirection direction) => CreateGenericType("ICoroutine", [
             AsPredefinedType(yieldType, direction),
             AsPredefinedType(sendType, direction),
             AsPredefinedType(returnType, direction)

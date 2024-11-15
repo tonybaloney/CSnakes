@@ -23,15 +23,4 @@ public class GeneratorTests(PythonEnvironmentFixture fixture) : IntegrationTestB
         var generator = mod.TestNormalGenerator();
         Assert.Equal<string[]>(["one", "two"], generator.ToArray());
     }
-
-    [Fact]
-    public async Task TestAsyncEnumerator()
-    {
-        var mod = Env.TestGenerators();
-        List<string> words = [ "foo", "bar", "baz"];
-        await foreach (string word in mod.TestGeneratorSequence())
-        {
-            Assert.Contains(word, words);
-        }
-    }
 }

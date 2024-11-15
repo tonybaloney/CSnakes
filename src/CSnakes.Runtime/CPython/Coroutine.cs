@@ -8,7 +8,7 @@ internal unsafe partial class CPythonAPI
         return HasAttr(p, "__await__");
     }
 
-    private static PyObject? currentEventLoop = null;
+    [ThreadStatic] private static PyObject? currentEventLoop = null;
     private static PyObject? asyncioModule = null;
 
     internal static PyObject GetAsyncioModule()

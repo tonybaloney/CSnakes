@@ -1,5 +1,4 @@
 ﻿using CSnakes.Runtime.Python;
-using CSnakes.Runtime.Python.Interns;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -101,6 +100,8 @@ internal unsafe partial class CPythonAPI : IDisposable
                 PyBytesType = GetTypeRaw(PyBytes_FromByteSpan(new byte[] { }));
                 ItemsStrIntern = AsPyUnicodeObject("items");
                 PyNone = GetBuiltin("None");
+                AsyncioModule = Import("asyncio");
+                NewEventLoopFactory = AsyncioModule.GetAttr("new_event_loop");
             }
             PyEval_SaveThread();
         }
@@ -136,6 +137,11 @@ internal unsafe partial class CPythonAPI : IDisposable
                 {
                     if (!IsInitialized)
                         return;
+
+                    // Clean-up interns
+                    NewEventLoopFactory?.Dispose();
+                    AsyncioModule?.Dispose();
+                    // TODO: Add more cleanup code here
 
                     Debug.WriteLine("Calling Py_Finalize()");
 

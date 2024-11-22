@@ -19,10 +19,11 @@ public class Coroutine<TYield, TSend, TReturn>(PyObject coroutine) : ICoroutine<
                 {
                     using (GIL.Acquire())
                     {
-                        var loop = CPythonAPI.GetCurrentEventLoop();
-                        using PyObject task = loop.GetAttr("create_task").Call(coroutine);
-                        using PyObject result = loop.GetAttr("run_until_complete").Call(task);
-                        current = result.As<TYield>();
+                        using (var loop = CPythonAPI.WithEventLoop())
+                        {
+                            using PyObject result = loop.RunTaskUntilComplete(coroutine);
+                            current = result.As<TYield>();
+                        }
                     }
                     return current;
                 }

@@ -2,3 +2,4 @@ numpy
 scikit-learn
 wheel
 transformers
+fastembed

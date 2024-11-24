@@ -1,6 +1,7 @@
 ﻿using CSnakes.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using QuickConsoleTest;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,13 +26,24 @@ var app = builder.Build();
 
 var env = app.Services.GetRequiredService<IPythonEnvironment>();
 
-RunQuickDemo(env);
+RunEmbedDemo(env);
 
-RunDictionaryDemo(env);
+//RunQuickDemo(env);
 
-RunKmeansDemo(env);
+//RunDictionaryDemo(env);
 
-RunAIDemo(env);
+//RunKmeansDemo(env);
+
+//RunAIDemo(env);
+
+static void RunEmbedDemo(IPythonEnvironment env)
+{
+    using FastEmbedIntegration embeds = new(env);
+    List<string> entries = new();
+    entries.Add("hello there");
+    IReadOnlyList<IReadOnlyList<double>> vectors = embeds.Generate(entries);
+    Console.WriteLine(vectors);
+}
 
 static void RunQuickDemo(IPythonEnvironment env)
 {

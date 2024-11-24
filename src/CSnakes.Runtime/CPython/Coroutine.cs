@@ -63,6 +63,7 @@ internal unsafe partial class CPythonAPI
         }
         if (currentEventLoop is null || currentEventLoop.IsDisposed)
         {
+            // TODO: Reuse event loops
             currentEventLoop = new EventLoop();
         }
         return currentEventLoop!;

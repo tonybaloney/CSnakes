@@ -127,34 +127,39 @@ internal unsafe partial class CPythonAPI : IDisposable
     [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath", StringMarshallingCustomType = typeof(Utf32StringMarshaller), StringMarshalling = StringMarshalling.Custom)]
     internal static partial void Py_SetPath_UCS4_UTF32(string path);
 
+    protected void FinalizeEmbeddedPython()
+    {
+        lock (initLock)
+        {
+            if (!IsInitialized)
+                return;
+
+            // Clean-up interns
+            NewEventLoopFactory?.Dispose();
+            AsyncioModule?.Dispose();
+            // TODO: Add more cleanup code here
+
+            Debug.WriteLine($"Calling Py_Finalize() on thread {GetNativeThreadId()}");
+
+            // Acquire the GIL only to dispose it immediately because `PyGILState_Release`
+            // is not available after `Py_Finalize` is called. This is done primarily to
+            // trigger the disposal of handles that have been queued before the Python
+            // runtime is finalized.
+
+            GIL.Acquire().Dispose();
+
+            PyGILState_Ensure();
+            Py_Finalize();
+        }
+    }
+
     protected virtual void Dispose(bool disposing)
     {
         if (!disposedValue)
         {
             if (disposing)
             {
-                lock (initLock)
-                {
-                    if (!IsInitialized)
-                        return;
-
-                    // Clean-up interns
-                    NewEventLoopFactory?.Dispose();
-                    AsyncioModule?.Dispose();
-                    // TODO: Add more cleanup code here
-
-                    Debug.WriteLine("Calling Py_Finalize()");
-
-                    // Acquire the GIL only to dispose it immediately because `PyGILState_Release`
-                    // is not available after `Py_Finalize` is called. This is done primarily to
-                    // trigger the disposal of handles that have been queued before the Python
-                    // runtime is finalized.
-
-                    GIL.Acquire().Dispose();
-
-                    PyGILState_Ensure();
-                    Py_Finalize();
-                }
+                FinalizeEmbeddedPython();
             }
 
             disposedValue = true;

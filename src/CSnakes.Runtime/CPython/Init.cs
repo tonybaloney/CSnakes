@@ -177,6 +177,9 @@ internal unsafe partial class CPythonAPI : IDisposable
             if (!IsInitialized)
                 return;
 
+            // Shut down asyncio coroutines
+            CloseEventLoops();
+
             // Clean-up interns
             NewEventLoopFactory?.Dispose();
             AsyncioModule?.Dispose();

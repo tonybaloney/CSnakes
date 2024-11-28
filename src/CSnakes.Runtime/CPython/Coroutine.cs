@@ -1,4 +1,5 @@
 ﻿using CSnakes.Runtime.Python;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace CSnakes.Runtime.CPython;
@@ -51,11 +52,12 @@ internal unsafe partial class CPythonAPI
         }
     }
 
+    private static ConcurrentBag<EventLoop> eventLoops = [];
     [ThreadStatic] private static EventLoop? currentEventLoop = null;
     private static PyObject? AsyncioModule = null;
     private static PyObject? NewEventLoopFactory = null;
 
-    internal static EventLoop WithEventLoop()
+    internal static EventLoop GetEventLoop()
     {
         if (AsyncioModule is null)
         {
@@ -63,9 +65,18 @@ internal unsafe partial class CPythonAPI
         }
         if (currentEventLoop is null || currentEventLoop.IsDisposed)
         {
-            // TODO: Reuse event loops
             currentEventLoop = new EventLoop();
+            eventLoops.Add(currentEventLoop);
         }
         return currentEventLoop!;
+    }
+
+    internal static void CloseEventLoops()
+    {
+        foreach (var eventLoop in eventLoops)
+        {
+            eventLoop.Dispose();
+        }
+        eventLoops.Clear();
     }
 }

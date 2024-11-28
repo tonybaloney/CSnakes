@@ -14,6 +14,8 @@ internal unsafe partial class CPythonAPI : IDisposable
     private static readonly Lock initLock = new();
     private static Version PythonVersion = new("0.0.0");
     private bool disposedValue = false;
+    private Task? initializationTask = null;
+    private CancellationTokenSource? cts = null;
 
     public CPythonAPI(string pythonLibraryPath, Version version)
     {
@@ -50,7 +52,8 @@ internal unsafe partial class CPythonAPI : IDisposable
         {
             // Override default dlopen flags on linux to allow global symbol resolution (required in extension modules)
             // See https://github.com/tonybaloney/CSnakes/issues/112#issuecomment-2290643468
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)){
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
                 return dlopen(pythonLibraryPath!, (int)(RTLD.LAZY | RTLD.GLOBAL));
             }
 
@@ -64,7 +67,47 @@ internal unsafe partial class CPythonAPI : IDisposable
         if (IsInitialized)
             return;
 
-        InitializeEmbeddedPython();
+        /* Notes:
+         * 
+         * The CPython initialization and finalization
+         * methods should be called from the same thread.
+         * 
+         * Without doing so, CPython can hang on finalization.
+         * Especially if the code imports the threading module, or 
+         * uses asyncio.
+         * 
+         * Since we have no guarantee that the Dispose() of this 
+         * class will be called from the same managed CLR thread
+         * as the one which called Init(), we create a Task with 
+         * a cancellation token and use that as a mechanism to wait
+         * in the background for shutdown then call the finalization.
+         */
+
+        cts = new CancellationTokenSource();
+        bool initialized = false;
+        initializationTask = Task.Run(
+            () => {
+                InitializeEmbeddedPython();
+                initialized = true;
+                while (true)
+                {
+                    if (cts.IsCancellationRequested)
+                    {
+                        FinalizeEmbeddedPython();
+                        break;
+                    }
+                    else
+                    {
+                        Thread.Sleep(500);
+                    }
+                }
+            },
+            cancellationToken: cts.Token);
+
+        while (!initialized) // Wait for startup
+        {
+            continue;
+        }
     }
 
     private void InitializeEmbeddedPython()
@@ -159,7 +202,14 @@ internal unsafe partial class CPythonAPI : IDisposable
         {
             if (disposing)
             {
-                FinalizeEmbeddedPython();
+                if (initializationTask != null)
+                {
+                    if (cts == null)
+                        throw new InvalidOperationException("Invalid runtime state");
+
+                    cts.Cancel();
+                    initializationTask.Wait();
+                }
             }
 
             disposedValue = true;

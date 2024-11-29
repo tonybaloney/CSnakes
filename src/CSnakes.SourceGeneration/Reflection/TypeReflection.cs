@@ -30,7 +30,7 @@ public static class TypeReflection
                 "typing.Dict" or "Dict" => CreateDictionaryType(pythonType.Arguments[0], pythonType.Arguments[1], direction),
                 "typing.Mapping" or "Mapping" => CreateDictionaryType(pythonType.Arguments[0], pythonType.Arguments[1], direction),
                 "typing.Sequence" or "Sequence" => CreateListType(pythonType.Arguments[0], direction),
-                "typing.Optional" or "Optional" => AsPredefinedType(pythonType.Arguments[0], direction),
+                "typing.Optional" or "Optional" => SyntaxFactory.NullableType(AsPredefinedType(pythonType.Arguments[0], direction)),
                 "typing.Generator" or "Generator" => CreateGeneratorType(pythonType.Arguments[0], pythonType.Arguments[1], pythonType.Arguments[2], direction),
                 // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
                 _ => SyntaxFactory.ParseTypeName("PyObject"),

@@ -20,14 +20,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: conda-incubator/setup-miniconda@v3
+      - uses: conda-incubator/setup-miniconda@v3.0.4
         id: setup-conda
         with:
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
           activate-environment: csnakes_test
           environment-file: src/Conda.Tests/python/environment.yml
-
+      - name: cleanup conda-incubator/setup-miniconda
+        run: conda clean --all --yes
       - name: Setup Python
         id: installpython
         uses: actions/setup-python@v5

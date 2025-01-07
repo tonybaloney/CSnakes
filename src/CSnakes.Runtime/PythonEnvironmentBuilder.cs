@@ -25,9 +25,6 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
 
     public IPythonEnvironmentBuilder WithCondaEnvironment(string name, string? environmentSpecPath = null, bool ensureEnvironment = false)
     {
-        if (ensureEnvironment)
-            throw new InvalidOperationException("Automated Conda environment creation not yet supported. Conda environments must be created manually.");
-
         Services.AddSingleton<IEnvironmentManagement>(
             sp => {
                 try

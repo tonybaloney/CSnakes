@@ -13,11 +13,13 @@ internal class CondaEnvironmentManagement(ILogger logger, string name, bool ensu
         if (!ensureExists)
             return;
 
-
         var fullPath = Path.GetFullPath(GetPath());
         if (!Directory.Exists(fullPath))
         {
             logger.LogError("Cannot find conda environment at {fullPath}.", fullPath);
+
+            throw new InvalidOperationException($"Cannot find conda environment at {fullPath}.");
+
             // TODO: Automate the creation of the conda environments. 
             //var result = conda.ExecuteCondaShellCommand($"env create -n {name} -f {environmentSpecPath}");
             //if (!result)

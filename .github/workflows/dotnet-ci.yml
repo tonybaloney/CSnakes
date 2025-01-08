@@ -31,7 +31,7 @@ jobs:
         run: |
           conda env export --name csnakes_test
           conda info
-          ls -R $(CONDA)/envs/csnakes_test
+          ls -R $CONDA/envs/csnakes_test
       - name: Setup Python
         id: installpython
         uses: actions/setup-python@v5

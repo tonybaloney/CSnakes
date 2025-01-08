@@ -23,7 +23,7 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
         return this;
     }
 
-    public IPythonEnvironmentBuilder WithCondaEnvironment(string name, string? environmentSpecPath = null, bool ensureEnvironment = false)
+    public IPythonEnvironmentBuilder WithCondaEnvironment(string name, string? environmentSpecPath = null, bool ensureEnvironment = false, string? pythonVersion = null)
     {
         Services.AddSingleton<IEnvironmentManagement>(
             sp => {
@@ -31,7 +31,7 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
                 {
                     var condaLocator = sp.GetRequiredService<CondaLocator>();
                     var logger = sp.GetRequiredService<ILogger<CondaEnvironmentManagement>>();
-                    var condaEnvManager = new CondaEnvironmentManagement(logger, name, ensureEnvironment, condaLocator, environmentSpecPath);
+                    var condaEnvManager = new CondaEnvironmentManagement(logger, name, ensureEnvironment, condaLocator, environmentSpecPath, pythonVersion);
                     return condaEnvManager;
                 }
                 catch (InvalidOperationException)

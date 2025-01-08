@@ -18,9 +18,6 @@ public interface IEnvironmentManagement
             envLibPath = Path.Combine(GetPath(), "lib", $"python{location.Version.Major}.{location.Version.Minor}{suffix}", "site-packages");
         }
         Logger.LogDebug("Adding environment site-packages to extra paths: {VenvLibPath}", envLibPath);
-        // Raise error if the path does not exist
-        if (!Directory.Exists(envLibPath))
-            throw new DirectoryNotFoundException($"The environment site-packages path does not exist: {envLibPath}");
         return envLibPath;
     }
     public void EnsureEnvironment(PythonLocationMetadata pythonLocation);

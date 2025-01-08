@@ -24,14 +24,13 @@ jobs:
         id: setup-conda
         with:
           auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
+          python-version: "${{ matrix.python }}"
           activate-environment: csnakes_test
           environment-file: src/Conda.Tests/python/environment.yml
       - name: check conda export
         run: |
           conda env export --name csnakes_test
           conda info
-          ls -R $CONDA/envs/csnakes_test
       - name: Setup Python
         id: installpython
         uses: actions/setup-python@v5

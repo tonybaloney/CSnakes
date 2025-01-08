@@ -32,8 +32,7 @@ jobs:
       - name: check conda export
         run: |
           conda env export --name csnakes_test
-          conda init
-          conda activate csnakes_test
+          conda info
           python -c "import httpx"
       - name: Setup Python
         id: installpython

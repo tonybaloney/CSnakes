@@ -28,7 +28,7 @@ public class CondaTestBase : IDisposable
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
                 pb.FromConda(condaBinPath)
-                  .WithCondaEnvironment("csnakes_test", environmentSpecPath, true);
+                  .WithCondaEnvironment("csnakes_test", environmentSpecPath, true, pythonVersion);
 
                 services.AddLogging(builder => builder.AddXUnit());
             })

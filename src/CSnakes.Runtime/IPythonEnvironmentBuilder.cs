@@ -26,7 +26,7 @@ public interface IPythonEnvironmentBuilder
     /// <param name="environmentSpecPath">The path to the conda environment specification file (environment.yml), used if ensureEnvironment = true.</param>
     /// <param name="ensureEnvironment">Indicates whether to create the conda environment if it doesn't exist (not yet supported).</param>
     /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    IPythonEnvironmentBuilder WithCondaEnvironment(string name, string? environmentSpecPath = null, bool ensureEnvironment = false);
+    IPythonEnvironmentBuilder WithCondaEnvironment(string name, string? environmentSpecPath = null, bool ensureEnvironment = false, string? pythonVersion = null);
 
     /// <summary>
     /// Sets the home directory for the Python environment being built.

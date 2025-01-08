@@ -11,7 +11,7 @@ public class CondaTestBase : IDisposable
     public CondaTestBase()
     {
         string condaEnv = Environment.GetEnvironmentVariable("CONDA") ?? string.Empty;
-
+        string? pythonVersion = Environment.GetEnvironmentVariable("PYTHON_VERSION");
         if (string.IsNullOrEmpty(condaEnv))
         {
             if (OperatingSystem.IsWindows())
@@ -28,7 +28,7 @@ public class CondaTestBase : IDisposable
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
                 pb.FromConda(condaBinPath)
-                  .WithCondaEnvironment("csnakes_test", environmentSpecPath);
+                  .WithCondaEnvironment("csnakes_test", environmentSpecPath, true, pythonVersion);
 
                 services.AddLogging(builder => builder.AddXUnit());
             })

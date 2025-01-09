@@ -34,6 +34,8 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
     }
 
     public override PythonLocationMetadata LocatePython() {
+        // TODO: Put this somewhere like a CSnakes cache folder
+
         // Determine binary name, see https://gregoryszorc.com/docs/python-build-standalone/main/running.html#obtaining-distributions
         string platform;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -79,6 +81,27 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
         ExtractTar(tarFilePath, extractPath, logger);
         logger.LogInformation("Extracted Python to {ExtractPath}", extractPath);
         return LocatePythonInternal(Path.Join(extractPath, "python", "install"));
+    }
+
+    protected override string GetLibPythonPath(string folder, bool freeThreaded = false)
+    {
+        string suffix = freeThreaded ? "t" : "";
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return Path.Combine(folder, $"python{Version.Major}{Version.Minor}{suffix}.dll");
+        }
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return Path.Combine(folder, "lib", $"libpython{Version.Major}.{Version.Minor}{suffix}.dylib");
+        }
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return Path.Combine(folder, "lib", $"libpython{Version.Major}.so");
+        }
+
+        throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
     }
 
     private static async Task<string> DownloadFileToTempDirectoryAsync(string fileUrl)

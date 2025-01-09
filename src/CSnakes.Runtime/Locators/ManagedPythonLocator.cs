@@ -9,7 +9,7 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
 {
     private const string standaloneRelease = "20250106";
     private static readonly Version defaultVersion = new(3, 12, 8, 0);
-
+    private static object _installLock = new();
     protected override Version Version { get; } = defaultVersion;
 
     protected override string GetPythonExecutablePath(string folder, bool freeThreaded = false)
@@ -36,55 +36,67 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
     public override PythonLocationMetadata LocatePython() {
         var downloadPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CSnakes", $"python{Version.Major}.{Version.Minor}");
         var installPath = Path.Join(downloadPath, "python", "install");
+
+        // Before entering the lock, check if the install path already exists to save waiting
         if (Directory.Exists(installPath))
         {
             return LocatePythonInternal(installPath);
         }
 
-        // Determine binary name, see https://gregoryszorc.com/docs/python-build-standalone/main/running.html#obtaining-distributions
-        string platform;
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        lock (_installLock)
         {
-            platform = RuntimeInformation.ProcessArchitecture switch {
-                Architecture.X86 => "i686-pc-windows-msvc-shared-pgo-full",
-                Architecture.X64 => "x86_64-pc-windows-msvc-shared-pgo-full",
-                _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
-            };
-        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            platform = RuntimeInformation.ProcessArchitecture switch
+            // Check again if the install path exists, in case another thread has already installed it
+            if (Directory.Exists(installPath))
             {
-                // No such thing as i686 mac
-                Architecture.X64 => "x86_64-apple-darwin-pgo+lto-full",
-                Architecture.Arm64 => "aarch64-apple-darwin-pgo+lto-full",
-                _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
-            };
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        {
-            platform = RuntimeInformation.ProcessArchitecture switch
+                return LocatePythonInternal(installPath);
+            }
+            // Determine binary name, see https://gregoryszorc.com/docs/python-build-standalone/main/running.html#obtaining-distributions
+            string platform;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Architecture.X86 => "i686-unknown-linux-gnu-pgo+lto-full",
-                Architecture.X64 => "x86_64-unknown-linux-gnu-pgo+lto-full",
-                Architecture.Arm64 => "aarch64-unknown-linux-gnu-pgo+lto-full",
-                // .NET doesn't run on armv7 anyway.. don't try that
-                _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
-            };
-        }
-        else
-        {
-            throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
-        }
-        string downloadUrl = $"https://github.com/astral-sh/python-build-standalone/releases/download/{standaloneRelease}/cpython-{Version.Major}.{Version.Minor}.{Version.Build}+{standaloneRelease}-{platform}.tar.zst";
+                platform = RuntimeInformation.ProcessArchitecture switch
+                {
+                    Architecture.X86 => "i686-pc-windows-msvc-shared-pgo-full",
+                    Architecture.X64 => "x86_64-pc-windows-msvc-shared-pgo-full",
+                    _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
+                };
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                platform = RuntimeInformation.ProcessArchitecture switch
+                {
+                    // No such thing as i686 mac
+                    Architecture.X64 => "x86_64-apple-darwin-pgo+lto-full",
+                    Architecture.Arm64 => "aarch64-apple-darwin-pgo+lto-full",
+                    _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
+                };
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                platform = RuntimeInformation.ProcessArchitecture switch
+                {
+                    Architecture.X86 => "i686-unknown-linux-gnu-pgo+lto-full",
+                    Architecture.X64 => "x86_64-unknown-linux-gnu-pgo+lto-full",
+                    Architecture.Arm64 => "aarch64-unknown-linux-gnu-pgo+lto-full",
+                    // .NET doesn't run on armv7 anyway.. don't try that
+                    _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
+                };
+            }
+            else
+            {
+                throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
+            }
+            string downloadUrl = $"https://github.com/astral-sh/python-build-standalone/releases/download/{standaloneRelease}/cpython-{Version.Major}.{Version.Minor}.{Version.Build}+{standaloneRelease}-{platform}.tar.zst";
 
-        // Download and extract the tarball
-        logger.LogInformation("Downloading Python from {DownloadUrl}", downloadUrl);
-        string tempFilePath = DownloadFileToTempDirectoryAsync(downloadUrl).GetAwaiter().GetResult();
-        string tarFilePath = DecompressZstFile(tempFilePath);
-        Directory.CreateDirectory(downloadPath);
-        ExtractTar(tarFilePath, downloadPath, logger);
-        logger.LogInformation("Extracted Python to {downloadPath}", downloadPath);
-        return LocatePythonInternal(installPath);
+            // Download and extract the tarball
+            logger.LogInformation("Downloading Python from {DownloadUrl}", downloadUrl);
+            string tempFilePath = DownloadFileToTempDirectoryAsync(downloadUrl).GetAwaiter().GetResult();
+            string tarFilePath = DecompressZstFile(tempFilePath);
+            Directory.CreateDirectory(downloadPath);
+            ExtractTar(tarFilePath, downloadPath, logger);
+            logger.LogInformation("Extracted Python to {downloadPath}", downloadPath);
+            return LocatePythonInternal(installPath);
+        }
     }
 
     protected override string GetLibPythonPath(string folder, bool freeThreaded = false)

@@ -184,7 +184,7 @@ public static partial class ServiceCollectionExtensions
         builder.Services.AddSingleton<PythonLocator>(
             sp =>
             {
-                var logger = sp.GetRequiredService<ILogger<IPythonEnvironment>>();
+                var logger = sp.GetRequiredService<ILogger<ManagedPythonLocator>>();
                 return new ManagedPythonLocator(logger);
             }
         );

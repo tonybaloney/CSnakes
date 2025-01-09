@@ -1,8 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Formats.Tar;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
-using SharpCompress.Archives;
-using SharpCompress.Archives.Tar;
-using SharpCompress.Common;
 using ZstdSharp;
 
 namespace CSnakes.Runtime.Locators;
@@ -101,10 +99,21 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
 
     private static void ExtractTar(string tarFilePath, string extractPath)
     {
-        using var tarArchive = TarArchive.Open(tarFilePath);
-        foreach (var entry in tarArchive.Entries.Where(entry => !entry.IsDirectory))
+        using FileStream tarStream = File.OpenRead(tarFilePath);
+        using TarReader tarReader = new(tarStream);
+        TarEntry entry;
+        while ((entry = tarReader.GetNextEntry()) != null)
         {
-            entry.WriteToDirectory(extractPath, new ExtractionOptions { ExtractFullPath = true, Overwrite = true });
+            string entryPath = Path.Combine(extractPath, entry.Name);
+            if (entry.EntryType == TarEntryType.Directory)
+            {
+                Directory.CreateDirectory(entryPath);
+            }
+            else
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(entryPath));
+                entry.ExtractToFile(entryPath, true);
+            }
         }
     }
 }

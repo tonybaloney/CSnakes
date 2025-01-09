@@ -8,7 +8,7 @@ namespace CSnakes.Runtime.Locators;
 internal class ManagedPythonLocator(ILogger logger) : PythonLocator
 {
     private const string standaloneRelease = "20250106";
-    private static Version defaultVersion = new(3, 12, 8, 0);
+    private static readonly Version defaultVersion = new(3, 12, 8, 0);
 
     protected override Version Version { get; } = defaultVersion;
 
@@ -137,7 +137,7 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
     {
         using FileStream tarStream = File.OpenRead(tarFilePath);
         using TarReader tarReader = new(tarStream);
-        TarEntry entry;
+        TarEntry? entry;
 
         while ((entry = tarReader.GetNextEntry()) != null)
         {
@@ -149,7 +149,7 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
             }
             else if (entry.EntryType == TarEntryType.RegularFile)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(entryPath));
+                Directory.CreateDirectory(Path.GetDirectoryName(entryPath)!);
                 entry.ExtractToFile(entryPath, true);
             } else if (entry.EntryType == TarEntryType.SymbolicLink) {
                 // TODO: 

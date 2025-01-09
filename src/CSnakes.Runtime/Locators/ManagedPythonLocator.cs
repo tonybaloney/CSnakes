@@ -67,7 +67,7 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
         string tarFilePath = DecompressZstFile(tempFilePath);
         string extractPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         Directory.CreateDirectory(extractPath);
-        ExtractTar(tarFilePath, extractPath);
+        ExtractTar(tarFilePath, extractPath, logger);
         logger.LogInformation("Extracted Python to {ExtractPath}", extractPath);
         return LocatePythonInternal(Path.Join(extractPath, "python", "install"));
     }
@@ -97,22 +97,27 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
         return tarFilePath;
     }
 
-    private static void ExtractTar(string tarFilePath, string extractPath)
+    private static void ExtractTar(string tarFilePath, string extractPath, ILogger logger)
     {
         using FileStream tarStream = File.OpenRead(tarFilePath);
         using TarReader tarReader = new(tarStream);
         TarEntry entry;
+
         while ((entry = tarReader.GetNextEntry()) != null)
         {
             string entryPath = Path.Combine(extractPath, entry.Name);
             if (entry.EntryType == TarEntryType.Directory)
             {
                 Directory.CreateDirectory(entryPath);
+                logger.LogDebug("Creating directory: {EntryPath}", entryPath);
             }
-            else
+            else if (entry.EntryType == TarEntryType.RegularFile)
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(entryPath));
                 entry.ExtractToFile(entryPath, true);
+            } else if (entry.EntryType == TarEntryType.SymbolicLink) {
+                // TODO: 
+                logger.LogWarning("Symbolic link not supported: {EntryPath}", entryPath);
             }
         }
     }

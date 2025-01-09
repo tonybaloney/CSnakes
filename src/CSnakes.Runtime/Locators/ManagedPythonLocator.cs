@@ -185,7 +185,7 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
         using FileStream tarStream = File.OpenRead(tarFilePath);
         using TarReader tarReader = new(tarStream);
         TarEntry? entry;
-
+        List<(string, string)> symlinks = [];
         while ((entry = tarReader.GetNextEntry()) != null)
         {
             string entryPath = Path.Combine(extractPath, entry.Name);
@@ -199,11 +199,17 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
                 Directory.CreateDirectory(Path.GetDirectoryName(entryPath)!);
                 entry.ExtractToFile(entryPath, true);
             } else if (entry.EntryType == TarEntryType.SymbolicLink) {
-                File.CreateSymbolicLink(entryPath, entry.LinkName);
+                // Delay the creation of symlinks until after all files have been extracted
+                symlinks.Add((entryPath, entry.LinkName));
             } else
             {
                 logger.LogDebug("Skipping entry: {EntryPath} ({EntryType})", entryPath, entry.EntryType);
             }
+        }
+        foreach (var (path, link) in symlinks)
+        {
+            logger.LogDebug("Creating symlink: {Path} -> {Link}", path, link);
+            File.CreateSymbolicLink(path, link);
         }
     }
 }

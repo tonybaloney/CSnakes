@@ -179,6 +179,12 @@ public static partial class ServiceCollectionExtensions
         return builder;
     }
 
+    public static IPythonEnvironmentBuilder FromManagedPython(this IPythonEnvironmentBuilder builder)
+    {
+        builder.Services.AddSingleton<PythonLocator>(new ManagedPythonLocator());
+        return builder;
+    }
+
     /// <summary>
     /// Adds a pip package installer to the service collection.
     /// </summary>

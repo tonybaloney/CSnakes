@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestUtilities", "TestUtilit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conda.Tests", "Conda.Tests\Conda.Tests.csproj", "{38604D9B-2C01-4B82-AFA1-A00E184BAE03}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagedPython.Tests", "ManagedPython.Tests\ManagedPython.Tests.csproj", "{F43684F2-D7B3-403F-B6E8-1B4740513E2A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,10 @@ Global
 		{38604D9B-2C01-4B82-AFA1-A00E184BAE03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38604D9B-2C01-4B82-AFA1-A00E184BAE03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38604D9B-2C01-4B82-AFA1-A00E184BAE03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F43684F2-D7B3-403F-B6E8-1B4740513E2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F43684F2-D7B3-403F-B6E8-1B4740513E2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F43684F2-D7B3-403F-B6E8-1B4740513E2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F43684F2-D7B3-403F-B6E8-1B4740513E2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +87,7 @@ Global
 		{93264FC1-2880-4959-9576-50D260039BC2} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
 		{641C9CD0-8529-4666-8F27-ECEB7F72043C} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
 		{38604D9B-2C01-4B82-AFA1-A00E184BAE03} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
+		{F43684F2-D7B3-403F-B6E8-1B4740513E2A} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4ACC77F9-1BB8-42DE-B647-01C458922F49}

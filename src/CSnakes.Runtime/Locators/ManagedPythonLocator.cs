@@ -9,7 +9,7 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
 {
     private const string standaloneRelease = "20250106";
     private static readonly Version defaultVersion = new(3, 12, 8, 0);
-    private static object _installLock = new();
+    private static readonly object _installLock = new();
     protected override Version Version { get; } = defaultVersion;
 
     protected override string GetPythonExecutablePath(string folder, bool freeThreaded = false)

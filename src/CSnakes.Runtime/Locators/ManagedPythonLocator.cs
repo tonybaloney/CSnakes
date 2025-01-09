@@ -38,13 +38,16 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
         string platform;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            // TODO: i686 is available.. 
-            platform = "x86_64-pc-windows-msvc-shared-pgo-full";
+            platform = RuntimeInformation.ProcessArchitecture switch {
+                Architecture.X86 => "i686-pc-windows-msvc-shared-pgo-full",
+                Architecture.X64 => "x86_64-pc-windows-msvc-shared-pgo-full"
+                _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
+            };
         } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            // If aarch64-apple-darwin is available, use it
             platform = RuntimeInformation.ProcessArchitecture switch
             {
+                // No such thing as i686 mac
                 Architecture.X64 => "x86_64-apple-darwin-pgo+lto-full",
                 Architecture.Arm64 => "aarch64-apple-darwin-pgo+lto-full",
                 _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
@@ -52,8 +55,14 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            // TODO;
-            throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.");
+            platform = RuntimeInformation.ProcessArchitecture switch
+            {
+                Architecture.X86 => "i686-unknown-linux-gnu-lto-full",
+                Architecture.X64 => "x86_64-unknown-linux-gnu-lto-full",
+                Architecture.Arm64 => "aarch64-unknown-linux-gnu-lto-full",
+                // .NET doesn't run on armv7 anyway.. don't try that
+                _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
+            };
         }
         else
         {

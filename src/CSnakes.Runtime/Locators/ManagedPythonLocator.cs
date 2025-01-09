@@ -40,7 +40,7 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
         {
             platform = RuntimeInformation.ProcessArchitecture switch {
                 Architecture.X86 => "i686-pc-windows-msvc-shared-pgo-full",
-                Architecture.X64 => "x86_64-pc-windows-msvc-shared-pgo-full"
+                Architecture.X64 => "x86_64-pc-windows-msvc-shared-pgo-full",
                 _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
             };
         } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))

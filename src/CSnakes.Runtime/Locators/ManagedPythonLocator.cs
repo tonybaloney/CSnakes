@@ -14,7 +14,7 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
 
     protected override Version Version { get; } = defaultVersion;
 
-    protected virtual string GetPythonExecutablePath(string folder, bool freeThreaded = false)
+    protected override string GetPythonExecutablePath(string folder, bool freeThreaded = false)
     {
         string suffix = freeThreaded ? "t" : "";
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -51,7 +51,6 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
                 Architecture.Arm64 => "aarch64-apple-darwin-pgo+lto-full",
                 _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
             };
-            platform = "x86_64-apple-darwin-pgo+lto-full";
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {

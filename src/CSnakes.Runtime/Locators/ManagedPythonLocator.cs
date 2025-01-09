@@ -34,7 +34,12 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
     }
 
     public override PythonLocationMetadata LocatePython() {
-        // TODO: Put this somewhere like a CSnakes cache folder
+        var downloadPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CSnakes", $"python{Version.Major}.{Version.Minor}");
+        var installPath = Path.Join(downloadPath, "python", "install");
+        if (Directory.Exists(installPath))
+        {
+            return LocatePythonInternal(installPath);
+        }
 
         // Determine binary name, see https://gregoryszorc.com/docs/python-build-standalone/main/running.html#obtaining-distributions
         string platform;
@@ -76,11 +81,10 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
         logger.LogInformation("Downloading Python from {DownloadUrl}", downloadUrl);
         string tempFilePath = DownloadFileToTempDirectoryAsync(downloadUrl).GetAwaiter().GetResult();
         string tarFilePath = DecompressZstFile(tempFilePath);
-        string extractPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-        Directory.CreateDirectory(extractPath);
-        ExtractTar(tarFilePath, extractPath, logger);
-        logger.LogInformation("Extracted Python to {ExtractPath}", extractPath);
-        return LocatePythonInternal(Path.Join(extractPath, "python", "install"));
+        Directory.CreateDirectory(downloadPath);
+        ExtractTar(tarFilePath, downloadPath, logger);
+        logger.LogInformation("Extracted Python to {downloadPath}", downloadPath);
+        return LocatePythonInternal(installPath);
     }
 
     protected override string GetLibPythonPath(string folder, bool freeThreaded = false)
@@ -106,7 +110,7 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
 
     private static async Task<string> DownloadFileToTempDirectoryAsync(string fileUrl)
     {
-        using HttpClient client = new HttpClient();
+        using HttpClient client = new();
         using HttpResponseMessage response = await client.GetAsync(fileUrl);
         response.EnsureSuccessStatusCode();
 

@@ -57,9 +57,9 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
         {
             platform = RuntimeInformation.ProcessArchitecture switch
             {
-                Architecture.X86 => "i686-unknown-linux-gnu-lto-full",
-                Architecture.X64 => "x86_64-unknown-linux-gnu-lto-full",
-                Architecture.Arm64 => "aarch64-unknown-linux-gnu-lto-full",
+                Architecture.X86 => "i686-unknown-linux-gnu-pgo+lto-full",
+                Architecture.X64 => "x86_64-unknown-linux-gnu-pgo+lto-full",
+                Architecture.Arm64 => "aarch64-unknown-linux-gnu-pgo+lto-full",
                 // .NET doesn't run on armv7 anyway.. don't try that
                 _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
             };

@@ -199,8 +199,10 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
                 Directory.CreateDirectory(Path.GetDirectoryName(entryPath)!);
                 entry.ExtractToFile(entryPath, true);
             } else if (entry.EntryType == TarEntryType.SymbolicLink) {
-                // TODO: 
-                logger.LogWarning("Symbolic link not supported: {EntryPath}", entryPath);
+                File.CreateSymbolicLink(entryPath, entry.LinkName);
+            } else
+            {
+                logger.LogDebug("Skipping entry: {EntryPath} ({EntryType})", entryPath, entry.EntryType);
             }
         }
     }

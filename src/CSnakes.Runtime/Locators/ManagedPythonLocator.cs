@@ -14,6 +14,27 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
 
     protected override Version Version { get; } = defaultVersion;
 
+    protected virtual string GetPythonExecutablePath(string folder, bool freeThreaded = false)
+    {
+        string suffix = freeThreaded ? "t" : "";
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return Path.Combine(folder, $"python{suffix}.exe");
+        }
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return Path.Combine(folder, "bin", $"python{Version.Major}.{Version.Minor}{suffix}");
+        }
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return Path.Combine(folder, "bin", $"python{Version.Major}.{Version.Minor}{suffix}");
+        }
+
+        throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
+    }
+
     public override PythonLocationMetadata LocatePython() {
         // Determine binary name, see https://gregoryszorc.com/docs/python-build-standalone/main/running.html#obtaining-distributions
         string platform;

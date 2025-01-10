@@ -217,5 +217,6 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
             {
                 logger.LogError(ex, "Failed to create symlink: {Path} -> {Link}", path, link);
             }
+        }
     }
 }

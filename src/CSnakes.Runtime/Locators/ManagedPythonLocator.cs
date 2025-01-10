@@ -5,7 +5,7 @@ using ZstdSharp;
 
 namespace CSnakes.Runtime.Locators;
 
-internal class ManagedPythonLocator(ILogger logger) : PythonLocator
+internal class ManagedPythonLocator(ILogger logger, int installerTimeout = 360) : PythonLocator
 {
     private const string standaloneRelease = "20250106";
     private static readonly Version defaultVersion = new(3, 12, 8, 0);
@@ -53,7 +53,7 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
             {
                 Thread.Sleep(1000);
                 loopCount++;
-                if (loopCount > 360)  // TODO: Make configurable (default 5 minutes)
+                if (loopCount > installerTimeout)
                 {
                     throw new TimeoutException("Python installation timed out.");
                 }

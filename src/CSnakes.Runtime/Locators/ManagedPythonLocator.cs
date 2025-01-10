@@ -184,7 +184,7 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
         using TarReader tarReader = new(tarStream);
         TarEntry? entry;
         List<(string, string)> symlinks = [];
-        while ((entry = tarReader.GetNextEntry()) != null)
+        while ((entry = tarReader.GetNextEntry()) is not null)
         {
             string entryPath = Path.Combine(extractPath, entry.Name);
             if (entry.EntryType == TarEntryType.Directory)

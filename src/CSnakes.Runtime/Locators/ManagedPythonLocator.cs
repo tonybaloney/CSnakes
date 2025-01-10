@@ -171,12 +171,10 @@ internal class ManagedPythonLocator(ILogger logger, int installerTimeout = 360) 
     private static string DecompressZstFile(string zstFilePath)
     {
         string tarFilePath = Path.ChangeExtension(zstFilePath, ".tar");
-        using (var inputStream = new FileStream(zstFilePath, FileMode.Open, FileAccess.Read))
-        using (var decompressor = new DecompressionStream(inputStream))
-        using (var outputStream = new FileStream(tarFilePath, FileMode.Create, FileAccess.Write))
-        {
-            decompressor.CopyTo(outputStream);
-        }
+        using var inputStream = new FileStream(zstFilePath, FileMode.Open, FileAccess.Read);
+        using var decompressor = new DecompressionStream(inputStream);
+        using var outputStream = new FileStream(tarFilePath, FileMode.Create, FileAccess.Write);
+        decompressor.CopyTo(outputStream);
         return tarFilePath;
     }
 
@@ -186,7 +184,7 @@ internal class ManagedPythonLocator(ILogger logger, int installerTimeout = 360) 
         using TarReader tarReader = new(tarStream);
         TarEntry? entry;
         List<(string, string)> symlinks = [];
-        while ((entry = tarReader.GetNextEntry()) != null)
+        while ((entry = tarReader.GetNextEntry()) is not null)
         {
             string entryPath = Path.Combine(extractPath, entry.Name);
             if (entry.EntryType == TarEntryType.Directory)

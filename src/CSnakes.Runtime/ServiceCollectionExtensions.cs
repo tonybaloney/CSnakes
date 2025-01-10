@@ -181,13 +181,7 @@ public static partial class ServiceCollectionExtensions
 
     public static IPythonEnvironmentBuilder FromManagedPython(this IPythonEnvironmentBuilder builder)
     {
-        builder.Services.AddSingleton<PythonLocator>(
-            sp =>
-            {
-                var logger = sp.GetRequiredService<ILogger<ManagedPythonLocator>>();
-                return new ManagedPythonLocator(logger);
-            }
-        );
+        builder.Services.AddSingleton<PythonLocator, ManagedPythonLocator>();
         return builder;
     }
 

@@ -171,12 +171,10 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
     private static string DecompressZstFile(string zstFilePath)
     {
         string tarFilePath = Path.ChangeExtension(zstFilePath, ".tar");
-        using (var inputStream = new FileStream(zstFilePath, FileMode.Open, FileAccess.Read))
-        using (var decompressor = new DecompressionStream(inputStream))
-        using (var outputStream = new FileStream(tarFilePath, FileMode.Create, FileAccess.Write))
-        {
-            decompressor.CopyTo(outputStream);
-        }
+        using var inputStream = new FileStream(zstFilePath, FileMode.Open, FileAccess.Read);
+        using var decompressor = new DecompressionStream(inputStream);
+        using var outputStream = new FileStream(tarFilePath, FileMode.Create, FileAccess.Write);
+        decompressor.CopyTo(outputStream);
         return tarFilePath;
     }
 

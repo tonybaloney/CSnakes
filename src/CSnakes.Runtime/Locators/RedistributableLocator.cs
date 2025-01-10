@@ -5,7 +5,7 @@ using ZstdSharp;
 
 namespace CSnakes.Runtime.Locators;
 
-internal class ManagedPythonLocator(ILogger logger, int installerTimeout = 360) : PythonLocator
+internal class RedistributableLocator(ILogger<RedistributableLocator> logger, int installerTimeout = 360) : PythonLocator
 {
     private const string standaloneRelease = "20250106";
     private static readonly Version defaultVersion = new(3, 12, 8, 0);

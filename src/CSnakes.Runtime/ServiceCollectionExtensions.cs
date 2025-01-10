@@ -187,7 +187,7 @@ public static partial class ServiceCollectionExtensions
     /// <returns></returns>
     public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder)
     {
-        builder.Services.AddSingleton<PythonLocator, ManagedPythonLocator>();
+        builder.Services.AddSingleton<PythonLocator, RedistributableLocator>();
         return builder;
     }
 

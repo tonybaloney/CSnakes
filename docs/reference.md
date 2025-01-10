@@ -102,6 +102,10 @@ CSnakes uses a `PythonLocator` to find the Python runtime on the host machine. T
 
 You can chain locators together to match use the first one that finds a Python runtime. This is a useful pattern for code that is designed to run on Windows, Linux, and MacOS.
 
+### Redistributable Locator
+
+The `.FromRedistributable()` method automates the installation of a compatible version of Python. It will source Python 3.12 and cache it locally. This download is about 50-80MB, so the first time you run your application, it will download the redistributable and cache it locally. The next time you run your application, it will use the cached redistributable. This could take a minute or two depending on your bandwidth.
+
 ### Environment Variable Locator
 
 The `.FromEnvironmentVariable()` method allows you to specify an environment variable that contains the path to the Python runtime. This is useful for scenarios where the Python runtime is installed in a non-standard location or where the path to the Python runtime is not known at compile time.

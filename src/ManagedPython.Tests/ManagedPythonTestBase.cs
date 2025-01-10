@@ -17,9 +17,9 @@ public class ManagedPythonTestBase : IDisposable
                 var pb = services.WithPython();
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
-                pb.FromManagedPython()
-                    .WithPipInstaller()
-                    .WithVirtualEnvironment(venvPath);
+                pb.FromRedistributable()
+                  .WithPipInstaller()
+                  .WithVirtualEnvironment(venvPath);
 
                 services.AddLogging(builder => builder.AddXUnit());
             })

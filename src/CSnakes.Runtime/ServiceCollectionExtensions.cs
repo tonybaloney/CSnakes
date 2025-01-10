@@ -179,7 +179,13 @@ public static partial class ServiceCollectionExtensions
         return builder;
     }
 
-    public static IPythonEnvironmentBuilder FromManagedPython(this IPythonEnvironmentBuilder builder)
+    /// <summary>
+    /// Simplest option for getting started with CSnakes.
+    /// Downloads and installs the redistributable version of Python from GitHub and stores it in %APP_DATA%/csnakes.
+    /// </summary>
+    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
+    /// <returns></returns>
+    public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder)
     {
         builder.Services.AddSingleton<PythonLocator, ManagedPythonLocator>();
         return builder;

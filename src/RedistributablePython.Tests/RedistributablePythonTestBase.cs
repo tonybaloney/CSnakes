@@ -2,13 +2,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace ManagedPython.Tests;
-public class ManagedPythonTestBase : IDisposable
+namespace RedistributablePython.Tests;
+public class RedistributablePythonTestBase : IDisposable
 {
     private readonly IPythonEnvironment env;
     private readonly IHost app;
 
-    public ManagedPythonTestBase()
+    public RedistributablePythonTestBase()
     {
         string venvPath = Path.Join(Environment.CurrentDirectory, "python", ".venv");
         app = Host.CreateDefaultBuilder()

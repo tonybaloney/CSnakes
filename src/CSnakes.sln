@@ -30,7 +30,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestUtilities", "TestUtilit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conda.Tests", "Conda.Tests\Conda.Tests.csproj", "{38604D9B-2C01-4B82-AFA1-A00E184BAE03}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagedPython.Tests", "ManagedPython.Tests\ManagedPython.Tests.csproj", "{F43684F2-D7B3-403F-B6E8-1B4740513E2A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedistributablePython.Tests", "RedistributablePython.Tests\RedistributablePython.Tests.csproj", "{F43684F2-D7B3-403F-B6E8-1B4740513E2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,8 +1,6 @@
-using ManagedPython.Tests;
+namespace RedistributablePython.Tests;
 
-namespace ManagedPython.Tests;
-
-public class BasicTests : ManagedPythonTestBase
+public class BasicTests : RedistributablePythonTestBase
 {
     [Fact]
     public void TestSimpleImport()

@@ -34,7 +34,7 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
 
     public override PythonLocationMetadata LocatePython()
     {
-        var downloadPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CSnakes", $"python{Version.Major}.{Version.Minor}");
+        var downloadPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CSnakes", $"python{Version.Major}.{Version.Minor}.{Version.Build}");
         var installPath = Path.Join(downloadPath, "python", "install");
         var lockfile = Path.Join(downloadPath, "install.lock");
 
@@ -209,7 +209,13 @@ internal class ManagedPythonLocator(ILogger logger) : PythonLocator
         foreach (var (path, link) in symlinks)
         {
             logger.LogDebug("Creating symlink: {Path} -> {Link}", path, link);
-            File.CreateSymbolicLink(path, link);
-        }
+            try
+            {
+                File.CreateSymbolicLink(path, link);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to create symlink: {Path} -> {Link}", path, link);
+            }
     }
 }

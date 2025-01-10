@@ -16,6 +16,7 @@
     </PackageReference>
     <PackageReference Include="System.Numerics.Tensors" Condition="'$(TargetFramework)' == 'net9.0'" />
     <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="ZstdSharp.Port" />
   </ItemGroup>
 
   <ItemGroup>

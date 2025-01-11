@@ -11,12 +11,11 @@ internal class PipInstaller(ILogger<PipInstaller> logger, string requirementsFil
 
     public Task InstallPackages(string home, IEnvironmentManagement? environmentManager)
     {
-        // TODO:Allow overriding of the requirements file name.
         string requirementsPath = Path.GetFullPath(Path.Combine(home, requirementsFileName));
         if (File.Exists(requirementsPath))
         {
             logger.LogInformation("File {Requirements} was found.", requirementsPath);
-            InstallPackagesWithPip(home, environmentManager);
+            InstallPackagesWithPip(home, environmentManager, $"-r { requirementsFileName}", logger);
         }
         else
         {
@@ -26,13 +25,13 @@ internal class PipInstaller(ILogger<PipInstaller> logger, string requirementsFil
         return Task.CompletedTask;
     }
 
-    private void InstallPackagesWithPip(string home, IEnvironmentManagement? environmentManager)
+    internal static void InstallPackagesWithPip(string home, IEnvironmentManagement? environmentManager, string requirements, ILogger logger)
     {
         ProcessStartInfo startInfo = new()
         {
             WorkingDirectory = home,
             FileName = pipBinaryName,
-            Arguments = $"install -r {requirementsFileName} --disable-pip-version-check"
+            Arguments = $"install {requirements} --disable-pip-version-check"
         };
 
         if (environmentManager is not null)

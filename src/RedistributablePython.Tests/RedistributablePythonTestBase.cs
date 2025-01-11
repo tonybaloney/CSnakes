@@ -18,7 +18,7 @@ public class RedistributablePythonTestBase : IDisposable
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
                 pb.FromRedistributable()
-                  .WithPipInstaller()
+                  .WithUvInstaller()
                   .WithVirtualEnvironment(venvPath);
 
                 services.AddLogging(builder => builder.AddXUnit());

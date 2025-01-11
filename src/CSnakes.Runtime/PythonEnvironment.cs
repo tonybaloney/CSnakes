@@ -72,7 +72,7 @@ internal class PythonEnvironment : IPythonEnvironment
             environmentManager.EnsureEnvironment(location);
         }
 
-        logger.LogInformation("Setting up Python environment from {PythonLocation} using home of {Home}", location.Folder, home);
+        logger.LogDebug("Setting up Python environment from {PythonLocation} using home of {Home}", location.Folder, home);
 
         foreach (var installer in packageInstallers)
         {

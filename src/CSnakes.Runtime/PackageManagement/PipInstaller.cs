@@ -14,7 +14,7 @@ internal class PipInstaller(ILogger<PipInstaller> logger, string requirementsFil
         string requirementsPath = Path.GetFullPath(Path.Combine(home, requirementsFileName));
         if (File.Exists(requirementsPath))
         {
-            logger.LogInformation("File {Requirements} was found.", requirementsPath);
+            logger.LogDebug("File {Requirements} was found.", requirementsPath);
             InstallPackagesWithPip(home, environmentManager, $"-r { requirementsFileName}", logger);
         }
         else
@@ -37,7 +37,7 @@ internal class PipInstaller(ILogger<PipInstaller> logger, string requirementsFil
         if (environmentManager is not null)
         {
             string virtualEnvironmentLocation = Path.GetFullPath(environmentManager.GetPath());
-            logger.LogInformation("Using virtual environment at {VirtualEnvironmentLocation} to install packages with pip.", virtualEnvironmentLocation);
+            logger.LogDebug("Using virtual environment at {VirtualEnvironmentLocation} to install packages with pip.", virtualEnvironmentLocation);
             string venvScriptPath = Path.Combine(virtualEnvironmentLocation, RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Scripts" : "bin");
             // TODO: Check that the pip executable exists, and if not, raise an exception with actionable steps.
             startInfo.FileName = Path.Combine(venvScriptPath, pipBinaryName);
@@ -52,7 +52,7 @@ internal class PipInstaller(ILogger<PipInstaller> logger, string requirementsFil
         {
             if (!string.IsNullOrEmpty(e.Data))
             {
-                logger.LogInformation("{Data}", e.Data);
+                logger.LogDebug("{Data}", e.Data);
             }
         };
 

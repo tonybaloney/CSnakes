@@ -105,11 +105,11 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, in
             string downloadUrl = $"https://github.com/astral-sh/python-build-standalone/releases/download/{standaloneRelease}/cpython-{Version.Major}.{Version.Minor}.{Version.Build}+{standaloneRelease}-{platform}.tar.zst";
 
             // Download and extract the Zstd tarball
-            logger.LogInformation("Downloading Python from {DownloadUrl}", downloadUrl);
+            logger.LogDebug("Downloading Python from {DownloadUrl}", downloadUrl);
             string tempFilePath = DownloadFileToTempDirectoryAsync(downloadUrl).GetAwaiter().GetResult();
             string tarFilePath = DecompressZstFile(tempFilePath);
             ExtractTar(tarFilePath, downloadPath, logger);
-            logger.LogInformation("Extracted Python to {downloadPath}", downloadPath);
+            logger.LogDebug("Extracted Python to {downloadPath}", downloadPath);
 
             // Delete the tarball and temp file
             File.Delete(tarFilePath);

@@ -33,7 +33,7 @@ internal static class ProcessUtils
 
     internal static bool ExecuteShellCommand(ILogger logger, string fileName, string arguments)
     {
-        logger.LogInformation("Executing shell command {FileName} {Arguments}", fileName, arguments);
+        logger.LogDebug("Executing shell command {FileName} {Arguments}", fileName, arguments);
         ProcessStartInfo startInfo = new()
         {
             FileName = fileName,
@@ -56,7 +56,7 @@ internal static class ProcessUtils
             if (!string.IsNullOrEmpty(e.Data))
             {
                 result += e.Data;
-                logger.LogInformation("{Data}", e.Data);
+                logger.LogDebug("{Data}", e.Data);
             }
         };
 

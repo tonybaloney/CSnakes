@@ -31,7 +31,7 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
         {
             WorkingDirectory = home,
             FileName = binaryName,
-            Arguments = $"install {requirements}"
+            Arguments = $"pip install {requirements}"
         };
 
         if (environmentManager is not null)

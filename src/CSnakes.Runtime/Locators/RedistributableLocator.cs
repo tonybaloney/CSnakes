@@ -44,8 +44,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, in
             return LocatePythonInternal(installPath);
         }
 
-
-        if (File.Exists(Path.Join(downloadPath, "install.lock"))) // Someone else is installing, wait to finish
+        if (File.Exists(lockfile)) // Someone else is installing, wait to finish
         {
             // Wait until it's finished
             var loopCount = 0;

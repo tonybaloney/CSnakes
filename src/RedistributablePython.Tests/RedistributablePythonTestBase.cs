@@ -21,12 +21,11 @@ public class RedistributablePythonTestBase : IDisposable
                   .WithUvInstaller()
                   .WithVirtualEnvironment(venvPath);
 
-                services.AddLogging(builder => builder.AddXUnit());
-            })
-            .ConfigureLogging(builder => {
-                builder.AddXUnit();
-                builder.SetMinimumLevel(LogLevel.Debug);
-                builder.AddSimpleConsole(options => options.SingleLine = true);
+                services.AddLogging(builder =>
+                {
+                    builder.AddXUnit();
+                    builder.SetMinimumLevel(LogLevel.Debug);
+                });
             })
             .Build();
 

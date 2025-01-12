@@ -1,6 +1,8 @@
+using Xunit.Abstractions;
+
 namespace RedistributablePython.Tests;
 
-public class BasicTests : RedistributablePythonTestBase
+public class BasicTests(ITestOutputHelper testOutputHelper) : RedistributablePythonTestBase(testOutputHelper)
 {
     [Fact]
     public void TestSimpleImport()

@@ -70,10 +70,6 @@ jobs:
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
 
-      - name: Print test results
-        run: cat ${{ github.workspace }}/src/test-results/**/*.trx
-
-
       - name: Upload logs
         uses: actions/upload-artifact@v4
         if: always()

@@ -14,7 +14,7 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
         string requirementsPath = Path.GetFullPath(Path.Combine(home, requirementsFileName));
         if (File.Exists(requirementsPath))
         {
-            logger.LogInformation("File {Requirements} was found.", requirementsPath);
+            logger.LogDebug("File {Requirements} was found.", requirementsPath);
             InstallPackagesWithUv(home, environmentManager, $"-r {requirementsFileName}", logger);
         }
         else
@@ -37,7 +37,7 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
         if (environmentManager is not null)
         {
             string virtualEnvironmentLocation = Path.GetFullPath(environmentManager.GetPath());
-            logger.LogInformation("Using virtual environment at {VirtualEnvironmentLocation} to install packages with uv.", virtualEnvironmentLocation);
+            logger.LogDebug("Using virtual environment at {VirtualEnvironmentLocation} to install packages with uv.", virtualEnvironmentLocation);
             string venvScriptPath = Path.Combine(virtualEnvironmentLocation, RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Scripts" : "bin");
             string uvPath = Path.Combine(venvScriptPath, binaryName);
 
@@ -60,7 +60,7 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
         {
             if (!string.IsNullOrEmpty(e.Data))
             {
-                logger.LogInformation("{Data}", e.Data);
+                logger.LogDebug("{Data}", e.Data);
             }
         };
 

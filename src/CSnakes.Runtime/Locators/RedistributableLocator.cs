@@ -8,6 +8,7 @@ namespace CSnakes.Runtime.Locators;
 internal class RedistributableLocator(ILogger<RedistributableLocator> logger, int installerTimeout = 360) : PythonLocator
 {
     private const string standaloneRelease = "20250106";
+    private const string MutexName = @"Global\CSnakesPythonInstall-1"; // run-time name includes Python version
     private static readonly Version defaultVersion = new(3, 12, 8, 0);
     protected override Version Version { get; } = defaultVersion;
 
@@ -34,35 +35,40 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, in
 
     public override PythonLocationMetadata LocatePython()
     {
-        var downloadPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CSnakes", $"python{Version.Major}.{Version.Minor}.{Version.Build}");
+        string dottedVersion = $"{Version.Major}.{Version.Minor}.{Version.Build}";
+        var downloadPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CSnakes", $"python{dottedVersion}");
         var installPath = Path.Join(downloadPath, "python", "install");
-        var lockfile = Path.Join(downloadPath, "install.lock");
 
-        // Check if the install path already exists to save waiting
-        if (Directory.Exists(installPath) && !File.Exists(lockfile))
+        using var mutex = new Mutex(initiallyOwned: false, $"{MutexName}-{dottedVersion}");
+
+        try
         {
-            return LocatePythonInternal(installPath);
+            if (!mutex.WaitOne(TimeSpan.FromSeconds(installerTimeout)))
+                throw new TimeoutException("Python installation timed out.");
+
+            if (Directory.Exists(installPath))
+                return LocatePythonInternal(installPath);
         }
-
-        if (File.Exists(lockfile)) // Someone else is installing, wait to finish
+        catch (AbandonedMutexException)
         {
-            // Wait until it's finished
-            var loopCount = 0;
-            while (File.Exists(lockfile))
+            // If the mutex was abandoned, it most probably means that the other process crashed
+            // and didn't even get the chance to run any clean-up. Since the state of the
+            // download and installation is now unreliable, start by clearing up directories and
+            // then proceed with the installation here.
+
+            try
             {
-                Thread.Sleep(1000);
-                loopCount++;
-                if (loopCount > installerTimeout)
-                {
-                    throw new TimeoutException("Python installation timed out.");
-                }
+                Directory.Delete(downloadPath, recursive: true);
             }
-            return LocatePythonInternal(installPath);
+            catch (DirectoryNotFoundException)
+            {
+                // If the directory didn't exist, ignore it and proceed.
+            }
         }
 
-        // Create the folder and lock file, the install path is only created at the end.
+        // Create the folder; the install path is only created at the end.
         Directory.CreateDirectory(downloadPath);
-        File.WriteAllText(lockfile, "");
+
         try
         {
             // Determine binary name, see https://gregoryszorc.com/docs/python-build-standalone/main/running.html#obtaining-distributions
@@ -101,6 +107,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, in
             {
                 throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
             }
+
             string downloadUrl = $"https://github.com/astral-sh/python-build-standalone/releases/download/{standaloneRelease}/cpython-{Version.Major}.{Version.Minor}.{Version.Build}+{standaloneRelease}-{platform}.tar.zst";
 
             // Download and extract the Zstd tarball
@@ -125,11 +132,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, in
 
             throw;
         }
-        finally
-        {
-            // Delete the lock file
-            File.Delete(lockfile);
-        }
+
         return LocatePythonInternal(installPath);
     }
 

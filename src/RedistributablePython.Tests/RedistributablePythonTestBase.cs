@@ -23,6 +23,11 @@ public class RedistributablePythonTestBase : IDisposable
 
                 services.AddLogging(builder => builder.AddXUnit());
             })
+            .ConfigureLogging(builder => {
+                builder.AddXUnit();
+                builder.SetMinimumLevel(LogLevel.Debug);
+                builder.AddSimpleConsole(options => options.SingleLine = true);
+            })
             .Build();
 
         env = app.Services.GetRequiredService<IPythonEnvironment>();

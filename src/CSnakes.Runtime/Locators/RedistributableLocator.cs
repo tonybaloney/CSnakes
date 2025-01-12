@@ -34,7 +34,8 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, in
 
     public override PythonLocationMetadata LocatePython()
     {
-        var downloadPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CSnakes", $"python{Version.Major}.{Version.Minor}.{Version.Build}");
+        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
+        var downloadPath = Path.Join(appDataPath, "CSnakes", $"python{Version.Major}.{Version.Minor}.{Version.Build}");
         var installPath = Path.Join(downloadPath, "python", "install");
         var lockfile = Path.Join(downloadPath, "install.lock");
 

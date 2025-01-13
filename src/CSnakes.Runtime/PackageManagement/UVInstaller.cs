@@ -27,12 +27,10 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
 
     static internal void InstallPackagesWithUv(string home, IEnvironmentManagement? environmentManager, string requirements, ILogger logger)
     {
-        ProcessStartInfo startInfo = new()
-        {
-            WorkingDirectory = home,
-            FileName = binaryName,
-            Arguments = $"pip install {requirements}"
-        };
+        string fileName = binaryName;
+        string workingDirectory = home;
+        string path = "";
+        string arguments = $"pip install {requirements}";
 
         if (environmentManager is not null)
         {
@@ -48,39 +46,10 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
                 PipInstaller.InstallPackagesWithPip(home, environmentManager, "uv", logger);
             }
 
-            startInfo.FileName = uvPath;
-            startInfo.EnvironmentVariables["PATH"] = $"{venvScriptPath};{Environment.GetEnvironmentVariable("PATH")}";
+            fileName = uvPath;
+            path = $"{venvScriptPath};{Environment.GetEnvironmentVariable("PATH")}";
         }
 
-        startInfo.RedirectStandardOutput = true;
-        startInfo.RedirectStandardError = true;
-        logger.LogDebug($"Running {startInfo.FileName} with args {startInfo.Arguments} from {startInfo.WorkingDirectory}");
-        using Process process = new() { StartInfo = startInfo };
-        process.OutputDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                logger.LogDebug("{Data}", e.Data);
-            }
-        };
-
-        process.ErrorDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                logger.LogWarning("{Data}", e.Data);
-            }
-        };
-
-        process.Start();
-        process.BeginErrorReadLine();
-        process.BeginOutputReadLine();
-        process.WaitForExit();
-
-        if (process.ExitCode != 0)
-        {
-            logger.LogError("Failed to install packages.");
-            throw new InvalidOperationException("Failed to install packages.");
-        }
+        IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger);
     }
 }

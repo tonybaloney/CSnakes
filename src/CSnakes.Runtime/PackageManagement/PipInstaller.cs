@@ -1,6 +1,5 @@
 ﻿using CSnakes.Runtime.EnvironmentManagement;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.PackageManagement;
@@ -27,12 +26,10 @@ internal class PipInstaller(ILogger<PipInstaller> logger, string requirementsFil
 
     internal static void InstallPackagesWithPip(string home, IEnvironmentManagement? environmentManager, string requirements, ILogger logger)
     {
-        ProcessStartInfo startInfo = new()
-        {
-            WorkingDirectory = home,
-            FileName = pipBinaryName,
-            Arguments = $"install {requirements} --disable-pip-version-check"
-        };
+        string fileName = pipBinaryName;
+        string workingDirectory = home;
+        string path = "";
+        string arguments = $"install {requirements} --disable-pip-version-check";
 
         if (environmentManager is not null)
         {
@@ -40,39 +37,10 @@ internal class PipInstaller(ILogger<PipInstaller> logger, string requirementsFil
             logger.LogDebug("Using virtual environment at {VirtualEnvironmentLocation} to install packages with pip.", virtualEnvironmentLocation);
             string venvScriptPath = Path.Combine(virtualEnvironmentLocation, RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Scripts" : "bin");
             // TODO: Check that the pip executable exists, and if not, raise an exception with actionable steps.
-            startInfo.FileName = Path.Combine(venvScriptPath, pipBinaryName);
-            startInfo.EnvironmentVariables["PATH"] = $"{venvScriptPath};{Environment.GetEnvironmentVariable("PATH")}";
+            fileName = Path.Combine(venvScriptPath, pipBinaryName);
+            path = $"{venvScriptPath};{Environment.GetEnvironmentVariable("PATH")}";
         }
-
-        startInfo.RedirectStandardOutput = true;
-        startInfo.RedirectStandardError = true;
-        logger.LogDebug($"Running {startInfo.FileName} with args {startInfo.Arguments} from {startInfo.WorkingDirectory}");
-        using Process process = new() { StartInfo = startInfo };
-        process.OutputDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                logger.LogDebug("{Data}", e.Data);
-            }
-        };
-
-        process.ErrorDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                logger.LogWarning("{Data}", e.Data);
-            }
-        };
-
-        process.Start();
-        process.BeginErrorReadLine();
-        process.BeginOutputReadLine();
-        process.WaitForExit();
-
-        if (process.ExitCode != 0)
-        {
-            logger.LogError("Failed to install packages.");
-            throw new InvalidOperationException("Failed to install packages.");
-        }
+        IPythonPackageInstaller.ExecuteProcess(fileName, "-V", workingDirectory, path, logger);
+        IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger);
     }
 }

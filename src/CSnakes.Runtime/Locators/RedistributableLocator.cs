@@ -134,6 +134,8 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, in
             throw;
         }
 
+        mutex.ReleaseMutex(); // Everything supposedly went well so release mutex
+
         return LocatePythonInternal(installPath);
     }
 

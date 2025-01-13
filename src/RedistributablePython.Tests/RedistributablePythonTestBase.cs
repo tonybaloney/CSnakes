@@ -25,8 +25,13 @@ public class RedistributablePythonTestBase : IDisposable
                   .WithUvInstaller()
                   .WithVirtualEnvironment(venvPath);
 
-                services.AddSingleton<ILoggerProvider>(new XUnitLoggerProvider(_testOutputHelper, appendScope: false));
+                services.AddSingleton<ILoggerProvider>(new XUnitLoggerProvider(_testOutputHelper, appendScope: true));
 
+            })
+            .ConfigureLogging(builder =>
+            {
+                builder.SetMinimumLevel(LogLevel.Debug);
+                builder.AddFilter(_ => true);
             })
             .Build();
 

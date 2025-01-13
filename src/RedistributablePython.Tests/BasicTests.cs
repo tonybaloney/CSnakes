@@ -5,9 +5,9 @@ namespace RedistributablePython.Tests;
 public class BasicTests(ITestOutputHelper testOutputHelper) : RedistributablePythonTestBase(testOutputHelper)
 {
     [Fact]
-    public void TestSimpleImport()
+    public void TestSimpleRedistributableImport()
     {
-        var testModule = Env.TestSimple();
+        var testModule = Env.TestRedistImports();
         Assert.NotNull(testModule);
         testModule.TestNothing();
     }

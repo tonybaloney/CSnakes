@@ -56,3 +56,23 @@ services
 
 `.WithPipInstaller()` takes an optional argument that specifies the path to the `requirements.txt` file. If you don't specify a path, it will look for a `requirements.txt` file in the virtual environment directory.
 
+## Installing dependencies with `uv`
+
+`uv` is an alternative to pip that can also install requirements from a file like `requirements.txt` or `pyproject.toml`. UV has a major benefit in a 10-100x speedup over pip, so your CSnakes applications will be faster to start.
+
+To use uv to install packages:
+
+```csharp
+...
+services
+    .WithPython()
+    .WithVirtualEnvironment(Path.Join(home, ".venv"))
+    .WithUvInstaller("requirements.txt"); // Optional - give the name of the requirements file, or pyproject.toml
+```
+
+Some other important notes about this implementation.
+
+- Only uses uv to install packages and does not use uv to create projects or virtual environments.
+- Must be used with `WithVirtualEnvironment()`, as pip requires a virtual environment to install packages into.
+- Will use the `UV_CACHE_DIR` environment variable to cache the packages in a directory if set.
+- Will disable the cache if the `UV_NO_CACHE` environment variable is set.

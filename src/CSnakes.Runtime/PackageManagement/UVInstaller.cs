@@ -1,6 +1,5 @@
 ﻿using CSnakes.Runtime.EnvironmentManagement;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.PackageManagement;
@@ -55,10 +54,10 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
                 { "UV_NO_CACHE", Environment.GetEnvironmentVariable("UV_NO_CACHE") }
             };
 
-            IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger, extraEnv);
+            ProcessUtils.ExecuteProcess(fileName, arguments, workingDirectory, path, logger, extraEnv);
         } else
         {
-            IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger);
+            ProcessUtils.ExecuteProcess(fileName, arguments, workingDirectory, path, logger);
         }
 
     }

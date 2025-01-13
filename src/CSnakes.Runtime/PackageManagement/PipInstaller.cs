@@ -43,10 +43,10 @@ internal class PipInstaller(ILogger<PipInstaller> logger, string requirementsFil
             {
                 { "VIRTUAL_ENV", virtualEnvironmentLocation }
             };
-            IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger, extraEnv);
+            ProcessUtils.ExecuteProcess(fileName, arguments, workingDirectory, path, logger, extraEnv);
         } else
         {
-            IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger);
+            ProcessUtils.ExecuteProcess(fileName, arguments, workingDirectory, path, logger);
         }
     }
 }

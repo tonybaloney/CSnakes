@@ -14,7 +14,7 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
         if (File.Exists(requirementsPath))
         {
             logger.LogDebug("File {Requirements} was found.", requirementsPath);
-            InstallPackagesWithUv(home, environmentManager, $"-r {requirementsFileName} --verbose", logger);
+            InstallPackagesWithUv(home, environmentManager, $"-r {requirementsFileName}", logger);
         }
         else
         {
@@ -29,7 +29,7 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
         string fileName = binaryName;
         string workingDirectory = home;
         string path = "";
-        string arguments = $"pip install {requirements}";
+        string arguments = $"pip install {requirements} --color never";
 
         if (environmentManager is not null)
         {

@@ -99,6 +99,7 @@ internal static class ProcessUtils
         logger.LogDebug($"Running {startInfo.FileName} with args {startInfo.Arguments} from {startInfo.WorkingDirectory}");
 
         using Process process = new() { StartInfo = startInfo };
+        string stderr = string.Empty;
         process.OutputDataReceived += (sender, e) =>
         {
             if (!string.IsNullOrEmpty(e.Data))
@@ -111,7 +112,7 @@ internal static class ProcessUtils
         {
             if (!string.IsNullOrEmpty(e.Data))
             {
-                logger.LogWarning("{Data}", e.Data);
+                stderr += e.Data + Environment.NewLine;
             }
         };
 
@@ -122,8 +123,9 @@ internal static class ProcessUtils
 
         if (process.ExitCode != 0)
         {
-            logger.LogError("Failed to install packages.");
-            throw new InvalidOperationException("Failed to install packages.");
+            logger.LogError("Failed to install packages. ");
+            logger.LogError("Output was: {stderr}", stderr);
+            throw new InvalidOperationException("Failed to install packages");
         }
     }
 }

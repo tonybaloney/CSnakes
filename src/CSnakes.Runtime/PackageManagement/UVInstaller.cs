@@ -48,7 +48,14 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
 
             fileName = uvPath;
             path = $"{venvScriptPath};{Environment.GetEnvironmentVariable("PATH")}";
-            IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger, virtualEnvironmentLocation);
+            IReadOnlyDictionary<string, string?> extraEnv = new Dictionary<string, string?>
+            {
+                { "VIRTUAL_ENV", virtualEnvironmentLocation },
+                { "UV_CACHE_DIR", Environment.GetEnvironmentVariable("UV_CACHE_DIR") },
+                { "UV_NO_CACHE", Environment.GetEnvironmentVariable("UV_NO_CACHE") }
+            };
+
+            IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger, extraEnv);
         } else
         {
             IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger);

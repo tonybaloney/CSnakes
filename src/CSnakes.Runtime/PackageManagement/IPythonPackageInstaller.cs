@@ -17,7 +17,7 @@ public interface IPythonPackageInstaller
     /// <returns>A task representing the asynchronous package installation operation.</returns>
     Task InstallPackages(string home, IEnvironmentManagement? environmentManager);
 
-    public static void ExecuteProcess(string fileName, string arguments, string workingDirectory, string path, ILogger logger, string? virtualEnv = null)
+    public static void ExecuteProcess(string fileName, string arguments, string workingDirectory, string path, ILogger logger, IReadOnlyDictionary<string, string?>? extraEnv = null)
     {
         ProcessStartInfo startInfo = new()
         {
@@ -28,8 +28,14 @@ public interface IPythonPackageInstaller
 
         if (!string.IsNullOrEmpty(path))
             startInfo.EnvironmentVariables["PATH"] = path;
-        if (!string.IsNullOrEmpty(virtualEnv))
-            startInfo.EnvironmentVariables["VIRTUAL_ENV"] = virtualEnv;
+        if (extraEnv is not null)
+        {
+            foreach (var kvp in extraEnv)
+            {
+                if (kvp.Value is not null)
+                    startInfo.EnvironmentVariables[kvp.Key] = kvp.Value;
+            }
+        }
         startInfo.RedirectStandardOutput = true;
         startInfo.RedirectStandardError = true;
         logger.LogDebug($"Running {startInfo.FileName} with args {startInfo.Arguments} from {startInfo.WorkingDirectory}");

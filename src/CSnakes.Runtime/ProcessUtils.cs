@@ -126,6 +126,10 @@ internal static class ProcessUtils
             logger.LogError("Failed to install packages. ");
             logger.LogError("Output was: {stderr}", stderr);
             throw new InvalidOperationException("Failed to install packages");
+        } else
+        {
+            logger.LogDebug("Successfully installed packages.");
+            logger.LogError("Output was: {stderr}", stderr);
         }
     }
 }

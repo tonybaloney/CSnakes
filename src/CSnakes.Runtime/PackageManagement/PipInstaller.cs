@@ -40,7 +40,6 @@ internal class PipInstaller(ILogger<PipInstaller> logger, string requirementsFil
             fileName = Path.Combine(venvScriptPath, pipBinaryName);
             path = $"{venvScriptPath};{Environment.GetEnvironmentVariable("PATH")}";
             IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger, virtualEnvironmentLocation);
-
         } else
         {
             IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger);

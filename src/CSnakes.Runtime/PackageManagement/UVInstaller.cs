@@ -15,7 +15,7 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
         if (File.Exists(requirementsPath))
         {
             logger.LogDebug("File {Requirements} was found.", requirementsPath);
-            InstallPackagesWithUv(home, environmentManager, $"-r {requirementsFileName}", logger);
+            InstallPackagesWithUv(home, environmentManager, $"-r {requirementsFileName} --verbose", logger);
         }
         else
         {

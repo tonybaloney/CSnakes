@@ -129,7 +129,7 @@ internal static class ProcessUtils
         } else
         {
             logger.LogDebug("Successfully installed packages.");
-            logger.LogError("Output was: {stderr}", stderr);
+            logger.LogDebug("Output was: {stderr}", stderr);
         }
     }
 }

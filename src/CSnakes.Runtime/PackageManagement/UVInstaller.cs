@@ -54,7 +54,7 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
 
         startInfo.RedirectStandardOutput = true;
         startInfo.RedirectStandardError = true;
-
+        logger.LogDebug($"Running {startInfo.FileName} with args {startInfo.Arguments} from {startInfo.WorkingDirectory}");
         using Process process = new() { StartInfo = startInfo };
         process.OutputDataReceived += (sender, e) =>
         {

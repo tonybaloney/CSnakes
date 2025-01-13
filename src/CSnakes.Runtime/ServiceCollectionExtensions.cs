@@ -209,6 +209,24 @@ public static partial class ServiceCollectionExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Adds a uv package installer to the service collection. If uv is not installed, it will be installed with pip.
+    /// </summary>
+    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the installer to.</param>
+    /// <param name="requirementsPath">The path to the requirements file.</param>
+    /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
+    public static IPythonEnvironmentBuilder WithUvInstaller(this IPythonEnvironmentBuilder builder, string requirementsPath = "requirements.txt")
+    {
+        builder.Services.AddSingleton<IPythonPackageInstaller>(
+            sp =>
+            {
+                var logger = sp.GetRequiredService<ILogger<UVInstaller>>();
+                return new UVInstaller(logger, requirementsPath);
+            }
+        );
+        return builder;
+    }
+
     [GeneratedRegex("^(\\d+(\\.\\d+)*)")]
     private static partial Regex VersionParseExpr();
 }

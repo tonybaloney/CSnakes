@@ -25,7 +25,7 @@ Check out the [getting started](getting-started.md) guide or check out the [demo
 - Supports [nested sequence and mapping types (`tuple`, `dict`, `list`)](reference.md)
 - Supports [default values](reference.md#default-values)
 - Supports [Hot Reload](advanced.md#hot-reload) of Python code in Visual Studio and supported IDEs
-
+- Supports [UV](environments.md#uv) for fast installation of Python packages and dependencies
 
 ## Benefits
 

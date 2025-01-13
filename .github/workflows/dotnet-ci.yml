@@ -69,6 +69,7 @@ jobs:
         working-directory: src
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          UV_NO_CACHE: 1
 
       - name: Upload logs
         uses: actions/upload-artifact@v4

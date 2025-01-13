@@ -48,8 +48,11 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
 
             fileName = uvPath;
             path = $"{venvScriptPath};{Environment.GetEnvironmentVariable("PATH")}";
+            IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger, virtualEnvironmentLocation);
+        } else
+        {
+            IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger);
         }
 
-        IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger);
     }
 }

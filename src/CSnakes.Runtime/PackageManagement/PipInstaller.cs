@@ -39,8 +39,11 @@ internal class PipInstaller(ILogger<PipInstaller> logger, string requirementsFil
             // TODO: Check that the pip executable exists, and if not, raise an exception with actionable steps.
             fileName = Path.Combine(venvScriptPath, pipBinaryName);
             path = $"{venvScriptPath};{Environment.GetEnvironmentVariable("PATH")}";
+            IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger, virtualEnvironmentLocation);
+
+        } else
+        {
+            IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger);
         }
-        IPythonPackageInstaller.ExecuteProcess(fileName, "-V", workingDirectory, path, logger);
-        IPythonPackageInstaller.ExecuteProcess(fileName, arguments, workingDirectory, path, logger);
     }
 }

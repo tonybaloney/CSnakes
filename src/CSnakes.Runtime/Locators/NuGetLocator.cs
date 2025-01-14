@@ -20,5 +20,5 @@ internal class NuGetLocator(string nugetVersion, Version version) : PythonLocato
         return LocatePythonInternal(nugetPath);
     }
 
-    internal override bool IsSupported() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    internal override bool IsSupported() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && RuntimeInformation.ProcessArchitecture.Equals(Architecture.X64);
 }

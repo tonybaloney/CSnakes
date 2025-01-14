@@ -46,7 +46,7 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
             }
 
             fileName = uvPath;
-            path = $"{venvScriptPath};{Environment.GetEnvironmentVariable("PATH")}";
+            path = string.Join(Path.PathSeparator, venvScriptPath, Environment.GetEnvironmentVariable("PATH"));
             IReadOnlyDictionary<string, string?> extraEnv = new Dictionary<string, string?>
             {
                 { "VIRTUAL_ENV", virtualEnvironmentLocation },

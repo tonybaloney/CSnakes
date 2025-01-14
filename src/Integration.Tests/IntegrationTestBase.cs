@@ -33,6 +33,7 @@ public sealed class PythonEnvironmentFixture : IDisposable
 
                 pb.FromNuGet(pythonVersionWindows)
                   .FromMacOSInstallerLocator(pythonVersionMacOS, freeThreaded)
+                  .FromWindowsStore("3.12")
                   .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux)
                   .WithVirtualEnvironment(venvPath)
                   .WithPipInstaller();

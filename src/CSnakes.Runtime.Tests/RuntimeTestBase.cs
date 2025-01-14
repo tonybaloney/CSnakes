@@ -25,6 +25,7 @@ public class RuntimeTestBase : IDisposable
                 pb
                   .FromNuGet(pythonVersionWindows)
                   .FromMacOSInstallerLocator(pythonVersionMacOS, freeThreaded)
+                  .FromWindowsStore("3.12")
                   .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux); // This last one is for GitHub Actions
 
                 services.AddLogging(builder => builder.AddXUnit());

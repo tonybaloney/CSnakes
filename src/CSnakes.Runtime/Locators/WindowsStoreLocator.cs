@@ -7,7 +7,13 @@ internal class WindowsStoreLocator(Version version) : PythonLocator
 
     public override PythonLocationMetadata LocatePython()
     {
-        var windowsStorePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Python", $"Python{Version.Major}.{Version.Minor}");
+        string programFolder = RuntimeInformation.ProcessArchitecture switch {
+            Architecture.Arm64 => $"Python{Version.Major}{Version.Minor}-arm64",
+            Architecture.X64 => $"Python{Version.Major}{Version.Minor}",
+            Architecture.X86 => $"Python{Version.Major}{Version.Minor}",
+            _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
+        };
+        var windowsStorePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Python", programFolder);
         return LocatePythonInternal(windowsStorePath);
     }
 

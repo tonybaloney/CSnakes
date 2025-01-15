@@ -19,5 +19,6 @@ public interface IPythonEnvironment : IDisposable
     public ILogger<IPythonEnvironment> Logger { get; }
 
     public PyObject Execute(string code);
+    public PyObject Execute(string code, IDictionary<string, PyObject> locals);
     public PyObject Execute(string code, IDictionary<string, PyObject> globals, IDictionary<string, PyObject> locals);
 }

@@ -156,8 +156,23 @@ internal class PythonEnvironment : IPythonEnvironment
         }
     }
 
+    public PyObject Execute(string code, IDictionary<string, PyObject> locals)
+    {
+        using (GIL.Acquire())
+        {
+            using var localsPyDict = PyObject.From<IDictionary<string, PyObject>>(locals);
+            using var globalsPyDict = PyObject.Create(CPythonAPI.PyDict_New());
+            return CPythonAPI.PyRun_String(code, CPythonAPI.InputType.Py_eval_input, globalsPyDict, localsPyDict);
+        }
+    }
+
     public PyObject Execute(string code, IDictionary<string, PyObject> globals, IDictionary<string, PyObject> locals)
     {
-        throw new NotImplementedException();
+        using (GIL.Acquire())
+        {
+            using var localsPyDict = PyObject.From<IDictionary<string, PyObject>>(locals);
+            using var globalsPyDict = PyObject.From<IDictionary<string, PyObject>>(globals);
+            return CPythonAPI.PyRun_String(code, CPythonAPI.InputType.Py_eval_input, globalsPyDict, localsPyDict);
+        }
     }
 }

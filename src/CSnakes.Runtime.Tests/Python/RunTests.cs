@@ -7,4 +7,10 @@ public class RunTests : RuntimeTestBase
         using var result = env.Execute("1+1");
         Assert.Equal("2", result.ToString());
     }
+
+    [Fact]
+    public void TestBadString()
+    {
+        Assert.Throws<PythonInvocationException>(() => env.Execute("1+"));
+    }
 }

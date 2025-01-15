@@ -152,7 +152,7 @@ internal class PythonEnvironment : IPythonEnvironment
         {
             using var globals = PyObject.Create(CPythonAPI.PyDict_New());
             using var locals = PyObject.Create(CPythonAPI.PyDict_New());
-            return CPythonAPI.PyRun_String(code, globals, locals);
+            return CPythonAPI.PyRun_String(code, CPythonAPI.InputType.Py_eval_input, globals, locals);
         }
     }
 

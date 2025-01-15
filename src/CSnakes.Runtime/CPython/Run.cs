@@ -5,8 +5,15 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
-    internal static PyObject PyRun_String(string str, PyObject globals, PyObject locals) => PyObject.Create(PyRun_String_(str, 0, globals, locals));
+    internal enum InputType
+    {
+        Py_single_input = 256,
+        Py_file_input = 257,
+        Py_eval_input = 258
+    }
+
+    internal static PyObject PyRun_String(string str, InputType start, PyObject globals, PyObject locals) => PyObject.Create(PyRun_String_(str, start, globals, locals));
 
     [LibraryImport(PythonLibraryName, EntryPoint = "PyRun_String", StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller))]
-    private static partial nint PyRun_String_(string str, int start, PyObject globals, PyObject locals);
+    private static partial nint PyRun_String_(string str, InputType start, PyObject globals, PyObject locals);
 }

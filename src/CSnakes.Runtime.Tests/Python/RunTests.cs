@@ -38,7 +38,7 @@ public class RunTests : RuntimeTestBase
         {
             ["b"] = PyObject.From(100)
         };
-        using var result = env.Execute("a+b+1", locals);
+        using var result = env.Execute("a+b+1", locals, globals);
         Assert.Equal("202", result.ToString());
     }
 }

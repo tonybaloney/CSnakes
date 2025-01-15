@@ -9,6 +9,7 @@ using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.EnvironmentManagement;
 using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
+using CSnakes.Runtime.Python;
 using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;
@@ -143,5 +144,20 @@ internal class PythonEnvironment : IPythonEnvironment
     public bool IsDisposed()
     {
         return disposedValue;
+    }
+
+    public PyObject Execute(string code)
+    {
+        using (GIL.Acquire())
+        {
+            using var globals = PyObject.Create(CPythonAPI.PyDict_New());
+            using var locals = PyObject.Create(CPythonAPI.PyDict_New());
+            return CPythonAPI.PyRun_String(code, globals, locals);
+        }
+    }
+
+    public PyObject Execute(string code, IDictionary<string, PyObject> globals, IDictionary<string, PyObject> locals)
+    {
+        throw new NotImplementedException();
     }
 }

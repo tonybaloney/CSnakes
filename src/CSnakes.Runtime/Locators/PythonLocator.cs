@@ -30,7 +30,7 @@ public abstract class PythonLocator
             return Path.Combine(folder, $"python{suffix}.exe");
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        if (PlatformHelpers.IsApple())
         {
             return Path.Combine(folder, "bin", $"python3{suffix}");
         }
@@ -51,7 +51,7 @@ public abstract class PythonLocator
             return Path.Combine(folder, $"python{Version.Major}{Version.Minor}{suffix}.dll");
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        if (PlatformHelpers.IsApple())
         {
             return Path.Combine(folder, "lib", $"libpython{Version.Major}.{Version.Minor}{suffix}.dylib");
         }
@@ -80,7 +80,7 @@ public abstract class PythonLocator
             return Path.Combine(folder, "Lib") + sep + Path.Combine(folder, "DLLs");
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        if (PlatformHelpers.IsApple())
         {
             return Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}{suffix}") + sep + Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}{suffix}", "lib-dynload");
         }

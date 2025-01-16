@@ -15,7 +15,7 @@ internal class SourceLocator(string folder, Version version, bool debug = true, 
         {
             return Path.Combine(folder, $"python{Version.Major}{Version.Minor}{suffix}{(debug ? "_d" : string.Empty)}.dll");
         }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        else if (PlatformHelpers.IsApple())
         {
             return Path.Combine(folder, "lib", $"libpython{Version.Major}.{Version.Minor}{suffix}{(debug ? "d" : string.Empty)}.dylib");
         }

@@ -33,8 +33,12 @@ internal unsafe partial class CPythonAPI
             return -1;
     }
 
+#if WINDOWS
     [LibraryImport("kernel32.dll")]
     private static partial int GetCurrentThreadId();
+#else
+    private static int GetCurrentThreadId() => -1;
+#endif
 
     [LibraryImport(PythonLibraryName)]
     internal static partial void PyEval_ReleaseLock();

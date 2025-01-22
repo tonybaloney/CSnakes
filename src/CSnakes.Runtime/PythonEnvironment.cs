@@ -9,6 +9,7 @@ using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.EnvironmentManagement;
 using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
+using CSnakes.Runtime.Python;
 using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;

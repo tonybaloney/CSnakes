@@ -284,6 +284,21 @@ public class TokenizerTests
     }
 
     [Fact]
+    public void ParseFunctionParameterListTrailingComma ()
+    {
+        var code = "(a, b, c, )";
+        var tokens = PythonTokenizer.Instance.Tokenize(code);
+        var result = PythonParser.PythonParameterListParser.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal("a", result.Value[0].Name);
+        Assert.Equal("Any", result.Value[0].Type.Name);
+        Assert.Equal("b", result.Value[1].Name);
+        Assert.Equal("Any", result.Value[1].Type.Name);
+        Assert.Equal("c", result.Value[2].Name);
+        Assert.Equal("Any", result.Value[2].Type.Name);
+    }
+
+    [Fact]
     public void ParseFunctionDefinition()
     {
         var tokens = PythonTokenizer.Instance.Tokenize("def foo(a: int, b: str) -> None:");

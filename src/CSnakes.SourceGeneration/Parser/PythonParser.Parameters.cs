@@ -28,8 +28,8 @@ public static partial class PythonParser
 
     public static TokenListParser<PythonToken, PythonFunctionParameter[]> PythonParameterListParser { get; } =
         (from openParen in Token.EqualTo(PythonToken.OpenParenthesis)
-         from parameters in ParameterOrSlashParser.ManyDelimitedBy(Token.EqualTo(PythonToken.Comma))
-         from closeParen in Token.EqualTo(PythonToken.CloseParenthesis)
-         select parameters)
+         from parameters in ParameterOrSlashParser.OptionalOrDefault().ManyDelimitedBy(Token.EqualTo(PythonToken.Comma), Token.EqualTo(PythonToken.CloseParenthesis))
+         select parameters.Where(p => p is not null).ToArray()
+         )
         .Named("Parameter List");
 }

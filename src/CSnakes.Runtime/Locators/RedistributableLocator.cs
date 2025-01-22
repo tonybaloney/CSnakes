@@ -163,12 +163,11 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, in
     private static async Task<string> DownloadFileToTempDirectoryAsync(string fileUrl)
     {
         using HttpClient client = new();
-        using HttpResponseMessage response = await client.GetAsync(fileUrl);
-        response.EnsureSuccessStatusCode();
+        using var contentStream = await client.GetStreamAsync(fileUrl);
 
         string tempFilePath = Path.GetTempFileName();
         using FileStream fileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
-        await response.Content.CopyToAsync(fileStream);
+        await contentStream.CopyToAsync(fileStream);
 
         return tempFilePath;
     }

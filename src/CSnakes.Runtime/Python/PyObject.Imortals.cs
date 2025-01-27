@@ -9,5 +9,4 @@ public partial class PyObject
     public static PyObject One { get; } = new PyOneObject();
     public static PyObject Zero { get; } = new PyZeroObject();
     public static PyObject NegativeOne { get; } = new PyNegativeOneObject();
-
 }

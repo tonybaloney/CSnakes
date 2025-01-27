@@ -470,6 +470,7 @@ public partial class PyObject : SafeHandle, ICloneable
                 var t when t == typeof(byte[]) => CPythonAPI.PyBytes_AsByteArray(this),
                 var t when t.IsAssignableTo(typeof(ITuple)) => PyObjectTypeConverter.ConvertToTuple(this, t),
                 var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => PyObjectTypeConverter.ConvertToGeneratorIterator(this, t),
+                var t when t.IsAssignableTo(typeof(ICoroutine)) => PyObjectTypeConverter.ConvertToCoroutine(this, t),
                 var t => PyObjectTypeConverter.PyObjectToManagedType(this, t),
             };
         }

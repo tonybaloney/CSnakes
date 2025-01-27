@@ -20,7 +20,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, in
             return Path.Combine(folder, $"python{suffix}.exe");
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        if (PlatformHelpers.IsApple())
         {
             return Path.Combine(folder, "bin", $"python{Version.Major}.{Version.Minor}{suffix}");
         }
@@ -147,7 +147,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, in
             return Path.Combine(folder, $"python{Version.Major}{Version.Minor}{suffix}.dll");
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        if (PlatformHelpers.IsApple())
         {
             return Path.Combine(folder, "lib", $"libpython{Version.Major}.{Version.Minor}{suffix}.dylib");
         }

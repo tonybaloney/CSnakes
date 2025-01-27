@@ -163,13 +163,18 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, in
     private static async Task<string> DownloadFileToTempDirectoryAsync(string fileUrl)
     {
         using HttpClient client = new();
-        using var contentStream = await client.GetStreamAsync(fileUrl);
+        var contentStream = await client.GetStreamAsync(fileUrl).ConfigureAwait(false);
+        await using (contentStream.ConfigureAwait(false))
+        {
+            string tempFilePath = Path.GetTempFileName();
+            var fileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
+            await using (fileStream.ConfigureAwait(false))
+            {
+                await contentStream.CopyToAsync(fileStream).ConfigureAwait(false);
+            }
 
-        string tempFilePath = Path.GetTempFileName();
-        using FileStream fileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
-        await contentStream.CopyToAsync(fileStream);
-
-        return tempFilePath;
+            return tempFilePath;
+        }
     }
 
     private static string DecompressZstFile(string zstFilePath)

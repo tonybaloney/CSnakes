@@ -23,6 +23,9 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyList_Size(PyObject obj);
 
+    [LibraryImport(PythonLibraryName, EntryPoint= "PyList_Size")]
+    internal static partial nint PyList_SizeRaw(nint obj);
+
     /// <summary>
     /// Get a reference to the item at `pos` in the list
     /// </summary>
@@ -49,6 +52,9 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName, EntryPoint = "PyList_GetItem")]
     private static partial nint PyList_GetItem_(PyObject obj, nint pos);
 
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyList_GetItem")]
+    private static partial nint PyList_GetItemRaw(nint obj, nint pos);
+
     internal static int PyList_SetItemRaw(nint ob, nint pos, nint o)
     {
         int result = PyList_SetItem_(ob, pos, o);
@@ -67,4 +73,9 @@ internal unsafe partial class CPythonAPI
     {
         return PyObject_IsInstance(p, PyListType);
     }
+
+
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyList_Append")]
+    internal static partial int PyList_AppendRaw(nint obj, nint o);
+
 }

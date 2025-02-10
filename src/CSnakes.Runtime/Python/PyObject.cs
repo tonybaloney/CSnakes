@@ -124,7 +124,7 @@ public partial class PyObject : SafeHandle, ICloneable
     /// <summary>
     /// Get the attribute of the object with name. This is equivalent to obj.name in Python.
     /// </summary>
-    /// <param name="name"></param>
+    /// <param name="name">Attribute name</param>
     /// <returns>Attribute object (new ref)</returns>
     public virtual PyObject GetAttr(string name)
     {

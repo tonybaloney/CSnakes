@@ -16,7 +16,11 @@ internal unsafe partial class CPythonAPI
 
         public EventLoop()
         {
-            loop = NewEventLoopFactory!.Call();
+            if (NewEventLoopFactory is null)
+            {
+                throw new InvalidOperationException("NewEventLoopFactory not initialized");
+            }
+            loop = NewEventLoopFactory.Call();
         }
 
         public bool IsDisposed { get; private set; }
@@ -33,9 +37,12 @@ internal unsafe partial class CPythonAPI
 
         public void Dispose()
         {
-            Close();
-            loop?.Dispose();
-            IsDisposed = true;
+            if (!IsDisposed)
+            {
+                Close();
+                loop?.Dispose();
+                IsDisposed = true;
+            }
         }
 
         public PyObject RunTaskUntilComplete(PyObject coroutine)
@@ -44,11 +51,10 @@ internal unsafe partial class CPythonAPI
             {
                 throw new InvalidOperationException("Event loop not initialized");
             }
-            using var taskFunc = loop.GetAttr("create_task");
-            using var task = taskFunc?.Call(coroutine) ?? PyObject.None;
-            using var runUntilComplete = loop.GetAttr("run_until_complete");
-            var result = runUntilComplete.Call(task);
-            return result;
+            using PyObject taskFunc = loop.GetAttr("create_task");
+            using PyObject task = taskFunc.Call(coroutine);
+            using PyObject runUntilComplete = loop.GetAttr("run_until_complete");
+            return runUntilComplete.Call(task);
         }
     }
 

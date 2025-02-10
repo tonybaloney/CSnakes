@@ -9,6 +9,7 @@ using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.EnvironmentManagement;
 using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
+using CSnakes.Runtime.Python;
 using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;
@@ -72,7 +73,7 @@ internal class PythonEnvironment : IPythonEnvironment
             environmentManager.EnsureEnvironment(location);
         }
 
-        logger.LogInformation("Setting up Python environment from {PythonLocation} using home of {Home}", location.Folder, home);
+        logger.LogDebug("Setting up Python environment from {PythonLocation} using home of {Home}", location.Folder, home);
 
         foreach (var installer in packageInstallers)
         {

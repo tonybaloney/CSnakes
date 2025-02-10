@@ -154,7 +154,7 @@ public static class TestClassExtensions
             module.Dispose();
         }
 
-        public ValueTuple<string> Tuple_(ValueTuple<string> a)
+        public ValueTuple<string> Tuple1(ValueTuple<string> a)
         {
             using (GIL.Acquire())
             {
@@ -166,7 +166,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string) Tuple_((string, string) a)
+        public (string, string) Tuple2((string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -178,7 +178,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string, string) Tuple_((string, string, string) a)
+        public (string, string, string) Tuple3((string, string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -190,7 +190,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string, string, string) Tuple_((string, string, string, string) a)
+        public (string, string, string, string) Tuple4((string, string, string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -202,7 +202,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string, string, string, string) Tuple_((string, string, string, string, string) a)
+        public (string, string, string, string, string) Tuple5((string, string, string, string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -214,7 +214,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string, string, string, string, string) Tuple_((string, string, string, string, string, string) a)
+        public (string, string, string, string, string, string) Tuple6((string, string, string, string, string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -226,7 +226,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string, string, string, string, string, string) Tuple_((string, string, string, string, string, string, string) a)
+        public (string, string, string, string, string, string, string) Tuple7((string, string, string, string, string, string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -238,7 +238,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string, string, string, string, string, string, string) Tuple_((string, string, string, string, string, string, string, string) a)
+        public (string, string, string, string, string, string, string, string) Tuple8((string, string, string, string, string, string, string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -250,7 +250,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string, string, string, string, string, string, string, string) Tuple_((string, string, string, string, string, string, string, string, string) a)
+        public (string, string, string, string, string, string, string, string, string) Tuple9((string, string, string, string, string, string, string, string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -371,7 +371,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def tuple_1(a: tuple[str]) -> tuple[str]: ...
     /// ]]></code>
     /// </summary>
-    ValueTuple<string> Tuple_(ValueTuple<string> a);
+    ValueTuple<string> Tuple1(ValueTuple<string> a);
 
     /// <summary>
     /// Invokes the Python function <c>tuple_2</c>:
@@ -379,7 +379,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def tuple_2(a: tuple[str, str]) -> tuple[str, str]: ...
     /// ]]></code>
     /// </summary>
-    (string, string) Tuple_((string, string) a);
+    (string, string) Tuple2((string, string) a);
 
     /// <summary>
     /// Invokes the Python function <c>tuple_3</c>:
@@ -387,7 +387,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def tuple_3(a: tuple[str, str, str]) -> tuple[str, str, str]: ...
     /// ]]></code>
     /// </summary>
-    (string, string, string) Tuple_((string, string, string) a);
+    (string, string, string) Tuple3((string, string, string) a);
 
     /// <summary>
     /// Invokes the Python function <c>tuple_4</c>:
@@ -395,7 +395,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def tuple_4(a: tuple[str, str, str, str]) -> tuple[str, str, str, str]: ...
     /// ]]></code>
     /// </summary>
-    (string, string, string, string) Tuple_((string, string, string, string) a);
+    (string, string, string, string) Tuple4((string, string, string, string) a);
 
     /// <summary>
     /// Invokes the Python function <c>tuple_5</c>:
@@ -403,7 +403,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def tuple_5(a: tuple[str, str, str, str, str]) -> tuple[str, str, str, str, str]: ...
     /// ]]></code>
     /// </summary>
-    (string, string, string, string, string) Tuple_((string, string, string, string, string) a);
+    (string, string, string, string, string) Tuple5((string, string, string, string, string) a);
 
     /// <summary>
     /// Invokes the Python function <c>tuple_6</c>:
@@ -411,7 +411,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def tuple_6(a: tuple[str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str]: ...
     /// ]]></code>
     /// </summary>
-    (string, string, string, string, string, string) Tuple_((string, string, string, string, string, string) a);
+    (string, string, string, string, string, string) Tuple6((string, string, string, string, string, string) a);
 
     /// <summary>
     /// Invokes the Python function <c>tuple_7</c>:
@@ -419,7 +419,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def tuple_7(a: tuple[str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str]: ...
     /// ]]></code>
     /// </summary>
-    (string, string, string, string, string, string, string) Tuple_((string, string, string, string, string, string, string) a);
+    (string, string, string, string, string, string, string) Tuple7((string, string, string, string, string, string, string) a);
 
     /// <summary>
     /// Invokes the Python function <c>tuple_8</c>:
@@ -427,7 +427,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def tuple_8(a: tuple[str, str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str, str]: ...
     /// ]]></code>
     /// </summary>
-    (string, string, string, string, string, string, string, string) Tuple_((string, string, string, string, string, string, string, string) a);
+    (string, string, string, string, string, string, string, string) Tuple8((string, string, string, string, string, string, string, string) a);
 
     /// <summary>
     /// Invokes the Python function <c>tuple_9</c>:
@@ -435,7 +435,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def tuple_9(a: tuple[str, str, str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str, str, str]: ...
     /// ]]></code>
     /// </summary>
-    (string, string, string, string, string, string, string, string, string) Tuple_((string, string, string, string, string, string, string, string, string) a);
+    (string, string, string, string, string, string, string, string, string) Tuple9((string, string, string, string, string, string, string, string, string) a);
 
     /// <summary>
     /// Invokes the Python function <c>tuple_10</c>:

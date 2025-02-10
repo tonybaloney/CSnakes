@@ -20,15 +20,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: conda-incubator/setup-miniconda@v3
+      - uses: conda-incubator/setup-miniconda@v3.1.0
         id: setup-conda
         with:
           auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
+          python-version: "${{ matrix.python }}"
           activate-environment: csnakes_test
           environment-file: src/Conda.Tests/python/environment.yml
       - name: cleanup conda-incubator/setup-miniconda
         run: conda clean --all --yes
+      - name: check conda export
+        run: |
+          conda env export --name csnakes_test
+          conda info
       - name: Setup Python
         id: installpython
         uses: actions/setup-python@v5
@@ -61,10 +65,11 @@ jobs:
         working-directory: src
 
       - name: Test
-        run: dotnet test --no-build --blame --verbosity m --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog
+        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog
         working-directory: src
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          UV_NO_CACHE: 1
 
       - name: Upload logs
         uses: actions/upload-artifact@v4

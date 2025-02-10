@@ -180,6 +180,18 @@ public static partial class ServiceCollectionExtensions
     }
 
     /// <summary>
+    /// Simplest option for getting started with CSnakes.
+    /// Downloads and installs the redistributable version of Python from GitHub and stores it in %APP_DATA%/csnakes.
+    /// </summary>
+    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
+    /// <returns></returns>
+    public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder)
+    {
+        builder.Services.AddSingleton<PythonLocator, RedistributableLocator>();
+        return builder;
+    }
+
+    /// <summary>
     /// Adds a pip package installer to the service collection.
     /// </summary>
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the installer to.</param>
@@ -192,6 +204,24 @@ public static partial class ServiceCollectionExtensions
             {
                 var logger = sp.GetRequiredService<ILogger<PipInstaller>>();
                 return new PipInstaller(logger, requirementsPath);
+            }
+        );
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds a uv package installer to the service collection. If uv is not installed, it will be installed with pip.
+    /// </summary>
+    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the installer to.</param>
+    /// <param name="requirementsPath">The path to the requirements file.</param>
+    /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
+    public static IPythonEnvironmentBuilder WithUvInstaller(this IPythonEnvironmentBuilder builder, string requirementsPath = "requirements.txt")
+    {
+        builder.Services.AddSingleton<IPythonPackageInstaller>(
+            sp =>
+            {
+                var logger = sp.GetRequiredService<ILogger<UVInstaller>>();
+                return new UVInstaller(logger, requirementsPath);
             }
         );
         return builder;

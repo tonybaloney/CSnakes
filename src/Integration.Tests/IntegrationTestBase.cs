@@ -19,7 +19,7 @@ public sealed class PythonEnvironmentFixture : IDisposable
 
     public PythonEnvironmentFixture()
     {
-        string pythonVersionWindows = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.4";
+        string pythonVersionWindows = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9";
         string pythonVersionMacOS = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
         string pythonVersionLinux = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
         bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "true";
@@ -33,6 +33,7 @@ public sealed class PythonEnvironmentFixture : IDisposable
 
                 pb.FromNuGet(pythonVersionWindows)
                   .FromMacOSInstallerLocator(pythonVersionMacOS, freeThreaded)
+                  .FromWindowsStore("3.12")
                   .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux)
                   .WithVirtualEnvironment(venvPath)
                   .WithPipInstaller();

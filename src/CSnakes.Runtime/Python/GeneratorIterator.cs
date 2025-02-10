@@ -3,6 +3,7 @@
 namespace CSnakes.Runtime.Python;
 public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGeneratorIterator<TYield, TSend, TReturn>
 {
+    private bool _disposed = false;
     private readonly PyObject generator = generator;
     private readonly PyObject nextPyFunction = generator.GetAttr("__next__");
     private readonly PyObject closePyFunction = generator.GetAttr("close");
@@ -18,13 +19,14 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
 
     protected virtual void Dispose(bool disposing)
     {
-        if (disposing)
+        if (disposing && !_disposed)
         {
             generator.Dispose();
             nextPyFunction.Dispose();
             closePyFunction.Call().Dispose();
             closePyFunction.Dispose();
             sendPyFunction.Dispose();
+            _disposed = true;
         }
     }
 

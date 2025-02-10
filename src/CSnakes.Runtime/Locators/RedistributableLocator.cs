@@ -7,9 +7,9 @@ namespace CSnakes.Runtime.Locators;
 
 internal class RedistributableLocator(ILogger<RedistributableLocator> logger, int installerTimeout = 360) : PythonLocator
 {
-    private const string standaloneRelease = "20250106";
+    private const string standaloneRelease = "20250205";
     private const string MutexName = @"Global\CSnakesPythonInstall-1"; // run-time name includes Python version
-    private static readonly Version defaultVersion = new(3, 12, 8, 0);
+    private static readonly Version defaultVersion = new(3, 12, 9, 0);
     protected override Version Version { get; } = defaultVersion;
 
     protected override string GetPythonExecutablePath(string folder, bool freeThreaded = false)

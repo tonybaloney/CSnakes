@@ -1,6 +1,5 @@
 ﻿using CSnakes.Runtime.Python;
 using System.Collections.Concurrent;
-using System.Threading.Tasks;
 
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI

@@ -84,11 +84,11 @@ internal unsafe partial class CPythonAPI : IDisposable
          */
 
         cts = new CancellationTokenSource();
-        bool initialized = false;
+        ManualResetEventSlim mre = new(false);
         initializationTask = Task.Run(
             () => {
                 InitializeEmbeddedPython();
-                initialized = true;
+                mre.Set();
                 while (true)
                 {
                     if (cts.IsCancellationRequested)
@@ -104,10 +104,7 @@ internal unsafe partial class CPythonAPI : IDisposable
             },
             cancellationToken: cts.Token);
 
-        while (!initialized) // Wait for startup
-        {
-            continue;
-        }
+        mre.Wait();
     }
 
     private void InitializeEmbeddedPython()

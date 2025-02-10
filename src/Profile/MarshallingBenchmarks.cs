@@ -85,4 +85,10 @@ public class MarshallingBenchmarks: BaseBenchmark
     {
         mod!.EmptyFunction();
     }
+
+    [Benchmark]
+    public async void AsyncFunction()
+    {
+        await mod!.AsyncSleepy();
+    }
 }

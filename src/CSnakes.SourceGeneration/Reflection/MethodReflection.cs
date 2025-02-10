@@ -42,7 +42,8 @@ public static class MethodReflection
             var tYield = returnPythonType.Arguments[0];
             if (tYield.Name == "None")
             {
-                returnSyntax = PredefinedType(Token(SyntaxKind.VoidKeyword));
+                // Make it PyObject otherwise we need to annotate as Task instead of Task<T> and that adds a lot of complexity and little value
+                returnSyntax = ParseTypeName("PyObject");
             }
             else
             {
@@ -51,7 +52,6 @@ public static class MethodReflection
             // return is a Task of <T>
             returnSyntax = GenericName(Identifier("Task"))
                 .WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])));
-
         }
 
         // Step 3: Build arguments

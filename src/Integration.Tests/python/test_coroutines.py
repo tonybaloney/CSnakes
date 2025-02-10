@@ -10,3 +10,6 @@ async def test_coroutine() -> Coroutine[int, None, None]:
 async def test_coroutine_raises_exception() -> Coroutine[int, None, None]:
     raise ValueError("This is a Python exception")
 
+
+async def test_coroutine_returns_nothing() -> Coroutine[None, None, None]:
+    await asyncio.sleep(0.1)

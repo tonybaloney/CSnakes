@@ -19,7 +19,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "b6dac59139e13e4439d92e79adcd8d0a"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "129a97e123fb284b098dcc6aab28ca18"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -43,6 +43,7 @@ public static class TestClassExtensions
 
         private PyObject __func_test_coroutine;
         private PyObject __func_test_coroutine_raises_exception;
+        private PyObject __func_test_coroutine_returns_nothing;
 
         internal TestClassInternal(ILogger<IPythonEnvironment> logger)
         {
@@ -53,6 +54,7 @@ public static class TestClassExtensions
                 module = Import.ImportModule("test");
                 this.__func_test_coroutine = module.GetAttr("test_coroutine");
                 this.__func_test_coroutine_raises_exception = module.GetAttr("test_coroutine_raises_exception");
+                this.__func_test_coroutine_returns_nothing = module.GetAttr("test_coroutine_returns_nothing");
             }
         }
 
@@ -65,9 +67,11 @@ public static class TestClassExtensions
                 // Dispose old functions
                 this.__func_test_coroutine.Dispose();
                 this.__func_test_coroutine_raises_exception.Dispose();
+                this.__func_test_coroutine_returns_nothing.Dispose();
                 // Bind to new functions
                 this.__func_test_coroutine = module.GetAttr("test_coroutine");
                 this.__func_test_coroutine_raises_exception = module.GetAttr("test_coroutine_raises_exception");
+                this.__func_test_coroutine_returns_nothing = module.GetAttr("test_coroutine_returns_nothing");
             }
         }
 
@@ -76,6 +80,7 @@ public static class TestClassExtensions
             logger.LogDebug("Disposing module {ModuleName}", "test");
             this.__func_test_coroutine.Dispose();
             this.__func_test_coroutine_raises_exception.Dispose();
+            this.__func_test_coroutine_returns_nothing.Dispose();
             module.Dispose();
         }
 
@@ -104,6 +109,19 @@ public static class TestClassExtensions
 
             return await __result_pyObject.As<ICoroutine<long, PyObject, PyObject>>().AsTask();
         }
+
+        public async Task<PyObject> TestCoroutineReturnsNothing()
+        {
+            PyObject __result_pyObject;
+            using (GIL.Acquire())
+            {
+                logger.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_returns_nothing");
+                PyObject __underlyingPythonFunc = this.__func_test_coroutine_returns_nothing;
+                __result_pyObject = __underlyingPythonFunc.Call();
+            }
+
+            return await __result_pyObject.As<ICoroutine<PyObject, PyObject, PyObject>>().AsTask();
+        }
     }
 }
 
@@ -127,4 +145,12 @@ public interface ITestClass : IReloadableModuleImport
     /// ]]></code>
     /// </summary>
     Task<long> TestCoroutineRaisesException();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_coroutine_returns_nothing</c>:
+    /// <code><![CDATA[
+    /// async def test_coroutine_returns_nothing() -> Coroutine[None, None, None]: ...
+    /// ]]></code>
+    /// </summary>
+    Task<PyObject> TestCoroutineReturnsNothing();
 }

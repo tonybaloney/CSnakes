@@ -32,4 +32,12 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
         Assert.Equal("This is a Python exception", exception.InnerException.Message);
         Assert.Equal("ValueError", exception.PythonExceptionType);
     }
+
+    [Fact]
+    public async Task CoroutineReturnsNothing()
+    {
+        var mod = Env.TestCoroutines();
+        var result = await mod.TestCoroutineReturnsNothing();
+        Assert.True(result.IsNone());
+    }
 }

@@ -36,12 +36,10 @@ internal unsafe partial class CPythonAPI
 
         public void Dispose()
         {
-            if (!IsDisposed)
-            {
-                Close();
-                loop?.Dispose();
-                IsDisposed = true;
-            }
+            ObjectDisposedException.ThrowIf(IsDisposed, this);
+            Close();
+            loop?.Dispose();
+            IsDisposed = true;
         }
 
         public PyObject RunTaskUntilComplete(PyObject coroutine)

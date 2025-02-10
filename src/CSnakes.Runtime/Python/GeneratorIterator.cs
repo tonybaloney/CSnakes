@@ -32,6 +32,7 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
 
     public void Dispose()
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
         Dispose(true);
         GC.SuppressFinalize(this);
     }

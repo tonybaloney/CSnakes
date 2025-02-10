@@ -1,4 +1,7 @@
-﻿namespace Integration.Tests;
+﻿using CSnakes.Runtime.Python;
+using System.Diagnostics;
+
+namespace Integration.Tests;
 public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
@@ -20,6 +23,22 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
         }
         var r = await Task.WhenAll(tasks);
         Assert.All(r, x => Assert.Equal(5, x));
+    }
+
+    [Fact]
+    public async Task MultipleCoroutineCallsIsParallel()
+    {
+        var mod = Env.TestCoroutines();
+        var tasks = new List<Task<PyObject>>();
+        for (int i = 0; i < 10; i++)
+        {
+            tasks.Add(mod.TestCoroutineReturnsNothing());
+        }
+        // Check this takes less than 10 seconds
+        var start = Stopwatch.StartNew();
+        var r = await Task.WhenAll(tasks);
+        start.Stop();
+        Assert.True(start.ElapsedMilliseconds < 10000);
     }
 
     [Fact]

@@ -209,6 +209,20 @@ public class TokenizerTests
         Assert.True(result.Value.HasTypeAnnotation());
     }
 
+    [Theory]
+    [InlineData("*args", "args", PythonFunctionParameterType.Star)]
+    [InlineData("**kwargs", "kwargs", PythonFunctionParameterType.DoubleStar)]
+    public void ParseFunctionSpecialParameter(string source, string expectedName, PythonFunctionParameterType expectedParameterType)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize(source);
+        var result = PythonParser.PythonParameterTokenizer.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal(expectedName, result.Value.Name);
+        Assert.Equal(expectedParameterType, result.Value.ParameterType);
+        Assert.Equal("None", result.Value.DefaultValue?.ToString());
+        Assert.False(result.Value.HasTypeAnnotation());
+    }
+
     [Fact]
     public void ParseFunctionParameterListSingleGeneric()
     {

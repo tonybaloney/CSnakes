@@ -2,13 +2,13 @@
 
 Python async functions will be generated into async C# methods. The generated C# method will return a `Task<T>` depending on the return type of the Python function. 
 
-CSnakes requires strict typing for async functions. This means that the return type of the Python function must be annotated with the `typing.Coroutine` type hint.
+CSnakes requires strict typing for async functions. This means that the return type of the Python function must be annotated with the `typing.Coroutine[TYield, TSend, TReturn]` type hint:
 
 ```python
 import asyncio
 from typing import Coroutine
 
-async def async_function() -> Coroutine:
+async def async_function() -> Coroutine[int, None, None]:
     await asyncio.sleep(1)
     return 42
 ```
@@ -24,7 +24,7 @@ Python async functions can be awaited in C# code.
 
 ## TSend and TResult
 
-CSnakes only supports `Task<TYield>` where T is `Coroutine[TYield, ..., ...]`. You cannot send values back into the coroutine object.
+CSnakes only supports `Task<TYield>` where `TYield` is `Coroutine[TYield, ..., ...]`. You cannot send values back into the coroutine object.
 
 ## Implementation Details
 
@@ -46,3 +46,7 @@ This means that even if you use parallel LINQ or other parallel constructs in C#
 
 Python 3.13 and above have a feature called "free-threading mode" which allows the Python interpreter to run in a multi-threaded environment without the Global Interpreter Lock (GIL). This is a significant change to the Python runtime and can have a big impact on the performance of Python code running in a multi-threaded environment.
 See [Free-Threading Mode](advanced.md#free-threading-mode) for more information.
+
+## Cancellation Tokens
+
+Coroutine objects have an `AsTask<TYield>(CancellationToken?)` API, but the source generator does not yet propagate the cancellation token argument to the generated interfaces, if you want to use cancellation tokens, please raise an issue with your use case.

@@ -187,7 +187,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                                   "/// </summary>"
                               ],
                               [
-                                  $"{s.WithModifiers(s.Modifiers.RemoveAt(s.Modifiers.IndexOf(SyntaxKind.PublicKeyword)))
+                                  $"{s.WithModifiers(new SyntaxTokenList(s.Modifiers.Where(m => !m.IsKind(SyntaxKind.PublicKeyword) && !m.IsKind(SyntaxKind.AsyncKeyword)).ToList()))
                                       .WithBody(null)
                                       .NormalizeWhitespace()};"
                               ]

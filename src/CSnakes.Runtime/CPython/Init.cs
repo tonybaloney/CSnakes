@@ -1,5 +1,4 @@
 ﻿using CSnakes.Runtime.Python;
-using CSnakes.Runtime.Python.Interns;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -15,6 +14,8 @@ internal unsafe partial class CPythonAPI : IDisposable
     private static readonly Lock initLock = new();
     private static Version PythonVersion = new("0.0.0");
     private bool disposedValue = false;
+    private Task? initializationTask = null;
+    private CancellationTokenSource? cts = null;
 
     public CPythonAPI(string pythonLibraryPath, Version version)
     {
@@ -51,7 +52,8 @@ internal unsafe partial class CPythonAPI : IDisposable
         {
             // Override default dlopen flags on linux to allow global symbol resolution (required in extension modules)
             // See https://github.com/tonybaloney/CSnakes/issues/112#issuecomment-2290643468
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)){
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
                 return dlopen(pythonLibraryPath!, (int)(RTLD.LAZY | RTLD.GLOBAL));
             }
 
@@ -65,7 +67,44 @@ internal unsafe partial class CPythonAPI : IDisposable
         if (IsInitialized)
             return;
 
-        InitializeEmbeddedPython();
+        /* Notes:
+         * 
+         * The CPython initialization and finalization
+         * methods should be called from the same thread.
+         * 
+         * Without doing so, CPython can hang on finalization.
+         * Especially if the code imports the threading module, or 
+         * uses asyncio.
+         * 
+         * Since we have no guarantee that the Dispose() of this 
+         * class will be called from the same managed CLR thread
+         * as the one which called Init(), we create a Task with 
+         * a cancellation token and use that as a mechanism to wait
+         * in the background for shutdown then call the finalization.
+         */
+
+        cts = new CancellationTokenSource();
+        ManualResetEventSlim mre = new(false);
+        initializationTask = Task.Run(
+            () => {
+                InitializeEmbeddedPython();
+                mre.Set();
+                while (true)
+                {
+                    if (cts.IsCancellationRequested)
+                    {
+                        FinalizeEmbeddedPython();
+                        break;
+                    }
+                    else
+                    {
+                        Thread.Sleep(500);
+                    }
+                }
+            },
+            cancellationToken: cts.Token);
+
+        mre.Wait();
     }
 
     private void InitializeEmbeddedPython()
@@ -101,6 +140,8 @@ internal unsafe partial class CPythonAPI : IDisposable
                 PyBytesType = GetTypeRaw(PyBytes_FromByteSpan(new byte[] { }));
                 ItemsStrIntern = AsPyUnicodeObject("items");
                 PyNone = GetBuiltin("None");
+                AsyncioModule = Import("asyncio");
+                NewEventLoopFactory = AsyncioModule.GetAttr("new_event_loop");
             }
             PyEval_SaveThread();
         }
@@ -126,28 +167,48 @@ internal unsafe partial class CPythonAPI : IDisposable
     [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath", StringMarshallingCustomType = typeof(Utf32StringMarshaller), StringMarshalling = StringMarshalling.Custom)]
     internal static partial void Py_SetPath_UCS4_UTF32(string path);
 
+    protected void FinalizeEmbeddedPython()
+    {
+        lock (initLock)
+        {
+            if (!IsInitialized)
+                return;
+
+            // Shut down asyncio coroutines
+            CloseEventLoops();
+
+            // Clean-up interns
+            NewEventLoopFactory?.Dispose();
+            AsyncioModule?.Dispose();
+            // TODO: Add more cleanup code here
+
+            Debug.WriteLine($"Calling Py_Finalize() on thread {GetNativeThreadId()}");
+
+            // Acquire the GIL only to dispose it immediately because `PyGILState_Release`
+            // is not available after `Py_Finalize` is called. This is done primarily to
+            // trigger the disposal of handles that have been queued before the Python
+            // runtime is finalized.
+
+            GIL.Acquire().Dispose();
+
+            PyGILState_Ensure();
+            Py_Finalize();
+        }
+    }
+
     protected virtual void Dispose(bool disposing)
     {
         if (!disposedValue)
         {
             if (disposing)
             {
-                lock (initLock)
+                if (initializationTask != null)
                 {
-                    if (!IsInitialized)
-                        return;
+                    if (cts == null)
+                        throw new InvalidOperationException("Invalid runtime state");
 
-                    Debug.WriteLine("Calling Py_Finalize()");
-
-                    // Acquire the GIL only to dispose it immediately because `PyGILState_Release`
-                    // is not available after `Py_Finalize` is called. This is done primarily to
-                    // trigger the disposal of handles that have been queued before the Python
-                    // runtime is finalized.
-
-                    GIL.Acquire().Dispose();
-
-                    PyGILState_Ensure();
-                    Py_Finalize();
+                    cts.Cancel();
+                    initializationTask.Wait();
                 }
             }
 

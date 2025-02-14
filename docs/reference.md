@@ -21,8 +21,8 @@ CSnakes supports the following typed scenarios:
 | `typing.Optional[T]`   | `T?`              |
 | `typing.Generator[TYield, TSend, TReturn]` | `IGeneratorIterator<TYield, TSend, TReturn>` [1](#generators) |
 | `typing.Buffer`        | `IPyBuffer` [2](buffers.md) |
+| `typing.Coroutine[TYield, TSend, TReturn]` | `Task<TYield>` [3](async_support.md) |
 | `None` (Return)        | `void`            |
-
 
 ### Return types
 

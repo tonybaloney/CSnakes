@@ -10,7 +10,7 @@ public class Coroutine<TYield, TSend, TReturn>(PyObject coroutine) : ICoroutine<
     public TYield Current => current;
     public TReturn Return => @return;
 
-    public Task<TYield?> AsTask()
+    public Task<TYield?> AsTask(CancellationToken? cancellationToken = null)
     {
         return Task.Run(
             () =>
@@ -19,7 +19,7 @@ public class Coroutine<TYield, TSend, TReturn>(PyObject coroutine) : ICoroutine<
                 {
                     using (GIL.Acquire())
                     {
-                        using PyObject result = CPythonAPI.GetEventLoop().RunTaskUntilComplete(coroutine);
+                        using PyObject result = CPythonAPI.GetEventLoop().RunTaskUntilComplete(coroutine, cancellationToken);
                         current = result.As<TYield>();
                     }
                     return current;

@@ -124,7 +124,7 @@ public partial class PyObject : SafeHandle, ICloneable
     /// <summary>
     /// Get the attribute of the object with name. This is equivalent to obj.name in Python.
     /// </summary>
-    /// <param name="name"></param>
+    /// <param name="name">Attribute name</param>
     /// <returns>Attribute object (new ref)</returns>
     public virtual PyObject GetAttr(string name)
     {
@@ -470,6 +470,7 @@ public partial class PyObject : SafeHandle, ICloneable
                 var t when t == typeof(byte[]) => CPythonAPI.PyBytes_AsByteArray(this),
                 var t when t.IsAssignableTo(typeof(ITuple)) => PyObjectTypeConverter.ConvertToTuple(this, t),
                 var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => PyObjectTypeConverter.ConvertToGeneratorIterator(this, t),
+                var t when t.IsAssignableTo(typeof(ICoroutine)) => PyObjectTypeConverter.ConvertToCoroutine(this, t),
                 var t => PyObjectTypeConverter.PyObjectToManagedType(this, t),
             };
         }

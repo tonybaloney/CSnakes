@@ -7,4 +7,12 @@ public class TestDependency(PythonEnvironmentFixture fixture) : IntegrationTestB
     {
         Assert.True(Env.TestDependency().TestNothing());
     }
+
+    [Fact]
+    public void VerifyFastEmbed()
+    {
+        var mod = Env.TestDependency();
+        mod.Initialize();
+        Assert.True(mod.GenerateQueryEmbedding("1234 hello world").Any());
+    }
 }

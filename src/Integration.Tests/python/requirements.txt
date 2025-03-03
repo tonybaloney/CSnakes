@@ -1,3 +1,5 @@
 httpx
 numpy
 typing-extensions
+pandas
+fastembed==0.6.0

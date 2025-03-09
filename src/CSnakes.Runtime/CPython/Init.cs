@@ -15,7 +15,7 @@ internal unsafe partial class CPythonAPI : IDisposable
     private static Version PythonVersion = new("0.0.0");
     private bool disposedValue = false;
     private Task? initializationTask = null;
-    private CancellationTokenSource? cts = null;
+    private readonly ManualResetEventSlim disposalEvent = new();
 
     public CPythonAPI(string pythonLibraryPath, Version version)
     {
@@ -83,28 +83,24 @@ internal unsafe partial class CPythonAPI : IDisposable
          * in the background for shutdown then call the finalization.
          */
 
-        cts = new CancellationTokenSource();
-        ManualResetEventSlim mre = new(false);
-        initializationTask = Task.Run(
-            () => {
+        var initializationTaskCompletionSource = new TaskCompletionSource();
+        initializationTask = Task.Run(() =>
+        {
+            try
+            {
                 InitializeEmbeddedPython();
-                mre.Set();
-                while (true)
-                {
-                    if (cts.IsCancellationRequested)
-                    {
-                        FinalizeEmbeddedPython();
-                        break;
-                    }
-                    else
-                    {
-                        Thread.Sleep(500);
-                    }
-                }
-            },
-            cancellationToken: cts.Token);
+            }
+            catch (Exception ex)
+            {
+                initializationTaskCompletionSource.SetException(ex);
+                return;
+            }
+            initializationTaskCompletionSource.SetResult();
+            disposalEvent.Wait();
+            FinalizeEmbeddedPython();
+        });
 
-        mre.Wait();
+        initializationTaskCompletionSource.Task.GetAwaiter().GetResult();
     }
 
     private void InitializeEmbeddedPython()
@@ -204,11 +200,19 @@ internal unsafe partial class CPythonAPI : IDisposable
             {
                 if (initializationTask != null)
                 {
-                    if (cts == null)
+                    if (disposalEvent == null)
                         throw new InvalidOperationException("Invalid runtime state");
 
-                    cts.Cancel();
-                    initializationTask.Wait();
+                    disposalEvent.Set();
+
+                    try
+                    {
+                        initializationTask.GetAwaiter().GetResult();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error during finalization: {ex}");
+                    }
                 }
             }
 

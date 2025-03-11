@@ -1,3 +1,4 @@
+using CSnakes.Runtime.Locators;
 using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,13 +16,24 @@ public class RedistributablePythonTestBase : IDisposable
     {
         _testOutputHelper = testOutputHelper;
         string venvPath = Path.Join(Environment.CurrentDirectory, "python", ".venv");
+        Version pythonVersionToTest = ServiceCollectionExtensions.ParsePythonVersion(Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9");
+
+        RedistributablePythonVersion redistributableVersion = pythonVersionToTest.Minor switch
+        {
+            10 => RedistributablePythonVersion.Python3_10,
+            11 => RedistributablePythonVersion.Python3_11,
+            12 => RedistributablePythonVersion.Python3_12,
+            13 => RedistributablePythonVersion.Python3_13,
+            14 => RedistributablePythonVersion.Python3_14,
+            _ => throw new NotSupportedException($"Python version {pythonVersionToTest} is not supported.")
+        };
         app = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
                 var pb = services.WithPython();
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
-                pb.FromRedistributable()
+                pb.FromRedistributable(version: redistributableVersion)
                   .WithUvInstaller()
                   .WithVirtualEnvironment(venvPath);
 

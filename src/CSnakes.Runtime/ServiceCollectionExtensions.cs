@@ -185,9 +185,15 @@ public static partial class ServiceCollectionExtensions
     /// </summary>
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
     /// <returns></returns>
-    public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder)
+    public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, RedistributablePythonVersion version = RedistributablePythonVersion.Python3_12)
     {
-        builder.Services.AddSingleton<PythonLocator, RedistributableLocator>();
+        builder.Services.AddSingleton<PythonLocator>(
+            sp =>
+            {
+                var logger = sp.GetRequiredService<ILogger<RedistributableLocator>>();
+                return new RedistributableLocator(logger, version);
+            }
+        );
         return builder;
     }
 

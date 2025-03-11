@@ -5,12 +5,45 @@ using ZstdSharp;
 
 namespace CSnakes.Runtime.Locators;
 
-internal class RedistributableLocator(ILogger<RedistributableLocator> logger, int installerTimeout = 360) : PythonLocator
+internal class StaticVersionAttribute(string version, bool supportsFreeThreading) : Attribute
+{
+    public string Version => version;
+    public bool SupportsFreeThreading => supportsFreeThreading;
+}
+
+public enum RedistributablePythonVersion
+{
+    [StaticVersion("3.10.16", false)]
+    Python3_10,
+
+    [StaticVersion("3.11.11", true)]
+    Python3_11,
+
+    [StaticVersion("3.12.9", true)]
+    Python3_12,
+
+    [StaticVersion("3.13.2", true)]
+    Python3_13,
+
+    [StaticVersion("3.14.0a5", true)]
+    Python3_14,
+}
+
+internal class RedistributableLocator(ILogger<RedistributableLocator> logger, RedistributablePythonVersion version, int installerTimeout = 360, bool debug = false, bool freeThreaded = false) : PythonLocator
 {
     private const string standaloneRelease = "20250205";
     private const string MutexName = @"Global\CSnakesPythonInstall-1"; // run-time name includes Python version
-    private static readonly Version defaultVersion = new(3, 12, 9, 0);
-    protected override Version Version { get; } = defaultVersion;
+    protected override Version Version
+    {
+        get
+        {
+            // Get the version from the attribute
+            var versionAttribute = (StaticVersionAttribute)Attribute.GetCustomAttribute(
+                typeof(RedistributablePythonVersion).GetField(version.ToString())!,
+                typeof(StaticVersionAttribute))!;
+            return new Version(versionAttribute.Version);
+        }
+    }
 
     protected override string GetPythonExecutablePath(string folder, bool freeThreaded = false)
     {

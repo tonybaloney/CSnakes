@@ -13,6 +13,9 @@ internal class StaticVersionAttribute(string version, bool supportsFreeThreading
 
 public enum RedistributablePythonVersion
 {
+    [StaticVersion("3.9.21", false)]
+    Python3_9,
+
     [StaticVersion("3.10.16", false)]
     Python3_10,
 

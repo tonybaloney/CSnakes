@@ -20,6 +20,7 @@ public class RedistributablePythonTestBase : IDisposable
 
         RedistributablePythonVersion redistributableVersion = pythonVersionToTest.Minor switch
         {
+            9 => RedistributablePythonVersion.Python3_9,
             10 => RedistributablePythonVersion.Python3_10,
             11 => RedistributablePythonVersion.Python3_11,
             12 => RedistributablePythonVersion.Python3_12,

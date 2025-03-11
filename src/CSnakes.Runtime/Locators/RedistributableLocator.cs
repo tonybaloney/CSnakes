@@ -48,8 +48,22 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
         }
     }
 
+    protected bool SupportsFreeThreading
+    {
+        get
+        {
+            // Get the supportsFreeThreading from the attribute
+            var versionAttribute = (StaticVersionAttribute)Attribute.GetCustomAttribute(
+                typeof(RedistributablePythonVersion).GetField(version.ToString())!,
+                typeof(StaticVersionAttribute))!;
+            return versionAttribute.SupportsFreeThreading;
+        }
+    }
+
     protected override string GetPythonExecutablePath(string folder, bool freeThreaded = false)
     {
+        if (!SupportsFreeThreading && freeThreaded)
+            throw new NotSupportedException($"Free-threaded Python is not supported for version {Version}.");
         string suffix = freeThreaded ? "t" : "";
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -177,6 +191,8 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
 
     protected override string GetLibPythonPath(string folder, bool freeThreaded = false)
     {
+        if (!SupportsFreeThreading && freeThreaded)
+            throw new NotSupportedException($"Free-threaded Python is not supported for version {Version}.");
         string suffix = freeThreaded ? "t" : "";
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {

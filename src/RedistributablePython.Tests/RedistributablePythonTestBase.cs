@@ -17,6 +17,8 @@ public class RedistributablePythonTestBase : IDisposable
         _testOutputHelper = testOutputHelper;
         string venvPath = Path.Join(Environment.CurrentDirectory, "python", ".venv");
         Version pythonVersionToTest = ServiceCollectionExtensions.ParsePythonVersion(Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9");
+        bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "1";
+        bool debugPython = Environment.GetEnvironmentVariable("PYTHON_DEBUG") == "1";
 
         RedistributablePythonVersion redistributableVersion = pythonVersionToTest.Minor switch
         {
@@ -34,7 +36,7 @@ public class RedistributablePythonTestBase : IDisposable
                 var pb = services.WithPython();
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
-                pb.FromRedistributable(version: redistributableVersion)
+                pb.FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
                   .WithUvInstaller()
                   .WithVirtualEnvironment(venvPath);
 

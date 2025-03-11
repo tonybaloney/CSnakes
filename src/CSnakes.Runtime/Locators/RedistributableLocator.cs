@@ -123,13 +123,25 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
         try
         {
             // Determine binary name, see https://gregoryszorc.com/docs/python-build-standalone/main/running.html#obtaining-distributions
+            // Windows doesn't have LTO builds
+            string optFlags = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "pgo" : "pgo+lto";
             string platform;
+            string build;
+            if (freeThreaded)
+            {
+                build = debug ? "freethreaded+debug" : $"freethreaded+{optFlags}";
+            }
+            else
+            {
+                build = debug ? "debug" : optFlags;
+            }
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 platform = RuntimeInformation.ProcessArchitecture switch
                 {
-                    Architecture.X86 => "i686-pc-windows-msvc-shared-pgo-full",
-                    Architecture.X64 => "x86_64-pc-windows-msvc-shared-pgo-full",
+                    Architecture.X86 => $"i686-pc-windows-msvc-shared-{build}-full",
+                    Architecture.X64 => $"x86_64-pc-windows-msvc-shared-{build}-full",
                     _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
                 };
             }
@@ -138,8 +150,8 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
                 platform = RuntimeInformation.ProcessArchitecture switch
                 {
                     // No such thing as i686 mac
-                    Architecture.X64 => "x86_64-apple-darwin-pgo+lto-full",
-                    Architecture.Arm64 => "aarch64-apple-darwin-pgo+lto-full",
+                    Architecture.X64 => $"x86_64-apple-darwin-{build}-full",
+                    Architecture.Arm64 => $"aarch64-apple-darwin-{build}-full",
                     _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
                 };
             }
@@ -147,9 +159,9 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
             {
                 platform = RuntimeInformation.ProcessArchitecture switch
                 {
-                    Architecture.X86 => "i686-unknown-linux-gnu-pgo+lto-full",
-                    Architecture.X64 => "x86_64-unknown-linux-gnu-pgo+lto-full",
-                    Architecture.Arm64 => "aarch64-unknown-linux-gnu-pgo+lto-full",
+                    Architecture.X86 => $"i686-unknown-linux-gnu-{build}-full",
+                    Architecture.X64 => $"x86_64-unknown-linux-gnu-{build}-full",
+                    Architecture.Arm64 => $"aarch64-unknown-linux-gnu-{build}-full",
                     // .NET doesn't run on armv7 anyway.. don't try that
                     _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
                 };

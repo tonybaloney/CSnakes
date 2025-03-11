@@ -19,10 +19,10 @@ public enum RedistributablePythonVersion
     [StaticVersion("3.10.16", false)]
     Python3_10,
 
-    [StaticVersion("3.11.11", true)]
+    [StaticVersion("3.11.11", false)]
     Python3_11,
 
-    [StaticVersion("3.12.9", true)]
+    [StaticVersion("3.12.9", false)]
     Python3_12,
 
     [StaticVersion("3.13.2", true)]

@@ -102,9 +102,35 @@ CSnakes uses a `PythonLocator` to find the Python runtime on the host machine. T
 
 You can chain locators together to match use the first one that finds a Python runtime. This is a useful pattern for code that is designed to run on Windows, Linux, and MacOS.
 
+The simplest and most user-friendly locator is the Redistributable Locator. This will fetch and run Python for you.
+
 ### Redistributable Locator
 
-The `.FromRedistributable()` method automates the installation of a compatible version of Python. It will source Python 3.12 and cache it locally. This download is about 50-80MB, so the first time you run your application, it will download the redistributable and cache it locally. The next time you run your application, it will use the cached redistributable. This could take a minute or two depending on your bandwidth.
+The `.FromRedistributable()` method automates the installation of a compatible version of Python. It will source Python and cache it locally. This download is about 50-80MB, so the first time you run your application, it will download the redistributable and cache it locally. The next time you run your application, it will use the cached redistributable. This could take a minute or two depending on your bandwidth.
+
+By default, Python 3.12 will be used. You can specify a different major version of Python:
+
+```csharp
+...
+var pythonBuilder = services.WithPython()
+                            .FromRedistributable("3.13");
+```
+
+You can also request debug builds on macOS and Linux to aid with debugging of crashes in native extensions:
+
+```csharp
+...
+var pythonBuilder = services.WithPython()
+                            .FromRedistributable("3.13", debug: true);
+```
+
+Or, if you want to experiment with free-threaded builds of Python, the free-threaded build for Python 3.13+:
+
+```csharp
+...
+var pythonBuilder = services.WithPython()
+                            .FromRedistributable("3.13", debug: true, freeThreaded: true);
+```
 
 ### Environment Variable Locator
 

@@ -24,20 +24,13 @@ public abstract class PythonLocator
 
     protected virtual string GetPythonExecutablePath(string folder, bool freeThreaded = false)
     {
-        string suffix = freeThreaded ? "t" : "";
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            return Path.Combine(folder, $"python{suffix}.exe");
-        }
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            return Path.Combine(folder, $"python.exe");
+        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            return Path.Combine(folder, "bin", $"python3{suffix}");
-        }
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        {
-            return Path.Combine(folder, "bin", $"python3{suffix}");
+            // Will symlink from python3t, python3.10t, etc. to python3
+            return Path.Combine(folder, "bin", $"python3");
         }
 
         throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
@@ -78,16 +71,9 @@ public abstract class PythonLocator
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             return Path.Combine(folder, "Lib") + sep + Path.Combine(folder, "DLLs");
-        }
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
             return Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}{suffix}") + sep + Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}{suffix}", "lib-dynload");
-        }
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        {
-            return Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}") + sep + Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}", "lib-dynload");
         }
 
         throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");

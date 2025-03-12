@@ -232,7 +232,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            return Path.Combine(folder, "lib", $"libpython{Version.Major}.so");
+            return Path.Combine(folder, "lib", $"libpython{Version.Major}.{Version.Minor}{suffix}{(debug ? "d" : string.Empty)}.so");
         }
 
         throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");

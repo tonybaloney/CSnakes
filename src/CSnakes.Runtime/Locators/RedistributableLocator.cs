@@ -212,7 +212,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
 
         mutex.ReleaseMutex(); // Everything supposedly went well so release mutex
 
-        return LocatePythonInternal(installPath);
+        return LocatePythonInternal(installPath, freeThreaded);
     }
 
     protected override string GetLibPythonPath(string folder, bool freeThreaded = false)

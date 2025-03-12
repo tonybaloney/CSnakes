@@ -13,7 +13,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest, ubuntu-24.04-arm]
         python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
       fail-fast: false
     runs-on: "${{ matrix.os }}"
@@ -70,6 +70,35 @@ jobs:
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
           UV_NO_CACHE: 1
+
+      - name: Test Free Threaded
+        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog RedistributablePython.Tests
+        if: startsWith(matrix.python, '3.13') || startsWith(matrix.python, '3.14')
+        working-directory: src
+        env:
+          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          UV_NO_CACHE: 1
+          PYTHON_FREETHREADED: 1
+
+      - name: Test debug Python
+        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog RedistributablePython.Tests
+        working-directory: src
+        # Only test Linux
+        if: runner.os == 'Linux'
+        env:
+          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          UV_NO_CACHE: 1
+          PYTHON_DEBUG: 1
+
+      - name: Test Free Threaded Debug
+        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog RedistributablePython.Tests
+        if: startsWith(matrix.python, '3.13') || startsWith(matrix.python, '3.14') && runner.os != 'Windows'
+        working-directory: src
+        env:
+          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          UV_NO_CACHE: 1
+          PYTHON_FREETHREADED: 1
+          PYTHON_DEBUG: 1
 
       - name: Upload logs
         uses: actions/upload-artifact@v4

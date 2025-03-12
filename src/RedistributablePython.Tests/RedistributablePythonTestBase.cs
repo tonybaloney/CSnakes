@@ -15,10 +15,15 @@ public class RedistributablePythonTestBase : IDisposable
     public RedistributablePythonTestBase(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
-        string venvPath = Path.Join(Environment.CurrentDirectory, "python", ".venv");
         Version pythonVersionToTest = ServiceCollectionExtensions.ParsePythonVersion(Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9");
         bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "1";
         bool debugPython = Environment.GetEnvironmentVariable("PYTHON_DEBUG") == "1";
+        string venvPath = Path.Join(Environment.CurrentDirectory, "python", ".venv");
+        // If .venv exists, delete it
+        if (Directory.Exists(venvPath))
+        {
+            Directory.Delete(venvPath, true);
+        }
 
         RedistributablePythonVersion redistributableVersion = pythonVersionToTest.Minor switch
         {

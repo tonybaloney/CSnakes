@@ -138,7 +138,14 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
         {
             // Determine binary name, see https://gregoryszorc.com/docs/python-build-standalone/main/running.html#obtaining-distributions
             // Windows doesn't have LTO builds
+            // Linux aarch64 doesn't have PGO, only LTO
+            // macOS has both PGO and LTO builds
+
             string optFlags = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "pgo" : "pgo+lto";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
+            {
+                optFlags = "lto";
+            }
             string platform;
             string build;
             if (freeThreaded)

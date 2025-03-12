@@ -87,6 +87,11 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
         {
             throw new NotSupportedException($"Debug builds are not supported on Windows for version {Version}.");
         }
+        // No debug builds for Python 3.9 and 3.10 on macOS (they're broken)
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && debug && (Version.Major == 3 && Version.Minor < 11))
+        {
+            throw new NotSupportedException($"Debug builds are not supported on macOS for version {Version}.");
+        }
 
         var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
         var downloadPath = Path.Join(appDataPath, "CSnakes", $"python{dottedVersion}");

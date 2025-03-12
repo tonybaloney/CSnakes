@@ -202,6 +202,31 @@ public static partial class ServiceCollectionExtensions
     }
 
     /// <summary>
+    /// Simplest option for getting started with CSnakes.
+    /// Downloads and installs the redistributable version of Python from GitHub and stores it in %APP_DATA%/csnakes.
+    /// </summary>
+    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
+    /// <param name="version">The version of the redistributable Python to use, e.g. "3.13"</param>
+    /// <param name="debug">Whether to use the debug version of Python.</param>
+    /// <param name="freeThreaded">Free Threaded Python (3.13+ only)</param>
+    /// <param name="timeout">Timeout in seconds for the download and installation process.</param>
+    /// <returns></returns>
+    public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, string version = "3.12", bool debug = false, bool freeThreaded = false, int timeout = 360){
+        RedistributablePythonVersion versionEnum = version switch
+        {
+            "3.9" => RedistributablePythonVersion.Python3_9,
+            "3.10" => RedistributablePythonVersion.Python3_10,
+            "3.11" => RedistributablePythonVersion.Python3_11,
+            "3.12" => RedistributablePythonVersion.Python3_12,
+            "3.13" => RedistributablePythonVersion.Python3_13,
+            "3.14" => RedistributablePythonVersion.Python3_14,
+            _ => throw new ArgumentException($"Invalid major Python version: {version}. Try something like '3.12' or '3.13'. Only versions 3.9-3.14 are supported."),
+        };
+        return FromRedistributable(builder, versionEnum, debug, freeThreaded, timeout);
+    }
+
+
+    /// <summary>
     /// Adds a pip package installer to the service collection.
     /// </summary>
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the installer to.</param>

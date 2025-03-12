@@ -221,7 +221,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            return Path.Combine(folder, "lib", $"libpython{Version.Major}.{Version.Minor}{suffix}.dylib");
+            return Path.Combine(folder, "lib", $"libpython{Version.Major}.{Version.Minor}{suffix}{(debug ? "d" : string.Empty)}.dylib");
         }
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))

@@ -34,7 +34,7 @@ public enum RedistributablePythonVersion
 
 internal class RedistributableLocator(ILogger<RedistributableLocator> logger, RedistributablePythonVersion version, int installerTimeout = 360, bool debug = false, bool freeThreaded = false) : PythonLocator
 {
-    private const string standaloneRelease = "20250311";
+    private const string standaloneRelease = "20250212";
     private const string MutexName = @"Global\CSnakesPythonInstall-1"; // run-time name includes Python version
     protected override Version Version
     {

@@ -94,6 +94,12 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
         {
             dottedVersion += "t";
         }
+        // There are no Windows debug builds
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && debug)
+        {
+            throw new NotSupportedException($"Debug builds are not supported on Windows for version {Version}.");
+        }
+
         var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
         var downloadPath = Path.Join(appDataPath, "CSnakes", $"python{dottedVersion}");
         var installPath = Path.Join(downloadPath, "python", "install");

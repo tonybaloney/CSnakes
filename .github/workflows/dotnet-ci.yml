@@ -83,6 +83,8 @@ jobs:
       - name: Test debug Python
         run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog RedistributablePython.Tests
         working-directory: src
+        # Not on Windows
+        if: runner.os != 'Windows'
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
           UV_NO_CACHE: 1
@@ -90,7 +92,7 @@ jobs:
 
       - name: Test Free Threaded Debug
         run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog RedistributablePython.Tests
-        if: startsWith(matrix.python, '3.13') || startsWith(matrix.python, '3.14')
+        if: startsWith(matrix.python, '3.13') || startsWith(matrix.python, '3.14') && runner.os != 'Windows'
         working-directory: src
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}

@@ -28,16 +28,10 @@ public abstract class PythonLocator
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             return Path.Combine(folder, $"python{suffix}.exe");
-        }
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            return Path.Combine(folder, "bin", $"python3{suffix}");
-        }
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        {
-            return Path.Combine(folder, "bin", $"python3{suffix}");
+            // Will symlink from python3t, python3.10t, etc. to python3
+            return Path.Combine(folder, "bin", $"python3");
         }
 
         throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");

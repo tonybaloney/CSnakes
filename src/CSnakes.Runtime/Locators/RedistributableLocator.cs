@@ -64,23 +64,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
     {
         if (!SupportsFreeThreading && freeThreaded)
             throw new NotSupportedException($"Free-threaded Python is not supported for version {Version}.");
-        string suffix = freeThreaded ? "t" : "";
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            return Path.Combine(folder, $"python{suffix}.exe");
-        }
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            return Path.Combine(folder, "bin", $"python{Version.Major}.{Version.Minor}{suffix}");
-        }
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        {
-            return Path.Combine(folder, "bin", $"python{Version.Major}.{Version.Minor}{suffix}");
-        }
-
-        throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
+        return base.GetPythonExecutablePath(folder, freeThreaded);
     }
 
     public override PythonLocationMetadata LocatePython()

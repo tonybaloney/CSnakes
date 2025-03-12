@@ -112,7 +112,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
                 throw new TimeoutException("Python installation timed out.");
 
             if (Directory.Exists(installPath))
-                return LocatePythonInternal(installPath);
+                return LocatePythonInternal(installPath, freeThreaded);
         }
         catch (AbandonedMutexException)
         {

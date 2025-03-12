@@ -87,7 +87,7 @@ public abstract class PythonLocator
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            return Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}") + sep + Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}", "lib-dynload");
+            return Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}") + sep + Path.Combine(folder, "lib", $"python{Version.Major}.{Version.Minor}{suffix}", "lib-dynload");
         }
 
         throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");

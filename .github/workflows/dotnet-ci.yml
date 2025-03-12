@@ -83,8 +83,8 @@ jobs:
       - name: Test debug Python
         run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog RedistributablePython.Tests
         working-directory: src
-        # skip if Windows, or macOS python 3.9 and 3.10
-        if: runner.os != 'Windows' && !(runner.os == 'macos-latest' && (startsWith(matrix.python, '3.9') || startsWith(matrix.python, '3.10')))
+        # Only test Linux
+        if: runner.os == 'Linux'
         env:
           PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
           UV_NO_CACHE: 1

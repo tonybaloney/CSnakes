@@ -64,6 +64,10 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
     {
         if (!SupportsFreeThreading && freeThreaded)
             throw new NotSupportedException($"Free-threaded Python is not supported for version {Version}.");
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && debug)
+        {
+            return Path.Combine(folder, "python_d.exe");
+        }
         return base.GetPythonExecutablePath(folder, freeThreaded);
     }
 

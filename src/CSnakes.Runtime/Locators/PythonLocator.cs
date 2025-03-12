@@ -24,10 +24,9 @@ public abstract class PythonLocator
 
     protected virtual string GetPythonExecutablePath(string folder, bool freeThreaded = false)
     {
-        string suffix = freeThreaded ? "t" : "";
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            return Path.Combine(folder, $"python{suffix}.exe");
+            return Path.Combine(folder, $"python.exe");
         } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
             // Will symlink from python3t, python3.10t, etc. to python3

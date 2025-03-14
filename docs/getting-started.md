@@ -11,20 +11,6 @@ To get started with CSnakes, you need to:
 * [Setup a Virtual Environment (Optional)](#using-virtual-environments)
 * [Instantiate a Python environment in C# and run the Python function](#calling-csnakes-code-from-cnet)
 
-## Installing Python
-
-Because CSnakes embeds Python in your .NET project, you need to have Python installed on your machine. CSnakes supports Python 3.9-3.13.
-
-Embedding Python is a bit different to running `python` on the command line, because it requires 3 paths, instead of just one (`python`):
-
-1. The path to the Python library, sometimes called `python3.dll` or `libpython3.so`.
-2. The path to the Python standard library, which is a directory containing the Python standard library.
-3. The path to your Python code
-
-And, optionally, a path to a virtual environment if you have one.
-
-To make this easier, we've bundled [Python Locators](reference.md#python-locators) as extension methods to the environment builder with common installation paths for Python.
-
 ## Configuring a C# Project for CSnakes
 
 To setup a C# project for CSnakes, you need to:
@@ -82,7 +68,7 @@ Python environments created by CSnakes are designed to be process-level singleto
 CSnakes comes with a host builder for the `Microsoft.Extensions.Hosting` library to make it easier to create a Python environment in your C# code.
 
 CSnakes also needs to know where to find Python using one or many [Python Locators](reference.md#python-locators).
-The simplest option is the `FromRedistributable` method, which will download a Python 3.12 redistributable and store it locally. This is compatible with Windows, macOS, and Linux.
+The simplest option is the [`FromRedistributable`](reference.md#redistributable-locator) extension method, which will download Python 3.12 and store it locally. This is compatible with Windows, macOS, and Linux.
 
 Here's an example of how you can create a Python environment in C#:
 
@@ -100,9 +86,9 @@ var builder = Host.CreateDefaultBuilder(args)
     {
         var home = Path.Join(Environment.CurrentDirectory, "."); /* Path to your Python modules */
         services
-        .WithPython()
-        .WithHome(home)
-        .FromRedistributable(); // Download Python 3.12 and store it locally
+            .WithPython()
+            .WithHome(home)
+            .FromRedistributable(); // Download Python 3.12 and store it locally
     });
 
 var app = builder.Build();
@@ -112,20 +98,23 @@ var env = app.Services.GetRequiredService<IPythonEnvironment>();
 
 Check out the sample project in the [samples](https://github.com/tonybaloney/CSnakes/tree/main/samples) for code examples of a .NET console application and web application.
 
-## Using Virtual Environments
+## Using Virtual Environments and Python Requirements
 
-Since most Python projects require external dependencies outside of the Python standard library, CSnakes supports execution within a Python virtual environment and Conda environments.
+Since most Python projects __require__ external dependencies outside of the Python standard library, CSnakes supports execution within a Python virtual environment and Conda environments.
 
 Use the `.WithVirtualEnvironment` method to specify the path to the virtual environment.
 
 You can also optionally use the `.WithPipInstaller()` method to install packages listed in a `requirements.txt` file in the virtual environment. If you don't use this method, you need to install the packages manually before running the application.
 
 ```csharp
-...
+var home = Path.Join(Environment.CurrentDirectory, "."); /* Path to your Python modules */
 services
     .WithPython()
+    .WithHome(home)
+    .FromRedistributable()
+
+    /* Add these methods to configure a virtual environment and install packages from requirements.txt */
     .WithVirtualEnvironment(Path.Join(home, ".venv"))
-    // Python locators
     .WithPipInstaller(); // Optional - installs packages listed in requirements.txt on startup
 ```
 

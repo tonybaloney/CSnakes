@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using CSnakes.Runtime.Locators;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
@@ -41,4 +42,10 @@ internal unsafe partial class CPythonAPI
 
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyEval_SaveThread();
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial void PyEval_RestoreThread(nint tstate);
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial nint PyThreadState_New(nint istate);
 }

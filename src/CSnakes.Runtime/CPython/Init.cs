@@ -192,7 +192,7 @@ internal unsafe partial class CPythonAPI : IDisposable
         // trigger the disposal of handles that have been queued before the Python
         // runtime is finalized.
 
-        GIL.Acquire().Dispose(); // This shouldn't be here, recover the original thread state
+        GIL.Acquire().Dispose();
 
         PyEval_RestoreThread(initializationTState);
         Py_Finalize();

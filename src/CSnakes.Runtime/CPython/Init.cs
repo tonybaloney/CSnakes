@@ -85,9 +85,10 @@ internal unsafe partial class CPythonAPI : IDisposable
         var initializationTaskCompletionSource = new TaskCompletionSource();
         initializationTask = Task.Run(() =>
         {
+            nint initializationTState;
             try
             {
-                InitializeEmbeddedPython();
+                initializationTState = InitializeEmbeddedPython();
             }
             catch (Exception ex)
             {
@@ -96,13 +97,13 @@ internal unsafe partial class CPythonAPI : IDisposable
             }
             initializationTaskCompletionSource.SetResult();
             disposalEvent.Wait();
-            FinalizeEmbeddedPython();
+            FinalizeEmbeddedPython(initializationTState);
         });
 
         initializationTaskCompletionSource.Task.GetAwaiter().GetResult();
     }
 
-    private void InitializeEmbeddedPython()
+    private nint InitializeEmbeddedPython()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             Py_SetPath_UCS2_UTF16(PythonPath);
@@ -112,14 +113,25 @@ internal unsafe partial class CPythonAPI : IDisposable
         Py_Initialize();
 
         // Setup type statics
+        if (PyErr_Occurred())
+            throw new InvalidOperationException("Python initialization failed.");
+
+        if (!IsInitialized)
+            throw new InvalidOperationException("Python initialization failed.");
+
+        PyInterpreterState = PyInterpreterState_Get();
+
+        nint tstate = PyEval_SaveThread();
+
+        // There should only be 1 thread state per thread,
+        // So many sure that when acquiring the GIL below
+        // we don't create a new one.
+        // Python 3.11< in debug mode will raise an assertion error, but its
+        // bad practice anyway.
+        GIL.pythonThreadState = tstate;
+
         using (GIL.Acquire())
         {
-            if (PyErr_Occurred())
-                throw new InvalidOperationException("Python initialization failed.");
-
-            if (!IsInitialized)
-                throw new InvalidOperationException("Python initialization failed.");
-
             PyUnicodeType = GetTypeRaw(AsPyUnicodeObject(string.Empty));
             Py_True = PyBool_FromLong(1);
             Py_False = PyBool_FromLong(0);
@@ -133,10 +145,11 @@ internal unsafe partial class CPythonAPI : IDisposable
             PyBytesType = GetTypeRaw(PyBytes_FromByteSpan(new byte[] { }));
             ItemsStrIntern = AsPyUnicodeObject("items");
             PyNone = GetBuiltin("None");
-            AsyncioModule = Import("asyncio");
-            NewEventLoopFactory = AsyncioModule.GetAttr("new_event_loop");
+            AsyncioModule = Import("asyncio"); // Will fetch GIL
+            NewEventLoopFactory = PyObject.Create(CPythonAPI.GetAttr(AsyncioModule, "new_event_loop"));
         }
-        PyEval_SaveThread();
+
+        return tstate;
     }
 
     internal static bool IsInitialized => Py_IsInitialized() == 1;
@@ -159,7 +172,7 @@ internal unsafe partial class CPythonAPI : IDisposable
     [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath", StringMarshallingCustomType = typeof(Utf32StringMarshaller), StringMarshalling = StringMarshalling.Custom)]
     internal static partial void Py_SetPath_UCS4_UTF32(string path);
 
-    protected void FinalizeEmbeddedPython()
+    protected void FinalizeEmbeddedPython(nint initializationTState)
     {
         if (!IsInitialized)
             return;
@@ -181,7 +194,7 @@ internal unsafe partial class CPythonAPI : IDisposable
 
         GIL.Acquire().Dispose();
 
-        PyGILState_Ensure();
+        PyEval_RestoreThread(initializationTState);
         Py_Finalize();
     }
 

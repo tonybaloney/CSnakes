@@ -7,4 +7,10 @@ public class TestDependency(PythonEnvironmentFixture fixture) : IntegrationTestB
     {
         Assert.True(Env.TestDependency().TestNothing());
     }
+
+    [Fact]
+    public void VerifyPyBind11Dependency()
+    {
+        Assert.True(Env.TestPybind11().TestPybind11Function());
+    }
 }

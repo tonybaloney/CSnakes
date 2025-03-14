@@ -26,7 +26,7 @@ namespace CSnakes.Runtime.Python;
 public static class GIL
 {
     [ThreadStatic] private static PyGilState? currentState;
-    [ThreadStatic] private static nint pythonThreadState;
+    [ThreadStatic] internal static nint pythonThreadState;
     private static ConcurrentQueue<nint> handlesToDispose = new();
 
     static GIL() {

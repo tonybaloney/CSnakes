@@ -123,6 +123,13 @@ internal unsafe partial class CPythonAPI : IDisposable
 
         nint tstate = PyEval_SaveThread();
 
+        // There should only be 1 thread state per thread,
+        // So many sure that when acquiring the GIL below
+        // we don't create a new one.
+        // Python 3.11< in debug mode will raise an assertion error, but its
+        // bad practice anyway.
+        GIL.pythonThreadState = tstate;
+
         using (GIL.Acquire())
         {
             PyUnicodeType = GetTypeRaw(AsPyUnicodeObject(string.Empty));

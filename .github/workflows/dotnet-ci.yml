@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest, ubuntu-24.04-arm]
-        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14.0-alpha.5"]
       fail-fast: false
     runs-on: "${{ matrix.os }}"
 
@@ -24,6 +24,7 @@ jobs:
         id: setup-conda
         with:
           auto-update-conda: true
+          channels: conda-forge, conda-forge/label/python_rc
           python-version: "${{ matrix.python }}"
           activate-environment: csnakes_test
           environment-file: src/Conda.Tests/python/environment.yml

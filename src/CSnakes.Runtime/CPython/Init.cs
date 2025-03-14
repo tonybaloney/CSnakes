@@ -121,24 +121,28 @@ internal unsafe partial class CPythonAPI : IDisposable
 
         PyInterpreterState = PyInterpreterState_Get();
 
-        /* None of these methods call GIL.Acquire() */
-        PyUnicodeType = GetTypeRaw(AsPyUnicodeObject(string.Empty));
-        Py_True = PyBool_FromLong(1);
-        Py_False = PyBool_FromLong(0);
-        PyBoolType = GetTypeRaw(Py_True);
-        PyEmptyTuple = PyTuple_New(0);
-        PyTupleType = GetTypeRaw(PyEmptyTuple);
-        PyFloatType = GetTypeRaw(PyFloat_FromDouble(0.0));
-        PyLongType = GetTypeRaw(PyLong_FromLongLong(0));
-        PyListType = GetTypeRaw(PyList_New(0));
-        PyDictType = GetTypeRaw(PyDict_New());
-        PyBytesType = GetTypeRaw(PyBytes_FromByteSpan(new byte[] { }));
-        ItemsStrIntern = AsPyUnicodeObject("items");
-        PyNone = GetBuiltin("None");
-        AsyncioModule = Import("asyncio");
-        NewEventLoopFactory = PyObject.Create(CPythonAPI.GetAttr(AsyncioModule, "new_event_loop"));
+        nint tstate = PyEval_SaveThread();
 
-        return PyEval_SaveThread();
+        using (GIL.Acquire())
+        {
+            PyUnicodeType = GetTypeRaw(AsPyUnicodeObject(string.Empty));
+            Py_True = PyBool_FromLong(1);
+            Py_False = PyBool_FromLong(0);
+            PyBoolType = GetTypeRaw(Py_True);
+            PyEmptyTuple = PyTuple_New(0);
+            PyTupleType = GetTypeRaw(PyEmptyTuple);
+            PyFloatType = GetTypeRaw(PyFloat_FromDouble(0.0));
+            PyLongType = GetTypeRaw(PyLong_FromLongLong(0));
+            PyListType = GetTypeRaw(PyList_New(0));
+            PyDictType = GetTypeRaw(PyDict_New());
+            PyBytesType = GetTypeRaw(PyBytes_FromByteSpan(new byte[] { }));
+            ItemsStrIntern = AsPyUnicodeObject("items");
+            PyNone = GetBuiltin("None");
+            AsyncioModule = Import("asyncio"); // Will fetch GIL
+            NewEventLoopFactory = PyObject.Create(CPythonAPI.GetAttr(AsyncioModule, "new_event_loop"));
+        }
+
+        return tstate;
     }
 
     internal static bool IsInitialized => Py_IsInitialized() == 1;

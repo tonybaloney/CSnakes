@@ -121,6 +121,7 @@ internal unsafe partial class CPythonAPI : IDisposable
 
         PyInterpreterState = PyInterpreterState_Get();
 
+        /* None of these methods call GIL.Acquire() */
         PyUnicodeType = GetTypeRaw(AsPyUnicodeObject(string.Empty));
         Py_True = PyBool_FromLong(1);
         Py_False = PyBool_FromLong(0);
@@ -135,7 +136,7 @@ internal unsafe partial class CPythonAPI : IDisposable
         ItemsStrIntern = AsPyUnicodeObject("items");
         PyNone = GetBuiltin("None");
         AsyncioModule = Import("asyncio");
-        NewEventLoopFactory = AsyncioModule.GetAttr("new_event_loop");
+        NewEventLoopFactory = PyObject.Create(CPythonAPI.GetAttr(AsyncioModule, "new_event_loop"));
 
         return PyEval_SaveThread();
     }

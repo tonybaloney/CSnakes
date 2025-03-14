@@ -24,6 +24,7 @@ jobs:
         id: setup-conda
         with:
           auto-update-conda: true
+          channels: conda-forge, conda-forge/label/python_rc
           python-version: "${{ matrix.python }}"
           activate-environment: csnakes_test
           environment-file: src/Conda.Tests/python/environment.yml

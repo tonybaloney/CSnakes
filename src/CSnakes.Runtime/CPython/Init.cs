@@ -85,9 +85,10 @@ internal unsafe partial class CPythonAPI : IDisposable
         var initializationTaskCompletionSource = new TaskCompletionSource();
         initializationTask = Task.Run(() =>
         {
+            nint initializationTState;
             try
             {
-                InitializeEmbeddedPython();
+                initializationTState = InitializeEmbeddedPython();
             }
             catch (Exception ex)
             {
@@ -96,13 +97,13 @@ internal unsafe partial class CPythonAPI : IDisposable
             }
             initializationTaskCompletionSource.SetResult();
             disposalEvent.Wait();
-            FinalizeEmbeddedPython();
+            FinalizeEmbeddedPython(initializationTState);
         });
 
         initializationTaskCompletionSource.Task.GetAwaiter().GetResult();
     }
 
-    private void InitializeEmbeddedPython()
+    private nint InitializeEmbeddedPython()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             Py_SetPath_UCS2_UTF16(PythonPath);
@@ -112,31 +113,29 @@ internal unsafe partial class CPythonAPI : IDisposable
         Py_Initialize();
 
         // Setup type statics
-        using (GIL.Acquire())
-        {
-            if (PyErr_Occurred())
-                throw new InvalidOperationException("Python initialization failed.");
+        if (PyErr_Occurred())
+            throw new InvalidOperationException("Python initialization failed.");
 
-            if (!IsInitialized)
-                throw new InvalidOperationException("Python initialization failed.");
+        if (!IsInitialized)
+            throw new InvalidOperationException("Python initialization failed.");
 
-            PyUnicodeType = GetTypeRaw(AsPyUnicodeObject(string.Empty));
-            Py_True = PyBool_FromLong(1);
-            Py_False = PyBool_FromLong(0);
-            PyBoolType = GetTypeRaw(Py_True);
-            PyEmptyTuple = PyTuple_New(0);
-            PyTupleType = GetTypeRaw(PyEmptyTuple);
-            PyFloatType = GetTypeRaw(PyFloat_FromDouble(0.0));
-            PyLongType = GetTypeRaw(PyLong_FromLongLong(0));
-            PyListType = GetTypeRaw(PyList_New(0));
-            PyDictType = GetTypeRaw(PyDict_New());
-            PyBytesType = GetTypeRaw(PyBytes_FromByteSpan(new byte[] { }));
-            ItemsStrIntern = AsPyUnicodeObject("items");
-            PyNone = GetBuiltin("None");
-            AsyncioModule = Import("asyncio");
-            NewEventLoopFactory = AsyncioModule.GetAttr("new_event_loop");
-        }
-        PyEval_SaveThread();
+        PyUnicodeType = GetTypeRaw(AsPyUnicodeObject(string.Empty));
+        Py_True = PyBool_FromLong(1);
+        Py_False = PyBool_FromLong(0);
+        PyBoolType = GetTypeRaw(Py_True);
+        PyEmptyTuple = PyTuple_New(0);
+        PyTupleType = GetTypeRaw(PyEmptyTuple);
+        PyFloatType = GetTypeRaw(PyFloat_FromDouble(0.0));
+        PyLongType = GetTypeRaw(PyLong_FromLongLong(0));
+        PyListType = GetTypeRaw(PyList_New(0));
+        PyDictType = GetTypeRaw(PyDict_New());
+        PyBytesType = GetTypeRaw(PyBytes_FromByteSpan(new byte[] { }));
+        ItemsStrIntern = AsPyUnicodeObject("items");
+        PyNone = GetBuiltin("None");
+        AsyncioModule = Import("asyncio");
+        NewEventLoopFactory = AsyncioModule.GetAttr("new_event_loop");
+
+        return PyEval_SaveThread();
     }
 
     internal static bool IsInitialized => Py_IsInitialized() == 1;
@@ -159,7 +158,7 @@ internal unsafe partial class CPythonAPI : IDisposable
     [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath", StringMarshallingCustomType = typeof(Utf32StringMarshaller), StringMarshalling = StringMarshalling.Custom)]
     internal static partial void Py_SetPath_UCS4_UTF32(string path);
 
-    protected void FinalizeEmbeddedPython()
+    protected void FinalizeEmbeddedPython(nint initializationTState)
     {
         if (!IsInitialized)
             return;
@@ -179,9 +178,9 @@ internal unsafe partial class CPythonAPI : IDisposable
         // trigger the disposal of handles that have been queued before the Python
         // runtime is finalized.
 
-        GIL.Acquire().Dispose();
+        GIL.Acquire().Dispose(); // This shouldn't be here, recover the original thread state
 
-        PyGILState_Ensure();
+        PyEval_RestoreThread(initializationTState);
         Py_Finalize();
     }
 

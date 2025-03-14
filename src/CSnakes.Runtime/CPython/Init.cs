@@ -119,6 +119,8 @@ internal unsafe partial class CPythonAPI : IDisposable
         if (!IsInitialized)
             throw new InvalidOperationException("Python initialization failed.");
 
+        PyInterpreterState = PyInterpreterState_Get();
+
         PyUnicodeType = GetTypeRaw(AsPyUnicodeObject(string.Empty));
         Py_True = PyBool_FromLong(1);
         Py_False = PyBool_FromLong(0);

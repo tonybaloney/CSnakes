@@ -59,6 +59,11 @@ public static class GIL
 
         public void Dispose()
         {
+            if (recursionCount == 0)
+            {
+                Debug.WriteLine("GIL disposed more times than it was acquired by thread.");
+                return;
+            }
             recursionCount--;
             if (recursionCount > 0)
             {

@@ -23,12 +23,10 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <PackageVersion Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
     <PackageVersion Include="System.Numerics.Tensors" Version="9.0.0" />
-    <PackageVersion Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
   <!--
     Test-only dependencies

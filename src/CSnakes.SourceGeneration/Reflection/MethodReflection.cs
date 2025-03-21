@@ -57,14 +57,11 @@ public static class MethodReflection
         // Step 3: Build arguments
         List<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList = ArgumentReflection.FunctionParametersAsParameterSyntaxPairs(function.Parameters);
 
-        List<GenericNameSyntax> parameterGenericArgs = [];
-        foreach (var (pythonParameter, cSharpParameter) in parameterList)
-        {
-            if (cSharpParameter.Type is GenericNameSyntax g)
-            {
-                parameterGenericArgs.Add(g);
-            }
-        }
+        var parameterGenericArgs =
+            parameterList.Select(e => e.cSharpParameter.Type)
+                         .Append(returnSyntax)
+                         .OfType<GenericNameSyntax>()
+                         .ToList();
 
         // Step 4: Build body
         var pythonConversionStatements = new List<StatementSyntax>();
@@ -127,12 +124,13 @@ public static class MethodReflection
             callExpression = GenerateKeywordCall(parameterList);
         }
 
+        var resultIdentifierName = IdentifierName("__result_pyObject");
         ReturnStatementSyntax returnExpression = returnSyntax switch
         {
             GenericNameSyntax g when g.Identifier.Text == "Task" && coroutineSyntax is not null => ProcessAsyncMethodWithReturnType(coroutineSyntax, parameterGenericArgs),
             PredefinedTypeSyntax s when s.Keyword.IsKind(SyntaxKind.VoidKeyword) => ReturnStatement(null),
-            IdentifierNameSyntax { Identifier.ValueText: "PyObject" } => ReturnStatement(IdentifierName("__result_pyObject")),
-            _ => ProcessMethodWithReturnType(returnSyntax, parameterGenericArgs)
+            IdentifierNameSyntax { Identifier.ValueText: "PyObject" } => ReturnStatement(resultIdentifierName),
+            _ => ProcessMethodWithReturnType(resultIdentifierName, returnSyntax)
         };
 
         bool resultShouldBeDisposed = returnSyntax switch
@@ -288,23 +286,36 @@ public static class MethodReflection
         return new(syntax, parameterGenericArgs);
     }
 
-    private static ReturnStatementSyntax ProcessMethodWithReturnType(TypeSyntax returnSyntax, List<GenericNameSyntax> parameterGenericArgs)
+    private static ReturnStatementSyntax ProcessMethodWithReturnType(IdentifierNameSyntax identifierNameSyntax,
+                                                                     TypeSyntax typeSyntax)
     {
-        ReturnStatementSyntax returnExpression;
-        if (returnSyntax is GenericNameSyntax rg)
-        {
-            parameterGenericArgs.Add(rg);
-        }
+        (typeSyntax, var nullable) =
+            typeSyntax is NullableTypeSyntax { ElementType: var elementTypeSyntax }
+            ? (elementTypeSyntax, true)
+            : (typeSyntax, false);
 
-        returnExpression = ReturnStatement(
-                    InvocationExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("__result_pyObject"),
-                            GenericName(Identifier("As"))
-                                .WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])))))
-                    .WithArgumentList(ArgumentList()));
-        return returnExpression;
+        var conversionExpression =
+            InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    identifierNameSyntax,
+                    GenericName(Identifier("As"))
+                        .WithTypeArgumentList(TypeArgumentList(SeparatedList([typeSyntax])))))
+            .WithArgumentList(ArgumentList());
+
+        ExpressionSyntax returnValueExpression =
+            nullable
+                ? ConditionalExpression(
+                      InvocationExpression(
+                          MemberAccessExpression(
+                              SyntaxKind.SimpleMemberAccessExpression,
+                              identifierNameSyntax,
+                              IdentifierName("IsNone"))),
+                      LiteralExpression(SyntaxKind.NullLiteralExpression),
+                      conversionExpression)
+                : conversionExpression;
+
+        return ReturnStatement(returnValueExpression);
     }
 
     private static ReturnStatementSyntax ProcessAsyncMethodWithReturnType(TypeSyntax returnSyntax, List<GenericNameSyntax> parameterGenericArgs)

@@ -14,7 +14,8 @@ internal static class ProcessUtils
             FileName = pythonLocation.PythonBinaryPath,
             Arguments = arguments,
             RedirectStandardError = true,
-            RedirectStandardOutput = true
+            RedirectStandardOutput = true,
+            CreateNoWindow = true,
         };
         return ExecuteCommand(logger, startInfo);
     }
@@ -26,7 +27,8 @@ internal static class ProcessUtils
             FileName = fileName,
             Arguments = arguments,
             RedirectStandardError = true,
-            RedirectStandardOutput = true
+            RedirectStandardOutput = true,
+            CreateNoWindow = true,
         };
         return ExecuteCommand(logger, startInfo);
     }
@@ -39,6 +41,8 @@ internal static class ProcessUtils
             FileName = fileName,
             Arguments = arguments,
             UseShellExecute = true,
+            CreateNoWindow = true,
+            WindowStyle = ProcessWindowStyle.Hidden,
         };
         Process process = new() { StartInfo = startInfo };
         process.Start();
@@ -47,7 +51,7 @@ internal static class ProcessUtils
     }
 
 
-    private static (Process proc, string? result, string? errors) ExecuteCommand(ILogger logger, ProcessStartInfo startInfo) { 
+    private static (Process proc, string? result, string? errors) ExecuteCommand(ILogger logger, ProcessStartInfo startInfo) {
         Process process = new() { StartInfo = startInfo };
         string? result = null;
         string? errors = null;
@@ -81,7 +85,8 @@ internal static class ProcessUtils
         {
             WorkingDirectory = workingDirectory,
             FileName = fileName,
-            Arguments = arguments
+            Arguments = arguments,
+            CreateNoWindow = true,
         };
 
         if (!string.IsNullOrEmpty(path))

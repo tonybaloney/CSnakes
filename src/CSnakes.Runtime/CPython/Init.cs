@@ -1,6 +1,7 @@
 ﻿using CSnakes.Runtime.Python;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
@@ -12,14 +13,17 @@ internal unsafe partial class CPythonAPI : IDisposable
 
     private static string? pythonLibraryPath = null;
     private static Version PythonVersion = new("0.0.0");
+    private static string? pythonExecutablePath = null;
+
     private bool disposedValue = false;
     private Task? initializationTask = null;
     private readonly ManualResetEventSlim disposalEvent = new();
 
-    public CPythonAPI(string pythonLibraryPath, Version version)
+    public CPythonAPI(string pythonLibraryPath, Version version, string pythonExecutablePath)
     {
         PythonVersion = version;
         CPythonAPI.pythonLibraryPath = pythonLibraryPath;
+        CPythonAPI.pythonExecutablePath = pythonExecutablePath;
         try
         {
             NativeLibrary.SetDllImportResolver(typeof(CPythonAPI).Assembly, DllImportResolver);
@@ -28,6 +32,16 @@ internal unsafe partial class CPythonAPI : IDisposable
         {
             // TODO: Work out how to call setdllimport resolver only once to avoid raising exceptions. 
             // Already set. 
+        }
+    }
+
+    public static string PythonExecutablePath
+    {
+        get
+        {
+            if (pythonExecutablePath is null)
+                throw new InvalidOperationException("Python executable path is not set.");
+            return pythonExecutablePath;
         }
     }
 
@@ -147,6 +161,8 @@ internal unsafe partial class CPythonAPI : IDisposable
             PyNone = GetBuiltin("None");
             AsyncioModule = Import("asyncio"); // Will fetch GIL
             NewEventLoopFactory = PyObject.Create(CPythonAPI.GetAttr(AsyncioModule, "new_event_loop"));
+            if (pythonExecutablePath is not null)
+                SetSysExecutable(pythonExecutablePath);
         }
 
         return tstate;
@@ -171,6 +187,13 @@ internal unsafe partial class CPythonAPI : IDisposable
 
     [LibraryImport(PythonLibraryName, EntryPoint = "Py_SetPath", StringMarshallingCustomType = typeof(Utf32StringMarshaller), StringMarshalling = StringMarshalling.Custom)]
     internal static partial void Py_SetPath_UCS4_UTF32(string path);
+
+    protected void SetSysExecutable(string executablePath)
+    {
+        using var sysModule = Import("sys");
+        using var sysPath = PyObject.Create(AsPyUnicodeObject(executablePath));
+        SetAttr(sysModule, "executable", sysPath);
+    }
 
     protected void FinalizeEmbeddedPython(nint initializationTState)
     {

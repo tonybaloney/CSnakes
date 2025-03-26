@@ -105,7 +105,7 @@ internal class PythonEnvironment : IPythonEnvironment
         Logger.LogDebug("Python DLL: {PythonDLL}", pythonDll);
         Logger.LogDebug("Python path: {PythonPath}", pythonPath);
 
-        var api = new CPythonAPI(pythonDll, pythonLocationMetadata.Version)
+        var api = new CPythonAPI(pythonDll, pythonLocationMetadata.Version, pythonLocationMetadata.PythonBinaryPath)
         {
             PythonPath = pythonPath
         };

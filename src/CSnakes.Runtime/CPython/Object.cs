@@ -107,6 +107,17 @@ internal unsafe partial class CPythonAPI
         return hasAttr == 1;
     }
 
+    internal static void SetAttr(PyObject ob, string name, PyObject value)
+    {
+        nint pyName = AsPyUnicodeObject(name);
+        int result = PyObject_SetAttr(ob, pyName, value);
+        Py_DecRefRaw(pyName);
+        if (result == -1)
+        {
+            throw PyObject.ThrowPythonExceptionAsClrException();
+        }
+    }
+
     /// <summary>
     /// Get the attribute with name `attr` from the object `ob`
     /// </summary>
@@ -127,6 +138,9 @@ internal unsafe partial class CPythonAPI
     /// <returns>1 on success, 0 if the attr does not exist</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial int PyObject_HasAttr(PyObject ob, IntPtr attr);
+
+    [LibraryImport(PythonLibraryName)]
+    private static partial int PyObject_SetAttr(PyObject ob, IntPtr attr, PyObject value);
 
     /// <summary>
     /// Get the iterator for the given object

@@ -1,5 +1,4 @@
 ﻿using CSnakes.Runtime.CPython;
-using CSnakes.Runtime.Python;
 using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;
@@ -11,6 +10,14 @@ public interface IPythonEnvironment : IDisposable
         get
         {
             return CPythonAPI.Py_GetVersion() ?? "No version available";
+        }
+    }
+
+    public string ExecutablePath
+    {
+        get
+        {
+            return CPythonAPI.PythonExecutablePath;
         }
     }
 

@@ -20,6 +20,9 @@ RunQuickDemo(env);
 
 static void RunQuickDemo(IPythonEnvironment env)
 {
-    var quickDemo = env.QuickDemo();
-    Console.WriteLine(quickDemo.Scream("Hello .net I'm Python! ", 3));
+    var quickDemo = env.AotDemo();
+    foreach (var thing in quickDemo.CoolThings()){
+        Console.WriteLine(thing + " is cool!");
+    }
+    Console.WriteLine();
 }

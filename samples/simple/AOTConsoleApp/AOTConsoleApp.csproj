@@ -10,11 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CSnakes.Runtime" Version="1.0.30" />
+        <AdditionalFiles Include="*.py">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </AdditionalFiles>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExamplePythonDependency\ExamplePythonDependency.csproj" />
+    <PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
   </ItemGroup>
 
 </Project>

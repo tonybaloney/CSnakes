@@ -5,16 +5,11 @@ using Microsoft.Extensions.Hosting;
 var builder = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
-        var home = Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency");
-        var venv = Path.Join(home, ".venv");
+        var home = Path.Join(Environment.CurrentDirectory);
         services
-        .WithPython()
-        .WithHome(home)
-        .WithVirtualEnvironment(venv)
-        .FromNuGet("3.12.4")
-        .FromMacOSInstallerLocator("3.12")
-        .FromEnvironmentVariable("Python3_ROOT_DIR", "3.12")
-        .WithPipInstaller();
+            .WithPython()
+            .WithHome(home)
+            .FromRedistributable("3.12");
     });
 
 var app = builder.Build();
@@ -26,6 +21,5 @@ RunQuickDemo(env);
 static void RunQuickDemo(IPythonEnvironment env)
 {
     var quickDemo = env.QuickDemo();
-    Console.WriteLine(quickDemo.Scream("a", 99));
-    Console.WriteLine(string.Join(',', quickDemo.ScreamNames(["a", "b", "c"], 3)));
+    Console.WriteLine(quickDemo.Scream("Hello .net I'm Python! ", 3));
 }

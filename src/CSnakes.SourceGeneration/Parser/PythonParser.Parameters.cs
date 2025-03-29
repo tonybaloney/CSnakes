@@ -39,7 +39,7 @@ public static partial class PythonParser
 
         var comma = Token.EqualTo(PythonToken.Comma);
 
-        var commaParameters =
+        var commaParametersParser =
             comma.IgnoreThen(OptionalPythonParameterParser.AtLeastOnceDelimitedBy(comma));
 
         var optionalKwargParameterParser =
@@ -47,17 +47,17 @@ public static partial class PythonParser
                  .IgnoreThen(PythonParameterParser.AsNullable())
                  .OptionalOrDefault();
 
-        var starParameters =
+        var starParametersParser =
             Parse.OneOf(from vp in PythonParameterParser
-                        from ks in commaParameters.OptionalOrDefault([])
+                        from ks in commaParametersParser.OptionalOrDefault([])
                         select new PythonFunctionParameterList(varpos: vp, keyword: [..ks]),
-                        from ks in commaParameters
+                        from ks in commaParametersParser
                         select new PythonFunctionParameterList(keyword: [..ks]));
 
         var namedArgParameterParser =
             from namedArgParameters in
                 Token.EqualTo(PythonToken.CommaStar)
-                     .IgnoreThen(starParameters)
+                     .IgnoreThen(starParametersParser)
                      .OptionalOrDefault(PythonFunctionParameterList.Empty)
             from kwargParameter in optionalKwargParameterParser
             select namedArgParameters.WithVariadicKeyword(kwargParameter);
@@ -80,7 +80,7 @@ public static partial class PythonParser
                            select new PythonFunctionParameterList(varkw: vkp),
                            // "*" ...
                            from kps in Token.EqualTo(PythonToken.Asterisk)
-                                            .IgnoreThen(starParameters)
+                                            .IgnoreThen(starParametersParser)
                            from vkp in optionalKwargParameterParser
                            select kps.WithVariadicKeyword(vkp),
                            // ( arg "," )+ "/" ...

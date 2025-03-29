@@ -26,7 +26,7 @@ public static partial class PythonParser
     public static TokenListParser<PythonToken, PythonFunctionParameterList> PythonParameterListParser { get; } =
         CreatePythonParameterListParser();
 
-    public static TokenListParser<PythonToken, PythonFunctionParameterList> CreatePythonParameterListParser()
+    private static TokenListParser<PythonToken, PythonFunctionParameterList> CreatePythonParameterListParser()
     {
         /*
          parameter_list            ::=  defparameter ("," defparameter)* "," "/" ["," [parameter_list_no_posonly]]

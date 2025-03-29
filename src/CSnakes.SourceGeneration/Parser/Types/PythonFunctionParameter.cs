@@ -1,6 +1,7 @@
 global using PythonFunctionParameterList = CSnakes.Parser.Types.PythonFunctionParameterList<CSnakes.Parser.Types.PythonFunctionParameter>;
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Text;
 
 namespace CSnakes.Parser.Types;
@@ -37,8 +38,6 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
                                                    T? varkw = default)
 {
     public static readonly PythonFunctionParameterList<T> Empty = new();
-
-    private string? stringRepresentation;
 
     public ImmutableArray<T> Positional { get; } = positional.IsDefault ? [] : positional;
     public ImmutableArray<T> Regular { get; } = regular.IsDefault ? [] : regular;
@@ -103,10 +102,11 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
                         + Keyword.Length
                         + (VariadicKeyword is not null ? 1 : 0);
 
-    public override string ToString() => stringRepresentation ??= BuildString();
-
-    private string BuildString()
+    private string DebuggerDisplay()
     {
+        if (typeof(T) != typeof(PythonFunctionParameter))
+            return ToString();
+
         var sb = new StringBuilder("(");
 
         if (Positional.Any())

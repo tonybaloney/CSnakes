@@ -18,9 +18,6 @@ public class MethodDefinition(MethodDeclarationSyntax syntax, IEnumerable<Generi
 
 public static class MethodReflection
 {
-    private static readonly PythonTypeSpec DictStrAny = new("dict", [new("str", []), PythonTypeSpec.Any]);
-    private static readonly TypeSyntax ArrayPyObject = SyntaxFactory.ParseTypeName("PyObject[]");
-
     public static MethodDefinition FromMethod(PythonFunctionDefinition function, string moduleName)
     {
         // Step 1: Determine the return type of the method

@@ -130,7 +130,4 @@ public static class PythonFunctionParameterListExtensions
     public static IEnumerable<T> Enumerable<T>(this PythonFunctionParameterList<T> list)
         where T : class =>
         list.Enumerable(x => x, x => x, x => x, x => x, x => x);
-
-    public static IEnumerable<PythonFunctionParameter> Enumerable(this PythonFunctionParameterList list) =>
-        list.Enumerable(x => (PythonFunctionParameter)x, x => x, x => x, x => x, x => x);
 }

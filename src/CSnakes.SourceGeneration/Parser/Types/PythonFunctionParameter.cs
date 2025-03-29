@@ -1,5 +1,4 @@
 global using PythonFunctionParameterList = CSnakes.Parser.Types.PythonFunctionParameterList<CSnakes.Parser.Types.PythonFunctionParameter>;
-using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;

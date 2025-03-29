@@ -7,11 +7,11 @@ public static partial class PythonParser
 {
     public static TokenListParser<PythonToken, (string Name, PythonTypeSpec? Type)>
         PythonParameterParser { get; } =
-            (from arg in PythonNormalArgParser
+            (from name in Token.EqualTo(PythonToken.Identifier)
              from type in Token.EqualTo(PythonToken.Colon)
                                .IgnoreThen(PythonTypeDefinitionParser.AssumeNotNull())
                                .OptionalOrDefault()
-             select (arg.Name, type))
+             select (name.ToStringValue(), type))
            .Named("Parameter");
 
     public static TokenListParser<PythonToken, (string Name, PythonTypeSpec? TypeSpec, PythonConstant? DefaultValue)>

@@ -18,7 +18,7 @@ public static partial class PythonParser
         OptionalPythonParameterParser { get; } =
             (from param in PythonParameterParser
              from defaultValue in Token.EqualTo(PythonToken.Equal)
-                                       .IgnoreThen(ConstantValueTokenizer.AssumeNotNull())
+                                       .IgnoreThen(ConstantValueTokenizer)
                                        .OptionalOrDefault()
              select param.WithDefaultValue(defaultValue))
             .Named("Parameter");

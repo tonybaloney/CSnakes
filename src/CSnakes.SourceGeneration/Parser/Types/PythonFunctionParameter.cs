@@ -1,4 +1,4 @@
-﻿global using PythonFunctionParameterList = CSnakes.Parser.Types.PythonFunctionParameterList<CSnakes.Parser.Types.PythonFunctionParameter>;
+global using PythonFunctionParameterList = CSnakes.Parser.Types.PythonFunctionParameterList<CSnakes.Parser.Types.PythonFunctionParameter>;
 using System;
 using System.Collections.Immutable;
 using System.Text;
@@ -8,9 +8,12 @@ namespace CSnakes.Parser.Types;
 public sealed class PythonFunctionParameter(string name, PythonTypeSpec? type, PythonConstant? defaultValue)
 {
     public string Name { get; } = name;
-    public PythonTypeSpec Type => type ?? PythonTypeSpec.Any;
+    public PythonTypeSpec? TypeSpec => type;
+    public PythonTypeSpec ImpliedTypeSpec => type ?? PythonTypeSpec.Any;
     public PythonConstant? DefaultValue { get; } = defaultValue;
-    public bool HasTypeAnnotation() => type is not null;
+
+    public PythonFunctionParameter WithDefaultValue(PythonConstant? value) =>
+        value == DefaultValue ? this : new(Name, type, value);
 }
 
 /// <remarks>

@@ -1,4 +1,4 @@
-﻿using CSnakes.Parser.Types;
+using CSnakes.Parser.Types;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
@@ -43,9 +43,8 @@ public static partial class PythonParser
                     from subscript in
                         typeDefinitionParser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Comma))
                                             .Subscript()
-                                            .AsNullable()
-                                            .OptionalOrDefault()
-                    select new PythonTypeSpec(name.ToStringValue(), subscript)
+                                            .OptionalOrDefault([])
+                    select new PythonTypeSpec(name.ToStringValue(), [..subscript])
             }
             select result;
     }

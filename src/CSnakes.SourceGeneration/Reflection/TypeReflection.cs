@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using CSnakes.Parser.Types;
+using System.Collections.Immutable;
 
 namespace CSnakes.Reflection;
 
@@ -65,7 +66,7 @@ public static class TypeReflection
             AsPredefinedType(returnType, direction)
             ]);
 
-    private static TypeSyntax CreateTupleType(PythonTypeSpec[] tupleTypes, ConversionDirection direction)
+    private static TypeSyntax CreateTupleType(ImmutableArray<PythonTypeSpec> tupleTypes, ConversionDirection direction)
     {
         if (tupleTypes.Length == 1)
         {

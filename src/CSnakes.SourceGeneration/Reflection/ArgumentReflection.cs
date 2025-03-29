@@ -19,7 +19,7 @@ public class ArgumentReflection
         {
             (PythonFunctionParameterType.Star, _) => (ArrayPyObject, PythonConstant.None.Value),
             (PythonFunctionParameterType.DoubleStar, _) => (TypeReflection.AsPredefinedType(DictStrAny, TypeReflection.ConversionDirection.ToPython), PythonConstant.None.Value),
-            (PythonFunctionParameterType.Normal, { Type: var type, DefaultValue: var dv }) => (TypeReflection.AsPredefinedType(type, TypeReflection.ConversionDirection.ToPython), dv),
+            (PythonFunctionParameterType.Normal, { ImpliedTypeSpec: var type, DefaultValue: var dv }) => (TypeReflection.AsPredefinedType(type, TypeReflection.ConversionDirection.ToPython), dv),
             _ => throw new NotImplementedException()
         };
 

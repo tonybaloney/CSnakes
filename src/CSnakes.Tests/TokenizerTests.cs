@@ -106,6 +106,7 @@ public class TokenizerTests
         Assert.True(result.HasValue);
         var param = result.Value;
         Assert.Equal("a", param.Name);
+        Assert.Same(PythonTypeSpec.Any, param.ImpliedTypeSpec);
         Assert.Null(param.TypeSpec);
     }
 
@@ -119,6 +120,7 @@ public class TokenizerTests
         Assert.Equal("a", param.Name);
         var constant = Assert.IsType<PythonConstant.Integer>(param.DefaultValue);
         Assert.Equal(1, constant.Value);
+        Assert.Same(PythonTypeSpec.Any, param.ImpliedTypeSpec);
         Assert.Null(param.TypeSpec);
     }
 
@@ -139,6 +141,7 @@ public class TokenizerTests
             PythonConstant.Float { Value: var n } => (object)n,
             PythonConstant.Integer { Value: var n } => n,
         });
+        Assert.Same(PythonTypeSpec.Any, param.ImpliedTypeSpec);
         Assert.Null(param.TypeSpec);
     }
 
@@ -151,6 +154,7 @@ public class TokenizerTests
         var param = result.Value;
         var constant = Assert.IsType<PythonConstant.String>(param.DefaultValue);
         Assert.Equal("hello", constant.Value);
+        Assert.Same(PythonTypeSpec.Any, param.ImpliedTypeSpec);
         Assert.Null(param.TypeSpec);
     }
 
@@ -164,6 +168,7 @@ public class TokenizerTests
         Assert.Equal("a", param.Name);
         var constant = Assert.IsType<PythonConstant.String>(param.DefaultValue);
         Assert.Equal("hello", constant.Value);
+        Assert.Same(PythonTypeSpec.Any, param.ImpliedTypeSpec);
         Assert.Null(param.TypeSpec);
     }
 
@@ -244,7 +249,8 @@ public class TokenizerTests
         var parameter = result.Value.VariadicPositional;
         Assert.NotNull(parameter);
         Assert.Equal(name, parameter.Name);
-        Assert.False(parameter.HasTypeAnnotation());
+        Assert.Same(PythonTypeSpec.Any, parameter.ImpliedTypeSpec);
+        Assert.Null(parameter.TypeSpec);
     }
 
     [Theory]
@@ -259,7 +265,8 @@ public class TokenizerTests
         var parameter = result.Value.VariadicKeyword;
         Assert.NotNull(parameter);
         Assert.Equal(name, parameter.Name);
-        Assert.False(parameter.HasTypeAnnotation());
+        Assert.Same(PythonTypeSpec.Any, parameter.ImpliedTypeSpec);
+        Assert.Null(parameter.TypeSpec);
     }
 
     [Fact]
@@ -271,7 +278,7 @@ public class TokenizerTests
         Assert.True(result.HasValue);
         var a = Assert.Single(result.Value.Enumerable());
         Assert.Equal("a", a.Name);
-        Assert.Equal("list[int]", a.Type.ToString());
+        Assert.Equal("list[int]", a.ImpliedTypeSpec.ToString());
     }
 
     [Fact]
@@ -283,7 +290,7 @@ public class TokenizerTests
         Assert.True(result.HasValue);
         var a = result.Value.Enumerable().First();
         Assert.Equal("a", a.Name);
-        Assert.Equal("list[int]", a.Type.ToString());
+        Assert.Equal("list[int]", a.ImpliedTypeSpec.ToString());
     }
 
     [Fact]
@@ -295,7 +302,7 @@ public class TokenizerTests
         Assert.True(result.HasValue);
         var a = result.Value.Enumerable().First();
         Assert.Equal("a", a.Name);
-        Assert.Equal("typing.List[int]", a.Type.ToString());
+        Assert.Equal("typing.List[int]", a.ImpliedTypeSpec.ToString());
     }
 
     [Fact]
@@ -307,7 +314,7 @@ public class TokenizerTests
         Assert.True(result.HasValue);
         var a = result.Value.Enumerable().First();
         Assert.Equal("a", a.Name);
-        Assert.Equal("np.ndarray", a.Type.ToString());
+        Assert.Equal("np.ndarray", a.ImpliedTypeSpec.ToString());
     }
 
     [Fact]
@@ -320,13 +327,13 @@ public class TokenizerTests
         var parameters = result.Value.Enumerable().ToArray();
         var a = parameters[0];
         Assert.Equal("a", a.Name);
-        Assert.Equal("int", a.Type.Name);
+        Assert.Equal("int", a.ImpliedTypeSpec.Name);
         var b = parameters[1];
         Assert.Equal("b", b.Name);
-        Assert.Equal("float", b.Type.Name);
+        Assert.Equal("float", b.ImpliedTypeSpec.Name);
         var c = parameters[2];
         Assert.Equal("c", c.Name);
-        Assert.Equal("str", c.Type.Name);
+        Assert.Equal("str", c.ImpliedTypeSpec.Name);
     }
 
     [Fact]
@@ -339,13 +346,13 @@ public class TokenizerTests
         var parameters = result.Value.Enumerable().ToArray();
         var a = parameters[0];
         Assert.Equal("a", a.Name);
-        Assert.Equal("Any", a.Type.Name);
+        Assert.Equal("Any", a.ImpliedTypeSpec.Name);
         var b = parameters[1];
         Assert.Equal("b", b.Name);
-        Assert.Equal("Any", b.Type.Name);
+        Assert.Equal("Any", b.ImpliedTypeSpec.Name);
         var c = parameters[2];
         Assert.Equal("c", c.Name);
-        Assert.Equal("Any", c.Type.Name);
+        Assert.Equal("Any", c.ImpliedTypeSpec.Name);
     }
 
     [Fact]
@@ -358,13 +365,13 @@ public class TokenizerTests
         var parameters = result.Value.Enumerable().ToArray();
         var a = parameters[0];
         Assert.Equal("a", a.Name);
-        Assert.Equal("Any", a.Type.Name);
+        Assert.Equal("Any", a.ImpliedTypeSpec.Name);
         var b = parameters[1];
         Assert.Equal("b", b.Name);
-        Assert.Equal("Any", b.Type.Name);
+        Assert.Equal("Any", b.ImpliedTypeSpec.Name);
         var c = parameters[2];
         Assert.Equal("c", c.Name);
-        Assert.Equal("Any", c.Type.Name);
+        Assert.Equal("Any", c.ImpliedTypeSpec.Name);
     }
 
     [Fact]
@@ -378,10 +385,10 @@ public class TokenizerTests
         var parameters = result.Value.Parameters.Enumerable().ToArray();
         var a = parameters[0];
         Assert.Equal("a", a.Name);
-        Assert.Equal("int", a.Type.Name);
+        Assert.Equal("int", a.ImpliedTypeSpec.Name);
         var b = parameters[1];
         Assert.Equal("b", b.Name);
-        Assert.Equal("str", b.Type.Name);
+        Assert.Equal("str", b.ImpliedTypeSpec.Name);
         Assert.Equal("None", result.Value.ReturnType.Name);
     }
 
@@ -442,20 +449,20 @@ if __name__ == '__main__':
         var parameters = functions[0].Parameters.Enumerable().ToArray();
         var a = parameters[0];
         Assert.Equal("a", a.Name);
-        Assert.Equal("int", a.Type.Name);
+        Assert.Equal("int", a.ImpliedTypeSpec.Name);
         var b = parameters[1];
         Assert.Equal("b", b.Name);
-        Assert.Equal("str", b.Type.Name);
+        Assert.Equal("str", b.ImpliedTypeSpec.Name);
         Assert.Equal("None", functions[0].ReturnType.Name);
 
         Assert.Equal("baz", functions[1].Name);
         parameters = functions[1].Parameters.Enumerable().ToArray();
         var c = parameters[0];
         Assert.Equal("c", c.Name);
-        Assert.Equal("float", c.Type.Name);
+        Assert.Equal("float", c.ImpliedTypeSpec.Name);
         var d = parameters[1];
         Assert.Equal("d", d.Name);
-        Assert.Equal("bool", d.Type.Name);
+        Assert.Equal("bool", d.ImpliedTypeSpec.Name);
         Assert.Equal("None", functions[1].ReturnType.Name);
     }
 
@@ -484,10 +491,10 @@ if __name__ == '__main__':
         var parameters = function.Parameters.Enumerable().ToArray();
         var a = parameters[0];
         Assert.Equal("a", a.Name);
-        Assert.Equal("int", a.Type.Name);
+        Assert.Equal("int", a.ImpliedTypeSpec.Name);
         var b = parameters[1];
         Assert.Equal("b", b.Name);
-        Assert.Equal("str", b.Type.Name);
+        Assert.Equal("str", b.ImpliedTypeSpec.Name);
         Assert.Equal("None", function.ReturnType.Name);
     }
 
@@ -533,10 +540,10 @@ if __name__ == '__main__':
         var parameters = function.Parameters.Enumerable().ToArray();
         var a = parameters[0];
         Assert.Equal("a", a.Name);
-        Assert.Equal("int", a.Type.Name);
+        Assert.Equal("int", a.ImpliedTypeSpec.Name);
         var b = parameters[1];
         Assert.Equal("b", b.Name);
-        Assert.Equal("str", b.Type.Name);
+        Assert.Equal("str", b.ImpliedTypeSpec.Name);
         Assert.Equal("None", function.ReturnType.Name);
     }
 

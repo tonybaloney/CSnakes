@@ -5,22 +5,22 @@ using Superpower.Parsers;
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
-    public static TokenListParser<PythonToken, (string Name, PythonTypeSpec? Type)>
+    public static TokenListParser<PythonToken, PythonFunctionParameter>
         PythonParameterParser { get; } =
             (from name in Token.EqualTo(PythonToken.Identifier)
              from type in Token.EqualTo(PythonToken.Colon)
                                .IgnoreThen(PythonTypeDefinitionParser.AssumeNotNull())
                                .OptionalOrDefault()
-             select (name.ToStringValue(), type))
+             select new PythonFunctionParameter(name.ToStringValue(), type, null))
            .Named("Parameter");
 
-    public static TokenListParser<PythonToken, (string Name, PythonTypeSpec? TypeSpec, PythonConstant? DefaultValue)>
+    public static TokenListParser<PythonToken, PythonFunctionParameter>
         OptionalPythonParameterParser { get; } =
             (from param in PythonParameterParser
              from defaultValue in Token.EqualTo(PythonToken.Equal)
                                        .IgnoreThen(ConstantValueTokenizer.AssumeNotNull())
                                        .OptionalOrDefault()
-             select (param.Name, param.Type, defaultValue))
+             select param.WithDefaultValue(defaultValue))
             .Named("Parameter");
 
     public static TokenListParser<PythonToken, PythonFunctionParameterList> PythonParameterListParser { get; } =
@@ -40,20 +40,17 @@ public static partial class PythonParser
         var comma = Token.EqualTo(PythonToken.Comma);
 
         var commaParameters =
-            comma.IgnoreThen(OptionalPythonParameterParser.Select(p => new PythonFunctionParameter(p.Name, p.TypeSpec, p.DefaultValue))
-                                                          .AtLeastOnceDelimitedBy(comma));
+            comma.IgnoreThen(OptionalPythonParameterParser.AtLeastOnceDelimitedBy(comma));
 
         var optionalKwargParameterParser =
             Token.EqualTo(PythonToken.CommaStarStar)
-                 .IgnoreThen(PythonParameterParser.Select(p => new PythonFunctionParameter(p.Name, p.Type, null))
-                                                  .AsNullable())
+                 .IgnoreThen(PythonParameterParser.AsNullable())
                  .OptionalOrDefault();
 
         var starParameters =
             Parse.OneOf(from vp in PythonParameterParser
                         from ks in commaParameters.OptionalOrDefault([])
-                        select new PythonFunctionParameterList(varpos: new PythonFunctionParameter(vp.Name, vp.Type, null),
-                                                               keyword: [..ks]),
+                        select new PythonFunctionParameterList(varpos: vp, keyword: [..ks]),
                         from ks in commaParameters
                         select new PythonFunctionParameterList(keyword: [..ks]));
 
@@ -66,15 +63,13 @@ public static partial class PythonParser
             select namedArgParameters.WithVariadicKeyword(kwargParameter);
 
         var b =
-            from rps in OptionalPythonParameterParser.Select(p => new PythonFunctionParameter(p.Name, p.TypeSpec, p.DefaultValue))
-                                                     .ManyDelimitedBy(comma)
+            from rps in OptionalPythonParameterParser.ManyDelimitedBy(comma)
             from ps in namedArgParameterParser
             select ps.WithRegular([.. rps]);
 
         // ( arg "," )+ ", /" ( ( "," arg )* ( ", *" ( "," arg )+ )? )?
         var a =
-            from pps in OptionalPythonParameterParser.Select(p => new PythonFunctionParameter(p.Name, p.TypeSpec, p.DefaultValue))
-                                                     .AtLeastOnceDelimitedBy(comma)
+            from pps in OptionalPythonParameterParser.AtLeastOnceDelimitedBy(comma)
                                                      .ThenIgnore(Token.EqualTo(PythonToken.CommaSlash))
             from ps in Parse.OneOf(comma.IgnoreThen(b), namedArgParameterParser)
             select ps.WithPositional([.. pps]);
@@ -82,7 +77,7 @@ public static partial class PythonParser
         return Parse.OneOf(// "**" ...
                            from vkp in Token.EqualTo(PythonToken.DoubleAsterisk)
                                             .IgnoreThen(PythonParameterParser)
-                           select new PythonFunctionParameterList(varkw: new PythonFunctionParameter(vkp.Name, vkp.Type, null)),
+                           select new PythonFunctionParameterList(varkw: vkp),
                            // "*" ...
                            from kps in Token.EqualTo(PythonToken.Asterisk)
                                             .IgnoreThen(starParameters)
@@ -92,7 +87,8 @@ public static partial class PythonParser
                            a.Try(),
                            b)
                     .Between(Token.EqualTo(PythonToken.OpenParenthesis),
-                             Token.EqualTo(PythonToken.CloseParenthesis).Or(Token.EqualTo(PythonToken.CommaCloseParenthesis)))
+                             Token.EqualTo(PythonToken.CloseParenthesis).Or(Token.EqualTo(PythonToken.CommaCloseParenthesis))
+                                  .Named("`)`"))
                     .Named("Parameter List");
     }
 }

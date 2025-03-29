@@ -5,7 +5,7 @@ using Superpower.Parsers;
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
-    public static TokenListParser<PythonToken, PythonFunctionParameter>
+    private static TokenListParser<PythonToken, PythonFunctionParameter>
         PythonParameterParser { get; } =
             (from name in Token.EqualTo(PythonToken.Identifier)
              from type in Token.EqualTo(PythonToken.Colon)

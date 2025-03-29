@@ -14,12 +14,22 @@ public sealed class PythonFunctionParameter(string name, PythonTypeSpec? type, P
 
     public PythonFunctionParameter WithDefaultValue(PythonConstant? value) =>
         value == DefaultValue ? this : new(Name, type, value);
+
+    public override string ToString() =>
+        this switch
+        {
+            { TypeSpec: null  , DefaultValue: null   } => Name,
+            { TypeSpec: { } ts, DefaultValue: null   } => $"{Name}: {ts}",
+            { TypeSpec: { } ts, DefaultValue: { } dv } => $"{Name}: {ts} = {dv}",
+            { TypeSpec: null  , DefaultValue: { } dv } => $"{Name} = {dv}",
+        };
 }
 
 /// <remarks>
 /// The order of the parameters is inspired by <see
 /// href="https://docs.python.org/3/library/ast.html#ast.arguments"><c>ast.arguments</c></see>.
 /// </remarks>
+[DebuggerDisplay("{DebuggerDisplay(),nq}")]
 public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional = default,
                                                    ImmutableArray<T> regular = default,
                                                    T? varpos = default,

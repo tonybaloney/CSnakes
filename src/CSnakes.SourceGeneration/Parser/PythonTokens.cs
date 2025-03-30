@@ -68,9 +68,6 @@ public enum PythonToken
     [Token(Example = ", **")]
     CommaStarStar,
 
-    [Token(Example = ", *,")]
-    CommaStarComma,
-
     [Token(Example = ", )")]
     CommaCloseParenthesis,
 }

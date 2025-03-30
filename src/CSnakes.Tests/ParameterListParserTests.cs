@@ -66,4 +66,18 @@ public class ParameterListParserTests
         var ex = Assert.Throws<ParseException>(Act);
         Assert.Equal(expected, ex.Message);
     }
+
+    [Theory]
+    [InlineData("(", "Syntax error: unexpected end of input, expected `)`.")]
+    [InlineData("(a", "Syntax error: unexpected end of input, expected `)`.")]
+    [InlineData("(a,", "Syntax error: unexpected end of input, expected Parameter.")]
+    [InlineData("(a, b", "Syntax error: unexpected end of input, expected `)`.")]
+    public void Unterminated(string input, string expected)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize(input);
+        void Act() => PythonParser.PythonParameterListParser.Parse(tokens);
+        var ex = Assert.Throws<ParseException>(Act);
+        Assert.Equal(expected, ex.Message);
+    }
+
 }

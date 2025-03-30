@@ -28,18 +28,20 @@ public static partial class PythonParser
 
     private static TokenListParser<PythonToken, PythonFunctionParameterList> CreatePythonParameterListParser()
     {
-        /*
-         parameter_list            ::=  defparameter ("," defparameter)* "," "/" ["," [parameter_list_no_posonly]]
-                                     |  parameter_list_no_posonly
-         parameter_list_no_posonly ::=  defparameter ("," defparameter)* ["," [parameter_list_starargs]]
-                                     |  parameter_list_starargs
-         parameter_list_starargs   ::=  "*" [star_parameter] ("," defparameter)* ["," ["**" parameter [","]]]
-                                     |  "**" parameter [","]
-         parameter_star_kwargs     ::= "**" parameter [","]
-         parameter                 ::= identifier [":" expression]
-         star_parameter            ::= identifier [":" ["*"] expression]
-         defparameter              ::= parameter ["=" expression]
-         */
+        // For reference, the Python grammar for function parameters is as follows:
+        //
+        // parameter_list            ::=  defparameter ("," defparameter)* "," "/" ["," [parameter_list_no_posonly]]
+        //                             |  parameter_list_no_posonly
+        // parameter_list_no_posonly ::=  defparameter ("," defparameter)* ["," [parameter_list_starargs]]
+        //                             |  parameter_list_starargs
+        // parameter_list_starargs   ::=  "*" [star_parameter] ("," defparameter)* ["," ["**" parameter [","]]]
+        //                             |  "**" parameter [","]
+        // parameter_star_kwargs     ::= "**" parameter [","]
+        // parameter                 ::= identifier [":" expression]
+        // star_parameter            ::= identifier [":" ["*"] expression]
+        // defparameter              ::= parameter ["=" expression]
+        //
+        // Source: https://docs.python.org/3/reference/compound_stmts.html#function-definitions
 
         var comma = Token.EqualTo(PythonToken.Comma);
 

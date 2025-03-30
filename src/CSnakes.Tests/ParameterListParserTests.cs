@@ -60,6 +60,43 @@ public class ParameterListParserTests
     [InlineData("**kwargs = 0", "Syntax error (line 1, column 11): unexpected `=`, expected `)`.")]
     [InlineData("a, **kwargs = 0", "Syntax error (line 1, column 14): unexpected `=`, expected `)`.")]
     [InlineData("foo, bar.baz, qux", "Syntax error (line 1, column 7): unexpected qualified identifier `bar.baz`, expected Parameter.")]
+    [InlineData("a = 1, b, c", "Syntax error (line 1, column 1): non-default argument follows default argument.")]
+    [InlineData("a, b = 1, c", "Syntax error (line 1, column 1): non-default argument follows default argument.")]
+    [InlineData("a = 1, b, c, /", "Syntax error (line 1, column 1): non-default argument follows default argument.")]
+    [InlineData("a = 1, /, b, c", "Syntax error (line 1, column 1): non-default argument follows default argument.")]
+    [InlineData("a, /, b = 1, c", "Syntax error (line 1, column 1): non-default argument follows default argument.")]
+    // The following test cases were taken directly from the CPython test suite:
+    // https://github.com/python/cpython/blob/ffc2f1dd1c023b44b488311511db790a96d757db/Lib/test/test_syntax.py#L385-L537
+    [InlineData("None=1", "Syntax error (line 1, column 2): unexpected none `None`, expected `)`.")]                // invalid syntax
+    [InlineData("x, y=1, z", "Syntax error (line 1, column 1): non-default argument follows default argument.")]    // parameter without a default follows parameter with a default
+    [InlineData("x, /, y=1, z", "Syntax error (line 1, column 1): non-default argument follows default argument.")] // parameter without a default follows parameter with a default
+    [InlineData("x, None", "Syntax error (line 1, column 5): unexpected none `None`, expected Parameter.")]         // invalid syntax
+    [InlineData("*None", "Syntax error (line 1, column 3): unexpected none `None`, expected Parameter or `,`.")]    // invalid syntax
+    [InlineData("**None", "Syntax error (line 1, column 4): unexpected none `None`, expected Parameter.")]          // invalid syntax
+    [InlineData("/,a,b=,c", "Syntax error (line 1, column 2): unexpected `/`, expected `)`.")]                      // at least one argument must precede /
+    [InlineData("a,/,/,b,c", "Syntax error (line 1, column 5): unexpected `,/`, expected `)`.")]                    // / may appear only once
+    [InlineData("a,/,a1,/,b,c", "Syntax error (line 1, column 8): unexpected `,/`, expected `)`.")]                 // / may appear only once
+    [InlineData("a=1,/,/,*b,/,c", "Syntax error (line 1, column 7): unexpected `,/`, expected `)`.")]               // / may appear only once
+    [InlineData("a,/,a1=1,/,b,c", "Syntax error (line 1, column 10): unexpected `,/`, expected `)`.")]              // / may appear only once
+    [InlineData("a,*b,c,/,d,e", "Syntax error (line 1, column 8): unexpected `,/`, expected `)`.")]                 // / must be ahead of *
+    [InlineData("a=1,*b,c=3,/,d,e", "Syntax error (line 1, column 12): unexpected `,/`, expected `)`.")]            // / must be ahead of *
+    [InlineData("a,*b=3,c", "Syntax error (line 1, column 6): unexpected `=`, expected `)`.")]                      // var-positional argument cannot have default value
+    [InlineData("a,*b: int=,c", "Syntax error (line 1, column 11): unexpected `=`, expected `)`.")]                 // var-positional argument cannot have default value
+    [InlineData("a,**b=3", "Syntax error (line 1, column 7): unexpected `=`, expected `)`.")]                       // var-keyword argument cannot have default value
+    [InlineData("a,**b: int=3", "Syntax error (line 1, column 12): unexpected `=`, expected `)`.")]                 // var-keyword argument cannot have default value
+    [InlineData("a,*a, b, **c, d", "Syntax error (line 1, column 14): unexpected `,`, expected `)`.")]              // arguments cannot follow var-keyword argument
+    [InlineData("a,*a, b, **c, d=4", "Syntax error (line 1, column 14): unexpected `,`, expected `)`.")]            // arguments cannot follow var-keyword argument
+    [InlineData("a,*a, b, **c, *d", "Syntax error (line 1, column 14): unexpected `, *`, expected `)`.")]           // arguments cannot follow var-keyword argument
+    [InlineData("a,*a, b, **c, **d", "Syntax error (line 1, column 14): unexpected `, **`, expected `)`.")]         // arguments cannot follow var-keyword argument
+    [InlineData("a=1,/,**b,/,c", "Syntax error (line 1, column 11): unexpected `,/`, expected `)`.")]               // arguments cannot follow var-keyword argument
+    [InlineData("*b,*d", "Syntax error (line 1, column 4): unexpected `,*`, expected `)`.")]                        // * argument may appear only once
+    [InlineData("a,*b,c,*d,*e,c", "Syntax error (line 1, column 8): unexpected `,*`, expected `)`.")]               // * argument may appear only once
+    [InlineData("a,b,/,c,*b,c,*d,*e,c", "Syntax error (line 1, column 14): unexpected `,*`, expected `)`.")]        // * argument may appear only once
+    [InlineData("a,b,/,c,*b,c,*d,**e", "Syntax error (line 1, column 14): unexpected `,*`, expected `)`.")]         // * argument may appear only once
+    [InlineData("a=1,/*,b,c", "Syntax error (line 1, column 7): unexpected `*`, expected `)`.")]                    // expected comma between / and *
+    [InlineData("a=1,d=,c", "Syntax error (line 1, column 8): unexpected `,`, expected Constant.")]                 // expected default value expression
+    [InlineData("a,d=,c", "Syntax error (line 1, column 6): unexpected `,`, expected Constant.")]                   // expected default value expression
+    [InlineData("a,d: int=,c", "Syntax error (line 1, column 11): unexpected `,`, expected Constant.")]             // expected default value expression
     public void Invalid(string input, string expected)
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"({input})");

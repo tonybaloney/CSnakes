@@ -93,6 +93,15 @@ public static partial class PythonParser
                     .Between(Token.EqualTo(PythonToken.OpenParenthesis),
                              Token.EqualTo(PythonToken.CloseParenthesis).Or(Token.EqualTo(PythonToken.CommaCloseParenthesis))
                                   .Named("`)`"))
-                    .Named("Parameter List");
+                    .Named("Parameter List")
+                    .Where(ps => ps.Positional.Concat(ps.Regular) // among all positional (/) and name-able parameters...
+                                              .Pairwise()    // - required ones must be consecutive
+                                              .All(p => p is ({ DefaultValue: null     }, { DefaultValue: null     })
+                                                             // - optional ones must be consecutive
+                                                          or ({ DefaultValue: not null }, { DefaultValue: not null })
+                                                             // - required ones must precede optional ones
+                                                          or ({ DefaultValue: null     }, { DefaultValue: not null })),
+                           "non-default argument follows default argument")
+            ;
     }
 }

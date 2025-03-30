@@ -29,6 +29,7 @@ public class ParameterListParserTests
     [InlineData("a, /, *, b, **kwargs", "a, b, kwargs")]
     [InlineData("*args, **kwargs", "args, kwargs")]
     [InlineData("*args, a, b, **kwargs", "args, a, b, kwargs")]
+    [InlineData("*, a = 1, b, c", "a, b, c")]
     public void Valid(string input, string expected)
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"({input})");

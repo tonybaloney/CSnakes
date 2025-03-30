@@ -35,6 +35,10 @@ public static partial class PythonParser
                                      |  parameter_list_starargs
          parameter_list_starargs   ::=  "*" [star_parameter] ("," defparameter)* ["," ["**" parameter [","]]]
                                      |  "**" parameter [","]
+         parameter_star_kwargs     ::= "**" parameter [","]
+         parameter                 ::= identifier [":" expression]
+         star_parameter            ::= identifier [":" ["*"] expression]
+         defparameter              ::= parameter ["=" expression]
          */
 
         var comma = Token.EqualTo(PythonToken.Comma);

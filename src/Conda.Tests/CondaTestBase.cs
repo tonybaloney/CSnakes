@@ -17,7 +17,10 @@ public class CondaTestBase : IDisposable
             if (OperatingSystem.IsWindows())
                 condaEnv = Environment.GetEnvironmentVariable("LOCALAPPDATA") ?? "";
             condaEnv = Path.Join(condaEnv, "anaconda3");
-
+            if (!Directory.Exists(condaEnv))
+            {
+                condaEnv = condaEnv.Replace("anaconda3", "miniconda3");
+            }
         }
         var condaBinPath = OperatingSystem.IsWindows() ? Path.Join(condaEnv, "Scripts", "conda.exe") : Path.Join(condaEnv, "bin", "conda");
         var environmentSpecPath = Path.Join(Environment.CurrentDirectory, "python", "environment.yml");

@@ -22,6 +22,7 @@ public class ParameterListParserTests
     [InlineData("a, /, *args", "a, args")]
     [InlineData("a, /, b, *args", "a, b, args")]
     [InlineData("**kwargs", "kwargs")]
+    [InlineData("*args, **kwargs", "args, kwargs")]
     [InlineData("a, **kwargs", "a, kwargs")]
     [InlineData("a, b, c, **kwargs", "a, b, c, kwargs")]
     [InlineData("a, b, c, /, d, e, f, *, g, h, i, **kwargs", "a, b, c, d, e, f, g, h, i, kwargs")]

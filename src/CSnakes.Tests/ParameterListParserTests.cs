@@ -58,6 +58,7 @@ public class ParameterListParserTests
     [InlineData("a, *args = 0", "Syntax error (line 1, column 11): unexpected `=`, expected `)`.")]
     [InlineData("**kwargs = 0", "Syntax error (line 1, column 11): unexpected `=`, expected `)`.")]
     [InlineData("a, **kwargs = 0", "Syntax error (line 1, column 14): unexpected `=`, expected `)`.")]
+    [InlineData("foo, bar.baz, qux", "Syntax error (line 1, column 7): unexpected qualified identifier `bar.baz`, expected Parameter.")]
     public void Invalid(string input, string expected)
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"({input})");

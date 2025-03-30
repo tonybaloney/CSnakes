@@ -6,6 +6,12 @@ using Superpower.Parsers;
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
+    public static TextParser<TextSpan> Identifier { get; } =
+        Span.MatchedBy(
+            Character.Letter.Or(Character.EqualTo('_'))
+            .IgnoreThen(Character.LetterOrDigit.Or(Character.EqualTo('_')).Many())
+        );
+
     public static TextParser<TextSpan> QualifiedName { get; } =
         Span.MatchedBy(
             Character.Letter.Or(Character.EqualTo('_'))
@@ -21,7 +27,9 @@ public static partial class PythonParser
         var typeDefinitionParser = Parse.Ref(() => PythonTypeDefinitionParser);
 
         return
-            from name in Token.EqualTo(PythonToken.Identifier).Or(Token.EqualTo(PythonToken.None))
+            from name in Parse.OneOf(Token.EqualTo(PythonToken.Identifier),
+                                     Token.EqualTo(PythonToken.QualifiedIdentifier),
+                                     Token.EqualTo(PythonToken.None))
             from result in name.ToStringValue() switch
             {
                 "Callable" =>

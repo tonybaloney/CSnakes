@@ -12,7 +12,7 @@ public class TokenizerTests
     [Fact]
     public void Tokenize()
     {
-        var tokens = PythonTokenizer.Instance.Tokenize("def foo(a: int, b: str) -> None:");
+        var tokens = PythonTokenizer.Instance.Tokenize("def foo(a: int, b: str, c: typing.Optional[int]) -> None:");
         Assert.Equal(
         [
             PythonToken.Def,
@@ -25,6 +25,13 @@ public class TokenizerTests
             PythonToken.Identifier,
             PythonToken.Colon,
             PythonToken.Identifier,
+            PythonToken.Comma,
+            PythonToken.Identifier,
+            PythonToken.Colon,
+            PythonToken.QualifiedIdentifier,
+            PythonToken.OpenBracket,
+            PythonToken.Identifier,
+            PythonToken.CloseBracket,
             PythonToken.CloseParenthesis,
             PythonToken.Arrow,
             PythonToken.None,
@@ -40,6 +47,7 @@ public class TokenizerTests
     [InlineData("1.0", PythonToken.Decimal)]
     [InlineData("-1123.323", PythonToken.Decimal)]
     [InlineData("abc123", PythonToken.Identifier)]
+    [InlineData("foo.bar", PythonToken.QualifiedIdentifier)]
     [InlineData("'hello'", PythonToken.SingleQuotedString)]
     [InlineData("\"hello\"", PythonToken.DoubleQuotedString)]
     [InlineData("True", PythonToken.True)]

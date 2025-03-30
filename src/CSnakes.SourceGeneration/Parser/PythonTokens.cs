@@ -29,6 +29,8 @@ public enum PythonToken
     DoubleAsterisk,
 
     Identifier,
+
+    [Token(Category = "qualified identifier")]
     QualifiedIdentifier,
 
     [Token(Example = "->")]

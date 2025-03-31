@@ -219,6 +219,7 @@ internal unsafe partial class CPythonAPI : IDisposable
 
         PyEval_RestoreThread(initializationTState);
         Py_Finalize();
+        GIL.Reset();
     }
 
     protected virtual void Dispose(bool disposing)

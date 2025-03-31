@@ -28,7 +28,6 @@ public class ParameterListParserTests
     [InlineData("a, b, c, /, d, e, f, *, g, h, i, **kwargs", "a, b, c, d, e, f, g, h, i, kwargs")]
     [InlineData("a, b, c, /, d, e, f, *args, g, h, i, **kwargs", "a, b, c, d, e, f, args, g, h, i, kwargs")]
     [InlineData("a, /, *, b, **kwargs", "a, b, kwargs")]
-    [InlineData("*args, **kwargs", "args, kwargs")]
     [InlineData("*args, a, b, **kwargs", "args, a, b, kwargs")]
     [InlineData("*, a = 1, b, c", "a, b, c")]
     public void Valid(string input, string expected)

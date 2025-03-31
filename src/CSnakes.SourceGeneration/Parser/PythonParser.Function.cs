@@ -1,4 +1,4 @@
-using Microsoft.CodeAnalysis.Text;
+﻿using Microsoft.CodeAnalysis.Text;
 using CSnakes.Parser.Types;
 using Superpower;
 using Superpower.Model;

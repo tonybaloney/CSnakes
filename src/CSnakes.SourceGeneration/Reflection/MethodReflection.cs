@@ -176,7 +176,7 @@ public static class MethodReflection
                                 .WithInitializer(
                                     EqualsValueClause(
                                         callExpression)))));
-
+            
         } else
         {
             callStatement = LocalDeclarationStatement(
@@ -187,7 +187,7 @@ public static class MethodReflection
                                 VariableDeclarator(
                                     Identifier("__result_pyObject"))
                                 )));
-
+            
         }
         if (resultShouldBeDisposed && !function.IsAsync)
             callStatement = callStatement.WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
@@ -206,7 +206,7 @@ public static class MethodReflection
                                     Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(function.Name)))
                                 ])))
                     );
-
+        
         BlockSyntax body;
         if (function.IsAsync)
         {
@@ -254,7 +254,7 @@ public static class MethodReflection
                     Block(statements)
                     ));
         }
-
+            
         // Sort the method parameters into this order
         // 1. All positional arguments
         // 2. All keyword-only arguments

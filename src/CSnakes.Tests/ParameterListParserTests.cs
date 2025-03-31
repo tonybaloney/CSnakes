@@ -5,36 +5,48 @@ using Superpower;
 namespace CSnakes.Tests;
 public class ParameterListParserTests
 {
+    public static readonly IEnumerable<object[]> ValidTestCases = new TheoryData<string, string>
+    {
+        { "", "" },
+        { "a", "a" },
+        { "a, b, c", "a, b, c" },
+        { "a, b, c, /", "a, b, c" },
+        { "a, b, c, /, d, e, f", "a, b, c, d, e, f" },
+        { "*, a", "a" },
+        { "a, b, /, c, d, *, e, f", "a, b, c, d, e, f" },
+        { "a, b, /, *, c, d", "a, b, c, d" },
+        { "*args", "args" },
+        { "*args, a", "args, a" },
+        { "a, *args", "a, args" },
+        { "*args, a, b, c", "args, a, b, c" },
+        { "a, b, c, *args", "a, b, c, args" },
+        { "a, /, *args", "a, args" },
+        { "a, /, b, *args", "a, b, args" },
+        { "**kwargs", "kwargs" },
+        { "*args, **kwargs", "args, kwargs" },
+        { "a, **kwargs", "a, kwargs" },
+        { "a, b, c, **kwargs", "a, b, c, kwargs" },
+        { "a, b, c, /, d, e, f, *, g, h, i, **kwargs", "a, b, c, d, e, f, g, h, i, kwargs" },
+        { "a, b, c, /, d, e, f, *args, g, h, i, **kwargs", "a, b, c, d, e, f, args, g, h, i, kwargs" },
+        { "a, /, *, b, **kwargs", "a, b, kwargs" },
+        { "*args, a, b, **kwargs", "args, a, b, kwargs" },
+        { "*, a = 1, b, c", "a, b, c" },
+    };
+
     [Theory]
-    [InlineData("", "")]
-    [InlineData("a", "a")]
-    [InlineData("a, b, c", "a, b, c")]
-    [InlineData("a, b, c, /", "a, b, c")]
-    [InlineData("a, b, c, /, d, e, f", "a, b, c, d, e, f")]
-    [InlineData("*, a", "a")]
-    [InlineData("a, b, /, c, d, *, e, f", "a, b, c, d, e, f")]
-    [InlineData("a, b, /, *, c, d", "a, b, c, d")]
-    [InlineData("*args", "args")]
-    [InlineData("*args, a", "args, a")]
-    [InlineData("a, *args", "a, args")]
-    [InlineData("*args, a, b, c", "args, a, b, c")]
-    [InlineData("a, b, c, *args", "a, b, c, args")]
-    [InlineData("a, /, *args", "a, args")]
-    [InlineData("a, /, b, *args", "a, b, args")]
-    [InlineData("**kwargs", "kwargs")]
-    [InlineData("*args, **kwargs", "args, kwargs")]
-    [InlineData("a, **kwargs", "a, kwargs")]
-    [InlineData("a, b, c, **kwargs", "a, b, c, kwargs")]
-    [InlineData("a, b, c, /, d, e, f, *, g, h, i, **kwargs", "a, b, c, d, e, f, g, h, i, kwargs")]
-    [InlineData("a, b, c, /, d, e, f, *args, g, h, i, **kwargs", "a, b, c, d, e, f, args, g, h, i, kwargs")]
-    [InlineData("a, /, *, b, **kwargs", "a, b, kwargs")]
-    [InlineData("*args, a, b, **kwargs", "args, a, b, kwargs")]
-    [InlineData("*, a = 1, b, c", "a, b, c")]
+    [MemberData(nameof(ValidTestCases))]
     public void Valid(string input, string expected)
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"({input})");
         var result = PythonParser.PythonParameterListParser.Parse(tokens);
         Assert.Equal(expected, string.Join(", ", from p in result.Enumerable() select p.Name));
+    }
+
+    [Theory]
+    [MemberData(nameof(ValidTestCases))]
+    public void ValidWithTrailingComma(string input, string expected)
+    {
+        Valid($"{input},", expected);
     }
 
     [Theory]

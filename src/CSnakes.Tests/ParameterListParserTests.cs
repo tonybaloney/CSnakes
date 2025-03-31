@@ -77,6 +77,9 @@ public class ParameterListParserTests
     [InlineData("a = 1, b, c, /", "Syntax error (line 1, column 1): non-default argument follows default argument.")]
     [InlineData("a = 1, /, b, c", "Syntax error (line 1, column 1): non-default argument follows default argument.")]
     [InlineData("a, /, b = 1, c", "Syntax error (line 1, column 1): non-default argument follows default argument.")]
+    [InlineData(",,", "Syntax error (line 1, column 2): unexpected `,`, expected `)`.")]
+    [InlineData("a,,", "Syntax error (line 1, column 4): unexpected `,)`, expected Parameter.")]
+    [InlineData("a,, b", "Syntax error (line 1, column 4): unexpected `,`, expected Parameter.")]
     // The following test cases were taken directly from the CPython test suite:
     // https://github.com/python/cpython/blob/ffc2f1dd1c023b44b488311511db790a96d757db/Lib/test/test_syntax.py#L385-L537
     [InlineData("None=1", "Syntax error (line 1, column 2): unexpected none `None`, expected `)`.")]                // invalid syntax

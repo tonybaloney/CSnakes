@@ -2,6 +2,7 @@
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
+using System.Collections.Immutable;
 
 namespace CSnakes.Parser;
 public static partial class PythonParser
@@ -30,7 +31,8 @@ public static partial class PythonParser
             from name in Parse.OneOf(Token.EqualTo(PythonToken.Identifier),
                                      Token.EqualTo(PythonToken.QualifiedIdentifier),
                                      Token.EqualTo(PythonToken.None))
-            from result in name.ToStringValue() switch
+            select name.ToStringValue() into name
+            from args in name switch
             {
                 "Callable" =>
                     // > The subscription syntax must always be used with exactly two values: the argument list and the
@@ -46,15 +48,15 @@ public static partial class PythonParser
                              .Then(a => from b in typeDefinitionParser
                                         select (Parameters: a, Return: b))
                              .Subscript()
-                    select new PythonTypeSpec("argumentCollection__", [.. callable.Parameters, callable.Return]),
+                    select ImmutableArray.CreateRange(callable.Parameters.Append(callable.Return)),
                 _ =>
                     from subscript in
                         typeDefinitionParser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Comma))
                                             .Subscript()
                                             .OptionalOrDefault([])
-                    select new PythonTypeSpec(name.ToStringValue(), [..subscript])
+                    select ImmutableArray.Create(subscript)
             }
-            select result;
+            select new PythonTypeSpec(name, args);
     }
 
     private static TokenListParser<PythonToken, T> Subscript<T>(this TokenListParser<PythonToken, T> parser) =>

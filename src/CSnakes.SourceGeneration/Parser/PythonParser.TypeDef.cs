@@ -61,12 +61,4 @@ public static partial class PythonParser
 
     private static TokenListParser<PythonToken, T> Subscript<T>(this TokenListParser<PythonToken, T> parser) =>
         parser.Between(Token.EqualTo(PythonToken.OpenBracket), Token.EqualTo(PythonToken.CloseBracket));
-
-    /// <summary>
-    /// Ignores the result of the second parser, returning the result of the first.
-    /// </summary>
-    private static TokenListParser<TKind, T> ThenIgnore<TKind, T, U>(this TokenListParser<TKind, T> first, TokenListParser<TKind, U> second) =>
-        from a in first
-        from _ in second
-        select a;
 }

@@ -15,6 +15,8 @@ public class ArgumentReflection
     public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter,
                                                  PythonFunctionParameterType parameterType)
     {
+        // Treat *args as list<Any>=None and **kwargs as dict<str, Any>=None
+        // TODO: Handle the user specifying *args with a type annotation like tuple[int, str]
         var (reflectedType, defaultValue) = (parameterType, parameter) switch
         {
             (PythonFunctionParameterType.Star, _) => (ArrayPyObject, PythonConstant.None.Value),

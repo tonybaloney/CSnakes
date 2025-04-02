@@ -77,8 +77,8 @@ public static class MethodReflection
 
         // Step 4: Build body
         var pythonConversionStatements = new List<StatementSyntax>();
-        foreach (var cSharpParameter in cSharpParameterList.WithVariadicPositional(default)
-                                                           .WithVariadicKeyword(default)
+        foreach (var cSharpParameter in cSharpParameterList.WithVariadicPositional(null)
+                                                           .WithVariadicKeyword(null)
                                                            .Enumerable())
         {
             bool needsConversion = true; // TODO: Skip .From for PyObject arguments.

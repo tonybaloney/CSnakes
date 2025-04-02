@@ -1,11 +1,11 @@
+using CSnakes.Parser;
+using CSnakes.Reflection;
 using CSnakes.Runtime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
-using CSnakes.Parser;
-using CSnakes.Reflection;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
 using System.ComponentModel;
 

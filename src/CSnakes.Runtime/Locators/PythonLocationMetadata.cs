@@ -12,5 +12,5 @@ public sealed record PythonLocationMetadata(
     string LibPythonPath,
     string PythonPath,
     string PythonBinaryPath,
-    bool Debug = false, 
+    bool Debug = false,
     bool FreeThreaded = false);

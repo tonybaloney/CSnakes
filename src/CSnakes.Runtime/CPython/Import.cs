@@ -37,7 +37,7 @@ internal unsafe partial class CPythonAPI
         Py_DecRefRaw(pyName);
         Py_DecRefRaw(pyAttrName);
         return attr;
-    } 
+    }
 
     /// <summary>
     /// Import and return a reference to the module `name`

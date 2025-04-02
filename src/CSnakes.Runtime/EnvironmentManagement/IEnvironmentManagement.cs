@@ -8,7 +8,8 @@ public interface IEnvironmentManagement
     ILogger Logger { get; }
 
     public string GetPath();
-    public virtual string GetExtraPackagePath(PythonLocationMetadata location) {
+    public virtual string GetExtraPackagePath(PythonLocationMetadata location)
+    {
         var envLibPath = string.Empty;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             envLibPath = Path.Combine(GetPath(), "Lib", "site-packages");

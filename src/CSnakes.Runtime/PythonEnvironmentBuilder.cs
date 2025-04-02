@@ -26,7 +26,8 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
     public IPythonEnvironmentBuilder WithCondaEnvironment(string name, string? environmentSpecPath = null, bool ensureEnvironment = false, string? pythonVersion = null)
     {
         Services.AddSingleton<IEnvironmentManagement>(
-            sp => {
+            sp =>
+            {
                 try
                 {
                     var condaLocator = sp.GetRequiredService<CondaLocator>();

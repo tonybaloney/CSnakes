@@ -7,7 +7,7 @@ public class PythonRuntimeException : Exception
     private readonly PyObject? pythonTracebackObject;
     private string[]? formattedStackTrace = null;
 
-    public PythonRuntimeException(PyObject? exception, PyObject? traceback): base(exception?.ToString(), GetPythonInnerException(exception))
+    public PythonRuntimeException(PyObject? exception, PyObject? traceback) : base(exception?.ToString(), GetPythonInnerException(exception))
     {
         pythonTracebackObject = traceback;
         if (traceback is null)

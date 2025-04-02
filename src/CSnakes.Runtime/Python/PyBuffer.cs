@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
 using CSnakes.Runtime.CPython;
-using System.Runtime.InteropServices.Marshalling;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 #if NET9_0_OR_GREATER
 using System.Numerics.Tensors;
 #endif

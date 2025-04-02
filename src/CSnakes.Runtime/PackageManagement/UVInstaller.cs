@@ -55,7 +55,8 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
             };
 
             ProcessUtils.ExecuteProcess(fileName, arguments, workingDirectory, path, logger, extraEnv);
-        } else
+        }
+        else
         {
             ProcessUtils.ExecuteProcess(fileName, arguments, workingDirectory, path, logger);
         }

@@ -29,7 +29,7 @@ internal unsafe partial class CPythonAPI
     /// <exception cref="KeyNotFoundException">If the key is not found</exception>
     /// <returns>New reference.</returns>
     internal static nint PyMapping_GetItem(PyObject map, PyObject key)
-    { 
+    {
         return PyObject_GetItem(map, key);
     }
 

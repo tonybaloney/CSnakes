@@ -22,7 +22,7 @@ internal unsafe partial class CPythonAPI
     internal static nint PackDict(ReadOnlySpan<string> kwnames, ReadOnlySpan<IntPtr> kwvalues)
     {
         var dict = PyDict_New();
-        for (int i = 0; i < kwnames.Length; i ++)
+        for (int i = 0; i < kwnames.Length; i++)
         {
             var keyObj = AsPyUnicodeObject(kwnames[i]);
             int result = PyDict_SetItemRaw(dict, keyObj, kwvalues[i]);
@@ -70,7 +70,7 @@ internal unsafe partial class CPythonAPI
     internal static bool PyDict_Contains(PyObject dict, PyObject key)
     {
         int result = PyDict_Contains_(dict, key);
-        if(result == -1)
+        if (result == -1)
         {
             throw PyObject.ThrowPythonExceptionAsClrException();
         }

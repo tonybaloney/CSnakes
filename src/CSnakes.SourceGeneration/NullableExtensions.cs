@@ -2,8 +2,8 @@
 
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Runtime;
+using System.Runtime.CompilerServices;
 
 namespace CSnakes;
 internal static class NullableExtensions

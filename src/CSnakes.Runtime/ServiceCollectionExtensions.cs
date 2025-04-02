@@ -211,7 +211,8 @@ public static partial class ServiceCollectionExtensions
     /// <param name="freeThreaded">Free Threaded Python (3.13+ only)</param>
     /// <param name="timeout">Timeout in seconds for the download and installation process.</param>
     /// <returns></returns>
-    public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, string version = "3.12", bool debug = false, bool freeThreaded = false, int timeout = 360){
+    public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, string version = "3.12", bool debug = false, bool freeThreaded = false, int timeout = 360)
+    {
         RedistributablePythonVersion versionEnum = version switch
         {
             "3.9" => RedistributablePythonVersion.Python3_9,

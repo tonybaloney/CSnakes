@@ -7,7 +7,8 @@ internal class WindowsStoreLocator(Version version) : PythonLocator
 
     public override PythonLocationMetadata LocatePython()
     {
-        string programFolder = RuntimeInformation.ProcessArchitecture switch {
+        string programFolder = RuntimeInformation.ProcessArchitecture switch
+        {
             Architecture.Arm64 => $"Python{Version.Major}{Version.Minor}-arm64",
             Architecture.X64 => $"Python{Version.Major}{Version.Minor}",
             Architecture.X86 => $"Python{Version.Major}{Version.Minor}",

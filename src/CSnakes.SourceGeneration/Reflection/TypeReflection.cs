@@ -1,7 +1,7 @@
+using CSnakes.Parser.Types;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using CSnakes.Parser.Types;
 
 namespace CSnakes.Reflection;
 

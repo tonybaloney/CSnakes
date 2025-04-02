@@ -66,8 +66,9 @@ internal class PythonEnvironment : IPythonEnvironment
             throw new DirectoryNotFoundException("Python home directory does not exist.");
         }
 
-        if (environmentManager is not null) {
-            
+        if (environmentManager is not null)
+        {
+
             extraPaths = [.. options.ExtraPaths, environmentManager.GetExtraPackagePath(location!)];
 
             environmentManager.EnsureEnvironment(location);

@@ -66,14 +66,11 @@ public static class MethodReflection
                                     ArgumentReflection.ArgumentSyntax,
                                     p => ArgumentReflection.ArgumentSyntax(p, PythonFunctionParameterType.DoubleStar));
 
-        List<GenericNameSyntax> parameterGenericArgs = [];
-        foreach (var cSharpParameter in cSharpParameterList.Enumerable())
-        {
-            if (cSharpParameter.Type is GenericNameSyntax g)
-            {
-                parameterGenericArgs.Add(g);
-            }
-        }
+        var parameterGenericArgs =
+            cSharpParameterList.Enumerable()
+                               .Select(p => p.Type)
+                               .OfType<GenericNameSyntax>()
+                               .ToList();
 
         // Step 4: Build body
         var pythonConversionStatements = new List<StatementSyntax>();

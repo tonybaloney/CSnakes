@@ -1,4 +1,4 @@
-﻿using CSnakes.Parser;
+using CSnakes.Parser;
 using CSnakes.Parser.Types;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;

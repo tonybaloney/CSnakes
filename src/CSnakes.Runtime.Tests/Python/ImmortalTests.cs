@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Python;
 public class ImmortalTests : RuntimeTestBase

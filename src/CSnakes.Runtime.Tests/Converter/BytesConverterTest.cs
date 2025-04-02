@@ -1,4 +1,4 @@
-﻿namespace CSnakes.Runtime.Tests.Converter;
+namespace CSnakes.Runtime.Tests.Converter;
 
 public class BytesConverterTest : ConverterTestBase
 {

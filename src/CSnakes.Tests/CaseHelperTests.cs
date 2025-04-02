@@ -1,4 +1,4 @@
-﻿using CSnakes;
+using CSnakes;
 
 namespace CSnakes.Tests;
 

@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 #if NET9_0_OR_GREATER
 using System.Numerics.Tensors;
 #endif

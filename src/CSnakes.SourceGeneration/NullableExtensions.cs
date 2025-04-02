@@ -1,4 +1,4 @@
-﻿// credit: https://github.com/dotnet/razor/blob/main/src/Shared/Microsoft.AspNetCore.Razor.Utilities.Shared/NullableExtensions.cs
+// credit: https://github.com/dotnet/razor/blob/main/src/Shared/Microsoft.AspNetCore.Razor.Utilities.Shared/NullableExtensions.cs
 
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;

@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;

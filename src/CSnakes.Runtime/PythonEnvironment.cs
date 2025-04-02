@@ -1,4 +1,4 @@
-﻿#if NET9_0_OR_GREATER
+#if NET9_0_OR_GREATER
 // https://learn.microsoft.com/dotnet/csharp/language-reference/statements/lock#guidelines
 global using Lock = System.Threading.Lock;
 #else

@@ -1,4 +1,4 @@
-﻿using CSnakes.Parser.Types;
+using CSnakes.Parser.Types;
 using System.Globalization;
 
 namespace CSnakes.Tests;

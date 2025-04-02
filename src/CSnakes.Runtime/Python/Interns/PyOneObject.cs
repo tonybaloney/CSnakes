@@ -1,4 +1,4 @@
-﻿namespace CSnakes.Runtime.Python.Interns;
+namespace CSnakes.Runtime.Python.Interns;
 
 internal sealed class PyOneObject() : ImmortalSmallInteger(1)
 {

@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Locators;
+using CSnakes.Runtime.Locators;
 using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 

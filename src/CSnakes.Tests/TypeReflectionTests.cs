@@ -1,4 +1,4 @@
-﻿using CSnakes.Parser;
+using CSnakes.Parser;
 using CSnakes.Reflection;
 using Superpower;
 

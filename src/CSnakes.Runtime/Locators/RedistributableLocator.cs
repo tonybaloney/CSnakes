@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System.Formats.Tar;
 using System.Runtime.InteropServices;
 using ZstdSharp;

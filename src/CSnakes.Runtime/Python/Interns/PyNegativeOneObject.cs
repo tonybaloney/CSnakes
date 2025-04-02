@@ -1,4 +1,4 @@
-﻿namespace CSnakes.Runtime.Python.Interns;
+namespace CSnakes.Runtime.Python.Interns;
 
 internal sealed class PyNegativeOneObject() : ImmortalSmallInteger(-1)
 {

@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.EnvironmentManagement;
+using CSnakes.Runtime.EnvironmentManagement;
 using CSnakes.Runtime.Locators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

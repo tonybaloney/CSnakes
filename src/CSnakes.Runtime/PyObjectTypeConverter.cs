@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.CPython;
+using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections.Concurrent;
 using System.Reflection;

@@ -1,4 +1,4 @@
-﻿using CSnakes.Parser.Types;
+using CSnakes.Parser.Types;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;

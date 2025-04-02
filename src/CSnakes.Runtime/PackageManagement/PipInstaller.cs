@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.EnvironmentManagement;
+using CSnakes.Runtime.EnvironmentManagement;
 using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 

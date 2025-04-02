@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime;
+using CSnakes.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 

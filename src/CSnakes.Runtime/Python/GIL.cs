@@ -100,5 +100,11 @@ public static class GIL
         handlesToDispose.Enqueue(handle);
     }
 
+    internal static void Reset()
+    {
+        currentState = null;
+        pythonThreadState = 0;
+    }
+
     public static bool IsAcquired => currentState != null && currentState.RecursionCount > 0;
 }

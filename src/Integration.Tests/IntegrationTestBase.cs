@@ -22,6 +22,7 @@ public sealed class PythonEnvironmentFixture : IDisposable
         string pythonVersion = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
         bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "true";
         string venvPath = Path.Join(Environment.CurrentDirectory, "python", ".venv");
+        string shortVersion = string.Join('.', pythonVersion.Split('.').Take(2));
 
         app = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
@@ -31,7 +32,7 @@ public sealed class PythonEnvironmentFixture : IDisposable
 
                 pb
                   .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersion)  // for GitHub Actions
-                  .FromRedistributable(pythonVersion, freeThreaded)
+                  .FromRedistributable(shortVersion, freeThreaded)
                   .WithVirtualEnvironment(venvPath)
                   .WithPipInstaller();
 

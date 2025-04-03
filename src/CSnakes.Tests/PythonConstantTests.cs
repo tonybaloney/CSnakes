@@ -18,7 +18,7 @@ public class PythonConstantTests
 
             try
             {
-                var n = new PythonConstant.Float(1_737.4);
+                var n = new PythonConstant(1_737.4);
                 Assert.Equal("1737.4", n.ToString());
             }
             finally

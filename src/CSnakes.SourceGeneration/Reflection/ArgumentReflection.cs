@@ -33,7 +33,7 @@ public class ArgumentReflection
             parameter.DefaultValue is null)
 
         {
-            parameter.DefaultValue = PythonConstant.None.Value;
+            parameter.DefaultValue = PythonConstant.None;
         }
 
         bool isNullableType = false;
@@ -45,44 +45,44 @@ public class ArgumentReflection
             case null:
                 literalExpressionSyntax = null;
                 break;
-            case PythonConstant.HexidecimalInteger { Value: var v }:
+            case { HexidecimalIntegerValue: { } v }:
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                         SyntaxKind.NumericLiteralExpression,
                                                         SyntaxFactory.Literal($"0x{v:X}", v));
                 break;
-            case PythonConstant.BinaryInteger { Value: var v }:
+            case { BinaryIntegerValue: { } v }:
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                         SyntaxKind.NumericLiteralExpression,
                                                         SyntaxFactory.Literal($"0b{Convert.ToString(v, 2)}", v));
                 break;
-            case PythonConstant.Integer { Value: var v and >= int.MinValue and <= int.MaxValue }:
+            case { IntegerValue: { } v and >= int.MinValue and <= int.MaxValue }:
                 // Downcast long to int if the value is small as the code is more readable without the L suffix
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                         SyntaxKind.NumericLiteralExpression,
                                                         SyntaxFactory.Literal((int)v));
                 break;
-            case PythonConstant.Integer { Value: var v }:
+            case { IntegerValue: { } v }:
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                         SyntaxKind.NumericLiteralExpression,
                                                         SyntaxFactory.Literal(v));
                 break;
-            case PythonConstant.String { Value: var v }:
+            case { StringValue: { } v }:
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                         SyntaxKind.StringLiteralExpression,
                                                         SyntaxFactory.Literal(v));
                 break;
-            case PythonConstant.Float { Value: var v }:
+            case { FloatValue: { } v }:
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(
                                                         SyntaxKind.NumericLiteralExpression,
                                                         SyntaxFactory.Literal(v));
                 break;
-            case PythonConstant.Bool { Value: true }:
+            case { BoolValue: true }:
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression);
                 break;
-            case PythonConstant.Bool { Value: false }:
+            case { BoolValue: false }:
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression);
                 break;
-            case PythonConstant.None:
+            case { IsNone: true }:
                 literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
                 isNullableType = true;
                 break;

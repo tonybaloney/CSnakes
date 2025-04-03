@@ -22,7 +22,6 @@ public class RuntimeTestBase : IDisposable
                 pb.WithHome(Environment.CurrentDirectory);
 
                 pb
-                  .FromEnvironmentVariable("", pythonVersion)  // for GitHub Actions
                   .FromRedistributable(version: shortVersion, freeThreaded: freeThreaded);
 
                 services.AddLogging(builder => builder.AddXUnit());

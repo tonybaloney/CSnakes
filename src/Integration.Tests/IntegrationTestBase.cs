@@ -31,7 +31,6 @@ public sealed class PythonEnvironmentFixture : IDisposable
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
                 pb
-                  .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersion)  // for GitHub Actions
                   .FromRedistributable(shortVersion, freeThreaded)
                   .WithVirtualEnvironment(venvPath)
                   .WithPipInstaller();

@@ -19,11 +19,10 @@ public sealed class PythonEnvironmentFixture : IDisposable
 
     public PythonEnvironmentFixture()
     {
-        string pythonVersionWindows = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9";
-        string pythonVersionMacOS = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
-        string pythonVersionLinux = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
+        string pythonVersion = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
         bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "true";
         string venvPath = Path.Join(Environment.CurrentDirectory, "python", ".venv");
+        string shortVersion = string.Join('.', pythonVersion.Split('.').Take(2));
 
         app = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
@@ -31,10 +30,8 @@ public sealed class PythonEnvironmentFixture : IDisposable
                 var pb = services.WithPython();
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
-                pb.FromNuGet(pythonVersionWindows)
-                  .FromMacOSInstallerLocator(pythonVersionMacOS, freeThreaded)
-                  .FromWindowsStore("3.12")
-                  .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux)
+                pb
+                  .FromRedistributable(shortVersion, freeThreaded)
                   .WithVirtualEnvironment(venvPath)
                   .WithPipInstaller();
 

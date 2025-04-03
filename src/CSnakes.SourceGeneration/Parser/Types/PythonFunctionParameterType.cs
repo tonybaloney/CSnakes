@@ -4,6 +4,5 @@ public enum PythonFunctionParameterType
 {
     Star,
     DoubleStar,
-    Slash,
     Normal
 }

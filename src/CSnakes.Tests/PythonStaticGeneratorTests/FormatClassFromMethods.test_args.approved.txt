@@ -126,7 +126,7 @@ public static class TestClassExtensions
             }
         }
 
-        public long KeywordOnlyArgs(long a, long b, long c, PyObject[]? args = null)
+        public long KeywordOnlyArgs(long a, long b, long c)
         {
             using (GIL.Acquire())
             {
@@ -135,7 +135,7 @@ public static class TestClassExtensions
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
                 using PyObject c_pyObject = PyObject.From(c)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, ..args ?? []], ["b", "c"], [b_pyObject, c_pyObject], null);
+                using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject], ["b", "c"], [b_pyObject, c_pyObject], null);
                 return __result_pyObject.As<long>();
             }
         }
@@ -153,7 +153,7 @@ public static class TestClassExtensions
             }
         }
 
-        public long PositionalAndKwargs(long a, long b, long c, PyObject[]? args = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)
+        public long PositionalAndKwargs(long a, long b, long c, IReadOnlyDictionary<string, PyObject>? kwargs = null)
         {
             using (GIL.Acquire())
             {
@@ -162,7 +162,7 @@ public static class TestClassExtensions
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
                 using PyObject c_pyObject = PyObject.From(c)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, b_pyObject, ..args ?? []], ["c"], [c_pyObject], kwargs);
+                using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, b_pyObject], ["c"], [c_pyObject], kwargs);
                 return __result_pyObject.As<long>();
             }
         }
@@ -210,7 +210,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def keyword_only_args(a: int, *, b: int, c: int) -> int: ...
     /// ]]></code>
     /// </summary>
-    long KeywordOnlyArgs(long a, long b, long c, PyObject[]? args = null);
+    long KeywordOnlyArgs(long a, long b, long c);
 
     /// <summary>
     /// Invokes the Python function <c>collect_star_star_kwargs</c>:
@@ -226,7 +226,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def positional_and_kwargs(a: int, b: int, *, c: int, **kwargs) -> int: ...
     /// ]]></code>
     /// </summary>
-    long PositionalAndKwargs(long a, long b, long c, PyObject[]? args = null, IReadOnlyDictionary<string, PyObject>? kwargs = null);
+    long PositionalAndKwargs(long a, long b, long c, IReadOnlyDictionary<string, PyObject>? kwargs = null);
 
     /// <summary>
     /// Invokes the Python function <c>collect_star_args_and_keyword_only_args</c>:

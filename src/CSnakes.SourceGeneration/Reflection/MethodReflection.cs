@@ -264,7 +264,7 @@ public static class MethodReflection
                 cSharpParameterList.Regular,
                 cSharpParameterList.Keyword,
                 cSharpParameterList.VariadicPositional is { } vpd ? [vpd] : [],
-                cSharpParameterList.VariadicKeyword is {} vkd ? [vkd] : [],
+                cSharpParameterList.VariadicKeyword is { } vkd ? [vkd] : [],
             }
             from p in ps
             select p;

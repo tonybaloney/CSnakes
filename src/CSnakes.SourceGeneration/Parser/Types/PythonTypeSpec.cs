@@ -8,11 +8,9 @@ public class PythonTypeSpec(string name, ImmutableArray<PythonTypeSpec> argument
     public ImmutableArray<PythonTypeSpec> Arguments { get; } = arguments;
 
     public override string ToString() =>
-        HasArguments() ?
-            $"{Name}[{string.Join(", ", Arguments.Select(a => a.ToString()))}]" :
+        Arguments is { Length: > 0 } args ?
+            $"{Name}[{string.Join(", ", args.Select(a => a.ToString()))}]" :
             Name;
-
-    public bool HasArguments() => Arguments.Length > 0;
 
     public static readonly PythonTypeSpec Any = new("Any", []);
 }

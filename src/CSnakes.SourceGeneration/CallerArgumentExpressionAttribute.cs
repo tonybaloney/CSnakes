@@ -1,4 +1,4 @@
-﻿// credit: https://github.com/SimonCropp/Polyfill/blob/main/src/Polyfill/CallerArgumentExpressionAttribute.cs
+// credit: https://github.com/SimonCropp/Polyfill/blob/main/src/Polyfill/CallerArgumentExpressionAttribute.cs
 // Bringing in the file rather than using the library to avoid problems of additional libraries
 // within a source generator.
 

@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 
 
 def test_sys_executable() -> str:

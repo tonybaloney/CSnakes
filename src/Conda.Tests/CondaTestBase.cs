@@ -16,11 +16,13 @@ public class CondaTestBase : IDisposable
         if (string.IsNullOrEmpty(condaEnv))
         {
             string? basePath = null;
-            if (OperatingSystem.IsWindows()) {
+            if (OperatingSystem.IsWindows())
+            {
                 basePath = Environment.GetEnvironmentVariable("LOCALAPPDATA");
             }
-            else{
-                basePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);;
+            else
+            {
+                basePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             }
 
             if (basePath is not null)

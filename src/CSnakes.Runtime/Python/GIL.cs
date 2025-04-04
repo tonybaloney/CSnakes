@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.CPython;
+using CSnakes.Runtime.CPython;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -29,7 +29,8 @@ public static class GIL
     [ThreadStatic] internal static nint pythonThreadState;
     private static ConcurrentQueue<nint> handlesToDispose = new();
 
-    static GIL() {
+    static GIL()
+    {
         currentState = null;
         pythonThreadState = 0;
     }
@@ -40,7 +41,8 @@ public static class GIL
 
         public PyGilState()
         {
-            if (pythonThreadState == 0){
+            if (pythonThreadState == 0)
+            {
                 pythonThreadState = CPythonAPI.PyThreadState_New();
             }
             Debug.Assert(CPythonAPI.IsInitialized);

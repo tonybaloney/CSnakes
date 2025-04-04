@@ -1,4 +1,4 @@
-﻿using CSnakes.Parser.Types;
+using CSnakes.Parser.Types;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
@@ -6,7 +6,7 @@ using Superpower.Parsers;
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
-    public static TextParser<TextSpan> QualifiedName { get; } = 
+    public static TextParser<TextSpan> QualifiedName { get; } =
         Span.MatchedBy(
             Character.Letter.Or(Character.EqualTo('_'))
             .IgnoreThen(Character.LetterOrDigit.Or(Character.EqualTo('_')).Many())

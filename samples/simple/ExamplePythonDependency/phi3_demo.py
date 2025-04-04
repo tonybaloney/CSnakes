@@ -1,4 +1,4 @@
-﻿## Requires manual, platform specific setup of pytorch, see https://pytorch.org/get-started/locally/
+## Requires manual, platform specific setup of pytorch, see https://pytorch.org/get-started/locally/
 
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline 
 

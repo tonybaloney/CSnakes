@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Locators;
+using CSnakes.Runtime.Locators;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
@@ -51,7 +51,8 @@ internal static class ProcessUtils
     }
 
 
-    private static (Process proc, string? result, string? errors) ExecuteCommand(ILogger logger, ProcessStartInfo startInfo) {
+    private static (Process proc, string? result, string? errors) ExecuteCommand(ILogger logger, ProcessStartInfo startInfo)
+    {
         Process process = new() { StartInfo = startInfo };
         string? result = null;
         string? errors = null;
@@ -131,7 +132,8 @@ internal static class ProcessUtils
             logger.LogError("Failed to install packages. ");
             logger.LogError("Output was: {stderr}", stderr);
             throw new InvalidOperationException("Failed to install packages");
-        } else
+        }
+        else
         {
             logger.LogDebug("Successfully installed packages.");
             logger.LogDebug("Output was: {stderr}", stderr);

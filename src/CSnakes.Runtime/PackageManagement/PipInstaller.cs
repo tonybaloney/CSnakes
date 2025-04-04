@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.EnvironmentManagement;
+using CSnakes.Runtime.EnvironmentManagement;
 using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 
@@ -14,7 +14,7 @@ internal class PipInstaller(ILogger<PipInstaller> logger, string requirementsFil
         if (File.Exists(requirementsPath))
         {
             logger.LogDebug("File {Requirements} was found.", requirementsPath);
-            InstallPackagesWithPip(home, environmentManager, $"-r { requirementsFileName}", logger);
+            InstallPackagesWithPip(home, environmentManager, $"-r {requirementsFileName}", logger);
         }
         else
         {
@@ -44,7 +44,8 @@ internal class PipInstaller(ILogger<PipInstaller> logger, string requirementsFil
                 { "VIRTUAL_ENV", virtualEnvironmentLocation }
             };
             ProcessUtils.ExecuteProcess(fileName, arguments, workingDirectory, path, logger, extraEnv);
-        } else
+        }
+        else
         {
             ProcessUtils.ExecuteProcess(fileName, arguments, workingDirectory, path, logger);
         }

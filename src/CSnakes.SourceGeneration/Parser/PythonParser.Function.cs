@@ -1,11 +1,10 @@
-﻿using Microsoft.CodeAnalysis.Text;
 using CSnakes.Parser.Types;
+using Microsoft.CodeAnalysis.Text;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
-
-using ParsedTokens = Superpower.Model.TokenList<CSnakes.Parser.PythonToken>;
 using System.Collections.Immutable;
+using ParsedTokens = Superpower.Model.TokenList<CSnakes.Parser.PythonToken>;
 
 namespace CSnakes.Parser;
 public static partial class PythonParser
@@ -75,7 +74,7 @@ public static partial class PythonParser
             {
                 ParsedTokens combinedTokens = new(currentBuffer.SelectMany(x => x.tokens).ToArray());
 
-                functionLines.Add(([..from x in currentBuffer select x.line], combinedTokens));
+                functionLines.Add(([.. from x in currentBuffer select x.line], combinedTokens));
                 currentBuffer = [];
                 unfinishedFunctionSpec = false;
                 continue;

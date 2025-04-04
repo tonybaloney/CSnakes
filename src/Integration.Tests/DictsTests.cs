@@ -1,4 +1,4 @@
-﻿namespace Integration.Tests;
+namespace Integration.Tests;
 public class TestDicts(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]

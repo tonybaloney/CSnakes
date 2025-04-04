@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python;
 using System.ComponentModel;
 
 namespace Integration.Tests;
@@ -16,7 +16,8 @@ public class ArgsTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(f
     {
         var mod = Env.TestArgs();
 
-        using (GIL.Acquire()) {
+        using (GIL.Acquire())
+        {
             using PyObject arg1 = PyObject.From(3L);
 
             Assert.Equal(6, mod.CollectStarArgs(1, 2, [arg1]));

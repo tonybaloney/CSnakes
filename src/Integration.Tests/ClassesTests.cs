@@ -104,7 +104,7 @@ public class ClassesTests(PythonEnvironmentFixture fixture) : IntegrationTestBas
         Assert.Throws<ArgumentException>(result.As<PersonSelfNotPyObject>);
     }
 
-    public class  PersonWithFieldAsPyObject  
+    public class PersonWithFieldAsPyObject
     {
         public required PyObject Name { get; set; }
     }
@@ -126,5 +126,11 @@ public class ClassesTests(PythonEnvironmentFixture fixture) : IntegrationTestBas
         Assert.Equal(2, result.Count);
         Assert.Equal("John Doe", result[0].As<Person>().Name);
         Assert.Equal("Jane Doe", result[1].As<Person>().Name);
+    }
+
+    public partial class PersonWithMethodAttribute
+    {
+        [PythonMethod("scared_of")]
+        public partial bool ScaredOf(string phobia);
     }
 }

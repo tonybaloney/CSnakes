@@ -1,4 +1,3 @@
-using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using CSnakes.Runtime.Reflection;
 using System.Diagnostics.CodeAnalysis;

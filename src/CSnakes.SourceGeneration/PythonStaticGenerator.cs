@@ -1,10 +1,13 @@
 using CSnakes.Parser;
 using CSnakes.Parser.Types;
 using CSnakes.Reflection;
+using CSnakes.SourceGeneration.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
+using System.Text;
 
 namespace CSnakes;
 
@@ -52,7 +55,32 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
             }
         });
+
+        var methodReflectors = context.SyntaxProvider
+                          .ForAttributeWithMetadataName("CSnakes.Runtime.Reflection.EnumGenerationAttribute",
+                                                        MethodAttributePartials.CouldBeMethod,
+                                                        MethodAttributePartials.GetMethodInfo)
+                          .Collect()
+                          .SelectMany((enumInfos, _) => enumInfos.Distinct());
+
+        context.RegisterSourceOutput(methodReflectors, static (context, model) =>
+        {
+            var sourceText = SourceText.From($$"""
+                namespace {{model.Namespace}};
+                partial class {{model.ClassName}}
+                {
+                    partial void {{model.MethodName}}()
+                    {
+                        // generated code
+                    }
+                }
+                """, Encoding.UTF8);
+
+            context.AddSource($"{model.ClassName}_{model.MethodName}.g.cs", sourceText);
+        });
     }
+
+    
 
     public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions, ImmutableArray<byte> hash)
     {

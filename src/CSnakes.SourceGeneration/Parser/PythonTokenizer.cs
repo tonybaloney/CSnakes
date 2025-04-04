@@ -1,4 +1,4 @@
-﻿using Superpower;
+using Superpower;
 using Superpower.Parsers;
 using Superpower.Tokenizers;
 

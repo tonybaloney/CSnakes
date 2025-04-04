@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 
 namespace CSnakes.Runtime.Python;
 public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGeneratorIterator<TYield, TSend, TReturn>

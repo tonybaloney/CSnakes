@@ -1,6 +1,6 @@
-﻿using System.Formats.Tar;
-using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using System.Formats.Tar;
+using System.Runtime.InteropServices;
 using ZstdSharp;
 
 namespace CSnakes.Runtime.Locators;
@@ -283,10 +283,13 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(entryPath)!);
                 entry.ExtractToFile(entryPath, true);
-            } else if (entry.EntryType == TarEntryType.SymbolicLink) {
+            }
+            else if (entry.EntryType == TarEntryType.SymbolicLink)
+            {
                 // Delay the creation of symlinks until after all files have been extracted
                 symlinks.Add((entryPath, entry.LinkName));
-            } else
+            }
+            else
             {
                 logger.LogDebug("Skipping entry: {EntryPath} ({EntryType})", entryPath, entry.EntryType);
             }

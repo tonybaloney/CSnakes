@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Python.Interns;
+using CSnakes.Runtime.Python.Interns;
 
 namespace CSnakes.Runtime.Python;
 public partial class PyObject

@@ -1,4 +1,4 @@
-﻿namespace Integration.Tests;
+namespace Integration.Tests;
 
 public class ReloadTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {

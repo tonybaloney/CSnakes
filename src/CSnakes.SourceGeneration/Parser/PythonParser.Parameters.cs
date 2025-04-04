@@ -1,6 +1,8 @@
-﻿using CSnakes.Parser.Types;
+using CSnakes.Parser.Types;
 using Superpower;
 using Superpower.Parsers;
+
+#pragma warning disable format
 
 namespace CSnakes.Parser;
 public static partial class PythonParser
@@ -112,7 +114,7 @@ public static partial class PythonParser
         var regularParametersParser =
             from rps in OptionalPythonParameterParser.ManyDelimitedBy(comma)  // Zero or more regular parameters
             from ps in keywordParametersParser                                // (Optional) keyword-only parameters
-            select ps.WithRegular([.. rps]);                                  // Combine into parameter list
+            select ps.WithRegular([..rps]);                                   // Combine into parameter list
 
         // Parser for positional-only parameters (those before "/"):
         //
@@ -123,7 +125,7 @@ public static partial class PythonParser
                                                      .ThenIgnore(Token.EqualTo(PythonToken.CommaSlash)) // Followed by "/"
             from ps in Parse.OneOf(comma.IgnoreThen(regularParametersParser), // Comma followed by regular parameters
                                    keywordParametersParser)                   // Or directly named args
-            select ps.WithPositional([.. pps]);                               // Add positional parameters to the list
+            select ps.WithPositional([..pps]);                                // Add positional parameters to the list
 
         return Parse.OneOf(
                 //
@@ -173,7 +175,6 @@ public static partial class PythonParser
                                                       or ({ DefaultValue: not null }, { DefaultValue: not null })
                                                          // first parameter is required, second is optional
                                                       or ({ DefaultValue: null     }, { DefaultValue: not null })),
-                       "non-default argument follows default argument") // Error message if validation fails
-            ;
+                       "non-default argument follows default argument"); // Error message if validation fails
     }
 }

@@ -321,7 +321,7 @@ public partial class PyObject : SafeHandle, ICloneable
     {
         RaiseOnPythonNotInitialized();
 
-        // Don't do any marshalling if there aren't any arguments. 
+        // Don't do any marshalling if there aren't any arguments.
         if (args is null || args.Length == 0)
         {
             using (GIL.Acquire())
@@ -415,7 +415,7 @@ public partial class PyObject : SafeHandle, ICloneable
         // No keyword parameters supplied
         if (kwnames is null && kwargs is null)
             return CallWithArgs(args);
-        // Keyword args are empty and kwargs is empty. 
+        // Keyword args are empty and kwargs is empty.
         if (kwnames is not null && kwnames.Length == 0 && (kwargs is null || kwargs.Count == 0))
             return CallWithArgs(args);
 

@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
@@ -34,7 +34,8 @@ internal unsafe partial class CPythonAPI
     /// </summary>
     /// <param name="ob">The Python object</param>
     /// <returns>A new reference to the type.</returns>
-    internal static IntPtr GetType(PyObject ob) {
+    internal static IntPtr GetType(PyObject ob)
+    {
         return PyObject_Type(ob);
     }
 

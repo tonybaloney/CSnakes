@@ -1,4 +1,4 @@
-﻿#if NET9_0_OR_GREATER
+#if NET9_0_OR_GREATER
 // https://learn.microsoft.com/dotnet/csharp/language-reference/statements/lock#guidelines
 global using Lock = System.Threading.Lock;
 #else
@@ -66,8 +66,9 @@ internal class PythonEnvironment : IPythonEnvironment
             throw new DirectoryNotFoundException("Python home directory does not exist.");
         }
 
-        if (environmentManager is not null) {
-            
+        if (environmentManager is not null)
+        {
+
             extraPaths = [.. options.ExtraPaths, environmentManager.GetExtraPackagePath(location!)];
 
             environmentManager.EnsureEnvironment(location);

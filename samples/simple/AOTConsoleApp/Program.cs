@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime;
+using CSnakes.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -21,7 +21,8 @@ RunQuickDemo(env);
 static void RunQuickDemo(IPythonEnvironment env)
 {
     var quickDemo = env.AotDemo();
-    foreach (var thing in quickDemo.CoolThings()){
+    foreach (var thing in quickDemo.CoolThings())
+    {
         Console.WriteLine(thing + " is cool!");
     }
     Console.WriteLine();

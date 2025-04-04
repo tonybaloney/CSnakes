@@ -18,10 +18,12 @@ public sealed class PythonFunctionParameter(string name, PythonTypeSpec? type, P
     public override string ToString() =>
         this switch
         {
+#pragma warning disable format
             { TypeSpec: null  , DefaultValue: null   } => Name,
             { TypeSpec: { } ts, DefaultValue: null   } => $"{Name}: {ts}",
             { TypeSpec: { } ts, DefaultValue: { } dv } => $"{Name}: {ts} = {dv}",
             { TypeSpec: null  , DefaultValue: { } dv } => $"{Name} = {dv}",
+#pragma warning restore format
         };
 }
 
@@ -89,10 +91,10 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
                      Func<T, TResult> keywordProjector,
                      Func<T, TResult> variadicKeywordProjector)
         where TResult : class =>
-        new([..Positional.Select(positionalProjector)],
-            [..Regular.Select(regularProjector)],
+        new([.. Positional.Select(positionalProjector)],
+            [.. Regular.Select(regularProjector)],
             VariadicPositional is { } vpp ? variadicPositionalProjector(vpp) : null,
-            [..Keyword.Select(keywordProjector)],
+            [.. Keyword.Select(keywordProjector)],
             VariadicKeyword is { } vkp ? variadicKeywordProjector(vkp) : null);
 
     public int Count => Positional.Length

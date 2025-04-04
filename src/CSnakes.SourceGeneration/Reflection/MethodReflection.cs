@@ -1,10 +1,7 @@
+using CSnakes.Parser.Types;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using CSnakes.Parser.Types;
-using System.Collections;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using CSharpParameterList = CSnakes.Parser.Types.PythonFunctionParameterList<Microsoft.CodeAnalysis.CSharp.Syntax.ParameterSyntax>;
 
@@ -36,7 +33,8 @@ public static class MethodReflection
             {
                 returnSyntax = TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython);
             }
-        } else
+        }
+        else
         {
             coroutineSyntax = TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython);
             returnSyntax = returnPythonType switch
@@ -168,8 +166,9 @@ public static class MethodReflection
                                 .WithInitializer(
                                     EqualsValueClause(
                                         callExpression)))));
-            
-        } else
+
+        }
+        else
         {
             callStatement = LocalDeclarationStatement(
                         VariableDeclaration(
@@ -179,7 +178,7 @@ public static class MethodReflection
                                 VariableDeclarator(
                                     Identifier("__result_pyObject"))
                                 )));
-            
+
         }
         if (resultShouldBeDisposed && !function.IsAsync)
             callStatement = callStatement.WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
@@ -198,7 +197,7 @@ public static class MethodReflection
                                     Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(function.Name)))
                                 ])))
                     );
-        
+
         BlockSyntax body;
         if (function.IsAsync)
         {
@@ -227,7 +226,8 @@ public static class MethodReflection
                     Block(statements)
                     ),
                 returnExpression);
-        } else
+        }
+        else
         {
             StatementSyntax[] statements = [
                 logStatement,
@@ -246,7 +246,7 @@ public static class MethodReflection
                     Block(statements)
                     ));
         }
-            
+
         // Sort the method parameters into this order
         // 1. All positional arguments
         // 2. All keyword-only arguments

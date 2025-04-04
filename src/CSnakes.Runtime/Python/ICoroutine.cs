@@ -1,4 +1,4 @@
-﻿namespace CSnakes.Runtime.Python;
+namespace CSnakes.Runtime.Python;
 
 public interface ICoroutine<TYield, TSend, TReturn> : ICoroutine
 {

@@ -1,7 +1,7 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
 using CSnakes.Parser;
 using CSnakes.Parser.Types;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 using Superpower;
 using Superpower.Model;
 
@@ -364,7 +364,7 @@ public class TokenizerTests
     }
 
     [Fact]
-    public void ParseFunctionParameterListTrailingComma ()
+    public void ParseFunctionParameterListTrailingComma()
     {
         var code = "(a, b, c, )";
         var tokens = PythonTokenizer.Instance.Tokenize(code);

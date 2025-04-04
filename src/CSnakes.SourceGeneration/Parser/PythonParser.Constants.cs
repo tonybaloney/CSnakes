@@ -1,4 +1,4 @@
-﻿using CSnakes.Parser.Types;
+using CSnakes.Parser.Types;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
@@ -68,7 +68,7 @@ public static partial class PythonParser
 
     public static TokenListParser<PythonToken, PythonConstant.HexidecimalInteger> HexidecimalIntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.HexidecimalInteger)
-        .Select(d =>  new PythonConstant.HexidecimalInteger(long.Parse(d.ToStringValue().Substring(2).Replace("_", ""), NumberStyles.HexNumber)))
+        .Select(d => new PythonConstant.HexidecimalInteger(long.Parse(d.ToStringValue().Substring(2).Replace("_", ""), NumberStyles.HexNumber)))
         .Named("Hexidecimal Integer Constant");
 
     public static TokenListParser<PythonToken, PythonConstant.BinaryInteger> BinaryIntegerConstantTokenizer { get; } =

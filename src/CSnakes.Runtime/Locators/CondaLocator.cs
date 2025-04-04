@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Text.Json.Nodes;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Text.Json.Nodes;
 
 namespace CSnakes.Runtime.Locators;
 

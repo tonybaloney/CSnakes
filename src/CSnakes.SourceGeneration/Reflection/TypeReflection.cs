@@ -1,7 +1,6 @@
-using Microsoft.CodeAnalysis;
+using CSnakes.Parser.Types;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using CSnakes.Parser.Types;
 using System.Collections.Immutable;
 
 namespace CSnakes.Reflection;

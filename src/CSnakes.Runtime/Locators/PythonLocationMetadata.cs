@@ -1,4 +1,4 @@
-﻿namespace CSnakes.Runtime.Locators;
+namespace CSnakes.Runtime.Locators;
 
 /// <summary>
 /// Metadata about the location of a Python installation.
@@ -12,5 +12,5 @@ public sealed record PythonLocationMetadata(
     string LibPythonPath,
     string PythonPath,
     string PythonBinaryPath,
-    bool Debug = false, 
+    bool Debug = false,
     bool FreeThreaded = false);

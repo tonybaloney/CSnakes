@@ -57,8 +57,6 @@ public class ClassesTests(PythonEnvironmentFixture fixture) : IntegrationTestBas
     {
         [PythonField("name")]
         public required string LegalName { get; set; }
-        [PythonField("self", self: true)]
-        public required PyObject PythonObject { get; set; }
     }
 
     [Fact]
@@ -68,7 +66,6 @@ public class ClassesTests(PythonEnvironmentFixture fixture) : IntegrationTestBas
         using PyObject result = mod.TestPerson();
         PersonWithCustomAttributes person = result.As<PersonWithCustomAttributes>();
         Assert.Equal("John Doe", person.LegalName);
-        Assert.Same(result, person.PythonObject);
     }
 
     public class PersonWithMethod
@@ -91,5 +88,43 @@ public class ClassesTests(PythonEnvironmentFixture fixture) : IntegrationTestBas
         Assert.Equal("John Doe", person.Name);
         Assert.True(person.ScaredOf("spiders"));
         Assert.False(person.ScaredOf("snakes"));
+    }
+
+    public class PersonSelfNotPyObject
+    {
+        public required string Name { get; set; }
+        public required PersonSelfNotPyObject Self { get; set; } = null!;
+    }
+
+    [Fact]
+    public void ConvertToClassWithSelfNotPyObject()
+    {
+        var mod = Env.TestClasses();
+        using PyObject result = mod.TestPerson();
+        Assert.Throws<ArgumentException>(result.As<PersonSelfNotPyObject>);
+    }
+
+    public class  PersonWithFieldAsPyObject  
+    {
+        public required PyObject Name { get; set; }
+    }
+
+    [Fact]
+    public void ConvertToClassWithFieldAsPyObject()
+    {
+        var mod = Env.TestClasses();
+        using PyObject result = mod.TestPerson();
+        PersonWithFieldAsPyObject person = result.As<PersonWithFieldAsPyObject>();
+        Assert.Equal("John Doe", person.Name.As<string>());
+    }
+
+    [Fact]
+    public void ConvertToCollection()
+    {
+        var mod = Env.TestClasses();
+        var result = mod.TestCollection();
+        Assert.Equal(2, result.Count);
+        Assert.Equal("John Doe", result[0].As<Person>().Name);
+        Assert.Equal("Jane Doe", result[1].As<Person>().Name);
     }
 }

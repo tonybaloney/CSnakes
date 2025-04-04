@@ -22,13 +22,6 @@ internal partial class PyObjectTypeConverter
                 continue;
             }
             var pythonFieldAttribute = property.GetCustomAttribute<PythonFieldAttribute>();
-
-            if (pythonFieldAttribute?.IsSelf ?? false)
-            {
-                property.SetValue(instance, pyObject);
-                continue;
-            }
-
             string attrName = pythonFieldAttribute?.Name ?? ToSnakeCase(property.Name);
             var value = pyObject.GetAttr(attrName);
             property.SetValue(instance, value.As(property.PropertyType));

@@ -25,3 +25,8 @@ def test_person() -> Person:
 def test_not_heap() -> Person:
     return "I'm not a heap object"
 
+
+def test_collection() -> list[Person]:
+    person1 = Person("John Doe", 30, 5.9, ["spiders", "heights"])
+    person2 = Person("Jane Doe", 25, 5.5, ["snakes"])
+    return [person1, person2]

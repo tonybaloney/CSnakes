@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Integration.Tests;
 public class GeneratorTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {

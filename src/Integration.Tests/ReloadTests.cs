@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+
 namespace Integration.Tests;
 
 public class ReloadTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)

@@ -1,5 +1,7 @@
 using CSnakes.Runtime.Python;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Integration.Tests;
 public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)

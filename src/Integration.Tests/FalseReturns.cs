@@ -1,3 +1,5 @@
+using System;
+
 namespace Integration.Tests;
 
 public class FalseReturns(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)

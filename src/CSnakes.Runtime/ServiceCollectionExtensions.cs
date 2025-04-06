@@ -181,6 +181,26 @@ public static partial class ServiceCollectionExtensions
 
     /// <summary>
     /// Simplest option for getting started with CSnakes.
+    /// Downloads and installs the redistributable version of Python 3.12 from GitHub and stores it in %APP_DATA%/csnakes.
+    /// </summary>
+    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
+    /// <param name="debug">Whether to use the debug version of Python.</param>
+    /// <param name="timeout">Timeout in seconds for the download and installation process.</param>
+    /// <returns></returns>
+    public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, bool debug = false, int timeout = 360)
+    {
+        builder.Services.AddSingleton<PythonLocator>(
+            sp =>
+            {
+                var logger = sp.GetRequiredService<ILogger<RedistributableLocator>>();
+                return new RedistributableLocator(logger, RedistributablePythonVersion.Python3_12, timeout, debug);
+            }
+        );
+        return builder;
+    }
+
+    /// <summary>
+    /// Simplest option for getting started with CSnakes.
     /// Downloads and installs the redistributable version of Python from GitHub and stores it in %APP_DATA%/csnakes.
     /// </summary>
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
@@ -189,7 +209,7 @@ public static partial class ServiceCollectionExtensions
     /// <param name="freeThreaded">Free Threaded Python (3.13+ only)</param>
     /// <param name="timeout">Timeout in seconds for the download and installation process.</param>
     /// <returns></returns>
-    public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, RedistributablePythonVersion version = RedistributablePythonVersion.Python3_12, bool debug = false, bool freeThreaded = false, int timeout = 360)
+    public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, RedistributablePythonVersion version, bool debug = false, bool freeThreaded = false, int timeout = 360)
     {
         builder.Services.AddSingleton<PythonLocator>(
             sp =>
@@ -211,7 +231,7 @@ public static partial class ServiceCollectionExtensions
     /// <param name="freeThreaded">Free Threaded Python (3.13+ only)</param>
     /// <param name="timeout">Timeout in seconds for the download and installation process.</param>
     /// <returns></returns>
-    public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, string version = "3.12", bool debug = false, bool freeThreaded = false, int timeout = 360)
+    public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, string version, bool debug = false, bool freeThreaded = false, int timeout = 360)
     {
         RedistributablePythonVersion versionEnum = version switch
         {

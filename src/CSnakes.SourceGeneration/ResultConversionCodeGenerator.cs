@@ -109,7 +109,7 @@ internal static class ResultConversionCodeGenerator
                                                                                string importerTypeName)
     {
         var generator = (Key: Create(keyTypeSpec), Value: Create(valueTypeSpec));
-                return new ConversionGenerator(TypeReflection.CreateGenericType(nameof(IReadOnlyDictionary<object, object>), [generator.Key.TypeSyntax, generator.Value.TypeSyntax]),
-                                               GenericName(Identifier(importerTypeName), TypeArgumentList(SeparatedList([generator.Key.TypeSyntax, generator.Value.TypeSyntax, generator.Key.ImporterTypeSyntax, generator.Value.ImporterTypeSyntax]))));
+        return new ConversionGenerator(TypeReflection.CreateGenericType(nameof(IReadOnlyDictionary<object, object>), [generator.Key.TypeSyntax, generator.Value.TypeSyntax]),
+                                       GenericName(Identifier(importerTypeName), TypeArgumentList(SeparatedList([generator.Key.TypeSyntax, generator.Value.TypeSyntax, generator.Key.ImporterTypeSyntax, generator.Value.ImporterTypeSyntax]))));
     }
 }

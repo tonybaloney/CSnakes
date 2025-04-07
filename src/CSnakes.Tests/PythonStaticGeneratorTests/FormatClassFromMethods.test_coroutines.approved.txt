@@ -85,46 +85,40 @@ public static class TestClassExtensions
             module.Dispose();
         }
 
-        public async Task<long> TestCoroutine()
+        public Task<long> TestCoroutine()
         {
-            PyObject __result_pyObject;
             using (GIL.Acquire())
             {
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine;
-                __result_pyObject = __underlyingPythonFunc.Call();
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.Import(__result_pyObject);
+                return __return.AsTask();
             }
-
-            var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.Import(__result_pyObject);
-            return await __return.AsTask();
         }
 
-        public async Task<long> TestCoroutineRaisesException()
+        public Task<long> TestCoroutineRaisesException()
         {
-            PyObject __result_pyObject;
             using (GIL.Acquire())
             {
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_raises_exception");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_raises_exception;
-                __result_pyObject = __underlyingPythonFunc.Call();
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.Import(__result_pyObject);
+                return __return.AsTask();
             }
-
-            var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.Import(__result_pyObject);
-            return await __return.AsTask();
         }
 
-        public async Task<PyObject> TestCoroutineReturnsNothing()
+        public Task<PyObject> TestCoroutineReturnsNothing()
         {
-            PyObject __result_pyObject;
             using (GIL.Acquire())
             {
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_returns_nothing");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_returns_nothing;
-                __result_pyObject = __underlyingPythonFunc.Call();
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Coroutine<PyObject, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.Import(__result_pyObject);
+                return __return.AsTask();
             }
-
-            var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Coroutine<PyObject, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.Import(__result_pyObject);
-            return await __return.AsTask();
         }
     }
 }

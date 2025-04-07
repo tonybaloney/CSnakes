@@ -131,15 +131,10 @@ public static partial class PyObjectImporters
         where TYieldImporter : IPyObjectImporter<TYield>
         where TReturnImporter : IPyObjectImporter<TReturn>
     {
-        public static ICoroutine<TYield, TSend, TReturn> Import(PyObject obj)
-        {
-            using (GIL.Acquire()) // TODO Assume this is done by the caller
-            {
-                return CPythonAPI.IsPyCoroutine(obj)
-                    ? new Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(obj.Clone())
-                    : throw InvalidCastException("coroutine", obj);
-            }
-        }
+        public static ICoroutine<TYield, TSend, TReturn> Import(PyObject obj) =>
+            CPythonAPI.IsPyCoroutine(obj)
+                ? new Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(obj.Clone())
+                : throw InvalidCastException("coroutine", obj);
     }
 
     private static PyObject GetTupleItem(PyObject obj, int index) =>

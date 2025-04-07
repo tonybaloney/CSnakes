@@ -149,13 +149,11 @@ public static class MethodReflection
                 returnExpression =
                     ReturnStatement(
                         returnSyntax is GenericNameSyntax { Identifier.Text: "Task" } && coroutineSyntax is not null
-                        ? AwaitExpression(
-                              InvocationExpression(
-                                  MemberAccessExpression(
-                                      SyntaxKind.SimpleMemberAccessExpression,
-                                      IdentifierName("__return"),
-                                      IdentifierName("AsTask")))
-                          )
+                        ? InvocationExpression(
+                              MemberAccessExpression(
+                                  SyntaxKind.SimpleMemberAccessExpression,
+                                  IdentifierName("__return"),
+                                  IdentifierName("AsTask")))
                         : IdentifierName("__return"));
                 break;
             }
@@ -183,35 +181,18 @@ public static class MethodReflection
                                 IdentifierName($"__func_{function.Name}"))))))
             );
 
-        LocalDeclarationStatementSyntax callStatement;
+        var callStatement = LocalDeclarationStatement(
+                VariableDeclaration(
+                    IdentifierName("PyObject"))
+                .WithVariables(
+                    SingletonSeparatedList(
+                        VariableDeclarator(
+                            Identifier("__result_pyObject"))
+                        .WithInitializer(
+                            EqualsValueClause(
+                                callExpression)))));
 
-        if (!function.IsAsync)
-        {
-            callStatement = LocalDeclarationStatement(
-                        VariableDeclaration(
-                            IdentifierName("PyObject"))
-                        .WithVariables(
-                            SingletonSeparatedList(
-                                VariableDeclarator(
-                                    Identifier("__result_pyObject"))
-                                .WithInitializer(
-                                    EqualsValueClause(
-                                        callExpression)))));
-
-        }
-        else
-        {
-            callStatement = LocalDeclarationStatement(
-                        VariableDeclaration(
-                            IdentifierName("PyObject"))
-                        .WithVariables(
-                            SingletonSeparatedList(
-                                VariableDeclarator(
-                                    Identifier("__result_pyObject"))
-                                )));
-
-        }
-        if (resultShouldBeDisposed && !function.IsAsync)
+        if (resultShouldBeDisposed)
             callStatement = callStatement.WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
 
         var logStatement = ExpressionStatement(
@@ -229,56 +210,22 @@ public static class MethodReflection
                                 ])))
                     );
 
-        BlockSyntax body;
-        if (function.IsAsync)
-        {
-            ExpressionStatementSyntax localCallStatement = ExpressionStatement(
-                AssignmentExpression(
-                    SyntaxKind.SimpleAssignmentExpression,
-                    IdentifierName("__result_pyObject"),
-                    callExpression));
-
-            StatementSyntax[] statements = [
-                logStatement,
-                functionObject,
-                .. pythonConversionStatements,
-                localCallStatement
-                ];
-
-            body = Block((StatementSyntax[])[
-                callStatement,
-                UsingStatement(
-                    null,
-                    InvocationExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("GIL"),
-                            IdentifierName("Acquire"))),
-                    Block(statements)
-                    ),
-                .. resultConversionStatements,
-                returnExpression]);
-        }
-        else
-        {
-            StatementSyntax[] statements = [
-                logStatement,
-                functionObject,
-                .. pythonConversionStatements,
-                callStatement,
-                .. resultConversionStatements,
-                returnExpression];
-            body = Block(
-                UsingStatement(
-                    null,
-                    InvocationExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("GIL"),
-                            IdentifierName("Acquire"))),
-                    Block(statements)
-                    ));
-        }
+        var body = Block(
+            UsingStatement(
+                null,
+                InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("GIL"),
+                        IdentifierName("Acquire"))),
+                Block((StatementSyntax[])[
+                    logStatement,
+                    functionObject,
+                    .. pythonConversionStatements,
+                    callStatement,
+                    .. resultConversionStatements,
+                    returnExpression])
+                ));
 
         // Sort the method parameters into this order
         // 1. All positional arguments
@@ -302,16 +249,10 @@ public static class MethodReflection
                     .Select((a) => a.cSharpParameter)
             );
 
-        var modifiers = function.IsAsync ? TokenList(
-                    Token(SyntaxKind.PublicKeyword),
-                    Token(SyntaxKind.AsyncKeyword)
-                )
-            : TokenList(Token(SyntaxKind.PublicKeyword));
-
         var syntax = MethodDeclaration(
             returnSyntax,
             Identifier(function.Name.ToPascalCase()))
-            .WithModifiers(modifiers)
+            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
             .WithBody(body)
             .WithParameterList(ParameterList(SeparatedList(methodParameters)));
 

@@ -51,7 +51,7 @@ internal class PyList<T, TImporter>(PyObject listObject) :
         // TODO: If someone fetches the same index multiple times, we cache the result to avoid multiple round trips to Python
         using (GIL.Acquire())
         {
-            return new PyEnumerable<T>(listObject);
+            return new PyEnumerable<T, TImporter>(listObject);
         }
     }
 

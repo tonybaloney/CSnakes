@@ -44,7 +44,7 @@ internal class PyDictionary<TKey, TValue, TKeyImporter, TValueImporter>(PyObject
         {
             using (GIL.Acquire())
             {
-                return new PyEnumerable<TKey>(PyObject.Create(CPythonAPI.PyMapping_Keys(_dictionaryObject)));
+                return new PyEnumerable<TKey, TKeyImporter>(PyObject.Create(CPythonAPI.PyMapping_Keys(_dictionaryObject)));
             }
         }
     }
@@ -55,7 +55,7 @@ internal class PyDictionary<TKey, TValue, TKeyImporter, TValueImporter>(PyObject
         {
             using (GIL.Acquire())
             {
-                return new PyEnumerable<TValue>(PyObject.Create(CPythonAPI.PyMapping_Values(_dictionaryObject)));
+                return new PyEnumerable<TValue, TValueImporter>(PyObject.Create(CPythonAPI.PyMapping_Values(_dictionaryObject)));
             }
         }
     }

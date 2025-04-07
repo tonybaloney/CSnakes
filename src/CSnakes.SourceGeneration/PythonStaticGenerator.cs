@@ -4,7 +4,6 @@ using CSnakes.Reflection;
 using CSnakes.SourceGeneration.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using System.Text;
@@ -28,7 +27,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             var fileName = Path.GetFileNameWithoutExtension(file.Path);
 
             // Convert snake_case to PascalCase
-            var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
+            var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s[1..]));
             // Read the file
             var code = file.GetText(sourceContext.CancellationToken);
 
@@ -57,7 +56,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
         });
 
         var methodReflectors = context.SyntaxProvider
-                          .ForAttributeWithMetadataName("CSnakes.Runtime.Reflection.EnumGenerationAttribute",
+                          .ForAttributeWithMetadataName("CSnakes.Runtime.Reflection.PythonMethodAttribute",
                                                         MethodAttributePartials.CouldBeMethod,
                                                         MethodAttributePartials.GetMethodInfo)
                           .Collect()
@@ -65,18 +64,8 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
         context.RegisterSourceOutput(methodReflectors, static (context, model) =>
         {
-            var sourceText = SourceText.From($$"""
-                namespace {{model.Namespace}};
-                partial class {{model.ClassName}}
-                {
-                    partial void {{model.MethodName}}()
-                    {
-                        // generated code
-                    }
-                }
-                """, Encoding.UTF8);
-
-            context.AddSource($"{model.ClassName}_{model.MethodName}.g.cs", sourceText);
+            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG010", "PythonStaticGenerator", "Reflecting Method", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
+            context.AddSource(model.GeneratedFileName, SourceText.From(model.SourceText, Encoding.UTF8));
         });
     }
 

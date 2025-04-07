@@ -115,6 +115,22 @@ public static partial class PyObjectImporters
                 : throw InvalidCastException("mapping with items", obj);
     }
 
+    public sealed class Generator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter> :
+        IPyObjectImporter<IGeneratorIterator<TYield, TSend, TReturn>>
+        where TYieldImporter : IPyObjectImporter<TYield>
+        where TReturnImporter : IPyObjectImporter<TReturn>
+    {
+        public static IGeneratorIterator<TYield, TSend, TReturn> Import(PyObject obj)
+        {
+            using (GIL.Acquire()) // TODO Assume this is done by the caller
+            {
+                return CPythonAPI.IsPyGenerator(obj)
+                    ? new GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(obj.Clone())
+                    : throw InvalidCastException("generator", obj);
+            }
+        }
+    }
+
     public sealed class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter> :
         IPyObjectImporter<ICoroutine<TYield, TSend, TReturn>>
         where TYieldImporter : IPyObjectImporter<TYield>

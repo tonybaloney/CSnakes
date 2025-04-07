@@ -44,7 +44,7 @@ internal static class ResultConversionCodeGenerator
 
             case { Name: "list" or "typing.List" or "List", Arguments: [var t] }:
             {
-                return ListConversionGenerator(t, "List");
+                return ListConversionGenerator(t);
             }
             case { Name: "typing.Sequence" or "Sequence", Arguments: [var t] }:
             {
@@ -64,11 +64,13 @@ internal static class ResultConversionCodeGenerator
             {
                 return DictionaryConversionGenerator(kt, vt, "Mapping");
             }
+            case { Name: "typing.Generator" or "Generator", Arguments: [var yt, var st, var rt] }:
+            {
+                return GeneratorConversionGenerator(yt, st, rt);
+            }
             case { Name: "typing.Coroutine" or "Coroutine", Arguments: [var yt, var st, var rt] }:
             {
-                var generator = (Yield: Create(yt), Send: Create(st), Return: Create(rt));
-                return new ConversionGenerator(TypeReflection.CreateGenericType("ICoroutine", [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax]),
-                                               GenericName(Identifier("Coroutine"), TypeArgumentList(SeparatedList([generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax, generator.Yield.ImporterTypeSyntax, generator.Return.ImporterTypeSyntax]))));
+                return GeneratorConversionGenerator(yt, st, rt, "ICoroutine", "Coroutine");
             }
             case var other:
             {
@@ -97,7 +99,7 @@ internal static class ResultConversionCodeGenerator
     public static IResultConversionCodeGenerator ScalarConversionGenerator(TypeSyntax syntax, string importerTypeName) =>
         new ConversionGenerator(syntax, IdentifierName(importerTypeName));
 
-    public static IResultConversionCodeGenerator ListConversionGenerator(PythonTypeSpec itemTypeSpec, string importerTypeName)
+    public static IResultConversionCodeGenerator ListConversionGenerator(PythonTypeSpec itemTypeSpec, string importerTypeName = "List")
     {
         var generator = Create(itemTypeSpec);
         return new ConversionGenerator(GenericName(Identifier(nameof(IReadOnlyList<object>)), TypeArgumentList(SingletonSeparatedList(generator.TypeSyntax))),
@@ -111,5 +113,19 @@ internal static class ResultConversionCodeGenerator
         var generator = (Key: Create(keyTypeSpec), Value: Create(valueTypeSpec));
         return new ConversionGenerator(TypeReflection.CreateGenericType(nameof(IReadOnlyDictionary<object, object>), [generator.Key.TypeSyntax, generator.Value.TypeSyntax]),
                                        GenericName(Identifier(importerTypeName), TypeArgumentList(SeparatedList([generator.Key.TypeSyntax, generator.Value.TypeSyntax, generator.Key.ImporterTypeSyntax, generator.Value.ImporterTypeSyntax]))));
+    }
+
+    public static IResultConversionCodeGenerator GeneratorConversionGenerator(PythonTypeSpec yieldTypeSpec,
+                                                                              PythonTypeSpec sendTypeSpec,
+                                                                              PythonTypeSpec returnTypeSpec,
+                                                                              string typeName = "IGeneratorIterator",
+                                                                              string importerTypeName = "Generator")
+    {
+        var generator = (Yield: Create(yieldTypeSpec),
+                         Send: Create(sendTypeSpec),
+                         Return: Create(returnTypeSpec));
+
+        return new ConversionGenerator(TypeReflection.CreateGenericType(typeName, [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax]),
+                                       GenericName(Identifier(importerTypeName), TypeArgumentList(SeparatedList([generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax, generator.Yield.ImporterTypeSyntax, generator.Return.ImporterTypeSyntax]))));
     }
 }

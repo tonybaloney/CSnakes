@@ -1,7 +1,17 @@
 using System.Collections;
+using CSnakes.Runtime.Python.Internals;
 
 namespace CSnakes.Runtime.Python;
-public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGeneratorIterator<TYield, TSend, TReturn>
+
+public sealed class GeneratorIterator<TYield, TSend, TReturn>(PyObject coroutine) :
+    GeneratorIterator<TYield, TSend, TReturn,
+                      PyObjectImporters.Runtime<TYield>,
+                      PyObjectImporters.Runtime<TReturn>>(coroutine);
+
+public class GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(PyObject generator) :
+    IGeneratorIterator<TYield, TSend, TReturn>
+    where TYieldImporter : IPyObjectImporter<TYield>
+    where TReturnImporter : IPyObjectImporter<TReturn>
 {
     private bool _disposed = false;
     private readonly PyObject generator = generator;
@@ -54,7 +64,7 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
         try
         {
             using PyObject result = sendPyFunction.Call(value);
-            current = result.As<TYield>();
+            current = TYieldImporter.Import(result);
             return true;
         }
         catch (PythonInvocationException ex)
@@ -62,7 +72,7 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
             if (ex.InnerException is PythonStopIterationException stopIteration)
             {
                 using var @return = stopIteration.TakeValue();
-                this.@return = @return.As<TReturn>();
+                this.@return = TReturnImporter.Import(@return);
                 return false;
             }
 

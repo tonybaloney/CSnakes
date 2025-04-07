@@ -22,6 +22,7 @@ internal static class ResultConversionCodeGenerator
     private static readonly IResultConversionCodeGenerator Boolean = ScalarConversionGenerator(SyntaxKind.BoolKeyword, "Boolean");
     private static readonly IResultConversionCodeGenerator Double = ScalarConversionGenerator(SyntaxKind.DoubleKeyword, "Double");
     private static readonly IResultConversionCodeGenerator ByteArray = ScalarConversionGenerator(ParseTypeName("byte[]"), "ByteArray");
+    private static readonly IResultConversionCodeGenerator Buffer = ScalarConversionGenerator(ParseTypeName("IPyBuffer"), "Buffer");
 
     public static IEnumerable<StatementSyntax> GenerateCode(PythonTypeSpec pythonTypeSpec,
                                                             string inputName, string outputName) =>
@@ -39,6 +40,7 @@ internal static class ResultConversionCodeGenerator
             case { Name: "float" }: return Double;
             case { Name: "bool" }: return Boolean;
             case { Name: "bytes" }: return ByteArray;
+            case { Name: "Buffer" or "typing.Buffer" or "collections.abc.Buffer" }: return Buffer;
 
             case { Name: "list" or "typing.List" or "List", Arguments: [var t] }:
             {

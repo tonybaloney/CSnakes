@@ -54,6 +54,14 @@ public static partial class PyObjectImporters
         public static byte[] Import(PyObject obj) => CPythonAPI.PyBytes_AsByteArray(obj);
     }
 
+    public sealed class Buffer : IPyObjectImporter<IPyBuffer>
+    {
+        public static IPyBuffer Import(PyObject obj) =>
+            CPythonAPI.IsBuffer(obj)
+                ? new PyBuffer(obj)
+                : throw InvalidCastException("buffer", obj);
+    }
+
     public sealed class Tuple<T, TImporter> : IPyObjectImporter<ValueTuple<T>>
         where TImporter : IPyObjectImporter<T>
     {

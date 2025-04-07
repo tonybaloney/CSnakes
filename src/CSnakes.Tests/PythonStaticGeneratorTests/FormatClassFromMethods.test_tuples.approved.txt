@@ -163,7 +163,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_1;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Tuple<string, global::CSnakes.Runtime.Python.InternalServices.Converters.String>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<string, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -176,7 +176,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_2;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Tuple<string, string, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<string, string, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -189,7 +189,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_3;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Tuple<string, string, string, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<string, string, string, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -202,7 +202,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_4;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Tuple<string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -215,7 +215,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_5;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Tuple<string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -228,7 +228,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_6;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Tuple<string, string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<string, string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -241,7 +241,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_7;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Tuple<string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -254,7 +254,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_8;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Tuple<string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -267,7 +267,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_9;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Tuple<string, string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<string, string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -280,7 +280,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_10;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Tuple<string, string, string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<string, string, string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -293,7 +293,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_11;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Tuple<string, string, string, string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<string, string, string, string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -306,7 +306,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_12;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Tuple<string, string, string, string, string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.String>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<string, string, string, string, string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -319,7 +319,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_13;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string)>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string)>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -332,7 +332,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_14;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string, string)>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string, string)>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -345,7 +345,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_15;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -358,7 +358,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_16;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -371,7 +371,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_17;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)>.Import(__result_pyObject);
                 return __return;
             }
         }

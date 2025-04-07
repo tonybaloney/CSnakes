@@ -1,10 +1,11 @@
 using CSnakes.Runtime.CPython;
 using System.Collections;
+using static CSnakes.Runtime.Python.InternalServices;
 
 namespace CSnakes.Runtime.Python;
 
 internal class PyEnumerable<TValue, TImporter> : IEnumerable<TValue>, IEnumerator<TValue>, IDisposable
-    where TImporter : InternalServices.IConverter<TValue>
+    where TImporter : IPyObjectImporter<TValue>
 {
     private readonly PyObject _pyIterator;
     private TValue current = default!;
@@ -41,7 +42,7 @@ internal class PyEnumerable<TValue, TImporter> : IEnumerable<TValue>, IEnumerato
             }
 
             using PyObject pyObject = PyObject.Create(result);
-            current = TImporter.Convert(pyObject);
+            current = TImporter.Import(pyObject);
             return true;
         }
     }
@@ -51,7 +52,7 @@ internal class PyEnumerable<TValue, TImporter> : IEnumerable<TValue>, IEnumerato
     IEnumerator IEnumerable.GetEnumerator() => this;
 }
 
-internal class PyEnumerable<TValue> : PyEnumerable<TValue, InternalServices.Converters.Runtime<TValue>>
+internal class PyEnumerable<TValue> : PyEnumerable<TValue, PyObjectImporters.Runtime<TValue>>
 {
     internal PyEnumerable(PyObject pyObject) : base(pyObject) { }
 }

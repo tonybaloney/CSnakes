@@ -1,18 +1,19 @@
 using CSnakes.Runtime.CPython;
+using static CSnakes.Runtime.Python.InternalServices;
 
 namespace CSnakes.Runtime.Python;
 
 public sealed class Coroutine<TYield, TSend, TReturn>(PyObject coroutine) :
     Coroutine<TYield, TSend, TReturn,
-              InternalServices.Converters.Runtime<TYield>,
-              InternalServices.Converters.Runtime<TSend>,
-              InternalServices.Converters.Runtime<TReturn>>(coroutine);
+              PyObjectImporters.Runtime<TYield>,
+              PyObjectImporters.Runtime<TSend>,
+              PyObjectImporters.Runtime<TReturn>>(coroutine);
 
-public class Coroutine<TYield, TSend, TReturn, TYieldConvert, TSendConvert, TReturnConvert>(PyObject coroutine) :
+public class Coroutine<TYield, TSend, TReturn, TYieldImporter, TSendImporter, TReturnImporter>(PyObject coroutine) :
     ICoroutine<TYield, TSend, TReturn>
-    where TYieldConvert : InternalServices.IConverter<TYield>
-    where TSendConvert : InternalServices.IConverter<TSend>
-    where TReturnConvert : InternalServices.IConverter<TReturn>
+    where TYieldImporter : IPyObjectImporter<TYield>
+    where TSendImporter : IPyObjectImporter<TSend>
+    where TReturnImporter : IPyObjectImporter<TReturn>
 {
     private TYield current = default!;
     private TReturn @return = default!;
@@ -30,7 +31,7 @@ public class Coroutine<TYield, TSend, TReturn, TYieldConvert, TSendConvert, TRet
                     using (GIL.Acquire())
                     {
                         using PyObject result = CPythonAPI.GetEventLoop().RunTaskUntilComplete(coroutine, cancellationToken);
-                        current = TYieldConvert.Convert(result);
+                        current = TYieldImporter.Import(result);
                     }
                     return current;
                 }
@@ -39,7 +40,7 @@ public class Coroutine<TYield, TSend, TReturn, TYieldConvert, TSendConvert, TRet
                     if (ex.InnerException is PythonStopIterationException stopIteration)
                     {
                         using var @return = stopIteration.TakeValue();
-                        this.@return = TReturnConvert.Convert(@return);
+                        this.@return = TReturnImporter.Import(@return);
 
                         // Coroutine has finished
                         // TODO: define behavior for this case

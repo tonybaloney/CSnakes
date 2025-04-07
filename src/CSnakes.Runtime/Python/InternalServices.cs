@@ -9,113 +9,113 @@ namespace CSnakes.Runtime.Python;
 /// </summary>
 public static partial class InternalServices
 {
-    public interface IConverter<out T>
+    public interface IPyObjectImporter<out T>
     {
-        static abstract T Convert(PyObject obj);
+        static abstract T Import(PyObject obj);
     }
 
-    public static partial class Converters
+    public static partial class PyObjectImporters
     {
-        public sealed class Runtime<T> : IConverter<T>
+        public sealed class Runtime<T> : IPyObjectImporter<T>
         {
-            public static T Convert(PyObject obj) => obj.As<T>();
+            public static T Import(PyObject obj) => obj.As<T>();
         }
 
-        public sealed class Boolean : IConverter<bool>
+        public sealed class Boolean : IPyObjectImporter<bool>
         {
-            public static bool Convert(PyObject obj) => CPythonAPI.IsPyTrue(obj);
+            public static bool Import(PyObject obj) => CPythonAPI.IsPyTrue(obj);
         }
 
-        public sealed class Int64 : IConverter<long>
+        public sealed class Int64 : IPyObjectImporter<long>
         {
-            public static long Convert(PyObject obj) => CPythonAPI.PyLong_AsLongLong(obj);
+            public static long Import(PyObject obj) => CPythonAPI.PyLong_AsLongLong(obj);
         }
 
-        public sealed class Double : IConverter<double>
+        public sealed class Double : IPyObjectImporter<double>
         {
-            public static double Convert(PyObject obj) => CPythonAPI.PyFloat_AsDouble(obj);
+            public static double Import(PyObject obj) => CPythonAPI.PyFloat_AsDouble(obj);
         }
 
-        public sealed class Single : IConverter<float>
+        public sealed class Single : IPyObjectImporter<float>
         {
-            public static float Convert(PyObject obj) => (float)CPythonAPI.PyFloat_AsDouble(obj);
+            public static float Import(PyObject obj) => (float)CPythonAPI.PyFloat_AsDouble(obj);
         }
 
-        public sealed class String : IConverter<string>
+        public sealed class String : IPyObjectImporter<string>
         {
-            public static string Convert(PyObject obj) => CPythonAPI.PyUnicode_AsUTF8(obj);
+            public static string Import(PyObject obj) => CPythonAPI.PyUnicode_AsUTF8(obj);
         }
 
-        public sealed class ByteArray : IConverter<byte[]>
+        public sealed class ByteArray : IPyObjectImporter<byte[]>
         {
-            public static byte[] Convert(PyObject obj) => CPythonAPI.PyBytes_AsByteArray(obj);
+            public static byte[] Import(PyObject obj) => CPythonAPI.PyBytes_AsByteArray(obj);
         }
 
-        public sealed class Tuple<T, TConverter> : IConverter<ValueTuple<T>>
-            where TConverter : IConverter<T>
+        public sealed class Tuple<T, TImporter> : IPyObjectImporter<ValueTuple<T>>
+            where TImporter : IPyObjectImporter<T>
         {
-            public static ValueTuple<T> Convert(PyObject obj)
+            public static ValueTuple<T> Import(PyObject obj)
             {
                 CheckTuple(obj);
                 using var item = GetTupleItem(obj, 0);
-                return new(TConverter.Convert(item));
+                return new(TImporter.Import(item));
             }
         }
 
-        public sealed class Sequence<T, TConverter> : IConverter<IReadOnlyList<T>>
-            where TConverter : IConverter<T>
+        public sealed class Sequence<T, TImporter> : IPyObjectImporter<IReadOnlyList<T>>
+            where TImporter : IPyObjectImporter<T>
         {
-            public static IReadOnlyList<T> Convert(PyObject obj) =>
+            public static IReadOnlyList<T> Import(PyObject obj) =>
                 CPythonAPI.IsPySequence(obj)
-                    ? new PyList<T, TConverter>(obj.Clone())
+                    ? new PyList<T, TImporter>(obj.Clone())
                     : throw InvalidCastException("sequence", obj);
         }
 
-        public sealed class List<T, TConverter> : IConverter<IReadOnlyList<T>>
-            where TConverter : IConverter<T>
+        public sealed class List<T, TImporter> : IPyObjectImporter<IReadOnlyList<T>>
+            where TImporter : IPyObjectImporter<T>
         {
-            public static IReadOnlyList<T> Convert(PyObject obj) =>
+            public static IReadOnlyList<T> Import(PyObject obj) =>
                 CPythonAPI.IsPyList(obj)
-                    ? new PyList<T, TConverter>(obj.Clone())
+                    ? new PyList<T, TImporter>(obj.Clone())
                     : throw InvalidCastException("list", obj);
         }
 
-        public sealed class Dictionary<TKey, TValue, TKeyConverter, TValueConverter> :
-            IConverter<IReadOnlyDictionary<TKey, TValue>>
+        public sealed class Dictionary<TKey, TValue, TKeyImporter, TValueImporter> :
+            IPyObjectImporter<IReadOnlyDictionary<TKey, TValue>>
             where TKey : notnull
-            where TKeyConverter : IConverter<TKey>
-            where TValueConverter : IConverter<TValue>
+            where TKeyImporter : IPyObjectImporter<TKey>
+            where TValueImporter : IPyObjectImporter<TValue>
         {
-            public static IReadOnlyDictionary<TKey, TValue> Convert(PyObject obj) =>
+            public static IReadOnlyDictionary<TKey, TValue> Import(PyObject obj) =>
                 CPythonAPI.IsPyDict(obj)
-                    ? new PyDictionary<TKey,TValue,TKeyConverter,TValueConverter>(obj.Clone())
+                    ? new PyDictionary<TKey,TValue,TKeyImporter,TValueImporter>(obj.Clone())
                     : throw InvalidCastException("dict", obj);
         }
 
-        public sealed class Mapping<TKey, TValue, TKeyConverter, TValueConverter> :
-            IConverter<IReadOnlyDictionary<TKey, TValue>>
+        public sealed class Mapping<TKey, TValue, TKeyImporter, TValueImporter> :
+            IPyObjectImporter<IReadOnlyDictionary<TKey, TValue>>
             where TKey : notnull
-            where TKeyConverter : IConverter<TKey>
-            where TValueConverter : IConverter<TValue>
+            where TKeyImporter : IPyObjectImporter<TKey>
+            where TValueImporter : IPyObjectImporter<TValue>
         {
-            public static IReadOnlyDictionary<TKey, TValue> Convert(PyObject obj) =>
+            public static IReadOnlyDictionary<TKey, TValue> Import(PyObject obj) =>
                 CPythonAPI.IsPyMappingWithItems(obj)
-                    ? new PyDictionary<TKey,TValue,TKeyConverter,TValueConverter>(obj.Clone())
+                    ? new PyDictionary<TKey,TValue,TKeyImporter,TValueImporter>(obj.Clone())
                     : throw InvalidCastException("mapping with items", obj);
         }
 
-        public sealed class Coroutine<TYield, TSend, TReturn, TYieldConverter, TSendConverter, TReturnConverter> :
-            IConverter<ICoroutine<TYield, TSend, TReturn>>
-            where TYieldConverter : IConverter<TYield>
-            where TSendConverter : IConverter<TSend>
-            where TReturnConverter : IConverter<TReturn>
+        public sealed class Coroutine<TYield, TSend, TReturn, TYieldImporter, TSendImporter, TReturnImporter> :
+            IPyObjectImporter<ICoroutine<TYield, TSend, TReturn>>
+            where TYieldImporter : IPyObjectImporter<TYield>
+            where TSendImporter : IPyObjectImporter<TSend>
+            where TReturnImporter : IPyObjectImporter<TReturn>
         {
-            public static ICoroutine<TYield, TSend, TReturn> Convert(PyObject obj)
+            public static ICoroutine<TYield, TSend, TReturn> Import(PyObject obj)
             {
                 using (GIL.Acquire()) // TODO Assume this is done by the caller
                 {
                     return CPythonAPI.IsPyCoroutine(obj)
-                        ? new Python.Coroutine<TYield, TSend, TReturn, TYieldConverter, TSendConverter, TReturnConverter>(obj.Clone())
+                        ? new Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TSendImporter, TReturnImporter>(obj.Clone())
                         : throw InvalidCastException("coroutine", obj);
                 }
             }

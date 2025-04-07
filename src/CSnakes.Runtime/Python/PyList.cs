@@ -1,14 +1,15 @@
 using CSnakes.Runtime.CPython;
 using System.Collections;
+using static CSnakes.Runtime.Python.InternalServices;
 
 namespace CSnakes.Runtime.Python;
 
 internal sealed class PyList<T>(PyObject listObject) :
-    PyList<T, InternalServices.Converters.Runtime<T>>(listObject);
+    PyList<T, PyObjectImporters.Runtime<T>>(listObject);
 
-internal class PyList<T, TConverter>(PyObject listObject) :
+internal class PyList<T, TImporter>(PyObject listObject) :
     IReadOnlyList<T>, IDisposable, ICloneable
-    where TConverter : InternalServices.IConverter<T>
+    where TImporter : IPyObjectImporter<T>
 {
     // If someone fetches the same index multiple times, we cache the result to avoid multiple round trips to Python
     private readonly Dictionary<long, T> _convertedItems = [];
@@ -25,7 +26,7 @@ internal class PyList<T, TConverter>(PyObject listObject) :
             using (GIL.Acquire())
             {
                 using PyObject value = PyObject.Create(CPythonAPI.PySequence_GetItem(listObject, index));
-                var result = TConverter.Convert(value);
+                var result = TImporter.Import(value);
                 _convertedItems[index] = result;
                 return result;
             }

@@ -87,7 +87,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_number");
                 PyObject __underlyingPythonFunc = this.__func_test_number;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Int64.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Int64.Import(__result_pyObject);
                 return __return;
             }
         }

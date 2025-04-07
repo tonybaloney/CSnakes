@@ -12,36 +12,36 @@
         select new
         {
             Types = from n in ns select $"T{n}",
-            Converters = from n in ns select $"TConverter{n}",
+            Importers = from n in ns select $"TImporter{n}",
             Vars = ns.Select((_, i) => vars[i]).ToArray(),
         }
         into e
         select new
         {
             Ts = string.Join(", ", e.Types),
-            e.Converters,
-            Constraints = e.Types.Zip(e.Converters, (t, c) => new { Type = t, Converter = c }),
+            e.Importers,
+            Constraints = e.Types.Zip(e.Importers, (t, c) => new { Type = t, Converter = c }),
             Vars = e.Vars.Select((v, i) => new { Name = v, Index = i.ToString(CultureInfo.InvariantCulture) }),
         };
 #>
 namespace CSnakes.Runtime.Python;
 partial class InternalServices
 {
-    partial class Converters
+    partial class PyObjectImporters
     {<#
     foreach (var e in impls)
     { #>
 
-        public sealed class Tuple<<#= e.Ts #>, <#= string.Join(", ", e.Converters) #>> :
-            IConverter<(<#= e.Ts #>)>
+        public sealed class Tuple<<#= e.Ts #>, <#= string.Join(", ", e.Importers) #>> :
+            IPyObjectImporter<(<#= e.Ts #>)>
 <#
         foreach (var c in e.Constraints)
         { #>
-            where <#= c.Converter #> : IConverter<<#= c.Type #>>
+            where <#= c.Converter #> : IPyObjectImporter<<#= c.Type #>>
 <#      } #>
         {
             public static (<#= e.Ts #>)
-                Convert(PyObject obj)
+                Import(PyObject obj)
             {
                 CheckTuple(obj);
 <#
@@ -49,7 +49,7 @@ partial class InternalServices
         { #>
                 using var <#= v.Name #> = GetTupleItem(obj, <#= v.Index #>);
 <#      } #>
-                return (<#= string.Join(", ", e.Converters.Zip(e.Vars, (c, v) => $"{c}.Convert({v.Name})")) #>);
+                return (<#= string.Join(", ", e.Importers.Zip(e.Vars, (c, v) => $"{c}.Import({v.Name})")) #>);
             }
         }
 <#  } #>

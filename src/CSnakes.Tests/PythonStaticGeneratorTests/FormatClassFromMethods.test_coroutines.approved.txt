@@ -95,7 +95,7 @@ public static class TestClassExtensions
                 __result_pyObject = __underlyingPythonFunc.Call();
             }
 
-            var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.InternalServices.Converters.Int64, global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<PyObject>, global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<PyObject>>.Convert(__result_pyObject);
+            var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Runtime<PyObject>, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Runtime<PyObject>>.Import(__result_pyObject);
             return await __return.AsTask();
         }
 
@@ -109,7 +109,7 @@ public static class TestClassExtensions
                 __result_pyObject = __underlyingPythonFunc.Call();
             }
 
-            var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.InternalServices.Converters.Int64, global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<PyObject>, global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<PyObject>>.Convert(__result_pyObject);
+            var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Runtime<PyObject>, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Runtime<PyObject>>.Import(__result_pyObject);
             return await __return.AsTask();
         }
 
@@ -123,7 +123,7 @@ public static class TestClassExtensions
                 __result_pyObject = __underlyingPythonFunc.Call();
             }
 
-            var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Coroutine<PyObject, PyObject, PyObject, global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<PyObject>, global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<PyObject>, global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<PyObject>>.Convert(__result_pyObject);
+            var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Coroutine<PyObject, PyObject, PyObject, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Runtime<PyObject>, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Runtime<PyObject>, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Runtime<PyObject>>.Import(__result_pyObject);
             return await __return.AsTask();
         }
     }

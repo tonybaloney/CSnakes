@@ -99,7 +99,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_none_result;
                 using PyObject arg_pyObject = PyObject.From(arg)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(arg_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Boolean.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Boolean.Import(__result_pyObject);
                 return __return;
             }
         }

@@ -1,19 +1,19 @@
 using CSnakes.Runtime.CPython;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using Converters = CSnakes.Runtime.Python.InternalServices.Converters;
+using static CSnakes.Runtime.Python.InternalServices;
 
 namespace CSnakes.Runtime.Python;
 
 internal class PyDictionary<TKey, TValue>(PyObject dictionary) :
-    PyDictionary<TKey, TValue, Converters.Runtime<TKey>, Converters.Runtime<TValue>>(dictionary)
+    PyDictionary<TKey, TValue, PyObjectImporters.Runtime<TKey>, PyObjectImporters.Runtime<TValue>>(dictionary)
     where TKey : notnull;
 
-internal class PyDictionary<TKey, TValue, TKeyConverter, TValueConverter>(PyObject dictionary) :
+internal class PyDictionary<TKey, TValue, TKeyImporter, TValueImporter>(PyObject dictionary) :
     IReadOnlyDictionary<TKey, TValue>, IDisposable, ICloneable
     where TKey : notnull
-    where TKeyConverter : InternalServices.IConverter<TKey>
-    where TValueConverter : InternalServices.IConverter<TValue>
+    where TKeyImporter : IPyObjectImporter<TKey>
+    where TValueImporter : IPyObjectImporter<TValue>
 {
     private readonly Dictionary<TKey, TValue> _dictionary = [];
     private readonly PyObject _dictionaryObject = dictionary;
@@ -30,7 +30,7 @@ internal class PyDictionary<TKey, TValue, TKeyConverter, TValueConverter>(PyObje
             {
                 using PyObject keyPyObject = PyObject.From(key);
                 using PyObject pyObjValue = PyObject.Create(CPythonAPI.PyMapping_GetItem(_dictionaryObject, keyPyObject));
-                var managedValue = TValueConverter.Convert(pyObjValue);
+                var managedValue = TValueImporter.Import(pyObjValue);
 
                 _dictionary[key] = managedValue;
                 return managedValue;
@@ -92,17 +92,17 @@ internal class PyDictionary<TKey, TValue, TKeyConverter, TValueConverter>(PyObje
         using (GIL.Acquire())
         {
             using var items = PyObject.Create(CPythonAPI.PyMapping_Items(_dictionaryObject));
-            return new PyEnumerable<KeyValuePair<TKey, TValue>, KeyValuePairConverter>(items).GetEnumerator();
+            return new PyEnumerable<KeyValuePair<TKey, TValue>, KeyValuePairImporter>(items).GetEnumerator();
         }
     }
 
-    sealed class KeyValuePairConverter : InternalServices.IConverter<KeyValuePair<TKey, TValue>>
+    sealed class KeyValuePairImporter : IPyObjectImporter<KeyValuePair<TKey, TValue>>
     {
-        private KeyValuePairConverter() { }
+        private KeyValuePairImporter() { }
 
-        public static KeyValuePair<TKey, TValue> Convert(PyObject obj)
+        public static KeyValuePair<TKey, TValue> Import(PyObject obj)
         {
-            var (key, value) = Converters.Tuple<TKey, TValue, TKeyConverter, TValueConverter>.Convert(obj);
+            var (key, value) = PyObjectImporters.Tuple<TKey, TValue, TKeyImporter, TValueImporter>.Import(obj);
             return new KeyValuePair<TKey, TValue>(key, value);
         }
     }

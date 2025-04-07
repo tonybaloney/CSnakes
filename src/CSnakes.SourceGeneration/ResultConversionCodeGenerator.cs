@@ -10,7 +10,7 @@ namespace CSnakes.SourceGeneration;
 internal interface IResultConversionCodeGenerator
 {
     TypeSyntax TypeSyntax { get; }
-    TypeSyntax ConverterTypeSyntax { get; }
+    TypeSyntax ImporterTypeSyntax { get; }
 
     IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName);
 }
@@ -27,8 +27,8 @@ internal static class ResultConversionCodeGenerator
                                                             string inputName, string outputName) =>
         Create(pythonTypeSpec).GenerateCode(inputName, outputName);
 
-    private static NameSyntax ConvertersQualifiedName =>
-        ParseName("global::CSnakes.Runtime.Python.InternalServices.Converters");
+    private static NameSyntax ImportersQualifiedName =>
+        ParseName("global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters");
 
     public static IResultConversionCodeGenerator Create(PythonTypeSpec pythonTypeSpec)
     {
@@ -52,7 +52,7 @@ internal static class ResultConversionCodeGenerator
             {
                 var generators = ImmutableArray.CreateRange(from t in ts select Create(t));
                 return new ConversionGenerator(TupleType(SeparatedList(from item in generators select TupleElement(item.TypeSyntax))),
-                                               GenericName(Identifier("Tuple"), TypeArgumentList(SeparatedList([.. from item in generators select item.TypeSyntax, .. from item in generators select item.ConverterTypeSyntax]))));
+                                               GenericName(Identifier("Tuple"), TypeArgumentList(SeparatedList([.. from item in generators select item.TypeSyntax, .. from item in generators select item.ImporterTypeSyntax]))));
             }
             case { Name: "dict" or "typing.Dict" or "Dict", Arguments: [var kt, var vt] }:
             {
@@ -66,7 +66,7 @@ internal static class ResultConversionCodeGenerator
             {
                 var generator = (Yield: Create(yt), Send: Create(st), Return: Create(rt));
                 return new ConversionGenerator(TypeReflection.CreateGenericType("ICoroutine", [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax]),
-                                               GenericName(Identifier("Coroutine"), TypeArgumentList(SeparatedList([generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax, generator.Yield.ConverterTypeSyntax, generator.Send.ConverterTypeSyntax, generator.Return.ConverterTypeSyntax]))));
+                                               GenericName(Identifier("Coroutine"), TypeArgumentList(SeparatedList([generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax, generator.Yield.ImporterTypeSyntax, generator.Send.ImporterTypeSyntax, generator.Return.ImporterTypeSyntax]))));
             }
             case var other:
             {
@@ -76,38 +76,38 @@ internal static class ResultConversionCodeGenerator
         }
     }
 
-    private sealed class ConversionGenerator(TypeSyntax typeSyntax, TypeSyntax converterTypeSyntax) :
+    private sealed class ConversionGenerator(TypeSyntax typeSyntax, TypeSyntax importerTypeSyntax) :
         IResultConversionCodeGenerator
     {
-        public ConversionGenerator(TypeSyntax typeSyntax, SimpleNameSyntax simpleConverterTypeNameSyntax) :
-            this(typeSyntax, QualifiedName(ConvertersQualifiedName, simpleConverterTypeNameSyntax)) { }
+        public ConversionGenerator(TypeSyntax typeSyntax, SimpleNameSyntax simpleImporterTypeSyntax) :
+            this(typeSyntax, QualifiedName(ImportersQualifiedName, simpleImporterTypeSyntax)) { }
 
         public TypeSyntax TypeSyntax { get; } = typeSyntax;
-        public TypeSyntax ConverterTypeSyntax { get; } = converterTypeSyntax;
+        public TypeSyntax ImporterTypeSyntax { get; } = importerTypeSyntax;
 
         public IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName) =>
-            [ParseStatement($"var {outputName} = {ConverterTypeSyntax}.Convert({inputName});")];
+            [ParseStatement($"var {outputName} = {ImporterTypeSyntax}.Import({inputName});")];
     }
 
-    public static IResultConversionCodeGenerator ScalarConversionGenerator(SyntaxKind syntaxKind, string converterTypeName) =>
-        ScalarConversionGenerator(PredefinedType(Token(syntaxKind)), converterTypeName);
+    public static IResultConversionCodeGenerator ScalarConversionGenerator(SyntaxKind syntaxKind, string importerTypeName) =>
+        ScalarConversionGenerator(PredefinedType(Token(syntaxKind)), importerTypeName);
 
-    public static IResultConversionCodeGenerator ScalarConversionGenerator(TypeSyntax syntax, string converterTypeName) =>
-        new ConversionGenerator(syntax, IdentifierName(converterTypeName));
+    public static IResultConversionCodeGenerator ScalarConversionGenerator(TypeSyntax syntax, string importerTypeName) =>
+        new ConversionGenerator(syntax, IdentifierName(importerTypeName));
 
-    public static IResultConversionCodeGenerator ListConversionGenerator(PythonTypeSpec itemTypeSpec, string converterTypeName)
+    public static IResultConversionCodeGenerator ListConversionGenerator(PythonTypeSpec itemTypeSpec, string importerTypeName)
     {
         var generator = Create(itemTypeSpec);
         return new ConversionGenerator(GenericName(Identifier(nameof(IReadOnlyList<object>)), TypeArgumentList(SingletonSeparatedList(generator.TypeSyntax))),
-                                       GenericName(Identifier(converterTypeName), TypeArgumentList(SeparatedList([generator.TypeSyntax, generator.ConverterTypeSyntax]))));
+                                       GenericName(Identifier(importerTypeName), TypeArgumentList(SeparatedList([generator.TypeSyntax, generator.ImporterTypeSyntax]))));
     }
 
     public static IResultConversionCodeGenerator DictionaryConversionGenerator(PythonTypeSpec keyTypeSpec,
                                                                                PythonTypeSpec valueTypeSpec,
-                                                                               string converterTypeName)
+                                                                               string importerTypeName)
     {
         var generator = (Key: Create(keyTypeSpec), Value: Create(valueTypeSpec));
                 return new ConversionGenerator(TypeReflection.CreateGenericType(nameof(IReadOnlyDictionary<object, object>), [generator.Key.TypeSyntax, generator.Value.TypeSyntax]),
-                                               GenericName(Identifier(converterTypeName), TypeArgumentList(SeparatedList([generator.Key.TypeSyntax, generator.Value.TypeSyntax, generator.Key.ConverterTypeSyntax, generator.Value.ConverterTypeSyntax]))));
+                                               GenericName(Identifier(importerTypeName), TypeArgumentList(SeparatedList([generator.Key.TypeSyntax, generator.Value.TypeSyntax, generator.Key.ImporterTypeSyntax, generator.Value.ImporterTypeSyntax]))));
     }
 }

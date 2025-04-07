@@ -120,15 +120,10 @@ public static partial class PyObjectImporters
         where TYieldImporter : IPyObjectImporter<TYield>
         where TReturnImporter : IPyObjectImporter<TReturn>
     {
-        public static IGeneratorIterator<TYield, TSend, TReturn> Import(PyObject obj)
-        {
-            using (GIL.Acquire()) // TODO Assume this is done by the caller
-            {
-                return CPythonAPI.IsPyGenerator(obj)
-                    ? new GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(obj.Clone())
-                    : throw InvalidCastException("generator", obj);
-            }
-        }
+        public static IGeneratorIterator<TYield, TSend, TReturn> Import(PyObject obj) =>
+            CPythonAPI.IsPyGenerator(obj)
+                ? new GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(obj.Clone())
+                : throw InvalidCastException("generator", obj);
     }
 
     public sealed class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter> :

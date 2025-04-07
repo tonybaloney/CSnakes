@@ -44,9 +44,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Python\InternalServices.Converters.Tuple.g.tt">
+    <None Update="Python\Internals\PyObjectImporters.Tuple.g.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>InternalServices.Converters.Tuple.g.cs</LastGenOutput>
+      <LastGenOutput>PyObjectImporters.Tuple.g.cs</LastGenOutput>
     </None>
   </ItemGroup>
 
@@ -55,10 +55,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Python\InternalServices.Converters.Tuple.g.cs">
+    <Compile Update="Python\Internals\PyObjectImporters.Tuple.g.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>InternalServices.Converters.Tuple.g.tt</DependentUpon>
+      <DependentUpon>PyObjectImporters.Tuple.g.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 

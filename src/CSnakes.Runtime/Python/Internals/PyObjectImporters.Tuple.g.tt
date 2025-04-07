@@ -24,34 +24,31 @@
             Vars = e.Vars.Select((v, i) => new { Name = v, Index = i.ToString(CultureInfo.InvariantCulture) }),
         };
 #>
-namespace CSnakes.Runtime.Python;
-partial class InternalServices
-{
-    partial class PyObjectImporters
-    {<#
+namespace CSnakes.Runtime.Python.Internals;
+partial class PyObjectImporters
+{<#
     foreach (var e in impls)
     { #>
 
-        public sealed class Tuple<<#= e.Ts #>, <#= string.Join(", ", e.Importers) #>> :
-            IPyObjectImporter<(<#= e.Ts #>)>
+    public sealed class Tuple<<#= e.Ts #>, <#= string.Join(", ", e.Importers) #>> :
+        IPyObjectImporter<(<#= e.Ts #>)>
 <#
         foreach (var c in e.Constraints)
         { #>
-            where <#= c.Converter #> : IPyObjectImporter<<#= c.Type #>>
+        where <#= c.Converter #> : IPyObjectImporter<<#= c.Type #>>
 <#      } #>
+    {
+        public static (<#= e.Ts #>)
+            Import(PyObject obj)
         {
-            public static (<#= e.Ts #>)
-                Import(PyObject obj)
-            {
-                CheckTuple(obj);
+            CheckTuple(obj);
 <#
         foreach (var v in e.Vars)
         { #>
-                using var <#= v.Name #> = GetTupleItem(obj, <#= v.Index #>);
+            using var <#= v.Name #> = GetTupleItem(obj, <#= v.Index #>);
 <#      } #>
-                return (<#= string.Join(", ", e.Importers.Zip(e.Vars, (c, v) => $"{c}.Import({v.Name})")) #>);
-            }
+            return (<#= string.Join(", ", e.Importers.Zip(e.Vars, (c, v) => $"{c}.Import({v.Name})")) #>);
         }
-<#  } #>
     }
+<#  } #>
 }

@@ -137,7 +137,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_str_actually_returns_int");
                 PyObject __underlyingPythonFunc = this.__func_test_str_actually_returns_int;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -149,7 +149,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_str_actually_returns_float");
                 PyObject __underlyingPythonFunc = this.__func_test_str_actually_returns_float;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -161,7 +161,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_str_actually_returns_list");
                 PyObject __underlyingPythonFunc = this.__func_test_str_actually_returns_list;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -173,7 +173,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_str_actually_returns_tuple");
                 PyObject __underlyingPythonFunc = this.__func_test_str_actually_returns_tuple;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.String.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -185,7 +185,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_tuple_actually_returns_int");
                 PyObject __underlyingPythonFunc = this.__func_test_tuple_actually_returns_int;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<long, long, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Int64>.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Tuple<long, long, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -197,7 +197,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_tuple_actually_returns_float");
                 PyObject __underlyingPythonFunc = this.__func_test_tuple_actually_returns_float;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<double, double, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Double, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Double>.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Tuple<double, double, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Double, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Double>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -209,7 +209,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_tuple_actually_returns_list");
                 PyObject __underlyingPythonFunc = this.__func_test_tuple_actually_returns_list;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Tuple<IReadOnlyList<long>, IReadOnlyList<long>, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.List<long, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Int64>, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.List<long, global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Int64>>.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Tuple<IReadOnlyList<long>, IReadOnlyList<long>, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.List<long, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64>, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.List<long, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64>>.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -221,7 +221,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_float_returns_int");
                 PyObject __underlyingPythonFunc = this.__func_test_float_returns_int;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Double.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Double.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -233,7 +233,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_float_returns_str");
                 PyObject __underlyingPythonFunc = this.__func_test_float_returns_str;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Double.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Double.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -245,7 +245,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_int_returns_float");
                 PyObject __underlyingPythonFunc = this.__func_test_int_returns_float;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Int64.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -257,7 +257,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_int_returns_str");
                 PyObject __underlyingPythonFunc = this.__func_test_int_returns_str;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Int64.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64.Import(__result_pyObject);
                 return __return;
             }
         }
@@ -269,7 +269,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_int_overflows");
                 PyObject __underlyingPythonFunc = this.__func_test_int_overflows;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters.Int64.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64.Import(__result_pyObject);
                 return __return;
             }
         }

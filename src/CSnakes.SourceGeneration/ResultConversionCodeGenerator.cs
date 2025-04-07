@@ -28,7 +28,7 @@ internal static class ResultConversionCodeGenerator
         Create(pythonTypeSpec).GenerateCode(inputName, outputName);
 
     private static NameSyntax ImportersQualifiedName =>
-        ParseName("global::CSnakes.Runtime.Python.InternalServices.PyObjectImporters");
+        ParseName("global::CSnakes.Runtime.Python.Internals.PyObjectImporters");
 
     public static IResultConversionCodeGenerator Create(PythonTypeSpec pythonTypeSpec)
     {

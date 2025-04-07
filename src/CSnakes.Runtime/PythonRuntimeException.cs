@@ -1,6 +1,6 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
-using static CSnakes.Runtime.Python.InternalServices;
+using CSnakes.Runtime.Python.Internals;
 
 namespace CSnakes.Runtime;
 public class PythonRuntimeException : Exception

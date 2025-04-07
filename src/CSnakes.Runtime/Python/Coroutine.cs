@@ -1,5 +1,5 @@
 using CSnakes.Runtime.CPython;
-using static CSnakes.Runtime.Python.InternalServices;
+using CSnakes.Runtime.Python.Internals;
 
 namespace CSnakes.Runtime.Python;
 

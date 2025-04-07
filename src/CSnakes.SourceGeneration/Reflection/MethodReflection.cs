@@ -1,4 +1,5 @@
 using CSnakes.Parser.Types;
+using CSnakes.SourceGeneration;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -70,7 +71,7 @@ public static class MethodReflection
             {
                 continue;
             }
-            bool needsConversion = true; // TODO: Skip .From for PyObject arguments. 
+            bool needsConversion = true; // TODO: Skip .From for PyObject arguments.
             ExpressionSyntax rhs = IdentifierName(cSharpParameter.Identifier);
             if (needsConversion)
                 rhs =
@@ -123,13 +124,42 @@ public static class MethodReflection
             callExpression = GenerateKeywordCall(parameterList);
         }
 
-        ReturnStatementSyntax returnExpression = returnSyntax switch
+        ReturnStatementSyntax returnExpression;
+        IEnumerable<StatementSyntax> resultConversionStatements = [];
+
+        switch (returnSyntax)
         {
-            GenericNameSyntax g when g.Identifier.Text == "Task" && coroutineSyntax is not null => ProcessAsyncMethodWithReturnType(coroutineSyntax, parameterGenericArgs),
-            PredefinedTypeSyntax s when s.Keyword.IsKind(SyntaxKind.VoidKeyword) => ReturnStatement(null),
-            IdentifierNameSyntax { Identifier.ValueText: "PyObject" } => ReturnStatement(IdentifierName("__result_pyObject")),
-            _ => ProcessMethodWithReturnType(returnSyntax, parameterGenericArgs)
-        };
+            case PredefinedTypeSyntax s when s.Keyword.IsKind(SyntaxKind.VoidKeyword):
+            {
+                returnExpression = ReturnStatement(null);
+                break;
+            }
+            case IdentifierNameSyntax { Identifier.ValueText: "PyObject" }:
+            {
+                returnExpression = ReturnStatement(IdentifierName("__result_pyObject"));
+                break;
+            }
+            default:
+            {
+                if (returnSyntax is GenericNameSyntax rg)
+                    parameterGenericArgs.Add(rg);
+
+                resultConversionStatements = ResultConversionCodeGenerator.GenerateCode(returnPythonType, "__result_pyObject", "__return");
+
+                returnExpression =
+                    ReturnStatement(
+                        returnSyntax is GenericNameSyntax { Identifier.Text: "Task" } && coroutineSyntax is not null
+                        ? AwaitExpression(
+                              InvocationExpression(
+                                  MemberAccessExpression(
+                                      SyntaxKind.SimpleMemberAccessExpression,
+                                      IdentifierName("__return"),
+                                      IdentifierName("AsTask")))
+                          )
+                        : IdentifierName("__return"));
+                break;
+            }
+        }
 
         bool resultShouldBeDisposed = returnSyntax switch
         {
@@ -215,7 +245,7 @@ public static class MethodReflection
                 localCallStatement
                 ];
 
-            body = Block(
+            body = Block((StatementSyntax[])[
                 callStatement,
                 UsingStatement(
                     null,
@@ -226,7 +256,8 @@ public static class MethodReflection
                             IdentifierName("Acquire"))),
                     Block(statements)
                     ),
-                returnExpression);
+                .. resultConversionStatements,
+                returnExpression]);
         }
         else
         {
@@ -235,6 +266,7 @@ public static class MethodReflection
                 functionObject,
                 .. pythonConversionStatements,
                 callStatement,
+                .. resultConversionStatements,
                 returnExpression];
             body = Block(
                 UsingStatement(
@@ -284,51 +316,6 @@ public static class MethodReflection
             .WithParameterList(ParameterList(SeparatedList(methodParameters)));
 
         return new(syntax, parameterGenericArgs);
-    }
-
-    private static ReturnStatementSyntax ProcessMethodWithReturnType(TypeSyntax returnSyntax, List<GenericNameSyntax> parameterGenericArgs)
-    {
-        ReturnStatementSyntax returnExpression;
-        if (returnSyntax is GenericNameSyntax rg)
-        {
-            parameterGenericArgs.Add(rg);
-        }
-
-        returnExpression = ReturnStatement(
-                    InvocationExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("__result_pyObject"),
-                            GenericName(Identifier("As"))
-                                .WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])))))
-                    .WithArgumentList(ArgumentList()));
-        return returnExpression;
-    }
-
-    private static ReturnStatementSyntax ProcessAsyncMethodWithReturnType(TypeSyntax returnSyntax, List<GenericNameSyntax> parameterGenericArgs)
-    {
-        ReturnStatementSyntax returnExpression;
-        if (returnSyntax is GenericNameSyntax rg)
-        {
-            parameterGenericArgs.Add(rg);
-        }
-        var pyObjectAs = InvocationExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("__result_pyObject"),
-                            GenericName(Identifier("As"))
-                                .WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])))));
-
-        returnExpression = ReturnStatement(
-             AwaitExpression(
-                    InvocationExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            pyObjectAs,
-                            IdentifierName("AsTask")))
-                    ));
-
-        return returnExpression;
     }
 
     private static InvocationExpressionSyntax GenerateParamsCall(IEnumerable<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList)

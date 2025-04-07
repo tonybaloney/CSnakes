@@ -163,7 +163,11 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_1;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<ValueTuple<string>>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                var __return = ValueTuple.Create(__tmp_2);
+                return __return;
             }
         }
 
@@ -175,7 +179,13 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_2;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                var __return = (__tmp_2, __tmp_4);
+                return __return;
             }
         }
 
@@ -187,7 +197,15 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_3;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                var __return = (__tmp_2, __tmp_4, __tmp_6);
+                return __return;
             }
         }
 
@@ -199,7 +217,17 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_4;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                using var __tmp_7 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 3);
+                var __tmp_8 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_7);
+                var __return = (__tmp_2, __tmp_4, __tmp_6, __tmp_8);
+                return __return;
             }
         }
 
@@ -211,7 +239,19 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_5;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                using var __tmp_7 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 3);
+                var __tmp_8 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_7);
+                using var __tmp_9 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 4);
+                var __tmp_10 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_9);
+                var __return = (__tmp_2, __tmp_4, __tmp_6, __tmp_8, __tmp_10);
+                return __return;
             }
         }
 
@@ -223,7 +263,21 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_6;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string, string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                using var __tmp_7 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 3);
+                var __tmp_8 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_7);
+                using var __tmp_9 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 4);
+                var __tmp_10 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_9);
+                using var __tmp_11 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 5);
+                var __tmp_12 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_11);
+                var __return = (__tmp_2, __tmp_4, __tmp_6, __tmp_8, __tmp_10, __tmp_12);
+                return __return;
             }
         }
 
@@ -235,7 +289,23 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_7;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string, string, string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                using var __tmp_7 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 3);
+                var __tmp_8 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_7);
+                using var __tmp_9 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 4);
+                var __tmp_10 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_9);
+                using var __tmp_11 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 5);
+                var __tmp_12 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_11);
+                using var __tmp_13 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 6);
+                var __tmp_14 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_13);
+                var __return = (__tmp_2, __tmp_4, __tmp_6, __tmp_8, __tmp_10, __tmp_12, __tmp_14);
+                return __return;
             }
         }
 
@@ -247,7 +317,25 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_8;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string, string, string, string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                using var __tmp_7 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 3);
+                var __tmp_8 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_7);
+                using var __tmp_9 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 4);
+                var __tmp_10 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_9);
+                using var __tmp_11 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 5);
+                var __tmp_12 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_11);
+                using var __tmp_13 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 6);
+                var __tmp_14 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_13);
+                using var __tmp_15 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 7);
+                var __tmp_16 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_15);
+                var __return = (__tmp_2, __tmp_4, __tmp_6, __tmp_8, __tmp_10, __tmp_12, __tmp_14, __tmp_16);
+                return __return;
             }
         }
 
@@ -259,7 +347,27 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_9;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string, string, string, string, string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                using var __tmp_7 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 3);
+                var __tmp_8 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_7);
+                using var __tmp_9 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 4);
+                var __tmp_10 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_9);
+                using var __tmp_11 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 5);
+                var __tmp_12 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_11);
+                using var __tmp_13 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 6);
+                var __tmp_14 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_13);
+                using var __tmp_15 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 7);
+                var __tmp_16 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_15);
+                using var __tmp_17 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 8);
+                var __tmp_18 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_17);
+                var __return = (__tmp_2, __tmp_4, __tmp_6, __tmp_8, __tmp_10, __tmp_12, __tmp_14, __tmp_16, __tmp_18);
+                return __return;
             }
         }
 
@@ -271,7 +379,29 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_10;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string, string, string, string, string, string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                using var __tmp_7 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 3);
+                var __tmp_8 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_7);
+                using var __tmp_9 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 4);
+                var __tmp_10 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_9);
+                using var __tmp_11 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 5);
+                var __tmp_12 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_11);
+                using var __tmp_13 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 6);
+                var __tmp_14 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_13);
+                using var __tmp_15 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 7);
+                var __tmp_16 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_15);
+                using var __tmp_17 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 8);
+                var __tmp_18 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_17);
+                using var __tmp_19 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 9);
+                var __tmp_20 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_19);
+                var __return = (__tmp_2, __tmp_4, __tmp_6, __tmp_8, __tmp_10, __tmp_12, __tmp_14, __tmp_16, __tmp_18, __tmp_20);
+                return __return;
             }
         }
 
@@ -283,7 +413,31 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_11;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string, string, string, string, string, string, string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                using var __tmp_7 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 3);
+                var __tmp_8 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_7);
+                using var __tmp_9 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 4);
+                var __tmp_10 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_9);
+                using var __tmp_11 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 5);
+                var __tmp_12 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_11);
+                using var __tmp_13 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 6);
+                var __tmp_14 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_13);
+                using var __tmp_15 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 7);
+                var __tmp_16 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_15);
+                using var __tmp_17 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 8);
+                var __tmp_18 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_17);
+                using var __tmp_19 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 9);
+                var __tmp_20 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_19);
+                using var __tmp_21 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 10);
+                var __tmp_22 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_21);
+                var __return = (__tmp_2, __tmp_4, __tmp_6, __tmp_8, __tmp_10, __tmp_12, __tmp_14, __tmp_16, __tmp_18, __tmp_20, __tmp_22);
+                return __return;
             }
         }
 
@@ -295,7 +449,33 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_12;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string, string, string, string, string, string, string, string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                using var __tmp_7 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 3);
+                var __tmp_8 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_7);
+                using var __tmp_9 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 4);
+                var __tmp_10 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_9);
+                using var __tmp_11 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 5);
+                var __tmp_12 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_11);
+                using var __tmp_13 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 6);
+                var __tmp_14 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_13);
+                using var __tmp_15 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 7);
+                var __tmp_16 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_15);
+                using var __tmp_17 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 8);
+                var __tmp_18 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_17);
+                using var __tmp_19 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 9);
+                var __tmp_20 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_19);
+                using var __tmp_21 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 10);
+                var __tmp_22 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_21);
+                using var __tmp_23 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 11);
+                var __tmp_24 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_23);
+                var __return = (__tmp_2, __tmp_4, __tmp_6, __tmp_8, __tmp_10, __tmp_12, __tmp_14, __tmp_16, __tmp_18, __tmp_20, __tmp_22, __tmp_24);
+                return __return;
             }
         }
 
@@ -307,7 +487,35 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_13;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string, string, string, string, string, string, string, string, string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                using var __tmp_7 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 3);
+                var __tmp_8 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_7);
+                using var __tmp_9 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 4);
+                var __tmp_10 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_9);
+                using var __tmp_11 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 5);
+                var __tmp_12 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_11);
+                using var __tmp_13 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 6);
+                var __tmp_14 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_13);
+                using var __tmp_15 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 7);
+                var __tmp_16 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_15);
+                using var __tmp_17 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 8);
+                var __tmp_18 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_17);
+                using var __tmp_19 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 9);
+                var __tmp_20 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_19);
+                using var __tmp_21 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 10);
+                var __tmp_22 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_21);
+                using var __tmp_23 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 11);
+                var __tmp_24 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_23);
+                using var __tmp_25 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 12);
+                var __tmp_26 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_25);
+                var __return = (__tmp_2, __tmp_4, __tmp_6, __tmp_8, __tmp_10, __tmp_12, __tmp_14, __tmp_16, __tmp_18, __tmp_20, __tmp_22, __tmp_24, __tmp_26);
+                return __return;
             }
         }
 
@@ -319,7 +527,37 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_14;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string, string, string, string, string, string, string, string, string, string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                using var __tmp_7 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 3);
+                var __tmp_8 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_7);
+                using var __tmp_9 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 4);
+                var __tmp_10 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_9);
+                using var __tmp_11 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 5);
+                var __tmp_12 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_11);
+                using var __tmp_13 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 6);
+                var __tmp_14 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_13);
+                using var __tmp_15 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 7);
+                var __tmp_16 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_15);
+                using var __tmp_17 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 8);
+                var __tmp_18 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_17);
+                using var __tmp_19 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 9);
+                var __tmp_20 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_19);
+                using var __tmp_21 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 10);
+                var __tmp_22 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_21);
+                using var __tmp_23 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 11);
+                var __tmp_24 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_23);
+                using var __tmp_25 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 12);
+                var __tmp_26 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_25);
+                using var __tmp_27 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 13);
+                var __tmp_28 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_27);
+                var __return = (__tmp_2, __tmp_4, __tmp_6, __tmp_8, __tmp_10, __tmp_12, __tmp_14, __tmp_16, __tmp_18, __tmp_20, __tmp_22, __tmp_24, __tmp_26, __tmp_28);
+                return __return;
             }
         }
 
@@ -331,7 +569,39 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_15;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                using var __tmp_7 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 3);
+                var __tmp_8 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_7);
+                using var __tmp_9 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 4);
+                var __tmp_10 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_9);
+                using var __tmp_11 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 5);
+                var __tmp_12 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_11);
+                using var __tmp_13 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 6);
+                var __tmp_14 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_13);
+                using var __tmp_15 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 7);
+                var __tmp_16 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_15);
+                using var __tmp_17 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 8);
+                var __tmp_18 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_17);
+                using var __tmp_19 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 9);
+                var __tmp_20 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_19);
+                using var __tmp_21 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 10);
+                var __tmp_22 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_21);
+                using var __tmp_23 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 11);
+                var __tmp_24 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_23);
+                using var __tmp_25 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 12);
+                var __tmp_26 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_25);
+                using var __tmp_27 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 13);
+                var __tmp_28 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_27);
+                using var __tmp_29 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 14);
+                var __tmp_30 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_29);
+                var __return = (__tmp_2, __tmp_4, __tmp_6, __tmp_8, __tmp_10, __tmp_12, __tmp_14, __tmp_16, __tmp_18, __tmp_20, __tmp_22, __tmp_24, __tmp_26, __tmp_28, __tmp_30);
+                return __return;
             }
         }
 
@@ -343,7 +613,41 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_16;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                using var __tmp_7 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 3);
+                var __tmp_8 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_7);
+                using var __tmp_9 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 4);
+                var __tmp_10 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_9);
+                using var __tmp_11 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 5);
+                var __tmp_12 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_11);
+                using var __tmp_13 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 6);
+                var __tmp_14 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_13);
+                using var __tmp_15 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 7);
+                var __tmp_16 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_15);
+                using var __tmp_17 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 8);
+                var __tmp_18 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_17);
+                using var __tmp_19 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 9);
+                var __tmp_20 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_19);
+                using var __tmp_21 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 10);
+                var __tmp_22 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_21);
+                using var __tmp_23 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 11);
+                var __tmp_24 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_23);
+                using var __tmp_25 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 12);
+                var __tmp_26 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_25);
+                using var __tmp_27 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 13);
+                var __tmp_28 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_27);
+                using var __tmp_29 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 14);
+                var __tmp_30 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_29);
+                using var __tmp_31 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 15);
+                var __tmp_32 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_31);
+                var __return = (__tmp_2, __tmp_4, __tmp_6, __tmp_8, __tmp_10, __tmp_12, __tmp_14, __tmp_16, __tmp_18, __tmp_20, __tmp_22, __tmp_24, __tmp_26, __tmp_28, __tmp_30, __tmp_32);
+                return __return;
             }
         }
 
@@ -355,7 +659,43 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_17;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                return __result_pyObject.As<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)>();
+                global::CSnakes.Runtime.Python.InternalServices.CheckTuple(__result_pyObject);
+                using var __tmp_1 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 0);
+                var __tmp_2 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_1);
+                using var __tmp_3 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 1);
+                var __tmp_4 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_3);
+                using var __tmp_5 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 2);
+                var __tmp_6 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_5);
+                using var __tmp_7 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 3);
+                var __tmp_8 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_7);
+                using var __tmp_9 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 4);
+                var __tmp_10 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_9);
+                using var __tmp_11 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 5);
+                var __tmp_12 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_11);
+                using var __tmp_13 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 6);
+                var __tmp_14 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_13);
+                using var __tmp_15 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 7);
+                var __tmp_16 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_15);
+                using var __tmp_17 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 8);
+                var __tmp_18 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_17);
+                using var __tmp_19 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 9);
+                var __tmp_20 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_19);
+                using var __tmp_21 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 10);
+                var __tmp_22 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_21);
+                using var __tmp_23 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 11);
+                var __tmp_24 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_23);
+                using var __tmp_25 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 12);
+                var __tmp_26 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_25);
+                using var __tmp_27 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 13);
+                var __tmp_28 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_27);
+                using var __tmp_29 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 14);
+                var __tmp_30 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_29);
+                using var __tmp_31 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 15);
+                var __tmp_32 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_31);
+                using var __tmp_33 = global::CSnakes.Runtime.Python.InternalServices.GetTupleItem(__result_pyObject, 16);
+                var __tmp_34 = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__tmp_33);
+                var __return = (__tmp_2, __tmp_4, __tmp_6, __tmp_8, __tmp_10, __tmp_12, __tmp_14, __tmp_16, __tmp_18, __tmp_20, __tmp_22, __tmp_24, __tmp_26, __tmp_28, __tmp_30, __tmp_32, __tmp_34);
+                return __return;
             }
         }
     }

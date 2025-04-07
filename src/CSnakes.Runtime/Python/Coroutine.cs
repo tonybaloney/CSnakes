@@ -2,10 +2,13 @@ using CSnakes.Runtime.CPython;
 
 namespace CSnakes.Runtime.Python;
 
-public class Coroutine<TYield, TSend, TReturn>(PyObject coroutine) : ICoroutine<TYield, TSend, TReturn>
+public class Coroutine<TYield, TSend, TReturn>(PyObject coroutine, Func<PyObject, TYield>? converter) :
+    ICoroutine<TYield, TSend, TReturn>
 {
     private TYield current = default!;
     private TReturn @return = default!;
+
+    public Coroutine(PyObject coroutine) : this(coroutine, null) { }
 
     public TYield Current => current;
     public TReturn Return => @return;
@@ -20,7 +23,9 @@ public class Coroutine<TYield, TSend, TReturn>(PyObject coroutine) : ICoroutine<
                     using (GIL.Acquire())
                     {
                         using PyObject result = CPythonAPI.GetEventLoop().RunTaskUntilComplete(coroutine, cancellationToken);
-                        current = result.As<TYield>();
+                        current = converter is { } someConverter
+                                ? someConverter(result)
+                                : result.As<TYield>();
                     }
                     return current;
                 }

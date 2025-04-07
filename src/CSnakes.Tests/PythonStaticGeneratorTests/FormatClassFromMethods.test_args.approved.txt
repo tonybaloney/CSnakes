@@ -110,7 +110,8 @@ public static class TestClassExtensions
                 using PyObject b_pyObject = PyObject.From(b)!;
                 using PyObject c_pyObject = PyObject.From(c)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject, b_pyObject, c_pyObject);
-                return __result_pyObject.As<long>();
+                var __return = global::CSnakes.Runtime.Python.InternalServices.ConvertToInt64(__result_pyObject);
+                return __return;
             }
         }
 
@@ -123,7 +124,8 @@ public static class TestClassExtensions
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.CallWithArgs([a_pyObject, b_pyObject, ..args ?? []]);
-                return __result_pyObject.As<long>();
+                var __return = global::CSnakes.Runtime.Python.InternalServices.ConvertToInt64(__result_pyObject);
+                return __return;
             }
         }
 
@@ -137,7 +139,8 @@ public static class TestClassExtensions
                 using PyObject b_pyObject = PyObject.From(b)!;
                 using PyObject c_pyObject = PyObject.From(c)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, ..args ?? []], ["b", "c"], [b_pyObject, c_pyObject], null);
-                return __result_pyObject.As<long>();
+                var __return = global::CSnakes.Runtime.Python.InternalServices.ConvertToInt64(__result_pyObject);
+                return __return;
             }
         }
 
@@ -150,7 +153,8 @@ public static class TestClassExtensions
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, b_pyObject], [], [], kwargs);
-                return __result_pyObject.As<long>();
+                var __return = global::CSnakes.Runtime.Python.InternalServices.ConvertToInt64(__result_pyObject);
+                return __return;
             }
         }
 
@@ -164,7 +168,8 @@ public static class TestClassExtensions
                 using PyObject b_pyObject = PyObject.From(b)!;
                 using PyObject c_pyObject = PyObject.From(c)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, b_pyObject, ..args ?? []], ["c"], [c_pyObject], kwargs);
-                return __result_pyObject.As<long>();
+                var __return = global::CSnakes.Runtime.Python.InternalServices.ConvertToInt64(__result_pyObject);
+                return __return;
             }
         }
 
@@ -178,7 +183,8 @@ public static class TestClassExtensions
                 using PyObject b_pyObject = PyObject.From(b)!;
                 using PyObject c_pyObject = PyObject.From(c)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, b_pyObject, ..args ?? []], ["c"], [c_pyObject], null);
-                return __result_pyObject.As<long>();
+                var __return = global::CSnakes.Runtime.Python.InternalServices.ConvertToInt64(__result_pyObject);
+                return __return;
             }
         }
     }

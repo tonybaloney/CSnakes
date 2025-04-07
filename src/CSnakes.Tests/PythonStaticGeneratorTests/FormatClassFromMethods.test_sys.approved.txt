@@ -87,7 +87,8 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_sys_executable");
                 PyObject __underlyingPythonFunc = this.__func_test_sys_executable;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                return __result_pyObject.As<string>();
+                var __return = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__result_pyObject);
+                return __return;
             }
         }
 
@@ -98,7 +99,8 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_sys_path");
                 PyObject __underlyingPythonFunc = this.__func_test_sys_path;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                return __result_pyObject.As<string>();
+                var __return = global::CSnakes.Runtime.Python.InternalServices.ConvertToString(__result_pyObject);
+                return __return;
             }
         }
     }

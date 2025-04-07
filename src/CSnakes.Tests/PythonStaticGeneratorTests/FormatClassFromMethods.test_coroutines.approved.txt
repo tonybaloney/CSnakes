@@ -95,7 +95,14 @@ public static class TestClassExtensions
                 __result_pyObject = __underlyingPythonFunc.Call();
             }
 
-            return await __result_pyObject.As<ICoroutine<long, PyObject, PyObject>>().AsTask();
+            static long __tmp_1(PyObject obj)
+            {
+                var result = global::CSnakes.Runtime.Python.InternalServices.ConvertToInt64(obj);
+                return result;
+            }
+
+            var __return = global::CSnakes.Runtime.Python.InternalServices.ConvertToCoroutine<long, PyObject, PyObject>(__result_pyObject, __tmp_1);
+            return await __return.AsTask();
         }
 
         public async Task<long> TestCoroutineRaisesException()
@@ -108,7 +115,14 @@ public static class TestClassExtensions
                 __result_pyObject = __underlyingPythonFunc.Call();
             }
 
-            return await __result_pyObject.As<ICoroutine<long, PyObject, PyObject>>().AsTask();
+            static long __tmp_1(PyObject obj)
+            {
+                var result = global::CSnakes.Runtime.Python.InternalServices.ConvertToInt64(obj);
+                return result;
+            }
+
+            var __return = global::CSnakes.Runtime.Python.InternalServices.ConvertToCoroutine<long, PyObject, PyObject>(__result_pyObject, __tmp_1);
+            return await __return.AsTask();
         }
 
         public async Task<PyObject> TestCoroutineReturnsNothing()
@@ -121,7 +135,14 @@ public static class TestClassExtensions
                 __result_pyObject = __underlyingPythonFunc.Call();
             }
 
-            return await __result_pyObject.As<ICoroutine<PyObject, PyObject, PyObject>>().AsTask();
+            static PyObject __tmp_1(PyObject obj)
+            {
+                PyObject result = obj.As<PyObject>();
+                return result;
+            }
+
+            var __return = global::CSnakes.Runtime.Python.InternalServices.ConvertToCoroutine<PyObject, PyObject, PyObject>(__result_pyObject, __tmp_1);
+            return await __return.AsTask();
         }
     }
 }

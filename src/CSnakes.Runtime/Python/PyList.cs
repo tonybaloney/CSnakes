@@ -3,10 +3,13 @@ using System.Collections;
 
 namespace CSnakes.Runtime.Python;
 
-internal class PyList<TItem>(PyObject listObject) : IReadOnlyList<TItem>, IDisposable, ICloneable
+internal class PyList<TItem>(PyObject listObject, Func<PyObject, TItem>? converter) :
+    IReadOnlyList<TItem>, IDisposable, ICloneable
 {
     // If someone fetches the same index multiple times, we cache the result to avoid multiple round trips to Python
     private readonly Dictionary<long, TItem> _convertedItems = [];
+
+    public PyList(PyObject listObject) : this(listObject, null) { }
 
     public TItem this[int index]
     {
@@ -20,7 +23,9 @@ internal class PyList<TItem>(PyObject listObject) : IReadOnlyList<TItem>, IDispo
             using (GIL.Acquire())
             {
                 using PyObject value = PyObject.Create(CPythonAPI.PySequence_GetItem(listObject, index));
-                TItem result = value.As<TItem>();
+                var result = converter is { } someConverter
+                           ? someConverter(value)
+                           : value.As<TItem>();
                 _convertedItems[index] = result;
                 return result;
             }

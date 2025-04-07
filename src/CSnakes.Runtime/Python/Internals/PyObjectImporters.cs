@@ -115,10 +115,9 @@ public static partial class PyObjectImporters
                 : throw InvalidCastException("mapping with items", obj);
     }
 
-    public sealed class Coroutine<TYield, TSend, TReturn, TYieldImporter, TSendImporter, TReturnImporter> :
+    public sealed class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter> :
         IPyObjectImporter<ICoroutine<TYield, TSend, TReturn>>
         where TYieldImporter : IPyObjectImporter<TYield>
-        where TSendImporter : IPyObjectImporter<TSend>
         where TReturnImporter : IPyObjectImporter<TReturn>
     {
         public static ICoroutine<TYield, TSend, TReturn> Import(PyObject obj)
@@ -126,7 +125,7 @@ public static partial class PyObjectImporters
             using (GIL.Acquire()) // TODO Assume this is done by the caller
             {
                 return CPythonAPI.IsPyCoroutine(obj)
-                    ? new Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TSendImporter, TReturnImporter>(obj.Clone())
+                    ? new Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(obj.Clone())
                     : throw InvalidCastException("coroutine", obj);
             }
         }

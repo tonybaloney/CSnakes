@@ -68,7 +68,7 @@ internal static class ResultConversionCodeGenerator
             {
                 var generator = (Yield: Create(yt), Send: Create(st), Return: Create(rt));
                 return new ConversionGenerator(TypeReflection.CreateGenericType("ICoroutine", [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax]),
-                                               GenericName(Identifier("Coroutine"), TypeArgumentList(SeparatedList([generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax, generator.Yield.ImporterTypeSyntax, generator.Send.ImporterTypeSyntax, generator.Return.ImporterTypeSyntax]))));
+                                               GenericName(Identifier("Coroutine"), TypeArgumentList(SeparatedList([generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax, generator.Yield.ImporterTypeSyntax, generator.Return.ImporterTypeSyntax]))));
             }
             case var other:
             {

@@ -6,13 +6,11 @@ namespace CSnakes.Runtime.Python;
 public sealed class Coroutine<TYield, TSend, TReturn>(PyObject coroutine) :
     Coroutine<TYield, TSend, TReturn,
               PyObjectImporters.Runtime<TYield>,
-              PyObjectImporters.Runtime<TSend>,
               PyObjectImporters.Runtime<TReturn>>(coroutine);
 
-public class Coroutine<TYield, TSend, TReturn, TYieldImporter, TSendImporter, TReturnImporter>(PyObject coroutine) :
+public class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(PyObject coroutine) :
     ICoroutine<TYield, TSend, TReturn>
     where TYieldImporter : IPyObjectImporter<TYield>
-    where TSendImporter : IPyObjectImporter<TSend>
     where TReturnImporter : IPyObjectImporter<TReturn>
 {
     private TYield current = default!;

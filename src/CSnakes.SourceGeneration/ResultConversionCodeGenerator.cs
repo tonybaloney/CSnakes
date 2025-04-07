@@ -54,6 +54,14 @@ internal static class ResultConversionCodeGenerator
                 return new ConversionGenerator(TupleType(SeparatedList(from item in generators select TupleElement(item.TypeSyntax))),
                                                GenericName(Identifier("Tuple"), TypeArgumentList(SeparatedList([.. from item in generators select item.TypeSyntax, .. from item in generators select item.ConverterTypeSyntax]))));
             }
+            case { Name: "dict" or "typing.Dict" or "Dict", Arguments: [var kt, var vt] }:
+            {
+                return DictionaryConversionGenerator(kt, vt, "Dictionary");
+            }
+            case { Name: "typing.Mapping" or "Mapping", Arguments: [var kt, var vt] }:
+            {
+                return DictionaryConversionGenerator(kt, vt, "Mapping");
+            }
             case { Name: "typing.Coroutine" or "Coroutine", Arguments: [var yt, var st, var rt] }:
             {
                 var generator = (Yield: Create(yt), Send: Create(st), Return: Create(rt));
@@ -92,5 +100,14 @@ internal static class ResultConversionCodeGenerator
         var generator = Create(itemTypeSpec);
         return new ConversionGenerator(GenericName(Identifier(nameof(IReadOnlyList<object>)), TypeArgumentList(SingletonSeparatedList(generator.TypeSyntax))),
                                        GenericName(Identifier(converterTypeName), TypeArgumentList(SeparatedList([generator.TypeSyntax, generator.ConverterTypeSyntax]))));
+    }
+
+    public static IResultConversionCodeGenerator DictionaryConversionGenerator(PythonTypeSpec keyTypeSpec,
+                                                                               PythonTypeSpec valueTypeSpec,
+                                                                               string converterTypeName)
+    {
+        var generator = (Key: Create(keyTypeSpec), Value: Create(valueTypeSpec));
+                return new ConversionGenerator(TypeReflection.CreateGenericType(nameof(IReadOnlyDictionary<object, object>), [generator.Key.TypeSyntax, generator.Value.TypeSyntax]),
+                                               GenericName(Identifier(converterTypeName), TypeArgumentList(SeparatedList([generator.Key.TypeSyntax, generator.Value.TypeSyntax, generator.Key.ConverterTypeSyntax, generator.Value.ConverterTypeSyntax]))));
     }
 }

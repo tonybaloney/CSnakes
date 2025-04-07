@@ -80,6 +80,30 @@ public static partial class InternalServices
                     : throw InvalidCastException("list", obj);
         }
 
+        public sealed class Dictionary<TKey, TValue, TKeyConverter, TValueConverter> :
+            IConverter<IReadOnlyDictionary<TKey, TValue>>
+            where TKey : notnull
+            where TKeyConverter : IConverter<TKey>
+            where TValueConverter : IConverter<TValue>
+        {
+            public static IReadOnlyDictionary<TKey, TValue> Convert(PyObject obj) =>
+                CPythonAPI.IsPyDict(obj)
+                    ? new PyDictionary<TKey,TValue,TKeyConverter,TValueConverter>(obj.Clone())
+                    : throw InvalidCastException("dict", obj);
+        }
+
+        public sealed class Mapping<TKey, TValue, TKeyConverter, TValueConverter> :
+            IConverter<IReadOnlyDictionary<TKey, TValue>>
+            where TKey : notnull
+            where TKeyConverter : IConverter<TKey>
+            where TValueConverter : IConverter<TValue>
+        {
+            public static IReadOnlyDictionary<TKey, TValue> Convert(PyObject obj) =>
+                CPythonAPI.IsPyMappingWithItems(obj)
+                    ? new PyDictionary<TKey,TValue,TKeyConverter,TValueConverter>(obj.Clone())
+                    : throw InvalidCastException("mapping with items", obj);
+        }
+
         public sealed class Coroutine<TYield, TSend, TReturn, TYieldConverter, TSendConverter, TReturnConverter> :
             IConverter<ICoroutine<TYield, TSend, TReturn>>
             where TYieldConverter : IConverter<TYield>

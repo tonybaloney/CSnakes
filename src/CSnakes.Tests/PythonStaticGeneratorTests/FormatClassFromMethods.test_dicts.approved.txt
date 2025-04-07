@@ -98,7 +98,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_dict_str_int;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<IReadOnlyDictionary<string, long>>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Dictionary<string, long, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.Int64>.Convert(__result_pyObject);
                 return __return;
             }
         }
@@ -111,7 +111,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_dict_str_list_int;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<IReadOnlyDictionary<string, IReadOnlyList<long>>>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Dictionary<string, IReadOnlyList<long>, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.List<long, global::CSnakes.Runtime.Python.InternalServices.Converters.Int64>>.Convert(__result_pyObject);
                 return __return;
             }
         }
@@ -124,7 +124,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_dict_str_dict_int;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<IReadOnlyDictionary<string, IReadOnlyDictionary<string, long>>>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Dictionary<string, IReadOnlyDictionary<string, long>, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.Dictionary<string, long, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.Int64>>.Convert(__result_pyObject);
                 return __return;
             }
         }
@@ -137,7 +137,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_mapping;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<IReadOnlyDictionary<string, long>>.Convert(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Mapping<string, long, global::CSnakes.Runtime.Python.InternalServices.Converters.String, global::CSnakes.Runtime.Python.InternalServices.Converters.Int64>.Convert(__result_pyObject);
                 return __return;
             }
         }

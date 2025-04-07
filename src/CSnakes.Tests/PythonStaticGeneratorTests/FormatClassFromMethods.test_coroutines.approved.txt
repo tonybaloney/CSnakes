@@ -95,13 +95,7 @@ public static class TestClassExtensions
                 __result_pyObject = __underlyingPythonFunc.Call();
             }
 
-            static long __tmp_1(PyObject obj)
-            {
-                var result = global::CSnakes.Runtime.Python.InternalServices.ConvertToInt64(obj);
-                return result;
-            }
-
-            var __return = global::CSnakes.Runtime.Python.InternalServices.ConvertToCoroutine<long, PyObject, PyObject>(__result_pyObject, __tmp_1);
+            var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.InternalServices.Converters.Int64, global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<PyObject>, global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<PyObject>>.Convert(__result_pyObject);
             return await __return.AsTask();
         }
 
@@ -115,13 +109,7 @@ public static class TestClassExtensions
                 __result_pyObject = __underlyingPythonFunc.Call();
             }
 
-            static long __tmp_1(PyObject obj)
-            {
-                var result = global::CSnakes.Runtime.Python.InternalServices.ConvertToInt64(obj);
-                return result;
-            }
-
-            var __return = global::CSnakes.Runtime.Python.InternalServices.ConvertToCoroutine<long, PyObject, PyObject>(__result_pyObject, __tmp_1);
+            var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.InternalServices.Converters.Int64, global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<PyObject>, global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<PyObject>>.Convert(__result_pyObject);
             return await __return.AsTask();
         }
 
@@ -135,13 +123,7 @@ public static class TestClassExtensions
                 __result_pyObject = __underlyingPythonFunc.Call();
             }
 
-            static PyObject __tmp_1(PyObject obj)
-            {
-                PyObject result = obj.As<PyObject>();
-                return result;
-            }
-
-            var __return = global::CSnakes.Runtime.Python.InternalServices.ConvertToCoroutine<PyObject, PyObject, PyObject>(__result_pyObject, __tmp_1);
+            var __return = global::CSnakes.Runtime.Python.InternalServices.Converters.Coroutine<PyObject, PyObject, PyObject, global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<PyObject>, global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<PyObject>, global::CSnakes.Runtime.Python.InternalServices.Converters.Runtime<PyObject>>.Convert(__result_pyObject);
             return await __return.AsTask();
         }
     }

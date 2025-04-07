@@ -3,197 +3,94 @@ using CSnakes.Reflection;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
-using System.Globalization;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CSnakes.SourceGeneration;
 
-internal sealed class ResultConversionCodeGeneratorContext(IEnumerator<string> names)
-{
-    public ResultConversionCodeGeneratorContext() : this(GenerateNames()) { }
-
-    public IEnumerator<string> Names { get; } = names;
-
-    public string GenerateName() => Names.Read();
-
-    private static IEnumerator<string> GenerateNames()
-    {
-        for (var i = 1;; i++)
-            yield return FormattableString.Invariant($"__tmp_{i}");
-    }
-}
-
 internal interface IResultConversionCodeGenerator
 {
     TypeSyntax TypeSyntax { get; }
+    TypeSyntax ConverterTypeSyntax { get; }
 
-    IEnumerable<StatementSyntax> GenerateCode(ResultConversionCodeGeneratorContext context,
-                                              string inputName, string outputName);
+    IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName);
 }
 
-internal static partial class ResultConversionCodeGenerator
+internal static class ResultConversionCodeGenerator
 {
-    public static IEnumerable<StatementSyntax> GenerateCode(this IResultConversionCodeGenerator generator,
-                                                            string inputName, string outputName) =>
-        generator.GenerateCode(new ResultConversionCodeGeneratorContext(), inputName, outputName);
-}
-
-partial class ResultConversionCodeGenerator
-{
-    private const string InternalServices = "global::CSnakes.Runtime.Python.InternalServices";
-
-    private static readonly ScalarConversionGenerator Long = new(SyntaxKind.LongKeyword, "ConvertToInt64");
-    private static readonly ScalarConversionGenerator String = new(SyntaxKind.StringKeyword, "ConvertToString");
-    private static readonly ScalarConversionGenerator Boolean = new(SyntaxKind.BoolKeyword, "ConvertToBoolean");
-    private static readonly ScalarConversionGenerator Double = new(SyntaxKind.DoubleKeyword, "ConvertToDouble");
-    private static readonly ScalarConversionGenerator ByteArray = new(ParseTypeName("byte[]"),"ConvertToByteArray");
+    private static readonly IResultConversionCodeGenerator Long = ScalarConversionGenerator(SyntaxKind.LongKeyword, "Int64");
+    private static readonly IResultConversionCodeGenerator String = ScalarConversionGenerator(SyntaxKind.StringKeyword, "String");
+    private static readonly IResultConversionCodeGenerator Boolean = ScalarConversionGenerator(SyntaxKind.BoolKeyword, "Boolean");
+    private static readonly IResultConversionCodeGenerator Double = ScalarConversionGenerator(SyntaxKind.DoubleKeyword, "Double");
+    private static readonly IResultConversionCodeGenerator ByteArray = ScalarConversionGenerator(ParseTypeName("byte[]"), "ByteArray");
 
     public static IEnumerable<StatementSyntax> GenerateCode(PythonTypeSpec pythonTypeSpec,
                                                             string inputName, string outputName) =>
         Create(pythonTypeSpec).GenerateCode(inputName, outputName);
 
-    public static IResultConversionCodeGenerator Create(PythonTypeSpec pythonTypeSpec) =>
-        pythonTypeSpec switch
+    private static NameSyntax ConvertersQualifiedName =>
+        ParseName("global::CSnakes.Runtime.Python.InternalServices.Converters");
+
+    public static IResultConversionCodeGenerator Create(PythonTypeSpec pythonTypeSpec)
+    {
+        switch (pythonTypeSpec)
         {
-            { Name: "int" } => Long,
-            { Name: "str" } => String,
-            { Name: "float" } => Double,
-            { Name: "bool" } => Boolean,
-            { Name: "bytes" } => ByteArray,
-            { Name:  "tuple" or "typing.Tuple" or "Tuple", Arguments: var args } =>
-                new TupleConversionGenerator([..from arg in args select Create(arg)]),
-            { Name: "list" or "typing.List" or "List", Arguments: [var t] } =>
-                new ListConversionGenerator(Create(t)),
-            { Name: "typing.Sequence" or "Sequence", Arguments: [var t] } =>
-                new ListConversionGenerator(Create(t), "ConvertSequenceToList"),
-            { Name: "typing.Coroutine" or "Coroutine", Arguments: [var yt, var st, var rt] } =>
-                new CoroutineConversionGenerator(Create(yt), Create(st), Create(rt)),
-            _ => new RuntimeConversionGenerator(TypeReflection.AsPredefinedType(pythonTypeSpec, TypeReflection.ConversionDirection.FromPython)),
-        };
+            case { Name: "int" }: return Long;
+            case { Name: "str" }: return String;
+            case { Name: "float" }: return Double;
+            case { Name: "bool" }: return Boolean;
+            case { Name: "bytes" }: return ByteArray;
 
-    private sealed class ScalarConversionGenerator(TypeSyntax syntax, string method) :
-        IResultConversionCodeGenerator
-    {
-        public ScalarConversionGenerator(SyntaxKind syntaxKind, string method) :
-            this(PredefinedType(Token(syntaxKind)), method) { }
-
-        public TypeSyntax TypeSyntax { get; } = syntax;
-
-        public IEnumerable<StatementSyntax> GenerateCode(ResultConversionCodeGeneratorContext context,
-                                                         string inputName, string outputName) =>
-            [ParseStatement($"var {outputName} = {InternalServices}.{method}({inputName});")];
-    }
-
-    private sealed class RuntimeConversionGenerator(TypeSyntax syntax) :
-        IResultConversionCodeGenerator
-    {
-        public TypeSyntax TypeSyntax => syntax;
-
-        public IEnumerable<StatementSyntax> GenerateCode(ResultConversionCodeGeneratorContext context,
-                                                         string inputName, string outputName) =>
-        [
-            LocalDeclarationStatement(
-                VariableDeclaration(TypeSyntax,
-                    SingletonSeparatedList(
-                        VariableDeclarator(Identifier(outputName))
-                            .WithInitializer(
-                                EqualsValueClause(
-                                    InvocationExpression(
-                                            MemberAccessExpression(
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                IdentifierName(inputName),
-                                                GenericName(Identifier("As"), TypeArgumentList(SingletonSeparatedList(TypeSyntax))))))))))
-        ];
-    }
-
-    private sealed class TupleConversionGenerator(ImmutableArray<IResultConversionCodeGenerator> items) :
-        IResultConversionCodeGenerator
-    {
-        private TypeSyntax? cachedTypeSyntax;
-
-        public TypeSyntax TypeSyntax => this.cachedTypeSyntax ??=
-            TupleType(SeparatedList(from item in items
-                                    select TupleElement(item.TypeSyntax)));
-
-        public IEnumerable<StatementSyntax> GenerateCode(ResultConversionCodeGeneratorContext context,
-                                                         string inputName, string outputName)
-        {
-            var conversions = ImmutableArray.CreateRange(
-                from item in items.Select((e, i) => (Index: i, Converter: e))
-                select new
-                {
-                    Index = item.Index.ToString(CultureInfo.InvariantCulture),
-                    item.Converter,
-                    InputName = context.GenerateName(),
-                    OutputName = context.GenerateName(),
-                }
-                into item
-                select new
-                {
-                    item.OutputName,
-                    Statements = ImmutableArray.Create(
-                    [
-                        ParseStatement($"using var {item.InputName} = {InternalServices}.GetTupleItem({inputName}, {item.Index});"),
-                        .. item.Converter.GenerateCode(context, item.InputName, item.OutputName)
-                    ])
-                });
-
-            return
-            [
-                ParseStatement($"{InternalServices}.CheckTuple({inputName});"),
-                .. from c in conversions from s in c.Statements select s,
-                conversions switch
-                {
-                    [{ OutputName: var varName }] => ParseStatement($"var {outputName} = ValueTuple.Create({varName});"),
-                    var multiple => ParseStatement($"var {outputName} = ({string.Join(", ", from c in multiple select c.OutputName)});")
-                }
-            ];
+            case { Name: "list" or "typing.List" or "List", Arguments: [var t] }:
+            {
+                return ListConversionGenerator(t, "List");
+            }
+            case { Name: "typing.Sequence" or "Sequence", Arguments: [var t] }:
+            {
+                return ListConversionGenerator(t, "Sequence");
+            }
+            case { Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: { Length: >= 1 and <= 12 } ts }:
+            {
+                var generators = ImmutableArray.CreateRange(from t in ts select Create(t));
+                return new ConversionGenerator(TupleType(SeparatedList(from item in generators select TupleElement(item.TypeSyntax))),
+                                               GenericName(Identifier("Tuple"), TypeArgumentList(SeparatedList([.. from item in generators select item.TypeSyntax, .. from item in generators select item.ConverterTypeSyntax]))));
+            }
+            case { Name: "typing.Coroutine" or "Coroutine", Arguments: [var yt, var st, var rt] }:
+            {
+                var generator = (Yield: Create(yt), Send: Create(st), Return: Create(rt));
+                return new ConversionGenerator(TypeReflection.CreateGenericType("ICoroutine", [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax]),
+                                               GenericName(Identifier("Coroutine"), TypeArgumentList(SeparatedList([generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax, generator.Yield.ConverterTypeSyntax, generator.Send.ConverterTypeSyntax, generator.Return.ConverterTypeSyntax]))));
+            }
+            case var other:
+            {
+                var typeSyntax = TypeReflection.AsPredefinedType(other, TypeReflection.ConversionDirection.FromPython);
+                return new ConversionGenerator(typeSyntax, GenericName(Identifier("Runtime"), TypeArgumentList(SingletonSeparatedList(typeSyntax))));
+            }
         }
     }
 
-    private static LocalFunctionStatementSyntax
-        CreateLocalConversionFunctionSyntax(ResultConversionCodeGeneratorContext context,
-                                            IResultConversionCodeGenerator conversionGenerator) =>
-        LocalFunctionStatement(conversionGenerator.TypeSyntax, Identifier(context.GenerateName()))
-            .WithModifiers(TokenList(Token(SyntaxKind.StaticKeyword)))
-            .WithParameterList(ParameterList(SingletonSeparatedList(Parameter(Identifier("obj")).WithType(IdentifierName("PyObject")))))
-            .WithBody(Block(conversionGenerator.GenerateCode(context, "obj", "result")
-                                               .Concat([ReturnStatement(IdentifierName("result"))])));
-
-    private sealed class ListConversionGenerator(IResultConversionCodeGenerator item, string method = "ConvertToList") :
+    private sealed class ConversionGenerator(TypeSyntax typeSyntax, TypeSyntax converterTypeSyntax) :
         IResultConversionCodeGenerator
     {
-        private TypeSyntax? cachedTypeSyntax;
+        public ConversionGenerator(TypeSyntax typeSyntax, SimpleNameSyntax simpleConverterTypeNameSyntax) :
+            this(typeSyntax, QualifiedName(ConvertersQualifiedName, simpleConverterTypeNameSyntax)) { }
 
-        public TypeSyntax TypeSyntax => this.cachedTypeSyntax ??=
-            GenericName(Identifier(nameof(IReadOnlyList<object>)),
-                TypeArgumentList(SingletonSeparatedList(item.TypeSyntax)));
+        public TypeSyntax TypeSyntax { get; } = typeSyntax;
+        public TypeSyntax ConverterTypeSyntax { get; } = converterTypeSyntax;
 
-        public IEnumerable<StatementSyntax> GenerateCode(ResultConversionCodeGeneratorContext context,
-                                                         string inputName, string outputName)
-        {
-            var conversionFunctionSyntax = CreateLocalConversionFunctionSyntax(context, item);
-            yield return conversionFunctionSyntax;
-            yield return ParseStatement($"var {outputName} = {InternalServices}.{method}<{item.TypeSyntax.ToFullString()}>({InternalServices}.Clone({inputName}), {conversionFunctionSyntax.Identifier.ValueText});");
-        }
+        public IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName) =>
+            [ParseStatement($"var {outputName} = {ConverterTypeSyntax}.Convert({inputName});")];
     }
 
-    private sealed class CoroutineConversionGenerator(IResultConversionCodeGenerator yield,
-                                                      IResultConversionCodeGenerator send,
-                                                      IResultConversionCodeGenerator @return) :
-        IResultConversionCodeGenerator
+    public static IResultConversionCodeGenerator ScalarConversionGenerator(SyntaxKind syntaxKind, string converterTypeName) =>
+        ScalarConversionGenerator(PredefinedType(Token(syntaxKind)), converterTypeName);
+
+    public static IResultConversionCodeGenerator ScalarConversionGenerator(TypeSyntax syntax, string converterTypeName) =>
+        new ConversionGenerator(syntax, IdentifierName(converterTypeName));
+
+    public static IResultConversionCodeGenerator ListConversionGenerator(PythonTypeSpec itemTypeSpec, string converterTypeName)
     {
-        private TypeSyntax? cachedTypeSyntax;
-
-        public TypeSyntax TypeSyntax => this.cachedTypeSyntax ??=
-            TypeReflection.CreateGenericType("ICoroutine", [yield.TypeSyntax, send.TypeSyntax, @return.TypeSyntax]);
-
-        public IEnumerable<StatementSyntax> GenerateCode(ResultConversionCodeGeneratorContext context,
-                                                         string inputName, string outputName)
-        {
-            var conversionFunctionSyntax = CreateLocalConversionFunctionSyntax(context, yield);
-            yield return conversionFunctionSyntax;
-            yield return ParseStatement($"var {outputName} = {InternalServices}.ConvertToCoroutine<{yield.TypeSyntax}, {send.TypeSyntax}, {@return.TypeSyntax}>({inputName}, {conversionFunctionSyntax.Identifier.ValueText});");
-        }
+        var generator = Create(itemTypeSpec);
+        return new ConversionGenerator(GenericName(Identifier(nameof(IReadOnlyList<object>)), TypeArgumentList(SingletonSeparatedList(generator.TypeSyntax))),
+                                       GenericName(Identifier(converterTypeName), TypeArgumentList(SeparatedList([generator.TypeSyntax, generator.ConverterTypeSyntax]))));
     }
 }

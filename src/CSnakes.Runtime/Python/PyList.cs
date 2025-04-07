@@ -3,19 +3,21 @@ using System.Collections;
 
 namespace CSnakes.Runtime.Python;
 
-internal class PyList<TItem>(PyObject listObject, Func<PyObject, TItem>? converter) :
-    IReadOnlyList<TItem>, IDisposable, ICloneable
+internal sealed class PyList<T>(PyObject listObject) :
+    PyList<T, InternalServices.Converters.Runtime<T>>(listObject);
+
+internal class PyList<T, TConverter>(PyObject listObject) :
+    IReadOnlyList<T>, IDisposable, ICloneable
+    where TConverter : InternalServices.IConverter<T>
 {
     // If someone fetches the same index multiple times, we cache the result to avoid multiple round trips to Python
-    private readonly Dictionary<long, TItem> _convertedItems = [];
+    private readonly Dictionary<long, T> _convertedItems = [];
 
-    public PyList(PyObject listObject) : this(listObject, null) { }
-
-    public TItem this[int index]
+    public T this[int index]
     {
         get
         {
-            if (_convertedItems.TryGetValue(index, out TItem? cachedValue))
+            if (_convertedItems.TryGetValue(index, out T? cachedValue))
             {
                 return cachedValue;
             }
@@ -23,9 +25,7 @@ internal class PyList<TItem>(PyObject listObject, Func<PyObject, TItem>? convert
             using (GIL.Acquire())
             {
                 using PyObject value = PyObject.Create(CPythonAPI.PySequence_GetItem(listObject, index));
-                var result = converter is { } someConverter
-                           ? someConverter(value)
-                           : value.As<TItem>();
+                var result = TConverter.Convert(value);
                 _convertedItems[index] = result;
                 return result;
             }
@@ -45,12 +45,12 @@ internal class PyList<TItem>(PyObject listObject, Func<PyObject, TItem>? convert
 
     public void Dispose() => listObject.Dispose();
 
-    public IEnumerator<TItem> GetEnumerator()
+    public IEnumerator<T> GetEnumerator()
     {
         // TODO: If someone fetches the same index multiple times, we cache the result to avoid multiple round trips to Python
         using (GIL.Acquire())
         {
-            return new PyEnumerable<TItem>(listObject);
+            return new PyEnumerable<T>(listObject);
         }
     }
 

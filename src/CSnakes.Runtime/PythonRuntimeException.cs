@@ -1,5 +1,6 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
+using Converters = CSnakes.Runtime.Python.InternalServices.Converters;
 
 namespace CSnakes.Runtime;
 public class PythonRuntimeException : Exception
@@ -54,7 +55,7 @@ public class PythonRuntimeException : Exception
             using var formatTbFunction = tracebackModule.GetAttr("format_tb");
             using var formattedStackTrace = formatTbFunction.Call(pythonStackTrace);
 
-            return [.. InternalServices.ConvertToList<string>(formattedStackTrace)];
+            return [.. Converters.List<string, Converters.String>.Convert(formattedStackTrace)];
         }
     }
 

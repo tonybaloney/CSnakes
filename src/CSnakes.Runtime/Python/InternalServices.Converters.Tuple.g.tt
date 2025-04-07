@@ -1,0 +1,57 @@
+<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.Linq" #>
+<#
+    const string vars = "abcdefghijklmnopqrstuvwxyz";
+
+    var impls =
+        from a in Enumerable.Range(2, 12)
+        select Enumerable.Range(1, a).Select(n => n.ToString(CultureInfo.InvariantCulture)).ToArray() into ns
+        select new
+        {
+            Types = from n in ns select $"T{n}",
+            Converters = from n in ns select $"TConverter{n}",
+            Vars = ns.Select((_, i) => vars[i]).ToArray(),
+        }
+        into e
+        select new
+        {
+            Ts = string.Join(", ", e.Types),
+            e.Converters,
+            Constraints = e.Types.Zip(e.Converters, (t, c) => new { Type = t, Converter = c }),
+            Vars = e.Vars.Select((v, i) => new { Name = v, Index = i.ToString(CultureInfo.InvariantCulture) }),
+        };
+#>
+namespace CSnakes.Runtime.Python;
+partial class InternalServices
+{
+    partial class Converters
+    {<#
+    foreach (var e in impls)
+    { #>
+
+        public sealed class Tuple<<#= e.Ts #>, <#= string.Join(", ", e.Converters) #>> :
+            IConverter<(<#= e.Ts #>)>
+<#
+        foreach (var c in e.Constraints)
+        { #>
+            where <#= c.Converter #> : IConverter<<#= c.Type #>>
+<#      } #>
+        {
+            public static (<#= e.Ts #>)
+                Convert(PyObject obj)
+            {
+                CheckTuple(obj);
+<#
+        foreach (var v in e.Vars)
+        { #>
+                using var <#= v.Name #> = GetTupleItem(obj, <#= v.Index #>);
+<#      } #>
+                return (<#= string.Join(", ", e.Converters.Zip(e.Vars, (c, v) => $"{c}.Convert({v.Name})")) #>);
+            }
+        }
+<#  } #>
+    }
+}

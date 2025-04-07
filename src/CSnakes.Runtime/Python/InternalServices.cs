@@ -122,10 +122,10 @@ public static partial class InternalServices
         }
     }
 
-    public static PyObject GetTupleItem(PyObject obj, int index) =>
+    private static PyObject GetTupleItem(PyObject obj, int index) =>
         PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(obj, index));
 
-    public static void CheckTuple(PyObject obj)
+    private static void CheckTuple(PyObject obj)
     {
         if (CPythonAPI.IsPyTuple(obj))
             return;

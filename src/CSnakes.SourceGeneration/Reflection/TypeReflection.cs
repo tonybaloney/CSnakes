@@ -70,7 +70,7 @@ public static class TypeReflection
 
     private static TypeSyntax CreateListType(PythonTypeSpec genericOf, ConversionDirection direction) => CreateGenericType("IReadOnlyList", [AsPredefinedType(genericOf, direction)]);
 
-    internal static TypeSyntax CreateGenericType(string typeName, IEnumerable<TypeSyntax> genericArguments) =>
+    internal static GenericNameSyntax CreateGenericType(string typeName, IEnumerable<TypeSyntax> genericArguments) =>
         SyntaxFactory.GenericName(
             SyntaxFactory.Identifier(typeName))
             .WithTypeArgumentList(

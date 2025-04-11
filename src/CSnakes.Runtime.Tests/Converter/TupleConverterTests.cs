@@ -1,40 +1,52 @@
+using CSnakes.Runtime.Python.Internals;
+
 namespace CSnakes.Runtime.Tests.Converter;
 
-public class TupleConverterTests : ConverterTestBase
+public class Tuple1ConverterTests :
+    ConverterTestBase<ValueTuple<long>,
+                      PyObjectImporters.Tuple<long, PyObjectImporters.Int64>,
+                      Tuple1ConverterTests>,
+    IConverterTestCasesContainer<ValueTuple<long>>
 {
-    [Fact]
-    public void TupleConverter_SingleArgument()
-    {
-        Tuple<long> input = new(42);
-        RunTest(input);
-    }
+    public static TheoryData<ValueTuple<long>> TestCases => [new(42)];
+}
 
-    [Fact]
-    public void TupleConverter_TwoArguments()
-    {
-        (long, long) input = (42, 42);
-        RunTest(input);
-    }
+public class Tuple2ConverterTests :
+    ConverterTestBase<(long, long),
+        PyObjectImporters.Tuple<long, long, PyObjectImporters.Int64, PyObjectImporters.Int64>,
+        Tuple2ConverterTests>,
+    IConverterTestCasesContainer<(long, long)>
+{
+    public static TheoryData<(long, long)> TestCases => new() { (42, 42) };
+}
 
-    [Fact]
-    public void TupleConverter_ThreeArguments()
-    {
-        (long, long, long) input = (42, 42, 42);
-        RunTest(input);
-    }
+public class Tuple3ConverterTests :
+    ConverterTestBase<(long, long, long),
+        PyObjectImporters.Tuple<long, long, long, PyObjectImporters.Int64, PyObjectImporters.Int64, PyObjectImporters.Int64>,
+        Tuple3ConverterTests>,
+    IConverterTestCasesContainer<(long, long, long)>
+{
+    public static TheoryData<(long, long, long)> TestCases => new() { (42, 42, 42) };
+}
 
-    [Fact]
-    public void TupleConverter_EightArguments()
-    {
-        (long, long, long, long, long, long, long, long) input = (1, 2, 3, 4, 5, 6, 7, 8);
-        RunTest(input);
-    }
+public class Tuple8ConverterTests :
+    ConverterTestBase<(long, long, long, long, long, long, long, long),
+        PyObjectImporters.Tuple<long, long, long, long, long, long, long, long,
+            PyObjectImporters.Int64, PyObjectImporters.Int64, PyObjectImporters.Int64,
+            PyObjectImporters.Int64, PyObjectImporters.Int64, PyObjectImporters.Int64,
+            PyObjectImporters.Int64, PyObjectImporters.Int64>,
+        Tuple8ConverterTests>,
+    IConverterTestCasesContainer<(long, long, long, long, long, long, long, long)>
+{
+    public static TheoryData<(long, long, long, long, long, long, long, long)> TestCases =>
+        new() { (1, 2, 3, 4, 5, 6, 7, 8) };
+}
 
-    [Fact]
-    public void TupleConverter_SeventeenArguments()
-    {
-        (long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long) input =
-            (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17);
-        RunTest(input);
-    }
+public class Tuple17ConverterTests :
+    ConverterTestBase<(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long),
+        Tuple17ConverterTests>,
+    IConverterTestCasesContainer<(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long)>
+{
+    public static TheoryData<(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long)>
+        TestCases => new() { (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17) };
 }

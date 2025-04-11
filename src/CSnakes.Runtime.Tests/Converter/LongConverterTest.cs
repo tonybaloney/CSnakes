@@ -1,14 +1,18 @@
-namespace CSnakes.Runtime.Tests.Converter;
+using CSnakes.Runtime.Python.Internals;
 
-public class LongConverterTest : ConverterTestBase
+namespace CSnakes.Runtime.Tests.Converter;
+public class LongConverterTest :
+    ConverterTestBase<long, PyObjectImporters.Int64, LongConverterTest>,
+    IConverterTestCasesContainer<long>
 {
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(-1)]
-    [InlineData(42)]
-    [InlineData(-42)]
-    [InlineData(long.MaxValue)]
-    [InlineData(long.MinValue)]
-    public void TestLongBidirectional(long input) => RunTest(input);
+    public static TheoryData<long> TestCases => new()
+    {
+        0,
+        1,
+        -1,
+        42,
+        -42,
+        long.MaxValue,
+        long.MinValue,
+    };
 }

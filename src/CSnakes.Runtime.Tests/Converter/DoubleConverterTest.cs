@@ -1,20 +1,17 @@
+using CSnakes.Runtime.Python.Internals;
+
 namespace CSnakes.Runtime.Tests.Converter;
 
-public class DoubleConverterTest : ConverterTestBase
+public class DoubleConverterTest :
+    ConverterTestBase<double, PyObjectImporters.Double, DoubleConverterTest>,
+    IConverterTestCasesContainer<double>
 {
-    [Theory]
-    [InlineData(0.0)]
-    [InlineData(2.0)]
-    [InlineData(-2.0)]
-    [InlineData(double.NegativeInfinity)]
-    [InlineData(double.PositiveInfinity)]
-    public void TestDoubleBidirectional(double input) => RunTest(input);
-
-    [Theory]
-    [InlineData(0.0)]
-    [InlineData(2.0)]
-    [InlineData(-2.0)]
-    [InlineData(float.NegativeInfinity)]
-    [InlineData(float.PositiveInfinity)]
-    public void TestFloatBidirectional(float input) => RunTest(input);
+    public static TheoryData<double> TestCases => new()
+    {
+        0.0,
+        2.0,
+        -2.0,
+        double.NegativeInfinity,
+        double.PositiveInfinity
+    };
 }

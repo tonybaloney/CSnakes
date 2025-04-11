@@ -63,4 +63,5 @@
   </ItemGroup>
 
   <Import Project="Packaging.targets" />
+  <Import Project="TextTemplates.targets" />
 </Project>

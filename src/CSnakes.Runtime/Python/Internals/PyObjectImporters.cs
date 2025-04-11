@@ -43,11 +43,6 @@ public static partial class PyObjectImporters
         public static double Import(PyObject obj) => CPythonAPI.PyFloat_AsDouble(obj);
     }
 
-    public sealed class Single : IPyObjectImporter<float>
-    {
-        public static float Import(PyObject obj) => (float)CPythonAPI.PyFloat_AsDouble(obj);
-    }
-
     public sealed class String : IPyObjectImporter<string>
     {
         public static string Import(PyObject obj) => CPythonAPI.PyUnicode_AsUTF8(obj);

@@ -1,5 +1,4 @@
 using CSnakes.Runtime.Python;
-using CSnakes.Runtime.Python.Internals;
 
 namespace CSnakes.Runtime.Tests.Converter;
 public interface IConverterTestCasesContainer<T>

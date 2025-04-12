@@ -1,5 +1,4 @@
 using CSnakes.Runtime.CPython;
-using CSnakes.Runtime.Python.Internals;
 
 namespace CSnakes.Runtime.Python;
 

@@ -1,5 +1,4 @@
 using CSnakes.Runtime.CPython;
-using CSnakes.Runtime.Python.Internals;
 using CSnakes.Runtime.Python.Interns;
 using System.Collections;
 using System.Diagnostics;
@@ -11,7 +10,7 @@ using System.Runtime.InteropServices.Marshalling;
 namespace CSnakes.Runtime.Python;
 
 [DebuggerDisplay("PyObject: repr={GetRepr()}, type={GetPythonType().ToString()}")]
-public partial class PyObject : SafeHandle, ICloneable
+public partial class PyObject : SafeHandle, ICloneable, PyObject.IUnsafeImportable
 {
     protected PyObject(IntPtr pyObject, bool ownsHandle = true) : base(pyObject, ownsHandle)
     {
@@ -440,12 +439,6 @@ public partial class PyObject : SafeHandle, ICloneable
 
     public T As<T>() => (T)As(typeof(T));
 
-    public T As<T, TImporter>() where TImporter : IPyObjectImporter<T>
-    {
-        using (GIL.Acquire())
-            return TImporter.UnsafeImport(this);
-    }
-
     internal object As(Type type)
     {
         using (GIL.Acquire())
@@ -468,6 +461,35 @@ public partial class PyObject : SafeHandle, ICloneable
             };
         }
     }
+
+    public T ImportAs<T, TImporter>() where TImporter : IPyObjectImporter<T>
+    {
+        using (GIL.Acquire())
+        {
+            IUnsafeImportable importable = this;
+            return importable.UnsafeImportAs<T, TImporter>();
+        }
+    }
+
+    /// <summary>
+    /// This type and its members, although technically public in visibility,
+    /// are not intended for direct consumption in user code. They are used by
+    /// the generated code and may be modified or removed in future releases.
+    /// </summary>
+    public interface IUnsafeImportable : IDisposable
+    {
+        /// <remarks>
+        /// It is the responsibility of the caller to ensure that the GIL is
+        /// acquired via <see cref="GIL.Acquire"/> when this method is invoked.
+        /// </remarks>
+        T UnsafeImportAs<T, TImporter>() where TImporter : IPyObjectImporter<T>;
+    }
+
+    T IUnsafeImportable.UnsafeImportAs<T, TImporter>() =>
+        UnsafeImportAs<T, TImporter>();
+
+    internal T UnsafeImportAs<T, TImporter>() where TImporter : IPyObjectImporter<T> =>
+        TImporter.UnsafeImport(this);
 
     public static PyObject From<T>(T value)
     {

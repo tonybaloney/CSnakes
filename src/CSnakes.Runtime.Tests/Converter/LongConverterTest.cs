@@ -1,4 +1,4 @@
-using CSnakes.Runtime.Python.Internals;
+using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Converter;
 public class LongConverterTest :

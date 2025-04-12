@@ -97,8 +97,8 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_int");
                 PyObject __underlyingPythonFunc = this.__func_test_dict_str_int;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Dictionary<string, long, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64>.UnsafeImport(__result_pyObject);
+                using PyObject.IUnsafeImportable __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                var __return = __result_pyObject.UnsafeImportAs<IReadOnlyDictionary<string, long>, global::CSnakes.Runtime.Python.PyObjectImporters.Dictionary<string, long, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>();
                 return __return;
             }
         }
@@ -110,8 +110,8 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_list_int");
                 PyObject __underlyingPythonFunc = this.__func_test_dict_str_list_int;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Dictionary<string, IReadOnlyList<long>, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.List<long, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64>>.UnsafeImport(__result_pyObject);
+                using PyObject.IUnsafeImportable __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                var __return = __result_pyObject.UnsafeImportAs<IReadOnlyDictionary<string, IReadOnlyList<long>>, global::CSnakes.Runtime.Python.PyObjectImporters.Dictionary<string, IReadOnlyList<long>, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.List<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>>();
                 return __return;
             }
         }
@@ -123,8 +123,8 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_dict_int");
                 PyObject __underlyingPythonFunc = this.__func_test_dict_str_dict_int;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Dictionary<string, IReadOnlyDictionary<string, long>, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Dictionary<string, long, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64>>.UnsafeImport(__result_pyObject);
+                using PyObject.IUnsafeImportable __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                var __return = __result_pyObject.UnsafeImportAs<IReadOnlyDictionary<string, IReadOnlyDictionary<string, long>>, global::CSnakes.Runtime.Python.PyObjectImporters.Dictionary<string, IReadOnlyDictionary<string, long>, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.Dictionary<string, long, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>>();
                 return __return;
             }
         }
@@ -136,8 +136,8 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_mapping");
                 PyObject __underlyingPythonFunc = this.__func_test_mapping;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Mapping<string, long, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64>.UnsafeImport(__result_pyObject);
+                using PyObject.IUnsafeImportable __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                var __return = __result_pyObject.UnsafeImportAs<IReadOnlyDictionary<string, long>, global::CSnakes.Runtime.Python.PyObjectImporters.Mapping<string, long, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>();
                 return __return;
             }
         }

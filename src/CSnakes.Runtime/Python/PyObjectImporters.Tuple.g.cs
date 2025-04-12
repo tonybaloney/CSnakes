@@ -16,7 +16,7 @@
 //
 // Source: https://github.com/dotnet/roslyn/blob/70e158ba6c2c99bd3c3fc0754af0dbf82a6d353d/docs/features/nullable-reference-types.md#generated-code
 
-namespace CSnakes.Runtime.Python.Internals;
+namespace CSnakes.Runtime.Python;
 partial class PyObjectImporters
 {
     public sealed class Tuple<T1, T2, TImporter1, TImporter2> :
@@ -24,8 +24,8 @@ partial class PyObjectImporters
         where TImporter1 : IPyObjectImporter<T1>
         where TImporter2 : IPyObjectImporter<T2>
     {
-        public static (T1, T2)
-            UnsafeImport(PyObject obj)
+        static (T1, T2)
+            IPyObjectImporter<(T1, T2)>.UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -40,8 +40,8 @@ partial class PyObjectImporters
         where TImporter2 : IPyObjectImporter<T2>
         where TImporter3 : IPyObjectImporter<T3>
     {
-        public static (T1, T2, T3)
-            UnsafeImport(PyObject obj)
+        static (T1, T2, T3)
+            IPyObjectImporter<(T1, T2, T3)>.UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -58,8 +58,8 @@ partial class PyObjectImporters
         where TImporter3 : IPyObjectImporter<T3>
         where TImporter4 : IPyObjectImporter<T4>
     {
-        public static (T1, T2, T3, T4)
-            UnsafeImport(PyObject obj)
+        static (T1, T2, T3, T4)
+            IPyObjectImporter<(T1, T2, T3, T4)>.UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -78,8 +78,8 @@ partial class PyObjectImporters
         where TImporter4 : IPyObjectImporter<T4>
         where TImporter5 : IPyObjectImporter<T5>
     {
-        public static (T1, T2, T3, T4, T5)
-            UnsafeImport(PyObject obj)
+        static (T1, T2, T3, T4, T5)
+            IPyObjectImporter<(T1, T2, T3, T4, T5)>.UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -100,8 +100,8 @@ partial class PyObjectImporters
         where TImporter5 : IPyObjectImporter<T5>
         where TImporter6 : IPyObjectImporter<T6>
     {
-        public static (T1, T2, T3, T4, T5, T6)
-            UnsafeImport(PyObject obj)
+        static (T1, T2, T3, T4, T5, T6)
+            IPyObjectImporter<(T1, T2, T3, T4, T5, T6)>.UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -124,8 +124,8 @@ partial class PyObjectImporters
         where TImporter6 : IPyObjectImporter<T6>
         where TImporter7 : IPyObjectImporter<T7>
     {
-        public static (T1, T2, T3, T4, T5, T6, T7)
-            UnsafeImport(PyObject obj)
+        static (T1, T2, T3, T4, T5, T6, T7)
+            IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7)>.UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -150,8 +150,8 @@ partial class PyObjectImporters
         where TImporter7 : IPyObjectImporter<T7>
         where TImporter8 : IPyObjectImporter<T8>
     {
-        public static (T1, T2, T3, T4, T5, T6, T7, T8)
-            UnsafeImport(PyObject obj)
+        static (T1, T2, T3, T4, T5, T6, T7, T8)
+            IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7, T8)>.UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -178,8 +178,8 @@ partial class PyObjectImporters
         where TImporter8 : IPyObjectImporter<T8>
         where TImporter9 : IPyObjectImporter<T9>
     {
-        public static (T1, T2, T3, T4, T5, T6, T7, T8, T9)
-            UnsafeImport(PyObject obj)
+        static (T1, T2, T3, T4, T5, T6, T7, T8, T9)
+            IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7, T8, T9)>.UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -208,8 +208,8 @@ partial class PyObjectImporters
         where TImporter9 : IPyObjectImporter<T9>
         where TImporter10 : IPyObjectImporter<T10>
     {
-        public static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
-            UnsafeImport(PyObject obj)
+        static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
+            IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)>.UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -240,8 +240,8 @@ partial class PyObjectImporters
         where TImporter10 : IPyObjectImporter<T10>
         where TImporter11 : IPyObjectImporter<T11>
     {
-        public static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
-            UnsafeImport(PyObject obj)
+        static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
+            IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)>.UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -274,8 +274,8 @@ partial class PyObjectImporters
         where TImporter11 : IPyObjectImporter<T11>
         where TImporter12 : IPyObjectImporter<T12>
     {
-        public static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
-            UnsafeImport(PyObject obj)
+        static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
+            IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)>.UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -310,8 +310,8 @@ partial class PyObjectImporters
         where TImporter12 : IPyObjectImporter<T12>
         where TImporter13 : IPyObjectImporter<T13>
     {
-        public static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
-            UnsafeImport(PyObject obj)
+        static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+            IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)>.UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);

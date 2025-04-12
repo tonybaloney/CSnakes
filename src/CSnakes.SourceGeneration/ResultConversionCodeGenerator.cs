@@ -29,7 +29,7 @@ internal static class ResultConversionCodeGenerator
         Create(pythonTypeSpec).GenerateCode(inputName, outputName);
 
     private static NameSyntax ImportersQualifiedName =>
-        ParseName("global::CSnakes.Runtime.Python.Internals.PyObjectImporters");
+        ParseName("global::CSnakes.Runtime.Python.PyObjectImporters");
 
     public static IResultConversionCodeGenerator Create(PythonTypeSpec pythonTypeSpec)
     {
@@ -50,7 +50,13 @@ internal static class ResultConversionCodeGenerator
             {
                 return ListConversionGenerator(t, "Sequence");
             }
-            case { Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: { Length: >= 1 and <= 12 } ts }:
+            case { Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: [var t] }:
+                {
+                    var generator = Create(t);
+                    return new ConversionGenerator(TypeReflection.CreateGenericType("ValueTuple", [generator.TypeSyntax]),
+                                                   TypeReflection.CreateGenericType("Tuple", [generator.TypeSyntax, generator.ImporterTypeSyntax]));
+                }
+            case { Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: { Length: > 1 and <= 12 } ts }:
             {
                 var generators = ImmutableArray.CreateRange(from t in ts select Create(t));
                 return new ConversionGenerator(TupleType(SeparatedList(from item in generators select TupleElement(item.TypeSyntax))),
@@ -90,7 +96,7 @@ internal static class ResultConversionCodeGenerator
         public TypeSyntax ImporterTypeSyntax { get; } = importerTypeSyntax;
 
         public IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName) =>
-            [ParseStatement($"var {outputName} = {ImporterTypeSyntax}.UnsafeImport({inputName});")];
+            [ParseStatement($"var {outputName} = {inputName}.UnsafeImportAs<{TypeSyntax}, {ImporterTypeSyntax}>();")];
     }
 
     public static IResultConversionCodeGenerator ScalarConversionGenerator(SyntaxKind syntaxKind, string importerTypeName) =>

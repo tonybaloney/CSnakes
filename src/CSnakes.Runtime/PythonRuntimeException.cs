@@ -1,6 +1,5 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
-using CSnakes.Runtime.Python.Internals;
 
 namespace CSnakes.Runtime;
 public class PythonRuntimeException : Exception
@@ -16,8 +15,8 @@ public class PythonRuntimeException : Exception
             return;
         }
 
-        Data["locals"] = traceback.GetAttr("tb_frame").GetAttr("f_locals").ImportAs<IReadOnlyDictionary<string, PyObject>, PyObjectImporters.Dictionary<string, PyObject, PyObjectImporters.String, PyObjectImporters.Clone>>();
-        Data["globals"] = traceback.GetAttr("tb_frame").GetAttr("f_globals").ImportAs<IReadOnlyDictionary<string, PyObject>, PyObjectImporters.Dictionary<string, PyObject, PyObjectImporters.String, PyObjectImporters.Clone>>();
+        Data["locals"] = PyObjectImporters.Dictionary<string, PyObject, PyObjectImporters.String, PyObjectImporters.Clone>.Import(traceback.GetAttr("tb_frame").GetAttr("f_locals"));
+        Data["globals"] = PyObjectImporters.Dictionary<string, PyObject, PyObjectImporters.String, PyObjectImporters.Clone>.Import(traceback.GetAttr("tb_frame").GetAttr("f_globals"));
     }
 
     private static PythonRuntimeException? GetPythonInnerException(PyObject? exception) =>

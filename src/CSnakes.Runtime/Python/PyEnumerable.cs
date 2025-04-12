@@ -1,6 +1,5 @@
 using CSnakes.Runtime.CPython;
 using System.Collections;
-using CSnakes.Runtime.Python.Internals;
 
 namespace CSnakes.Runtime.Python;
 

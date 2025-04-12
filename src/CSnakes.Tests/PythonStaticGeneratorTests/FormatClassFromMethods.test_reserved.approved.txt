@@ -82,7 +82,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "switch");
                 PyObject __underlyingPythonFunc = this.__func_switch;
                 using PyObject @new_pyObject = PyObject.From(@new)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(@new_pyObject);
+                using PyObject.IUnsafeImportable __result_pyObject = __underlyingPythonFunc.Call(@new_pyObject);
                 return;
             }
         }

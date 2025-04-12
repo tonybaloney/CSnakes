@@ -126,6 +126,7 @@ public static class MethodReflection
 
         ReturnStatementSyntax returnExpression;
         IEnumerable<StatementSyntax> resultConversionStatements = [];
+        var callResultTypeSyntax = IdentifierName("PyObject.IUnsafeImportable");
 
         switch (returnSyntax)
         {
@@ -136,6 +137,7 @@ public static class MethodReflection
             }
             case IdentifierNameSyntax { Identifier.ValueText: "PyObject" }:
             {
+                callResultTypeSyntax = IdentifierName("PyObject");
                 returnExpression = ReturnStatement(IdentifierName("__result_pyObject"));
                 break;
             }
@@ -183,7 +185,7 @@ public static class MethodReflection
 
         var callStatement = LocalDeclarationStatement(
                 VariableDeclaration(
-                    IdentifierName("PyObject"))
+                        callResultTypeSyntax)
                 .WithVariables(
                     SingletonSeparatedList(
                         VariableDeclarator(

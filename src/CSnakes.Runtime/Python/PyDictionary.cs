@@ -1,7 +1,6 @@
 using CSnakes.Runtime.CPython;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using CSnakes.Runtime.Python.Internals;
 
 namespace CSnakes.Runtime.Python;
 
@@ -100,9 +99,9 @@ internal class PyDictionary<TKey, TValue, TKeyImporter, TValueImporter>(PyObject
     {
         private KeyValuePairImporter() { }
 
-        public static KeyValuePair<TKey, TValue> UnsafeImport(PyObject obj)
+        static KeyValuePair<TKey, TValue> IPyObjectImporter<KeyValuePair<TKey, TValue>>.UnsafeImport(PyObject obj)
         {
-            var (key, value) = PyObjectImporters.Tuple<TKey, TValue, TKeyImporter, TValueImporter>.UnsafeImport(obj);
+            var (key, value) = obj.UnsafeImportAs<(TKey, TValue), PyObjectImporters.Tuple<TKey, TValue, TKeyImporter, TValueImporter>>();
             return new KeyValuePair<TKey, TValue>(key, value);
         }
     }

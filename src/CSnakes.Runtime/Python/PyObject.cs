@@ -490,8 +490,11 @@ public partial class PyObject : SafeHandle, ICloneable, PyObject.IUnsafeImportab
     T IUnsafeImportable.UnsafeImportAs<T, TImporter>() =>
         UnsafeImportAs<T, TImporter>();
 
-    internal T UnsafeImportAs<T, TImporter>() where TImporter : IPyObjectImporter<T> =>
-        TImporter.UnsafeImport(this);
+    internal T UnsafeImportAs<T, TImporter>() where TImporter : IPyObjectImporter<T>
+    {
+        Debug.Assert(GIL.IsAcquired);
+        return TImporter.UnsafeImport(this);
+    }
 
     public static PyObject From<T>(T value)
     {

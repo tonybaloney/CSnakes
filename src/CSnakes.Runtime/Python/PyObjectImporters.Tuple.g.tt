@@ -44,6 +44,8 @@
 //
 // Source: https://github.com/dotnet/roslyn/blob/70e158ba6c2c99bd3c3fc0754af0dbf82a6d353d/docs/features/nullable-reference-types.md#generated-code
 
+using System.Diagnostics;
+
 namespace CSnakes.Runtime.Python;
 partial class PyObjectImporters
 {<#
@@ -61,6 +63,7 @@ partial class PyObjectImporters
         static (<#= e.Ts #>)
             IPyObjectImporter<(<#= e.Ts #>)>.UnsafeImport(PyObject obj)
         {
+            Debug.Assert(GIL.IsAcquired);
             CheckTuple(obj);
 <#
         foreach (var v in e.Vars)

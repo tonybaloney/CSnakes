@@ -16,6 +16,8 @@
 //
 // Source: https://github.com/dotnet/roslyn/blob/70e158ba6c2c99bd3c3fc0754af0dbf82a6d353d/docs/features/nullable-reference-types.md#generated-code
 
+using System.Diagnostics;
+
 namespace CSnakes.Runtime.Python;
 partial class PyObjectImporters
 {
@@ -27,6 +29,7 @@ partial class PyObjectImporters
         static (T1, T2)
             IPyObjectImporter<(T1, T2)>.UnsafeImport(PyObject obj)
         {
+            Debug.Assert(GIL.IsAcquired);
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
             using var b = GetTupleItem(obj, 1);
@@ -43,6 +46,7 @@ partial class PyObjectImporters
         static (T1, T2, T3)
             IPyObjectImporter<(T1, T2, T3)>.UnsafeImport(PyObject obj)
         {
+            Debug.Assert(GIL.IsAcquired);
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
             using var b = GetTupleItem(obj, 1);
@@ -61,6 +65,7 @@ partial class PyObjectImporters
         static (T1, T2, T3, T4)
             IPyObjectImporter<(T1, T2, T3, T4)>.UnsafeImport(PyObject obj)
         {
+            Debug.Assert(GIL.IsAcquired);
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
             using var b = GetTupleItem(obj, 1);
@@ -81,6 +86,7 @@ partial class PyObjectImporters
         static (T1, T2, T3, T4, T5)
             IPyObjectImporter<(T1, T2, T3, T4, T5)>.UnsafeImport(PyObject obj)
         {
+            Debug.Assert(GIL.IsAcquired);
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
             using var b = GetTupleItem(obj, 1);
@@ -103,6 +109,7 @@ partial class PyObjectImporters
         static (T1, T2, T3, T4, T5, T6)
             IPyObjectImporter<(T1, T2, T3, T4, T5, T6)>.UnsafeImport(PyObject obj)
         {
+            Debug.Assert(GIL.IsAcquired);
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
             using var b = GetTupleItem(obj, 1);
@@ -127,6 +134,7 @@ partial class PyObjectImporters
         static (T1, T2, T3, T4, T5, T6, T7)
             IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7)>.UnsafeImport(PyObject obj)
         {
+            Debug.Assert(GIL.IsAcquired);
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
             using var b = GetTupleItem(obj, 1);
@@ -153,6 +161,7 @@ partial class PyObjectImporters
         static (T1, T2, T3, T4, T5, T6, T7, T8)
             IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7, T8)>.UnsafeImport(PyObject obj)
         {
+            Debug.Assert(GIL.IsAcquired);
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
             using var b = GetTupleItem(obj, 1);
@@ -181,6 +190,7 @@ partial class PyObjectImporters
         static (T1, T2, T3, T4, T5, T6, T7, T8, T9)
             IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7, T8, T9)>.UnsafeImport(PyObject obj)
         {
+            Debug.Assert(GIL.IsAcquired);
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
             using var b = GetTupleItem(obj, 1);
@@ -211,6 +221,7 @@ partial class PyObjectImporters
         static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
             IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)>.UnsafeImport(PyObject obj)
         {
+            Debug.Assert(GIL.IsAcquired);
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
             using var b = GetTupleItem(obj, 1);

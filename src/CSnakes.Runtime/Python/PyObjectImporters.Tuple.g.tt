@@ -6,8 +6,10 @@
 <#
     const string vars = "abcdefghijklmnopqrstuvwxyz";
 
+    const int start = 2;
+
     var impls =
-        from a in Enumerable.Range(2, 12)
+        from a in Enumerable.Range(start, 10 - start + 1)
         select Enumerable.Range(1, a).Select(n => n.ToString(CultureInfo.InvariantCulture)).ToArray() into ns
         select new
         {

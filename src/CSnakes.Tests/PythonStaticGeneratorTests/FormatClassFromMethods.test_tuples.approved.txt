@@ -295,7 +295,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_11;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject.IUnsafeImportable __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = __result_pyObject.UnsafeImportAs<(string, string, string, string, string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<string, string, string, string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String>>();
+                var __return = __result_pyObject.UnsafeImportAs<(string, string, string, string, string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<(string, string, string, string, string, string, string, string, string, string, string)>>();
                 return __return;
             }
         }
@@ -308,7 +308,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_tuple_12;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject.IUnsafeImportable __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = __result_pyObject.UnsafeImportAs<(string, string, string, string, string, string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<string, string, string, string, string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String>>();
+                var __return = __result_pyObject.UnsafeImportAs<(string, string, string, string, string, string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string)>>();
                 return __return;
             }
         }

@@ -56,7 +56,7 @@ internal static class ResultConversionCodeGenerator
                     return new ConversionGenerator(TypeReflection.CreateGenericType("ValueTuple", [generator.TypeSyntax]),
                                                    TypeReflection.CreateGenericType("Tuple", [generator.TypeSyntax, generator.ImporterTypeSyntax]));
                 }
-            case { Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: { Length: > 1 and <= 12 } ts }:
+            case { Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: { Length: > 1 and <= 10 } ts }:
             {
                 var generators = ImmutableArray.CreateRange(from t in ts select Create(t));
                 return new ConversionGenerator(TupleType(SeparatedList(from item in generators select TupleElement(item.TypeSyntax))),

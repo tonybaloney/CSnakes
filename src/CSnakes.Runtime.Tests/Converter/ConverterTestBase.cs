@@ -1,3 +1,5 @@
+#pragma warning disable PRTEXP001
+
 using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Converter;

@@ -2,6 +2,7 @@ using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python.Interns;
 using System.Collections;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -476,6 +477,7 @@ public partial class PyObject : SafeHandle, ICloneable, PyObject.IUnsafeImportab
     /// are not intended for direct consumption in user code. They are used by
     /// the generated code and may be modified or removed in future releases.
     /// </summary>
+    [Experimental("PRTEXP003")]
     public interface IUnsafeImportable : IDisposable
     {
         /// <remarks>

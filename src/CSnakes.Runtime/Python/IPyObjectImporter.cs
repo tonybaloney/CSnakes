@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace CSnakes.Runtime.Python;
 
+[Experimental("PRTEXP001")]
 public interface IPyObjectImporter<out T>
 {
     /// <remarks>

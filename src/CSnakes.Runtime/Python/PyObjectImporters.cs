@@ -1,4 +1,5 @@
 using CSnakes.Runtime.CPython;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime.Python;
 
@@ -7,6 +8,7 @@ namespace CSnakes.Runtime.Python;
 /// not intended for direct consumption in user code. They are used by the
 /// generated code and may be modified or removed in future releases.
 /// </summary>
+[Experimental("PRTEXP002")]
 public static partial class PyObjectImporters
 {
     public sealed class Clone : IPyObjectImporter<PyObject>

@@ -93,7 +93,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_example_generator;
                 using PyObject length_pyObject = PyObject.From(length)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(length_pyObject);
-                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Generator<string, long, bool, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Boolean>.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Generator<string, long, bool, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Boolean>.UnsafeImport(__result_pyObject);
                 return __return;
             }
         }
@@ -105,7 +105,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_normal_generator");
                 PyObject __underlyingPythonFunc = this.__func_test_normal_generator;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Generator<string, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Generator<string, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.UnsafeImport(__result_pyObject);
                 return __return;
             }
         }
@@ -117,7 +117,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_generator_sequence");
                 PyObject __underlyingPythonFunc = this.__func_test_generator_sequence;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Generator<string, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Generator<string, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.String, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.UnsafeImport(__result_pyObject);
                 return __return;
             }
         }

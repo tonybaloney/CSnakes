@@ -1,4 +1,5 @@
 using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python.Internals;
 
 namespace CSnakes.Runtime;
 
@@ -24,7 +25,7 @@ public sealed class PythonStopIterationException : PythonRuntimeException
         {
             using var type = valueOrError.GetPythonType();
             using var typeName = type.GetAttr("__name__");
-            this.value = typeName.As<string>() == "StopIteration"
+            this.value = typeName.ImportAs<string, PyObjectImporters.String>() == "StopIteration"
                        ? valueOrError.GetAttr("value")
                        : valueOrError;
         }

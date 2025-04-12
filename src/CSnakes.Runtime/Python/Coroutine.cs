@@ -29,7 +29,7 @@ public class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(
                     using (GIL.Acquire())
                     {
                         using PyObject result = CPythonAPI.GetEventLoop().RunTaskUntilComplete(coroutine, cancellationToken);
-                        current = TYieldImporter.Import(result);
+                        current = TYieldImporter.UnsafeImport(result);
                     }
                     return current;
                 }
@@ -38,7 +38,7 @@ public class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(
                     if (ex.InnerException is PythonStopIterationException stopIteration)
                     {
                         using var @return = stopIteration.TakeValue();
-                        this.@return = TReturnImporter.Import(@return);
+                        this.@return = @return.ImportAs<TReturn, TReturnImporter>();
 
                         // Coroutine has finished
                         // TODO: define behavior for this case

@@ -25,12 +25,12 @@ partial class PyObjectImporters
         where TImporter2 : IPyObjectImporter<T2>
     {
         public static (T1, T2)
-            Import(PyObject obj)
+            UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
             using var b = GetTupleItem(obj, 1);
-            return (TImporter1.Import(a), TImporter2.Import(b));
+            return (TImporter1.UnsafeImport(a), TImporter2.UnsafeImport(b));
         }
     }
 
@@ -41,13 +41,13 @@ partial class PyObjectImporters
         where TImporter3 : IPyObjectImporter<T3>
     {
         public static (T1, T2, T3)
-            Import(PyObject obj)
+            UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
             using var b = GetTupleItem(obj, 1);
             using var c = GetTupleItem(obj, 2);
-            return (TImporter1.Import(a), TImporter2.Import(b), TImporter3.Import(c));
+            return (TImporter1.UnsafeImport(a), TImporter2.UnsafeImport(b), TImporter3.UnsafeImport(c));
         }
     }
 
@@ -59,14 +59,14 @@ partial class PyObjectImporters
         where TImporter4 : IPyObjectImporter<T4>
     {
         public static (T1, T2, T3, T4)
-            Import(PyObject obj)
+            UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
             using var b = GetTupleItem(obj, 1);
             using var c = GetTupleItem(obj, 2);
             using var d = GetTupleItem(obj, 3);
-            return (TImporter1.Import(a), TImporter2.Import(b), TImporter3.Import(c), TImporter4.Import(d));
+            return (TImporter1.UnsafeImport(a), TImporter2.UnsafeImport(b), TImporter3.UnsafeImport(c), TImporter4.UnsafeImport(d));
         }
     }
 
@@ -79,7 +79,7 @@ partial class PyObjectImporters
         where TImporter5 : IPyObjectImporter<T5>
     {
         public static (T1, T2, T3, T4, T5)
-            Import(PyObject obj)
+            UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -87,7 +87,7 @@ partial class PyObjectImporters
             using var c = GetTupleItem(obj, 2);
             using var d = GetTupleItem(obj, 3);
             using var e = GetTupleItem(obj, 4);
-            return (TImporter1.Import(a), TImporter2.Import(b), TImporter3.Import(c), TImporter4.Import(d), TImporter5.Import(e));
+            return (TImporter1.UnsafeImport(a), TImporter2.UnsafeImport(b), TImporter3.UnsafeImport(c), TImporter4.UnsafeImport(d), TImporter5.UnsafeImport(e));
         }
     }
 
@@ -101,7 +101,7 @@ partial class PyObjectImporters
         where TImporter6 : IPyObjectImporter<T6>
     {
         public static (T1, T2, T3, T4, T5, T6)
-            Import(PyObject obj)
+            UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -110,7 +110,7 @@ partial class PyObjectImporters
             using var d = GetTupleItem(obj, 3);
             using var e = GetTupleItem(obj, 4);
             using var f = GetTupleItem(obj, 5);
-            return (TImporter1.Import(a), TImporter2.Import(b), TImporter3.Import(c), TImporter4.Import(d), TImporter5.Import(e), TImporter6.Import(f));
+            return (TImporter1.UnsafeImport(a), TImporter2.UnsafeImport(b), TImporter3.UnsafeImport(c), TImporter4.UnsafeImport(d), TImporter5.UnsafeImport(e), TImporter6.UnsafeImport(f));
         }
     }
 
@@ -125,7 +125,7 @@ partial class PyObjectImporters
         where TImporter7 : IPyObjectImporter<T7>
     {
         public static (T1, T2, T3, T4, T5, T6, T7)
-            Import(PyObject obj)
+            UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -135,7 +135,7 @@ partial class PyObjectImporters
             using var e = GetTupleItem(obj, 4);
             using var f = GetTupleItem(obj, 5);
             using var g = GetTupleItem(obj, 6);
-            return (TImporter1.Import(a), TImporter2.Import(b), TImporter3.Import(c), TImporter4.Import(d), TImporter5.Import(e), TImporter6.Import(f), TImporter7.Import(g));
+            return (TImporter1.UnsafeImport(a), TImporter2.UnsafeImport(b), TImporter3.UnsafeImport(c), TImporter4.UnsafeImport(d), TImporter5.UnsafeImport(e), TImporter6.UnsafeImport(f), TImporter7.UnsafeImport(g));
         }
     }
 
@@ -151,7 +151,7 @@ partial class PyObjectImporters
         where TImporter8 : IPyObjectImporter<T8>
     {
         public static (T1, T2, T3, T4, T5, T6, T7, T8)
-            Import(PyObject obj)
+            UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -162,7 +162,7 @@ partial class PyObjectImporters
             using var f = GetTupleItem(obj, 5);
             using var g = GetTupleItem(obj, 6);
             using var h = GetTupleItem(obj, 7);
-            return (TImporter1.Import(a), TImporter2.Import(b), TImporter3.Import(c), TImporter4.Import(d), TImporter5.Import(e), TImporter6.Import(f), TImporter7.Import(g), TImporter8.Import(h));
+            return (TImporter1.UnsafeImport(a), TImporter2.UnsafeImport(b), TImporter3.UnsafeImport(c), TImporter4.UnsafeImport(d), TImporter5.UnsafeImport(e), TImporter6.UnsafeImport(f), TImporter7.UnsafeImport(g), TImporter8.UnsafeImport(h));
         }
     }
 
@@ -179,7 +179,7 @@ partial class PyObjectImporters
         where TImporter9 : IPyObjectImporter<T9>
     {
         public static (T1, T2, T3, T4, T5, T6, T7, T8, T9)
-            Import(PyObject obj)
+            UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -191,7 +191,7 @@ partial class PyObjectImporters
             using var g = GetTupleItem(obj, 6);
             using var h = GetTupleItem(obj, 7);
             using var i = GetTupleItem(obj, 8);
-            return (TImporter1.Import(a), TImporter2.Import(b), TImporter3.Import(c), TImporter4.Import(d), TImporter5.Import(e), TImporter6.Import(f), TImporter7.Import(g), TImporter8.Import(h), TImporter9.Import(i));
+            return (TImporter1.UnsafeImport(a), TImporter2.UnsafeImport(b), TImporter3.UnsafeImport(c), TImporter4.UnsafeImport(d), TImporter5.UnsafeImport(e), TImporter6.UnsafeImport(f), TImporter7.UnsafeImport(g), TImporter8.UnsafeImport(h), TImporter9.UnsafeImport(i));
         }
     }
 
@@ -209,7 +209,7 @@ partial class PyObjectImporters
         where TImporter10 : IPyObjectImporter<T10>
     {
         public static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
-            Import(PyObject obj)
+            UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -222,7 +222,7 @@ partial class PyObjectImporters
             using var h = GetTupleItem(obj, 7);
             using var i = GetTupleItem(obj, 8);
             using var j = GetTupleItem(obj, 9);
-            return (TImporter1.Import(a), TImporter2.Import(b), TImporter3.Import(c), TImporter4.Import(d), TImporter5.Import(e), TImporter6.Import(f), TImporter7.Import(g), TImporter8.Import(h), TImporter9.Import(i), TImporter10.Import(j));
+            return (TImporter1.UnsafeImport(a), TImporter2.UnsafeImport(b), TImporter3.UnsafeImport(c), TImporter4.UnsafeImport(d), TImporter5.UnsafeImport(e), TImporter6.UnsafeImport(f), TImporter7.UnsafeImport(g), TImporter8.UnsafeImport(h), TImporter9.UnsafeImport(i), TImporter10.UnsafeImport(j));
         }
     }
 
@@ -241,7 +241,7 @@ partial class PyObjectImporters
         where TImporter11 : IPyObjectImporter<T11>
     {
         public static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
-            Import(PyObject obj)
+            UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -255,7 +255,7 @@ partial class PyObjectImporters
             using var i = GetTupleItem(obj, 8);
             using var j = GetTupleItem(obj, 9);
             using var k = GetTupleItem(obj, 10);
-            return (TImporter1.Import(a), TImporter2.Import(b), TImporter3.Import(c), TImporter4.Import(d), TImporter5.Import(e), TImporter6.Import(f), TImporter7.Import(g), TImporter8.Import(h), TImporter9.Import(i), TImporter10.Import(j), TImporter11.Import(k));
+            return (TImporter1.UnsafeImport(a), TImporter2.UnsafeImport(b), TImporter3.UnsafeImport(c), TImporter4.UnsafeImport(d), TImporter5.UnsafeImport(e), TImporter6.UnsafeImport(f), TImporter7.UnsafeImport(g), TImporter8.UnsafeImport(h), TImporter9.UnsafeImport(i), TImporter10.UnsafeImport(j), TImporter11.UnsafeImport(k));
         }
     }
 
@@ -275,7 +275,7 @@ partial class PyObjectImporters
         where TImporter12 : IPyObjectImporter<T12>
     {
         public static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
-            Import(PyObject obj)
+            UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -290,7 +290,7 @@ partial class PyObjectImporters
             using var j = GetTupleItem(obj, 9);
             using var k = GetTupleItem(obj, 10);
             using var l = GetTupleItem(obj, 11);
-            return (TImporter1.Import(a), TImporter2.Import(b), TImporter3.Import(c), TImporter4.Import(d), TImporter5.Import(e), TImporter6.Import(f), TImporter7.Import(g), TImporter8.Import(h), TImporter9.Import(i), TImporter10.Import(j), TImporter11.Import(k), TImporter12.Import(l));
+            return (TImporter1.UnsafeImport(a), TImporter2.UnsafeImport(b), TImporter3.UnsafeImport(c), TImporter4.UnsafeImport(d), TImporter5.UnsafeImport(e), TImporter6.UnsafeImport(f), TImporter7.UnsafeImport(g), TImporter8.UnsafeImport(h), TImporter9.UnsafeImport(i), TImporter10.UnsafeImport(j), TImporter11.UnsafeImport(k), TImporter12.UnsafeImport(l));
         }
     }
 
@@ -311,7 +311,7 @@ partial class PyObjectImporters
         where TImporter13 : IPyObjectImporter<T13>
     {
         public static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
-            Import(PyObject obj)
+            UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
             using var a = GetTupleItem(obj, 0);
@@ -327,7 +327,7 @@ partial class PyObjectImporters
             using var k = GetTupleItem(obj, 10);
             using var l = GetTupleItem(obj, 11);
             using var m = GetTupleItem(obj, 12);
-            return (TImporter1.Import(a), TImporter2.Import(b), TImporter3.Import(c), TImporter4.Import(d), TImporter5.Import(e), TImporter6.Import(f), TImporter7.Import(g), TImporter8.Import(h), TImporter9.Import(i), TImporter10.Import(j), TImporter11.Import(k), TImporter12.Import(l), TImporter13.Import(m));
+            return (TImporter1.UnsafeImport(a), TImporter2.UnsafeImport(b), TImporter3.UnsafeImport(c), TImporter4.UnsafeImport(d), TImporter5.UnsafeImport(e), TImporter6.UnsafeImport(f), TImporter7.UnsafeImport(g), TImporter8.UnsafeImport(h), TImporter9.UnsafeImport(i), TImporter10.UnsafeImport(j), TImporter11.UnsafeImport(k), TImporter12.UnsafeImport(l), TImporter13.UnsafeImport(m));
         }
     }
 }

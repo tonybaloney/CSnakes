@@ -36,9 +36,5 @@ public abstract class ConverterTestBase<T, TImporter, TTestCases> :
     [Theory]
     [MemberData(nameof(SubTestCases))]
     public void RoundtripViaImport(T input) =>
-        TestRoundtrip(input, static obj =>
-        {
-            using (GIL.Acquire())
-                return TImporter.Import(obj);
-        });
+        TestRoundtrip(input, static obj => obj.ImportAs<T, TImporter>());
 }

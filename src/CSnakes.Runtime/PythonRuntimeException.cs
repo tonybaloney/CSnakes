@@ -16,8 +16,8 @@ public class PythonRuntimeException : Exception
             return;
         }
 
-        Data["locals"] = traceback.GetAttr("tb_frame").GetAttr("f_locals").As<IReadOnlyDictionary<string, PyObject>>();
-        Data["globals"] = traceback.GetAttr("tb_frame").GetAttr("f_globals").As<IReadOnlyDictionary<string, PyObject>>();
+        Data["locals"] = traceback.GetAttr("tb_frame").GetAttr("f_locals").ImportAs<IReadOnlyDictionary<string, PyObject>, PyObjectImporters.Dictionary<string, PyObject, PyObjectImporters.String, PyObjectImporters.Clone>>();
+        Data["globals"] = traceback.GetAttr("tb_frame").GetAttr("f_globals").ImportAs<IReadOnlyDictionary<string, PyObject>, PyObjectImporters.Dictionary<string, PyObject, PyObjectImporters.String, PyObjectImporters.Clone>>();
     }
 
     private static PythonRuntimeException? GetPythonInnerException(PyObject? exception) =>
@@ -55,7 +55,7 @@ public class PythonRuntimeException : Exception
             using var formatTbFunction = tracebackModule.GetAttr("format_tb");
             using var formattedStackTrace = formatTbFunction.Call(pythonStackTrace);
 
-            return [.. PyObjectImporters.List<string, PyObjectImporters.String>.Import(formattedStackTrace)];
+            return [.. PyObjectImporters.List<string, PyObjectImporters.String>.UnsafeImport(formattedStackTrace)];
         }
     }
 

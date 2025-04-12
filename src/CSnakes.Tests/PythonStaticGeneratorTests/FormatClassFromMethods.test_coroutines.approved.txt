@@ -92,7 +92,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.UnsafeImport(__result_pyObject);
                 return __return.AsTask();
             }
         }
@@ -104,7 +104,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_raises_exception");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_raises_exception;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.UnsafeImport(__result_pyObject);
                 return __return.AsTask();
             }
         }
@@ -116,7 +116,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_returns_nothing");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_returns_nothing;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Coroutine<PyObject, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.Import(__result_pyObject);
+                var __return = global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Coroutine<PyObject, PyObject, PyObject, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>, global::CSnakes.Runtime.Python.Internals.PyObjectImporters.Runtime<PyObject>>.UnsafeImport(__result_pyObject);
                 return __return.AsTask();
             }
         }

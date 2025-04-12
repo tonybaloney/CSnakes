@@ -26,7 +26,7 @@ internal class PyList<T, TImporter>(PyObject listObject) :
             using (GIL.Acquire())
             {
                 using PyObject value = PyObject.Create(CPythonAPI.PySequence_GetItem(listObject, index));
-                var result = TImporter.Import(value);
+                var result = TImporter.UnsafeImport(value);
                 _convertedItems[index] = result;
                 return result;
             }

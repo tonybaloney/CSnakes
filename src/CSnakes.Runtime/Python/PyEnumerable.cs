@@ -42,7 +42,7 @@ internal class PyEnumerable<TValue, TImporter> : IEnumerable<TValue>, IEnumerato
             }
 
             using PyObject pyObject = PyObject.Create(result);
-            current = TImporter.Import(pyObject);
+            current = TImporter.UnsafeImport(pyObject);
             return true;
         }
     }

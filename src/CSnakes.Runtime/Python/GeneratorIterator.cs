@@ -64,7 +64,7 @@ public class GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnIm
         try
         {
             using PyObject result = sendPyFunction.Call(value);
-            current = TYieldImporter.Import(result);
+            current = result.ImportAs<TYield, TYieldImporter>();
             return true;
         }
         catch (PythonInvocationException ex)
@@ -72,7 +72,7 @@ public class GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnIm
             if (ex.InnerException is PythonStopIterationException stopIteration)
             {
                 using var @return = stopIteration.TakeValue();
-                this.@return = TReturnImporter.Import(@return);
+                this.@return = @return.ImportAs<TReturn, TReturnImporter>();
                 return false;
             }
 

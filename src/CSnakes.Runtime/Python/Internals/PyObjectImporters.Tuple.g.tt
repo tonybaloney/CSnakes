@@ -57,7 +57,7 @@ partial class PyObjectImporters
 <#      } #>
     {
         public static (<#= e.Ts #>)
-            Import(PyObject obj)
+            UnsafeImport(PyObject obj)
         {
             CheckTuple(obj);
 <#
@@ -65,7 +65,7 @@ partial class PyObjectImporters
         { #>
             using var <#= v.Name #> = GetTupleItem(obj, <#= v.Index #>);
 <#      } #>
-            return (<#= string.Join(", ", e.Importers.Zip(e.Vars, (c, v) => $"{c}.Import({v.Name})")) #>);
+            return (<#= string.Join(", ", e.Importers.Zip(e.Vars, (c, v) => $"{c}.UnsafeImport({v.Name})")) #>);
         }
     }
 <#  } #>

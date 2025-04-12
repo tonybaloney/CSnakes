@@ -1,4 +1,5 @@
 using CSnakes.Runtime.CPython;
+using CSnakes.Runtime.Python.Internals;
 using CSnakes.Runtime.Python.Interns;
 using System.Collections;
 using System.Diagnostics;
@@ -321,7 +322,7 @@ public partial class PyObject : SafeHandle, ICloneable
     {
         RaiseOnPythonNotInitialized();
 
-        // Don't do any marshalling if there aren't any arguments. 
+        // Don't do any marshalling if there aren't any arguments.
         if (args is null || args.Length == 0)
         {
             using (GIL.Acquire())
@@ -415,7 +416,7 @@ public partial class PyObject : SafeHandle, ICloneable
         // No keyword parameters supplied
         if (kwnames is null && kwargs is null)
             return CallWithArgs(args);
-        // Keyword args are empty and kwargs is empty. 
+        // Keyword args are empty and kwargs is empty.
         if (kwnames is not null && kwnames.Length == 0 && (kwargs is null || kwargs.Count == 0))
             return CallWithArgs(args);
 
@@ -439,18 +440,10 @@ public partial class PyObject : SafeHandle, ICloneable
 
     public T As<T>() => (T)As(typeof(T));
 
-    /// <summary>
-    /// Unpack a tuple of 2 elements into a KeyValuePair
-    /// </summary>
-    /// <typeparam name="TKey">The type of the key</typeparam>
-    /// <typeparam name="TValue">The type of the value</typeparam>
-    /// <returns></returns>
-    public KeyValuePair<TKey, TValue> As<TKey, TValue>()
+    public T As<T, TImporter>() where TImporter : IPyObjectImporter<T>
     {
         using (GIL.Acquire())
-        {
-            return PyObjectTypeConverter.ConvertToKeyValuePair<TKey, TValue>(this);
-        }
+            return TImporter.UnsafeImport(this);
     }
 
     internal object As(Type type)

@@ -1,8 +1,11 @@
 using CSnakes.Parser;
 using CSnakes.Parser.Types;
 using CSnakes.Reflection;
+using CSnakes.SourceGeneration;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 
@@ -11,11 +14,234 @@ namespace CSnakes;
 [Generator(LanguageNames.CSharp)]
 public class PythonStaticGenerator : IIncrementalGenerator
 {
+    private sealed class KnownTypeSymbols
+    {
+        private CacheEntry readOnlyList;
+        private CacheEntry readOnlyDictionary;
+        private WeakReference<Compilation>? compilation;
+
+        public bool IsReadOnlyList(ITypeSymbol type, Compilation compilation) =>
+            Is(type, ref this.readOnlyList, compilation, "System.Collections.Generic.IReadOnlyList`1");
+
+        public bool IsReadOnlyDictionary(ITypeSymbol type, Compilation compilation) =>
+            Is(type, ref this.readOnlyDictionary, compilation, "System.Collections.Generic.IReadOnlyDictionary`2");
+
+        private bool Is(ITypeSymbol type, ref CacheEntry entry, Compilation compilation, string name)
+        {
+            if (this.compilation is null
+                || !this.compilation.TryGetTarget(out var cacheCompilation)
+                || cacheCompilation != compilation)
+            {
+                Reset(compilation);
+            }
+
+            if (!entry.Resolved)
+            {
+                entry.NamedTypeSymbol = compilation.GetTypeByMetadataName(name);
+                entry.Resolved = true;
+            }
+
+            return SymbolEqualityComparer.Default.Equals(type, entry.NamedTypeSymbol);
+        }
+
+        private void Reset(Compilation compilation)
+        {
+            this.readOnlyList = new();
+            this.readOnlyDictionary = new();
+            this.compilation = new WeakReference<Compilation>(compilation);
+        }
+
+        private struct CacheEntry
+        {
+            public bool Resolved;
+            public INamedTypeSymbol? NamedTypeSymbol;
+        }
+    }
+
+    private static TypeInfo? Map(Compilation compilation, ITypeSymbol type, KnownTypeSymbols typeSymbols)
+    {
+        return type switch
+        {
+            { SpecialType: SpecialType.System_Boolean } => TypeInfo.Boolean,
+            { SpecialType: SpecialType.System_String } => TypeInfo.String,
+            { SpecialType: SpecialType.System_Int64 } => TypeInfo.Int64,
+            { SpecialType: SpecialType.System_Double } => TypeInfo.Double,
+            IArrayTypeSymbol { Rank: 1, ElementType.SpecialType: SpecialType.System_Byte } => TypeInfo.ByteArray,
+            INamedTypeSymbol { IsGenericType: true, TypeArguments: [var it], OriginalDefinition: var td }
+                when typeSymbols.IsReadOnlyList(td, compilation)
+                  && Map(compilation, it, typeSymbols) is { } iti =>
+                new ListTypeInfo(iti),
+            INamedTypeSymbol { IsGenericType: true, TypeArguments: [var kt, var vt], OriginalDefinition: var td }
+                when typeSymbols.IsReadOnlyDictionary(td, compilation)
+                  && Map(compilation, kt, typeSymbols) is { } kti
+                  && Map(compilation, vt, typeSymbols) is { } vti =>
+                new DictionaryTypeInfo(kti, vti),
+            _ => null
+        };
+    }
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // System.Diagnostics.Debugger.Launch();
         var pythonFilesPipeline = context.AdditionalTextsProvider
             .Where(static text => Path.GetExtension(text.Path) == ".py");
+
+        var knownSymbols = new KnownTypeSymbols();
+
+        var conversions =
+            context.SyntaxProvider.CreateSyntaxProvider(
+                predicate: static (node, _) => node is InvocationExpressionSyntax
+                {
+                    Expression: MemberAccessExpressionSyntax
+                    {
+                        Name: GenericNameSyntax { Identifier.Text: "As", Arity: 1 }
+                    },
+                    ArgumentList.Arguments.Count: 0
+                },
+                transform: (context, cancellationToken) =>
+                {
+                    if (context.SemanticModel.GetOperation(context.Node) is not IInvocationOperation
+                        {
+                            Syntax: InvocationExpressionSyntax
+                            {
+                                Expression: MemberAccessExpressionSyntax
+                                {
+                                    Name: var methodName
+                                }
+                            } invocation,
+                            TargetMethod:
+                            {
+                                Kind: SymbolKind.Method,
+                                IsStatic: false,
+                                Name: "As",
+                                IsGenericMethod: true,
+                                TypeArguments: [var typeArg],
+                                Parameters.Length: 0,
+                                ContainingType:
+                                {
+                                    Name: "PyObject",
+                                    ContainingNamespace:
+                                    {
+                                        Name: "Python",
+                                        ContainingNamespace:
+                                        {
+                                            Name: "Runtime",
+                                            ContainingNamespace:
+                                            {
+                                                Name: "CSnakes",
+                                                ContainingNamespace.IsGlobalNamespace: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        })
+                    {
+                        return null;
+                    }
+
+                    if (Map(context.SemanticModel.Compilation, typeArg, knownSymbols) is not { } typeInfo)
+                        return null;
+
+#pragma warning disable RSEXPERIMENTAL002
+                    if (context.SemanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } interceptableLocation
+#pragma warning restore RSEXPERIMENTAL002
+                        || SourceCodeLocation.CreateFrom(methodName.GetLocation()) is not { } sourceCodeLocation)
+                    {
+                        return null;
+                    }
+
+                    return new
+                    {
+                        Index = -1,
+                        TypeInfo = typeInfo,
+                        InterceptableLocation = interceptableLocation,
+                        SourceCodeLocation = sourceCodeLocation,
+                    };
+                });
+
+        var options =
+            context.AnalyzerConfigOptionsProvider
+                   .Select(static (context, _) =>
+                       context.GlobalOptions.TryGetValue("build_property.MSBuildProjectDirectory", out var projectDirPath)
+                           ? projectDirPath
+                           : null);
+
+        context.RegisterSourceOutput(
+            conversions.Where(e => e is not null)
+                       .Collect()
+                       .Combine(options),
+            static (context, combo) =>
+            {
+                var (conversions, options) = combo;
+
+                var interceptors =
+                    from gs in new[]
+                    {
+                        from e in conversions
+                        group e by e.TypeInfo
+                    }
+                    from g in gs.Select(static (g, i) => new { Ordinal = i + 1, Type = g.Key, Members = g })
+                    let header =
+                        string.Join(Environment.NewLine,
+                            from m in g.Members
+#pragma warning disable RSEXPERIMENTAL002
+                            from line in new[]
+                            {
+                                options is { } projectDirPath
+                                    ? $"// {new Uri($"{projectDirPath}/").MakeRelativeUri(new(m.SourceCodeLocation.FilePath))}:{m.SourceCodeLocation.LineSpan}"
+                                    : null,
+                                m.InterceptableLocation.GetInterceptsLocationAttributeSyntax(),
+                            }
+                            where line is not null
+                            select $"        {line}")
+                    let type = new
+                    {
+                        Return = g.Type.GetReturnTypeSyntax(),
+                        Importer = g.Type.GetImporterTypeSyntax(),
+                    }
+                    select $"""
+                            {header}
+                                    public static {type.Return} As{g.Ordinal}(this global::CSnakes.Runtime.Python.PyObject obj) =>
+                                        obj.ImportAs<{type.Return}, {type.Importer}>();
+                            """;
+#pragma warning restore RSEXPERIMENTAL002
+
+                var source = $$"""
+                    //------------------------------------------------------------------------------
+                    // <auto-generated>
+                    //     This code was generated by a tool.
+                    //
+                    //     Changes to this file may cause incorrect behavior and will be lost if
+                    //     the code is regenerated.
+                    // </auto-generated>
+                    //------------------------------------------------------------------------------
+
+                    #nullable enable
+
+                    namespace System.Runtime.CompilerServices
+                    {
+                        [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+                        file sealed class InterceptsLocationAttribute : global::System.Attribute
+                        {
+                            public InterceptsLocationAttribute(int version, string data) { }
+                        }
+                    }
+
+                    #pragma warning disable PRTEXP001
+
+                    namespace CSnakes.Runtime.Python.Generated
+                    {
+                        file static class Interceptions
+                        {
+                    {{string.Join($"{Environment.NewLine}{Environment.NewLine}", interceptors)}}
+                        }
+                    }
+
+                    """;
+
+                context.AddSource("PyObjectAsInterceptions.g.cs", source);
+            });
 
         context.RegisterSourceOutput(pythonFilesPipeline, static (sourceContext, file) =>
         {

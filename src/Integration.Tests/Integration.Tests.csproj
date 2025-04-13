@@ -5,7 +5,12 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <IsTestProject>true</IsTestProject>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);CSnakes.Runtime.Python.Generated</InterceptorsNamespaces>
   </PropertyGroup>
+
+  <ItemGroup>
+    <CompilerVisibleProperty Include="MSBuildProjectDirectory" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />

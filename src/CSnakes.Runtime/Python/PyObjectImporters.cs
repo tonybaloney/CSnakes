@@ -139,6 +139,21 @@ public static partial class PyObjectImporters
         where TKeyImporter : IPyObjectImporter<TKey>
         where TValueImporter : IPyObjectImporter<TValue>
     {
+        static IReadOnlyDictionary<TKey, TValue> IPyObjectImporter<IReadOnlyDictionary<TKey, TValue>>.UnsafeImport(PyObject obj)
+        {
+            Debug.Assert(GIL.IsAcquired);
+            return CPythonAPI.IsPyDict(obj)
+                ? new PyDictionary<TKey, TValue, TKeyImporter, TValueImporter>(obj.Clone())
+                : throw InvalidCastException("dict", obj);
+        }
+    }
+
+    public sealed class Mapping<TKey, TValue, TKeyImporter, TValueImporter> :
+        IPyObjectImporter<IReadOnlyDictionary<TKey, TValue>>
+        where TKey : notnull
+        where TKeyImporter : IPyObjectImporter<TKey>
+        where TValueImporter : IPyObjectImporter<TValue>
+    {
         internal static IReadOnlyDictionary<TKey, TValue> Import(PyObject obj)
         {
             using (GIL.Acquire())
@@ -148,28 +163,13 @@ public static partial class PyObjectImporters
         static IReadOnlyDictionary<TKey, TValue> UnsafeImport(PyObject obj)
         {
             Debug.Assert(GIL.IsAcquired);
-            return CPythonAPI.IsPyDict(obj)
-                ? new PyDictionary<TKey, TValue, TKeyImporter, TValueImporter>(obj.Clone())
-                : throw InvalidCastException("dict", obj);
-        }
-
-        static IReadOnlyDictionary<TKey, TValue> IPyObjectImporter<IReadOnlyDictionary<TKey, TValue>>.UnsafeImport(PyObject obj) =>
-            UnsafeImport(obj);
-    }
-
-    public sealed class Mapping<TKey, TValue, TKeyImporter, TValueImporter> :
-        IPyObjectImporter<IReadOnlyDictionary<TKey, TValue>>
-        where TKey : notnull
-        where TKeyImporter : IPyObjectImporter<TKey>
-        where TValueImporter : IPyObjectImporter<TValue>
-    {
-        static IReadOnlyDictionary<TKey, TValue> IPyObjectImporter<IReadOnlyDictionary<TKey, TValue>>.UnsafeImport(PyObject obj)
-        {
-            Debug.Assert(GIL.IsAcquired);
             return CPythonAPI.IsPyMappingWithItems(obj)
                 ? new PyDictionary<TKey, TValue, TKeyImporter, TValueImporter>(obj.Clone())
                 : throw InvalidCastException("mapping with items", obj);
         }
+
+        static IReadOnlyDictionary<TKey, TValue> IPyObjectImporter<IReadOnlyDictionary<TKey, TValue>>.UnsafeImport(PyObject obj) =>
+            UnsafeImport(obj);
     }
 
     public sealed class Generator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter> :

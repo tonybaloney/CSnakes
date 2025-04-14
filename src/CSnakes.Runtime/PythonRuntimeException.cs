@@ -15,8 +15,8 @@ public class PythonRuntimeException : Exception
             return;
         }
 
-        Data["locals"] = PyObjectImporters.Dictionary<string, PyObject, PyObjectImporters.String, PyObjectImporters.Clone>.Import(traceback.GetAttr("tb_frame").GetAttr("f_locals"));
-        Data["globals"] = PyObjectImporters.Dictionary<string, PyObject, PyObjectImporters.String, PyObjectImporters.Clone>.Import(traceback.GetAttr("tb_frame").GetAttr("f_globals"));
+        Data["locals"] = PyObjectImporters.Mapping<string, PyObject, PyObjectImporters.String, PyObjectImporters.Clone>.Import(traceback.GetAttr("tb_frame").GetAttr("f_locals"));
+        Data["globals"] = PyObjectImporters.Mapping<string, PyObject, PyObjectImporters.String, PyObjectImporters.Clone>.Import(traceback.GetAttr("tb_frame").GetAttr("f_globals"));
     }
 
     private static PythonRuntimeException? GetPythonInnerException(PyObject? exception) =>

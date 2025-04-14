@@ -19,7 +19,8 @@ public class IntConverterTest : ConverterTestBase
     [InlineData(int.MinValue - 1L)]
     public void TestOverflow(long input)
     {
-        void Act() => _ = PyObject.From(input).As<int>();
+        using var n = PyObject.From(input);
+        void Act() => _ = n.As<int>();
         _ = Assert.Throws<OverflowException>(Act);
     }
 }

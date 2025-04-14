@@ -15,6 +15,15 @@ public class IntConverterTest : ConverterTestBase
     public void TestIntBidirectional(int input) => RunTest(input);
 
     [Theory]
+    [InlineData(-1)]
+    [InlineData(int.MinValue)]
+    public void TestSignedIntFidelity(int input)
+    {
+        using var obj = PyObject.From(input);
+        Assert.Equal(input, obj.As<long>());
+    }
+
+    [Theory]
     [InlineData(int.MaxValue + 1L)]
     [InlineData(int.MinValue - 1L)]
     public void TestOverflow(long input)

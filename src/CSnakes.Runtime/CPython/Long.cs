@@ -8,7 +8,7 @@ internal unsafe partial class CPythonAPI
     private static nint PyLongType = IntPtr.Zero;
 
     [LibraryImport(PythonLibraryName)]
-    internal static partial nint PyLong_FromLong(int v);
+    internal static partial nint PyLong_FromLong(CLong v);
 
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyLong_FromLongLong(long v);

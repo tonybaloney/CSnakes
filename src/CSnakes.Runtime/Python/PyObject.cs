@@ -490,7 +490,7 @@ public partial class PyObject : SafeHandle, ICloneable
                 int i when i == 0 => Zero,
                 int i when i == 1 => One,
                 int i when i == -1 => NegativeOne,
-                int i => Create(CPythonAPI.PyLong_FromLong(i)),
+                int i => Create(CPythonAPI.PyLong_FromLong(new(i))),
                 long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
                 double d => Create(CPythonAPI.PyFloat_FromDouble(d)),
                 float f => Create(CPythonAPI.PyFloat_FromDouble((double)f)),

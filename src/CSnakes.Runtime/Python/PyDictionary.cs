@@ -29,7 +29,7 @@ internal class PyDictionary<TKey, TValue, TKeyImporter, TValueImporter>(PyObject
             {
                 using PyObject keyPyObject = PyObject.From(key);
                 using PyObject pyObjValue = PyObject.Create(CPythonAPI.PyMapping_GetItem(_dictionaryObject, keyPyObject));
-                var managedValue = TValueImporter.UnsafeImport(pyObjValue);
+                var managedValue = TValueImporter.BareImport(pyObjValue);
 
                 _dictionary[key] = managedValue;
                 return managedValue;
@@ -99,9 +99,9 @@ internal class PyDictionary<TKey, TValue, TKeyImporter, TValueImporter>(PyObject
     {
         private KeyValuePairImporter() { }
 
-        static KeyValuePair<TKey, TValue> IPyObjectImporter<KeyValuePair<TKey, TValue>>.UnsafeImport(PyObject obj)
+        static KeyValuePair<TKey, TValue> IPyObjectImporter<KeyValuePair<TKey, TValue>>.BareImport(PyObject obj)
         {
-            var (key, value) = obj.UnsafeImportAs<(TKey, TValue), PyObjectImporters.Tuple<TKey, TValue, TKeyImporter, TValueImporter>>();
+            var (key, value) = obj.BareImportAs<(TKey, TValue), PyObjectImporters.Tuple<TKey, TValue, TKeyImporter, TValueImporter>>();
             return new KeyValuePair<TKey, TValue>(key, value);
         }
     }

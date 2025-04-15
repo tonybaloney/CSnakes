@@ -28,7 +28,7 @@ public class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(
                     using (GIL.Acquire())
                     {
                         using PyObject result = CPythonAPI.GetEventLoop().RunTaskUntilComplete(coroutine, cancellationToken);
-                        current = TYieldImporter.UnsafeImport(result);
+                        current = TYieldImporter.BareImport(result);
                     }
                     return current;
                 }

@@ -9,5 +9,5 @@ public interface IPyObjectImporter<out T>
     /// It is the responsibility of the caller to ensure that the GIL is
     /// acquired via <see cref="GIL.Acquire"/> when this method is invoked.
     /// </remarks>
-    internal static abstract T UnsafeImport(PyObject obj);
+    internal static abstract T BareImport(PyObject obj);
 }

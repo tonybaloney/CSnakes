@@ -96,7 +96,7 @@ internal static class ResultConversionCodeGenerator
         public TypeSyntax ImporterTypeSyntax { get; } = importerTypeSyntax;
 
         public IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName) =>
-            [ParseStatement($"var {outputName} = {inputName}.UnsafeImportAs<{TypeSyntax}, {ImporterTypeSyntax}>();")];
+            [ParseStatement($"var {outputName} = {inputName}.BareImportAs<{TypeSyntax}, {ImporterTypeSyntax}>();")];
     }
 
     public static IResultConversionCodeGenerator ScalarConversionGenerator(SyntaxKind syntaxKind, string importerTypeName) =>

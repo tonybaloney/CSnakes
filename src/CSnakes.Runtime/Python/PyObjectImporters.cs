@@ -1,5 +1,4 @@
 using CSnakes.Runtime.CPython;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime.Python;
@@ -9,85 +8,77 @@ namespace CSnakes.Runtime.Python;
 /// not intended for direct consumption in user code. They are used by the
 /// generated code and may be modified or removed in future releases.
 /// </summary>
-[Experimental("PRTEXP002")]
+[Experimental("PRTEXP001")]
 public static partial class PyObjectImporters
 {
     public sealed class Clone : IPyObjectImporter<PyObject>
     {
-        static PyObject IPyObjectImporter<PyObject>.UnsafeImport(PyObject obj)
+        static PyObject IPyObjectImporter<PyObject>.BareImport(PyObject obj)
         {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             return obj.Clone();
         }
     }
 
     public sealed class Runtime<T> : IPyObjectImporter<T>
     {
-        static T IPyObjectImporter<T>.UnsafeImport(PyObject obj)
+        static T IPyObjectImporter<T>.BareImport(PyObject obj)
         {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             return obj.As<T>();
         }
     }
 
     public sealed class Boolean : IPyObjectImporter<bool>
     {
-        static bool IPyObjectImporter<bool>.UnsafeImport(PyObject obj)
+        static bool IPyObjectImporter<bool>.BareImport(PyObject obj)
         {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             return CPythonAPI.IsPyTrue(obj);
         }
     }
 
     public sealed class Int64 : IPyObjectImporter<long>
     {
-        static long IPyObjectImporter<long>.UnsafeImport(PyObject obj)
+        static long IPyObjectImporter<long>.BareImport(PyObject obj)
         {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             return CPythonAPI.PyLong_AsLongLong(obj);
         }
     }
 
     public sealed class Double : IPyObjectImporter<double>
     {
-        static double IPyObjectImporter<double>.UnsafeImport(PyObject obj)
+        static double IPyObjectImporter<double>.BareImport(PyObject obj)
         {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             return CPythonAPI.PyFloat_AsDouble(obj);
         }
     }
 
     public sealed class String : IPyObjectImporter<string>
     {
-        internal static string Import(PyObject obj)
+        static string IPyObjectImporter<string>.BareImport(PyObject obj)
         {
-            using (GIL.Acquire())
-                return UnsafeImport(obj);
-        }
-
-        static string UnsafeImport(PyObject obj)
-        {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             return CPythonAPI.PyUnicode_AsUTF8(obj);
         }
-
-        static string IPyObjectImporter<string>.UnsafeImport(PyObject obj) => UnsafeImport(obj);
     }
 
     public sealed class ByteArray : IPyObjectImporter<byte[]>
     {
-        static byte[] IPyObjectImporter<byte[]>.UnsafeImport(PyObject obj)
+        static byte[] IPyObjectImporter<byte[]>.BareImport(PyObject obj)
         {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             return CPythonAPI.PyBytes_AsByteArray(obj);
         }
     }
 
     public sealed class Buffer : IPyObjectImporter<IPyBuffer>
     {
-        static IPyBuffer IPyObjectImporter<IPyBuffer>.UnsafeImport(PyObject obj)
+        static IPyBuffer IPyObjectImporter<IPyBuffer>.BareImport(PyObject obj)
         {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             return CPythonAPI.IsBuffer(obj)
                 ? new PyBuffer(obj)
                 : throw InvalidCastException("buffer", obj);
@@ -97,21 +88,21 @@ public static partial class PyObjectImporters
     public sealed class Tuple<T, TImporter> : IPyObjectImporter<ValueTuple<T>>
         where TImporter : IPyObjectImporter<T>
     {
-        static ValueTuple<T> IPyObjectImporter<ValueTuple<T>>.UnsafeImport(PyObject obj)
+        static ValueTuple<T> IPyObjectImporter<ValueTuple<T>>.BareImport(PyObject obj)
         {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             CheckTuple(obj);
             using var item = GetTupleItem(obj, 0);
-            return new(TImporter.UnsafeImport(item));
+            return new(TImporter.BareImport(item));
         }
     }
 
     public sealed class Sequence<T, TImporter> : IPyObjectImporter<IReadOnlyList<T>>
         where TImporter : IPyObjectImporter<T>
     {
-        static IReadOnlyList<T> IPyObjectImporter<IReadOnlyList<T>>.UnsafeImport(PyObject obj)
+        static IReadOnlyList<T> IPyObjectImporter<IReadOnlyList<T>>.BareImport(PyObject obj)
         {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             return CPythonAPI.IsPySequence(obj)
                 ? new PyList<T, TImporter>(obj.Clone())
                 : throw InvalidCastException("sequence", obj);
@@ -121,16 +112,16 @@ public static partial class PyObjectImporters
     public sealed class List<T, TImporter> : IPyObjectImporter<IReadOnlyList<T>>
         where TImporter : IPyObjectImporter<T>
     {
-        internal static IReadOnlyList<T> UnsafeImport(PyObject obj)
+        internal static IReadOnlyList<T> BareImport(PyObject obj)
         {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             return CPythonAPI.IsPyList(obj)
                 ? new PyList<T, TImporter>(obj.Clone())
                 : throw InvalidCastException("list", obj);
         }
 
-        static IReadOnlyList<T> IPyObjectImporter<IReadOnlyList<T>>.UnsafeImport(PyObject obj) =>
-            UnsafeImport(obj);
+        static IReadOnlyList<T> IPyObjectImporter<IReadOnlyList<T>>.BareImport(PyObject obj) =>
+            BareImport(obj);
     }
 
     public sealed class Dictionary<TKey, TValue, TKeyImporter, TValueImporter> :
@@ -139,9 +130,9 @@ public static partial class PyObjectImporters
         where TKeyImporter : IPyObjectImporter<TKey>
         where TValueImporter : IPyObjectImporter<TValue>
     {
-        static IReadOnlyDictionary<TKey, TValue> IPyObjectImporter<IReadOnlyDictionary<TKey, TValue>>.UnsafeImport(PyObject obj)
+        static IReadOnlyDictionary<TKey, TValue> IPyObjectImporter<IReadOnlyDictionary<TKey, TValue>>.BareImport(PyObject obj)
         {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             return CPythonAPI.IsPyDict(obj)
                 ? new PyDictionary<TKey, TValue, TKeyImporter, TValueImporter>(obj.Clone())
                 : throw InvalidCastException("dict", obj);
@@ -154,22 +145,16 @@ public static partial class PyObjectImporters
         where TKeyImporter : IPyObjectImporter<TKey>
         where TValueImporter : IPyObjectImporter<TValue>
     {
-        internal static IReadOnlyDictionary<TKey, TValue> Import(PyObject obj)
+        internal static IReadOnlyDictionary<TKey, TValue> BareImport(PyObject obj)
         {
-            using (GIL.Acquire())
-                return UnsafeImport(obj);
-        }
-
-        static IReadOnlyDictionary<TKey, TValue> UnsafeImport(PyObject obj)
-        {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             return CPythonAPI.IsPyMappingWithItems(obj)
                 ? new PyDictionary<TKey, TValue, TKeyImporter, TValueImporter>(obj.Clone())
                 : throw InvalidCastException("mapping with items", obj);
         }
 
-        static IReadOnlyDictionary<TKey, TValue> IPyObjectImporter<IReadOnlyDictionary<TKey, TValue>>.UnsafeImport(PyObject obj) =>
-            UnsafeImport(obj);
+        static IReadOnlyDictionary<TKey, TValue> IPyObjectImporter<IReadOnlyDictionary<TKey, TValue>>.BareImport(PyObject obj) =>
+            BareImport(obj);
     }
 
     public sealed class Generator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter> :
@@ -177,9 +162,9 @@ public static partial class PyObjectImporters
         where TYieldImporter : IPyObjectImporter<TYield>
         where TReturnImporter : IPyObjectImporter<TReturn>
     {
-        static IGeneratorIterator<TYield, TSend, TReturn> IPyObjectImporter<IGeneratorIterator<TYield, TSend, TReturn>>.UnsafeImport(PyObject obj)
+        static IGeneratorIterator<TYield, TSend, TReturn> IPyObjectImporter<IGeneratorIterator<TYield, TSend, TReturn>>.BareImport(PyObject obj)
         {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             return CPythonAPI.IsPyGenerator(obj)
                 ? new GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(obj.Clone())
                 : throw InvalidCastException("generator", obj);
@@ -191,9 +176,9 @@ public static partial class PyObjectImporters
         where TYieldImporter : IPyObjectImporter<TYield>
         where TReturnImporter : IPyObjectImporter<TReturn>
     {
-        static ICoroutine<TYield, TSend, TReturn> IPyObjectImporter<ICoroutine<TYield, TSend, TReturn>>.UnsafeImport(PyObject obj)
+        static ICoroutine<TYield, TSend, TReturn> IPyObjectImporter<ICoroutine<TYield, TSend, TReturn>>.BareImport(PyObject obj)
         {
-            Debug.Assert(GIL.IsAcquired);
+            GIL.Require();
             return CPythonAPI.IsPyCoroutine(obj)
                 ? new Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(obj.Clone())
                 : throw InvalidCastException("coroutine", obj);

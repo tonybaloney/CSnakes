@@ -24,7 +24,7 @@ public sealed class PythonStopIterationException : PythonRuntimeException
         {
             using var type = valueOrError.GetPythonType();
             using var typeName = type.GetAttr("__name__");
-            this.value = PyObjectImporters.String.Import(typeName) == "StopIteration"
+            this.value = typeName.ImportAs<string, PyObjectImporters.String>() == "StopIteration"
                        ? valueOrError.GetAttr("value")
                        : valueOrError;
         }

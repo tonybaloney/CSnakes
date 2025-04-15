@@ -126,7 +126,7 @@ public static class MethodReflection
 
         ReturnStatementSyntax returnExpression;
         IEnumerable<StatementSyntax> resultConversionStatements = [];
-        var callResultTypeSyntax = IdentifierName("PyObject.IUnsafeImportable");
+        var callResultTypeSyntax = IdentifierName("PyObject");
 
         switch (returnSyntax)
         {

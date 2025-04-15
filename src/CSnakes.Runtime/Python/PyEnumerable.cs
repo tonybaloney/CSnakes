@@ -50,8 +50,3 @@ internal class PyEnumerable<TValue, TImporter> : IEnumerable<TValue>, IEnumerato
 
     IEnumerator IEnumerable.GetEnumerator() => this;
 }
-
-internal class PyEnumerable<TValue> : PyEnumerable<TValue, PyObjectImporters.Runtime<TValue>>
-{
-    internal PyEnumerable(PyObject pyObject) : base(pyObject) { }
-}

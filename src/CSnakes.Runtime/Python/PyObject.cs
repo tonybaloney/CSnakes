@@ -160,11 +160,21 @@ public partial class PyObject : SafeHandle, ICloneable
     /// </summary>
     /// <typeparam name="T">The type for each item in the iterator</typeparam>
     /// <returns></returns>
-    public IEnumerable<T> AsEnumerable<T>()
+    public IEnumerable<T> AsEnumerable<T>() =>
+        AsEnumerable<T, PyObjectImporters.Runtime<T>>();
+
+    /// <summary>
+    /// Calls iter() on the object and returns an IEnumerable that yields values of type T.
+    /// </summary>
+    /// <typeparam name="T">The type for each item in the iterator</typeparam>
+    /// <typeparam name="TImporter">The type for importing each item type</typeparam>
+    /// <returns></returns>
+    public IEnumerable<T> AsEnumerable<T, TImporter>()
+        where TImporter : IPyObjectImporter<T>
     {
         using (GIL.Acquire())
         {
-            return new PyEnumerable<T>(this);
+            return new PyEnumerable<T, TImporter>(this);
         }
     }
 

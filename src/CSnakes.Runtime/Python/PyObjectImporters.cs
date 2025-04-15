@@ -13,6 +13,8 @@ public static partial class PyObjectImporters
 {
     public sealed class Clone : IPyObjectImporter<PyObject>
     {
+        private Clone() { }
+
         static PyObject IPyObjectImporter<PyObject>.BareImport(PyObject obj)
         {
             GIL.Require();
@@ -22,6 +24,8 @@ public static partial class PyObjectImporters
 
     public sealed class Runtime<T> : IPyObjectImporter<T>
     {
+        private Runtime() { }
+
         static T IPyObjectImporter<T>.BareImport(PyObject obj)
         {
             GIL.Require();
@@ -31,6 +35,8 @@ public static partial class PyObjectImporters
 
     public sealed class Boolean : IPyObjectImporter<bool>
     {
+        private Boolean() { }
+
         static bool IPyObjectImporter<bool>.BareImport(PyObject obj)
         {
             GIL.Require();
@@ -40,6 +46,8 @@ public static partial class PyObjectImporters
 
     public sealed class Int64 : IPyObjectImporter<long>
     {
+        private Int64() { }
+
         static long IPyObjectImporter<long>.BareImport(PyObject obj)
         {
             GIL.Require();
@@ -49,6 +57,8 @@ public static partial class PyObjectImporters
 
     public sealed class Double : IPyObjectImporter<double>
     {
+        private Double() { }
+
         static double IPyObjectImporter<double>.BareImport(PyObject obj)
         {
             GIL.Require();
@@ -58,6 +68,8 @@ public static partial class PyObjectImporters
 
     public sealed class String : IPyObjectImporter<string>
     {
+        private String() { }
+
         static string IPyObjectImporter<string>.BareImport(PyObject obj)
         {
             GIL.Require();
@@ -67,6 +79,8 @@ public static partial class PyObjectImporters
 
     public sealed class ByteArray : IPyObjectImporter<byte[]>
     {
+        private ByteArray() { }
+
         static byte[] IPyObjectImporter<byte[]>.BareImport(PyObject obj)
         {
             GIL.Require();
@@ -76,6 +90,8 @@ public static partial class PyObjectImporters
 
     public sealed class Buffer : IPyObjectImporter<IPyBuffer>
     {
+        private Buffer() { }
+
         static IPyBuffer IPyObjectImporter<IPyBuffer>.BareImport(PyObject obj)
         {
             GIL.Require();
@@ -88,6 +104,8 @@ public static partial class PyObjectImporters
     public sealed class Tuple<T, TImporter> : IPyObjectImporter<ValueTuple<T>>
         where TImporter : IPyObjectImporter<T>
     {
+        private Tuple() { }
+
         static ValueTuple<T> IPyObjectImporter<ValueTuple<T>>.BareImport(PyObject obj)
         {
             GIL.Require();
@@ -100,6 +118,8 @@ public static partial class PyObjectImporters
     public sealed class Sequence<T, TImporter> : IPyObjectImporter<IReadOnlyList<T>>
         where TImporter : IPyObjectImporter<T>
     {
+        private Sequence() { }
+
         static IReadOnlyList<T> IPyObjectImporter<IReadOnlyList<T>>.BareImport(PyObject obj)
         {
             GIL.Require();
@@ -112,6 +132,8 @@ public static partial class PyObjectImporters
     public sealed class List<T, TImporter> : IPyObjectImporter<IReadOnlyList<T>>
         where TImporter : IPyObjectImporter<T>
     {
+        private List() { }
+
         internal static IReadOnlyList<T> BareImport(PyObject obj)
         {
             GIL.Require();
@@ -130,6 +152,8 @@ public static partial class PyObjectImporters
         where TKeyImporter : IPyObjectImporter<TKey>
         where TValueImporter : IPyObjectImporter<TValue>
     {
+        private Dictionary() { }
+
         static IReadOnlyDictionary<TKey, TValue> IPyObjectImporter<IReadOnlyDictionary<TKey, TValue>>.BareImport(PyObject obj)
         {
             GIL.Require();
@@ -145,6 +169,8 @@ public static partial class PyObjectImporters
         where TKeyImporter : IPyObjectImporter<TKey>
         where TValueImporter : IPyObjectImporter<TValue>
     {
+        private Mapping() { }
+
         internal static IReadOnlyDictionary<TKey, TValue> BareImport(PyObject obj)
         {
             GIL.Require();
@@ -162,6 +188,8 @@ public static partial class PyObjectImporters
         where TYieldImporter : IPyObjectImporter<TYield>
         where TReturnImporter : IPyObjectImporter<TReturn>
     {
+        private Generator() { }
+
         static IGeneratorIterator<TYield, TSend, TReturn> IPyObjectImporter<IGeneratorIterator<TYield, TSend, TReturn>>.BareImport(PyObject obj)
         {
             GIL.Require();
@@ -176,6 +204,8 @@ public static partial class PyObjectImporters
         where TYieldImporter : IPyObjectImporter<TYield>
         where TReturnImporter : IPyObjectImporter<TReturn>
     {
+        private Coroutine() { }
+
         static ICoroutine<TYield, TSend, TReturn> IPyObjectImporter<ICoroutine<TYield, TSend, TReturn>>.BareImport(PyObject obj)
         {
             GIL.Require();

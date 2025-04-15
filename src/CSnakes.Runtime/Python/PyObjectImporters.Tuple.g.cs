@@ -24,6 +24,8 @@ partial class PyObjectImporters
         where TImporter1 : IPyObjectImporter<T1>
         where TImporter2 : IPyObjectImporter<T2>
     {
+        private Tuple() { }
+
         static (T1, T2)
             IPyObjectImporter<(T1, T2)>.BareImport(PyObject obj)
         {
@@ -41,6 +43,8 @@ partial class PyObjectImporters
         where TImporter2 : IPyObjectImporter<T2>
         where TImporter3 : IPyObjectImporter<T3>
     {
+        private Tuple() { }
+
         static (T1, T2, T3)
             IPyObjectImporter<(T1, T2, T3)>.BareImport(PyObject obj)
         {
@@ -60,6 +64,8 @@ partial class PyObjectImporters
         where TImporter3 : IPyObjectImporter<T3>
         where TImporter4 : IPyObjectImporter<T4>
     {
+        private Tuple() { }
+
         static (T1, T2, T3, T4)
             IPyObjectImporter<(T1, T2, T3, T4)>.BareImport(PyObject obj)
         {
@@ -81,6 +87,8 @@ partial class PyObjectImporters
         where TImporter4 : IPyObjectImporter<T4>
         where TImporter5 : IPyObjectImporter<T5>
     {
+        private Tuple() { }
+
         static (T1, T2, T3, T4, T5)
             IPyObjectImporter<(T1, T2, T3, T4, T5)>.BareImport(PyObject obj)
         {
@@ -104,6 +112,8 @@ partial class PyObjectImporters
         where TImporter5 : IPyObjectImporter<T5>
         where TImporter6 : IPyObjectImporter<T6>
     {
+        private Tuple() { }
+
         static (T1, T2, T3, T4, T5, T6)
             IPyObjectImporter<(T1, T2, T3, T4, T5, T6)>.BareImport(PyObject obj)
         {
@@ -129,6 +139,8 @@ partial class PyObjectImporters
         where TImporter6 : IPyObjectImporter<T6>
         where TImporter7 : IPyObjectImporter<T7>
     {
+        private Tuple() { }
+
         static (T1, T2, T3, T4, T5, T6, T7)
             IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7)>.BareImport(PyObject obj)
         {
@@ -156,6 +168,8 @@ partial class PyObjectImporters
         where TImporter7 : IPyObjectImporter<T7>
         where TImporter8 : IPyObjectImporter<T8>
     {
+        private Tuple() { }
+
         static (T1, T2, T3, T4, T5, T6, T7, T8)
             IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7, T8)>.BareImport(PyObject obj)
         {
@@ -185,6 +199,8 @@ partial class PyObjectImporters
         where TImporter8 : IPyObjectImporter<T8>
         where TImporter9 : IPyObjectImporter<T9>
     {
+        private Tuple() { }
+
         static (T1, T2, T3, T4, T5, T6, T7, T8, T9)
             IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7, T8, T9)>.BareImport(PyObject obj)
         {
@@ -216,6 +232,8 @@ partial class PyObjectImporters
         where TImporter9 : IPyObjectImporter<T9>
         where TImporter10 : IPyObjectImporter<T10>
     {
+        private Tuple() { }
+
         static (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
             IPyObjectImporter<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)>.BareImport(PyObject obj)
         {

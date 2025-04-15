@@ -58,6 +58,8 @@ partial class PyObjectImporters
         where <#= c.Converter #> : IPyObjectImporter<<#= c.Type #>>
 <#      } #>
     {
+        private Tuple() { }
+
         static (<#= e.Ts #>)
             IPyObjectImporter<(<#= e.Ts #>)>.BareImport(PyObject obj)
         {

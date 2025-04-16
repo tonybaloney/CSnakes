@@ -1,60 +1,93 @@
 using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Python;
-public class ImmortalTests : RuntimeTestBase
+
+public interface IImmortalFromTestCasesContainer<T>
 {
+    static abstract TheoryData<T> TestCases { get; }
+}
+
+public abstract class ImmortalTestsBase<T, TTestCases>(string repr) : RuntimeTestBase
+    where TTestCases : IImmortalFromTestCasesContainer<T>
+{
+    protected abstract PyObject Subject { get; }
+
     [Fact]
-    public void TestZero()
+    public void TestString()
     {
-        Assert.Equal("0", PyObject.Zero.ToString());
-        Assert.Equal("0", PyObject.Zero.GetRepr());
-        Assert.False(PyObject.Zero.IsNone());
-        Assert.Equal(PyObject.Zero, PyObject.Zero.Clone());
-        using var zero = PyObject.From(0);
-        Assert.Equal(PyObject.Zero, zero);
+        Assert.Equal(repr, Subject.ToString());
     }
 
     [Fact]
-    public void TestNegativeOne()
+    public void TestRepr()
     {
-        Assert.Equal("-1", PyObject.NegativeOne.ToString());
-        Assert.Equal("-1", PyObject.NegativeOne.GetRepr());
-        Assert.False(PyObject.NegativeOne.IsNone());
-        Assert.Equal(PyObject.NegativeOne, PyObject.NegativeOne.Clone());
-        using var negativeOne = PyObject.From(-1);
-        Assert.Equal(PyObject.NegativeOne, negativeOne);
+        Assert.Equal(repr, Subject.GetRepr());
     }
 
     [Fact]
-    public void TestOne()
+    public void TestIsNotNone()
     {
-        Assert.Equal("1", PyObject.One.ToString());
-        Assert.Equal("1", PyObject.One.GetRepr());
-        Assert.False(PyObject.One.IsNone());
-        Assert.Equal(PyObject.One, PyObject.One.Clone());
-        using var one = PyObject.From(1);
-        Assert.Equal(PyObject.One, one);
+        Assert.False(Subject.IsNone());
     }
 
     [Fact]
-    public void TestFalse()
+    public void TestCloneReturnsSameInstance()
     {
-        Assert.Equal("False", PyObject.False.ToString());
-        Assert.Equal("False", PyObject.False.GetRepr());
-        Assert.False(PyObject.False.IsNone());
-        Assert.Equal(PyObject.False, PyObject.False.Clone());
-        using var pyFalse = PyObject.From(false);
-        Assert.Equal(PyObject.False, pyFalse);
+        Assert.Same(Subject, Subject.Clone());
     }
 
-    [Fact]
-    public void TestTrue()
+    public static TheoryData<T> TestCases => TTestCases.TestCases;
+
+    [Theory]
+    [MemberData(nameof(TestCases))]
+    public void TestFrom(T input)
     {
-        Assert.Equal("True", PyObject.True.ToString());
-        Assert.Equal("True", PyObject.True.GetRepr());
-        Assert.False(PyObject.True.IsNone());
-        Assert.Equal(PyObject.True, PyObject.True.Clone());
-        using var pyTrue = PyObject.From(true);
-        Assert.Equal(PyObject.True, pyTrue);
+        using var value = PyObject.From(input);
+        Assert.Same(Subject, value);
     }
+}
+
+public class ImmortalZeroTests() :
+    ImmortalTestsBase<object, ImmortalZeroTests>("0"),
+    IImmortalFromTestCasesContainer<object>
+{
+    protected override PyObject Subject => PyObject.Zero;
+
+    static TheoryData<object> IImmortalFromTestCasesContainer<object>.TestCases => new() { 0, 0L };
+}
+
+public class ImmortalOneTests() :
+    ImmortalTestsBase<object, ImmortalOneTests>("1"),
+    IImmortalFromTestCasesContainer<object>
+{
+    protected override PyObject Subject => PyObject.One;
+
+    static TheoryData<object> IImmortalFromTestCasesContainer<object>.TestCases => new() { 1, 1L };
+}
+
+public class ImmortalNegativeOneTests() :
+    ImmortalTestsBase<object, ImmortalNegativeOneTests>("-1"),
+    IImmortalFromTestCasesContainer<object>
+{
+    protected override PyObject Subject => PyObject.NegativeOne;
+
+    static TheoryData<object> IImmortalFromTestCasesContainer<object>.TestCases => new() { -1, -1L };
+}
+
+public class ImmortalTrueTests() :
+    ImmortalTestsBase<bool, ImmortalTrueTests>("True"),
+    IImmortalFromTestCasesContainer<bool>
+{
+    protected override PyObject Subject => PyObject.True;
+
+    static TheoryData<bool> IImmortalFromTestCasesContainer<bool>.TestCases => new() { true };
+}
+
+public class ImmortalFalseTests() :
+    ImmortalTestsBase<bool, ImmortalFalseTests>("False"),
+    IImmortalFromTestCasesContainer<bool>
+{
+    protected override PyObject Subject => PyObject.False;
+
+    static TheoryData<bool> IImmortalFromTestCasesContainer<bool>.TestCases => new() { false };
 }

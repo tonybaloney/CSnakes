@@ -1,4 +1,5 @@
 using CSnakes.Runtime.Python;
+using System.Numerics;
 
 namespace CSnakes.Runtime.Tests.Python;
 
@@ -53,7 +54,7 @@ public class ImmortalZeroTests() :
 {
     protected override PyObject Subject => PyObject.Zero;
 
-    static TheoryData<object> IImmortalFromTestCasesContainer<object>.TestCases => new() { 0, 0L };
+    static TheoryData<object> IImmortalFromTestCasesContainer<object>.TestCases => new() { 0, 0L, new BigInteger(0) };
 }
 
 public class ImmortalOneTests() :
@@ -62,7 +63,7 @@ public class ImmortalOneTests() :
 {
     protected override PyObject Subject => PyObject.One;
 
-    static TheoryData<object> IImmortalFromTestCasesContainer<object>.TestCases => new() { 1, 1L };
+    static TheoryData<object> IImmortalFromTestCasesContainer<object>.TestCases => new() { 1, 1L, new BigInteger(1) };
 }
 
 public class ImmortalNegativeOneTests() :
@@ -71,7 +72,7 @@ public class ImmortalNegativeOneTests() :
 {
     protected override PyObject Subject => PyObject.NegativeOne;
 
-    static TheoryData<object> IImmortalFromTestCasesContainer<object>.TestCases => new() { -1, -1L };
+    static TheoryData<object> IImmortalFromTestCasesContainer<object>.TestCases => new() { -1, -1L, new BigInteger(-1) };
 }
 
 public class ImmortalTrueTests() :

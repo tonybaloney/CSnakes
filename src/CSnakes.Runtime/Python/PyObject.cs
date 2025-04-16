@@ -483,9 +483,10 @@ public partial class PyObject : SafeHandle, ICloneable
             case null: return None;
             case true: return True;
             case false: return False;
-            case 0 or 0L: return Zero;
-            case 1 or 1L: return One;
-            case -1 or -1L: return NegativeOne;
+            case 0 or 0L or BigInteger { IsZero: true }: return Zero;
+            case 1 or 1L or BigInteger { IsOne: true }: return One;
+            case -1 or -1L:
+            case BigInteger n when n == -1: return NegativeOne;
             default:
             {
                 using (GIL.Acquire())

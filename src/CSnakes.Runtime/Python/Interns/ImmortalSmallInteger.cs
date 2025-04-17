@@ -7,6 +7,6 @@ internal class ImmortalSmallInteger(int value) : ImmortalPyObject(GetSmallIntHan
     private static nint GetSmallIntHandle(int value)
     {
         using (GIL.Acquire())
-            return CPythonAPI.PyLong_FromLong(value);
+            return CPythonAPI.PyLong_FromLong(new(value));
     }
 }

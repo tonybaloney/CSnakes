@@ -3,50 +3,49 @@ using System.Collections;
 
 namespace CSnakes.Runtime.Python;
 
-internal class PyEnumerable<TValue, TImporter> : IEnumerable<TValue>, IEnumerator<TValue>, IDisposable
+internal class PyEnumerable<TValue, TImporter>(PyObject pyIterable) : IEnumerable<TValue>, IDisposable
     where TImporter : IPyObjectImporter<TValue>
 {
-    private readonly PyObject _pyIterator;
-    private TValue current = default!;
+    public void Dispose() => pyIterable.Dispose();
 
-    internal PyEnumerable(PyObject pyObject)
+    public IEnumerator<TValue> GetEnumerator() => Iterator(pyIterable.GetIter());
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    private static IEnumerator<TValue> Iterator(PyObject pyIterator)
     {
-        using (GIL.Acquire())
+        using var _ = pyIterator;
+
+        IDisposable? gil = GIL.Acquire();
+
+        try
         {
-            _pyIterator = pyObject.GetIter();
+            while (true)
+            {
+                gil ??= GIL.Acquire(); // re-acquire GIL if necessary
+
+                nint result = CPythonAPI.PyIter_Next(pyIterator);
+                if (result == IntPtr.Zero)
+                {
+                    if (CPythonAPI.PyErr_Occurred())
+                        throw PyObject.ThrowPythonExceptionAsClrException();
+
+                    yield break;
+                }
+
+                TValue import;
+                using (var itemObject = PyObject.Create(result))
+                    import = TImporter.BareImport(itemObject);
+
+                gil.Dispose(); // release GIL before yielding control
+                gil = null;
+
+                yield return import;
+            }
+        }
+        finally
+        {
+            gil?.Dispose();
         }
     }
-
-    public TValue Current => current;
-
-    object IEnumerator.Current => current!;
-
-    public void Dispose() => _pyIterator.Dispose();
-
-    public IEnumerator<TValue> GetEnumerator() => this;
-
-    public bool MoveNext()
-    {
-        using (GIL.Acquire())
-        {
-            nint result = CPythonAPI.PyIter_Next(_pyIterator);
-            if (result == IntPtr.Zero && CPythonAPI.PyErr_Occurred())
-            {
-                throw PyObject.ThrowPythonExceptionAsClrException();
-            }
-
-            if (result == IntPtr.Zero)
-            {
-                return false;
-            }
-
-            using PyObject pyObject = PyObject.Create(result);
-            current = TImporter.BareImport(pyObject);
-            return true;
-        }
-    }
-
-    public void Reset() => throw new NotSupportedException("Python iterators cannot be reset");
-
-    IEnumerator IEnumerable.GetEnumerator() => this;
 }

@@ -494,7 +494,7 @@ public partial class PyObject : SafeHandle, ICloneable
                     return value switch
                     {
                         ICloneable pyObject => pyObject.Clone(),
-                        int i => Create(CPythonAPI.PyLong_FromLong(i)),
+                        int i => Create(CPythonAPI.PyLong_FromLong(new(i))),
                         long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
                         double d => Create(CPythonAPI.PyFloat_FromDouble(d)),
                         float f => Create(CPythonAPI.PyFloat_FromDouble((double)f)),

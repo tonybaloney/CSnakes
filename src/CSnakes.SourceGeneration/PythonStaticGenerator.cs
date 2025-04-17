@@ -1,10 +1,12 @@
 using CSnakes.Parser;
 using CSnakes.Parser.Types;
 using CSnakes.Reflection;
+using CSnakes.SourceGeneration.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
+using System.Text;
 
 namespace CSnakes;
 
@@ -25,7 +27,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             var fileName = Path.GetFileNameWithoutExtension(file.Path);
 
             // Convert snake_case to PascalCase
-            var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
+            var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s[1..]));
             // Read the file
             var code = file.GetText(sourceContext.CancellationToken);
 
@@ -52,7 +54,22 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
             }
         });
+
+        var methodReflectors = context.SyntaxProvider
+                          .ForAttributeWithMetadataName("CSnakes.Runtime.Reflection.PythonMethodAttribute",
+                                                        MethodAttributePartials.CouldBeMethod,
+                                                        MethodAttributePartials.GetMethodInfo)
+                          .Collect()
+                          .SelectMany((enumInfos, _) => enumInfos.Distinct());
+
+        context.RegisterSourceOutput(methodReflectors, static (context, model) =>
+        {
+            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG010", "PythonStaticGenerator", "Reflecting Method", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
+            context.AddSource(model.GeneratedFileName, SourceText.From(model.SourceText, Encoding.UTF8));
+        });
     }
+
+    
 
     public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions, ImmutableArray<byte> hash)
     {

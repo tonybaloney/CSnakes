@@ -461,7 +461,7 @@ public partial class PyObject : SafeHandle, ICloneable
             {
                 var t when t == typeof(PyObject) => Clone(),
                 var t when t == typeof(bool) => CPythonAPI.IsPyTrue(this),
-                var t when t == typeof(int) => CPythonAPI.PyLong_AsLong(this),
+                var t when t == typeof(int) => checked((int)CPythonAPI.PyLong_AsLongLong(this)),
                 var t when t == typeof(long) => CPythonAPI.PyLong_AsLongLong(this),
                 var t when t == typeof(double) => CPythonAPI.PyFloat_AsDouble(this),
                 var t when t == typeof(float) => (float)CPythonAPI.PyFloat_AsDouble(this),

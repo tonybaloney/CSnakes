@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python;
 
 namespace Integration.Tests;
 public class TestOptional(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)

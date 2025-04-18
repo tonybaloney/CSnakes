@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python;
 namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI

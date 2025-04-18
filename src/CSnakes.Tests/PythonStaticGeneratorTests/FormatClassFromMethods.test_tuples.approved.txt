@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Metadata;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
@@ -154,7 +155,7 @@ public static class TestClassExtensions
             module.Dispose();
         }
 
-        public ValueTuple<string> Tuple_(ValueTuple<string> a)
+        public ValueTuple<string> Tuple1(ValueTuple<string> a)
         {
             using (GIL.Acquire())
             {
@@ -166,7 +167,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string) Tuple_((string, string) a)
+        public (string, string) Tuple2((string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -178,7 +179,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string, string) Tuple_((string, string, string) a)
+        public (string, string, string) Tuple3((string, string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -190,7 +191,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string, string, string) Tuple_((string, string, string, string) a)
+        public (string, string, string, string) Tuple4((string, string, string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -202,7 +203,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string, string, string, string) Tuple_((string, string, string, string, string) a)
+        public (string, string, string, string, string) Tuple5((string, string, string, string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -214,7 +215,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string, string, string, string, string) Tuple_((string, string, string, string, string, string) a)
+        public (string, string, string, string, string, string) Tuple6((string, string, string, string, string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -226,7 +227,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string, string, string, string, string, string) Tuple_((string, string, string, string, string, string, string) a)
+        public (string, string, string, string, string, string, string) Tuple7((string, string, string, string, string, string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -238,7 +239,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string, string, string, string, string, string, string) Tuple_((string, string, string, string, string, string, string, string) a)
+        public (string, string, string, string, string, string, string, string) Tuple8((string, string, string, string, string, string, string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -250,7 +251,7 @@ public static class TestClassExtensions
             }
         }
 
-        public (string, string, string, string, string, string, string, string, string) Tuple_((string, string, string, string, string, string, string, string, string) a)
+        public (string, string, string, string, string, string, string, string, string) Tuple9((string, string, string, string, string, string, string, string, string) a)
         {
             using (GIL.Acquire())
             {
@@ -360,23 +361,144 @@ public static class TestClassExtensions
     }
 }
 
+/// <summary>
+/// Represents functions of the Python module <c>test</c>.
+/// </summary>
 public interface ITestClass : IReloadableModuleImport
 {
-    ValueTuple<string> Tuple_(ValueTuple<string> a);
-    (string, string) Tuple_((string, string) a);
-    (string, string, string) Tuple_((string, string, string) a);
-    (string, string, string, string) Tuple_((string, string, string, string) a);
-    (string, string, string, string, string) Tuple_((string, string, string, string, string) a);
-    (string, string, string, string, string, string) Tuple_((string, string, string, string, string, string) a);
-    (string, string, string, string, string, string, string) Tuple_((string, string, string, string, string, string, string) a);
-    (string, string, string, string, string, string, string, string) Tuple_((string, string, string, string, string, string, string, string) a);
-    (string, string, string, string, string, string, string, string, string) Tuple_((string, string, string, string, string, string, string, string, string) a);
+    /// <summary>
+    /// Invokes the Python function <c>tuple_1</c>:
+    /// <code><![CDATA[
+    /// def tuple_1(a: tuple[str]) -> tuple[str]: ...
+    /// ]]></code>
+    /// </summary>
+    ValueTuple<string> Tuple1(ValueTuple<string> a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_2</c>:
+    /// <code><![CDATA[
+    /// def tuple_2(a: tuple[str, str]) -> tuple[str, str]: ...
+    /// ]]></code>
+    /// </summary>
+    (string, string) Tuple2((string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_3</c>:
+    /// <code><![CDATA[
+    /// def tuple_3(a: tuple[str, str, str]) -> tuple[str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
+    (string, string, string) Tuple3((string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_4</c>:
+    /// <code><![CDATA[
+    /// def tuple_4(a: tuple[str, str, str, str]) -> tuple[str, str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
+    (string, string, string, string) Tuple4((string, string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_5</c>:
+    /// <code><![CDATA[
+    /// def tuple_5(a: tuple[str, str, str, str, str]) -> tuple[str, str, str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
+    (string, string, string, string, string) Tuple5((string, string, string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_6</c>:
+    /// <code><![CDATA[
+    /// def tuple_6(a: tuple[str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
+    (string, string, string, string, string, string) Tuple6((string, string, string, string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_7</c>:
+    /// <code><![CDATA[
+    /// def tuple_7(a: tuple[str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
+    (string, string, string, string, string, string, string) Tuple7((string, string, string, string, string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_8</c>:
+    /// <code><![CDATA[
+    /// def tuple_8(a: tuple[str, str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
+    (string, string, string, string, string, string, string, string) Tuple8((string, string, string, string, string, string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_9</c>:
+    /// <code><![CDATA[
+    /// def tuple_9(a: tuple[str, str, str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
+    (string, string, string, string, string, string, string, string, string) Tuple9((string, string, string, string, string, string, string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_10</c>:
+    /// <code><![CDATA[
+    /// def tuple_10(a: tuple[str, str, str, str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str, str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
     (string, string, string, string, string, string, string, string, string, string) Tuple10((string, string, string, string, string, string, string, string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_11</c>:
+    /// <code><![CDATA[
+    /// def tuple_11(a: tuple[str, str, str, str, str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str, str, str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
     (string, string, string, string, string, string, string, string, string, string, string) Tuple11((string, string, string, string, string, string, string, string, string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_12</c>:
+    /// <code><![CDATA[
+    /// def tuple_12(a: tuple[str, str, str, str, str, str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str, str, str, str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
     (string, string, string, string, string, string, string, string, string, string, string, string) Tuple12((string, string, string, string, string, string, string, string, string, string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_13</c>:
+    /// <code><![CDATA[
+    /// def tuple_13(a: tuple[str, str, str, str, str, str, str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str, str, str, str, str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
     (string, string, string, string, string, string, string, string, string, string, string, string, string) Tuple13((string, string, string, string, string, string, string, string, string, string, string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_14</c>:
+    /// <code><![CDATA[
+    /// def tuple_14(a: tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
     (string, string, string, string, string, string, string, string, string, string, string, string, string, string) Tuple14((string, string, string, string, string, string, string, string, string, string, string, string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_15</c>:
+    /// <code><![CDATA[
+    /// def tuple_15(a: tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
     (string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) Tuple15((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_16</c>:
+    /// <code><![CDATA[
+    /// def tuple_16(a: tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
     (string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) Tuple16((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>tuple_17</c>:
+    /// <code><![CDATA[
+    /// def tuple_17(a: tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]: ...
+    /// ]]></code>
+    /// </summary>
     (string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) Tuple17((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) a);
 }

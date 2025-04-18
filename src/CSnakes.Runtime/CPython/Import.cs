@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
@@ -37,7 +37,7 @@ internal unsafe partial class CPythonAPI
         Py_DecRefRaw(pyName);
         Py_DecRefRaw(pyAttrName);
         return attr;
-    } 
+    }
 
     /// <summary>
     /// Import and return a reference to the module `name`

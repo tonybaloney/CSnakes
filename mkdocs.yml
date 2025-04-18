@@ -4,6 +4,7 @@ nav:
   - Getting Started: getting-started.md
   - Reference: reference.md
   - Environment and Package Management: environments.md
+  - Asynchronous Functions: async_support.md
   - Buffer Protocol and NumPy Arrays: buffers.md
   - Advanced Usage: advanced.md
   - Limitations: limitations.md

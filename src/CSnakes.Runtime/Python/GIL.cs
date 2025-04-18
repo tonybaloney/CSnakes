@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.CPython;
+using CSnakes.Runtime.CPython;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -26,17 +26,27 @@ namespace CSnakes.Runtime.Python;
 public static class GIL
 {
     [ThreadStatic] private static PyGilState? currentState;
+    [ThreadStatic] internal static nint pythonThreadState;
     private static ConcurrentQueue<nint> handlesToDispose = new();
+
+    static GIL()
+    {
+        currentState = null;
+        pythonThreadState = 0;
+    }
 
     internal class PyGilState : IDisposable
     {
-        private nint gilState;
         private int recursionCount;
 
         public PyGilState()
         {
+            if (pythonThreadState == 0)
+            {
+                pythonThreadState = CPythonAPI.PyThreadState_New();
+            }
             Debug.Assert(CPythonAPI.IsInitialized);
-            gilState = CPythonAPI.PyGILState_Ensure();
+            CPythonAPI.PyEval_RestoreThread(pythonThreadState);
             recursionCount = 1;
         }
 
@@ -44,13 +54,18 @@ public static class GIL
         {
             if (recursionCount == 0)
             {
-                gilState = CPythonAPI.PyGILState_Ensure();
+                CPythonAPI.PyEval_RestoreThread(pythonThreadState);
             }
             recursionCount++;
         }
 
         public void Dispose()
         {
+            if (recursionCount == 0)
+            {
+                Debug.WriteLine("GIL disposed more times than it was acquired by thread.");
+                return;
+            }
             recursionCount--;
             if (recursionCount > 0)
             {
@@ -62,7 +77,7 @@ public static class GIL
             {
                 CPythonAPI.Py_DecRefRaw(handle);
             }
-            CPythonAPI.PyGILState_Release(gilState);
+            pythonThreadState = CPythonAPI.PyEval_SaveThread();
         }
 
         public int RecursionCount => recursionCount;

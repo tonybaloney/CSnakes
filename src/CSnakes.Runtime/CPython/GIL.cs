@@ -1,8 +1,12 @@
-﻿using System.Runtime.InteropServices;
+using CSnakes.Runtime.Locators;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
+    private static nint PyInterpreterState = 0;
+
     /// <summary>
     /// Ensure (hold) GIL and return a GIL state handle (ptr)
     /// Handles are not memory managed by Python. Do not free them.
@@ -41,4 +45,19 @@ internal unsafe partial class CPythonAPI
 
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyEval_SaveThread();
+
+    [LibraryImport(PythonLibraryName)]
+    internal static partial void PyEval_RestoreThread(nint tstate);
+
+    internal static nint PyThreadState_New()
+    {
+        Debug.Assert(PyInterpreterState != 0);
+        return PyThreadState_New_(PyInterpreterState);
+    }
+
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyThreadState_New")]
+    private static partial nint PyThreadState_New_(nint istate);
+
+    [LibraryImport(PythonLibraryName)]
+    private static partial nint PyInterpreterState_Get();
 }

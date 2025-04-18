@@ -1,3 +1,4 @@
 httpx
 numpy
 typing-extensions
+pybind11-numpy-example==1.0.1

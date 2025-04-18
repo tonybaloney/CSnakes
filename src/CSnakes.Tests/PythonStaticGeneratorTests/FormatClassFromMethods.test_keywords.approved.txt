@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Metadata;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
@@ -107,8 +108,24 @@ public static class TestClassExtensions
     }
 }
 
+/// <summary>
+/// Represents functions of the Python module <c>test</c>.
+/// </summary>
 public interface ITestClass : IReloadableModuleImport
 {
+    /// <summary>
+    /// Invokes the Python function <c>test_keyword_only</c>:
+    /// <code><![CDATA[
+    /// def test_keyword_only(a: str, *, b: int) -> None: ...
+    /// ]]></code>
+    /// </summary>
     void TestKeywordOnly(string a, long b, PyObject[]? args = null);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_named_keyword_only</c>:
+    /// <code><![CDATA[
+    /// def test_named_keyword_only(a: str, *args, b: int = 0) -> None: ...
+    /// ]]></code>
+    /// </summary>
     void TestNamedKeywordOnly(string a, long b = 0, PyObject[]? args = null);
 }

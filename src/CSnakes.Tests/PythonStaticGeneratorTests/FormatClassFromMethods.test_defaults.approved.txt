@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Metadata;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
@@ -208,14 +209,72 @@ public static class TestClassExtensions
     }
 }
 
+/// <summary>
+/// Represents functions of the Python module <c>test</c>.
+/// </summary>
 public interface ITestClass : IReloadableModuleImport
 {
+    /// <summary>
+    /// Invokes the Python function <c>test_default_str_arg</c>:
+    /// <code><![CDATA[
+    /// def test_default_str_arg(a: str = "hello") -> str: ...
+    /// ]]></code>
+    /// </summary>
     string TestDefaultStrArg(string a = "hello");
+
+    /// <summary>
+    /// Invokes the Python function <c>test_default_int_arg</c>:
+    /// <code><![CDATA[
+    /// def test_default_int_arg(a: int = 1337) -> int: ...
+    /// ]]></code>
+    /// </summary>
     long TestDefaultIntArg(long a = 1337);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_default_float_arg</c>:
+    /// <code><![CDATA[
+    /// def test_default_float_arg(a: float = -1) -> float: ...
+    /// ]]></code>
+    /// </summary>
     double TestDefaultFloatArg(double a = -1);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_int_literals</c>:
+    /// <code><![CDATA[
+    /// def test_int_literals(a: int = 0x1337, b: int = 0b10101011) -> int: ...
+    /// ]]></code>
+    /// </summary>
     long TestIntLiterals(long a = 0x1337, long b = 0b10101011);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_optional_int</c>:
+    /// <code><![CDATA[
+    /// def test_optional_int(a: Optional[int] = None) -> bool: ...
+    /// ]]></code>
+    /// </summary>
     bool TestOptionalInt(long? a = null);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_optional_str</c>:
+    /// <code><![CDATA[
+    /// def test_optional_str(a: Optional[str] = None) -> bool: ...
+    /// ]]></code>
+    /// </summary>
     bool TestOptionalStr(string? a = null);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_optional_list</c>:
+    /// <code><![CDATA[
+    /// def test_optional_list(a: Optional[list[int]] = None) -> bool: ...
+    /// ]]></code>
+    /// </summary>
     bool TestOptionalList(IReadOnlyList<long>? a = null);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_optional_any</c>:
+    /// <code><![CDATA[
+    /// def test_optional_any(a: Optional[Any] = None) -> bool: ...
+    /// ]]></code>
+    /// </summary>
     bool TestOptionalAny(PyObject? a = null);
 }

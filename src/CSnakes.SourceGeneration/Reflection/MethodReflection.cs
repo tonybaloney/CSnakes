@@ -1,7 +1,7 @@
+using CSnakes.Parser.Types;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using CSnakes.Parser.Types;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CSnakes.Reflection;
@@ -16,19 +16,38 @@ public static class MethodReflection
 {
     public static MethodDefinition FromMethod(PythonFunctionDefinition function, string moduleName)
     {
-        // Step 1: Create a method declaration
-
-        // Step 2: Determine the return type of the method
+        // Step 1: Determine the return type of the method
         PythonTypeSpec returnPythonType = function.ReturnType;
 
         TypeSyntax returnSyntax;
-        if (returnPythonType.Name == "None")
+        TypeSyntax? coroutineSyntax = null;
+
+        if (!function.IsAsync)
         {
-            returnSyntax = PredefinedType(Token(SyntaxKind.VoidKeyword));
+            if (returnPythonType.Name == "None")
+            {
+                returnSyntax = PredefinedType(Token(SyntaxKind.VoidKeyword));
+            }
+            else
+            {
+                returnSyntax = TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython);
+            }
         }
         else
         {
-            returnSyntax = TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython);
+            coroutineSyntax = TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython);
+            returnSyntax = returnPythonType switch
+            {
+                { Name: "Coroutine", Arguments: [{ Name: "None" }, _, _] } =>
+                    // Make it PyObject otherwise we need to annotate as Task instead of Task<T> and that adds a lot of complexity and little value
+                    ParseTypeName("PyObject"),
+                { Name: "Coroutine", Arguments: [var tYield, _, _] } =>
+                    TypeReflection.AsPredefinedType(tYield, TypeReflection.ConversionDirection.FromPython),
+                _ => throw new ArgumentException("Async function must return a Coroutine[T1, T2, T3]")
+            };
+            // return is a Task of <T>
+            returnSyntax = GenericName(Identifier("Task"))
+                .WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])));
         }
 
         // Step 3: Build arguments
@@ -104,6 +123,7 @@ public static class MethodReflection
         var resultIdentifierName = IdentifierName("__result_pyObject");
         ReturnStatementSyntax returnExpression = returnSyntax switch
         {
+            GenericNameSyntax g when g.Identifier.Text == "Task" && coroutineSyntax is not null => ProcessAsyncMethodWithReturnType(coroutineSyntax, parameterGenericArgs),
             PredefinedTypeSyntax s when s.Keyword.IsKind(SyntaxKind.VoidKeyword) => ReturnStatement(null),
             IdentifierNameSyntax { Identifier.ValueText: "PyObject" } => ReturnStatement(resultIdentifierName),
             _ => ProcessMethodWithReturnType(resultIdentifierName, returnSyntax)
@@ -131,7 +151,11 @@ public static class MethodReflection
                                 IdentifierName($"__func_{function.Name}"))))))
             );
 
-        var callStatement = LocalDeclarationStatement(
+        LocalDeclarationStatementSyntax callStatement;
+
+        if (!function.IsAsync)
+        {
+            callStatement = LocalDeclarationStatement(
                         VariableDeclaration(
                             IdentifierName("PyObject"))
                         .WithVariables(
@@ -141,10 +165,24 @@ public static class MethodReflection
                                 .WithInitializer(
                                     EqualsValueClause(
                                         callExpression)))));
-        if (resultShouldBeDisposed)
+
+        }
+        else
+        {
+            callStatement = LocalDeclarationStatement(
+                        VariableDeclaration(
+                            IdentifierName("PyObject"))
+                        .WithVariables(
+                            SingletonSeparatedList(
+                                VariableDeclarator(
+                                    Identifier("__result_pyObject"))
+                                )));
+
+        }
+        if (resultShouldBeDisposed && !function.IsAsync)
             callStatement = callStatement.WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
-        StatementSyntax[] statements = [
-            ExpressionStatement(
+
+        var logStatement = ExpressionStatement(
                 InvocationExpression(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
@@ -157,21 +195,56 @@ public static class MethodReflection
                                     Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Invoking Python function: {FunctionName}"))),
                                     Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(function.Name)))
                                 ])))
+                    );
+
+        BlockSyntax body;
+        if (function.IsAsync)
+        {
+            ExpressionStatementSyntax localCallStatement = ExpressionStatement(
+                AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName("__result_pyObject"),
+                    callExpression));
+
+            StatementSyntax[] statements = [
+                logStatement,
+                functionObject,
+                .. pythonConversionStatements,
+                localCallStatement
+                ];
+
+            body = Block(
+                callStatement,
+                UsingStatement(
+                    null,
+                    InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName("GIL"),
+                            IdentifierName("Acquire"))),
+                    Block(statements)
                     ),
-            functionObject,
-            .. pythonConversionStatements,
-            callStatement,
-            returnExpression];
-        var body = Block(
-            UsingStatement(
-                null,
-                InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("GIL"),
-                        IdentifierName("Acquire"))),
-                Block(statements)
-                ));
+                returnExpression);
+        }
+        else
+        {
+            StatementSyntax[] statements = [
+                logStatement,
+                functionObject,
+                .. pythonConversionStatements,
+                callStatement,
+                returnExpression];
+            body = Block(
+                UsingStatement(
+                    null,
+                    InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName("GIL"),
+                            IdentifierName("Acquire"))),
+                    Block(statements)
+                    ));
+        }
 
         // Sort the method parameters into this order
         // 1. All positional arguments
@@ -195,13 +268,16 @@ public static class MethodReflection
                     .Select((a) => a.cSharpParameter)
             );
 
+        var modifiers = function.IsAsync ? TokenList(
+                    Token(SyntaxKind.PublicKeyword),
+                    Token(SyntaxKind.AsyncKeyword)
+                )
+            : TokenList(Token(SyntaxKind.PublicKeyword));
+
         var syntax = MethodDeclaration(
             returnSyntax,
             Identifier(function.Name.ToPascalCase()))
-            .WithModifiers(
-                TokenList(
-                    Token(SyntaxKind.PublicKeyword))
-                )
+            .WithModifiers(modifiers)
             .WithBody(body)
             .WithParameterList(ParameterList(SeparatedList(methodParameters)));
 
@@ -238,6 +314,32 @@ public static class MethodReflection
                 : conversionExpression;
 
         return ReturnStatement(returnValueExpression);
+    }
+
+    private static ReturnStatementSyntax ProcessAsyncMethodWithReturnType(TypeSyntax returnSyntax, List<GenericNameSyntax> parameterGenericArgs)
+    {
+        ReturnStatementSyntax returnExpression;
+        if (returnSyntax is GenericNameSyntax rg)
+        {
+            parameterGenericArgs.Add(rg);
+        }
+        var pyObjectAs = InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName("__result_pyObject"),
+                            GenericName(Identifier("As"))
+                                .WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])))));
+
+        returnExpression = ReturnStatement(
+             AwaitExpression(
+                    InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            pyObjectAs,
+                            IdentifierName("AsTask")))
+                    ));
+
+        return returnExpression;
     }
 
     private static InvocationExpressionSyntax GenerateParamsCall(IEnumerable<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList)

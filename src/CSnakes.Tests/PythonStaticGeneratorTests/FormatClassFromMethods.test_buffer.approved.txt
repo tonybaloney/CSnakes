@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Metadata;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
@@ -551,36 +552,248 @@ public static class TestClassExtensions
     }
 }
 
+/// <summary>
+/// Represents functions of the Python module <c>test</c>.
+/// </summary>
 public interface ITestClass : IReloadableModuleImport
 {
+    /// <summary>
+    /// Invokes the Python function <c>test_bool_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_bool_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestBoolBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_int8_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_int8_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestInt8Buffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_uint8_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_uint8_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestUint8Buffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_int16_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_int16_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestInt16Buffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_uint16_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_uint16_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestUint16Buffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_int32_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_int32_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestInt32Buffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_int64_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_int64_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestInt64Buffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_uint32_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_uint32_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestUint32Buffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_uint64_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_uint64_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestUint64Buffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_float32_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_float32_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestFloat32Buffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_float64_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_float64_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestFloat64Buffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_vector_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_vector_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestVectorBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_int8_2d_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_int8_2d_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestInt82dBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_uint8_2d_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_uint8_2d_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestUint82dBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_int16_2d_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_int16_2d_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestInt162dBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_uint16_2d_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_uint16_2d_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestUint162dBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_int32_2d_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_int32_2d_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestInt322dBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_uint32_2d_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_uint32_2d_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestUint322dBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_int64_2d_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_int64_2d_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestInt642dBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_uint64_2d_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_uint64_2d_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestUint642dBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_float32_2d_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_float32_2d_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestFloat322dBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_float64_2d_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_float64_2d_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestFloat642dBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_global_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_global_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestGlobalBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_bytes_as_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_bytes_as_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestBytesAsBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_bytearray_as_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_bytearray_as_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestBytearrayAsBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_non_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_non_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestNonBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_non_contiguous_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_non_contiguous_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestNonContiguousBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_transposed_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_transposed_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestTransposedBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_ndim_3d_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_ndim_3d_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestNdim3dBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_ndim_4d_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_ndim_4d_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
     IPyBuffer TestNdim4dBuffer();
 }

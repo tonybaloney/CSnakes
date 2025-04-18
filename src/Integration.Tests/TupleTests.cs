@@ -1,4 +1,6 @@
-﻿namespace Integration.Tests;
+using System;
+
+namespace Integration.Tests;
 
 public class TupleTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
@@ -7,7 +9,7 @@ public class TupleTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
     [Fact]
     public void SingleTupleValue()
     {
-        var x = TestTuples.Tuple_(ValueTuple.Create("a"));
+        var x = TestTuples.Tuple1(ValueTuple.Create("a"));
 
         Assert.Equal("a", x.Item1);
     }
@@ -15,7 +17,7 @@ public class TupleTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
     [Fact]
     public void TwoTupleValues()
     {
-        (string a, string b) = TestTuples.Tuple_(("a", "b"));
+        (string a, string b) = TestTuples.Tuple2(("a", "b"));
         Assert.Equal("a", a);
         Assert.Equal("b", b);
     }
@@ -23,7 +25,7 @@ public class TupleTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
     [Fact]
     public void ThreeTupleValues()
     {
-        (string a, string b, string c) = TestTuples.Tuple_(("a", "b", "c"));
+        (string a, string b, string c) = TestTuples.Tuple3(("a", "b", "c"));
         Assert.Equal("a", a);
         Assert.Equal("b", b);
         Assert.Equal("c", c);
@@ -32,7 +34,7 @@ public class TupleTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
     [Fact]
     public void FourTupleValues()
     {
-        (string a, string b, string c, string d) = TestTuples.Tuple_(("a", "b", "c", "d"));
+        (string a, string b, string c, string d) = TestTuples.Tuple4(("a", "b", "c", "d"));
         Assert.Equal("a", a);
         Assert.Equal("b", b);
         Assert.Equal("c", c);
@@ -42,7 +44,7 @@ public class TupleTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
     [Fact]
     public void FiveTupleValues()
     {
-        (string a, string b, string c, string d, string e) = TestTuples.Tuple_(("a", "b", "c", "d", "e"));
+        (string a, string b, string c, string d, string e) = TestTuples.Tuple5(("a", "b", "c", "d", "e"));
         Assert.Equal("a", a);
         Assert.Equal("b", b);
         Assert.Equal("c", c);
@@ -53,7 +55,7 @@ public class TupleTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
     [Fact]
     public void SixTupleValues()
     {
-        (string a, string b, string c, string d, string e, string f) = TestTuples.Tuple_(("a", "b", "c", "d", "e", "f"));
+        (string a, string b, string c, string d, string e, string f) = TestTuples.Tuple6(("a", "b", "c", "d", "e", "f"));
         Assert.Equal("a", a);
         Assert.Equal("b", b);
         Assert.Equal("c", c);
@@ -65,7 +67,7 @@ public class TupleTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
     [Fact]
     public void SevenTupleValues()
     {
-        (string a, string b, string c, string d, string e, string f, string g) = TestTuples.Tuple_(("a", "b", "c", "d", "e", "f", "g"));
+        (string a, string b, string c, string d, string e, string f, string g) = TestTuples.Tuple7(("a", "b", "c", "d", "e", "f", "g"));
         Assert.Equal("a", a);
         Assert.Equal("b", b);
         Assert.Equal("c", c);
@@ -78,7 +80,7 @@ public class TupleTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
     [Fact]
     public void EightTupleValues()
     {
-        (string a, string b, string c, string d, string e, string f, string g, string h) = TestTuples.Tuple_(("a", "b", "c", "d", "e", "f", "g", "h"));
+        (string a, string b, string c, string d, string e, string f, string g, string h) = TestTuples.Tuple8(("a", "b", "c", "d", "e", "f", "g", "h"));
         Assert.Equal("a", a);
         Assert.Equal("b", b);
         Assert.Equal("c", c);
@@ -92,7 +94,7 @@ public class TupleTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
     [Fact]
     public void NineTupleValues()
     {
-        (string a, string b, string c, string d, string e, string f, string g, string h, string i) = TestTuples.Tuple_(("a", "b", "c", "d", "e", "f", "g", "h", "i"));
+        (string a, string b, string c, string d, string e, string f, string g, string h, string i) = TestTuples.Tuple9(("a", "b", "c", "d", "e", "f", "g", "h", "i"));
         Assert.Equal("a", a);
         Assert.Equal("b", b);
         Assert.Equal("c", c);

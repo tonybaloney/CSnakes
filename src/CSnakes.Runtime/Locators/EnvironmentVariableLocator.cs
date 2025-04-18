@@ -1,4 +1,4 @@
-﻿namespace CSnakes.Runtime.Locators;
+namespace CSnakes.Runtime.Locators;
 
 internal class EnvironmentVariableLocator(string variable, Version version) : PythonLocator
 {

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Metadata;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
@@ -122,9 +123,32 @@ public static class TestClassExtensions
     }
 }
 
+/// <summary>
+/// Represents functions of the Python module <c>test</c>.
+/// </summary>
 public interface ITestClass : IReloadableModuleImport
 {
+    /// <summary>
+    /// Invokes the Python function <c>test_int</c>:
+    /// <code><![CDATA[
+    /// def test_int(n: Optional[int]) -> Optional[int]: ...
+    /// ]]></code>
+    /// </summary>
     long? TestInt(long? n);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_str</c>:
+    /// <code><![CDATA[
+    /// def test_str(s: Optional[str]) -> Optional[str]: ...
+    /// ]]></code>
+    /// </summary>
     string? TestStr(string? s);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_any</c>:
+    /// <code><![CDATA[
+    /// def test_any(obj: Optional[Any]) -> Optional[Any]: ...
+    /// ]]></code>
+    /// </summary>
     PyObject? TestAny(PyObject? obj);
 }

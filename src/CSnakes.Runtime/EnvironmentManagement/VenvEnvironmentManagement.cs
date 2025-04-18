@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Locators;
+using CSnakes.Runtime.Locators;
 using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime.EnvironmentManagement;
@@ -19,7 +19,7 @@ internal class VenvEnvironmentManagement(ILogger logger, string path, bool ensur
         var fullPath = Path.GetFullPath(path);
         if (!Directory.Exists(path))
         {
-            logger.LogInformation("Creating virtual environment at {VirtualEnvPath} using {PythonBinaryPath}", fullPath, pythonLocation.PythonBinaryPath);
+            logger.LogDebug("Creating virtual environment at {VirtualEnvPath} using {PythonBinaryPath}", fullPath, pythonLocation.PythonBinaryPath);
             var (process1, _, _) = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, $"-VV");
             var (process2, _, error) = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, $"-m venv {fullPath}");
 

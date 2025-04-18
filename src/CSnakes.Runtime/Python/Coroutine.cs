@@ -2,7 +2,15 @@ using CSnakes.Runtime.CPython;
 
 namespace CSnakes.Runtime.Python;
 
-public class Coroutine<TYield, TSend, TReturn>(PyObject coroutine) : ICoroutine<TYield, TSend, TReturn>
+public sealed class Coroutine<TYield, TSend, TReturn>(PyObject coroutine) :
+    Coroutine<TYield, TSend, TReturn,
+              PyObjectImporters.Runtime<TYield>,
+              PyObjectImporters.Runtime<TReturn>>(coroutine);
+
+public class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(PyObject coroutine) :
+    ICoroutine<TYield, TSend, TReturn>
+    where TYieldImporter : IPyObjectImporter<TYield>
+    where TReturnImporter : IPyObjectImporter<TReturn>
 {
     private TYield current = default!;
     private TReturn @return = default!;
@@ -20,7 +28,7 @@ public class Coroutine<TYield, TSend, TReturn>(PyObject coroutine) : ICoroutine<
                     using (GIL.Acquire())
                     {
                         using PyObject result = CPythonAPI.GetEventLoop().RunTaskUntilComplete(coroutine, cancellationToken);
-                        current = result.As<TYield>();
+                        current = TYieldImporter.BareImport(result);
                     }
                     return current;
                 }
@@ -29,7 +37,7 @@ public class Coroutine<TYield, TSend, TReturn>(PyObject coroutine) : ICoroutine<
                     if (ex.InnerException is PythonStopIterationException stopIteration)
                     {
                         using var @return = stopIteration.TakeValue();
-                        this.@return = @return.As<TReturn>();
+                        this.@return = @return.ImportAs<TReturn, TReturnImporter>();
 
                         // Coroutine has finished
                         // TODO: define behavior for this case

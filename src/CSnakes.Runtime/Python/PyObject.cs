@@ -2,6 +2,7 @@ using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python.Interns;
 using System.Collections;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -159,11 +160,21 @@ public partial class PyObject : SafeHandle, ICloneable
     /// </summary>
     /// <typeparam name="T">The type for each item in the iterator</typeparam>
     /// <returns></returns>
-    public IEnumerable<T> AsEnumerable<T>()
+    public IEnumerable<T> AsEnumerable<T>() =>
+        AsEnumerable<T, PyObjectImporters.Runtime<T>>();
+
+    /// <summary>
+    /// Calls iter() on the object and returns an IEnumerable that yields values of type T.
+    /// </summary>
+    /// <typeparam name="T">The type for each item in the iterator</typeparam>
+    /// <typeparam name="TImporter">The type for importing each item type</typeparam>
+    /// <returns></returns>
+    public IEnumerable<T> AsEnumerable<T, TImporter>()
+        where TImporter : IPyObjectImporter<T>
     {
         using (GIL.Acquire())
         {
-            return new PyEnumerable<T>(this);
+            return new PyEnumerable<T, TImporter>(this);
         }
     }
 
@@ -321,7 +332,7 @@ public partial class PyObject : SafeHandle, ICloneable
     {
         RaiseOnPythonNotInitialized();
 
-        // Don't do any marshalling if there aren't any arguments. 
+        // Don't do any marshalling if there aren't any arguments.
         if (args is null || args.Length == 0)
         {
             using (GIL.Acquire())
@@ -415,7 +426,7 @@ public partial class PyObject : SafeHandle, ICloneable
         // No keyword parameters supplied
         if (kwnames is null && kwargs is null)
             return CallWithArgs(args);
-        // Keyword args are empty and kwargs is empty. 
+        // Keyword args are empty and kwargs is empty.
         if (kwnames is not null && kwnames.Length == 0 && (kwargs is null || kwargs.Count == 0))
             return CallWithArgs(args);
 
@@ -439,20 +450,6 @@ public partial class PyObject : SafeHandle, ICloneable
 
     public T As<T>() => (T)As(typeof(T));
 
-    /// <summary>
-    /// Unpack a tuple of 2 elements into a KeyValuePair
-    /// </summary>
-    /// <typeparam name="TKey">The type of the key</typeparam>
-    /// <typeparam name="TValue">The type of the value</typeparam>
-    /// <returns></returns>
-    public KeyValuePair<TKey, TValue> As<TKey, TValue>()
-    {
-        using (GIL.Acquire())
-        {
-            return PyObjectTypeConverter.ConvertToKeyValuePair<TKey, TValue>(this);
-        }
-    }
-
     internal object As(Type type)
     {
         using (GIL.Acquire())
@@ -475,6 +472,20 @@ public partial class PyObject : SafeHandle, ICloneable
             };
         }
     }
+
+    public T ImportAs<T, TImporter>() where TImporter : IPyObjectImporter<T>
+    {
+        using (GIL.Acquire())
+            return BareImportAs<T, TImporter>();
+    }
+
+    /// <remarks>
+    /// It is the responsibility of the caller to ensure that the GIL is
+    /// acquired via <see cref="GIL.Acquire"/> when this method is invoked.
+    /// </remarks>
+    [Experimental("PRTEXP002")]
+    public T BareImportAs<T, TImporter>() where TImporter : IPyObjectImporter<T> =>
+        TImporter.BareImport(this);
 
     public static PyObject From<T>(T value)
     {

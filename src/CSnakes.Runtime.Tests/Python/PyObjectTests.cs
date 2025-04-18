@@ -86,8 +86,8 @@ public class PyObjectTests : RuntimeTestBase
     [Fact]
     public void TestObjectEqualsCollection()
     {
-        using var obj1 = PyObject.From<IEnumerable<string>>(["Hello!", "World!"]);
-        using var obj2 = PyObject.From<IEnumerable<string>>(["Hello!", "World!"]);
+        using var obj1 = PyObject.From(new[] { "Hello!", "World!" });
+        using var obj2 = PyObject.From(new[] { "Hello!", "World!" });
         Assert.True(obj1!.Equals(obj2));
         Assert.True(obj1 == obj2);
     }
@@ -109,8 +109,8 @@ public class PyObjectTests : RuntimeTestBase
     [Fact]
     public void TestObjectNotEqualsCollection()
     {
-        using var obj1 = PyObject.From<IEnumerable<string>>(["Hello!", "World!"]);
-        using var obj2 = PyObject.From<IEnumerable<string>>(["Hello?", "World?"]);
+        using var obj1 = PyObject.From(new[] { "Hello!", "World!" });
+        using var obj2 = PyObject.From(new[] { "Hello?", "World?" });
         Assert.True(obj1!.NotEquals(obj2));
         Assert.True(obj1 != obj2);
     }

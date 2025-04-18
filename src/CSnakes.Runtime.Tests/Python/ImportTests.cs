@@ -31,7 +31,7 @@ public class ImportTests : RuntimeTestBase
     {
         using (GIL.Acquire())
         {
-            PyObject sys = PyObject.From<int>(42); // definitely not a module
+            PyObject sys = PyObject.From(42); // definitely not a module
             Assert.NotNull(sys);
             Assert.Throws<PythonInvocationException>(() => Import.ReloadModule(ref sys));
         }

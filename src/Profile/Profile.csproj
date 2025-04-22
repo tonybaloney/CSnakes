@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="marshalling_benchmarks.py" />
+    <None Remove="*.py" />
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="marshalling_benchmarks.py">
+    <AdditionalFiles Include="*.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
   </ItemGroup>

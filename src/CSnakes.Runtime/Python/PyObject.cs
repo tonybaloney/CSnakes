@@ -458,7 +458,7 @@ public partial class PyObject : SafeHandle, ICloneable
             {
                 var t when t == typeof(PyObject) => Clone(),
                 var t when t == typeof(bool) => CPythonAPI.IsPyTrue(this),
-                var t when t == typeof(int) => CPythonAPI.PyLong_AsLong(this),
+                var t when t == typeof(int) => checked((int)CPythonAPI.PyLong_AsLongLong(this)),
                 var t when t == typeof(long) => CPythonAPI.PyLong_AsLongLong(this),
                 var t when t == typeof(double) => CPythonAPI.PyFloat_AsDouble(this),
                 var t when t == typeof(float) => (float)CPythonAPI.PyFloat_AsDouble(this),
@@ -489,31 +489,37 @@ public partial class PyObject : SafeHandle, ICloneable
 
     public static PyObject From<T>(T value)
     {
-        using (GIL.Acquire())
+        switch (value)
         {
-            if (value is null)
-                return None;
-
-            return value switch
+            case null: return None;
+            case true: return True;
+            case false: return False;
+            case 0 or 0L or BigInteger { IsZero: true }: return Zero;
+            case 1 or 1L or BigInteger { IsOne: true }: return One;
+            case -1 or -1L:
+            case BigInteger n when n == -1: return NegativeOne;
+            default:
             {
-                ICloneable pyObject => pyObject.Clone(),
-                bool b => b ? True : False,
-                int i when i == 0 => Zero,
-                int i when i == 1 => One,
-                int i when i == -1 => NegativeOne,
-                int i => Create(CPythonAPI.PyLong_FromLong(i)),
-                long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
-                double d => Create(CPythonAPI.PyFloat_FromDouble(d)),
-                float f => Create(CPythonAPI.PyFloat_FromDouble((double)f)),
-                string s => Create(CPythonAPI.AsPyUnicodeObject(s)),
-                byte[] bytes => PyObject.Create(CPythonAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
-                IDictionary dictionary => PyObjectTypeConverter.ConvertFromDictionary(dictionary),
-                ITuple t => PyObjectTypeConverter.ConvertFromTuple(t),
-                ICollection l => PyObjectTypeConverter.ConvertFromList(l),
-                IEnumerable e => PyObjectTypeConverter.ConvertFromList(e),
-                BigInteger b => PyObjectTypeConverter.ConvertFromBigInteger(b),
-                _ => throw new InvalidCastException($"Cannot convert {value} to PyObject"),
-            };
+                using (GIL.Acquire())
+                {
+                    return value switch
+                    {
+                        ICloneable pyObject => pyObject.Clone(),
+                        int i => Create(CPythonAPI.PyLong_FromLong(new(i))),
+                        long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
+                        double d => Create(CPythonAPI.PyFloat_FromDouble(d)),
+                        float f => Create(CPythonAPI.PyFloat_FromDouble((double)f)),
+                        string s => Create(CPythonAPI.AsPyUnicodeObject(s)),
+                        byte[] bytes => PyObject.Create(CPythonAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
+                        IDictionary dictionary => PyObjectTypeConverter.ConvertFromDictionary(dictionary),
+                        ITuple t => PyObjectTypeConverter.ConvertFromTuple(t),
+                        ICollection l => PyObjectTypeConverter.ConvertFromList(l),
+                        IEnumerable e => PyObjectTypeConverter.ConvertFromList(e),
+                        BigInteger b => PyObjectTypeConverter.ConvertFromBigInteger(b),
+                        _ => throw new InvalidCastException($"Cannot convert {value} to PyObject"),
+                    };
+                }
+            }
         }
     }
 

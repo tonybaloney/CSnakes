@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Profile": {
-      "commandName": "Project",
-      "commandLineArgs": "-f \"*Async*\""
+      "commandName": "Project"
     }
   }
 }

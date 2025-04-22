@@ -61,8 +61,6 @@ def consume_tuple(data: tuple[int, str, float, bool]) -> None:
 def consume_value_types(a: int, b: str, c: float, d: bool) -> None:
     assert(isinstance(a, int) and isinstance(b, str) and isinstance(c, float) and isinstance(d, bool))
 
-async def async_sleepy() -> Coroutine[None, None, None]:
-    await asyncio.sleep(0.001)
 
 if __name__ == "__main__":
     # Start timer

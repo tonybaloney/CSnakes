@@ -8,7 +8,7 @@ public class Tuple1ConverterTests :
                       Tuple1ConverterTests>,
     IConverterTestCasesContainer<ValueTuple<long>>
 {
-    public static TheoryData<ValueTuple<long>> TestCases => [new(42)];
+    public static TheoryData<ValueTuple<long>> TestCases => [new(1)];
 }
 
 public class Tuple2ConverterTests :
@@ -17,7 +17,7 @@ public class Tuple2ConverterTests :
         Tuple2ConverterTests>,
     IConverterTestCasesContainer<(long, long)>
 {
-    public static TheoryData<(long, long)> TestCases => new() { (42, 42) };
+    public static TheoryData<(long, long)> TestCases => new() { (1, 2) };
 }
 
 public class Tuple3ConverterTests :
@@ -26,7 +26,7 @@ public class Tuple3ConverterTests :
         Tuple3ConverterTests>,
     IConverterTestCasesContainer<(long, long, long)>
 {
-    public static TheoryData<(long, long, long)> TestCases => new() { (42, 42, 42) };
+    public static TheoryData<(long, long, long)> TestCases => new() { (1, 2, 3) };
 }
 
 public class Tuple8ConverterTests :

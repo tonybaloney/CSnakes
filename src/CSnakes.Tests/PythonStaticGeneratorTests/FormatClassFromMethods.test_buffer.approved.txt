@@ -22,7 +22,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "10affbd2d05b097a0f6c9bc660363098"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "cabb6a0854c73088e04547b226cc6c79"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -74,6 +74,7 @@ public static class TestClassExtensions
         private PyObject __func_test_transposed_buffer;
         private PyObject __func_test_ndim_3d_buffer;
         private PyObject __func_test_ndim_4d_buffer;
+        private PyObject __func_sum_of_2d_array;
 
         internal TestClassInternal(ILogger<IPythonEnvironment> logger)
         {
@@ -112,6 +113,7 @@ public static class TestClassExtensions
                 this.__func_test_transposed_buffer = module.GetAttr("test_transposed_buffer");
                 this.__func_test_ndim_3d_buffer = module.GetAttr("test_ndim_3d_buffer");
                 this.__func_test_ndim_4d_buffer = module.GetAttr("test_ndim_4d_buffer");
+                this.__func_sum_of_2d_array = module.GetAttr("sum_of_2d_array");
             }
         }
 
@@ -152,6 +154,7 @@ public static class TestClassExtensions
                 this.__func_test_transposed_buffer.Dispose();
                 this.__func_test_ndim_3d_buffer.Dispose();
                 this.__func_test_ndim_4d_buffer.Dispose();
+                this.__func_sum_of_2d_array.Dispose();
                 // Bind to new functions
                 this.__func_test_bool_buffer = module.GetAttr("test_bool_buffer");
                 this.__func_test_int8_buffer = module.GetAttr("test_int8_buffer");
@@ -183,6 +186,7 @@ public static class TestClassExtensions
                 this.__func_test_transposed_buffer = module.GetAttr("test_transposed_buffer");
                 this.__func_test_ndim_3d_buffer = module.GetAttr("test_ndim_3d_buffer");
                 this.__func_test_ndim_4d_buffer = module.GetAttr("test_ndim_4d_buffer");
+                this.__func_sum_of_2d_array = module.GetAttr("sum_of_2d_array");
             }
         }
 
@@ -219,6 +223,7 @@ public static class TestClassExtensions
             this.__func_test_transposed_buffer.Dispose();
             this.__func_test_ndim_3d_buffer.Dispose();
             this.__func_test_ndim_4d_buffer.Dispose();
+            this.__func_sum_of_2d_array.Dispose();
             module.Dispose();
         }
 
@@ -581,6 +586,19 @@ public static class TestClassExtensions
                 return __return;
             }
         }
+
+        public IGeneratorIterator<IPyBuffer, PyObject, long> SumOf2dArray(long n)
+        {
+            using (GIL.Acquire())
+            {
+                logger.LogDebug("Invoking Python function: {FunctionName}", "sum_of_2d_array");
+                PyObject __underlyingPythonFunc = this.__func_sum_of_2d_array;
+                using PyObject n_pyObject = PyObject.From(n)!;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call(n_pyObject);
+                var __return = __result_pyObject.BareImportAs<IGeneratorIterator<IPyBuffer, PyObject, long>, global::CSnakes.Runtime.Python.PyObjectImporters.Generator<IPyBuffer, PyObject, long, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>();
+                return __return;
+            }
+        }
     }
 }
 
@@ -828,4 +846,12 @@ public interface ITestClass : IReloadableModuleImport
     /// ]]></code>
     /// </summary>
     IPyBuffer TestNdim4dBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>sum_of_2d_array</c>:
+    /// <code><![CDATA[
+    /// def sum_of_2d_array(n: int) -> Generator[Buffer, None, int]: ...
+    /// ]]></code>
+    /// </summary>
+    IGeneratorIterator<IPyBuffer, PyObject, long> SumOf2dArray(long n);
 }

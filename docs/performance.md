@@ -151,14 +151,17 @@ When calling the Python function, CSnakes has to create a Python list object and
 
 There are some alternatives:
 
-#### 1: Using bytearrays
+#### Using bytes
 
-If you are passing a large amount of data to Python, you can use a `bytearray` instead of a list. This will avoid the overhead of creating a Python list and converting each element to a Python object.
+If you are passing a large amount of data to Python, you can use a `bytes` instead of a list. This will avoid the overhead of creating a Python list and converting each element to a Python object.
 
 ```python
-def example_function(data: bytearray) -> None:
+from array import array
+
+def example_function(data: bytes) -> None:
     # Do something with the data
-    pass
+    arr = array('B', data) # unsigned char
+    # Do something with the array
 ```
 From C#, you can call this function like this:
 
@@ -171,9 +174,9 @@ for (int i = 0; i < data.Length; i++)  // Fill the byte array with data (example
 env.ExampleFunction(data);
 ```
 
-Bytearrays are only marshalled once and are passed by reference. 
+Bytes are only marshalled once. From Python, you can use the [array](https://docs.python.org/3/library/array.html) module to convert the bytes into a list of an underlying C type. 
 
-#### 2: Using numpy arrays
+#### Using numpy arrays
 
 If you're sending large byte data, or numerical data from Python to .NET, you should use the [Buffer protocol](buffers.md) to pass the data. 
 

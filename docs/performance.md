@@ -24,7 +24,7 @@ import numpy as np
 def make_square_2d_array(n: int) -> np.ndarray:
     return np.zeros((n, n))
 
-def set_random(i: int, j: int) -> None:
+def set_random(arr, i: int, j: int) -> None:
     arr[i, j] = np.random.random()
 
 ```
@@ -38,7 +38,7 @@ for (int i = 0; i < 1000; i++)
 {
     for (int j = 0; j < 1000; j++)
     {
-        env.SetRandom(i, j);
+        env.SetRandom(names, i, j);
     }
 }
 ```

@@ -5,6 +5,7 @@ nav:
   - Reference: reference.md
   - Environment and Package Management: environments.md
   - Asynchronous Functions: async_support.md
+  - Performance Considerations: performance.md
   - Buffer Protocol and NumPy Arrays: buffers.md
   - Advanced Usage: advanced.md
   - Limitations: limitations.md

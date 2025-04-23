@@ -1,8 +1,7 @@
 # Performance
 
-This page documents some performance considerations and differences with writing code only in Python or .NET.
-
 **Optimal performance** is one of the key design principles of CSnakes. That said, there are some important differences between Python and .NET which impact performance when embedding.
+This page documents some performance considerations when using CSnakes. 
 
 ## Important Concepts
 

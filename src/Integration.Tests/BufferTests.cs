@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CSnakes.Runtime.Python;
 using Xunit;
 
@@ -384,6 +385,34 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
         // ndarray transposed buffer is not contiguous, this should raise a clean error
         var testModule = Env.TestBuffer();
         Assert.Throws<PythonInvocationException>(testModule.TestTransposedBuffer);
+    }
+
+    [Fact]
+    public void TestBidirectionalBuffer()
+    {
+        var testModule = Env.TestBuffer();
+        List<Int32> list = new() { 1, 2, 3, 4, 5 };
+        var bufferGenerator = testModule.SumOf2dArray(5);
+        bufferGenerator.MoveNext();
+        var bufferObject = bufferGenerator.Current;
+
+        Assert.Equal(100, bufferObject.Length);
+        Assert.Equal(2, bufferObject.Dimensions);
+        var bufferAsSpan = bufferObject.AsInt32Span2D();
+
+        // Copy the list to the buffer
+        for (int i = 0; i < list.Count; i++)
+        {
+            for (int j = 0; j < list.Count; j++)
+            {
+                bufferAsSpan[i, j] = list[i];
+            }
+        }
+        // Get the sum
+        bufferGenerator.MoveNext();
+        // Get result
+        var result = bufferGenerator.Return;
+        Assert.Equal(75, result);
     }
 
 #if NET9_0_OR_GREATER

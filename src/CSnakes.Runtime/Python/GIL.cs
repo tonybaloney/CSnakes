@@ -108,6 +108,6 @@ public static class GIL
     {
         if (IsAcquired)
             return;
-        throw new InvalidOperationException("This operation is invalid when the GIL is not acquired..");
+        throw new InvalidOperationException("This operation is invalid when the GIL is not acquired.");
     }
 }

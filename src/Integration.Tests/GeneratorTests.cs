@@ -26,4 +26,12 @@ public class GeneratorTests(PythonEnvironmentFixture fixture) : IntegrationTestB
         var generator = mod.TestNormalGenerator();
         Assert.Equal<string[]>(["one", "two"], generator.ToArray());
     }
+
+    [Fact]
+    public void TestIdempotentDisposal()
+    {
+        var mod = Env.TestGenerators();
+        using var generator = mod.TestNormalGenerator();
+        generator.Dispose(); // should be harmless
+    }
 }

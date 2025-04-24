@@ -42,7 +42,7 @@ internal unsafe partial class CPythonAPI
             IsDisposed = true;
         }
 
-        public PyObject RunTaskUntilComplete(PyObject coroutine, CancellationToken? cancellationToken = null)
+        public PyObject RunTaskUntilComplete(PyObject coroutine, CancellationToken cancellationToken)
         {
             if (loop is null)
             {
@@ -52,13 +52,16 @@ internal unsafe partial class CPythonAPI
             using PyObject task = taskFunc.Call(coroutine);
             using PyObject runUntilComplete = loop.GetAttr("run_until_complete");
 
-            // On cancellation, call task cancellation in Python
-            cancellationToken?.Register(() =>
+            if (cancellationToken.CanBeCanceled)
+            {
+                // On cancellation, call task cancellation in Python
+                cancellationToken.Register(() =>
                 {
                     using PyObject cancel = task.GetAttr("cancel");
                     // TODO : send optional message
                     cancel.Call();
                 });
+            }
 
             return runUntilComplete.Call(task);
         }

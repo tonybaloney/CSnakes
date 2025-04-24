@@ -40,7 +40,7 @@ internal static class ResultConversionCodeGenerator
             case { Name: "float" }: return Double;
             case { Name: "bool" }: return Boolean;
             case { Name: "bytes" }: return ByteArray;
-            case { Name: "Buffer" or "typing.Buffer" or "collections.abc.Buffer" }: return Buffer;
+            case { Name: "Buffer" or "collections.abc.Buffer" }: return Buffer;
 
             case { Name: "list" or "typing.List" or "List", Arguments: [var t] }:
             {

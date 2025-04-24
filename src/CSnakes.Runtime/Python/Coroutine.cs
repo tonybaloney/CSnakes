@@ -18,7 +18,8 @@ public class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(
     public TYield Current => current;
     public TReturn Return => @return;
 
-    public Task<TYield?> AsTask(CancellationToken cancellationToken = default)
+
+    public Task<TYield> AsTask(CancellationToken cancellationToken = default)
     {
         return Task.Run(
             () =>

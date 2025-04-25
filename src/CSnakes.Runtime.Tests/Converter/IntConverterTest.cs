@@ -2,17 +2,20 @@ using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Converter;
 
-public class IntConverterTest : ConverterTestBase
+public class IntConverterTest :
+    ConverterTestBase<int, IntConverterTest>,
+    IConverterTestCasesContainer<int>
 {
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(-1)]
-    [InlineData(42)]
-    [InlineData(-42)]
-    [InlineData(int.MaxValue)]
-    [InlineData(int.MinValue)]
-    public void TestIntBidirectional(int input) => RunTest(input);
+    public static TheoryData<int> TestCases => new()
+    {
+        0,
+        1,
+        -1,
+        42,
+        -42,
+        int.MaxValue,
+        int.MinValue,
+    };
 
     [Theory]
     [InlineData(-1)]

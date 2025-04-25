@@ -49,4 +49,4 @@ See [Free-Threading Mode](advanced.md#free-threading-mode) for more information.
 
 ## Cancellation Tokens
 
-Coroutine objects have an `AsTask<TYield>(CancellationToken?)` API, but the source generator does not yet propagate the cancellation token argument to the generated interfaces, if you want to use cancellation tokens, please raise an issue with your use case.
+Coroutine objects have an `AsTask<TYield>(CancellationToken)` API, but the source generator does not yet propagate the cancellation token argument to the generated interfaces, if you want to use cancellation tokens, please raise an issue with your use case.

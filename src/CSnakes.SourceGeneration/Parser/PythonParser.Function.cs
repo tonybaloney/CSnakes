@@ -108,7 +108,11 @@ public static partial class PythonParser
             }
         }
 
-        pythonSignatures = [.. functionDefinitions];
+        pythonSignatures = [..
+            from fd in functionDefinitions
+            where fd.Name is not ['_', ..]
+            select fd
+        ];
         errors = [.. currentErrors];
         return errors.Length == 0;
     }

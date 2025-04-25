@@ -28,7 +28,7 @@ public static class TypeReflection
             ({ Name: "float" }, _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DoubleKeyword)),
             ({ Name: "bool" }, _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword)),
             ({ Name: "bytes" }, _) => SyntaxFactory.ParseTypeName("byte[]"),
-            ({ Name: "Buffer" or "typing.Buffer" or "collections.abc.Buffer" }, ConversionDirection.FromPython) => SyntaxFactory.ParseTypeName("IPyBuffer"),
+            ({ Name: "Buffer" or "collections.abc.Buffer" }, ConversionDirection.FromPython) => SyntaxFactory.ParseTypeName("IPyBuffer"),
             _ => SyntaxFactory.ParseTypeName("PyObject"),
         };
 
@@ -70,7 +70,7 @@ public static class TypeReflection
 
     private static TypeSyntax CreateListType(PythonTypeSpec genericOf, ConversionDirection direction) => CreateGenericType("IReadOnlyList", [AsPredefinedType(genericOf, direction)]);
 
-    internal static TypeSyntax CreateGenericType(string typeName, IEnumerable<TypeSyntax> genericArguments) =>
+    internal static GenericNameSyntax CreateGenericType(string typeName, IEnumerable<TypeSyntax> genericArguments) =>
         SyntaxFactory.GenericName(
             SyntaxFactory.Identifier(typeName))
             .WithTypeArgumentList(

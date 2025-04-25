@@ -1,11 +1,9 @@
 using BenchmarkDotNet.Attributes;
 using CSnakes.Runtime;
-using Microsoft.VSDiagnostics;
 
 namespace Profile;
 
-[CPUUsageDiagnoser]
-[MarkdownExporter]
+
 public class MarshallingBenchmarks : BaseBenchmark
 {
     private IMarshallingBenchmarks? mod;
@@ -84,11 +82,5 @@ public class MarshallingBenchmarks : BaseBenchmark
     public void EmptyFunction()
     {
         mod!.EmptyFunction();
-    }
-
-    [Benchmark]
-    public async Task AsyncFunction()
-    {
-        await mod!.AsyncSleepy();
     }
 }

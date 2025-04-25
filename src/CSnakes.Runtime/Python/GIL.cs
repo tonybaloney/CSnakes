@@ -102,5 +102,12 @@ public static class GIL
         handlesToDispose.Enqueue(handle);
     }
 
-    public static bool IsAcquired => currentState != null && currentState.RecursionCount > 0;
+    public static bool IsAcquired => currentState is { RecursionCount: > 0 };
+
+    internal static void Require()
+    {
+        if (IsAcquired)
+            return;
+        throw new InvalidOperationException("This operation is invalid when the GIL is not acquired.");
+    }
 }

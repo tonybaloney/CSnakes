@@ -231,19 +231,17 @@ for (int i = 0; i < data.Length; i++)  // Fill the byte array with data (example
 env.ExampleFunction(data);
 ```
 
-Bytes are only marshalled once. From Python, you can use the
-[array](https://docs.python.org/3/library/array.html) module to convert the
-bytes into a list of an underlying C type.
+Bytes are only marshalled once. From Python, you can use the [array][array-mod]
+module to convert the bytes into a list of an underlying C type.
 
 #### Using numpy arrays
 
 If you're sending large byte data, or numerical data from Python to .NET, you
-should use the [Buffer protocol](buffers.md) to pass the data.
+should use the [Buffer protocol][buffer] to pass the data.
 
 If you need to copy lots of numerical data from .NET to Python, we recommend
-creating a numpy array in Python and using the [Buffer
-type](buffers.md#buffer-protocol-and-numpy-arrays) to fill it from .NET. This is
-the fastest way to pass large amounts of data to Python.
+creating a numpy array in Python and using the [Buffer type][buffer] to fill it
+from .NET. This is the fastest way to pass large amounts of data to Python.
 
 You can combine generators with the Buffer type to `yield` the empty Numpy
 array, fill it from .NET, the continue with execution in Python:
@@ -293,5 +291,9 @@ long result = bufferGenerator.Return;
 ## Streaming data from Python into .NET
 
 If you need to send lots of data from Python to .NET, you can either use the
-[Buffer protocol](buffers.md) or use a [Generator](reference.md#generators) to
-stream the data from Python to .NET.
+[Buffer protocol][buffer] or use a [Generator] to stream the data from Python to
+.NET.
+
+[array-mod]: https://docs.python.org/3/library/array.html
+[buffer]: buffers.md
+[generator]: reference.md#generators

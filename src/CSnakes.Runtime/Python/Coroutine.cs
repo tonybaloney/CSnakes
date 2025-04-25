@@ -21,45 +21,31 @@ public class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(
 
     public async Task<TYield> AsTask(CancellationToken cancellationToken = default)
     {
-        var taskCompletionSource = new TaskCompletionSource<TYield>();
+        Task<PyObject> task;
 
-        var runTask = Task.Run(
-            () =>
+        using (GIL.Acquire())
+            task = CPythonAPI.GetDefaultEventLoop().RunCoroutineAsync(coroutine, cancellationToken);
+
+        var result = await task.ConfigureAwait(false);
+
+        try
+        {
+            using (GIL.Acquire())
+                return this.current = TYieldImporter.BareImport(result);
+        }
+        catch (PythonInvocationException ex)
+        {
+            if (ex.InnerException is PythonStopIterationException stopIteration)
             {
-                try
-                {
-                    using (GIL.Acquire())
-                    {
-                        using PyObject result = CPythonAPI.GetEventLoop().RunTaskUntilComplete(coroutine, cancellationToken);
-                        current = TYieldImporter.BareImport(result);
-                    }
-                    taskCompletionSource.SetResult(current);
-                }
-                catch (Exception ex)
-                {
-                    switch (ex)
-                    {
-                        case { InnerException: PythonStopIterationException stopIteration }:
-                        {
-                            using var @return = stopIteration.TakeValue();
-                            this.@return = @return.ImportAs<TReturn, TReturnImporter>();
+                using var @return = stopIteration.TakeValue();
+                this.@return = @return.ImportAs<TReturn, TReturnImporter>();
 
-                            // Coroutine has finished
-                            // TODO: define behavior for this case
-                            return;
-                        }
-                        case PythonInvocationException { PythonExceptionType: "CancelledError" }:
-                            taskCompletionSource.SetCanceled(cancellationToken);
-                            return;
-                    }
-
-                    taskCompletionSource.SetException(ex);
-                }
+                // Coroutine has finished
+                // TODO: define behavior for this case
+                return default;
             }
-        );
 
-        await runTask.ConfigureAwait(false);
-
-        return await taskCompletionSource.Task.ConfigureAwait(false);
+            throw;
+        }
     }
 }

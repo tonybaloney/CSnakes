@@ -19,9 +19,11 @@ public class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(
     public TReturn Return => @return;
 
 
-    public Task<TYield> AsTask(CancellationToken cancellationToken = default)
+    public async Task<TYield> AsTask(CancellationToken cancellationToken = default)
     {
-        return Task.Run(
+        var taskCompletionSource = new TaskCompletionSource<TYield>();
+
+        var runTask = Task.Run(
             () =>
             {
                 try
@@ -31,23 +33,33 @@ public class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(
                         using PyObject result = CPythonAPI.GetEventLoop().RunTaskUntilComplete(coroutine, cancellationToken);
                         current = TYieldImporter.BareImport(result);
                     }
-                    return current;
+                    taskCompletionSource.SetResult(current);
                 }
-                catch (PythonInvocationException ex)
+                catch (Exception ex)
                 {
-                    if (ex.InnerException is PythonStopIterationException stopIteration)
+                    switch (ex)
                     {
-                        using var @return = stopIteration.TakeValue();
-                        this.@return = @return.ImportAs<TReturn, TReturnImporter>();
+                        case { InnerException: PythonStopIterationException stopIteration }:
+                        {
+                            using var @return = stopIteration.TakeValue();
+                            this.@return = @return.ImportAs<TReturn, TReturnImporter>();
 
-                        // Coroutine has finished
-                        // TODO: define behavior for this case
-                        return default;
+                            // Coroutine has finished
+                            // TODO: define behavior for this case
+                            return;
+                        }
+                        case PythonInvocationException { PythonExceptionType: "CancelledError" }:
+                            taskCompletionSource.SetCanceled(cancellationToken);
+                            return;
                     }
 
-                    throw;
+                    taskCompletionSource.SetException(ex);
                 }
             }
         );
+
+        await runTask.ConfigureAwait(false);
+
+        return await taskCompletionSource.Task.ConfigureAwait(false);
     }
 }

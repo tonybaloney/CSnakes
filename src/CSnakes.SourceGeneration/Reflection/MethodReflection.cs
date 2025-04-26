@@ -155,7 +155,8 @@ public static class MethodReflection
                               MemberAccessExpression(
                                   SyntaxKind.SimpleMemberAccessExpression,
                                   IdentifierName("__return"),
-                                  IdentifierName("AsTask")))
+                                  IdentifierName("AsTask")),
+                              ArgumentList(SingletonSeparatedList(Argument(IdentifierName("cancellationToken")))))
                         : IdentifierName("__return"));
                 break;
             }
@@ -250,6 +251,15 @@ public static class MethodReflection
                     .Where((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.DoubleStar)
                     .Select((a) => a.cSharpParameter)
             );
+
+        if (coroutineSyntax is not null)
+        {
+            methodParameters =
+                methodParameters.Append(
+                    Parameter(Identifier("cancellationToken"))
+                        .WithType(IdentifierName("CancellationToken"))
+                        .WithDefault(EqualsValueClause(LiteralExpression(SyntaxKind.DefaultLiteralExpression))));
+        }
 
         var syntax = MethodDeclaration(
             returnSyntax,

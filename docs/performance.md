@@ -76,9 +76,8 @@ def set_random(arr: np.ndarray) -> None:
 ### 2. Marshalling return values unnecessarily
 
 Unlike .NET which has value types and reference types, Python has only names
-which are references to objects. If you're a C# developer, just think of Python
-as having only reference types. This means that when you pass a value to a
-Python function, it is passed by reference.
+which are references to objects (everything is a pointer to `PyObject`). If you're a C# developer, just think of Python
+as having only reference types. 
 
 To marshall value types from .NET to Python, CSnakes has to convert the value
 type into a reference type. This is done by creating a new object in Python and
@@ -128,7 +127,7 @@ env.B(pyObj);
 #### Tuples are value types
 
 In .NET, Tuple types are value types; tuple elements are public fields. Unlike
-Python, where tuples are immutable and returned by reference. This means that if
+Python, where tuples are immutable and returned as a reference (pointer to `PyObject`). This means that if
 a Python object returns a tuple, each of the elements in the tuple is eagerly
 marshalled into the corresponding .NET type.
 
@@ -139,7 +138,7 @@ below).
 
 If a Python function returns a dictionary, CSnakes will return
 `IReadOnlyDictionary` with an implementation to lazily convert the values to
-.NET types. This is done to avoid the overhead of converting all the values in
+.NET types. The conversion is completed the first time the key value is accessed. Lazy Conversion is done to avoid the overhead of converting all the values in
 the dictionary to .NET types when the dictionary is created.
 
 ```csharp
@@ -232,7 +231,7 @@ for (int i = 0; i < data.Length; i++)  // Fill the byte array with data (example
 env.ExampleFunction(data);
 ```
 
-Bytes are only marshalled once. From Python, you can use the [array][array-mod]
+CSnakes only creates 1 Python object and copies the byte array into the bytes object. This is more efficient than creating an array or tuple of values, because each of the elements in the array needs to be created as a Python object and allocated. You can use the [array][array-mod]
 module to convert the bytes into a list of an underlying C type.
 
 #### Using numpy arrays

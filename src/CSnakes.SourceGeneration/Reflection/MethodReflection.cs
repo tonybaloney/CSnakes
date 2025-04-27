@@ -21,7 +21,6 @@ public static class MethodReflection
         PythonTypeSpec returnPythonType = function.ReturnType;
 
         TypeSyntax returnSyntax;
-        TypeSyntax? coroutineSyntax = null;
         ParameterSyntax? cancellationTokenParameterSyntax = null;
         const string cancellationTokenName = "cancellationToken";
 

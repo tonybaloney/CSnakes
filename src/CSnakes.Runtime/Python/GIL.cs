@@ -83,9 +83,7 @@ public static class GIL
         public int RecursionCount => recursionCount;
     }
 
-#pragma warning disable IDE0250 // Make struct 'readonly' (logically read-write)
-    public ref struct AcquiredLock : IDisposable
-#pragma warning restore IDE0250 // Make struct 'readonly'
+    public readonly ref struct AcquiredLock : IDisposable
     {
         private readonly PyGilState state;
 

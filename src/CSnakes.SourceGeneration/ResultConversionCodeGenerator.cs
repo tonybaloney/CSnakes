@@ -53,11 +53,11 @@ internal static class ResultConversionCodeGenerator
                 return ListConversionGenerator(t, "Sequence");
             }
             case { Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: [var t] }:
-                {
-                    var generator = Create(t);
-                    return new ConversionGenerator(TypeReflection.CreateGenericType("ValueTuple", [generator.TypeSyntax]),
-                                                   TypeReflection.CreateGenericType("Tuple", [generator.TypeSyntax, generator.ImporterTypeSyntax]));
-                }
+            {
+                var generator = Create(t);
+                return new ConversionGenerator(TypeReflection.CreateGenericType("ValueTuple", [generator.TypeSyntax]),
+                                               TypeReflection.CreateGenericType("Tuple", [generator.TypeSyntax, generator.ImporterTypeSyntax]));
+            }
             case { Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: { Length: > 1 and <= 10 } ts }:
             {
                 var generators = ImmutableArray.CreateRange(from t in ts select Create(t));
@@ -74,7 +74,21 @@ internal static class ResultConversionCodeGenerator
             }
             case { Name: "typing.Generator" or "Generator", Arguments: [var yt, var st, var rt] }:
             {
-                return GeneratorConversionGenerator(yt, st, rt);
+                var generator = (Yield: Create(yt), Send: Create(st), Return: Create(rt));
+                return new ConversionGenerator(TypeReflection.CreateGenericType("IGeneratorIterator",
+                                               [
+                                                   generator.Yield.TypeSyntax,
+                                                   generator.Send.TypeSyntax,
+                                                   generator.Return.TypeSyntax
+                                               ]),
+                                               TypeReflection.CreateGenericType("Generator",
+                                               [
+                                                   generator.Yield.TypeSyntax,
+                                                   generator.Send.TypeSyntax,
+                                                   generator.Return.TypeSyntax,
+                                                   generator.Yield.ImporterTypeSyntax,
+                                                   generator.Return.ImporterTypeSyntax
+                                               ]));
             }
             case { Name: "typing.Coroutine" or "Coroutine", Arguments: [var yt, var st, var rt] }:
             {
@@ -122,20 +136,6 @@ internal static class ResultConversionCodeGenerator
         var generator = (Key: Create(keyTypeSpec), Value: Create(valueTypeSpec));
         return new ConversionGenerator(TypeReflection.CreateGenericType(nameof(IReadOnlyDictionary<object, object>), [generator.Key.TypeSyntax, generator.Value.TypeSyntax]),
                                        TypeReflection.CreateGenericType(importerTypeName, [generator.Key.TypeSyntax, generator.Value.TypeSyntax, generator.Key.ImporterTypeSyntax, generator.Value.ImporterTypeSyntax]));
-    }
-
-    public static IResultConversionCodeGenerator GeneratorConversionGenerator(PythonTypeSpec yieldTypeSpec,
-                                                                              PythonTypeSpec sendTypeSpec,
-                                                                              PythonTypeSpec returnTypeSpec,
-                                                                              string typeName = "IGeneratorIterator",
-                                                                              string importerTypeName = "Generator")
-    {
-        var generator = (Yield: Create(yieldTypeSpec),
-                         Send: Create(sendTypeSpec),
-                         Return: Create(returnTypeSpec));
-
-        return new ConversionGenerator(TypeReflection.CreateGenericType(typeName, [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax]),
-                                       TypeReflection.CreateGenericType(importerTypeName, [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax, generator.Yield.ImporterTypeSyntax, generator.Return.ImporterTypeSyntax]));
     }
 
     sealed class CoroutineConversionGenerator : IResultConversionCodeGenerator

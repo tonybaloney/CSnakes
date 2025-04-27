@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.CPython;
+using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime;
@@ -7,7 +7,7 @@ public class PythonRuntimeException : Exception
     private readonly PyObject? pythonTracebackObject;
     private string[]? formattedStackTrace = null;
 
-    public PythonRuntimeException(PyObject? exception, PyObject? traceback): base(exception?.ToString(), GetPythonInnerException(exception))
+    public PythonRuntimeException(PyObject? exception, PyObject? traceback) : base(exception?.ToString(), GetPythonInnerException(exception))
     {
         pythonTracebackObject = traceback;
         if (traceback is null)
@@ -15,8 +15,11 @@ public class PythonRuntimeException : Exception
             return;
         }
 
-        Data["locals"] = traceback.GetAttr("tb_frame").GetAttr("f_locals").As<IReadOnlyDictionary<string, PyObject>>();
-        Data["globals"] = traceback.GetAttr("tb_frame").GetAttr("f_globals").As<IReadOnlyDictionary<string, PyObject>>();
+        using (GIL.Acquire())
+        {
+            Data["locals"] = PyObjectImporters.Mapping<string, PyObject, PyObjectImporters.String, PyObjectImporters.Clone>.BareImport(traceback.GetAttr("tb_frame").GetAttr("f_locals"));
+            Data["globals"] = PyObjectImporters.Mapping<string, PyObject, PyObjectImporters.String, PyObjectImporters.Clone>.BareImport(traceback.GetAttr("tb_frame").GetAttr("f_globals"));
+        }
     }
 
     private static PythonRuntimeException? GetPythonInnerException(PyObject? exception) =>
@@ -54,7 +57,7 @@ public class PythonRuntimeException : Exception
             using var formatTbFunction = tracebackModule.GetAttr("format_tb");
             using var formattedStackTrace = formatTbFunction.Call(pythonStackTrace);
 
-            return [.. formattedStackTrace.As<IReadOnlyList<string>>()];
+            return [.. PyObjectImporters.List<string, PyObjectImporters.String>.BareImport(formattedStackTrace)];
         }
     }
 

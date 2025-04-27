@@ -1,4 +1,4 @@
-﻿namespace CSnakes;
+namespace CSnakes;
 internal static class Keywords
 {
     static readonly string[] cSharpKeywords = [

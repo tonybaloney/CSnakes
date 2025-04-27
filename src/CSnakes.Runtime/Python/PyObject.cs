@@ -2,6 +2,7 @@ using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python.Interns;
 using System.Collections;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -124,7 +125,7 @@ public partial class PyObject : SafeHandle, ICloneable
     /// <summary>
     /// Get the attribute of the object with name. This is equivalent to obj.name in Python.
     /// </summary>
-    /// <param name="name"></param>
+    /// <param name="name">Attribute name</param>
     /// <returns>Attribute object (new ref)</returns>
     public virtual PyObject GetAttr(string name)
     {
@@ -159,11 +160,21 @@ public partial class PyObject : SafeHandle, ICloneable
     /// </summary>
     /// <typeparam name="T">The type for each item in the iterator</typeparam>
     /// <returns></returns>
-    public IEnumerable<T> AsEnumerable<T>()
+    public IEnumerable<T> AsEnumerable<T>() =>
+        AsEnumerable<T, PyObjectImporters.Runtime<T>>();
+
+    /// <summary>
+    /// Calls iter() on the object and returns an IEnumerable that yields values of type T.
+    /// </summary>
+    /// <typeparam name="T">The type for each item in the iterator</typeparam>
+    /// <typeparam name="TImporter">The type for importing each item type</typeparam>
+    /// <returns></returns>
+    public IEnumerable<T> AsEnumerable<T, TImporter>()
+        where TImporter : IPyObjectImporter<T>
     {
         using (GIL.Acquire())
         {
-            return new PyEnumerable<T>(this);
+            return new PyEnumerable<T, TImporter>(this);
         }
     }
 
@@ -321,7 +332,7 @@ public partial class PyObject : SafeHandle, ICloneable
     {
         RaiseOnPythonNotInitialized();
 
-        // Don't do any marshalling if there aren't any arguments. 
+        // Don't do any marshalling if there aren't any arguments.
         if (args is null || args.Length == 0)
         {
             using (GIL.Acquire())
@@ -415,7 +426,7 @@ public partial class PyObject : SafeHandle, ICloneable
         // No keyword parameters supplied
         if (kwnames is null && kwargs is null)
             return CallWithArgs(args);
-        // Keyword args are empty and kwargs is empty. 
+        // Keyword args are empty and kwargs is empty.
         if (kwnames is not null && kwnames.Length == 0 && (kwargs is null || kwargs.Count == 0))
             return CallWithArgs(args);
 
@@ -439,20 +450,6 @@ public partial class PyObject : SafeHandle, ICloneable
 
     public T As<T>() => (T)As(typeof(T));
 
-    /// <summary>
-    /// Unpack a tuple of 2 elements into a KeyValuePair
-    /// </summary>
-    /// <typeparam name="TKey">The type of the key</typeparam>
-    /// <typeparam name="TValue">The type of the value</typeparam>
-    /// <returns></returns>
-    public KeyValuePair<TKey, TValue> As<TKey, TValue>()
-    {
-        using (GIL.Acquire())
-        {
-            return PyObjectTypeConverter.ConvertToKeyValuePair<TKey, TValue>(this);
-        }
-    }
-
     internal object As(Type type)
     {
         using (GIL.Acquire())
@@ -461,7 +458,7 @@ public partial class PyObject : SafeHandle, ICloneable
             {
                 var t when t == typeof(PyObject) => Clone(),
                 var t when t == typeof(bool) => CPythonAPI.IsPyTrue(this),
-                var t when t == typeof(int) => CPythonAPI.PyLong_AsLong(this),
+                var t when t == typeof(int) => checked((int)CPythonAPI.PyLong_AsLongLong(this)),
                 var t when t == typeof(long) => CPythonAPI.PyLong_AsLongLong(this),
                 var t when t == typeof(double) => CPythonAPI.PyFloat_AsDouble(this),
                 var t when t == typeof(float) => (float)CPythonAPI.PyFloat_AsDouble(this),
@@ -470,38 +467,59 @@ public partial class PyObject : SafeHandle, ICloneable
                 var t when t == typeof(byte[]) => CPythonAPI.PyBytes_AsByteArray(this),
                 var t when t.IsAssignableTo(typeof(ITuple)) => PyObjectTypeConverter.ConvertToTuple(this, t),
                 var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => PyObjectTypeConverter.ConvertToGeneratorIterator(this, t),
+                var t when t.IsAssignableTo(typeof(ICoroutine)) => PyObjectTypeConverter.ConvertToCoroutine(this, t),
                 var t => PyObjectTypeConverter.PyObjectToManagedType(this, t),
             };
         }
     }
 
-    public static PyObject From<T>(T value)
+    public T ImportAs<T, TImporter>() where TImporter : IPyObjectImporter<T>
     {
         using (GIL.Acquire())
-        {
-            if (value is null)
-                return None;
+            return BareImportAs<T, TImporter>();
+    }
 
-            return value switch
+    /// <remarks>
+    /// It is the responsibility of the caller to ensure that the GIL is
+    /// acquired via <see cref="GIL.Acquire"/> when this method is invoked.
+    /// </remarks>
+    [Experimental("PRTEXP002")]
+    public T BareImportAs<T, TImporter>() where TImporter : IPyObjectImporter<T> =>
+        TImporter.BareImport(this);
+
+    public static PyObject From<T>(T value)
+    {
+        switch (value)
+        {
+            case null: return None;
+            case true: return True;
+            case false: return False;
+            case 0 or 0L or BigInteger { IsZero: true }: return Zero;
+            case 1 or 1L or BigInteger { IsOne: true }: return One;
+            case -1 or -1L:
+            case BigInteger n when n == -1: return NegativeOne;
+            default:
             {
-                ICloneable pyObject => pyObject.Clone(),
-                bool b => b ? True : False,
-                int i when i == 0 => Zero,
-                int i when i == 1 => One,
-                int i when i == -1 => NegativeOne,
-                int i => Create(CPythonAPI.PyLong_FromLong(i)),
-                long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
-                double d => Create(CPythonAPI.PyFloat_FromDouble(d)),
-                float f => Create(CPythonAPI.PyFloat_FromDouble((double)f)),
-                string s => Create(CPythonAPI.AsPyUnicodeObject(s)),
-                byte[] bytes => PyObject.Create(CPythonAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
-                IDictionary dictionary => PyObjectTypeConverter.ConvertFromDictionary(dictionary),
-                ITuple t => PyObjectTypeConverter.ConvertFromTuple(t),
-                ICollection l => PyObjectTypeConverter.ConvertFromList(l),
-                IEnumerable e => PyObjectTypeConverter.ConvertFromList(e),
-                BigInteger b => PyObjectTypeConverter.ConvertFromBigInteger(b),
-                _ => throw new InvalidCastException($"Cannot convert {value} to PyObject"),
-            };
+                using (GIL.Acquire())
+                {
+                    return value switch
+                    {
+                        ICloneable pyObject => pyObject.Clone(),
+                        int i => Create(CPythonAPI.PyLong_FromLong(new(i))),
+                        long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
+                        double d => Create(CPythonAPI.PyFloat_FromDouble(d)),
+                        float f => Create(CPythonAPI.PyFloat_FromDouble((double)f)),
+                        string s => Create(CPythonAPI.AsPyUnicodeObject(s)),
+                        byte[] bytes => PyObject.Create(CPythonAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
+                        IDictionary dictionary => PyObjectTypeConverter.ConvertFromDictionary(dictionary),
+                        ITuple t => PyObjectTypeConverter.ConvertFromTuple(t),
+                        ICollection l => PyObjectTypeConverter.ConvertFromList(l),
+                        IEnumerable e => PyObjectTypeConverter.ConvertFromList(e),
+                        BigInteger b => PyObjectTypeConverter.ConvertFromBigInteger(b),
+                        _ => throw new InvalidCastException($"Cannot convert {value} to PyObject"),
+                    };
+                }
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-﻿using CSnakes.Parser;
+using CSnakes.Parser;
 using CSnakes.Reflection;
 using Superpower;
 
@@ -70,7 +70,7 @@ public class TypeReflectionTests
     private static void ParsingTestInternal(string pythonType, string expectedType)
     {
         var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
-        var result = PythonParser.PythonTypeDefinitionTokenizer.TryParse(tokens);
+        var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
         Assert.True(result.HasValue, result.ToString());
         Assert.NotNull(result.Value);
         var reflectedType = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.FromPython);

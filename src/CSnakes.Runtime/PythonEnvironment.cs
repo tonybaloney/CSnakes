@@ -1,7 +1,15 @@
-﻿using CSnakes.Runtime.CPython;
+#if NET9_0_OR_GREATER
+// https://learn.microsoft.com/dotnet/csharp/language-reference/statements/lock#guidelines
+global using Lock = System.Threading.Lock;
+#else
+global using Lock = object;
+#endif
+
+using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.EnvironmentManagement;
 using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
+using CSnakes.Runtime.Python;
 using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;
@@ -14,7 +22,7 @@ internal class PythonEnvironment : IPythonEnvironment
     private bool disposedValue;
 
     private static IPythonEnvironment? pythonEnvironment;
-    private readonly static object locker = new();
+    private readonly static Lock locker = new();
 
     public static IPythonEnvironment GetPythonEnvironment(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options, ILogger<IPythonEnvironment> logger, IEnvironmentManagement? environmentManager = null)
     {
@@ -58,14 +66,15 @@ internal class PythonEnvironment : IPythonEnvironment
             throw new DirectoryNotFoundException("Python home directory does not exist.");
         }
 
-        if (environmentManager is not null) {
-            
+        if (environmentManager is not null)
+        {
+
             extraPaths = [.. options.ExtraPaths, environmentManager.GetExtraPackagePath(location!)];
 
             environmentManager.EnsureEnvironment(location);
         }
 
-        logger.LogInformation("Setting up Python environment from {PythonLocation} using home of {Home}", location.Folder, home);
+        logger.LogDebug("Setting up Python environment from {PythonLocation} using home of {Home}", location.Folder, home);
 
         foreach (var installer in packageInstallers)
         {
@@ -97,7 +106,7 @@ internal class PythonEnvironment : IPythonEnvironment
         Logger.LogDebug("Python DLL: {PythonDLL}", pythonDll);
         Logger.LogDebug("Python path: {PythonPath}", pythonPath);
 
-        var api = new CPythonAPI(pythonDll, pythonLocationMetadata.Version)
+        var api = new CPythonAPI(pythonDll, pythonLocationMetadata.Version, pythonLocationMetadata.PythonBinaryPath)
         {
             PythonPath = pythonPath
         };

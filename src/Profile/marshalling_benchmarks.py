@@ -1,3 +1,6 @@
+import asyncio
+from typing import Any, Coroutine
+
 def generate_data(a: int, b: str, c: tuple[float, str], d: bool) -> list[dict[str, tuple[int, float]]]:
     return [
         {
@@ -14,7 +17,6 @@ def generate_data(a: int, b: str, c: tuple[float, str], d: bool) -> list[dict[st
          }
         ]
 
-from typing import Any
 
 def generate_data_any(a: int, b: str, c: tuple[float, str], d: bool) -> Any:
     return [
@@ -58,6 +60,7 @@ def consume_tuple(data: tuple[int, str, float, bool]) -> None:
 
 def consume_value_types(a: int, b: str, c: float, d: bool) -> None:
     assert(isinstance(a, int) and isinstance(b, str) and isinstance(c, float) and isinstance(d, bool))
+
 
 if __name__ == "__main__":
     # Start timer

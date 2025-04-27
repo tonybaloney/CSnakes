@@ -1,11 +1,18 @@
-﻿using CSnakes.Runtime.CPython;
+using CSnakes.Runtime.CPython;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime.Python;
 
-internal class PyDictionary<TKey, TValue>(PyObject dictionary) : IReadOnlyDictionary<TKey, TValue>, IDisposable, ICloneable
+internal class PyDictionary<TKey, TValue>(PyObject dictionary) :
+    PyDictionary<TKey, TValue, PyObjectImporters.Runtime<TKey>, PyObjectImporters.Runtime<TValue>>(dictionary)
+    where TKey : notnull;
+
+internal class PyDictionary<TKey, TValue, TKeyImporter, TValueImporter>(PyObject dictionary) :
+    IReadOnlyDictionary<TKey, TValue>, IDisposable, ICloneable
     where TKey : notnull
+    where TKeyImporter : IPyObjectImporter<TKey>
+    where TValueImporter : IPyObjectImporter<TValue>
 {
     private readonly Dictionary<TKey, TValue> _dictionary = [];
     private readonly PyObject _dictionaryObject = dictionary;
@@ -22,7 +29,7 @@ internal class PyDictionary<TKey, TValue>(PyObject dictionary) : IReadOnlyDictio
             {
                 using PyObject keyPyObject = PyObject.From(key);
                 using PyObject pyObjValue = PyObject.Create(CPythonAPI.PyMapping_GetItem(_dictionaryObject, keyPyObject));
-                TValue managedValue = pyObjValue.As<TValue>();
+                var managedValue = TValueImporter.BareImport(pyObjValue);
 
                 _dictionary[key] = managedValue;
                 return managedValue;
@@ -36,7 +43,7 @@ internal class PyDictionary<TKey, TValue>(PyObject dictionary) : IReadOnlyDictio
         {
             using (GIL.Acquire())
             {
-                return new PyEnumerable<TKey>(PyObject.Create(CPythonAPI.PyMapping_Keys(_dictionaryObject)));
+                return new PyEnumerable<TKey, TKeyImporter>(PyObject.Create(CPythonAPI.PyMapping_Keys(_dictionaryObject)));
             }
         }
     }
@@ -47,7 +54,7 @@ internal class PyDictionary<TKey, TValue>(PyObject dictionary) : IReadOnlyDictio
         {
             using (GIL.Acquire())
             {
-                return new PyEnumerable<TValue>(PyObject.Create(CPythonAPI.PyMapping_Values(_dictionaryObject)));
+                return new PyEnumerable<TValue, TValueImporter>(PyObject.Create(CPythonAPI.PyMapping_Values(_dictionaryObject)));
             }
         }
     }
@@ -84,7 +91,18 @@ internal class PyDictionary<TKey, TValue>(PyObject dictionary) : IReadOnlyDictio
         using (GIL.Acquire())
         {
             using var items = PyObject.Create(CPythonAPI.PyMapping_Items(_dictionaryObject));
-            return new PyEnumerable<KeyValuePair<TKey, TValue>, PyObjectImporter<TKey, TValue>>(items).GetEnumerator();
+            return new PyEnumerable<KeyValuePair<TKey, TValue>, KeyValuePairImporter>(items).GetEnumerator();
+        }
+    }
+
+    sealed class KeyValuePairImporter : IPyObjectImporter<KeyValuePair<TKey, TValue>>
+    {
+        private KeyValuePairImporter() { }
+
+        static KeyValuePair<TKey, TValue> IPyObjectImporter<KeyValuePair<TKey, TValue>>.BareImport(PyObject obj)
+        {
+            var (key, value) = obj.BareImportAs<(TKey, TValue), PyObjectImporters.Tuple<TKey, TValue, TKeyImporter, TValueImporter>>();
+            return new KeyValuePair<TKey, TValue>(key, value);
         }
     }
 

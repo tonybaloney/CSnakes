@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime;
+using CSnakes.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -60,7 +60,7 @@ static void RunKmeansDemo(IPythonEnvironment env)
         (10, 2), (10, 4), (10, 0)
     ];
 
-    var (centroids, inertia)= kmeansExample.CalculateKmeansInertia(data, 4);
+    var (centroids, inertia) = kmeansExample.CalculateKmeansInertia(data, 4);
     var resultMatrix = centroids.AsReadOnlySpan2D<double>();
     Console.WriteLine($"KMeans inertia is {inertia}, centroids are:");
     for (int i = 0; i < resultMatrix.Height; i++)

@@ -1,12 +1,19 @@
-﻿namespace CSnakes.Runtime.Tests.Converter;
+using CSnakes.Runtime.Python;
 
-public class DictionaryConverterTest : ConverterTestBase
+namespace CSnakes.Runtime.Tests.Converter;
+
+public class DictionaryConverterTest :
+    ConverterTestBase<IReadOnlyDictionary<string, string>,
+                      PyObjectImporters.Dictionary<string, string, PyObjectImporters.String, PyObjectImporters.String>,
+                      DictionaryConverterTest>,
+    IConverterTestCasesContainer<IReadOnlyDictionary<string, string>>
 {
-    [Fact]
-    public void DictionaryConverter() =>
-        RunTest<IReadOnlyDictionary<string, string>>(new Dictionary<string, string>()
+    public static TheoryData<IReadOnlyDictionary<string, string>> TestCases => new()
     {
-        ["Hello"] = "World?",
-        ["Foo"] = "Bar"
-    });
+        new Dictionary<string, string>
+        {
+            ["Hello"] = "World?",
+            ["Foo"] = "Bar"
+        }
+    };
 }

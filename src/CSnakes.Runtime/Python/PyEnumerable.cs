@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.CPython;
+using CSnakes.Runtime.CPython;
 using System.Collections;
 
 namespace CSnakes.Runtime.Python;
@@ -41,7 +41,7 @@ internal class PyEnumerable<TValue, TImporter> : IEnumerable<TValue>, IEnumerato
             }
 
             using PyObject pyObject = PyObject.Create(result);
-            current = TImporter.Import(pyObject);
+            current = TImporter.BareImport(pyObject);
             return true;
         }
     }
@@ -49,9 +49,4 @@ internal class PyEnumerable<TValue, TImporter> : IEnumerable<TValue>, IEnumerato
     public void Reset() => throw new NotSupportedException("Python iterators cannot be reset");
 
     IEnumerator IEnumerable.GetEnumerator() => this;
-}
-
-internal class PyEnumerable<TValue> : PyEnumerable<TValue, PyObjectImporter<TValue>>
-{
-    internal PyEnumerable(PyObject pyObject) : base(pyObject) { }
 }

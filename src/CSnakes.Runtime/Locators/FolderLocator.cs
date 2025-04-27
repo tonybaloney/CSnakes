@@ -1,4 +1,4 @@
-﻿namespace CSnakes.Runtime.Locators;
+namespace CSnakes.Runtime.Locators;
 internal class FolderLocator(string folder, Version version) : PythonLocator
 {
     protected override Version Version { get; } = version;

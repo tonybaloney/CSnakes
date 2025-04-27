@@ -1,11 +1,11 @@
 <Project>
   <PropertyGroup>
-    <Authors>Anthony Shaw, Aaron Powell</Authors>
+    <Authors>Anthony Shaw, Aaron Powell, Atif Aziz</Authors>
     <PackageProjectUrl>https://github.com/tonybaloney/CSnakes</PackageProjectUrl>
     <PackageIcon>logo.jpeg</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/tonybaloney/CSnakes</RepositoryUrl>
-    <VersionPrefix>1.0.21</VersionPrefix>
+    <VersionPrefix>1.0.31</VersionPrefix>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

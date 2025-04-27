@@ -1,18 +1,18 @@
+using CSnakes.Parser;
+using CSnakes.Reflection;
 using CSnakes.Runtime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
-using CSnakes.Parser;
-using CSnakes.Reflection;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using Basic.Reference.Assemblies;
 
 namespace CSnakes.Tests;
 
-public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<TestEnvironment>
+public class GeneratedSignatureTests
 {
     [Theory]
     [InlineData("def hello_world():\n    ...\n", "PyObject HelloWorld()")]
@@ -47,9 +47,6 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
     [InlineData("def hello() -> Buffer:\n ...\n", "IPyBuffer Hello()")]
     public void TestGeneratedSignature(string code, string expected)
     {
-        var tempName = string.Format("{0}_{1:N}", "test", Guid.NewGuid().ToString("N"));
-        File.WriteAllText(Path.Combine(testEnv.TempDir, $"{tempName}.py"), code);
-
         SourceText sourceText = SourceText.From(code);
 
         // create a Python scope
@@ -73,8 +70,8 @@ public class GeneratedSignatureTests(TestEnvironment testEnv) : IClassFixture<Te
             .AddReferences(MetadataReference.CreateFromFile(typeof(IPythonEnvironmentBuilder).Assembly.Location))
             .AddReferences(MetadataReference.CreateFromFile(typeof(ILogger<>).Assembly.Location))
             .AddSyntaxTrees(tree);
-        var result = compilation.Emit(testEnv.TempDir + "/HelloWorld.dll");
-        // TODO : Log compiler warnings. 
+        var result = compilation.Emit(Stream.Null);
+        // TODO : Log compiler warnings.
         result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList().ForEach(d => Assert.Fail(d.ToString()));
         Assert.True(result.Success, compiledCode + "\n" + string.Join("\n", result.Diagnostics));
     }

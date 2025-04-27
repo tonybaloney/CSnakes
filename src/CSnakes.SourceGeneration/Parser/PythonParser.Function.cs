@@ -1,21 +1,22 @@
-﻿using Microsoft.CodeAnalysis.Text;
 using CSnakes.Parser.Types;
+using Microsoft.CodeAnalysis.Text;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
-
+using System.Collections.Immutable;
 using ParsedTokens = Superpower.Model.TokenList<CSnakes.Parser.PythonToken>;
 
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
-    public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionTokenizer { get; } =
-        (from def in Token.EqualTo(PythonToken.Def)
+    public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionParser { get; } =
+        (from @async in Token.EqualTo(PythonToken.Async).OptionalOrDefault()
+         from def in Token.EqualTo(PythonToken.Def)
          from name in Token.EqualTo(PythonToken.Identifier)
-         from parameters in PythonParameterListTokenizer.AssumeNotNull()
-         from arrow in Token.EqualTo(PythonToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionTokenizer.AssumeNotNull().OptionalOrDefault())
+         from parameters in PythonParameterListParser.AssumeNotNull()
+         from arrow in Token.EqualTo(PythonToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionParser.AssumeNotNull().OptionalOrDefault())
          from colon in Token.EqualTo(PythonToken.Colon)
-         select new PythonFunctionDefinition(name.ToStringValue(), arrow, parameters))
+         select new PythonFunctionDefinition(name.ToStringValue(), arrow, parameters, async.HasValue))
         .Named("Function Definition");
 
     /// <summary>
@@ -31,7 +32,7 @@ public static partial class PythonParser
         // Go line by line
         TextLineCollection lines = source.Lines;
         List<GeneratorError> currentErrors = [];
-        List<(IEnumerable<TextLine> lines, ParsedTokens tokens)> functionLines = [];
+        List<(ImmutableArray<TextLine> lines, ParsedTokens tokens)> functionLines = [];
         List<(TextLine line, ParsedTokens tokens)> currentBuffer = [];
         bool unfinishedFunctionSpec = false;
         foreach (TextLine line in lines)
@@ -71,10 +72,9 @@ public static partial class PythonParser
             // If this is a function definition on one line..
             if (repositionedTokens.Last().Kind == PythonToken.Colon)
             {
-                IEnumerable<TextLine> bufferLines = currentBuffer.Select(x => x.line);
                 ParsedTokens combinedTokens = new(currentBuffer.SelectMany(x => x.tokens).ToArray());
 
-                functionLines.Add((bufferLines, combinedTokens));
+                functionLines.Add(([.. from x in currentBuffer select x.line], combinedTokens));
                 currentBuffer = [];
                 unfinishedFunctionSpec = false;
                 continue;
@@ -87,29 +87,32 @@ public static partial class PythonParser
 
         List<PythonFunctionDefinition> functionDefinitions = [];
 
-        foreach ((IEnumerable<TextLine> currentLines, ParsedTokens tokens) in functionLines)
+        foreach (var (currentLines, tokens) in functionLines)
         {
-            TokenListParserResult<PythonToken, PythonFunctionDefinition> functionDefinition =
-                PythonFunctionDefinitionTokenizer.TryParse(tokens);
-            if (functionDefinition.HasValue)
+            switch (PythonFunctionDefinitionParser.TryParse(tokens))
             {
-                functionDefinitions.Add(functionDefinition.Value);
-            }
-            else
-            {
-                // Error parsing the function definition
-                int lineNumber = currentLines.First().LineNumber;
-                currentErrors.Add(new(
-                    lineNumber,
-                    lineNumber + functionDefinition.ErrorPosition.Line - 1,
-                    functionDefinition.ErrorPosition.Column,
-                    functionDefinition.ErrorPosition.Column + 1,
-                    functionDefinition.FormatErrorMessageFragment())
-                );
+                case { HasValue: true, Value: var functionDefinition }:
+                    functionDefinitions.Add(functionDefinition.WithSourceLines(currentLines));
+                    break;
+                case var result:
+                    // Error parsing the function definition
+                    int lineNumber = currentLines.First().LineNumber;
+                    currentErrors.Add(new(
+                        lineNumber,
+                        lineNumber + result.ErrorPosition.Line - 1,
+                        result.ErrorPosition.Column,
+                        result.ErrorPosition.Column + 1,
+                        result.FormatErrorMessageFragment())
+                    );
+                    break;
             }
         }
 
-        pythonSignatures = [.. functionDefinitions];
+        pythonSignatures = [..
+            from fd in functionDefinitions
+            where fd.Name is not ['_', ..]
+            select fd
+        ];
         errors = [.. currentErrors];
         return errors.Length == 0;
     }

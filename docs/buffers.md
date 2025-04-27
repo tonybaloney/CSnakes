@@ -5,7 +5,7 @@ The `IPyBuffer` interface is used to represent Python objects that support the B
 
 Since NumPy ndarrays also support the Buffer Protocol, you can use the `IPyBuffer` interface to efficiently read and write data from NumPy arrays.
 
-`typing.Buffer` (`collections.abc.Buffer`) was introduced in Python 3.12, but for older versions you can import `Buffer` from the `typing_extensions` package on PyPi. 
+`collections.abc.Buffer` was introduced in Python 3.12, but for older versions you can import `Buffer` from the `typing_extensions` package on PyPi.
 
 For example:
 

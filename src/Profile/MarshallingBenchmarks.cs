@@ -1,14 +1,12 @@
-﻿using CSnakes.Runtime;
 using BenchmarkDotNet.Attributes;
-using Microsoft.VSDiagnostics;
+using CSnakes.Runtime;
 
 namespace Profile;
 
-[CPUUsageDiagnoser]
-[MarkdownExporter]
-public class MarshallingBenchmarks: BaseBenchmark
+
+public class MarshallingBenchmarks : BaseBenchmark
 {
-    private IMarshallingBenchmarks? mod ;
+    private IMarshallingBenchmarks? mod;
 
     [GlobalSetup]
     public void Setup()

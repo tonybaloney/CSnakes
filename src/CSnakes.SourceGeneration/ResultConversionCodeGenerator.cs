@@ -12,7 +12,8 @@ internal interface IResultConversionCodeGenerator
     TypeSyntax TypeSyntax { get; }
     TypeSyntax ImporterTypeSyntax { get; }
 
-    IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName);
+    IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName,
+                                              string cancellationTokenName);
 }
 
 internal static class ResultConversionCodeGenerator
@@ -25,8 +26,9 @@ internal static class ResultConversionCodeGenerator
     private static readonly IResultConversionCodeGenerator Buffer = ScalarConversionGenerator(ParseTypeName("IPyBuffer"), "Buffer");
 
     public static IEnumerable<StatementSyntax> GenerateCode(PythonTypeSpec pythonTypeSpec,
-                                                            string inputName, string outputName) =>
-        Create(pythonTypeSpec).GenerateCode(inputName, outputName);
+                                                            string inputName, string outputName,
+                                                            string cancellationTokenName) =>
+        Create(pythonTypeSpec).GenerateCode(inputName, outputName, cancellationTokenName);
 
     private static NameSyntax ImportersQualifiedName =>
         ParseName("global::CSnakes.Runtime.Python.PyObjectImporters");
@@ -76,7 +78,7 @@ internal static class ResultConversionCodeGenerator
             }
             case { Name: "typing.Coroutine" or "Coroutine", Arguments: [var yt, var st, var rt] }:
             {
-                return GeneratorConversionGenerator(yt, st, rt, "ICoroutine", "Coroutine");
+                return new CoroutineConversionGenerator(yt, st, rt);
             }
             case var other:
             {
@@ -95,7 +97,8 @@ internal static class ResultConversionCodeGenerator
         public TypeSyntax TypeSyntax { get; } = typeSyntax;
         public TypeSyntax ImporterTypeSyntax { get; } = importerTypeSyntax;
 
-        public IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName) =>
+        public IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName,
+                                                         string cancellationTokenName) =>
             [ParseStatement($"var {outputName} = {inputName}.BareImportAs<{TypeSyntax}, {ImporterTypeSyntax}>();")];
     }
 
@@ -133,5 +136,27 @@ internal static class ResultConversionCodeGenerator
 
         return new ConversionGenerator(TypeReflection.CreateGenericType(typeName, [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax]),
                                        TypeReflection.CreateGenericType(importerTypeName, [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax, generator.Yield.ImporterTypeSyntax, generator.Return.ImporterTypeSyntax]));
+    }
+
+    sealed class CoroutineConversionGenerator : IResultConversionCodeGenerator
+    {
+        public CoroutineConversionGenerator(PythonTypeSpec yieldTypeSpec,
+                                            PythonTypeSpec sendTypeSpec,
+                                            PythonTypeSpec returnTypeSpec)
+        {
+            var generator = (Yield: Create(yieldTypeSpec),
+                             Send: Create(sendTypeSpec),
+                             Return: Create(returnTypeSpec));
+
+            TypeSyntax = TypeReflection.CreateGenericType("ICoroutine", [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax]);
+            ImporterTypeSyntax = QualifiedName(ImportersQualifiedName, TypeReflection.CreateGenericType("Coroutine", [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax, generator.Yield.ImporterTypeSyntax, generator.Return.ImporterTypeSyntax]));
+        }
+
+        public TypeSyntax TypeSyntax { get; }
+        public TypeSyntax ImporterTypeSyntax { get; }
+
+        public IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName,
+                                                         string cancellationTokenName) =>
+            [ParseStatement($"var {outputName} = {inputName}.BareImportAs<{TypeSyntax}, {ImporterTypeSyntax}>().AsTask({cancellationTokenName});")];
     }
 }

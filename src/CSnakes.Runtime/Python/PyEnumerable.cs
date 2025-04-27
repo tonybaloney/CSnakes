@@ -16,14 +16,12 @@ internal class PyEnumerable<TValue, TImporter>(PyObject pyIterable) : IEnumerabl
     {
         using var _ = pyIterator;
 
-        IDisposable? gil = GIL.Acquire();
-
-        try
+        while (true)
         {
-            while (true)
-            {
-                gil ??= GIL.Acquire(); // re-acquire GIL if necessary
+            TValue import;
 
+            using (GIL.Acquire())
+            {
                 nint result = CPythonAPI.PyIter_Next(pyIterator);
                 if (result == IntPtr.Zero)
                 {
@@ -33,19 +31,11 @@ internal class PyEnumerable<TValue, TImporter>(PyObject pyIterable) : IEnumerabl
                     yield break;
                 }
 
-                TValue import;
                 using (var itemObject = PyObject.Create(result))
                     import = TImporter.BareImport(itemObject);
-
-                gil.Dispose(); // release GIL before yielding control
-                gil = null;
-
-                yield return import;
             }
-        }
-        finally
-        {
-            gil?.Dispose();
+
+            yield return import;
         }
     }
 }

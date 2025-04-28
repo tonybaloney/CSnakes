@@ -83,7 +83,18 @@ public static class GIL
         public int RecursionCount => recursionCount;
     }
 
-    public static IDisposable Acquire()
+    public readonly ref struct Lock : IDisposable
+    {
+        private readonly PyGilState state;
+
+        internal Lock(PyGilState state) => this.state = state;
+
+        public void Dispose() => state.Dispose();
+
+        internal bool Equals(Lock other) => state == other.state;
+    }
+
+    public static Lock Acquire()
     {
         if (currentState == null)
         {
@@ -93,7 +104,7 @@ public static class GIL
         {
             currentState.Ensure();
         }
-        return currentState;
+        return new(currentState);
     }
 
     internal static void QueueForDisposal(nint handle)

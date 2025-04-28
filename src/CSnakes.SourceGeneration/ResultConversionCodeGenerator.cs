@@ -12,7 +12,8 @@ internal interface IResultConversionCodeGenerator
     TypeSyntax TypeSyntax { get; }
     TypeSyntax ImporterTypeSyntax { get; }
 
-    IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName);
+    IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName,
+                                              string cancellationTokenName);
 }
 
 internal static class ResultConversionCodeGenerator
@@ -25,8 +26,9 @@ internal static class ResultConversionCodeGenerator
     private static readonly IResultConversionCodeGenerator Buffer = ScalarConversionGenerator(ParseTypeName("IPyBuffer"), "Buffer");
 
     public static IEnumerable<StatementSyntax> GenerateCode(PythonTypeSpec pythonTypeSpec,
-                                                            string inputName, string outputName) =>
-        Create(pythonTypeSpec).GenerateCode(inputName, outputName);
+                                                            string inputName, string outputName,
+                                                            string cancellationTokenName) =>
+        Create(pythonTypeSpec).GenerateCode(inputName, outputName, cancellationTokenName);
 
     private static NameSyntax ImportersQualifiedName =>
         ParseName("global::CSnakes.Runtime.Python.PyObjectImporters");
@@ -51,11 +53,11 @@ internal static class ResultConversionCodeGenerator
                 return ListConversionGenerator(t, "Sequence");
             }
             case { Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: [var t] }:
-                {
-                    var generator = Create(t);
-                    return new ConversionGenerator(TypeReflection.CreateGenericType("ValueTuple", [generator.TypeSyntax]),
-                                                   TypeReflection.CreateGenericType("Tuple", [generator.TypeSyntax, generator.ImporterTypeSyntax]));
-                }
+            {
+                var generator = Create(t);
+                return new ConversionGenerator(TypeReflection.CreateGenericType("ValueTuple", [generator.TypeSyntax]),
+                                               TypeReflection.CreateGenericType("Tuple", [generator.TypeSyntax, generator.ImporterTypeSyntax]));
+            }
             case { Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: { Length: > 1 and <= 10 } ts }:
             {
                 var generators = ImmutableArray.CreateRange(from t in ts select Create(t));
@@ -72,11 +74,25 @@ internal static class ResultConversionCodeGenerator
             }
             case { Name: "typing.Generator" or "Generator", Arguments: [var yt, var st, var rt] }:
             {
-                return GeneratorConversionGenerator(yt, st, rt);
+                var generator = (Yield: Create(yt), Send: Create(st), Return: Create(rt));
+                return new ConversionGenerator(TypeReflection.CreateGenericType("IGeneratorIterator",
+                                               [
+                                                   generator.Yield.TypeSyntax,
+                                                   generator.Send.TypeSyntax,
+                                                   generator.Return.TypeSyntax
+                                               ]),
+                                               TypeReflection.CreateGenericType("Generator",
+                                               [
+                                                   generator.Yield.TypeSyntax,
+                                                   generator.Send.TypeSyntax,
+                                                   generator.Return.TypeSyntax,
+                                                   generator.Yield.ImporterTypeSyntax,
+                                                   generator.Return.ImporterTypeSyntax
+                                               ]));
             }
             case { Name: "typing.Coroutine" or "Coroutine", Arguments: [var yt, var st, var rt] }:
             {
-                return GeneratorConversionGenerator(yt, st, rt, "ICoroutine", "Coroutine");
+                return new CoroutineConversionGenerator(yt, st, rt);
             }
             case var other:
             {
@@ -95,7 +111,8 @@ internal static class ResultConversionCodeGenerator
         public TypeSyntax TypeSyntax { get; } = typeSyntax;
         public TypeSyntax ImporterTypeSyntax { get; } = importerTypeSyntax;
 
-        public IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName) =>
+        public IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName,
+                                                         string cancellationTokenName) =>
             [ParseStatement($"var {outputName} = {inputName}.BareImportAs<{TypeSyntax}, {ImporterTypeSyntax}>();")];
     }
 
@@ -121,17 +138,25 @@ internal static class ResultConversionCodeGenerator
                                        TypeReflection.CreateGenericType(importerTypeName, [generator.Key.TypeSyntax, generator.Value.TypeSyntax, generator.Key.ImporterTypeSyntax, generator.Value.ImporterTypeSyntax]));
     }
 
-    public static IResultConversionCodeGenerator GeneratorConversionGenerator(PythonTypeSpec yieldTypeSpec,
-                                                                              PythonTypeSpec sendTypeSpec,
-                                                                              PythonTypeSpec returnTypeSpec,
-                                                                              string typeName = "IGeneratorIterator",
-                                                                              string importerTypeName = "Generator")
+    sealed class CoroutineConversionGenerator : IResultConversionCodeGenerator
     {
-        var generator = (Yield: Create(yieldTypeSpec),
-                         Send: Create(sendTypeSpec),
-                         Return: Create(returnTypeSpec));
+        public CoroutineConversionGenerator(PythonTypeSpec yieldTypeSpec,
+                                            PythonTypeSpec sendTypeSpec,
+                                            PythonTypeSpec returnTypeSpec)
+        {
+            var generator = (Yield: Create(yieldTypeSpec),
+                             Send: Create(sendTypeSpec),
+                             Return: Create(returnTypeSpec));
 
-        return new ConversionGenerator(TypeReflection.CreateGenericType(typeName, [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax]),
-                                       TypeReflection.CreateGenericType(importerTypeName, [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax, generator.Yield.ImporterTypeSyntax, generator.Return.ImporterTypeSyntax]));
+            TypeSyntax = TypeReflection.CreateGenericType("ICoroutine", [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax]);
+            ImporterTypeSyntax = QualifiedName(ImportersQualifiedName, TypeReflection.CreateGenericType("Coroutine", [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax, generator.Yield.ImporterTypeSyntax, generator.Return.ImporterTypeSyntax]));
+        }
+
+        public TypeSyntax TypeSyntax { get; }
+        public TypeSyntax ImporterTypeSyntax { get; }
+
+        public IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName,
+                                                         string cancellationTokenName) =>
+            [ParseStatement($"var {outputName} = {inputName}.BareImportAs<{TypeSyntax}, {ImporterTypeSyntax}>().AsTask({cancellationTokenName});")];
     }
 }

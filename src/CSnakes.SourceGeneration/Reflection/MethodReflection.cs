@@ -58,14 +58,11 @@ public static class MethodReflection
         // Step 3: Build arguments
         List<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList = ArgumentReflection.FunctionParametersAsParameterSyntaxPairs(function.Parameters);
 
-        List<GenericNameSyntax> parameterGenericArgs = [];
-        foreach (var (pythonParameter, cSharpParameter) in parameterList)
-        {
-            if (cSharpParameter.Type is GenericNameSyntax g)
-            {
-                parameterGenericArgs.Add(g);
-            }
-        }
+        var parameterGenericArgs =
+            parameterList.Select(e => e.cSharpParameter.Type)
+                         .Append(returnSyntax)
+                         .OfType<GenericNameSyntax>()
+                         .ToList();
 
         // Step 4: Build body
         var pythonConversionStatements = new List<StatementSyntax>();
@@ -131,6 +128,7 @@ public static class MethodReflection
         ReturnStatementSyntax returnExpression;
         IEnumerable<StatementSyntax> resultConversionStatements = [];
         var callResultTypeSyntax = IdentifierName("PyObject");
+        var returnNoneAsNull = false;
 
         switch (returnSyntax)
         {
@@ -145,6 +143,13 @@ public static class MethodReflection
                 returnExpression = ReturnStatement(IdentifierName("__result_pyObject"));
                 break;
             }
+            case NullableTypeSyntax:
+            {
+                returnNoneAsNull = true;
+                // Assume `Optional[T]` and narrow to `T`
+                returnPythonType = returnPythonType.Arguments[0];
+                goto default;
+            }
             default:
             {
                 if (returnSyntax is GenericNameSyntax rg)
@@ -154,6 +159,21 @@ public static class MethodReflection
                     ResultConversionCodeGenerator.GenerateCode(returnPythonType,
                                                                "__result_pyObject", "__return",
                                                                cancellationTokenName);
+
+                if (returnNoneAsNull)
+                {
+                    resultConversionStatements =
+                        resultConversionStatements.Prepend(
+                            IfStatement(
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("__result_pyObject"),
+                                        IdentifierName("IsNone"))),
+                                ReturnStatement(
+                                    LiteralExpression(SyntaxKind.NullLiteralExpression))
+                            ));
+                }
 
                 returnExpression = ReturnStatement(IdentifierName("__return"));
                 break;

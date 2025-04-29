@@ -311,7 +311,7 @@ public partial class PyObject : SafeHandle, ICloneable
     {
         using (GIL.Acquire())
         {
-            return CPythonAPI.PyObject_Not(obj) switch
+            return obj.Is(False) || CPythonAPI.PyObject_Not(obj) switch
             {
                 < 0 => throw ThrowPythonExceptionAsClrException(),
                 0 => false,
@@ -327,7 +327,7 @@ public partial class PyObject : SafeHandle, ICloneable
     {
         using (GIL.Acquire())
         {
-            return CPythonAPI.PyObject_IsTrue(obj) switch
+            return obj.Is(True) || CPythonAPI.PyObject_IsTrue(obj) switch
             {
                 < 0 => throw ThrowPythonExceptionAsClrException(),
                 0 => false,

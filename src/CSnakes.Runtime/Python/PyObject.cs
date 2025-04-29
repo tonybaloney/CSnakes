@@ -309,9 +309,12 @@ public partial class PyObject : SafeHandle, ICloneable
     /// </summary>
     public static bool operator !(PyObject obj)
     {
+        if (obj.Is(False))
+            return true;
+
         using (GIL.Acquire())
         {
-            return obj.Is(False) || CPythonAPI.PyObject_Not(obj) switch
+            return CPythonAPI.PyObject_Not(obj) switch
             {
                 < 0 => throw ThrowPythonExceptionAsClrException(),
                 0 => false,
@@ -325,9 +328,12 @@ public partial class PyObject : SafeHandle, ICloneable
     /// </summary>
     public static bool operator true(PyObject obj)
     {
+        if (obj.Is(True))
+            return true;
+
         using (GIL.Acquire())
         {
-            return obj.Is(True) || CPythonAPI.PyObject_IsTrue(obj) switch
+            return CPythonAPI.PyObject_IsTrue(obj) switch
             {
                 < 0 => throw ThrowPythonExceptionAsClrException(),
                 0 => false,

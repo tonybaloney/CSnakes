@@ -158,4 +158,48 @@ public class PyObjectTests : RuntimeTestBase
         Assert.Equal(expectedLT, obj1 <= obj2);
         Assert.Equal(expectedGT, obj1 >= obj2);
     }
+
+    public static IEnumerable<object[]> BooleanishTestCases(bool yes) => new TheoryData<bool, object?>
+    {
+        { yes,  /* True      */ true },
+        { !yes, /* False     */ false },
+        { !yes, /* None      */ null },
+        { yes,  /* -42       */ -42 },
+        { !yes, /* 0         */ 0 },
+        { yes,  /* 42        */ 42 },
+        { !yes, /* ""        */ "" },
+        { yes,  /* "foobar"  */ "foobar" },
+        { !yes, /* []        */ Array.Empty<int>() },
+        { yes,  /* [42]      */ new[] { 42 } },
+        { !yes, /* {}        */ new Dictionary<int, string>() },
+        { yes,  /* { 0: "" } */ new Dictionary<int, string> { [0] = "" } },
+        { !yes, /* ()        */ new ValueTuple() },
+        { yes,  /* (0,)      */ new ValueTuple<int>(0) },
+    };
+
+    /// <summary>
+    /// Exercises <see cref="PyObject.op_True"/>.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(BooleanishTestCases), true)]
+    public void TestTruthy(bool expected, object input)
+    {
+        using var obj = PyObject.From(input);
+        if (obj)
+            Assert.True(expected);
+        else
+            Assert.False(expected);
+    }
+
+    /// <summary>
+    /// Exercises <see cref="PyObject.op_LogicalNot"/>.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(BooleanishTestCases), false)]
+    public void TestFalsy(bool expected, object input)
+    {
+        using var obj = PyObject.From(input);
+        var result = !obj;
+        Assert.Equal(expected, result);
+    }
 }

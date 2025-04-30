@@ -11,10 +11,10 @@ internal sealed class AsyncIterator<T, TImporter>(PyObject pyObject, Cancellatio
 
     public ValueTask<bool> MoveNextAsync() => enumerator.MoveNextAsync();
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
+        await enumerator.DisposeAsync().ConfigureAwait(false);
         pyObject.Dispose();
-        return ValueTask.CompletedTask;
     }
 
     private static async IAsyncEnumerator<T> Iterator(PyObject pyObject, CancellationToken cancellationToken)

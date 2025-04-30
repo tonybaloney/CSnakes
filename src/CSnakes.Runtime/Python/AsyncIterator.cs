@@ -28,24 +28,24 @@ internal class AsyncIterator<TYield, TImporter> : IAsyncIterator<TYield>
 
     public async ValueTask<bool> MoveNextAsync()
     {
-        using (GIL.Acquire())
+        try
         {
-            try
+            using PyObject nextResult = _anextPyFunction.Call();
+            ICoroutine<TYield, PyObject, PyObject> coroutine;
+            using (GIL.Acquire())
+                coroutine = TImporter.BareImport(nextResult);
+            current = await coroutine.AsTask() ?? throw new InvalidOperationException("Async iterator returned null");
+            return true;
+        }
+        catch (PythonInvocationException pyExc)
+        {
+            // If the exception is a StopAsyncIteration, we return false
+            // Otherwise, we rethrow the exception
+            if (pyExc.PythonExceptionType == "StopAsyncIteration")
             {
-                using PyObject nextResult = _anextPyFunction.Call();
-                current = await TImporter.BareImport(nextResult).AsTask() ?? throw new InvalidOperationException("Async iterator returned null");
-                return true;
+                return false;
             }
-            catch (PythonInvocationException pyExc)
-            {
-                // If the exception is a StopAsyncIteration, we return false
-                // Otherwise, we rethrow the exception
-                if (pyExc.PythonExceptionType == "StopAsyncIteration")
-                {
-                    return false;
-                }
-                throw;
-            }
+            throw;
         }
     }
 }

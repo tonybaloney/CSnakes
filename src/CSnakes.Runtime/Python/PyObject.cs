@@ -196,10 +196,11 @@ public partial class PyObject : SafeHandle, ICloneable
     }
 
     public IAsyncIterator<T> AsAsyncIterator<T>() =>
-        AsAsyncIterator<T, PyObjectImporters.Runtime<T>>();
+        AsAsyncIterator<T, PyObjectImporters.Coroutine<T, PyObject, PyObject, PyObjectImporters.Runtime<T>, PyObjectImporters.Clone>>();
 
     public IAsyncIterator<T> AsAsyncIterator<T, TImporter>()
-        where TImporter : IPyObjectImporter<T> => new AsyncIterator<T, TImporter>(this);
+        where TImporter : IPyObjectImporter<ICoroutine<T, PyObject, PyObject>> =>
+        new AsyncIterator<T, TImporter>(this);
 
     /// <summary>
     /// Get the results of the repr() function on the object.

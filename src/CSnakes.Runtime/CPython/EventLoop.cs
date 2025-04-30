@@ -108,6 +108,8 @@ internal sealed class EventLoop : IDisposable
                     {
                         using var type = exception.GetPythonType();
                         string name = type.GetAttr("__name__").ImportAs<string, PyObjectImporters.String>();
+                        // TODO We are effectively losing the traceback here so copy the traceback or somehow attach it to "PythonInvocationException"
+                        // https://github.com/tonybaloney/CSnakes/pull/438#discussion_r2068321787
                         CompletionSource.SetException(new PythonInvocationException(name, exception, null));
                         exception = null;
                         return TaskStatus.Faulted;

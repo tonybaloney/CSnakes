@@ -42,8 +42,7 @@ internal sealed class AsyncIterator<T, TImporter>(PyObject pyObject, Cancellatio
                     yield break;
                 }
 
-                using (GIL.Acquire())
-                    item = TImporter.BareImport(obj);
+                item = obj.ImportAs<T, TImporter>();
             }
             finally
             {

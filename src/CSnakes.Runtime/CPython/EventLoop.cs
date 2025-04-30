@@ -83,14 +83,14 @@ internal sealed class EventLoop : IDisposable
 
             // If the task is not done yet, return without doing anything.
 
-            if (DoneMethod.Call().Is(PyObject.False)) // TODO Use falsy-ness when PR #437 is merged
+            if (!DoneMethod.Call())
                 return TaskStatus.Running;
 
             // If the Python task is cancelled, set the corresponding .NET task to cancelled.
 
             using (var cancelledMethod = this.pyTask.GetAttr("cancelled"))
             {
-                if (cancelledMethod.Call().Is(PyObject.True)) // TODO Use truthy-ness when PR #437 is merged
+                if (cancelledMethod.Call())
                 {
                     CompletionSource.SetCanceled(this.cancellationToken);
                     return TaskStatus.Canceled;

@@ -32,10 +32,11 @@ internal class AsyncIterator<TYield, TImporter> : IAsyncIterator<TYield>
         ICoroutine<TYield, PyObject, PyObject> coroutine;
         using (GIL.Acquire())
             coroutine = TImporter.BareImport(nextResult);
+        var task = coroutine.AsTask() ?? throw new InvalidOperationException("Async iterator returned null");
 
         try
         {
-            current = await coroutine.AsTask() ?? throw new InvalidOperationException("Async iterator returned null");
+            current = await task.ConfigureAwait(false);
             return true;
         }
         catch (PythonInvocationException ex) when (ex.PythonExceptionType is "StopAsyncIteration")

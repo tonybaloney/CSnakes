@@ -1,7 +1,9 @@
+using CSnakes.Runtime.CPython;
+
 namespace CSnakes.Runtime.Python;
 internal sealed class AsyncIterator<T, TImporter>(PyObject pyObject, CancellationToken cancellationToken) :
     IAsyncEnumerator<T>
-    where TImporter : IPyObjectImporter<ICoroutine<T, PyObject, PyObject>>
+    where TImporter : IPyObjectImporter<T>
 {
     private readonly IAsyncEnumerator<T> enumerator = Iterator(pyObject, cancellationToken);
 
@@ -21,21 +23,31 @@ internal sealed class AsyncIterator<T, TImporter>(PyObject pyObject, Cancellatio
 
         while (true)
         {
-            using var nextResult = anextFunction.Call();
-            ICoroutine<T, PyObject, PyObject> coroutine;
+            Task<PyObject> task;
+            using var coroutine = anextFunction.Call();
             using (GIL.Acquire())
-                coroutine = TImporter.BareImport(nextResult);
-            var task = coroutine.AsTask(cancellationToken);
+                task = CPythonAPI.GetDefaultEventLoop().RunCoroutineAsync(coroutine.Clone(), cancellationToken);
 
+            PyObject? obj = null;
             T item;
 
             try
             {
-                item = await task.ConfigureAwait(false);
+                try
+                {
+                    obj = await task.ConfigureAwait(false);
+                }
+                catch (PythonInvocationException ex) when (ex.PythonExceptionType is "StopAsyncIteration")
+                {
+                    yield break;
+                }
+
+                using (GIL.Acquire())
+                    item = TImporter.BareImport(obj);
             }
-            catch (PythonInvocationException ex) when (ex.PythonExceptionType is "StopAsyncIteration")
+            finally
             {
-                yield break;
+                obj?.Dispose();
             }
 
             yield return item;

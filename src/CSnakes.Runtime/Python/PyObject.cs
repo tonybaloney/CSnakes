@@ -196,10 +196,10 @@ public partial class PyObject : SafeHandle, ICloneable
     }
 
     public IAsyncEnumerator<T> AsAsyncEnumerator<T>(CancellationToken cancellationToken = default) =>
-        AsAsyncEnumerator<T, PyObjectImporters.Coroutine<T, PyObject, PyObject, PyObjectImporters.Runtime<T>, PyObjectImporters.Clone>>(cancellationToken);
+        AsAsyncEnumerator<T, PyObjectImporters.Runtime<T>>(cancellationToken);
 
     public IAsyncEnumerator<T> AsAsyncEnumerator<T, TImporter>(CancellationToken cancellationToken = default)
-        where TImporter : IPyObjectImporter<ICoroutine<T, PyObject, PyObject>> =>
+        where TImporter : IPyObjectImporter<T> =>
         new AsyncIterator<T, TImporter>(GetAIter(), cancellationToken);
 
     /// <summary>

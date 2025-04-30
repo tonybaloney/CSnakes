@@ -37,15 +37,9 @@ internal class AsyncIterator<TYield, TImporter> : IAsyncIterator<TYield>
             current = await coroutine.AsTask() ?? throw new InvalidOperationException("Async iterator returned null");
             return true;
         }
-        catch (PythonInvocationException pyExc)
+        catch (PythonInvocationException ex) when (ex.PythonExceptionType is "StopAsyncIteration")
         {
-            // If the exception is a StopAsyncIteration, we return false
-            // Otherwise, we rethrow the exception
-            if (pyExc.PythonExceptionType == "StopAsyncIteration")
-            {
-                return false;
-            }
-            throw;
+            return false;
         }
     }
 }

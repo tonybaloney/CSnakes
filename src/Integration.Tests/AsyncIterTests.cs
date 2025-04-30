@@ -9,13 +9,11 @@ public class AsyncIterTests(PythonEnvironmentFixture fixture) : IntegrationTestB
     {
         var mod = Env.TestAsyncIter();
 
-        var asyncIter = mod.TestBasicAsyncIter().AsAsyncIterator<int>();
+        await using var asyncIter = mod.TestBasicAsyncIter().AsAsyncEnumerator<int>();
         var result = new List<int>();
 
-        await foreach (var item in asyncIter)
-        {
-            result.Add(item);
-        }
+        while (await asyncIter.MoveNextAsync())
+            result.Add(asyncIter.Current);
 
         Assert.Equal([1, 2, 3, 4, 5], result);
     }

@@ -195,12 +195,40 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
-    public IAsyncIterator<T> AsAsyncIterator<T>() =>
-        AsAsyncIterator<T, PyObjectImporters.Coroutine<T, PyObject, PyObject, PyObjectImporters.Runtime<T>, PyObjectImporters.Clone>>();
+    public IAsyncEnumerator<T> AsAsyncEnumerator<T>(CancellationToken cancellationToken = default) =>
+        AsAsyncEnumerator<T, PyObjectImporters.Coroutine<T, PyObject, PyObject, PyObjectImporters.Runtime<T>, PyObjectImporters.Clone>>();
 
-    public IAsyncIterator<T> AsAsyncIterator<T, TImporter>()
+    public IAsyncEnumerator<T> AsAsyncEnumerator<T, TImporter>(CancellationToken cancellationToken = default)
         where TImporter : IPyObjectImporter<ICoroutine<T, PyObject, PyObject>> =>
-        new AsyncIterator<T, TImporter>(this);
+        AsyncIterator<T, TImporter>(GetAIter(), cancellationToken);
+
+    private static async IAsyncEnumerator<T> AsyncIterator<T, TImporter>(PyObject pyObject, CancellationToken cancellationToken)
+        where TImporter : IPyObjectImporter<ICoroutine<T, PyObject, PyObject>>
+    {
+        using var anextFunction = pyObject.GetAttr("__anext__");
+
+        while (true)
+        {
+            using var nextResult = anextFunction.Call();
+            ICoroutine<T, PyObject, PyObject> coroutine;
+            using (GIL.Acquire())
+                coroutine = TImporter.BareImport(nextResult);
+            var task = coroutine.AsTask(cancellationToken);
+
+            T item;
+
+            try
+            {
+                item = await task.ConfigureAwait(false);
+            }
+            catch (PythonInvocationException ex) when (ex.PythonExceptionType is "StopAsyncIteration")
+            {
+                yield break;
+            }
+
+            yield return item;
+        }
+    }
 
     /// <summary>
     /// Get the results of the repr() function on the object.

@@ -17,5 +17,4 @@ public class AsyncIterTests(PythonEnvironmentFixture fixture) : IntegrationTestB
 
         Assert.Equal([1, 2, 3, 4, 5], result);
     }
-
 }

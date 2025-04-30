@@ -155,6 +155,15 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
+    internal virtual PyObject GetAIter()
+    {
+        RaiseOnPythonNotInitialized();
+        using (GIL.Acquire())
+        {
+            return Create(CPythonAPI.PyObject_GetAIter(this));
+        }
+    }
+
     /// <summary>
     /// Calls iter() on the object and returns an IEnumerable that yields values of type T.
     /// </summary>
@@ -177,6 +186,12 @@ public partial class PyObject : SafeHandle, ICloneable
             return new PyEnumerable<T, TImporter>(this);
         }
     }
+
+    public IAsyncIterator<T> AsAsyncIterator<T>() =>
+        AsAsyncIterator<T, PyObjectImporters.Runtime<T>>();
+
+    public IAsyncIterator<T> AsAsyncIterator<T, TImporter>()
+        where TImporter : IPyObjectImporter<T> => new AsyncIterator<T, TImporter>(this);
 
     /// <summary>
     /// Get the results of the repr() function on the object.

@@ -309,7 +309,7 @@ public partial class PyObject : SafeHandle, ICloneable
     /// </summary>
     public static bool operator !(PyObject obj)
     {
-        if (obj.Is(False))
+        if (obj.Is(False) || obj.IsNone())
             return true;
 
         using (GIL.Acquire())
@@ -330,6 +330,9 @@ public partial class PyObject : SafeHandle, ICloneable
     {
         if (obj.Is(True))
             return true;
+
+        if (obj.IsNone())
+            return false;
 
         using (GIL.Acquire())
         {

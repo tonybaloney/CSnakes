@@ -165,25 +165,33 @@ public partial class PyObject : SafeHandle, ICloneable
     }
 
     /// <summary>
-    /// Calls iter() on the object and returns an IEnumerable that yields values of type T.
+    /// Returns an <see cref="IEnumerable{T}"/> that calls <c>iter()</c> on the
+    /// object and yields values of type T when iterated.
     /// </summary>
     /// <typeparam name="T">The type for each item in the iterator</typeparam>
-    /// <returns></returns>
+    /// <remarks>
+    /// This method does not check if the object is iterable until <see
+    /// cref="IEnumerable{T}.GetEnumerator"/> is called on the result.
+    /// </remarks>
     public IEnumerable<T> AsEnumerable<T>() =>
         AsEnumerable<T, PyObjectImporters.Runtime<T>>();
 
     /// <summary>
-    /// Calls iter() on the object and returns an IEnumerable that yields values of type T.
+    /// Returns an <see cref="IEnumerable{T}"/> that calls <c>iter()</c> on the
+    /// object and yields values of type T when iterated.
     /// </summary>
     /// <typeparam name="T">The type for each item in the iterator</typeparam>
     /// <typeparam name="TImporter">The type for importing each item type</typeparam>
-    /// <returns></returns>
+    /// <remarks>
+    /// This method does not check if the object is iterable until <see
+    /// cref="IEnumerable{T}.GetEnumerator"/> is called on the result.
+    /// </remarks>
     public IEnumerable<T> AsEnumerable<T, TImporter>()
         where TImporter : IPyObjectImporter<T>
     {
         using (GIL.Acquire())
         {
-            return new PyEnumerable<T, TImporter>(this);
+            return new PyEnumerable<T, TImporter>(Clone());
         }
     }
 
@@ -318,6 +326,52 @@ public partial class PyObject : SafeHandle, ICloneable
             return CPythonAPI.PyObject_RichCompare(left, right, type);
         }
     }
+
+    /// <summary>
+    /// Check if the object is false. Equivalent to the <c>not</c> operator in Python.
+    /// </summary>
+    public static bool operator !(PyObject obj)
+    {
+        if (obj.Is(False) || obj.IsNone())
+            return true;
+
+        using (GIL.Acquire())
+        {
+            return CPythonAPI.PyObject_Not(obj) switch
+            {
+                < 0 => throw ThrowPythonExceptionAsClrException(),
+                0 => false,
+                _ => true,
+            };
+        }
+    }
+
+    /// <summary>
+    /// Check if the object is true. Equivalent to the <c>bool()</c> function in Python.
+    /// </summary>
+    public static bool operator true(PyObject obj)
+    {
+        if (obj.Is(True))
+            return true;
+
+        if (obj.IsNone())
+            return false;
+
+        using (GIL.Acquire())
+        {
+            return CPythonAPI.PyObject_IsTrue(obj) switch
+            {
+                < 0 => throw ThrowPythonExceptionAsClrException(),
+                0 => false,
+                _ => true,
+            };
+        }
+    }
+
+    /// <summary>
+    /// Check if the object is false. Equivalent to the <c>not</c> operator in Python.
+    /// </summary>
+    public static bool operator false(PyObject obj) => !obj;
 
     public override int GetHashCode()
     {

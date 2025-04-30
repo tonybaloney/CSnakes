@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Metadata;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "c869d3a7ab525465cb794827044b4601"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "c9f266d12c416006de17b285369f898f"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {

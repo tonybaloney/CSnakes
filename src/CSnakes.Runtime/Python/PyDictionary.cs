@@ -90,8 +90,9 @@ internal class PyDictionary<TKey, TValue, TKeyImporter, TValueImporter>(PyObject
     {
         using (GIL.Acquire())
         {
-            using var items = PyObject.Create(CPythonAPI.PyMapping_Items(_dictionaryObject));
-            return new PyEnumerable<KeyValuePair<TKey, TValue>, KeyValuePairImporter>(items).GetEnumerator();
+            var items = PyObject.Create(CPythonAPI.PyMapping_Items(_dictionaryObject));
+            using var pairs = new PyEnumerable<KeyValuePair<TKey, TValue>, KeyValuePairImporter>(items);
+            return pairs.GetEnumerator();
         }
     }
 

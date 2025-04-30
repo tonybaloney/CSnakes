@@ -21,7 +21,8 @@ public static class MethodReflection
         PythonTypeSpec returnPythonType = function.ReturnType;
 
         TypeSyntax returnSyntax;
-        TypeSyntax? coroutineSyntax = null;
+        ParameterSyntax? cancellationTokenParameterSyntax = null;
+        const string cancellationTokenName = "cancellationToken";
 
         if (!function.IsAsync)
         {
@@ -36,7 +37,10 @@ public static class MethodReflection
         }
         else
         {
-            coroutineSyntax = TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython);
+            cancellationTokenParameterSyntax =
+                Parameter(Identifier(cancellationTokenName))
+                    .WithType(IdentifierName("CancellationToken"))
+                    .WithDefault(EqualsValueClause(LiteralExpression(SyntaxKind.DefaultLiteralExpression)));
             returnSyntax = returnPythonType switch
             {
                 { Name: "Coroutine", Arguments: [{ Name: "None" }, _, _] } =>
@@ -54,14 +58,11 @@ public static class MethodReflection
         // Step 3: Build arguments
         List<(PythonFunctionParameter pythonParameter, ParameterSyntax cSharpParameter)> parameterList = ArgumentReflection.FunctionParametersAsParameterSyntaxPairs(function.Parameters);
 
-        List<GenericNameSyntax> parameterGenericArgs = [];
-        foreach (var (pythonParameter, cSharpParameter) in parameterList)
-        {
-            if (cSharpParameter.Type is GenericNameSyntax g)
-            {
-                parameterGenericArgs.Add(g);
-            }
-        }
+        var parameterGenericArgs =
+            parameterList.Select(e => e.cSharpParameter.Type)
+                         .Append(returnSyntax)
+                         .OfType<GenericNameSyntax>()
+                         .ToList();
 
         // Step 4: Build body
         var pythonConversionStatements = new List<StatementSyntax>();
@@ -127,6 +128,7 @@ public static class MethodReflection
         ReturnStatementSyntax returnExpression;
         IEnumerable<StatementSyntax> resultConversionStatements = [];
         var callResultTypeSyntax = IdentifierName("PyObject");
+        var returnNoneAsNull = false;
 
         switch (returnSyntax)
         {
@@ -141,22 +143,39 @@ public static class MethodReflection
                 returnExpression = ReturnStatement(IdentifierName("__result_pyObject"));
                 break;
             }
+            case NullableTypeSyntax:
+            {
+                returnNoneAsNull = true;
+                // Assume `Optional[T]` and narrow to `T`
+                returnPythonType = returnPythonType.Arguments[0];
+                goto default;
+            }
             default:
             {
                 if (returnSyntax is GenericNameSyntax rg)
                     parameterGenericArgs.Add(rg);
 
-                resultConversionStatements = ResultConversionCodeGenerator.GenerateCode(returnPythonType, "__result_pyObject", "__return");
+                resultConversionStatements =
+                    ResultConversionCodeGenerator.GenerateCode(returnPythonType,
+                                                               "__result_pyObject", "__return",
+                                                               cancellationTokenName);
 
-                returnExpression =
-                    ReturnStatement(
-                        returnSyntax is GenericNameSyntax { Identifier.Text: "Task" } && coroutineSyntax is not null
-                        ? InvocationExpression(
-                              MemberAccessExpression(
-                                  SyntaxKind.SimpleMemberAccessExpression,
-                                  IdentifierName("__return"),
-                                  IdentifierName("AsTask")))
-                        : IdentifierName("__return"));
+                if (returnNoneAsNull)
+                {
+                    resultConversionStatements =
+                        resultConversionStatements.Prepend(
+                            IfStatement(
+                                InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("__result_pyObject"),
+                                        IdentifierName("IsNone"))),
+                                ReturnStatement(
+                                    LiteralExpression(SyntaxKind.NullLiteralExpression))
+                            ));
+                }
+
+                returnExpression = ReturnStatement(IdentifierName("__return"));
                 break;
             }
         }
@@ -250,6 +269,9 @@ public static class MethodReflection
                     .Where((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.DoubleStar)
                     .Select((a) => a.cSharpParameter)
             );
+
+        if (cancellationTokenParameterSyntax is { } someCancellationTokenParameterSyntax)
+            methodParameters = methodParameters.Append(someCancellationTokenParameterSyntax);
 
         var syntax = MethodDeclaration(
             returnSyntax,

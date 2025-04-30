@@ -18,35 +18,34 @@ public class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(
     public TYield Current => current;
     public TReturn Return => @return;
 
-    public Task<TYield?> AsTask(CancellationToken? cancellationToken = null)
+
+    public async Task<TYield> AsTask(CancellationToken cancellationToken = default)
     {
-        return Task.Run(
-            () =>
+        Task<PyObject> task;
+
+        using (GIL.Acquire())
+            task = CPythonAPI.GetDefaultEventLoop().RunCoroutineAsync(coroutine, cancellationToken);
+
+        var result = await task.ConfigureAwait(false);
+
+        try
+        {
+            using (GIL.Acquire())
+                return this.current = TYieldImporter.BareImport(result);
+        }
+        catch (PythonInvocationException ex)
+        {
+            if (ex.InnerException is PythonStopIterationException stopIteration)
             {
-                try
-                {
-                    using (GIL.Acquire())
-                    {
-                        using PyObject result = CPythonAPI.GetEventLoop().RunTaskUntilComplete(coroutine, cancellationToken);
-                        current = TYieldImporter.BareImport(result);
-                    }
-                    return current;
-                }
-                catch (PythonInvocationException ex)
-                {
-                    if (ex.InnerException is PythonStopIterationException stopIteration)
-                    {
-                        using var @return = stopIteration.TakeValue();
-                        this.@return = @return.ImportAs<TReturn, TReturnImporter>();
+                using var @return = stopIteration.TakeValue();
+                this.@return = @return.ImportAs<TReturn, TReturnImporter>();
 
-                        // Coroutine has finished
-                        // TODO: define behavior for this case
-                        return default;
-                    }
-
-                    throw;
-                }
+                // Coroutine has finished
+                // TODO: define behavior for this case
+                return default;
             }
-        );
+
+            throw;
+        }
     }
 }

@@ -18,6 +18,7 @@ internal unsafe partial class CPythonAPI : IDisposable
     private bool disposedValue = false;
     private Task? initializationTask = null;
     private readonly ManualResetEventSlim disposalEvent = new();
+    private readonly TaskCompletionSource finalizationTaskCompletionSource = new();
 
     public CPythonAPI(string pythonLibraryPath, Version version, string pythonExecutablePath)
     {
@@ -110,8 +111,17 @@ internal unsafe partial class CPythonAPI : IDisposable
                 return;
             }
             initializationTaskCompletionSource.SetResult();
+
             disposalEvent.Wait();
-            FinalizeEmbeddedPython(initializationTState);
+            try
+            {
+                FinalizeEmbeddedPython(initializationTState);
+                finalizationTaskCompletionSource.SetResult();
+            }
+            catch (Exception ex)
+            {
+                finalizationTaskCompletionSource.SetException(ex);
+            }
         });
 
         initializationTaskCompletionSource.Task.GetAwaiter().GetResult();
@@ -236,7 +246,7 @@ internal unsafe partial class CPythonAPI : IDisposable
 
                     try
                     {
-                        initializationTask.GetAwaiter().GetResult();
+                        finalizationTaskCompletionSource.Task.GetAwaiter().GetResult();
                     }
                     catch (Exception ex)
                     {

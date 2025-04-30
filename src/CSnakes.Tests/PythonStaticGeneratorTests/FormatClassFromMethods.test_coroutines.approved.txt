@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Metadata;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "070712b6bff34f5e689b902a98fce79f"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "61c51b5413b819959bcfa362dfc8b9cf"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -87,39 +88,41 @@ public static class TestClassExtensions
             module.Dispose();
         }
 
-        public Task<long> TestCoroutine()
+        public Task<long> TestCoroutine(double seconds = 0.1, CancellationToken cancellationToken = default)
         {
             using (GIL.Acquire())
             {
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = __result_pyObject.BareImportAs<ICoroutine<long, PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>>();
-                return __return.AsTask();
+                using PyObject seconds_pyObject = PyObject.From(seconds)!;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);
+                var __return = __result_pyObject.BareImportAs<ICoroutine<long, PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>>().AsTask(cancellationToken);
+                return __return;
             }
         }
 
-        public Task<long> TestCoroutineRaisesException()
+        public Task<long> TestCoroutineRaisesException(CancellationToken cancellationToken = default)
         {
             using (GIL.Acquire())
             {
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_raises_exception");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_raises_exception;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = __result_pyObject.BareImportAs<ICoroutine<long, PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>>();
-                return __return.AsTask();
+                var __return = __result_pyObject.BareImportAs<ICoroutine<long, PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>>().AsTask(cancellationToken);
+                return __return;
             }
         }
 
-        public Task<PyObject> TestCoroutineReturnsNothing()
+        public Task<PyObject> TestCoroutineReturnsNothing(double seconds = 0.1, CancellationToken cancellationToken = default)
         {
             using (GIL.Acquire())
             {
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_returns_nothing");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_returns_nothing;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = __result_pyObject.BareImportAs<ICoroutine<PyObject, PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<PyObject, PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>>();
-                return __return.AsTask();
+                using PyObject seconds_pyObject = PyObject.From(seconds)!;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);
+                var __return = __result_pyObject.BareImportAs<ICoroutine<PyObject, PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<PyObject, PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>>().AsTask(cancellationToken);
+                return __return;
             }
         }
     }
@@ -133,10 +136,10 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>test_coroutine</c>:
     /// <code><![CDATA[
-    /// async def test_coroutine() -> Coroutine[int, None, None]: ...
+    /// async def test_coroutine(seconds: float = 0.1) -> Coroutine[int, None, None]: ...
     /// ]]></code>
     /// </summary>
-    Task<long> TestCoroutine();
+    Task<long> TestCoroutine(double seconds = 0.1, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Invokes the Python function <c>test_coroutine_raises_exception</c>:
@@ -144,13 +147,13 @@ public interface ITestClass : IReloadableModuleImport
     /// async def test_coroutine_raises_exception() -> Coroutine[int, None, None]: ...
     /// ]]></code>
     /// </summary>
-    Task<long> TestCoroutineRaisesException();
+    Task<long> TestCoroutineRaisesException(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Invokes the Python function <c>test_coroutine_returns_nothing</c>:
     /// <code><![CDATA[
-    /// async def test_coroutine_returns_nothing() -> Coroutine[None, None, None]: ...
+    /// async def test_coroutine_returns_nothing(seconds: float = 0.1) -> Coroutine[None, None, None]: ...
     /// ]]></code>
     /// </summary>
-    Task<PyObject> TestCoroutineReturnsNothing();
+    Task<PyObject> TestCoroutineReturnsNothing(double seconds = 0.1, CancellationToken cancellationToken = default);
 }

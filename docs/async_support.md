@@ -17,7 +17,7 @@ The generated C# method will have this signature:
 
 
 ```csharp
-public async Task<int> AsyncFunction();
+public async Task<int> AsyncFunction(CancellationToken cancellationToken = default);
 ```
 
 Python async functions can be awaited in C# code.
@@ -46,7 +46,3 @@ This means that even if you use parallel LINQ or other parallel constructs in C#
 
 Python 3.13 and above have a feature called "free-threading mode" which allows the Python interpreter to run in a multi-threaded environment without the Global Interpreter Lock (GIL). This is a significant change to the Python runtime and can have a big impact on the performance of Python code running in a multi-threaded environment.
 See [Free-Threading Mode](advanced.md#free-threading-mode) for more information.
-
-## Cancellation Tokens
-
-Coroutine objects have an `AsTask<TYield>(CancellationToken?)` API, but the source generator does not yet propagate the cancellation token argument to the generated interfaces, if you want to use cancellation tokens, please raise an issue with your use case.

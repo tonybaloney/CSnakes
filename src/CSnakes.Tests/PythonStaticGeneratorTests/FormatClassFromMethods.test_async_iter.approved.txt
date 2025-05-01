@@ -23,7 +23,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "070e1cd3cbfb1cf4d2690dac644bff64"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "6d73dc1546a4227cacfbbf9bbfc9112f"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -46,6 +46,7 @@ public static class TestClassExtensions
         private readonly ILogger<IPythonEnvironment> logger;
 
         private PyObject __func_test_basic_async_iter;
+        private PyObject __func_test_basic_async_iterable;
 
         internal TestClassInternal(ILogger<IPythonEnvironment> logger)
         {
@@ -55,6 +56,7 @@ public static class TestClassExtensions
                 logger.LogDebug("Importing module {ModuleName}", "test");
                 module = Import.ImportModule("test");
                 this.__func_test_basic_async_iter = module.GetAttr("test_basic_async_iter");
+                this.__func_test_basic_async_iterable = module.GetAttr("test_basic_async_iterable");
             }
         }
 
@@ -66,8 +68,10 @@ public static class TestClassExtensions
                 Import.ReloadModule(ref module);
                 // Dispose old functions
                 this.__func_test_basic_async_iter.Dispose();
+                this.__func_test_basic_async_iterable.Dispose();
                 // Bind to new functions
                 this.__func_test_basic_async_iter = module.GetAttr("test_basic_async_iter");
+                this.__func_test_basic_async_iterable = module.GetAttr("test_basic_async_iterable");
             }
         }
 
@@ -75,6 +79,7 @@ public static class TestClassExtensions
         {
             logger.LogDebug("Disposing module {ModuleName}", "test");
             this.__func_test_basic_async_iter.Dispose();
+            this.__func_test_basic_async_iterable.Dispose();
             module.Dispose();
         }
 
@@ -84,6 +89,17 @@ public static class TestClassExtensions
             {
                 logger.LogDebug("Invoking Python function: {FunctionName}", "test_basic_async_iter");
                 PyObject __underlyingPythonFunc = this.__func_test_basic_async_iter;
+                PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                return __result_pyObject;
+            }
+        }
+
+        public PyObject TestBasicAsyncIterable()
+        {
+            using (GIL.Acquire())
+            {
+                logger.LogDebug("Invoking Python function: {FunctionName}", "test_basic_async_iterable");
+                PyObject __underlyingPythonFunc = this.__func_test_basic_async_iterable;
                 PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 return __result_pyObject;
             }
@@ -103,4 +119,12 @@ public interface ITestClass : IReloadableModuleImport
     /// ]]></code>
     /// </summary>
     PyObject TestBasicAsyncIter();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_basic_async_iterable</c>:
+    /// <code><![CDATA[
+    /// def test_basic_async_iterable() -> typing.AsyncIterable[int]: ...
+    /// ]]></code>
+    /// </summary>
+    PyObject TestBasicAsyncIterable();
 }

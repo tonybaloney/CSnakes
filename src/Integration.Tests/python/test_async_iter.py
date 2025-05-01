@@ -1,3 +1,4 @@
+import asyncio
 import typing
 
 def test_basic_async_iter() -> typing.AsyncIterator[int]:
@@ -12,6 +13,7 @@ def test_basic_async_iter() -> typing.AsyncIterator[int]:
         async def __anext__(self):
             if self._i < 5:
                 self._i += 1
+                await asyncio.sleep(0)
                 return self._i
             raise StopAsyncIteration
 

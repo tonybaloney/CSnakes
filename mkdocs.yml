@@ -14,7 +14,7 @@ nav:
 
 theme:
   name: material
-  locale: res/logo.jpeg
+  logo: res/logo.jpeg
   features:
     - content.code.copy
   palette:

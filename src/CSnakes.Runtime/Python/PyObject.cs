@@ -195,12 +195,26 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
+    public IAsyncEnumerable<T> AsAsyncEnumerable<T>() =>
+        AsAsyncEnumerable<T, PyObjectImporters.Runtime<T>>();
+
+    public IAsyncEnumerable<T> AsAsyncEnumerable<T, TImporter>()
+        where TImporter : IPyObjectImporter<T> =>
+        AsPyAsyncEnumerable<T, TImporter>();
+
+    private PyAsyncEnumerable<T, TImporter> AsPyAsyncEnumerable<T, TImporter>()
+        where TImporter : IPyObjectImporter<T> =>
+        new(Clone());
+
     public IAsyncEnumerator<T> AsAsyncEnumerator<T>(CancellationToken cancellationToken = default) =>
         AsAsyncEnumerator<T, PyObjectImporters.Runtime<T>>(cancellationToken);
 
     public IAsyncEnumerator<T> AsAsyncEnumerator<T, TImporter>(CancellationToken cancellationToken = default)
-        where TImporter : IPyObjectImporter<T> =>
-        new AsyncIterator<T, TImporter>(GetAIter(), cancellationToken);
+        where TImporter : IPyObjectImporter<T>
+    {
+        using var enumerable = AsPyAsyncEnumerable<T, TImporter>();
+        return enumerable.GetAsyncEnumerator(cancellationToken);
+    }
 
     /// <summary>
     /// Get the results of the repr() function on the object.

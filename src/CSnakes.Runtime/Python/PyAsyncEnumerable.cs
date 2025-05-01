@@ -1,25 +1,19 @@
 using CSnakes.Runtime.CPython;
 
 namespace CSnakes.Runtime.Python;
-internal sealed class AsyncIterator<T, TImporter>(PyObject pyObject, CancellationToken cancellationToken) :
-    IAsyncEnumerator<T>
+
+internal sealed class PyAsyncEnumerable<T, TImporter>(PyObject pyAsyncIterable) : IAsyncEnumerable<T>, IDisposable
     where TImporter : IPyObjectImporter<T>
 {
-    private readonly IAsyncEnumerator<T> enumerator = Iterator(pyObject, cancellationToken);
+    public void Dispose() => pyAsyncIterable.Dispose();
 
-    public T Current => enumerator.Current;
+    public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken) =>
+        Iterator(pyAsyncIterable.GetAIter(), cancellationToken);
 
-    public ValueTask<bool> MoveNextAsync() => enumerator.MoveNextAsync();
-
-    public async ValueTask DisposeAsync()
+    private static async IAsyncEnumerator<T> Iterator(PyObject pyIterator, CancellationToken cancellationToken)
     {
-        await enumerator.DisposeAsync().ConfigureAwait(false);
-        pyObject.Dispose();
-    }
-
-    private static async IAsyncEnumerator<T> Iterator(PyObject pyObject, CancellationToken cancellationToken)
-    {
-        using var anextFunction = pyObject.GetAttr("__anext__");
+        using var _ = pyIterator;
+        using var anextFunction = pyIterator.GetAttr("__anext__");
 
         while (true)
         {

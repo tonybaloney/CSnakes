@@ -65,13 +65,7 @@ public static partial class ServiceCollectionExtensions
         return parsed;
     }
 
-    /// <summary>
-    /// Adds a Python locator using Python from a NuGet packages to the service collection with the specified version.
-    /// </summary>
-    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
-    /// <param name="version">The version of the NuGet package.</param>
-    /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    public static IPythonEnvironmentBuilder FromNuGet(this IPythonEnvironmentBuilder builder, string version)
+    internal static TResult FromNuGet<TArg, TResult>(string version, TArg arg, Func<TArg, NuGetLocator, TResult> resultor)
     {
         // See https://github.com/tonybaloney/CSnakes/issues/154#issuecomment-2352116849
         version = version.Replace("alpha.", "a").Replace("beta.", "b").Replace("rc.", "rc");
@@ -82,9 +76,21 @@ public static partial class ServiceCollectionExtensions
             version = $"{version}.0";
         }
 
-        builder.Services.AddSingleton<PythonLocator>(new NuGetLocator(version, ParsePythonVersion(version)));
-        return builder;
+        return resultor(arg, new NuGetLocator(version, ParsePythonVersion(version)));
     }
+
+    /// <summary>
+    /// Adds a Python locator using Python from a NuGet packages to the service collection with the specified version.
+    /// </summary>
+    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
+    /// <param name="version">The version of the NuGet package.</param>
+    /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
+    public static IPythonEnvironmentBuilder FromNuGet(this IPythonEnvironmentBuilder builder, string version) =>
+        FromNuGet(version, builder, static (builder, locator) =>
+        {
+            builder.Services.AddSingleton<PythonLocator>(locator);
+            return builder;
+        });
 
     /// <summary>
     /// Adds a Python locator using Python from the Windows Store packages to the service collection with the specified version.

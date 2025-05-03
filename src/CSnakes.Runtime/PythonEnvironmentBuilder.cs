@@ -37,7 +37,7 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
                 }
                 catch (InvalidOperationException)
                 {
-                    throw new InvalidOperationException("Conda environments much be used with Conda Locator.");
+                    throw new InvalidOperationException("Conda environments must be used with Conda Locator.");
                 }
             });
         return this;

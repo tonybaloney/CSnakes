@@ -27,7 +27,7 @@ public static partial class ServiceCollectionExtensions
             var envBuilder = sp.GetRequiredService<IPythonEnvironmentBuilder>();
             var locators = sp.GetServices<PythonLocator>();
             var installers = sp.GetServices<IPythonPackageInstaller>();
-            var logger = sp.GetRequiredService<ILogger<IPythonEnvironment>>();
+            var logger = sp.GetService<ILogger<IPythonEnvironment>>();
             var environmentManager = sp.GetService<IEnvironmentManagement>();
 
             var options = envBuilder.GetOptions();
@@ -165,7 +165,7 @@ public static partial class ServiceCollectionExtensions
         builder.Services.AddSingleton<CondaLocator>(
             sp =>
             {
-                var logger = sp.GetRequiredService<ILogger<IPythonEnvironment>>();
+                var logger = sp.GetService<ILogger<IPythonEnvironment>>();
                 return new CondaLocator(logger, condaBinaryPath);
             }
         );
@@ -192,7 +192,7 @@ public static partial class ServiceCollectionExtensions
         builder.Services.AddSingleton<PythonLocator>(
             sp =>
             {
-                var logger = sp.GetRequiredService<ILogger<RedistributableLocator>>();
+                var logger = sp.GetService<ILogger<RedistributableLocator>>();
                 return new RedistributableLocator(logger, RedistributablePythonVersion.Python3_12, timeout, debug);
             }
         );
@@ -214,7 +214,7 @@ public static partial class ServiceCollectionExtensions
         builder.Services.AddSingleton<PythonLocator>(
             sp =>
             {
-                var logger = sp.GetRequiredService<ILogger<RedistributableLocator>>();
+                var logger = sp.GetService<ILogger<RedistributableLocator>>();
                 return new RedistributableLocator(logger, version, timeout, debug, freeThreaded);
             }
         );
@@ -258,7 +258,7 @@ public static partial class ServiceCollectionExtensions
         builder.Services.AddSingleton<IPythonPackageInstaller>(
             sp =>
             {
-                var logger = sp.GetRequiredService<ILogger<PipInstaller>>();
+                var logger = sp.GetService<ILogger<PipInstaller>>();
                 return new PipInstaller(logger, requirementsPath);
             }
         );
@@ -276,7 +276,7 @@ public static partial class ServiceCollectionExtensions
         builder.Services.AddSingleton<IPythonPackageInstaller>(
             sp =>
             {
-                var logger = sp.GetRequiredService<ILogger<UVInstaller>>();
+                var logger = sp.GetService<ILogger<UVInstaller>>();
                 return new UVInstaller(logger, requirementsPath);
             }
         );

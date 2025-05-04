@@ -43,19 +43,19 @@ public static class TestClassExtensions
     private class TestClassInternal : ITestClass
     {
         private PyObject module;
-        private readonly ILogger<IPythonEnvironment> logger;
+        private readonly ILogger<IPythonEnvironment>? logger;
 
         private PyObject __func_test_dict_str_int;
         private PyObject __func_test_dict_str_list_int;
         private PyObject __func_test_dict_str_dict_int;
         private PyObject __func_test_mapping;
 
-        internal TestClassInternal(ILogger<IPythonEnvironment> logger)
+        internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
             this.logger = logger;
             using (GIL.Acquire())
             {
-                logger.LogDebug("Importing module {ModuleName}", "test");
+                logger?.LogDebug("Importing module {ModuleName}", "test");
                 module = Import.ImportModule("test");
                 this.__func_test_dict_str_int = module.GetAttr("test_dict_str_int");
                 this.__func_test_dict_str_list_int = module.GetAttr("test_dict_str_list_int");
@@ -66,7 +66,7 @@ public static class TestClassExtensions
 
         void IReloadableModuleImport.ReloadModule()
         {
-            logger.LogDebug("Reloading module {ModuleName}", "test");
+            logger?.LogDebug("Reloading module {ModuleName}", "test");
             using (GIL.Acquire())
             {
                 Import.ReloadModule(ref module);
@@ -85,7 +85,7 @@ public static class TestClassExtensions
 
         public void Dispose()
         {
-            logger.LogDebug("Disposing module {ModuleName}", "test");
+            logger?.LogDebug("Disposing module {ModuleName}", "test");
             this.__func_test_dict_str_int.Dispose();
             this.__func_test_dict_str_list_int.Dispose();
             this.__func_test_dict_str_dict_int.Dispose();
@@ -97,7 +97,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_int");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_int");
                 PyObject __underlyingPythonFunc = this.__func_test_dict_str_int;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -110,7 +110,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_list_int");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_list_int");
                 PyObject __underlyingPythonFunc = this.__func_test_dict_str_list_int;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -123,7 +123,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_dict_int");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_dict_int");
                 PyObject __underlyingPythonFunc = this.__func_test_dict_str_dict_int;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -136,7 +136,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_mapping");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_mapping");
                 PyObject __underlyingPythonFunc = this.__func_test_mapping;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);

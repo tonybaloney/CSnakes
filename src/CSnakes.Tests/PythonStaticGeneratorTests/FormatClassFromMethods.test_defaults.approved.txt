@@ -43,7 +43,7 @@ public static class TestClassExtensions
     private class TestClassInternal : ITestClass
     {
         private PyObject module;
-        private readonly ILogger<IPythonEnvironment> logger;
+        private readonly ILogger<IPythonEnvironment>? logger;
 
         private PyObject __func_test_default_str_arg;
         private PyObject __func_test_default_int_arg;
@@ -54,12 +54,12 @@ public static class TestClassExtensions
         private PyObject __func_test_optional_list;
         private PyObject __func_test_optional_any;
 
-        internal TestClassInternal(ILogger<IPythonEnvironment> logger)
+        internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
             this.logger = logger;
             using (GIL.Acquire())
             {
-                logger.LogDebug("Importing module {ModuleName}", "test");
+                logger?.LogDebug("Importing module {ModuleName}", "test");
                 module = Import.ImportModule("test");
                 this.__func_test_default_str_arg = module.GetAttr("test_default_str_arg");
                 this.__func_test_default_int_arg = module.GetAttr("test_default_int_arg");
@@ -74,7 +74,7 @@ public static class TestClassExtensions
 
         void IReloadableModuleImport.ReloadModule()
         {
-            logger.LogDebug("Reloading module {ModuleName}", "test");
+            logger?.LogDebug("Reloading module {ModuleName}", "test");
             using (GIL.Acquire())
             {
                 Import.ReloadModule(ref module);
@@ -101,7 +101,7 @@ public static class TestClassExtensions
 
         public void Dispose()
         {
-            logger.LogDebug("Disposing module {ModuleName}", "test");
+            logger?.LogDebug("Disposing module {ModuleName}", "test");
             this.__func_test_default_str_arg.Dispose();
             this.__func_test_default_int_arg.Dispose();
             this.__func_test_default_float_arg.Dispose();
@@ -117,7 +117,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_default_str_arg");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_default_str_arg");
                 PyObject __underlyingPythonFunc = this.__func_test_default_str_arg;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -130,7 +130,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_default_int_arg");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_default_int_arg");
                 PyObject __underlyingPythonFunc = this.__func_test_default_int_arg;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -143,7 +143,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_default_float_arg");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_default_float_arg");
                 PyObject __underlyingPythonFunc = this.__func_test_default_float_arg;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -156,7 +156,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_int_literals");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int_literals");
                 PyObject __underlyingPythonFunc = this.__func_test_int_literals;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
@@ -170,7 +170,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_optional_int");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_optional_int");
                 PyObject __underlyingPythonFunc = this.__func_test_optional_int;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -183,7 +183,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_optional_str");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_optional_str");
                 PyObject __underlyingPythonFunc = this.__func_test_optional_str;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -196,7 +196,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_optional_list");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_optional_list");
                 PyObject __underlyingPythonFunc = this.__func_test_optional_list;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -209,7 +209,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_optional_any");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_optional_any");
                 PyObject __underlyingPythonFunc = this.__func_test_optional_any;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);

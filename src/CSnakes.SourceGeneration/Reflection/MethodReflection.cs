@@ -217,19 +217,19 @@ public static class MethodReflection
             callStatement = callStatement.WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
 
         var logStatement = ExpressionStatement(
-                InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("logger"),
-                        IdentifierName("LogDebug")))
-                    .WithArgumentList(
-                        ArgumentList(
-                            SeparatedList(
-                                [
-                                    Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Invoking Python function: {FunctionName}"))),
-                                    Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(function.Name)))
-                                ])))
-                    );
+                ConditionalAccessExpression(
+                    IdentifierName("logger"),
+                    InvocationExpression(
+                        MemberBindingExpression(
+                            IdentifierName("LogDebug")))
+                        .WithArgumentList(
+                            ArgumentList(
+                                SeparatedList(
+                                    [
+                                        Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Invoking Python function: {FunctionName}"))),
+                                        Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(function.Name)))
+                                    ])))
+                        ));
 
         var body = Block(
             UsingStatement(

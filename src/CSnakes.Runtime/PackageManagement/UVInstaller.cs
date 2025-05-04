@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.PackageManagement;
 
-internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileName) : IPythonPackageInstaller
+internal class UVInstaller(ILogger<UVInstaller>? logger, string requirementsFileName) : IPythonPackageInstaller
 {
     static readonly string binaryName = $"uv{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
 
@@ -13,18 +13,18 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
         string requirementsPath = Path.GetFullPath(Path.Combine(home, requirementsFileName));
         if (File.Exists(requirementsPath))
         {
-            logger.LogDebug("File {Requirements} was found.", requirementsPath);
+            logger?.LogDebug("File {Requirements} was found.", requirementsPath);
             InstallPackagesWithUv(home, environmentManager, $"-r {requirementsFileName}", logger);
         }
         else
         {
-            logger.LogWarning("File {Requirements} was not found.", requirementsPath);
+            logger?.LogWarning("File {Requirements} was not found.", requirementsPath);
         }
 
         return Task.CompletedTask;
     }
 
-    static internal void InstallPackagesWithUv(string home, IEnvironmentManagement? environmentManager, string requirements, ILogger logger)
+    static internal void InstallPackagesWithUv(string home, IEnvironmentManagement? environmentManager, string requirements, ILogger? logger)
     {
         string fileName = binaryName;
         string workingDirectory = home;
@@ -34,7 +34,7 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
         if (environmentManager is not null)
         {
             string virtualEnvironmentLocation = Path.GetFullPath(environmentManager.GetPath());
-            logger.LogDebug("Using virtual environment at {VirtualEnvironmentLocation} to install packages with uv.", virtualEnvironmentLocation);
+            logger?.LogDebug("Using virtual environment at {VirtualEnvironmentLocation} to install packages with uv.", virtualEnvironmentLocation);
             string venvScriptPath = Path.Combine(virtualEnvironmentLocation, RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Scripts" : "bin");
             string uvPath = Path.Combine(venvScriptPath, binaryName);
 

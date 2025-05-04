@@ -1,6 +1,4 @@
 using CSnakes.Runtime.Locators;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime.Tests;
@@ -8,7 +6,6 @@ namespace CSnakes.Runtime.Tests;
 public class RuntimeTestBase : IDisposable
 {
     protected readonly IPythonEnvironment env;
-    protected readonly IHost app;
 
     public RuntimeTestBase()
     {
@@ -27,16 +24,10 @@ public class RuntimeTestBase : IDisposable
             _ => throw new NotSupportedException($"Python version {pythonVersionToTest} is not supported.")
         };
 
-        var builder = Host.CreateApplicationBuilder();
-        var pb = builder.Services.WithPython();
-        pb.WithHome(Environment.CurrentDirectory)
-          .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded);
-
-        builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
-        
-        app = builder.Build();
-
-        env = app.Services.GetRequiredService<IPythonEnvironment>();
+        env = CSnakes.Python.GetEnvironment(
+                  pb => pb.WithHome(Environment.CurrentDirectory)
+                          .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded),
+                  static lb => lb.AddXUnit());
     }
 
     public void Dispose()

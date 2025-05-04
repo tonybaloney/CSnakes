@@ -6,6 +6,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Collections.Immutable;
 
+#pragma warning disable RS0016 // FIXME Add public types and members to the declared API
+#pragma warning disable RS0026 // FIXME Do not add multiple public overloads with optional parameters
+
 namespace CSnakes.Runtime;
 
 public sealed class PythonEnvironmentConfiguration : IServiceProvider
@@ -130,7 +133,7 @@ public sealed class PythonEnvironmentConfiguration : IServiceProvider
     /// <param name="requirementsPath">The path to the requirements file.</param>
     /// <returns>The modified <see cref="PythonEnvironmentConfiguration"/>.</returns>
     public PythonEnvironmentConfiguration AddPipInstaller(string requirementsPath = "requirements.txt") =>
-        AddPackageInstaller(new PipInstaller(LoggerFactory.CreateLogger<PipInstaller>(), requirementsPath));
+        AddPackageInstaller(new PipInstaller(LoggerFactory.CreateLogger<PipInstaller>(), EnvironmentManager, requirementsPath));
 
     /// <summary>
     /// Simplest option for getting started with CSnakes. Downloads and installs the redistributable
@@ -183,7 +186,7 @@ public sealed class PythonEnvironmentConfiguration : IServiceProvider
     /// <param name="requirementsPath">The path to the requirements file.</param>
     /// <returns>The modified <see cref="PythonEnvironmentConfiguration"/>.</returns>
     public PythonEnvironmentConfiguration AddUvInstaller(string requirementsPath = "requirements.txt") =>
-        AddPackageInstaller(new UVInstaller(LoggerFactory.CreateLogger<UVInstaller>(), requirementsPath));
+        AddPackageInstaller(new UVInstaller(LoggerFactory.CreateLogger<UVInstaller>(), EnvironmentManager, requirementsPath));
 
     public PythonEnvironmentConfiguration SetVirtualEnvironment(string path, bool ensureExists = true) =>
         WithEnvironmentManager(new VenvEnvironmentManagement(LoggerFactory.CreateLogger<VenvEnvironmentManagement>(), path, ensureExists));

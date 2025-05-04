@@ -29,10 +29,11 @@ public static partial class ServiceCollectionExtensions
             var installers = sp.GetServices<IPythonPackageInstaller>();
             var logger = sp.GetService<ILogger<IPythonEnvironment>>();
             var environmentManager = sp.GetService<IEnvironmentManagement>();
+            var userObject = sp.GetService<UserObjectFactory>()?.Invoke(sp);
 
             var options = envBuilder.GetOptions();
 
-            return PythonEnvironment.GetPythonEnvironment(locators, installers, options, logger, environmentManager);
+            return PythonEnvironment.GetPythonEnvironment(locators, installers, options, logger, environmentManager, userObject);
         });
 
         return pythonBuilder;

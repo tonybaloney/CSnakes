@@ -1,3 +1,4 @@
+using CSnakes;
 using CSnakes.Runtime.Locators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,7 +8,6 @@ namespace RedistributablePython.Tests;
 public class RedistributablePythonTestBase : IDisposable
 {
     private readonly IPythonEnvironment env;
-    private readonly IHost app;
 
     public RedistributablePythonTestBase()
     {
@@ -26,22 +26,16 @@ public class RedistributablePythonTestBase : IDisposable
             14 => RedistributablePythonVersion.Python3_14,
             _ => throw new NotSupportedException($"Python version {pythonVersionToTest} is not supported.")
         };
-        var builder = Host.CreateApplicationBuilder();
-        var pb = builder.Services.WithPython();
-        pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"))
-          .DisableSignalHandlers()
-          .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
-          .WithUvInstaller()
-          .WithVirtualEnvironment(venvPath);
 
-        builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
-
-        builder.Logging.SetMinimumLevel(LogLevel.Debug);
-        builder.Logging.AddFilter(_ => true);
-        
-        app = builder.Build();
-
-        env = app.Services.GetRequiredService<IPythonEnvironment>();
+        env = Python.GetEnvironment(
+                  pb => pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"))
+                          .DisableSignalHandlers()
+                          .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
+                          .WithUvInstaller()
+                          .WithVirtualEnvironment(venvPath),
+                  lb => lb.SetMinimumLevel(LogLevel.Debug)
+                          .AddFilter(_ => true)
+                          .AddXUnit());
     }
 
     public void Dispose()

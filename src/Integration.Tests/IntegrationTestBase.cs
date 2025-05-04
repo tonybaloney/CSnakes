@@ -1,7 +1,7 @@
+using CSnakes;
 using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
@@ -20,12 +20,11 @@ public sealed class PythonEnvironmentFixture : IDisposable
 {
     private readonly IPythonEnvironment env;
     private readonly IPythonPackageInstaller installer;
-    private readonly IHost app;
 
     public PythonEnvironmentFixture()
     {
         Version pythonVersionToTest = ServiceCollectionExtensions.ParsePythonVersion(Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9");
-        bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "1";
+        bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "true";
         bool debugPython = Environment.GetEnvironmentVariable("PYTHON_DEBUG") == "1";
         string venvPath = Path.Join(Environment.CurrentDirectory, "python", $".venv-{pythonVersionToTest}{(freeThreaded ? "t": "")}{(debugPython ? "d": "")}");
 
@@ -40,26 +39,18 @@ public sealed class PythonEnvironmentFixture : IDisposable
             _ => throw new NotSupportedException($"Python version {pythonVersionToTest} is not supported.")
         };
 
-        var builder = Host.CreateApplicationBuilder();
-        var pb = builder.Services.WithPython();
-        pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
-
-        pb.FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
-          .WithVirtualEnvironment(venvPath)
-          .WithPipInstaller();
-
-        builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
-        
-        app = builder.Build();
-
-        env = app.Services.GetRequiredService<IPythonEnvironment>();
-        installer = app.Services.GetRequiredService<IPythonPackageInstaller>();
+        (env, installer) = Python.GetEnvironment(
+                  pb => pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"))
+                          .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
+                          .WithVirtualEnvironment(venvPath)
+                          .WithPipInstaller(),
+                  lb => lb.AddXUnit(),
+                  sp => sp.GetRequiredService<IPythonPackageInstaller>());
     }
 
     public void Dispose()
     {
         env.Dispose();
-        app.Dispose();
         GC.SuppressFinalize(this);
         GC.Collect();
     }

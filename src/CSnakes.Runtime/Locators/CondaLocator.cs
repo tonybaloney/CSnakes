@@ -8,19 +8,19 @@ internal class CondaLocator : PythonLocator
 {
     private readonly string folder;
     private readonly Version version;
-    private readonly ILogger logger;
+    private readonly ILogger? logger;
     private readonly string condaBinaryPath;
 
     protected override Version Version { get { return version; } }
 
-    internal CondaLocator(ILogger logger, string condaBinaryPath)
+    internal CondaLocator(ILogger? logger, string condaBinaryPath)
     {
         this.logger = logger;
         this.condaBinaryPath = condaBinaryPath;
         var (process, result, errors) = ExecuteCondaCommand($"info --json");
         if (process.ExitCode != 0)
         {
-            logger.LogError("Failed to determine Python version from Conda {Error}.", errors);
+            logger?.LogError("Failed to determine Python version from Conda {Error}.", errors);
             throw new InvalidOperationException("Could not determine Python version from Conda.");
         }
         process.Dispose();

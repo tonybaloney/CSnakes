@@ -43,18 +43,18 @@ public static class TestClassExtensions
     private class TestClassInternal : ITestClass
     {
         private PyObject module;
-        private readonly ILogger<IPythonEnvironment> logger;
+        private readonly ILogger<IPythonEnvironment>? logger;
 
         private PyObject __func_test_coroutine;
         private PyObject __func_test_coroutine_raises_exception;
         private PyObject __func_test_coroutine_returns_nothing;
 
-        internal TestClassInternal(ILogger<IPythonEnvironment> logger)
+        internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
             this.logger = logger;
             using (GIL.Acquire())
             {
-                logger.LogDebug("Importing module {ModuleName}", "test");
+                logger?.LogDebug("Importing module {ModuleName}", "test");
                 module = Import.ImportModule("test");
                 this.__func_test_coroutine = module.GetAttr("test_coroutine");
                 this.__func_test_coroutine_raises_exception = module.GetAttr("test_coroutine_raises_exception");
@@ -64,7 +64,7 @@ public static class TestClassExtensions
 
         void IReloadableModuleImport.ReloadModule()
         {
-            logger.LogDebug("Reloading module {ModuleName}", "test");
+            logger?.LogDebug("Reloading module {ModuleName}", "test");
             using (GIL.Acquire())
             {
                 Import.ReloadModule(ref module);
@@ -81,7 +81,7 @@ public static class TestClassExtensions
 
         public void Dispose()
         {
-            logger.LogDebug("Disposing module {ModuleName}", "test");
+            logger?.LogDebug("Disposing module {ModuleName}", "test");
             this.__func_test_coroutine.Dispose();
             this.__func_test_coroutine_raises_exception.Dispose();
             this.__func_test_coroutine_returns_nothing.Dispose();
@@ -92,7 +92,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine;
                 using PyObject seconds_pyObject = PyObject.From(seconds)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);
@@ -105,7 +105,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_raises_exception");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_raises_exception");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_raises_exception;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<ICoroutine<long, PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>>().AsTask(cancellationToken);
@@ -117,7 +117,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_returns_nothing");
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_returns_nothing");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_returns_nothing;
                 using PyObject seconds_pyObject = PyObject.From(seconds)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);

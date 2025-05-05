@@ -4,10 +4,10 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.EnvironmentManagement;
 #pragma warning disable CS9113 // Parameter is unread. There for future use.
-internal class CondaEnvironmentManagement(ILogger logger, string name, bool ensureEnvironment, CondaLocator conda, string? environmentSpecPath, string? pythonEnvironmentVersion) : IEnvironmentManagement
+internal class CondaEnvironmentManagement(ILogger? logger, string name, bool ensureEnvironment, CondaLocator conda, string? environmentSpecPath, string? pythonEnvironmentVersion) : IEnvironmentManagement
 #pragma warning restore CS9113 // Parameter is unread.
 {
-    ILogger IEnvironmentManagement.Logger => logger;
+    ILogger? IEnvironmentManagement.Logger => logger;
 
     public void EnsureEnvironment(PythonLocationMetadata pythonLocation)
     {
@@ -17,7 +17,7 @@ internal class CondaEnvironmentManagement(ILogger logger, string name, bool ensu
         var fullPath = Path.GetFullPath(GetPath());
         if (!Directory.Exists(fullPath))
         {
-            logger.LogError("Cannot find conda environment at {fullPath}.", fullPath);
+            logger?.LogError("Cannot find conda environment at {fullPath}.", fullPath);
 
             throw new InvalidOperationException($"Cannot find conda environment at {fullPath}.");
 
@@ -25,13 +25,13 @@ internal class CondaEnvironmentManagement(ILogger logger, string name, bool ensu
             //var result = conda.ExecuteCondaShellCommand($"env create -n {name} -f {environmentSpecPath}");
             //if (!result)
             //{
-            //    logger.LogError("Failed to create conda environment.");
+            //    logger?.LogError("Failed to create conda environment.");
             //    throw new InvalidOperationException("Could not create conda environment");
             //}
         }
         else
         {
-            logger.LogDebug("Conda environment already exists at {fullPath}", fullPath);
+            logger?.LogDebug("Conda environment already exists at {fullPath}", fullPath);
             // TODO: Check if the environment is up to date
         }
     }

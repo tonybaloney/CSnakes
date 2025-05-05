@@ -110,18 +110,18 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 private class {{pascalFileName}}Internal : I{{pascalFileName}}
                 {
                     private PyObject module;
-                    private readonly ILogger<IPythonEnvironment> logger;
+                    private readonly ILogger<IPythonEnvironment>? logger;
 
             {{      Lines(IndentationLevel.Two,
                           from f in functionNames
                           select $"private PyObject {f.Field};") }}
 
-                    internal {{pascalFileName}}Internal(ILogger<IPythonEnvironment> logger)
+                    internal {{pascalFileName}}Internal(ILogger<IPythonEnvironment>? logger)
                     {
                         this.logger = logger;
                         using (GIL.Acquire())
                         {
-                            logger.LogDebug("Importing module {ModuleName}", "{{fileName}}");
+                            logger?.LogDebug("Importing module {ModuleName}", "{{fileName}}");
                             module = Import.ImportModule("{{fileName}}");
             {{              Lines(IndentationLevel.Four,
                                   from f in functionNames
@@ -131,7 +131,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                     void IReloadableModuleImport.ReloadModule()
                     {
-                        logger.LogDebug("Reloading module {ModuleName}", "{{fileName}}");
+                        logger?.LogDebug("Reloading module {ModuleName}", "{{fileName}}");
                         using (GIL.Acquire())
                         {
                             Import.ReloadModule(ref module);
@@ -148,7 +148,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                     public void Dispose()
                     {
-                        logger.LogDebug("Disposing module {ModuleName}", "{{fileName}}");
+                        logger?.LogDebug("Disposing module {ModuleName}", "{{fileName}}");
             {{          Lines(IndentationLevel.Three,
                               from f in functionNames
                               select $"this.{f.Field}.Dispose();") }}

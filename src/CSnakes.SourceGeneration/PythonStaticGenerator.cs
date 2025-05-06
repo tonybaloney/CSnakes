@@ -1,6 +1,7 @@
 using CSnakes.Parser;
 using CSnakes.Parser.Types;
 using CSnakes.Reflection;
+using CSnakes.SourceGeneration;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
@@ -25,11 +26,15 @@ public class PythonStaticGenerator : IIncrementalGenerator
             var fileName = Path.GetFileNameWithoutExtension(file.Path);
 
             // Convert snake_case to PascalCase
-            var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
+            var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s[1..]));
+
             // Read the file
             var code = file.GetText(sourceContext.CancellationToken);
 
             if (code is null) return;
+
+            // Decide whether to embed the source based on project settings
+            var embedSource = code.ToBase64();
 
             // Calculate hash of code
             var hash = code.GetContentHash();
@@ -47,14 +52,14 @@ public class PythonStaticGenerator : IIncrementalGenerator
             if (result)
             {
                 var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName).ToImmutableArray();
-                string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions, hash);
+                string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions, hash, embedSource);
                 sourceContext.AddSource($"{pascalFileName}.py.cs", source);
                 sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
             }
         });
     }
 
-    public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions, ImmutableArray<byte> hash)
+    public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions, ImmutableArray<byte> hash, string? base64Value = null)
     {
         var paramGenericArgs = methods
             .Select(m => m.ParameterGenericArgs)
@@ -92,6 +97,8 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                 private static ReadOnlySpan<byte> HotReloadHash => "{{HexString(hash.AsSpan())}}"u8;
 
+                private static string? base64Value => "{{base64Value}}";
+
                 public static I{{pascalFileName}} {{pascalFileName}}(this IPythonEnvironment env)
                 {
                     if (instance is null)
@@ -122,7 +129,14 @@ public class PythonStaticGenerator : IIncrementalGenerator
                         using (GIL.Acquire())
                         {
                             logger?.LogDebug("Importing module {ModuleName}", "{{fileName}}");
-                            module = Import.ImportModule("{{fileName}}");
+                            if (!string.IsNullOrEmpty(base64Value))
+                            {
+                                module = Import.ImportModule("{{fileName}}", base64Value, "{{fileName}}.py");
+                            }
+                            else
+                            {
+                                module = Import.ImportModule("{{fileName}}");
+                            }
             {{              Lines(IndentationLevel.Four,
                                   from f in functionNames
                                   select $"this.{f.Field} = module.GetAttr(\"{f.Attr}\");") }}

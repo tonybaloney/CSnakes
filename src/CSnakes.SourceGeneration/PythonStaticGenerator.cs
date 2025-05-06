@@ -18,8 +18,17 @@ public class PythonStaticGenerator : IIncrementalGenerator
         var pythonFilesPipeline = context.AdditionalTextsProvider
             .Where(static text => Path.GetExtension(text.Path) == ".py");
 
-        context.RegisterSourceOutput(pythonFilesPipeline, static (sourceContext, file) =>
+        // Get analyser config options
+        var embedPythonSource = context.AnalyzerConfigOptionsProvider.Select(static (options, cancellationToken) =>
+            options.GlobalOptions.TryGetValue("csnakes_embed_source", out var embedSourceSwitch)
+                ? embedSourceSwitch.Equals("true", StringComparison.InvariantCultureIgnoreCase)
+                : false); // Default
+
+        context.RegisterSourceOutput(pythonFilesPipeline.Combine(embedPythonSource), static (sourceContext, opts) =>
         {
+            var file = opts.Left;
+            var embedSourceSwitch = opts.Right;
+
             // Add environment path
             var @namespace = "CSnakes.Runtime";
 
@@ -34,7 +43,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             if (code is null) return;
 
             // Decide whether to embed the source based on project settings
-            var embedSource = code.ToBaseUTF864();
+            var embedSource = embedSourceSwitch ? code.ToBaseUTF864() : string.Empty;
 
             // Calculate hash of code
             var hash = code.GetContentHash();

@@ -36,4 +36,10 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Update="C:\Users\anthonyshaw\source\repos\tonybaloney\CSnakes\src\RedistributablePython.Tests\.globalconfig">
+      <Generator>SettingsSingleFileGenerator</Generator>
+    </EditorConfigFiles>
+  </ItemGroup>
 </Project>

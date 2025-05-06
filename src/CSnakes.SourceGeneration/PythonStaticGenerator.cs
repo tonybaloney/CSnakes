@@ -34,7 +34,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             if (code is null) return;
 
             // Decide whether to embed the source based on project settings
-            var embedSource = code.ToBase64();
+            var embedSource = code.ToBaseUTF864();
 
             // Calculate hash of code
             var hash = code.GetContentHash();
@@ -82,6 +82,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             using System.Collections.Generic;
             using System.Diagnostics;
             using System.Reflection.Metadata;
+            using System.Text;
             using System.Threading;
             using System.Threading.Tasks;
 
@@ -131,7 +132,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                             logger?.LogDebug("Importing module {ModuleName}", "{{fileName}}");
                             if (!string.IsNullOrEmpty(base64Value))
                             {
-                                module = Import.ImportModule("{{fileName}}", base64Value, "{{fileName}}.py");
+                                module = Import.ImportModule("{{fileName}}", Encoding.UTF8.GetString(Convert.FromBase64String(base64Value)), "{{fileName}}.py");
                             }
                             else
                             {

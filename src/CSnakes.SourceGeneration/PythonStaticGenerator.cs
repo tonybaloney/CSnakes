@@ -107,7 +107,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                 private static ReadOnlySpan<byte> HotReloadHash => "{{HexString(hash.AsSpan())}}"u8;
 
-                private static string? base64Value => "{{base64Value}}";
+                private const string? encodedSource = "{{base64Value}}";
 
                 public static I{{pascalFileName}} {{pascalFileName}}(this IPythonEnvironment env)
                 {
@@ -139,9 +139,9 @@ public class PythonStaticGenerator : IIncrementalGenerator
                         using (GIL.Acquire())
                         {
                             logger?.LogDebug("Importing module {ModuleName}", "{{fileName}}");
-                            if (!string.IsNullOrEmpty(base64Value))
+                            if (!string.IsNullOrEmpty(encodedSource))
                             {
-                                module = Import.ImportModule("{{fileName}}", Encoding.UTF8.GetString(Convert.FromBase64String(base64Value)), "{{fileName}}.py");
+                                module = Import.ImportModule("{{fileName}}", Encoding.UTF8.GetString(Convert.FromBase64String(encodedSource)), "{{fileName}}.py");
                             }
                             else
                             {

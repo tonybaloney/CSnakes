@@ -139,8 +139,8 @@ public class PythonStaticGenerator : IIncrementalGenerator
                         using (GIL.Acquire())
                         {
                             logger?.LogDebug("Importing module {ModuleName}", "{{fileName}}");
-                            this.module = !string.IsNullOrEmpty(source)
-                                        ? Import.ImportModule("{{fileName}}", Encoding.UTF8.GetString(Convert.FromBase64String(encodedSource)), "{{fileName}}.py");
+                            this.module = !string.IsNullOrEmpty(encodedSource)
+                                        ? Import.ImportModule("{{fileName}}", Encoding.UTF8.GetString(Convert.FromBase64String(encodedSource)), "{{fileName}}.py")
                                         : Import.ImportModule("{{fileName}}");
             {{              Lines(IndentationLevel.Four,
                                   from f in functionNames

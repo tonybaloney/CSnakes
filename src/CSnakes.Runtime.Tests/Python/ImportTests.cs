@@ -57,7 +57,7 @@ public class ImportTests : RuntimeTestBase
     public void TestImportFromStringWithNullValues()
     {
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.Throws<ArgumentNullException>(() => Import.ImportModule("test_module", null, null));
+        Assert.Throws<ArgumentNullException>(() => Import.ImportModule("test_module", [], null));
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 

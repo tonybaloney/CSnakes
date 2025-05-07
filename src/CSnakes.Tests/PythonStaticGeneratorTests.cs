@@ -35,14 +35,18 @@ public class PythonStaticGeneratorTests
         Assert.Empty(errors);
 
         var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test").ToImmutableArray();
-        string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test", functions, sourceText.GetContentHash());
+
+        // Just keep last part of the dotted name, e.g.:
+        // "CSnakes.Tests.python.test_args.py" -> "test_args"
+        var nameDiscriminator = Path.GetFileNameWithoutExtension(resourceName).Split('.').Last();
+
+        string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test", functions, sourceText,
+                                                                           embedSourceText: nameDiscriminator.Equals("test_source", StringComparison.OrdinalIgnoreCase));
 
         try
         {
             compiledCode.ShouldMatchApproved(options =>
-                options.WithDiscriminator(// Just keep last part of the dotted name, e.g.:
-                                          // "CSnakes.Tests.python.test_args.py" -> "test_args"
-                                          Path.GetFileNameWithoutExtension(resourceName).Split('.').Last())
+                options.WithDiscriminator(nameDiscriminator)
                        .SubFolder(GetType().Name)
                        .WithFilenameGenerator((info, d, type, ext) => $"{info.MethodName}{d}.{type}.{ext}")
                        .NoDiff());

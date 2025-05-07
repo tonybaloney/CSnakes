@@ -26,7 +26,7 @@ public static class TestClassExtensions
 
     private static ReadOnlySpan<byte> HotReloadHash => "628447fb6935f7e3926b93b678146fc8"u8;
 
-    private const string? encodedSource = "";
+    private const string encodedSource = "";
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -58,14 +58,9 @@ public static class TestClassExtensions
             using (GIL.Acquire())
             {
                 logger?.LogDebug("Importing module {ModuleName}", "test");
-                if (!string.IsNullOrEmpty(encodedSource))
-                {
-                    module = Import.ImportModule("test", Encoding.UTF8.GetString(Convert.FromBase64String(encodedSource)), "test.py");
-                }
-                else
-                {
-                    module = Import.ImportModule("test");
-                }
+                this.module = !string.IsNullOrEmpty(encodedSource)
+                            ? Import.ImportModule("test", Encoding.UTF8.GetString(Convert.FromBase64String(encodedSource)), "test.py")
+                            : Import.ImportModule("test");
                 this.__func_example_generator = module.GetAttr("example_generator");
                 this.__func_test_normal_generator = module.GetAttr("test_normal_generator");
                 this.__func_test_generator_sequence = module.GetAttr("test_generator_sequence");

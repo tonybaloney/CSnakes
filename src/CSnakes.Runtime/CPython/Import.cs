@@ -5,6 +5,14 @@ namespace CSnakes.Runtime.CPython;
 
 internal unsafe partial class CPythonAPI
 {
+    internal enum OptimizationLevel
+    {
+        Default = -1,
+        None = 0,
+        RemoveAssertions = 1,
+        RemoveAssertionsAndDocStrings = 2,
+    }
+
     /// <summary>
     /// Import a module and return a reference to it.
     /// </summary>
@@ -18,24 +26,16 @@ internal unsafe partial class CPythonAPI
         return PyObject.Create(module);
     }
 
-    internal static PyObject Import(string name, string code, string path)
+    internal static PyObject Import(string name, string code, string path, OptimizationLevel optimizationLevel = OptimizationLevel.Default)
     {
-        nint codeObject = Py_CompileString(code, path, InputType.Py_file_input);
-        if (codeObject == IntPtr.Zero)
-        {
-            throw PyObject.ThrowPythonExceptionAsClrException();
-        }
+        using var pyPath = PyObject.From(path);
 
-        nint pyName = AsPyUnicodeObject(name);
-        nint pyCode = AsPyUnicodeObject(code);
-        nint pyPath = AsPyUnicodeObject(path);
+        using var codeObject = PyObject.Create(Py_CompileStringObject(code, pyPath, InputType.Py_file_input, IntPtr.Zero, optimizationLevel));
 
-        nint module = PyImport_ExecCodeModuleObject(pyName, codeObject, pyPath, pyPath);
-        Py_DecRefRaw(pyName);
-        Py_DecRefRaw(pyCode);
-        Py_DecRefRaw(pyPath);
-        Py_DecRefRaw(codeObject);
-        return PyObject.Create(module);
+        using var pyName = PyObject.From(name);
+        using var pyCode = PyObject.From(code);
+
+        return PyObject.Create(PyImport_ExecCodeModuleObject(pyName, codeObject, pyPath, pyPath));
     }
 
     internal static PyObject ReloadModule(PyObject module)
@@ -69,7 +69,7 @@ internal unsafe partial class CPythonAPI
 
 
     [LibraryImport(PythonLibraryName)]
-    private static partial nint PyImport_ExecCodeModuleObject(nint name, nint co, nint pathname, nint cpathname);
+    private static partial nint PyImport_ExecCodeModuleObject(PyObject name, PyObject co, PyObject pathname, PyObject cpathname);
 
     /// <summary>
     /// Reload a module. Return a new reference to the reloaded module, or NULL with an exception set on failure (the module still exists in this case).
@@ -80,5 +80,5 @@ internal unsafe partial class CPythonAPI
     internal static partial nint PyImport_ReloadModule(PyObject module);
 
     [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller))]
-    private static partial nint Py_CompileString(string code, string filename, InputType start);
+    private static partial nint Py_CompileStringObject(string code, PyObject filename, InputType start, nint flags = 0, OptimizationLevel opt = OptimizationLevel.Default);
 }

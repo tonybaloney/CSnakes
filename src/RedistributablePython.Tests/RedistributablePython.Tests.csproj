@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EditorConfigFiles Update="C:\Users\anthonyshaw\source\repos\tonybaloney\CSnakes\src\RedistributablePython.Tests\.globalconfig">
+    <EditorConfigFiles Update=".globalconfig">
       <Generator>SettingsSingleFileGenerator</Generator>
     </EditorConfigFiles>
   </ItemGroup>

@@ -20,7 +20,6 @@ internal unsafe partial class CPythonAPI
 
     internal static PyObject Import(string name, string code, string path)
     {
-        
         nint codeObject = Py_CompileString(code, path, InputType.Py_file_input);
         if (codeObject == IntPtr.Zero)
         {

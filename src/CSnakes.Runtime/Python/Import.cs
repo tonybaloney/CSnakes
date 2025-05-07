@@ -12,8 +12,9 @@ public static class Import
 
     public static PyObject ImportModule(string module, string source, string path)
     {
-        if (string.IsNullOrEmpty(source))
-            throw new ArgumentNullException(nameof(source));
+        ArgumentNullException.ThrowIfNull(module);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(path);
 
         using (GIL.Acquire())
         {

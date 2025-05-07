@@ -31,7 +31,7 @@ public class ImportTests : RuntimeTestBase
     [Fact]
     public void TestImportFromString()
     {
-        string source = "print('hello world')"; // base64 encoded "print("Hello, World")"
+        string source = "print('hello world')"; // Python code string that prints "hello world"
         string path = Environment.CurrentDirectory;
         using PyObject module = Import.ImportModule("test_module", source, path);
         Assert.NotNull(module);

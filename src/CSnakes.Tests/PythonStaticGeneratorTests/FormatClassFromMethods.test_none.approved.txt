@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Metadata;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,6 +25,8 @@ public static class TestClassExtensions
     private static ITestClass? instance;
 
     private static ReadOnlySpan<byte> HotReloadHash => "06d26eb2cdb248df7700c3fa8018d59a"u8;
+
+    private const string encodedSource = "";
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -54,7 +57,9 @@ public static class TestClassExtensions
             using (GIL.Acquire())
             {
                 logger?.LogDebug("Importing module {ModuleName}", "test");
-                module = Import.ImportModule("test");
+                this.module = !string.IsNullOrEmpty(encodedSource)
+                            ? Import.ImportModule("test", Encoding.UTF8.GetString(Convert.FromBase64String(encodedSource)), "test.py")
+                            : Import.ImportModule("test");
                 this.__func_returns_none = module.GetAttr("returns_none");
                 this.__func_test_none_result = module.GetAttr("test_none_result");
             }

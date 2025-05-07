@@ -12,9 +12,9 @@ public static class Import
 
     public static PyObject ImportModule(string module, string source, string path)
     {
-        ArgumentNullException.ThrowIfNull(module);
-        ArgumentNullException.ThrowIfNull(source);
-        ArgumentNullException.ThrowIfNull(path);
+        ArgumentException.ThrowIfNullOrEmpty(module);
+        ArgumentException.ThrowIfNullOrEmpty(source);
+        ArgumentException.ThrowIfNullOrEmpty(path);
 
         using (GIL.Acquire())
         {

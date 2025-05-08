@@ -30,10 +30,10 @@ def return_time() -> tuple[float, tuple[int, int, int, int, int], str]:
     millisecond, microsecond = divmod(val.microsecond, 1000)
     return (datetime.combine(date.min, val) - datetime.min).total_seconds(), (val.hour, val.minute, val.second, millisecond, microsecond), val.isoformat()
 
-def take_time(total_seconds: float, ordinal: tuple[int, int, int, int, int], string: str) -> bool:
+def take_time(total_seconds: float, ordinal: tuple[int, int, int, int, int], string: str) -> tuple[bool, bool]:
     val = time.fromisoformat(string)
     hour, minute, second, millisecond, microsecond = ordinal
-    return (datetime.min + timedelta(seconds=total_seconds)).time() == val and time(hour, minute, second, millisecond * 1000 + microsecond) == val
+    return (datetime.min + timedelta(seconds=total_seconds)).time() == val, time(hour, minute, second, millisecond * 1000 + microsecond) == val
 
 def return_time_delta() -> tuple[float, str]:
     val = timedelta(days=1, hours=2, minutes=3, seconds=4, milliseconds=5, microseconds=6)

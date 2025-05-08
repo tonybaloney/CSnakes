@@ -76,12 +76,13 @@ public class UnitTests(PythonFixture fixture)
 
         // Act
         var (totalSeconds, (hour, minute, second, millisecond, microsecond), str) = typeDemos.ReturnTime();
-        var result = typeDemos.TakeTime(time.ToTimeSpan().TotalSeconds, (time.Hour, time.Minute, time.Second, time.Millisecond, time.Microsecond), $"{time:O}");
+        var (secondsTest, tupleTest) = typeDemos.TakeTime(time.ToTimeSpan().TotalSeconds, (time.Hour, time.Minute, time.Second, time.Millisecond, time.Microsecond), $"{time:O}");
 
         // Assert
         Assert.Equal(TimeOnly.Parse(str, CultureInfo.InvariantCulture), TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(totalSeconds)));
         Assert.Equal(TimeOnly.Parse(str, CultureInfo.InvariantCulture), new TimeOnly((int)hour, (int)minute, (int)second, (int)millisecond, (int)microsecond));
-        Assert.True(result);
+        Assert.True(secondsTest);
+        Assert.True(tupleTest);
     }
 
     /// <summary>

@@ -233,11 +233,15 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
         if (embedSourceText)
         {
+            // Note the use of quintuple-quoted raw string literal here so that the generated
+            // "source" field below can be quadruple-quoted, and which in turn allows safe embedding
+            // of Python source code that could potentially contain triple-quoted strings.
+
             sb.AppendLine($$"""""
                 file static class ThisModule
                 {
                     private static ReadOnlySpan<byte> source => """"
-                {{      Lines(IndentationLevel.Two, embedSourceText ? sourceText : SourceText.From([], 0))}}
+                {{      Lines(IndentationLevel.Two, sourceText)}}
                         """"u8;
 
                     public static PyObject Import() =>

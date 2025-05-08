@@ -1,4 +1,11 @@
 def get_mad_string() -> str:
+    """
+    Returns a string with various Unicode characters.
+
+    Do not remove this comment as it tests that triped-quoted Python strings are
+    safe to embed into the generated C# code and will not break compilation.
+    """
+
     return (
         'A'            # ASCII (1 byte)
         '¢'            # U+00A2 (2 bytes)

@@ -26,8 +26,6 @@ public static class TestClassExtensions
 
     private static ReadOnlySpan<byte> HotReloadHash => "b8b9ddb078b7deb64fd561785eeb9d37"u8;
 
-    private const string encodedSource = "";
-
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
         if (instance is null)
@@ -57,9 +55,7 @@ public static class TestClassExtensions
             using (GIL.Acquire())
             {
                 logger?.LogDebug("Importing module {ModuleName}", "test");
-                this.module = !string.IsNullOrEmpty(encodedSource)
-                            ? Import.ImportModule("test", Encoding.UTF8.GetString(Convert.FromBase64String(encodedSource)), "test.py")
-                            : Import.ImportModule("test");
+                this.module = ThisModule.Import();
                 this.__func_test_raise_python_exception = module.GetAttr("test_raise_python_exception");
                 this.__func_test_nested_python_exception = module.GetAttr("test_nested_python_exception");
             }
@@ -134,4 +130,10 @@ public interface ITestClass : IReloadableModuleImport
     /// ]]></code>
     /// </summary>
     string TestNestedPythonException();
+}
+
+file static class ThisModule
+{
+    public static PyObject Import() =>
+        CSnakes.Runtime.Python.Import.ImportModule("test");
 }

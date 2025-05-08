@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "4daf76cc633c1625633c79dee2d8e1f2"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "839cf2c755bd926f41f87511ad9f6f1f"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -46,7 +46,7 @@ public static class TestClassExtensions
         private PyObject module;
         private readonly ILogger<IPythonEnvironment>? logger;
 
-        private PyObject __func_test_nothing;
+        private PyObject __func_get_mad_string;
 
         internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
@@ -55,7 +55,7 @@ public static class TestClassExtensions
             {
                 logger?.LogDebug("Importing module {ModuleName}", "test");
                 this.module = ThisModule.Import();
-                this.__func_test_nothing = module.GetAttr("test_nothing");
+                this.__func_get_mad_string = module.GetAttr("get_mad_string");
             }
         }
 
@@ -66,27 +66,27 @@ public static class TestClassExtensions
             {
                 Import.ReloadModule(ref module);
                 // Dispose old functions
-                this.__func_test_nothing.Dispose();
+                this.__func_get_mad_string.Dispose();
                 // Bind to new functions
-                this.__func_test_nothing = module.GetAttr("test_nothing");
+                this.__func_get_mad_string = module.GetAttr("get_mad_string");
             }
         }
 
         public void Dispose()
         {
             logger?.LogDebug("Disposing module {ModuleName}", "test");
-            this.__func_test_nothing.Dispose();
+            this.__func_get_mad_string.Dispose();
             module.Dispose();
         }
 
-        public bool TestNothing()
+        public string GetMadString()
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_nothing");
-                PyObject __underlyingPythonFunc = this.__func_test_nothing;
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "get_mad_string");
+                PyObject __underlyingPythonFunc = this.__func_get_mad_string;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = __result_pyObject.BareImportAs<bool, global::CSnakes.Runtime.Python.PyObjectImporters.Boolean>();
+                var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
                 return __return;
             }
         }
@@ -99,16 +99,40 @@ public static class TestClassExtensions
 public interface ITestClass : IReloadableModuleImport
 {
     /// <summary>
-    /// Invokes the Python function <c>test_nothing</c>:
+    /// Invokes the Python function <c>get_mad_string</c>:
     /// <code><![CDATA[
-    /// def test_nothing() -> bool: ...
+    /// def get_mad_string() -> str: ...
     /// ]]></code>
     /// </summary>
-    bool TestNothing();
+    string GetMadString();
 }
 
 file static class ThisModule
 {
+    private static ReadOnlySpan<byte> source => """"
+        def get_mad_string() -> str:
+            """
+            Returns a string with various Unicode characters.
+
+            Do not remove this comment as it tests that triped-quoted Python strings are
+            safe to embed into the generated C# code and will not break compilation.
+            """
+
+            return (
+                'A'            # ASCII (1 byte)
+                '¢'            # U+00A2 (2 bytes)
+                'ह'            # U+0939 (3 bytes)
+                '𝄞'            # U+1D11E (4 bytes, musical symbol)
+                '🦋'           # U+1F98B (4 bytes, butterfly emoji)
+                '�'            # U+FFFD (replacement character)
+                '\u0301'       # U+0301 (combining acute accent)
+                'ñ'            # U+00F1 (precomposed accented letter)
+                '\u202E'       # U+202E (right-to-left override)
+                '🏳️‍🌈'           # Emoji sequence: white flag + ZWJ + rainbow
+            )
+
+        """"u8;
+
     public static PyObject Import() =>
-        CSnakes.Runtime.Python.Import.ImportModule("test");
+        CSnakes.Runtime.Python.Import.ImportModule("test", source, "test.py");
 }

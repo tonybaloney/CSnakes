@@ -1,5 +1,6 @@
 using CSnakes.Runtime.Python;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace CSnakes.Runtime.CPython;
 
@@ -26,15 +27,11 @@ internal unsafe partial class CPythonAPI
         return PyObject.Create(module);
     }
 
-    internal static PyObject Import(string name, string code, string path, OptimizationLevel optimizationLevel = OptimizationLevel.Default)
+    internal static PyObject Import(string name, ReadOnlySpan<byte> u8Code, string path, OptimizationLevel optimizationLevel = OptimizationLevel.Default)
     {
         using var pyPath = PyObject.From(path);
-
-        using var codeObject = PyObject.Create(Py_CompileStringObject(code, pyPath, InputType.Py_file_input, IntPtr.Zero, optimizationLevel));
-
+        using var codeObject = PyObject.Create(Py_CompileStringObject(u8Code, pyPath, InputType.Py_file_input, IntPtr.Zero, optimizationLevel));
         using var pyName = PyObject.From(name);
-        using var pyCode = PyObject.From(code);
-
         return PyObject.Create(PyImport_ExecCodeModuleObject(pyName, codeObject, pyPath, pyPath));
     }
 
@@ -79,6 +76,6 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName)]
     internal static partial nint PyImport_ReloadModule(PyObject module);
 
-    [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller))]
-    private static partial nint Py_CompileStringObject(string code, PyObject filename, InputType start, nint flags = 0, OptimizationLevel opt = OptimizationLevel.Default);
+    [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(ReadOnlySpanMarshaller<byte, byte>))]
+    private static partial nint Py_CompileStringObject(ReadOnlySpan<byte> code, PyObject filename, InputType start, nint flags = 0, OptimizationLevel opt = OptimizationLevel.Default);
 }

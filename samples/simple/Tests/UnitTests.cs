@@ -1,4 +1,5 @@
 using CSnakes.Runtime;
+using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 
 namespace Tests;
@@ -46,7 +47,7 @@ public class UnitTests(PythonFixture fixture)
     }
 
     /// <summary>
-    /// Python's ordinal is one day ahead of .NET's DayNumber I'm making the weak in Python, but it could easily be done here too
+    /// Python's ordinal is one day ahead of .NET's DayNumber I'm making the adjustment in Python, but it could easily be done here too
     /// </summary>
     [Fact]
     public void TestDateInterop()
@@ -56,19 +57,22 @@ public class UnitTests(PythonFixture fixture)
         var date = DateOnly.FromDateTime(DateTime.Now);
 
         // Act
-        var (ordinal, str) = typeDemos.ReturnDate();
+        var (days, str) = typeDemos.ReturnDate();
         var result = typeDemos.TakeDate(date.DayNumber, $"{date:O}");
 
         // Assert
-        Assert.Equal(DateOnly.Parse(str, CultureInfo.InvariantCulture), DateOnly.FromDayNumber((int)ordinal));
+        Assert.Equal(DateOnly.Parse(str, CultureInfo.InvariantCulture), DateOnly.FromDayNumber((int)days));
         Assert.True(result);
     }
 
     /// <summary>
-    /// Unfortunately there isn't a single value to convert .NET TimeOnly & Python time. I added 3 strategies
-    /// 1: Convert to TimeSpan/timedelta and use total seconds - appears to work on Windows but is buggy on Linux
-    /// 2: Convert to tuple (hour, minute, second, millisecond, microsecond)
-    /// 3: Convert to string using the ISO8601 format
+    /// Unfortunately .NET's TimeSpan.FromSeconds function will periodically mutate the value
+    ///
+    /// Example: TimeSpan.FromSeconds(43018.125549)
+    ///
+    /// Output: 11:56:58.1255489
+    ///
+    /// So the decision was made to break the timestamp into seconds and microseconds
     /// </summary>
     [Fact]
     public void TestTimeInterop()
@@ -78,32 +82,36 @@ public class UnitTests(PythonFixture fixture)
         var time = TimeOnly.FromDateTime(DateTime.Now);
 
         // Act
-        var (_, (hour, minute, second, millisecond, microsecond), str) = typeDemos.ReturnTime();
-        var (_, tupleTest) = typeDemos.TakeTime(time.ToTimeSpan().TotalSeconds, (time.Hour, time.Minute, time.Second, time.Millisecond, time.Microsecond), $"{time:O}");
+        var ((seconds, microseconds), str) = typeDemos.ReturnTime();
+        var result = typeDemos.TakeTime(time.ToTuple(), $"{time:O}");
 
         // Assert
-        //Assert.Equal(TimeOnly.Parse(str, CultureInfo.InvariantCulture), TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(totalSeconds)));
-        Assert.Equal(TimeOnly.Parse(str, CultureInfo.InvariantCulture), new TimeOnly((int)hour, (int)minute, (int)second, (int)millisecond, (int)microsecond));
-        //Assert.True(secondsTest);
-        Assert.True(tupleTest);
+        Assert.Equal(TimeOnly.Parse(str, CultureInfo.InvariantCulture), TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(seconds, microseconds: microseconds)));
+        Assert.True(result);
     }
 
     /// <summary>
-    /// The easiest way to convert .NET TimeSpan to Python's timedelta is to use the total seconds
+    /// Unfortunately .NET's TimeSpan.FromSeconds function will periodically mutate the value
+    ///
+    /// Example: TimeSpan.FromSeconds(43018.125549)
+    ///
+    /// Output: 11:56:58.1255489
+    ///
+    /// So the decision was made to break the timespan into seconds and microseconds
     /// </summary>
     [Fact]
     public void TestTimeSpanInterop()
     {
         // Arrange
         var typeDemos = fixture.PythonEnvironment.TypeDemos();
-        var timeSpan = new TimeSpan(6, 5, 4, 3, 2, 1);
+        var timeSpan = TimeSpan.FromSeconds(43018.125549); // Use known problematic value
 
         // Act
-        var (totalSeconds, str) = typeDemos.ReturnTimeDelta();
-        var result = typeDemos.TakeTimeSpan(timeSpan.TotalSeconds, $"{timeSpan:G}");
+        var ((seconds, microseconds), str) = typeDemos.ReturnTimeDelta();
+        var result = typeDemos.TakeTimeSpan(timeSpan.ToTuple(), $"{timeSpan:G}");
 
         // Assert
-        Assert.Equal(TimeSpan.Parse(str, CultureInfo.InvariantCulture), TimeSpan.FromSeconds(totalSeconds));
+        Assert.Equal(TimeSpan.Parse(str, CultureInfo.InvariantCulture), TimeSpan.FromSeconds(seconds, microseconds: microseconds));
         Assert.True(result);
     }
 
@@ -176,7 +184,7 @@ public class UnitTests(PythonFixture fixture)
         var typeDemos = fixture.PythonEnvironment.TypeDemos();
 
         // Act
-        var actual = DateTimeOffset.Parse(typeDemos.TakeDateTimeOffset($"{expected:O}"), CultureInfo.InvariantCulture);
+        var actual = DateTimeOffset.Parse(typeDemos.RoundtripDateTimeIso($"{expected:O}"), CultureInfo.InvariantCulture);
 
         // Assert
         Assert.Equal(expected, actual);

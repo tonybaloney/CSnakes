@@ -15,41 +15,40 @@ def return_uuid() -> tuple[bytes, bytes, str]:
     val = uuid4()
     return val.bytes, val.bytes_le, str(val)
 
-def take_uuid(be_bytes: bytes, le_bytes: bytes, string: str) -> tuple[bool, bool]:
-    val = UUID(hex = string)
-    return UUID(bytes = be_bytes) == val, UUID(bytes_le = le_bytes) == val
+def take_uuid(big_endian: bytes, little_endian: bytes, uuid_string: str) -> tuple[bool, bool]:
+    val = UUID(hex = uuid_string)
+    return UUID(bytes = big_endian) == val, UUID(bytes_le = little_endian) == val
 
 #Note: Python's ordinal date is one day ahead of the .NET's DateNumber so we either adjust in Python or C#
 def return_date() -> tuple[int, str]:
     val = date.today()
     return val.toordinal() - 1, val.isoformat()
 
-def take_date(ordinal: int, string: str) -> bool:
-    return date.fromordinal(ordinal + 1) == date.fromisoformat(string)
+def take_date(ordinal: int, iso_string: str) -> bool:
+    return date.fromordinal(ordinal + 1) == date.fromisoformat(iso_string)
 
-def return_time() -> tuple[float, tuple[int, int, int, int, int], str]:
+def return_time() -> tuple[tuple[int, int], str]:
     val = datetime.now().time()
-    millisecond, microsecond = divmod(val.microsecond, 1000)
-    return (datetime.combine(date.min, val) - datetime.min).total_seconds(), (val.hour, val.minute, val.second, millisecond, microsecond), val.isoformat()
+    return (val.hour * 3600 + val.minute * 60 + val.second, val.microsecond), val.isoformat()
 
-def take_time(total_seconds: float, ordinal: tuple[int, int, int, int, int], string: str) -> tuple[bool, bool]:
-    val = time.fromisoformat(string)
-    hour, minute, second, millisecond, microsecond = ordinal
-    return (datetime.min + timedelta(seconds=total_seconds)).time() == val, time(hour, minute, second, millisecond * 1000 + microsecond) == val
+def take_time(time_tuple: tuple[int, int], iso_string: str) -> bool:
+    hour, remainder = divmod(time_tuple[0], 3600)
+    minute, second = divmod(remainder, 60)
+    return time(hour, minute, second, time_tuple[1]) == time.fromisoformat(iso_string)
 
-def return_time_delta() -> tuple[float, str]:
-    val = timedelta(days=1, hours=2, minutes=3, seconds=4, milliseconds=5, microseconds=6)
+def return_time_delta() -> tuple[tuple[int, int], str]:
+    val = timedelta(seconds = 101234543018.125549) # Use gigantic value
     hours, remainder = divmod(val.seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
-    return val.total_seconds(), f'{val.days}:{str(hours).zfill(2)}:{str(minutes).zfill(2)}:{str(seconds).zfill(2)}.{str(val.microseconds).zfill(6)}'
+    return (val.days * 86400 + val.seconds, val.microseconds), f'{val.days}:{str(hours).zfill(2)}:{str(minutes).zfill(2)}:{str(seconds).zfill(2)}.{str(val.microseconds).zfill(6)}'
 
-def take_time_span(total_seconds: float, string: str) -> bool:
-    days, hours, minutes, seconds = string.split(':')
+def take_time_span(time_tuple: tuple[int, int], general_long: str) -> bool:
+    days, hours, minutes, seconds = general_long.split(':')
     seconds, microseconds = seconds.split('.')
-    return timedelta(seconds= total_seconds) == timedelta(int(days), int(seconds), int(microseconds[:6]), minutes=int(minutes), hours=int(hours))
+    return timedelta(seconds=time_tuple[0], microseconds=time_tuple[1]) == timedelta(int(days), int(seconds), int(microseconds[:6]), minutes=int(minutes), hours=int(hours))
 
 def return_date_time(use_utc: bool = True) -> str:
     return datetime.now(timezone.utc if use_utc else None).isoformat()
 
-def take_date_time_offset(dto: str) -> str:
-    return datetime.fromisoformat(dto).isoformat()
+def roundtrip_date_time_iso(iso_datetime: str) -> str:
+    return datetime.fromisoformat(iso_datetime).isoformat()

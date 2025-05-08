@@ -34,12 +34,15 @@ public class UnitTests(PythonFixture fixture)
         var guid = Guid.NewGuid();
 
         // Act
-        var (bytes, str) = typeDemos.ReturnUuid();
-        var result = typeDemos.TakeUuid(guid.ToByteArray(), guid.ToString());
+        var (bigEndian, littleEndian, str) = typeDemos.ReturnUuid();
+        var (beResult, leResult) = typeDemos.TakeUuid(guid.ToByteArray(true), guid.ToByteArray(), guid.ToString());
+        guid = Guid.Parse(str);
 
         // Assert
-        Assert.Equal(Guid.Parse(str), new Guid(bytes));
-        Assert.True(result);
+        Assert.Equal(guid, new Guid(bigEndian, true));
+        Assert.Equal(guid, new Guid(littleEndian));
+        Assert.True(beResult);
+        Assert.True(leResult);
     }
 
     /// <summary>
@@ -105,7 +108,7 @@ public class UnitTests(PythonFixture fixture)
     }
 
     [Fact]
-    public void TestDateTimeInterop()
+    public void TestPythonDateTimeOffsetInterop()
     {
         // Arrange
         var typeDemos = fixture.PythonEnvironment.TypeDemos();
@@ -115,7 +118,67 @@ public class UnitTests(PythonFixture fixture)
         var strLocal = typeDemos.ReturnDateTime(false);
 
         // Assert
-        Assert.Equal(TimeSpan.Zero, DateTimeOffset.Parse(strUtc, CultureInfo.InvariantCulture).Offset);
+        Assert.Equal(DateTimeOffset.UtcNow.Offset, DateTimeOffset.Parse(strUtc, CultureInfo.InvariantCulture).Offset);
         Assert.Equal(DateTimeOffset.Now.Offset, DateTimeOffset.Parse(strLocal, CultureInfo.InvariantCulture).Offset);
+    }
+
+    /// <summary>
+    /// .NET DateTimeOffset is a bit tricky to convert to Python's datetime. The easiest way is to use the ISO8601 format
+    ///
+    /// Python's datetime only goes down to the microsecond level while .NET's DateTimeOffset goes down to the 100 nanosecond level.
+    /// </summary>
+    /// <param name="offset"></param>
+    [Theory]
+    [InlineData("Z")] // UTC (Coordinated Universal Time), no offset (e.g., Greenwich, UK).
+    [InlineData("+00:00")] // Same as Z, explicitly written (Western Europe, Iceland).
+    [InlineData("+01:00")] // Central European Time (e.g., Germany, France, Nigeria).
+    [InlineData("+02:00")] // Eastern European Time (e.g., Finland, Ukraine, Egypt).
+    [InlineData("+03:00")] // Moscow Time, Arabia Standard Time (e.g., Russia, Saudi Arabia).
+    [InlineData("+03:30")] // Iran Standard Time (e.g., Iran).
+    [InlineData("+04:00")] // Gulf Standard Time, Samara Time (e.g., UAE, Mauritius).
+    [InlineData("+04:30")] // Afghanistan Time (e.g., Afghanistan).
+    [InlineData("+05:00")] // Pakistan Standard Time, Uzbekistan Time (e.g., Pakistan, Maldives).
+    [InlineData("+05:30")] // Indian Standard Time (e.g., India, Sri Lanka).
+    [InlineData("+05:45")] // Nepal Time (e.g., Nepal).
+    [InlineData("+06:00")] // Bangladesh Standard Time, Bhutan Time (e.g., Bangladesh, Bhutan).
+    [InlineData("+06:30")] // Cocos Islands Time, Myanmar Time (e.g., Myanmar).
+    [InlineData("+07:00")] // Indochina Time, Western Indonesia Time (e.g., Thailand, Vietnam).
+    [InlineData("+08:00")] // China Standard Time, Singapore Time (e.g., China, Singapore).
+    [InlineData("+08:45")] // Australian Central Western Time (e.g., Eucla, Australia).
+    [InlineData("+09:00")] // Japan Standard Time, Korea Standard Time (e.g., Japan, South Korea).
+    [InlineData("+09:30")] // Australian Central Standard Time (e.g., Northern Territory, Australia).
+    [InlineData("+10:00")] // Australian Eastern Standard Time (e.g., Sydney, Melbourne).
+    [InlineData("+10:30")] // Lord Howe Standard Time (e.g., Lord Howe Island, Australia).
+    [InlineData("+11:00")] // Solomon Islands Time, Vanuatu Time (e.g., Solomon Islands, Norfolk Island).
+    [InlineData("+12:00")] // New Zealand Standard Time, Fiji Time (e.g., New Zealand, Fiji).
+    [InlineData("+12:45")] // Chatham Islands Standard Time (e.g., Chatham Islands, New Zealand).
+    [InlineData("+13:00")] // Tonga Time, Phoenix Islands Time (e.g., Tonga, Kiribati).
+    [InlineData("+14:00")] // Line Islands Time (e.g., Kiritimati, Kiribati).
+    [InlineData("-01:00")] // Azores Standard Time (e.g., Azores, Portugal).
+    [InlineData("-02:00")] // South Georgia Time, Eastern Greenland Time (e.g., South Georgia).
+    [InlineData("-03:00")] // Argentina Time, Brasilia Time (e.g., Argentina, eastern Brazil).
+    [InlineData("-03:30")] // Newfoundland Standard Time (e.g., Newfoundland, Canada).
+    [InlineData("-04:00")] // Atlantic Standard Time, Chile Standard Time (e.g., eastern Caribbean, Chile).
+    [InlineData("-05:00")] // Eastern Standard Time, Colombia Time (e.g., New York, Peru).
+    [InlineData("-06:00")] // Central Standard Time, Central America (e.g., Chicago, Costa Rica).
+    [InlineData("-07:00")] // Mountain Standard Time (e.g., Denver, Arizona without DST).
+    [InlineData("-08:00")] // Pacific Standard Time (e.g., Los Angeles, Vancouver).
+    [InlineData("-09:00")] // Alaska Standard Time, Gambier Islands (e.g., Alaska).
+    [InlineData("-09:30")] // Marquesas Islands Time (e.g., Marquesas Islands, French Polynesia).
+    [InlineData("-10:00")] // Hawaii Standard Time (e.g., Hawaii, Cook Islands).
+    [InlineData("-11:00")] // Niue Time, American Samoa Time (e.g., American Samoa).
+    [InlineData("-12:00")] // Baker Island Time (e.g., Baker Island, uninhabited US territory).
+    public void TestDateTimeOffsetRoundtrip(string offset)
+    {
+        // Arrange
+        // Note: We have to trim the ISO time value to the microsecond level to match Python's time value to pass the tests
+        var expected = DateTimeOffset.Parse($"{DateOnly.FromDateTime(DateTime.Today):O}T{$"{TimeOnly.FromDateTime(DateTime.Now):O}"[..15]}{offset}", CultureInfo.InvariantCulture);
+        var typeDemos = fixture.PythonEnvironment.TypeDemos();
+
+        // Act
+        var actual = DateTimeOffset.Parse(typeDemos.TakeDateTimeOffset($"{expected:O}"), CultureInfo.InvariantCulture);
+
+        // Assert
+        Assert.Equal(expected, actual);
     }
 }

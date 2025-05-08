@@ -10,12 +10,14 @@ def take_dict(d: dict[str, int]) -> bool:
     print(d)
     return d == sample_dict
 
-def return_uuid() -> tuple[bytes, str]:
+#Note: Python uuid is big-endian and .NET is little-endian
+def return_uuid() -> tuple[bytes, bytes, str]:
     val = uuid4()
-    return val.bytes_le, str(val)
+    return val.bytes, val.bytes_le, str(val)
 
-def take_uuid(byte_array: bytes, string: str) -> bool:
-    return UUID(bytes_le = byte_array) == UUID(hex = string)
+def take_uuid(be_bytes: bytes, le_bytes: bytes, string: str) -> tuple[bool, bool]:
+    val = UUID(hex = string)
+    return UUID(bytes = be_bytes) == val, UUID(bytes_le = le_bytes) == val
 
 #Note: Python's ordinal date is one day ahead of the .NET's DateNumber so we either adjust in Python or C#
 def return_date() -> tuple[int, str]:
@@ -48,3 +50,6 @@ def take_time_span(total_seconds: float, string: str) -> bool:
 
 def return_date_time(use_utc: bool = True) -> str:
     return datetime.now(timezone.utc if use_utc else None).isoformat()
+
+def take_date_time_offset(dto: str) -> str:
+    return datetime.fromisoformat(dto).isoformat()

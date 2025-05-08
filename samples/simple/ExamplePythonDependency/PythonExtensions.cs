@@ -32,10 +32,4 @@ public static class PythonExtensions
             .WithPipInstaller()
             .FromRedistributable(version);
     }
-
-    public static long TotalMicroseconds(this TimeSpan value) =>
-        value.Ticks / TimeSpan.TicksPerMicrosecond;
-
-    public static long TotalMicroseconds(this TimeOnly value) =>
-        value.Ticks / TimeSpan.TicksPerMicrosecond;
 }

@@ -52,11 +52,19 @@ def take_time_span(microseconds: int, general_long: str) -> bool:
     second, microsecond = second.split('.')
     return timedelta(microseconds=microseconds) == timedelta(int(day), int(second), int(microsecond[:6]), minutes=int(minute), hours=int(hour))
 
-# Return number of days, microseconds, and offset seconds
+# Return microseconds since 1/1/0001 and offset seconds
 def return_date_time(use_utc: bool = True) -> tuple[tuple[int, int], str]:
     val = datetime.now(timezone.utc if use_utc else None)
-    #TODO: convert offset to seconds
-    return (((val.toordinal() - 1) * SECONDS_PER_DAY + val.hour * SECONDS_PER_HOUR + val.minute * SECONDS_PER_MINUTE + val.second) * MICROSECONDS_PER_SECOND + val.microsecond, 0), val.isoformat()
+    offset = val.utcoffset()
+    # If offset is None, use the timezone offset
+    if (offset is None):
+        offset = val.astimezone().utcoffset()
+    return (((val.toordinal() - 1) * SECONDS_PER_DAY + val.hour * SECONDS_PER_HOUR + val.minute * SECONDS_PER_MINUTE + val.second) * MICROSECONDS_PER_SECOND + val.microsecond, int(offset.total_seconds())), val.isoformat()
 
 def roundtrip_date_time_iso(iso_datetime: str) -> str:
     return datetime.fromisoformat(iso_datetime).isoformat()
+
+def take_date_time_offset(offset_tuple: tuple[int, int], iso_string: str) -> bool:
+    days, microseconds = divmod(offset_tuple[0], SECONDS_PER_DAY * MICROSECONDS_PER_SECOND)
+    val = datetime.fromordinal(days + 1) + timedelta(microseconds=microseconds)
+    return datetime(val.year, val.month, val.day, val.hour, val.minute, val.second, val.microsecond, timezone(timedelta(seconds=offset_tuple[1]))) == datetime.fromisoformat(iso_string)

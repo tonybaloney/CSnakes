@@ -1,5 +1,4 @@
 using CSnakes.Runtime;
-using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 
 namespace Tests;
@@ -25,7 +24,7 @@ public class UnitTests(PythonFixture fixture)
     }
 
     /// <summary>
-    /// .NET Guid is little endian, while Python's UUID is big endian it doesn't matter which side handles the conversion
+    /// .NET Guid is little-endian, while Python's UUID is big-endian it doesn't matter which side handles the conversion
     /// </summary>
     [Fact]
     public void TestUuidGuidInterop()
@@ -103,6 +102,9 @@ public class UnitTests(PythonFixture fixture)
         Assert.True(result);
     }
 
+    /// <summary>
+    /// This just verifies that the offset is the same in both .NET and Python
+    /// </summary>
     [Fact]
     public void TestPythonOffsetInterop()
     {
@@ -119,9 +121,7 @@ public class UnitTests(PythonFixture fixture)
     }
 
     /// <summary>
-    /// .NET DateTimeOffset is a bit tricky to convert to Python's datetime. The easiest way is to use the ISO8601 format
-    ///
-    /// Python's datetime only goes down to the microsecond level while .NET's DateTimeOffset goes down to the 100 nanosecond level.
+    /// This method just makes sure both .NET and Python can exchange every offset from around the globe
     /// </summary>
     /// <param name="offset"></param>
     [Theory]
@@ -178,7 +178,9 @@ public class UnitTests(PythonFixture fixture)
         Assert.Equal(expected, actual);
     }
 
-    /*
+    /// <summary>
+    /// DateTimeOffset can be constructed from two values the microseconds since 1/1/0001 and the number of seconds in the offset from UTC
+    /// </summary>
     [Fact]
     public void TestDateTimeOffsetInterop()
     {
@@ -188,16 +190,15 @@ public class UnitTests(PythonFixture fixture)
         var localDateTimeOffset = DateTimeOffset.Now;
 
         // Act
-        var ((utcDayNumber, utcSeconds, utcMicroseconds, utcOffset), utcString) = typeDemos.ReturnDateTime();
-        var ((localDayNumber, localSeconds, localMicroseconds, localOffset), localString) = typeDemos.ReturnDateTime(false);
-        var utcResult = typeDemos.TakeDateTimeOffset(utcDateTimeOffset.ToTuple(), $"{utcDateTimeOffset:O}");
-        var localResult = typeDemos.TakeDateTimeOffset(localDateTimeOffset.ToTuple(), $"{localDateTimeOffset:O}");
+        var ((utcMicroseconds, utcOffset), utcString) = typeDemos.ReturnDateTime();
+        var ((localMicroseconds, localOffset), localString) = typeDemos.ReturnDateTime(false);
+        var utcResult = typeDemos.TakeDateTimeOffset((utcDateTimeOffset.Ticks / TimeSpan.TicksPerMicrosecond, (long)utcDateTimeOffset.Offset.TotalSeconds), $"{utcDateTimeOffset:O}");
+        var localResult = typeDemos.TakeDateTimeOffset((localDateTimeOffset.Ticks / TimeSpan.TicksPerMicrosecond, (long)localDateTimeOffset.Offset.TotalSeconds), $"{localDateTimeOffset:O}");
 
         // Assert
-        Assert.Equal(DateTimeOffset.Parse(utcString, CultureInfo.InvariantCulture), new DateTimeOffset(DateOnly.FromDayNumber((int)utcDayNumber), TimeOnly.FromTimeSpan(TimeSpan.FromMicroseconds()), ));
-        Assert.Equal(DateTimeOffset.Parse(localString, CultureInfo.InvariantCulture), DateTimeOffset.Now);
+        Assert.Equal(DateTimeOffset.Parse(utcString, CultureInfo.InvariantCulture), new DateTimeOffset(new DateTime(utcMicroseconds * TimeSpan.TicksPerMicrosecond), TimeSpan.FromSeconds(utcOffset)));
+        Assert.Equal(DateTimeOffset.Parse(localString, CultureInfo.InvariantCulture), new DateTimeOffset(new DateTime(localMicroseconds * TimeSpan.TicksPerMicrosecond), TimeSpan.FromSeconds(localOffset)));
         Assert.True(utcResult);
         Assert.True(localResult);
     }
-    */
 }

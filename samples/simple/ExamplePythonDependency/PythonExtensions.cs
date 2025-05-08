@@ -33,19 +33,9 @@ public static class PythonExtensions
             .FromRedistributable(version);
     }
 
-    /// <summary>
-    /// Converts a <see cref="TimeOnly"/> to a tuple of seconds and microseconds.
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    public static (int, int) ToTuple(this TimeOnly value) =>
-        (value.Hour * 3600 + value.Minute * 60 + value.Second, value.Millisecond * 1000 + value.Microsecond);
+    public static long TotalMicroseconds(this TimeSpan value) =>
+        value.Ticks / TimeSpan.TicksPerMicrosecond;
 
-    /// <summary>
-    /// Converts a <see cref="TimeSpan"/> to a tuple of seconds and microseconds.
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    public static (int, int) ToTuple(this TimeSpan value) =>
-        (value.Hours * 3600 + value.Minutes * 60 + value.Seconds, value.Milliseconds * 1000 + value.Microseconds);
+    public static long TotalMicroseconds(this TimeOnly value) =>
+        value.Ticks / TimeSpan.TicksPerMicrosecond;
 }

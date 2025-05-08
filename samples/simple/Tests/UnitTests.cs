@@ -12,7 +12,7 @@ public class UnitTests(PythonFixture fixture)
     {
         // Arrange
         var typeDemos = fixture.PythonEnvironment.TypeDemos();
-
+        
         // Act
         var result = typeDemos.ReturnDict();
         var equal = typeDemos.TakeDict(result);
@@ -55,7 +55,7 @@ public class UnitTests(PythonFixture fixture)
         // Arrange
         var typeDemos = fixture.PythonEnvironment.TypeDemos();
         var date = DateOnly.FromDateTime(DateTime.Now);
-
+        
         // Act
         var (days, str) = typeDemos.ReturnDate();
         var result = typeDemos.TakeDate(date.DayNumber, $"{date:O}");
@@ -66,13 +66,7 @@ public class UnitTests(PythonFixture fixture)
     }
 
     /// <summary>
-    /// Unfortunately .NET's TimeSpan.FromSeconds function will periodically mutate the value
-    ///
-    /// Example: TimeSpan.FromSeconds(43018.125549)
-    ///
-    /// Output: 11:56:58.1255489
-    ///
-    /// So the decision was made to break the timestamp into seconds and microseconds
+    /// Since Python only operates at the microsecond level use that for time interop
     /// </summary>
     [Fact]
     public void TestTimeInterop()
@@ -82,22 +76,16 @@ public class UnitTests(PythonFixture fixture)
         var time = TimeOnly.FromDateTime(DateTime.Now);
 
         // Act
-        var ((seconds, microseconds), str) = typeDemos.ReturnTime();
-        var result = typeDemos.TakeTime(time.ToTuple(), $"{time:O}");
+        var (microseconds, str) = typeDemos.ReturnTime();
+        var result = typeDemos.TakeTime(time.Ticks / TimeSpan.TicksPerMicrosecond, $"{time:O}");
 
         // Assert
-        Assert.Equal(TimeOnly.Parse(str, CultureInfo.InvariantCulture), TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(seconds, microseconds: microseconds)));
+        Assert.Equal(TimeOnly.Parse(str, CultureInfo.InvariantCulture), TimeOnly.FromTimeSpan(TimeSpan.FromMicroseconds(microseconds)));
         Assert.True(result);
     }
 
     /// <summary>
-    /// Unfortunately .NET's TimeSpan.FromSeconds function will periodically mutate the value
-    ///
-    /// Example: TimeSpan.FromSeconds(43018.125549)
-    ///
-    /// Output: 11:56:58.1255489
-    ///
-    /// So the decision was made to break the timespan into seconds and microseconds
+    /// Since Python only operates at the microsecond level use that for time interop
     /// </summary>
     [Fact]
     public void TestTimeSpanInterop()
@@ -107,27 +95,27 @@ public class UnitTests(PythonFixture fixture)
         var timeSpan = TimeSpan.FromSeconds(43018.125549); // Use known problematic value
 
         // Act
-        var ((seconds, microseconds), str) = typeDemos.ReturnTimeDelta();
-        var result = typeDemos.TakeTimeSpan(timeSpan.ToTuple(), $"{timeSpan:G}");
+        var (microseconds, str) = typeDemos.ReturnTimeDelta();
+        var result = typeDemos.TakeTimeSpan(timeSpan.Ticks / TimeSpan.TicksPerMicrosecond, $"{timeSpan:G}");
 
         // Assert
-        Assert.Equal(TimeSpan.Parse(str, CultureInfo.InvariantCulture), TimeSpan.FromSeconds(seconds, microseconds: microseconds));
+        Assert.Equal(TimeSpan.Parse(str, CultureInfo.InvariantCulture), TimeSpan.FromMicroseconds(microseconds));
         Assert.True(result);
     }
 
     [Fact]
-    public void TestPythonDateTimeOffsetInterop()
+    public void TestPythonOffsetInterop()
     {
         // Arrange
         var typeDemos = fixture.PythonEnvironment.TypeDemos();
 
         // Act
-        var strUtc = typeDemos.ReturnDateTime();
-        var strLocal = typeDemos.ReturnDateTime(false);
+        var (_, utcString) = typeDemos.ReturnDateTime();
+        var(_, localString) = typeDemos.ReturnDateTime(false);
 
         // Assert
-        Assert.Equal(DateTimeOffset.UtcNow.Offset, DateTimeOffset.Parse(strUtc, CultureInfo.InvariantCulture).Offset);
-        Assert.Equal(DateTimeOffset.Now.Offset, DateTimeOffset.Parse(strLocal, CultureInfo.InvariantCulture).Offset);
+        Assert.Equal(DateTimeOffset.UtcNow.Offset, DateTimeOffset.Parse(utcString, CultureInfo.InvariantCulture).Offset);
+        Assert.Equal(DateTimeOffset.Now.Offset, DateTimeOffset.Parse(localString, CultureInfo.InvariantCulture).Offset);
     }
 
     /// <summary>
@@ -189,4 +177,27 @@ public class UnitTests(PythonFixture fixture)
         // Assert
         Assert.Equal(expected, actual);
     }
+
+    /*
+    [Fact]
+    public void TestDateTimeOffsetInterop()
+    {
+        // Arrange
+        var typeDemos = fixture.PythonEnvironment.TypeDemos();
+        var utcDateTimeOffset = DateTimeOffset.UtcNow;
+        var localDateTimeOffset = DateTimeOffset.Now;
+
+        // Act
+        var ((utcDayNumber, utcSeconds, utcMicroseconds, utcOffset), utcString) = typeDemos.ReturnDateTime();
+        var ((localDayNumber, localSeconds, localMicroseconds, localOffset), localString) = typeDemos.ReturnDateTime(false);
+        var utcResult = typeDemos.TakeDateTimeOffset(utcDateTimeOffset.ToTuple(), $"{utcDateTimeOffset:O}");
+        var localResult = typeDemos.TakeDateTimeOffset(localDateTimeOffset.ToTuple(), $"{localDateTimeOffset:O}");
+
+        // Assert
+        Assert.Equal(DateTimeOffset.Parse(utcString, CultureInfo.InvariantCulture), new DateTimeOffset(DateOnly.FromDayNumber((int)utcDayNumber), TimeOnly.FromTimeSpan(TimeSpan.FromMicroseconds()), ));
+        Assert.Equal(DateTimeOffset.Parse(localString, CultureInfo.InvariantCulture), DateTimeOffset.Now);
+        Assert.True(utcResult);
+        Assert.True(localResult);
+    }
+    */
 }

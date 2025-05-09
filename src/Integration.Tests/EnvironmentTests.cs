@@ -12,13 +12,21 @@ public class EnvironmentTests(PythonEnvironmentFixture fixture) : IntegrationTes
     {
         var number = Env.TestReload().TestNumber();
         Env.Dispose();
-        
-        var otherEnv = CreateOtherEnvironment();
+        IPythonEnvironment? otherEnv = null;
 
-        var otherNumber = otherEnv.Other().TestOtherNumber();
+        try
+        {
+            otherEnv = CreateOtherEnvironment();
+            var otherNumber = otherEnv.Other().TestOtherNumber();
 
-        Assert.Equal(52, number);
-        Assert.Equal(80, otherNumber);
+            Assert.Equal(52, number);
+            Assert.Equal(80, otherNumber);
+        }
+        finally
+        {
+            otherEnv?.Dispose();
+            fixture.CreateEnvironment();
+        }
     }
 
     private IPythonEnvironment CreateOtherEnvironment()

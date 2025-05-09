@@ -41,8 +41,8 @@ public static class GIL
 
         public PyGilState()
         {
-            if (pythonThreadState == 0)
-            {
+            if (pythonThreadState == 0){
+                Debug.WriteLine($"****** Creating ThreadState with Python on thread {CPythonAPI.GetNativeThreadId()}");
                 pythonThreadState = CPythonAPI.PyThreadState_New();
             }
             Debug.Assert(CPythonAPI.IsInitialized);
@@ -54,6 +54,7 @@ public static class GIL
         {
             if (recursionCount == 0)
             {
+                Debug.WriteLine($"****** Restoring thread with Python on thread {CPythonAPI.GetNativeThreadId()}");
                 CPythonAPI.PyEval_RestoreThread(pythonThreadState);
             }
             recursionCount++;
@@ -78,6 +79,7 @@ public static class GIL
                 CPythonAPI.Py_DecRefRaw(handle);
             }
             pythonThreadState = CPythonAPI.PyEval_SaveThread();
+            Debug.WriteLine($"****** Saving ThreadState with Python on thread {CPythonAPI.GetNativeThreadId()}");
         }
 
         public int RecursionCount => recursionCount;
@@ -117,6 +119,7 @@ public static class GIL
     {
         currentState = null;
         pythonThreadState = 0;
+        Debug.WriteLine($"****** Resesting ThreadState with Python on thread {CPythonAPI.GetNativeThreadId()}");
     }
 
     public static bool IsAcquired => currentState is { RecursionCount: > 0 };

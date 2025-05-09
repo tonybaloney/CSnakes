@@ -133,7 +133,7 @@ internal unsafe partial class CPythonAPI : IDisposable
             Py_SetPath_UCS2_UTF16(PythonPath);
         else
             Py_SetPath_UCS4_UTF32(PythonPath);
-        Debug.WriteLine($"Initializing Python on thread {GetNativeThreadId()}");
+        Debug.WriteLine($"****** Initializing Python on thread {GetNativeThreadId()}");
         Py_Initialize();
 
         // Setup type statics
@@ -218,7 +218,7 @@ internal unsafe partial class CPythonAPI : IDisposable
         AsyncioModule?.Dispose();
         // TODO: Add more cleanup code here
 
-        Debug.WriteLine($"Calling Py_Finalize() on thread {GetNativeThreadId()}");
+        Debug.WriteLine($"****** Calling Py_Finalize() on thread {GetNativeThreadId()}");
 
         // Acquire the GIL only to dispose it immediately because `PyGILState_Release`
         // is not available after `Py_Finalize` is called. This is done primarily to
@@ -226,10 +226,10 @@ internal unsafe partial class CPythonAPI : IDisposable
         // runtime is finalized.
 
         GIL.Acquire().Dispose();
+        GIL.Reset();
 
         PyEval_RestoreThread(initializationTState);
         Py_Finalize();
-        GIL.Reset();
     }
 
     protected virtual void Dispose(bool disposing)

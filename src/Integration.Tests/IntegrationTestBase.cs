@@ -16,10 +16,15 @@ public sealed class PythonEnvironmentCollection : ICollectionFixture<PythonEnvir
 /// <seealso href="https://xunit.net/docs/shared-context.html#collection-fixture"/>
 public sealed class PythonEnvironmentFixture : IDisposable
 {
-    private readonly IPythonEnvironment env;
-    private readonly IHost app;
+    private IPythonEnvironment env;
+    private IHost app;
 
     public PythonEnvironmentFixture()
+    {
+        CreateEnvironment();
+    }
+
+    public void CreateEnvironment()
     {
         string pythonVersionWindows = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9";
         string pythonVersionMacOS = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
@@ -34,11 +39,11 @@ public sealed class PythonEnvironmentFixture : IDisposable
                 pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
                 pb.FromNuGet(pythonVersionWindows)
-                  .FromMacOSInstallerLocator(pythonVersionMacOS, freeThreaded)
-                  .FromWindowsStore("3.12")
-                  .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux)
-                  .WithVirtualEnvironment(venvPath)
-                  .WithPipInstaller();
+                    .FromMacOSInstallerLocator(pythonVersionMacOS, freeThreaded)
+                    .FromWindowsStore("3.12")
+                    .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux)
+                    .WithVirtualEnvironment(venvPath)
+                    .WithPipInstaller();
 
                 services.AddLogging(builder => builder.AddXUnit());
             })

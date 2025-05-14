@@ -26,8 +26,6 @@ public static class TestClassExtensions
 
     private static ReadOnlySpan<byte> HotReloadHash => "cabb6a0854c73088e04547b226cc6c79"u8;
 
-    private const string encodedSource = "";
-
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
         if (instance is null)
@@ -86,9 +84,7 @@ public static class TestClassExtensions
             using (GIL.Acquire())
             {
                 logger?.LogDebug("Importing module {ModuleName}", "test");
-                this.module = !string.IsNullOrEmpty(encodedSource)
-                            ? Import.ImportModule("test", Encoding.UTF8.GetString(Convert.FromBase64String(encodedSource)), "test.py")
-                            : Import.ImportModule("test");
+                this.module = ThisModule.Import();
                 this.__func_test_bool_buffer = module.GetAttr("test_bool_buffer");
                 this.__func_test_int8_buffer = module.GetAttr("test_int8_buffer");
                 this.__func_test_uint8_buffer = module.GetAttr("test_uint8_buffer");
@@ -860,4 +856,10 @@ public interface ITestClass : IReloadableModuleImport
     /// ]]></code>
     /// </summary>
     IGeneratorIterator<IPyBuffer, PyObject, long> SumOf2dArray(long n);
+}
+
+file static class ThisModule
+{
+    public static PyObject Import() =>
+        CSnakes.Runtime.Python.Import.ImportModule("test");
 }

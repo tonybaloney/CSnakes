@@ -1,4 +1,5 @@
 using CSnakes.Runtime.CPython;
+using System.Text;
 
 namespace CSnakes.Runtime.Python;
 
@@ -16,9 +17,19 @@ public static class Import
         ArgumentException.ThrowIfNullOrEmpty(source);
         ArgumentException.ThrowIfNullOrEmpty(path);
 
+        return ImportModule(module, Encoding.UTF8.GetBytes(source), path);
+    }
+
+    public static PyObject ImportModule(string module, ReadOnlySpan<byte> u8Source, string path)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(module);
+        if (u8Source.Length == 0)
+            throw new ArgumentException("Source code cannot be empty.", nameof(u8Source));
+        ArgumentException.ThrowIfNullOrEmpty(path);
+
         using (GIL.Acquire())
         {
-            return CPythonAPI.Import(module, source, path);
+            return CPythonAPI.Import(module, u8Source, path);
         }
     }
 

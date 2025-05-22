@@ -51,7 +51,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
     {
         using (GIL.Acquire())
         {
-            _buffer = CPythonAPI.GetBuffer(exporter);
+            CPythonAPI.GetBuffer(exporter, out _buffer);
         }
         _disposed = false;
         _isScalar = _buffer.ndim == 0 || _buffer.ndim == 1;

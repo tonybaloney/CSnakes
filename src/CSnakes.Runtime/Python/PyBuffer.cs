@@ -47,7 +47,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         SSizeT = 'N', // C ssize_t
     }
 
-    public unsafe PyBuffer(PyObject exporter)
+    public PyBuffer(PyObject exporter)
     {
         using (GIL.Acquire())
         {
@@ -55,7 +55,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         }
         _disposed = false;
         _isScalar = _buffer.ndim == 0 || _buffer.ndim == 1;
-        _format = Utf8StringMarshaller.ConvertToManaged(_buffer.format) ?? string.Empty;
+        _format = Marshal.PtrToStringUTF8(_buffer.format) ?? string.Empty;
         _byteOrder = GetByteOrder();
     }
 

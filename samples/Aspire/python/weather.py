@@ -1,5 +1,5 @@
-from typing import List, Dict, Any
-from datetime import datetime, timedelta, date
+from typing import List, Dict, Any, Optional
+from datetime import timedelta, date
 from otlp_tracing import configure_oltp_grpc_tracing, get_span_context
 
 import psycopg2
@@ -24,7 +24,7 @@ ado_conn_dict = dict(item.split("=") for item in ado_conn_str.split(";"))
 cnx = psycopg2.connect(dbname=ado_conn_dict["Database"], user=ado_conn_dict["Username"], password=ado_conn_dict["Password"], host=ado_conn_dict["Host"], port=ado_conn_dict["Port"])
 
 
-def get_weather_forecast(days: int = 7, trace_id: str = None, span_id: str = None) -> List[Dict[str, Any]]:
+def get_weather_forecast(days: int = 7, trace_id: Optional[str] = None, span_id: Optional[str] = None) -> List[Dict[str, Any]]:
     with tracer.start_as_current_span("generate-forecast", get_span_context(trace_id, span_id)):
         logger.info("Generating weather forecast")
 

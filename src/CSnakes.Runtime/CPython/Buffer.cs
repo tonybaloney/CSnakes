@@ -43,7 +43,7 @@ internal unsafe partial class CPythonAPI
         }
     }
 
-    internal static void ReleaseBuffer(Py_buffer view) => PyBuffer_Release(&view);
+    internal static void ReleaseBuffer(ref Py_buffer view) => PyBuffer_Release(ref view);
 
     [LibraryImport(PythonLibraryName)]
     private static partial int PyObject_CheckBuffer(PyObject ob);
@@ -52,5 +52,5 @@ internal unsafe partial class CPythonAPI
     private static partial int PyObject_GetBuffer(PyObject ob, out Py_buffer view, int flags);
 
     [LibraryImport(PythonLibraryName)]
-    private static partial void PyBuffer_Release(Py_buffer* view);
+    private static partial void PyBuffer_Release(ref Py_buffer view);
 }

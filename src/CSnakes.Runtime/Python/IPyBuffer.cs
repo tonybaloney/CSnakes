@@ -4,7 +4,7 @@ using System.Numerics.Tensors;
 #endif
 
 namespace CSnakes.Runtime.Python;
-public interface IPyBuffer
+public interface IPyBuffer : IDisposable
 {
     /// <summary>
     /// The bit length of the buffer.

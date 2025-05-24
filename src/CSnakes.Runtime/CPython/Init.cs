@@ -31,8 +31,8 @@ internal unsafe partial class CPythonAPI : IDisposable
         }
         catch (InvalidOperationException)
         {
-            // TODO: Work out how to call setdllimport resolver only once to avoid raising exceptions. 
-            // Already set. 
+            // TODO: Work out how to call setdllimport resolver only once to avoid raising exceptions.
+            // Already set.
         }
     }
 
@@ -82,17 +82,17 @@ internal unsafe partial class CPythonAPI : IDisposable
             return;
 
         /* Notes:
-         * 
+         *
          * The CPython initialization and finalization
          * methods should be called from the same thread.
-         * 
+         *
          * Without doing so, CPython can hang on finalization.
-         * Especially if the code imports the threading module, or 
+         * Especially if the code imports the threading module, or
          * uses asyncio.
-         * 
-         * Since we have no guarantee that the Dispose() of this 
+         *
+         * Since we have no guarantee that the Dispose() of this
          * class will be called from the same managed CLR thread
-         * as the one which called Init(), we create a Task with 
+         * as the one which called Init(), we create a Task with
          * a cancellation token and use that as a mechanism to wait
          * in the background for shutdown then call the finalization.
          */
@@ -133,7 +133,7 @@ internal unsafe partial class CPythonAPI : IDisposable
             Py_SetPath_UCS2_UTF16(PythonPath);
         else
             Py_SetPath_UCS4_UTF32(PythonPath);
-        Debug.WriteLine($"Initializing Python on thread {GetNativeThreadId()}");
+        Debug.WriteLine($"****** Initializing Python on thread {GetNativeThreadId()}");
         Py_Initialize();
 
         // Setup type statics
@@ -218,7 +218,7 @@ internal unsafe partial class CPythonAPI : IDisposable
         AsyncioModule?.Dispose();
         // TODO: Add more cleanup code here
 
-        Debug.WriteLine($"Calling Py_Finalize() on thread {GetNativeThreadId()}");
+        Debug.WriteLine($"****** Calling Py_Finalize() on thread {GetNativeThreadId()}");
 
         // Acquire the GIL only to dispose it immediately because `PyGILState_Release`
         // is not available after `Py_Finalize` is called. This is done primarily to
@@ -226,6 +226,7 @@ internal unsafe partial class CPythonAPI : IDisposable
         // runtime is finalized.
 
         GIL.Acquire().Dispose();
+        GIL.Reset();
 
         PyEval_RestoreThread(initializationTState);
         Py_Finalize();

@@ -45,6 +45,7 @@ jobs:
           dotnet-version: |
             8.0.x
             9.0.x
+            10.0.100-preview.4.*
 
       - uses: actions/cache@v4
         name: Cache NuGet packages
@@ -140,6 +141,7 @@ jobs:
           dotnet-version: |
             8.0.x
             9.0.x
+            10.0.100-preview.4.*
 
       - name: Install Aspire workload
         run: dotnet workload install aspire

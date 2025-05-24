@@ -1,6 +1,7 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace CSnakes.Runtime;
@@ -8,7 +9,7 @@ internal partial class PyObjectTypeConverter
 {
     private static readonly ConcurrentDictionary<Type, DynamicTypeInfo> knownDynamicTypes = [];
 
-    public static object PyObjectToManagedType(PyObject pyObject, Type destinationType)
+    public static object PyObjectToManagedType(PyObject pyObject, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type destinationType)
     {
         if (CPythonAPI.IsPyDict(pyObject) && IsAssignableToGenericType(destinationType, dictionaryType))
         {
@@ -34,6 +35,11 @@ internal partial class PyObjectTypeConverter
         if (CPythonAPI.IsBuffer(pyObject) && destinationType.IsAssignableTo(bufferType))
         {
             return new PyBuffer(pyObject);
+        }
+
+        if (CPythonAPI.IsHeapType(pyObject.GetPythonType()))
+        {
+            return ConvertToClass(pyObject, destinationType);
         }
 
         throw new InvalidCastException($"Attempting to cast {destinationType} from {pyObject.GetPythonType()}");

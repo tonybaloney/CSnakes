@@ -7,7 +7,7 @@ using System.Numerics.Tensors;
 #endif
 
 namespace CSnakes.Runtime.Python;
-internal sealed class PyBuffer : IPyBuffer, IDisposable
+internal sealed class PyBuffer : IPyBuffer
 {
     private CPythonAPI.Py_buffer _buffer;
     private bool _disposed;

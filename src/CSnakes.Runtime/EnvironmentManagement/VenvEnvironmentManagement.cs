@@ -20,8 +20,8 @@ internal class VenvEnvironmentManagement(ILogger? logger, string path, bool ensu
         if (!Directory.Exists(path))
         {
             logger?.LogDebug("Creating virtual environment at {VirtualEnvPath} using {PythonBinaryPath}", fullPath, pythonLocation.PythonBinaryPath);
-            var (process1, _, _) = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, $"-VV");
-            var (process2, _, error) = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, $"-m venv {fullPath}");
+            var (process1, _, _) = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, "-VV");
+            var (process2, _, error) = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, "-m", "venv",  fullPath);
 
             if (process1.ExitCode != 0 || process2.ExitCode != 0)
             {

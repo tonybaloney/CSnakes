@@ -38,18 +38,18 @@ internal class UVInstaller(ILogger<UVInstaller>? logger, string requirementsFile
     }
 
     static internal void InstallPackageWithUv(string home, IEnvironmentManagement? environmentManager, string requirement, ILogger? logger)
-        => RunUvInstall(home, environmentManager, [requirement], logger);
+        => RunUvPipInstall(home, environmentManager, [requirement], logger);
 
     static internal void InstallRequirementsTxtWithUv(string home, IEnvironmentManagement? environmentManager, string requirementsFile, ILogger? logger)
-        => RunUvInstall(home, environmentManager, ["-r", requirementsFile], logger);
+        => RunUvPipInstall(home, environmentManager, ["-r", requirementsFile], logger);
 
 
-    static private void RunUvInstall(string home, IEnvironmentManagement? environmentManager, string[] requirements, ILogger? logger)
+    static private void RunUvPipInstall(string home, IEnvironmentManagement? environmentManager, string[] requirements, ILogger? logger)
     {
         string fileName = binaryName;
         string workingDirectory = home;
         string path = "";
-        string[] arguments = ["install", .. requirements, "--disable-pip-version-check"];
+        string[] arguments = ["pip", "install", .. requirements, "--color", "never"];
 
         if (environmentManager is not null)
         {

@@ -31,7 +31,7 @@ internal class PipInstaller(ILogger<PipInstaller>? logger, string requirementsFi
         return Task.CompletedTask;
     }
 
-    static internal void InstallPackageWithPip(string home, IEnvironmentManagement? environmentManager, string requirement, ILogger? logger)
+    internal static void InstallPackageWithPip(string home, IEnvironmentManagement? environmentManager, string requirement, ILogger? logger)
         => RunPipInstall(home, environmentManager, [requirement], logger);
 
     static internal void InstallRequirementsTxtWithPip(string home, IEnvironmentManagement? environmentManager, string requirementsFile, ILogger? logger)

@@ -18,9 +18,9 @@ public interface IPythonPackageInstaller
     /// <summary>
     /// Install a single package.
     /// </summary>
-    /// <param name="home"></param>
-    /// <param name="environmentManager"></param>
-    /// <param name="package"></param>
-    /// <returns></returns>
+    /// <param name="home">The home directory.</param>
+    /// <param name="environmentManager">The location of the virtual environment (optional).</param>
+    /// <param name="package">Name of the package to install.</param>
+    /// <returns>A task representing the asynchronous package installation operation.</returns>
     Task InstallPackage(string home, IEnvironmentManagement? environmentManager, string package);
 }

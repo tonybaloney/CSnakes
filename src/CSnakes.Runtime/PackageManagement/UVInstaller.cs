@@ -20,7 +20,7 @@ internal class UVInstaller(ILogger<UVInstaller>? logger, string requirementsFile
         if (File.Exists(requirementsPath))
         {
             logger?.LogDebug("File {Requirements} was found.", requirementsPath);
-            InstallRequirementsTxtWithUv(home, environmentManager, requirementsFileName, logger);
+            RunUvPipInstall(home, environmentManager, ["-r", requirementsFileName], logger);
         }
         else
         {
@@ -32,17 +32,10 @@ internal class UVInstaller(ILogger<UVInstaller>? logger, string requirementsFile
 
     public Task InstallPackage(string home, IEnvironmentManagement? environmentManager, string package)
     {
-        InstallPackageWithUv(home, environmentManager, package, logger);
+        RunUvPipInstall(home, environmentManager, [package], logger);
 
         return Task.CompletedTask;
     }
-
-    static internal void InstallPackageWithUv(string home, IEnvironmentManagement? environmentManager, string requirement, ILogger? logger)
-        => RunUvPipInstall(home, environmentManager, [requirement], logger);
-
-    static internal void InstallRequirementsTxtWithUv(string home, IEnvironmentManagement? environmentManager, string requirementsFile, ILogger? logger)
-        => RunUvPipInstall(home, environmentManager, ["-r", requirementsFile], logger);
-
 
     static private void RunUvPipInstall(string home, IEnvironmentManagement? environmentManager, string[] requirements, ILogger? logger)
     {

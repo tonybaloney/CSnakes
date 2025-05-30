@@ -6,19 +6,19 @@ namespace CSnakes.Runtime.Python;
 
 /****
  * Design notes
- * The Global Interpreter Lock (GIL) is a mutex in Python that makes Python thread-safe. 
+ * The Global Interpreter Lock (GIL) is a mutex in Python that makes Python thread-safe.
  * The mutex is associated with a "thread state" object, which is an internal data structure in CPython.
  * The pointer to the thread state is stored in the current thread's TLS (Thread Local Storage).
- * 
+ *
  * Since .NET freely uses threads, we need to ensure that the GIL is acquired before calling any Python API.
  * Also, this class is designed to be reentrant, so that the GIL can be acquired multiple times by the same thread.
- * 
+ *
  * The "PyGilState" class is a disposable object that acquires the GIL when it is created and releases it when it is disposed.
- * 
- * IF a PyObject is allocated and then left for the GC to dispose, since the GC in .NET runs in a thread-pool, 
+ *
+ * IF a PyObject is allocated and then left for the GC to dispose, since the GC in .NET runs in a thread-pool,
  * this can lead to some performance challenges where the GC taking and switching the GIL and the user code is also trying to acquire the GIL.
- * 
- * Some potential improvements - 
+ *
+ * Some potential improvements -
  *   - Consider saving the Python Thread State pointer in TLS and use the PyEval_SaveThread and PyEval_RestoreThread functions to save and restore the thread state.
  *   - Consider queuing the Dispose of PyObject/SafeHandles so they can be processed in collections, rather than switching the GIL in the finalizer thread. I don't know if the GC Finalizer spawns a thread per object or a thread pool?
  */
@@ -41,8 +41,8 @@ public static class GIL
 
         public PyGilState()
         {
-            if (pythonThreadState == 0)
-            {
+            if (pythonThreadState == 0){
+                Debug.WriteLine($"****** Creating ThreadState with Python on thread {CPythonAPI.GetNativeThreadId()}");
                 pythonThreadState = CPythonAPI.PyThreadState_New();
             }
             Debug.Assert(CPythonAPI.IsInitialized);
@@ -54,6 +54,7 @@ public static class GIL
         {
             if (recursionCount == 0)
             {
+                Debug.WriteLine($"****** Restoring thread with Python on thread {CPythonAPI.GetNativeThreadId()}");
                 CPythonAPI.PyEval_RestoreThread(pythonThreadState);
             }
             recursionCount++;
@@ -78,6 +79,7 @@ public static class GIL
                 CPythonAPI.Py_DecRefRaw(handle);
             }
             pythonThreadState = CPythonAPI.PyEval_SaveThread();
+            Debug.WriteLine($"****** Saving ThreadState with Python on thread {CPythonAPI.GetNativeThreadId()}");
         }
 
         public int RecursionCount => recursionCount;
@@ -111,6 +113,13 @@ public static class GIL
     {
         // Put the handle in a queue
         handlesToDispose.Enqueue(handle);
+    }
+
+    internal static void Reset()
+    {
+        currentState = null;
+        pythonThreadState = 0;
+        Debug.WriteLine($"****** Resesting ThreadState with Python on thread {CPythonAPI.GetNativeThreadId()}");
     }
 
     public static bool IsAcquired => currentState is { RecursionCount: > 0 };

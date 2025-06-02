@@ -4,7 +4,6 @@ Python async functions will be generated into async C# methods. The generated C#
 
 ```python
 import asyncio
-from typing import Coroutine
 
 async def async_function() -> int:
     await asyncio.sleep(1)

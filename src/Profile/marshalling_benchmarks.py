@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Coroutine
+from typing import Any
 
 def generate_data(a: int, b: str, c: tuple[float, str], d: bool) -> list[dict[str, tuple[int, float]]]:
     return [

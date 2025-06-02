@@ -10,6 +10,22 @@ on:
     branches: ["main"]
 
 jobs:
+  validate-python:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        id: installpython
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Run pyright on test Python code
+        run: |
+          python -m pip install pyright
+          pyright src/*.Tests/**/*.py
+
   build:
     strategy:
       matrix:

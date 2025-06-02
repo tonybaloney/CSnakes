@@ -43,7 +43,7 @@ public static class TypeReflection
             AsPredefinedType(returnType, direction)
             ]);
 
-    internal static TypeSyntax CreateCoroutineType(PythonTypeSpec yieldType, PythonTypeSpec sendType, PythonTypeSpec returnType, ConversionDirection direction) => CreateGenericType("ICoroutine", [
+    private static TypeSyntax CreateCoroutineType(PythonTypeSpec yieldType, PythonTypeSpec sendType, PythonTypeSpec returnType, ConversionDirection direction) => CreateGenericType("ICoroutine", [
             AsPredefinedType(yieldType, direction),
             AsPredefinedType(sendType, direction),
             AsPredefinedType(returnType, direction)

@@ -2,13 +2,10 @@
 
 Python async functions will be generated into async C# methods. The generated C# method will return a `Task<T>` depending on the return type of the Python function. 
 
-CSnakes requires strict typing for async functions. This means that the return type of the Python function must be annotated with the `typing.Coroutine[TYield, TSend, TReturn]` type hint:
-
 ```python
 import asyncio
-from typing import Coroutine
 
-async def async_function() -> Coroutine[int, None, None]:
+async def async_function() -> int:
     await asyncio.sleep(1)
     return 42
 ```
@@ -21,10 +18,6 @@ public async Task<int> AsyncFunction(CancellationToken cancellationToken = defau
 ```
 
 Python async functions can be awaited in C# code.
-
-## TSend and TResult
-
-CSnakes only supports `Task<TYield>` where `TYield` is `Coroutine[TYield, ..., ...]`. You cannot send values back into the coroutine object.
 
 ## Implementation Details
 

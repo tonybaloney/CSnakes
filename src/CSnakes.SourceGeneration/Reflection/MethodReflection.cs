@@ -41,6 +41,18 @@ public static class MethodReflection
                 Parameter(Identifier(cancellationTokenName))
                     .WithType(IdentifierName("CancellationToken"))
                     .WithDefault(EqualsValueClause(LiteralExpression(SyntaxKind.DefaultLiteralExpression)));
+
+            // If simple async type annotation, treat as Coroutine[T1, T2, T3] where T1 is the yield type, T2 is the send type and T3 is the return type
+            if (returnPythonType.Name != "Coroutine")
+            {
+                returnPythonType = new PythonTypeSpec("Coroutine",
+                    [
+                        returnPythonType, // Yield type
+                        new PythonTypeSpec("None", []), // Send type
+                        new PythonTypeSpec("None", []) // Return type, TODO: Swap with yield on #480
+                    ]);
+            }
+
             returnSyntax = returnPythonType switch
             {
                 { Name: "Coroutine", Arguments: [{ Name: "None" }, _, _] } =>

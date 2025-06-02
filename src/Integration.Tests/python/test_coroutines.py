@@ -1,4 +1,3 @@
-from typing import Coroutine
 import asyncio
 
 
@@ -7,7 +6,7 @@ async def test_coroutine(seconds: float = 0.1) -> int:
     return 5
 
 
-async def test_coroutine_raises_exception() -> Coroutine[int, None, None]:
+async def test_coroutine_raises_exception() -> int:
     raise ValueError("This is a Python exception")
 
 

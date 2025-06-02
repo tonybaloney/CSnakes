@@ -102,7 +102,7 @@ public static class TestClassExtensions
             {
                 logger?.LogDebug("Invoking Python function: {FunctionName}", "reload_module");
                 PyObject __underlyingPythonFunc = this.__func_reload_module;
-                PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 return __result_pyObject;
             }
         }

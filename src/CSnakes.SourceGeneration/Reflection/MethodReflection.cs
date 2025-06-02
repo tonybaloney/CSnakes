@@ -192,13 +192,6 @@ public static class MethodReflection
             }
         }
 
-        bool resultShouldBeDisposed = returnSyntax switch
-        {
-            PredefinedTypeSyntax s when s.Keyword.IsKind(SyntaxKind.VoidKeyword) => true,
-            IdentifierNameSyntax => false,
-            _ => true
-        };
-
         var functionObject = LocalDeclarationStatement(
             VariableDeclaration(
                 IdentifierName("PyObject"))
@@ -225,8 +218,7 @@ public static class MethodReflection
                             EqualsValueClause(
                                 callExpression)))));
 
-        if (resultShouldBeDisposed)
-            callStatement = callStatement.WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
+        callStatement = callStatement.WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
 
         var logStatement = ExpressionStatement(
                 ConditionalAccessExpression(

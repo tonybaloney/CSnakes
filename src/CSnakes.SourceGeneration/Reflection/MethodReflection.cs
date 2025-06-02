@@ -46,8 +46,8 @@ public static class MethodReflection
                 { Name: "Coroutine", Arguments: [{ Name: "None" }, _, _] } =>
                     // Make it PyObject otherwise we need to annotate as Task instead of Task<T> and that adds a lot of complexity and little value
                     ParseTypeName("PyObject"),
-                { Name: "Coroutine", Arguments: [var tYield, _, _] } =>
-                    TypeReflection.AsPredefinedType(tYield, TypeReflection.ConversionDirection.FromPython),
+                { Name: "Coroutine", Arguments: [var _, _, var tReturn] } =>
+                    TypeReflection.AsPredefinedType(tReturn, TypeReflection.ConversionDirection.FromPython),
                 _ => throw new ArgumentException("Async function must return a Coroutine[T1, T2, T3]")
             };
             // return is a Task of <T>

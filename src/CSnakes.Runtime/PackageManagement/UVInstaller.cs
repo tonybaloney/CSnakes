@@ -9,7 +9,7 @@ internal class UVInstaller(ILogger<UVInstaller>? logger, IEnvironmentManagement?
     static readonly string binaryName = $"uv{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
 
     /// <summary>
-    /// Install packages from a requirements path
+    /// Install packages from the configured requirements path.
     /// </summary>
     /// <param name="home">HOME directory</param>
     /// <param name="environmentManager">Environment manager</param>

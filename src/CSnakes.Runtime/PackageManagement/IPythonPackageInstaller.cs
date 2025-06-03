@@ -1,5 +1,3 @@
-using CSnakes.Runtime.EnvironmentManagement;
-
 namespace CSnakes.Runtime.PackageManagement;
 
 /// <summary>

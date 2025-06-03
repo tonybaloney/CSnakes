@@ -141,16 +141,19 @@ public static class MethodReflection
         IEnumerable<StatementSyntax> resultConversionStatements = [];
         var callResultTypeSyntax = IdentifierName("PyObject");
         var returnNoneAsNull = false;
+        var resultShouldBeDisposed = true;
 
         switch (returnSyntax)
         {
             case PredefinedTypeSyntax s when s.Keyword.IsKind(SyntaxKind.VoidKeyword):
             {
+                resultShouldBeDisposed = false;
                 returnExpression = ReturnStatement(null);
                 break;
             }
             case IdentifierNameSyntax { Identifier.ValueText: "PyObject" }:
             {
+                resultShouldBeDisposed = false;
                 callResultTypeSyntax = IdentifierName("PyObject");
                 returnExpression = ReturnStatement(IdentifierName("__result_pyObject"));
                 break;
@@ -218,7 +221,8 @@ public static class MethodReflection
                             EqualsValueClause(
                                 callExpression)))));
 
-        callStatement = callStatement.WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
+        if (resultShouldBeDisposed)
+            callStatement = callStatement.WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
 
         var logStatement = ExpressionStatement(
                 ConditionalAccessExpression(

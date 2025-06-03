@@ -20,7 +20,7 @@ public class TestDependency(PythonEnvironmentFixture fixture) : IntegrationTestB
     async public Task VerifyRuntimeDependency()
     {
         // attrs==25.3.0
-        await Installer.InstallPackage("", "attrs==25.3.0");
+        await Installer.InstallPackage("attrs==25.3.0");
         Assert.True(Env.TestDependency().TestAttrsFunction());
     }
 }

@@ -1,5 +1,4 @@
 using CSnakes.Runtime.Locators;
-using Microsoft.TestUtilities;
 using System;
 using System.Runtime.InteropServices;
 
@@ -9,10 +8,13 @@ public class PythonLocatorTests
 {
     private static readonly Version PythonVersion = new(3, 9);
 
-    [ConditionalFact]
-    [OSSkipCondition(OperatingSystems.Linux | OperatingSystems.MacOSX)]
+    [Fact]
     public void GetPythonExecutablePath_Windows_ReturnsCorrectPath()
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return; // Skip on non-Windows
+        }
         const string folder = @"C:\Python39";
         MockPythonLocator locator = new(PythonVersion);
 
@@ -21,10 +23,13 @@ public class PythonLocatorTests
         Assert.Equal(@"C:\Python39\python.exe", result);
     }
 
-    [ConditionalFact]
-    [OSSkipCondition(OperatingSystems.Windows | OperatingSystems.Linux)]
+    [Fact]
     public void GetPythonExecutablePath_OSX_ReturnsCorrectPath()
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return; // Skip on non-OSX
+        }
         const string folder = "/usr/local/python3";
         MockPythonLocator locator = new(PythonVersion);
 
@@ -33,8 +38,7 @@ public class PythonLocatorTests
         Assert.Equal("/usr/local/python3/bin/python3", result);
     }
 
-    [ConditionalFact]
-    [OSSkipCondition(OperatingSystems.Windows | OperatingSystems.MacOSX)]
+    [Fact]
     public void GetPythonExecutablePath_Linux_ReturnsCorrectPath()
     {
         const string folder = "/usr/local/python3";
@@ -45,8 +49,7 @@ public class PythonLocatorTests
         Assert.Equal("/usr/local/python3/bin/python3", result);
     }
 
-    [ConditionalTheory]
-    [OSSkipCondition(OperatingSystems.Linux | OperatingSystems.MacOSX)]
+    [Theory]
     [InlineData(false, @"C:\Python39\python39.dll")]
     [InlineData(true, @"C:\Python39\python39t.dll")]
     public void GetLibPythonPath_Windows_ReturnsCorrectPath(bool freeThreaded, string expected)
@@ -59,8 +62,7 @@ public class PythonLocatorTests
         Assert.Equal(expected, result);
     }
 
-    [ConditionalTheory]
-    [OSSkipCondition(OperatingSystems.Windows | OperatingSystems.Linux)]
+    [Theory]
     [InlineData(false, @"/usr/local/python3/lib/libpython3.9.dylib")]
     [InlineData(true, @"/usr/local/python3/lib/libpython3.9t.dylib")]
     public void GetLibPythonPath_OSX_ReturnsCorrectPath(bool freeThreaded, string expected)
@@ -73,8 +75,7 @@ public class PythonLocatorTests
         Assert.Equal(expected, result);
     }
 
-    [ConditionalTheory]
-    [OSSkipCondition(OperatingSystems.Windows | OperatingSystems.MacOSX)]
+    [Theory]
     [InlineData(false, @"/usr/local/python3/lib/libpython3.9.so")]
     [InlineData(true, @"/usr/local/python3/lib/libpython3.9t.so")]
     public void GetLibPythonPath_Linux_ReturnsCorrectPath(bool freeThreaded, string expected)
@@ -87,8 +88,7 @@ public class PythonLocatorTests
         Assert.Equal(expected, result);
     }
 
-    [ConditionalFact]
-    [OSSkipCondition(OperatingSystems.Linux | OperatingSystems.MacOSX)]
+    [Fact]
     public void GetPythonPath_Windows_ReturnsCorrectPath()
     {
         const string folder = @"C:\Python39";
@@ -99,8 +99,7 @@ public class PythonLocatorTests
         Assert.Equal(@"C:\Python39\Lib;C:\Python39\DLLs", result);
     }
 
-    [ConditionalFact]
-    [OSSkipCondition(OperatingSystems.Windows | OperatingSystems.Linux)]
+    [Fact]
     public void GetPythonPath_OSX_ReturnsCorrectPath()
     {
         const string folder = "/usr/local/python3";
@@ -111,8 +110,7 @@ public class PythonLocatorTests
         Assert.Equal(@"/usr/local/python3/lib/python3.9:/usr/local/python3/lib/python3.9/lib-dynload", result);
     }
 
-    [ConditionalFact]
-    [OSSkipCondition(OperatingSystems.Windows | OperatingSystems.MacOSX)]
+    [Fact]
     public void GetPythonPath_Linux_ReturnsCorrectPath()
     {
         const string folder = "/usr/local/python3";
@@ -133,8 +131,7 @@ public class PythonLocatorTests
         Assert.Equal($"Python not found in '{folder}'.", ex.Message);
     }
 
-    [ConditionalFact]
-    [OSSkipCondition(OperatingSystems.Linux | OperatingSystems.MacOSX)]
+    [Fact]
     public void LocatePythonInternal_Windows_returns_expected()
     {
         // We need a folder that exists, but we don't want to rely on the actual Python installation.
@@ -147,8 +144,7 @@ public class PythonLocatorTests
         Assert.Equal(folder, result.Folder);
     }
 
-    [ConditionalFact]
-    [OSSkipCondition(OperatingSystems.Windows | OperatingSystems.Linux)]
+    [Fact]
     public void LocatePythonInternal_OSX_returns_expected()
     {
         // We need a folder that exists, but we don't want to rely on the actual Python installation.
@@ -161,8 +157,7 @@ public class PythonLocatorTests
         Assert.Equal(folder, result.Folder);
     }
 
-    [ConditionalFact]
-    [OSSkipCondition(OperatingSystems.Windows | OperatingSystems.MacOSX)]
+    [Fact]
     public void LocatePythonInternal_Linux_returns_expected()
     {
         // We need a folder that exists, but we don't want to rely on the actual Python installation.

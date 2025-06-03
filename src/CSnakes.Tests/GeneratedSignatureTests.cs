@@ -59,7 +59,7 @@ public class GeneratedSignatureTests
 
         // Check that the sample C# code compiles
         string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test", functions, sourceText);
-        var tree = CSharpSyntaxTree.ParseText(compiledCode);
+        var tree = CSharpSyntaxTree.ParseText(compiledCode, cancellationToken: TestContext.Current.CancellationToken);
         var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
 #if NET8_0
             .WithReferenceAssemblies(ReferenceAssemblyKind.Net80)
@@ -71,7 +71,7 @@ public class GeneratedSignatureTests
             .AddReferences(MetadataReference.CreateFromFile(typeof(IPythonEnvironmentBuilder).Assembly.Location))
             .AddReferences(MetadataReference.CreateFromFile(typeof(ILogger<>).Assembly.Location))
             .AddSyntaxTrees(tree);
-        var result = compilation.Emit(Stream.Null);
+        var result = compilation.Emit(Stream.Null, cancellationToken: TestContext.Current.CancellationToken);
         // TODO : Log compiler warnings.
         result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList().ForEach(d => Assert.Fail(d.ToString()));
         Assert.True(result.Success, compiledCode + "\n" + string.Join("\n", result.Diagnostics));

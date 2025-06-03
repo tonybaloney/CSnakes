@@ -4,14 +4,14 @@
 // Borrowed from https://github.com/dotnet/aspnetcore/blob/95ed45c67/src/Testing/src/xunit/
 
 using System.Linq;
-using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace Microsoft.TestUtilities;
 
 public static class TestMethodExtensions
 {
-    public static string? EvaluateSkipConditions(this ITestMethod testMethod)
+    public static string? EvaluateSkipConditions(this IXunitTestMethod testMethod)
     {
         var testClass = testMethod.TestClass.Class;
         var assembly = testMethod.TestClass.TestCollection.TestAssembly.Assembly;

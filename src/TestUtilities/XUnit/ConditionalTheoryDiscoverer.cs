@@ -5,8 +5,8 @@
 
 using System;
 using System.Collections.Generic;
-using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 // Do not change this namespace without changing the usage in ConditionalTheoryAttribute
 namespace Microsoft.TestUtilities;
@@ -36,10 +36,10 @@ internal sealed class ConditionalTheoryDiscoverer : TheoryDiscoverer
             => _original.SetValue(name, value);
     }
 
-    public override IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute)
+    public override IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, IXunitTestMethod testMethod, IFactAttribute theoryAttribute)
         => base.Discover(new OptionsWithPreEnumerationEnabled(discoveryOptions), testMethod, theoryAttribute);
 
-    protected override IEnumerable<IXunitTestCase> CreateTestCasesForTheory(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute)
+    protected override IEnumerable<IXunitTestCase> CreateTestCasesForTheory(ITestFrameworkDiscoveryOptions discoveryOptions, IXunitTestMethod testMethod, IFactAttribute theoryAttribute)
     {
         var skipReason = testMethod.EvaluateSkipConditions();
         return skipReason != null
@@ -47,7 +47,7 @@ internal sealed class ConditionalTheoryDiscoverer : TheoryDiscoverer
            : base.CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
     }
 
-    protected override IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, object[]? dataRow)
+    protected override IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, IXunitTestMethod testMethod, IFactAttribute theoryAttribute, object[]? dataRow)
     {
         var skipReason = testMethod.EvaluateSkipConditions();
         if (skipReason == null && dataRow?.Length > 0)
@@ -71,8 +71,8 @@ internal sealed class ConditionalTheoryDiscoverer : TheoryDiscoverer
 
     protected override IEnumerable<IXunitTestCase> CreateTestCasesForSkippedDataRow(
         ITestFrameworkDiscoveryOptions discoveryOptions,
-        ITestMethod testMethod,
-        IAttributeInfo theoryAttribute,
+        IXunitTestMethod testMethod,
+        IFactAttribute theoryAttribute,
         object[] dataRow,
         string skipReason)
     {

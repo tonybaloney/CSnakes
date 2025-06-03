@@ -5,8 +5,8 @@
 
 using System;
 using System.ComponentModel;
-using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace Microsoft.TestUtilities;
 
@@ -64,7 +64,7 @@ internal sealed class WORKAROUND_SkippedDataRowTestCase : XunitTestCase
     }
 
     /// <inheritdoc/>
-    public override void Deserialize(IXunitSerializationInfo data)
+    protected override void Deserialize(IXunitSerializationInfo data)
     {
         // SkipReason has to be read before we call base.Deserialize, this is the workaround.
         _skipReason = data.GetValue<string>("SkipReason");
@@ -73,13 +73,13 @@ internal sealed class WORKAROUND_SkippedDataRowTestCase : XunitTestCase
     }
 
     /// <inheritdoc/>
-    protected override string? GetSkipReason(IAttributeInfo factAttribute)
+    protected override string? GetSkipReason(IFactAttribute factAttribute)
     {
         return _skipReason;
     }
 
     /// <inheritdoc/>
-    public override void Serialize(IXunitSerializationInfo data)
+    protected override void Serialize(IXunitSerializationInfo data)
     {
         base.Serialize(data);
 

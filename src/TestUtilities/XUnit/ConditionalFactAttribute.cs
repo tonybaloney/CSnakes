@@ -5,12 +5,12 @@
 
 using System;
 using Xunit;
-using Xunit.Sdk;
+using Xunit.v3;
 
 namespace Microsoft.TestUtilities;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-[XunitTestCaseDiscoverer("Microsoft.TestUtilities." + nameof(ConditionalFactDiscoverer), "Microsoft.TestUtilities")]
+[XunitTestCaseDiscoverer(typeof(ConditionalFactDiscoverer))]
 public class ConditionalFactAttribute : FactAttribute
 {
 }

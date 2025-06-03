@@ -6,8 +6,8 @@
 #nullable disable
 
 using System;
-using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace Microsoft.TestUtilities;
 
@@ -32,10 +32,10 @@ public class SkippedTestCase : XunitTestCase
         _skipReason = skipReason;
     }
 
-    protected override string GetSkipReason(IAttributeInfo factAttribute)
+    protected override string GetSkipReason(IFactAttribute factAttribute)
         => _skipReason ?? base.GetSkipReason(factAttribute);
 
-    public override void Deserialize(IXunitSerializationInfo data)
+    protected override void Deserialize(IXunitSerializationInfo data)
     {
         _skipReason = data.GetValue<string>(nameof(_skipReason));
 
@@ -44,7 +44,7 @@ public class SkippedTestCase : XunitTestCase
         base.Deserialize(data);
     }
 
-    public override void Serialize(IXunitSerializationInfo data)
+    protected override void Serialize(IXunitSerializationInfo data)
     {
         base.Serialize(data);
         data.AddValue(nameof(_skipReason), _skipReason);

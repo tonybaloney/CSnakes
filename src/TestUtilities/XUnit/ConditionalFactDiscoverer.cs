@@ -3,8 +3,8 @@
 
 // Borrowed from https://github.com/dotnet/aspnetcore/blob/95ed45c67/src/Testing/src/xunit/
 
-using Xunit.Abstractions;
 using Xunit.Sdk;
+using Xunit.v3;
 
 // Do not change this namespace without changing the usage in ConditionalFactAttribute
 namespace Microsoft.TestUtilities;
@@ -19,7 +19,7 @@ internal sealed class ConditionalFactDiscoverer : FactDiscoverer
         _diagnosticMessageSink = diagnosticMessageSink;
     }
 
-    protected override IXunitTestCase CreateTestCase(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
+    protected override IXunitTestCase CreateTestCase(ITestFrameworkDiscoveryOptions discoveryOptions, IXunitTestMethod testMethod, IFactAttribute factAttribute)
     {
         var skipReason = testMethod.EvaluateSkipConditions();
         return skipReason != null

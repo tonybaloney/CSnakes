@@ -36,9 +36,9 @@ To use free-threading you can use the `RedistributableLocator` from version Pyth
 
 ```csharp
 var builder = Host.CreateApplicationBuilder();
-var pb = builder.Services.WithPython();
-pb.WithHome(Environment.CurrentDirectory); // Path to your Python modules.
-pb.FromRedistributable("3.13", freeThreaded: true);
+var pb = builder.Services.WithPython()
+  .WithHome(Environment.CurrentDirectory) // Path to your Python modules.
+  .FromRedistributable("3.13", freeThreaded: true);
 var app = builder.Build();
 
 env = app.Services.GetRequiredService<IPythonEnvironment>();

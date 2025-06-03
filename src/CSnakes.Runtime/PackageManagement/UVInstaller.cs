@@ -30,9 +30,9 @@ internal class UVInstaller(ILogger<UVInstaller>? logger, IEnvironmentManagement?
         return Task.CompletedTask;
     }
 
-    public Task InstallPackage(string home, string package)
+    public Task InstallPackage(string package)
     {
-        RunUvPipInstall(home, environmentManager, [package], logger);
+        RunUvPipInstall(Directory.GetCurrentDirectory(), environmentManager, [package], logger);
 
         return Task.CompletedTask;
     }

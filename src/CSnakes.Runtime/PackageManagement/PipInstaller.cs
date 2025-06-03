@@ -24,9 +24,9 @@ internal class PipInstaller(ILogger<PipInstaller>? logger, IEnvironmentManagemen
         return Task.CompletedTask;
     }
 
-    public Task InstallPackage(string home, string package)
+    public Task InstallPackage(string package)
     {
-        RunPipInstall(home, environmentManager, [package], logger);
+        RunPipInstall(Directory.GetCurrentDirectory(), environmentManager, [package], logger);
 
         return Task.CompletedTask;
     }

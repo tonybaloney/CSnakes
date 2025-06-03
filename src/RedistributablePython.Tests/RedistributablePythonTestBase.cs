@@ -3,7 +3,7 @@ using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Xunit.Abstractions;
+using ITestOutputHelper = Xunit.Abstractions.ITestOutputHelper;
 
 namespace RedistributablePython.Tests;
 public class RedistributablePythonTestBase : IDisposable

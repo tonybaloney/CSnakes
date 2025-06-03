@@ -25,6 +25,10 @@ public sealed class NuGetLocatorTests : IDisposable
     [MemberData(nameof(GetValues))]
     public void LocatePython_returns_expected_when_environmentVariables_set(string envVarName, string envVarValue, string expectedPath)
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return; // Skip on non-Windows
+        }
         if (!NugetPackagesEnvVarName.Equals(envVarValue, StringComparison.OrdinalIgnoreCase))
             Environment.SetEnvironmentVariable(NugetPackagesEnvVarName, null);
 
@@ -50,6 +54,10 @@ public sealed class NuGetLocatorTests : IDisposable
     [InlineData("", "")]
     public void LocatePython_should_throw_DirectoryNotFoundException_if_environmentVariables_unset(string? valueUSERPROFILE, string? valueNUGET_PACKAGES)
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return; // Skip on non-Windows
+        }
         Environment.SetEnvironmentVariable(UserProfileEnvVarName, valueUSERPROFILE);
         Environment.SetEnvironmentVariable(NugetPackagesEnvVarName, valueNUGET_PACKAGES);
         MockNuGetLocator locator = new(PythonNugetVersion, PythonVersion);

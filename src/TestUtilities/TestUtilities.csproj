@@ -14,7 +14,8 @@
 
       See https://xunit.github.io/docs/nuget-packages and the special note in https://xunit.github.io/releases/2.3.
     -->
-    <PackageReference Include="xunit.extensibility.execution" />
+    <PackageReference Include="xunit.v3.extensibility.core" />
+    <PackageReference Include="xunit.v3.common" />
   </ItemGroup>
 
 </Project>

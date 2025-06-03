@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "4daf76cc633c1625633c79dee2d8e1f2"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "91cffef6971bf92c2bc792b335702f6c"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -47,6 +47,7 @@ public static class TestClassExtensions
         private readonly ILogger<IPythonEnvironment>? logger;
 
         private PyObject __func_test_nothing;
+        private PyObject __func_test_attrs_function;
 
         internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
@@ -56,6 +57,7 @@ public static class TestClassExtensions
                 logger?.LogDebug("Importing module {ModuleName}", "test");
                 this.module = ThisModule.Import();
                 this.__func_test_nothing = module.GetAttr("test_nothing");
+                this.__func_test_attrs_function = module.GetAttr("test_attrs_function");
             }
         }
 
@@ -67,8 +69,10 @@ public static class TestClassExtensions
                 Import.ReloadModule(ref module);
                 // Dispose old functions
                 this.__func_test_nothing.Dispose();
+                this.__func_test_attrs_function.Dispose();
                 // Bind to new functions
                 this.__func_test_nothing = module.GetAttr("test_nothing");
+                this.__func_test_attrs_function = module.GetAttr("test_attrs_function");
             }
         }
 
@@ -76,6 +80,7 @@ public static class TestClassExtensions
         {
             logger?.LogDebug("Disposing module {ModuleName}", "test");
             this.__func_test_nothing.Dispose();
+            this.__func_test_attrs_function.Dispose();
             module.Dispose();
         }
 
@@ -85,6 +90,18 @@ public static class TestClassExtensions
             {
                 logger?.LogDebug("Invoking Python function: {FunctionName}", "test_nothing");
                 PyObject __underlyingPythonFunc = this.__func_test_nothing;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                var __return = __result_pyObject.BareImportAs<bool, global::CSnakes.Runtime.Python.PyObjectImporters.Boolean>();
+                return __return;
+            }
+        }
+
+        public bool TestAttrsFunction()
+        {
+            using (GIL.Acquire())
+            {
+                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_attrs_function");
+                PyObject __underlyingPythonFunc = this.__func_test_attrs_function;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<bool, global::CSnakes.Runtime.Python.PyObjectImporters.Boolean>();
                 return __return;
@@ -105,6 +122,14 @@ public interface ITestClass : IReloadableModuleImport
     /// ]]></code>
     /// </summary>
     bool TestNothing();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_attrs_function</c>:
+    /// <code><![CDATA[
+    /// def test_attrs_function()-> bool: ...
+    /// ]]></code>
+    /// </summary>
+    bool TestAttrsFunction();
 }
 
 file static class ThisModule

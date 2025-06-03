@@ -35,14 +35,11 @@ CSnakes supports free-threading mode, but it is disabled by default.
 To use free-threading you can use the `RedistributableLocator` from version Python 3.13 and request `freeThreaded` builds:
 
 ```csharp
-app = Host.CreateDefaultBuilder()
-    .ConfigureServices((context, services) =>
-    {
-        var pb = services.WithPython();
-            pb.WithHome(Environment.CurrentDirectory); // Path to your Python modules.
-            pb.FromRedistributable("3.13", freeThreaded: true);
-    })
-    .Build();
+var builder = Host.CreateApplicationBuilder();
+var pb = builder.Services.WithPython()
+  .WithHome(Environment.CurrentDirectory) // Path to your Python modules.
+  .FromRedistributable("3.13", freeThreaded: true);
+var app = builder.Build();
 
 env = app.Services.GetRequiredService<IPythonEnvironment>();
 ```

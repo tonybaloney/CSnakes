@@ -16,21 +16,19 @@ public class RuntimeTestBase : IDisposable
         string pythonVersionLinux = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
         bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "true";
 
-        app = Host.CreateDefaultBuilder()
-            .ConfigureServices((context, services) =>
-            {
-                var pb = services.WithPython();
-                pb.WithHome(Environment.CurrentDirectory);
+        var builder = Host.CreateApplicationBuilder();
+        var pb = builder.Services.WithPython();
+        pb.WithHome(Environment.CurrentDirectory);
 
-                pb
-                  .FromNuGet(pythonVersionWindows)
-                  .FromMacOSInstallerLocator(pythonVersionMacOS, freeThreaded)
-                  .FromWindowsStore("3.12")
-                  .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux); // This last one is for GitHub Actions
+        pb
+          .FromNuGet(pythonVersionWindows)
+          .FromMacOSInstallerLocator(pythonVersionMacOS, freeThreaded)
+          .FromWindowsStore("3.12")
+          .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux); // This last one is for GitHub Actions
 
-                services.AddLogging(builder => builder.AddXUnit());
-            })
-            .Build();
+        builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
+        
+        app = builder.Build();
 
         env = app.Services.GetRequiredService<IPythonEnvironment>();
     }

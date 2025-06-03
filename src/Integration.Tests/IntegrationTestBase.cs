@@ -27,22 +27,20 @@ public sealed class PythonEnvironmentFixture : IDisposable
         bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "true";
         string venvPath = Path.Join(Environment.CurrentDirectory, "python", ".venv");
 
-        app = Host.CreateDefaultBuilder()
-            .ConfigureServices((context, services) =>
-            {
-                var pb = services.WithPython();
-                pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
+        var builder = Host.CreateApplicationBuilder();
+        var pb = builder.Services.WithPython();
+        pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
-                pb.FromNuGet(pythonVersionWindows)
-                  .FromMacOSInstallerLocator(pythonVersionMacOS, freeThreaded)
-                  .FromWindowsStore("3.12")
-                  .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux)
-                  .WithVirtualEnvironment(venvPath)
-                  .WithPipInstaller();
+        pb.FromNuGet(pythonVersionWindows)
+          .FromMacOSInstallerLocator(pythonVersionMacOS, freeThreaded)
+          .FromWindowsStore("3.12")
+          .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux)
+          .WithVirtualEnvironment(venvPath)
+          .WithPipInstaller();
 
-                services.AddLogging(builder => builder.AddXUnit());
-            })
-            .Build();
+        builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
+        
+        app = builder.Build();
 
         env = app.Services.GetRequiredService<IPythonEnvironment>();
     }

@@ -35,25 +35,20 @@ public class RedistributablePythonTestBase : IDisposable
             14 => RedistributablePythonVersion.Python3_14,
             _ => throw new NotSupportedException($"Python version {pythonVersionToTest} is not supported.")
         };
-        app = Host.CreateDefaultBuilder()
-            .ConfigureServices((context, services) =>
-            {
-                var pb = services.WithPython();
-                pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
+        var builder = Host.CreateApplicationBuilder();
+        var pb = builder.Services.WithPython();
+        pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
 
-                pb.FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
-                  .WithUvInstaller()
-                  .WithVirtualEnvironment(venvPath);
+        pb.FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
+          .WithUvInstaller()
+          .WithVirtualEnvironment(venvPath);
 
-                services.AddSingleton<ILoggerProvider>(new XUnitLoggerProvider(_testOutputHelper, appendScope: true));
+        builder.Services.AddSingleton<ILoggerProvider>(new XUnitLoggerProvider(_testOutputHelper, appendScope: true));
 
-            })
-            .ConfigureLogging(builder =>
-            {
-                builder.SetMinimumLevel(LogLevel.Debug);
-                builder.AddFilter(_ => true);
-            })
-            .Build();
+        builder.Logging.SetMinimumLevel(LogLevel.Debug);
+        builder.Logging.AddFilter(_ => true);
+        
+        app = builder.Build();
 
         env = app.Services.GetRequiredService<IPythonEnvironment>();
     }

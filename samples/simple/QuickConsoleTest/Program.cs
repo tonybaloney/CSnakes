@@ -6,20 +6,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
-var builder = Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services =>
-    {
-        var home = Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency");
-        var venv = Path.Join(home, ".venv");
-        services
-        .WithPython()
-        .WithHome(home)
-        .WithVirtualEnvironment(venv)
-        .FromNuGet("3.12.4")
-        .FromMacOSInstallerLocator("3.12")
-        .FromEnvironmentVariable("Python3_ROOT_DIR", "3.12")
-        .WithPipInstaller();
-    });
+var builder = Host.CreateApplicationBuilder(args);
+var home = Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency");
+var venv = Path.Join(home, ".venv");
+builder.Services
+.WithPython()
+.WithHome(home)
+.WithVirtualEnvironment(venv)
+.FromNuGet("3.12.4")
+.FromMacOSInstallerLocator("3.12")
+.FromEnvironmentVariable("Python3_ROOT_DIR", "3.12")
+.WithPipInstaller();
 
 var app = builder.Build();
 

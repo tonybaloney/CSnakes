@@ -61,6 +61,10 @@ public sealed class NuGetLocatorTests : IDisposable
     [Fact]
     public void IsSupported_Windows_should_return_expected()
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return; // Skip on non-Windows
+        }
         NuGetLocator locator = new(PythonNugetVersion, PythonVersion);
 
         Assert.True(locator.IsSupported());
@@ -69,6 +73,10 @@ public sealed class NuGetLocatorTests : IDisposable
     [Fact]
     public void IsSupported_not_Windows_should_return_expected()
     {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return;
+        }
         NuGetLocator locator = new(PythonNugetVersion, PythonVersion);
 
         Assert.False(locator.IsSupported());

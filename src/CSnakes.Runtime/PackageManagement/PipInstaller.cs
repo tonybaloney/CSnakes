@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.PackageManagement;
 
-internal class PipInstaller(ILogger<PipInstaller>? logger, string requirementsFileName) : IPythonPackageInstaller
+internal class PipInstaller(ILogger<PipInstaller>? logger, IEnvironmentManagement? environmentManager, string requirementsFileName) : IPythonPackageInstaller
 {
     static readonly string pipBinaryName = $"pip{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
 
-    public Task InstallPackages(string home, IEnvironmentManagement? environmentManager)
+    public Task InstallPackages(string home)
     {
         string requirementsPath = Path.GetFullPath(Path.Combine(home, requirementsFileName));
         if (File.Exists(requirementsPath))
@@ -24,7 +24,7 @@ internal class PipInstaller(ILogger<PipInstaller>? logger, string requirementsFi
         return Task.CompletedTask;
     }
 
-    public Task InstallPackage(string home, IEnvironmentManagement? environmentManager, string package)
+    public Task InstallPackage(string home, string package)
     {
         RunPipInstall(home, environmentManager, [package], logger);
 

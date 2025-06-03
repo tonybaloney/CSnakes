@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.PackageManagement;
 
-internal class UVInstaller(ILogger<UVInstaller>? logger, string requirementsFileName) : IPythonPackageInstaller
+internal class UVInstaller(ILogger<UVInstaller>? logger, IEnvironmentManagement? environmentManager, string requirementsFileName) : IPythonPackageInstaller
 {
     static readonly string binaryName = $"uv{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
 
@@ -14,7 +14,7 @@ internal class UVInstaller(ILogger<UVInstaller>? logger, string requirementsFile
     /// <param name="home">HOME directory</param>
     /// <param name="environmentManager">Environment manager</param>
     /// <returns>A task.</returns>
-    public Task InstallPackages(string home, IEnvironmentManagement? environmentManager)
+    public Task InstallPackages(string home)
     {
         string requirementsPath = Path.GetFullPath(Path.Combine(home, requirementsFileName));
         if (File.Exists(requirementsPath))
@@ -30,7 +30,7 @@ internal class UVInstaller(ILogger<UVInstaller>? logger, string requirementsFile
         return Task.CompletedTask;
     }
 
-    public Task InstallPackage(string home, IEnvironmentManagement? environmentManager, string package)
+    public Task InstallPackage(string home, string package)
     {
         RunUvPipInstall(home, environmentManager, [package], logger);
 

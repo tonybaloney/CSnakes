@@ -13,7 +13,7 @@ public interface IPythonPackageInstaller
     /// <param name="home">The home directory.</param>
     /// <param name="virtualEnvironmentLocation">The location of the virtual environment (optional).</param>
     /// <returns>A task representing the asynchronous package installation operation.</returns>
-    Task InstallPackages(string home, IEnvironmentManagement? environmentManager);
+    Task InstallPackages(string home);
 
     /// <summary>
     /// Install a single package.
@@ -22,5 +22,5 @@ public interface IPythonPackageInstaller
     /// <param name="environmentManager">The location of the virtual environment (optional).</param>
     /// <param name="package">Name of the package to install.</param>
     /// <returns>A task representing the asynchronous package installation operation.</returns>
-    Task InstallPackage(string home, IEnvironmentManagement? environmentManager, string package);
+    Task InstallPackage(string home, string package);
 }

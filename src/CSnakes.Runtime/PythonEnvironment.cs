@@ -78,7 +78,7 @@ internal class PythonEnvironment : IPythonEnvironment
 
         foreach (var installer in packageInstallers)
         {
-            installer.InstallPackages(home, environmentManager);
+            installer.InstallPackages(home);
         }
 
         char sep = Path.PathSeparator;

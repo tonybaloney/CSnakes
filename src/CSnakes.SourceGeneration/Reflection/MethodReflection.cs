@@ -147,7 +147,6 @@ public static class MethodReflection
         {
             case PredefinedTypeSyntax s when s.Keyword.IsKind(SyntaxKind.VoidKeyword):
             {
-                resultShouldBeDisposed = false;
                 returnExpression = ReturnStatement(null);
                 break;
             }
@@ -210,20 +209,19 @@ public static class MethodReflection
                                 IdentifierName($"__func_{function.Name}"))))))
             );
 
-        StatementSyntax callStatement
-            = returnExpression.Expression is not null
-            ? LocalDeclarationStatement(
-                  VariableDeclaration(
-                          callResultTypeSyntax)
-                  .WithVariables(
-                      SingletonSeparatedList(
-                          VariableDeclarator(
-                              Identifier("__result_pyObject"))
-                          .WithInitializer(
-                              EqualsValueClause(
-                                  callExpression)))))
-                  .WithUsingKeyword(resultShouldBeDisposed ? Token(SyntaxKind.UsingKeyword) : Token(SyntaxKind.None))
-            : ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName("_"), callExpression));
+        var callStatement = LocalDeclarationStatement(
+                VariableDeclaration(
+                        callResultTypeSyntax)
+                .WithVariables(
+                    SingletonSeparatedList(
+                        VariableDeclarator(
+                            Identifier("__result_pyObject"))
+                        .WithInitializer(
+                            EqualsValueClause(
+                                callExpression)))));
+
+        if (resultShouldBeDisposed)
+            callStatement = callStatement.WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
 
         var logStatement = ExpressionStatement(
                 ConditionalAccessExpression(

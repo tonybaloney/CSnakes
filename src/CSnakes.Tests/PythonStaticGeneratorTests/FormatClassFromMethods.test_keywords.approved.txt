@@ -92,7 +92,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_keyword_only;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
-                _ = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, ..args ?? []], ["b"], [b_pyObject], null);
+                using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, ..args ?? []], ["b"], [b_pyObject], null);
                 return;
             }
         }
@@ -105,7 +105,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_named_keyword_only;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
-                _ = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, ..args ?? []], ["b"], [b_pyObject], null);
+                using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, ..args ?? []], ["b"], [b_pyObject], null);
                 return;
             }
         }

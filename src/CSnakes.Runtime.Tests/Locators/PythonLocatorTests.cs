@@ -41,6 +41,10 @@ public class PythonLocatorTests
     [Fact]
     public void GetPythonExecutablePath_Linux_ReturnsCorrectPath()
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return; // Skip on non-Linux
+        }
         const string folder = "/usr/local/python3";
         MockPythonLocator locator = new(PythonVersion);
 
@@ -54,6 +58,10 @@ public class PythonLocatorTests
     [InlineData(true, @"C:\Python39\python39t.dll")]
     public void GetLibPythonPath_Windows_ReturnsCorrectPath(bool freeThreaded, string expected)
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return; // Skip on non-Windows
+        }
         const string folder = @"C:\Python39";
         MockPythonLocator locator = new(PythonVersion);
 
@@ -67,6 +75,10 @@ public class PythonLocatorTests
     [InlineData(true, @"/usr/local/python3/lib/libpython3.9t.dylib")]
     public void GetLibPythonPath_OSX_ReturnsCorrectPath(bool freeThreaded, string expected)
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return; // Skip on non-OSX
+        }
         const string folder = "/usr/local/python3";
         MockPythonLocator locator = new(PythonVersion);
 
@@ -80,6 +92,10 @@ public class PythonLocatorTests
     [InlineData(true, @"/usr/local/python3/lib/libpython3.9t.so")]
     public void GetLibPythonPath_Linux_ReturnsCorrectPath(bool freeThreaded, string expected)
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return; // Skip on non-Linux
+        }
         const string folder = "/usr/local/python3";
         MockPythonLocator locator = new(PythonVersion);
 
@@ -91,6 +107,10 @@ public class PythonLocatorTests
     [Fact]
     public void GetPythonPath_Windows_ReturnsCorrectPath()
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return; // Skip on non-Windows
+        }
         const string folder = @"C:\Python39";
         MockPythonLocator locator = new(PythonVersion);
 
@@ -102,6 +122,10 @@ public class PythonLocatorTests
     [Fact]
     public void GetPythonPath_OSX_ReturnsCorrectPath()
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return; // Skip on non-OSX
+        }
         const string folder = "/usr/local/python3";
         MockPythonLocator locator = new(PythonVersion);
 
@@ -113,6 +137,10 @@ public class PythonLocatorTests
     [Fact]
     public void GetPythonPath_Linux_ReturnsCorrectPath()
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return; // Skip on non-Linux
+        }
         const string folder = "/usr/local/python3";
         MockPythonLocator locator = new(PythonVersion);
 
@@ -134,6 +162,10 @@ public class PythonLocatorTests
     [Fact]
     public void LocatePythonInternal_Windows_returns_expected()
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return; // Skip on non-Windows
+        }
         // We need a folder that exists, but we don't want to rely on the actual Python installation.
         string folder = Environment.GetEnvironmentVariable("TEMP")!;
         MockPythonLocator locator = new(PythonVersion);
@@ -147,6 +179,10 @@ public class PythonLocatorTests
     [Fact]
     public void LocatePythonInternal_OSX_returns_expected()
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return; // Skip on non-OSX
+        }
         // We need a folder that exists, but we don't want to rely on the actual Python installation.
         const string folder = "/usr/local";
         MockPythonLocator locator = new(PythonVersion);
@@ -160,6 +196,10 @@ public class PythonLocatorTests
     [Fact]
     public void LocatePythonInternal_Linux_returns_expected()
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return; // Skip on non-Linux
+        }
         // We need a folder that exists, but we don't want to rely on the actual Python installation.
         const string folder = "/usr/local";
         MockPythonLocator locator = new(PythonVersion);

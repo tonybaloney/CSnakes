@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.ComponentModel;
+using Basic.Reference.Assemblies;
 
 namespace CSnakes.Tests;
 
@@ -27,7 +28,8 @@ public class GeneratedSignatureTests
     [InlineData("def hello_world(numbers: Sequence[float]) -> typing.Sequence[int]:\n    ...\n", "IReadOnlyList<long> HelloWorld(IReadOnlyList<double> numbers)")]
     [InlineData("def hello_world(value: tuple[int]) -> None:\n    ...\n", "void HelloWorld(ValueTuple<long> value)")]
     [InlineData("def hello_world(a: bool, b: str, c: list[tuple[int, float]]) -> bool: \n ...\n", "bool HelloWorld(bool a, string b, IReadOnlyList<(long, double)> c)")]
-    [InlineData("def hello_world(a: bool = True, b: str = None) -> bool: \n ...\n", "bool HelloWorld(bool a = true, string? b = null)")]
+    [InlineData("def hello_world(a: bool = True, b: Optional[str] = None) -> bool: \n ...\n", "bool HelloWorld(bool a = true, string? b = null)")]
+    [InlineData("def hello_world(a: Optional[int], b: Optional[str]) -> Optional[bool]: \n ...\n", "bool? HelloWorld(long? a, string? b)")]
     [InlineData("def hello_world(a: bytes, b: bool = False, c: float = 0.1) -> None: \n ...\n", "void HelloWorld(byte[] a, bool b = false, double c = 0.1)")]
     [InlineData("def hello_world(a: str = 'default') -> None: \n ...\n", "void HelloWorld(string a = \"default\")")]
     [InlineData("def hello_world(a: str, *args) -> None: \n ...\n", "void HelloWorld(string a, PyObject[]? args = null)")]
@@ -56,22 +58,18 @@ public class GeneratedSignatureTests
         Assert.Equal($"public {expected}", method.Syntax.WithBody(null).NormalizeWhitespace().ToString());
 
         // Check that the sample C# code compiles
-        string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test", functions, sourceText.GetContentHash());
+        string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test", functions, sourceText);
         var tree = CSharpSyntaxTree.ParseText(compiledCode);
         var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-            .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
-            .AddReferences(MetadataReference.CreateFromFile(typeof(IList<>).Assembly.Location))
-            .AddReferences(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location))
-            .AddReferences(MetadataReference.CreateFromFile(typeof(TypeConverter).Assembly.Location))
-            .AddReferences(MetadataReference.CreateFromFile(typeof(IReadOnlyDictionary<,>).Assembly.Location))
+#if NET8_0
+            .WithReferenceAssemblies(ReferenceAssemblyKind.Net80)
+#elif NET9_0
+            .WithReferences(Net90.References.All)
+#else
+#error Unsupported .NET tareget
+#endif
             .AddReferences(MetadataReference.CreateFromFile(typeof(IPythonEnvironmentBuilder).Assembly.Location))
             .AddReferences(MetadataReference.CreateFromFile(typeof(ILogger<>).Assembly.Location))
-            .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "netstandard").Location)) // TODO: (track) Ensure 2.0
-            .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Runtime").Location))
-            .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Collections").Location))
-            .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.ComponentModel").Location))
-            .AddReferences(MetadataReference.CreateFromFile(AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "System.Linq.Expressions").Location))
-
             .AddSyntaxTrees(tree);
         var result = compilation.Emit(Stream.Null);
         // TODO : Log compiler warnings.

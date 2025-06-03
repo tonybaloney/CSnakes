@@ -1,3 +1,5 @@
+from typing import Generator
+
 try:
     from collections.abc import Buffer
 except ImportError:
@@ -84,7 +86,7 @@ def test_bytearray_as_buffer() -> Buffer:
     return bytearray(b"hello")
 
 def test_non_buffer() -> Buffer:
-    return "hello"
+    return "hello"  # type: ignore[return-value]
 
 def test_non_contiguous_buffer() -> Buffer:
     return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32)[::2]
@@ -105,3 +107,9 @@ def test_ndim_4d_buffer() -> Buffer:
     arr[0, 0, 0, 1] = 2
     arr[1, 2, 3, 4] = 3
     return arr
+
+
+def sum_of_2d_array(n: int) -> Generator[Buffer, None, int]:
+    arr = np.zeros((n, n), dtype=np.int32)
+    yield arr
+    return np.sum(arr).item()

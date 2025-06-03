@@ -6,8 +6,8 @@ namespace CSnakes.Reflection;
 
 public class ArgumentReflection
 {
-    private static readonly PythonTypeSpec DictStrAny = new("dict", [new("str", []), PythonTypeSpec.Any]);
-    private static readonly TypeSyntax ArrayPyObject = SyntaxFactory.ParseTypeName("PyObject[]");
+    private static readonly PythonTypeSpec DictStrAny = new("Optional", [new("dict", [new("str", []), PythonTypeSpec.Any])]);
+    private static readonly TypeSyntax NullableArrayOfPyObject = SyntaxFactory.ParseTypeName("PyObject[]?");
 
     public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter) =>
         ArgumentSyntax(parameter, PythonFunctionParameterType.Normal);
@@ -19,71 +19,38 @@ public class ArgumentReflection
         // TODO: Handle the user specifying *args with a type annotation like tuple[int, str]
         var (reflectedType, defaultValue) = (parameterType, parameter) switch
         {
-            (PythonFunctionParameterType.Star, _) => (ArrayPyObject, PythonConstant.None.Value),
+            (PythonFunctionParameterType.Star, _) => (NullableArrayOfPyObject, PythonConstant.None.Value),
             (PythonFunctionParameterType.DoubleStar, _) => (TypeReflection.AsPredefinedType(DictStrAny, TypeReflection.ConversionDirection.ToPython), PythonConstant.None.Value),
             (PythonFunctionParameterType.Normal, { ImpliedTypeSpec: var type, DefaultValue: var dv }) => (TypeReflection.AsPredefinedType(type, TypeReflection.ConversionDirection.ToPython), dv),
             _ => throw new NotImplementedException()
         };
 
-        bool isNullableType = false;
-
-        LiteralExpressionSyntax? literalExpressionSyntax;
-
-        switch (defaultValue)
+        var literalExpressionSyntax = defaultValue switch
         {
-            case null:
-                literalExpressionSyntax = null;
-                break;
-            case PythonConstant.HexidecimalInteger { Value: var v }:
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
-                                                        SyntaxKind.NumericLiteralExpression,
-                                                        SyntaxFactory.Literal($"0x{v:X}", v));
-                break;
-            case PythonConstant.BinaryInteger { Value: var v }:
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
-                                                        SyntaxKind.NumericLiteralExpression,
-                                                        SyntaxFactory.Literal($"0b{Convert.ToString(v, 2)}", v));
-                break;
-            case PythonConstant.Integer { Value: var v and >= int.MinValue and <= int.MaxValue }:
+            null => null,
+            PythonConstant.HexidecimalInteger { Value: var v } =>
+                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
+                                                SyntaxFactory.Literal($"0x{v:X}", v)),
+            PythonConstant.BinaryInteger { Value: var v } =>
+                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
+                                                SyntaxFactory.Literal($"0b{Convert.ToString(v, 2)}", v)),
+            PythonConstant.Integer { Value: var v and >= int.MinValue and <= int.MaxValue } =>
                 // Downcast long to int if the value is small as the code is more readable without the L suffix
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
-                                                        SyntaxKind.NumericLiteralExpression,
-                                                        SyntaxFactory.Literal((int)v));
-                break;
-            case PythonConstant.Integer { Value: var v }:
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
-                                                        SyntaxKind.NumericLiteralExpression,
-                                                        SyntaxFactory.Literal(v));
-                break;
-            case PythonConstant.String { Value: var v }:
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
-                                                        SyntaxKind.StringLiteralExpression,
-                                                        SyntaxFactory.Literal(v));
-                break;
-            case PythonConstant.Float { Value: var v }:
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(
-                                                        SyntaxKind.NumericLiteralExpression,
-                                                        SyntaxFactory.Literal(v));
-                break;
-            case PythonConstant.Bool { Value: true }:
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression);
-                break;
-            case PythonConstant.Bool { Value: false }:
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression);
-                break;
-            case PythonConstant.None:
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
-                isNullableType = true;
-                break;
-            default:
-                literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
-                isNullableType = true;
-                break;
-        }
+                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((int)v)),
+            PythonConstant.Integer { Value: var v } =>
+                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),
+            PythonConstant.String { Value: var v } =>
+                SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(v)),
+            PythonConstant.Float { Value: var v } =>
+                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),
+            PythonConstant.Bool { Value: true } => SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression),
+            PythonConstant.Bool { Value: false } => SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression),
+            _ => SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
+        };
 
         return SyntaxFactory
             .Parameter(SyntaxFactory.Identifier(Keywords.ValidIdentifier(parameter.Name.ToLowerPascalCase())))
-            .WithType(isNullableType ? SyntaxFactory.NullableType(reflectedType) : reflectedType)
+            .WithType(reflectedType)
             .WithDefault(literalExpressionSyntax is not null ? SyntaxFactory.EqualsValueClause(literalExpressionSyntax) : null);
     }
 }

@@ -277,6 +277,38 @@ public class TokenizerTests
         Assert.Null(parameter.TypeSpec);
     }
 
+    [Theory]
+    [InlineData("*args", 1)]
+    [InlineData("a, *args", 2)]
+    public void ParseFunctionSpecialStarParameter(string source, int expectedCount)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize($"({source})");
+        var result = PythonParser.PythonParameterListParser.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal(expectedCount, result.Value.Count);
+        var parameter = result.Value.VariadicPositional;
+        Assert.NotNull(parameter);
+        Assert.Equal("args", parameter.Name);
+        Assert.Null(parameter.DefaultValue);
+        Assert.Null(parameter.TypeSpec);
+    }
+
+    [Theory]
+    [InlineData("**kwargs", 1)]
+    [InlineData("a, **kwargs", 2)]
+    public void ParseFunctionSpecialStarStarParameter(string source, int expectedCount)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize($"({source})");
+        var result = PythonParser.PythonParameterListParser.TryParse(tokens);
+        Assert.True(result.HasValue);
+        Assert.Equal(expectedCount, result.Value.Count);
+        var parameter = result.Value.VariadicKeyword;
+        Assert.NotNull(parameter);
+        Assert.Equal("kwargs", parameter.Name);
+        Assert.Null(parameter.DefaultValue);
+        Assert.Null(parameter.TypeSpec);
+    }
+
     [Fact]
     public void ParseFunctionParameterListSingleGeneric()
     {

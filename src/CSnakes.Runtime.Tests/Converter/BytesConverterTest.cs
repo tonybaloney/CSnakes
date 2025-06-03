@@ -1,9 +1,14 @@
+using CSnakes.Runtime.Python;
+
 namespace CSnakes.Runtime.Tests.Converter;
 
-public class BytesConverterTest : ConverterTestBase
+public class BytesConverterTest :
+    ConverterTestBase<byte[], PyObjectImporters.ByteArray, BytesConverterTest>,
+    IConverterTestCasesContainer<byte[]>
 {
-    [Theory]
-    [InlineData(new byte[] { 0x01, 0x02, 0x03, 0x04 })]
-    [InlineData(new byte[] { })]
-    public void TestBytesBidirectional(byte[] input) => RunTest(input);
+    public static TheoryData<byte[]> TestCases => new()
+    {
+        new byte[] { 0x01, 0x02, 0x03, 0x04 },
+        new byte[] { }
+    };
 }

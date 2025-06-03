@@ -1,5 +1,8 @@
-using CSnakes.Runtime.Python;
-using System.Diagnostics;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Integration.Tests;
 public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
@@ -29,16 +32,30 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
     public async Task MultipleCoroutineCallsIsParallel()
     {
         var mod = Env.TestCoroutines();
-        var tasks = new List<Task<PyObject>>();
-        for (int i = 0; i < 10; i++)
+        var tasks =
+            from _ in Enumerable.Range(0, 10)
+            select mod.TestCoroutine();
+        _ = await Task.WhenAll(tasks).WaitAsync(TimeSpan.FromSeconds(10));
+    }
+
+    [Fact]
+    public async Task MultipleCoroutineCallsIsParallelThatGetCancelled()
+    {
+        var mod = Env.TestCoroutines();
+
+        using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+
+        var tasks =
+            from _ in Enumerable.Range(0, 10)
+            select mod.TestCoroutine(seconds: 5, cancellationTokenSource.Token);
+
+        foreach (var task in tasks)
         {
-            tasks.Add(mod.TestCoroutineReturnsNothing());
+            async Task Act() => await task.WaitAsync(TimeSpan.FromSeconds(10));
+            var ex = await Assert.ThrowsAsync<TaskCanceledException>(Act);
+            Assert.Equal(cancellationTokenSource.Token, ex.CancellationToken);
+            Assert.Equal(TaskStatus.Canceled, task.Status);
         }
-        // Check this takes less than 10 seconds
-        var start = Stopwatch.StartNew();
-        var r = await Task.WhenAll(tasks);
-        start.Stop();
-        Assert.True(start.ElapsedMilliseconds < 10000);
     }
 
     [Fact]

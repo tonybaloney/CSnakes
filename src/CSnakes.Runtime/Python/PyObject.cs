@@ -2,6 +2,7 @@ using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python.Interns;
 using System.Collections;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -155,15 +156,33 @@ public partial class PyObject : SafeHandle, ICloneable
     }
 
     /// <summary>
-    /// Calls iter() on the object and returns an IEnumerable that yields values of type T.
+    /// Returns an <see cref="IEnumerable{T}"/> that calls <c>iter()</c> on the
+    /// object and yields values of type T when iterated.
     /// </summary>
     /// <typeparam name="T">The type for each item in the iterator</typeparam>
-    /// <returns></returns>
-    public IEnumerable<T> AsEnumerable<T>()
+    /// <remarks>
+    /// This method does not check if the object is iterable until <see
+    /// cref="IEnumerable{T}.GetEnumerator"/> is called on the result.
+    /// </remarks>
+    public IEnumerable<T> AsEnumerable<T>() =>
+        AsEnumerable<T, PyObjectImporters.Runtime<T>>();
+
+    /// <summary>
+    /// Returns an <see cref="IEnumerable{T}"/> that calls <c>iter()</c> on the
+    /// object and yields values of type T when iterated.
+    /// </summary>
+    /// <typeparam name="T">The type for each item in the iterator</typeparam>
+    /// <typeparam name="TImporter">The type for importing each item type</typeparam>
+    /// <remarks>
+    /// This method does not check if the object is iterable until <see
+    /// cref="IEnumerable{T}.GetEnumerator"/> is called on the result.
+    /// </remarks>
+    public IEnumerable<T> AsEnumerable<T, TImporter>()
+        where TImporter : IPyObjectImporter<T>
     {
         using (GIL.Acquire())
         {
-            return new PyEnumerable<T>(this);
+            return new PyEnumerable<T, TImporter>(Clone());
         }
     }
 
@@ -292,6 +311,52 @@ public partial class PyObject : SafeHandle, ICloneable
             return CPythonAPI.PyObject_RichCompare(left, right, type);
         }
     }
+
+    /// <summary>
+    /// Check if the object is false. Equivalent to the <c>not</c> operator in Python.
+    /// </summary>
+    public static bool operator !(PyObject obj)
+    {
+        if (obj.Is(False) || obj.IsNone())
+            return true;
+
+        using (GIL.Acquire())
+        {
+            return CPythonAPI.PyObject_Not(obj) switch
+            {
+                < 0 => throw ThrowPythonExceptionAsClrException(),
+                0 => false,
+                _ => true,
+            };
+        }
+    }
+
+    /// <summary>
+    /// Check if the object is true. Equivalent to the <c>bool()</c> function in Python.
+    /// </summary>
+    public static bool operator true(PyObject obj)
+    {
+        if (obj.Is(True))
+            return true;
+
+        if (obj.IsNone())
+            return false;
+
+        using (GIL.Acquire())
+        {
+            return CPythonAPI.PyObject_IsTrue(obj) switch
+            {
+                < 0 => throw ThrowPythonExceptionAsClrException(),
+                0 => false,
+                _ => true,
+            };
+        }
+    }
+
+    /// <summary>
+    /// Check if the object is false. Equivalent to the <c>not</c> operator in Python.
+    /// </summary>
+    public static bool operator false(PyObject obj) => !obj;
 
     public override int GetHashCode()
     {
@@ -439,20 +504,6 @@ public partial class PyObject : SafeHandle, ICloneable
 
     public T As<T>() => (T)As(typeof(T));
 
-    /// <summary>
-    /// Unpack a tuple of 2 elements into a KeyValuePair
-    /// </summary>
-    /// <typeparam name="TKey">The type of the key</typeparam>
-    /// <typeparam name="TValue">The type of the value</typeparam>
-    /// <returns></returns>
-    public KeyValuePair<TKey, TValue> As<TKey, TValue>()
-    {
-        using (GIL.Acquire())
-        {
-            return PyObjectTypeConverter.ConvertToKeyValuePair<TKey, TValue>(this);
-        }
-    }
-
     internal object As(Type type)
     {
         using (GIL.Acquire())
@@ -461,7 +512,7 @@ public partial class PyObject : SafeHandle, ICloneable
             {
                 var t when t == typeof(PyObject) => Clone(),
                 var t when t == typeof(bool) => CPythonAPI.IsPyTrue(this),
-                var t when t == typeof(int) => CPythonAPI.PyLong_AsLong(this),
+                var t when t == typeof(int) => checked((int)CPythonAPI.PyLong_AsLongLong(this)),
                 var t when t == typeof(long) => CPythonAPI.PyLong_AsLongLong(this),
                 var t when t == typeof(double) => CPythonAPI.PyFloat_AsDouble(this),
                 var t when t == typeof(float) => (float)CPythonAPI.PyFloat_AsDouble(this),
@@ -476,33 +527,173 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
-    public static PyObject From<T>(T value)
+    public T ImportAs<T, TImporter>() where TImporter : IPyObjectImporter<T>
     {
         using (GIL.Acquire())
-        {
-            if (value is null)
-                return None;
+            return BareImportAs<T, TImporter>();
+    }
 
-            return value switch
-            {
-                ICloneable pyObject => pyObject.Clone(),
-                bool b => b ? True : False,
-                int i when i == 0 => Zero,
-                int i when i == 1 => One,
-                int i when i == -1 => NegativeOne,
-                int i => Create(CPythonAPI.PyLong_FromLong(i)),
-                long l => Create(CPythonAPI.PyLong_FromLongLong(l)),
-                double d => Create(CPythonAPI.PyFloat_FromDouble(d)),
-                float f => Create(CPythonAPI.PyFloat_FromDouble((double)f)),
-                string s => Create(CPythonAPI.AsPyUnicodeObject(s)),
-                byte[] bytes => PyObject.Create(CPythonAPI.PyBytes_FromByteSpan(bytes.AsSpan())),
-                IDictionary dictionary => PyObjectTypeConverter.ConvertFromDictionary(dictionary),
-                ITuple t => PyObjectTypeConverter.ConvertFromTuple(t),
-                ICollection l => PyObjectTypeConverter.ConvertFromList(l),
-                IEnumerable e => PyObjectTypeConverter.ConvertFromList(e),
-                BigInteger b => PyObjectTypeConverter.ConvertFromBigInteger(b),
-                _ => throw new InvalidCastException($"Cannot convert {value} to PyObject"),
-            };
+    /// <remarks>
+    /// It is the responsibility of the caller to ensure that the GIL is
+    /// acquired via <see cref="GIL.Acquire"/> when this method is invoked.
+    /// </remarks>
+    [Experimental("PRTEXP002")]
+    public T BareImportAs<T, TImporter>() where TImporter : IPyObjectImporter<T> =>
+        TImporter.BareImport(this);
+
+    public static PyObject From(bool? value) =>
+        value switch { null => None, { } some => From(some) };
+
+    public static PyObject From(bool value) =>
+        value ? True : False;
+
+    public static PyObject From(long? value) =>
+        value switch { null => None, { } n => From(n) };
+
+    public static PyObject From(long value)
+    {
+        switch (value)
+        {
+            case 0: return Zero;
+            case 1: return One;
+            case -1: return NegativeOne;
+            case var n:
+                using (GIL.Acquire())
+                    return Create(CPythonAPI.PyLong_FromLongLong(n));
+        }
+    }
+
+    public static PyObject From(double? value) =>
+        value switch { null => None, { } n => From(n) };
+
+    public static PyObject From(double value)
+    {
+        switch (value)
+        {
+            case 0: return Zero;
+            case 1: return One;
+            case -1: return NegativeOne;
+            case var n:
+                using (GIL.Acquire())
+                    return Create(CPythonAPI.PyFloat_FromDouble(n));
+        }
+    }
+
+    public static PyObject From(BigInteger? value) =>
+        value switch { null => None, { } some => From(some) };
+
+    public static PyObject From(BigInteger value)
+    {
+        switch (value)
+        {
+            case { IsZero: true }: return Zero;
+            case { IsOne: true }: return One;
+            case var n when n == -1: return NegativeOne;
+            case var n:
+                using (GIL.Acquire())
+                    return PyObjectTypeConverter.ConvertFromBigInteger(n);
+        }
+    }
+
+    public static PyObject From(string? value)
+    {
+        switch (value)
+        {
+            case null: return None;
+            case var some:
+                using (GIL.Acquire())
+                    return Create(CPythonAPI.AsPyUnicodeObject(some));
+        }
+    }
+
+    public static PyObject From(byte[]? value)
+    {
+        switch (value)
+        {
+            case null: return None;
+            case var some:
+                using (GIL.Acquire())
+                    return Create(CPythonAPI.PyBytes_FromByteSpan(some.AsSpan()));
+        }
+    }
+
+    public static PyObject From(IDictionary? value)
+    {
+        switch (value)
+        {
+            case null: return None;
+            case var some:
+                using (GIL.Acquire())
+                    return PyObjectTypeConverter.ConvertFromDictionary(some);
+        }
+    }
+
+    public static PyObject From(ITuple? value)
+    {
+        switch (value)
+        {
+            case null: return None;
+            case var some:
+                using (GIL.Acquire())
+                    return PyObjectTypeConverter.ConvertFromTuple(some);
+        }
+    }
+
+    internal static PyObject From(ICloneable value)
+    {
+        using (GIL.Acquire())
+            return value.Clone();
+    }
+
+    public static PyObject From(ICollection? value)
+    {
+        switch (value)
+        {
+            case null:
+                return None;
+            case IDictionary dictionary:
+                return From(dictionary);
+            case var collection:
+                using (GIL.Acquire())
+                    return PyObjectTypeConverter.ConvertFromList(collection);
+        }
+    }
+
+    public static PyObject From(IEnumerable? value)
+    {
+        switch (value)
+        {
+            case null:
+                return None;
+            case ICloneable cloneable:
+                return From(cloneable);
+            case IDictionary dictionary:
+                return From(dictionary);
+            case var enumerable:
+                using (GIL.Acquire())
+                    return PyObjectTypeConverter.ConvertFromList(enumerable);
+        }
+    }
+
+    public static PyObject From(object? value)
+    {
+        switch (value)
+        {
+            case null: return None;
+            case bool b: return From(b);
+            case int n: long l = n; return From(l);
+            case long n: return From(n);
+            case BigInteger n: return From(n);
+            case float n: double d = n; return From(d);
+            case double n: return From(n);
+            case string s: return From(s);
+            case byte[] bytes: return From(bytes);
+            case ICloneable cloneable: return From(cloneable);
+            case IDictionary dictionary: return From(dictionary);
+            case ITuple tuple: return From(tuple);
+            case ICollection collection: return From(collection);
+            case IEnumerable enumerable: return From(enumerable);
+            default: throw new InvalidCastException($"Cannot convert {value} to PyObject");
         }
     }
 

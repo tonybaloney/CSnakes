@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using CSnakes.Runtime.Python;
 using Xunit;
 
@@ -10,7 +12,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestBoolBuffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestBoolBuffer();
+        using var bufferObject = testModule.TestBoolBuffer();
         Assert.Equal(5, bufferObject.Length);
         Assert.True(bufferObject.IsScalar);
 
@@ -25,7 +27,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestInt8Buffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestInt8Buffer();
+        using var bufferObject = testModule.TestInt8Buffer();
         Assert.Equal(5 * sizeof(sbyte), bufferObject.Length);
         Assert.True(bufferObject.IsScalar);
 
@@ -40,7 +42,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestUInt8Buffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestUint8Buffer();
+        using var bufferObject = testModule.TestUint8Buffer();
         Assert.Equal(5 * sizeof(byte), bufferObject.Length);
         Assert.True(bufferObject.IsScalar);
 
@@ -55,7 +57,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestInt16Buffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestInt16Buffer();
+        using var bufferObject = testModule.TestInt16Buffer();
         Assert.Equal(5 * sizeof(short), bufferObject.Length);
         Assert.True(bufferObject.IsScalar);
 
@@ -70,7 +72,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestUInt16Buffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestUint16Buffer();
+        using var bufferObject = testModule.TestUint16Buffer();
         Assert.Equal(5 * sizeof(ushort), bufferObject.Length);
         Assert.True(bufferObject.IsScalar);
 
@@ -85,7 +87,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestInt32Buffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestInt32Buffer();
+        using var bufferObject = testModule.TestInt32Buffer();
         Assert.Equal(20, bufferObject.Length); // 5 * sizeof(int)
         Assert.True(bufferObject.IsScalar);
 
@@ -100,7 +102,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestUInt32Buffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestUint32Buffer();
+        using var bufferObject = testModule.TestUint32Buffer();
         Assert.Equal(20, bufferObject.Length); // 5 * sizeof(int)
         Assert.True(bufferObject.IsScalar);
 
@@ -115,7 +117,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestInt64Buffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestInt64Buffer();
+        using var bufferObject = testModule.TestInt64Buffer();
         Assert.Equal(sizeof(long) * 5, bufferObject.Length); // 5 * sizeof(int)
         Assert.True(bufferObject.IsScalar);
 
@@ -130,7 +132,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestUInt64Buffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestUint64Buffer();
+        using var bufferObject = testModule.TestUint64Buffer();
         Assert.Equal(sizeof(long) * 5, bufferObject.Length); // 5 * sizeof(int)
         Assert.True(bufferObject.IsScalar);
 
@@ -145,7 +147,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestFloat32Buffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestFloat32Buffer();
+        using var bufferObject = testModule.TestFloat32Buffer();
         Assert.Equal(20, bufferObject.Length); // 5 * sizeof(int)
         Assert.True(bufferObject.IsScalar);
 
@@ -160,7 +162,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestFloat64Buffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestFloat64Buffer();
+        using var bufferObject = testModule.TestFloat64Buffer();
         Assert.Equal(sizeof(double) * 5, bufferObject.Length); // 5 * sizeof(int)
         Assert.True(bufferObject.IsScalar);
 
@@ -175,7 +177,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestBufferLargeFloatScalar()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestVectorBuffer();
+        using var bufferObject = testModule.TestVectorBuffer();
         Assert.Equal(1532 * sizeof(float), bufferObject.Length);
         Assert.True(bufferObject.IsScalar);
 
@@ -189,7 +191,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestInt8MatrixBuffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestInt82dBuffer();
+        using var bufferObject = testModule.TestInt82dBuffer();
         Assert.Equal(sizeof(sbyte) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsSByteSpan2D();
@@ -202,7 +204,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestUInt8MatrixBuffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestUint82dBuffer();
+        using var bufferObject = testModule.TestUint82dBuffer();
         Assert.Equal(sizeof(byte) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsByteSpan2D();
@@ -215,7 +217,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestInt16MatrixBuffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestInt162dBuffer();
+        using var bufferObject = testModule.TestInt162dBuffer();
         Assert.Equal(sizeof(short) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsInt16Span2D();
@@ -228,7 +230,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestUInt16MatrixBuffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestUint162dBuffer();
+        using var bufferObject = testModule.TestUint162dBuffer();
         Assert.Equal(sizeof(ushort) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsUInt16Span2D();
@@ -241,7 +243,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestInt32MatrixBuffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestInt322dBuffer();
+        using var bufferObject = testModule.TestInt322dBuffer();
         Assert.Equal(sizeof(int) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsInt32Span2D();
@@ -254,7 +256,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestUInt32MatrixBuffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestUint322dBuffer();
+        using var bufferObject = testModule.TestUint322dBuffer();
         Assert.Equal(sizeof(uint) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsUInt32Span2D();
@@ -267,7 +269,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestInt64MatrixBuffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestInt642dBuffer();
+        using var bufferObject = testModule.TestInt642dBuffer();
         Assert.Equal(sizeof(long) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsInt64Span2D();
@@ -280,7 +282,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestUInt64MatrixBuffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestUint642dBuffer();
+        using var bufferObject = testModule.TestUint642dBuffer();
         Assert.Equal(sizeof(ulong) * 3, 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsUInt64Span2D();
@@ -293,7 +295,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestFloat32MatrixBuffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestFloat322dBuffer();
+        using var bufferObject = testModule.TestFloat322dBuffer();
         Assert.Equal(sizeof(float) * 2 * 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsFloatSpan2D();
@@ -306,7 +308,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestFloat64MatrixBuffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestFloat642dBuffer();
+        using var bufferObject = testModule.TestFloat642dBuffer();
         Assert.Equal(sizeof(double) * 2 * 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsDoubleSpan2D();
@@ -319,7 +321,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestModificationViaSpan()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestGlobalBuffer();
+        using var bufferObject = testModule.TestGlobalBuffer();
         Assert.Equal(2, bufferObject.Dimensions);
         var matrix = bufferObject.AsInt32Span2D();
         Assert.Equal(0, matrix[0, 0]);
@@ -327,7 +329,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
         matrix[0, 0] = 42;
 
         // Fetch the object again
-        var bufferObject2 = testModule.TestGlobalBuffer();
+        using var bufferObject2 = testModule.TestGlobalBuffer();
         var matrix2 = bufferObject2.AsInt32Span2D();
         Assert.Equal(42, matrix2[0, 0]);
     }
@@ -336,7 +338,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestBytesAsBuffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestBytesAsBuffer();
+        using var bufferObject = testModule.TestBytesAsBuffer();
         Assert.Equal(5, bufferObject.Length);
         Assert.True(bufferObject.IsScalar);
         var result = bufferObject.AsByteReadOnlySpan();
@@ -349,7 +351,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestByteArrayAsBuffer()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestBytearrayAsBuffer();
+        using var bufferObject = testModule.TestBytearrayAsBuffer();
         Assert.Equal(5, bufferObject.Length);
         Assert.True(bufferObject.IsScalar);
         var result = bufferObject.AsByteSpan();
@@ -369,7 +371,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestNonContiguousBuffer()
     {
         var testModule = Env.TestBuffer();
-        var array = testModule.TestNonContiguousBuffer();
+        using var array = testModule.TestNonContiguousBuffer();
         Assert.Equal(sizeof(int) * 3, array.Length);
         var result = array.AsInt32Span2D();
         Assert.Equal(typeof(int), array.GetItemType());
@@ -385,12 +387,40 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
         Assert.Throws<PythonInvocationException>(testModule.TestTransposedBuffer);
     }
 
+    [Fact]
+    public void TestBidirectionalBuffer()
+    {
+        var testModule = Env.TestBuffer();
+        List<Int32> list = new() { 1, 2, 3, 4, 5 };
+        using var bufferGenerator = testModule.SumOf2dArray(5);
+        bufferGenerator.MoveNext();
+        var bufferObject = bufferGenerator.Current;
+
+        Assert.Equal(100, bufferObject.Length);
+        Assert.Equal(2, bufferObject.Dimensions);
+        var bufferAsSpan = bufferObject.AsInt32Span2D();
+
+        // Copy the list to the buffer
+        for (int i = 0; i < list.Count; i++)
+        {
+            for (int j = 0; j < list.Count; j++)
+            {
+                bufferAsSpan[i, j] = list[i];
+            }
+        }
+        // Get the sum
+        bufferGenerator.MoveNext();
+        // Get result
+        var result = bufferGenerator.Return;
+        Assert.Equal(75, result);
+    }
+
 #if NET9_0_OR_GREATER
     [Fact]
     public void TestNDim3Tensor()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestNdim3dBuffer();
+        using var bufferObject = testModule.TestNdim3dBuffer();
         Assert.Equal(3, bufferObject.Dimensions);
         var tensor = bufferObject.AsTensorSpan<int>();
         Assert.Equal(typeof(int), bufferObject.GetItemType());
@@ -401,7 +431,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     [Fact]
     public void TestNDim4Tensor(){
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestNdim4dBuffer();
+        using var bufferObject = testModule.TestNdim4dBuffer();
         Assert.Equal(4, bufferObject.Dimensions);
         var tensor = bufferObject.AsTensorSpan<int>();
         Assert.Equal(typeof(int), bufferObject.GetItemType());
@@ -413,7 +443,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestNDim3ReadOnlyTensor()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestNdim3dBuffer();
+        using var bufferObject = testModule.TestNdim3dBuffer();
         Assert.Equal(3, bufferObject.Dimensions);
         var tensor = bufferObject.AsReadOnlyTensorSpan<int>();
         Assert.Equal(typeof(int), bufferObject.GetItemType());
@@ -425,7 +455,7 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void TestNDim4ReadOnlyTensor()
     {
         var testModule = Env.TestBuffer();
-        var bufferObject = testModule.TestNdim4dBuffer();
+        using var bufferObject = testModule.TestNdim4dBuffer();
         Assert.Equal(4, bufferObject.Dimensions);
         var tensor = bufferObject.AsInt32ReadOnlyTensorSpan();
         Assert.Equal(typeof(int), bufferObject.GetItemType());

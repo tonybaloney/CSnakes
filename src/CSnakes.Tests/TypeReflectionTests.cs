@@ -42,8 +42,9 @@ public class TypeReflectionTests
     [InlineData("Tuple[str, list[int]]", "(string,IReadOnlyList<long>)")]
     [InlineData("Dict[str, int]", "IReadOnlyDictionary<string,long>")]
     [InlineData("Tuple[int, int, Tuple[int, int]]", "(long,long,(long,long))")]
-    [InlineData("Optional[str]", "string")]
-    [InlineData("Optional[int]", "long")]
+    [InlineData("Optional[str]", "string?")]
+    [InlineData("Optional[int]", "long?")]
+    [InlineData("Callable[[str], int]", "PyObject")]
     public void AsPredefinedTypeOldTypeNames(string pythonType, string expectedType) =>
         ParsingTestInternal(pythonType, expectedType);
 

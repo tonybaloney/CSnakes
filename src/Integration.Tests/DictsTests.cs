@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Integration.Tests;
 public class TestDicts(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {

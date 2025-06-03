@@ -4,37 +4,50 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.PackageManagement;
 
-internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileName) : IPythonPackageInstaller
+internal class UVInstaller(ILogger<UVInstaller>? logger, string requirementsFileName) : IPythonPackageInstaller
 {
     static readonly string binaryName = $"uv{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
 
+    /// <summary>
+    /// Install packages from a requirements path
+    /// </summary>
+    /// <param name="home">HOME directory</param>
+    /// <param name="environmentManager">Environment manager</param>
+    /// <returns>A task.</returns>
     public Task InstallPackages(string home, IEnvironmentManagement? environmentManager)
     {
         string requirementsPath = Path.GetFullPath(Path.Combine(home, requirementsFileName));
         if (File.Exists(requirementsPath))
         {
-            logger.LogDebug("File {Requirements} was found.", requirementsPath);
-            InstallPackagesWithUv(home, environmentManager, $"-r {requirementsFileName}", logger);
+            logger?.LogDebug("File {Requirements} was found.", requirementsPath);
+            RunUvPipInstall(home, environmentManager, ["-r", requirementsFileName], logger);
         }
         else
         {
-            logger.LogWarning("File {Requirements} was not found.", requirementsPath);
+            logger?.LogWarning("File {Requirements} was not found.", requirementsPath);
         }
 
         return Task.CompletedTask;
     }
 
-    static internal void InstallPackagesWithUv(string home, IEnvironmentManagement? environmentManager, string requirements, ILogger logger)
+    public Task InstallPackage(string home, IEnvironmentManagement? environmentManager, string package)
+    {
+        RunUvPipInstall(home, environmentManager, [package], logger);
+
+        return Task.CompletedTask;
+    }
+
+    static private void RunUvPipInstall(string home, IEnvironmentManagement? environmentManager, string[] requirements, ILogger? logger)
     {
         string fileName = binaryName;
         string workingDirectory = home;
         string path = "";
-        string arguments = $"pip install {requirements} --color never";
+        string[] arguments = ["pip", "install", .. requirements, "--color", "never"];
 
         if (environmentManager is not null)
         {
             string virtualEnvironmentLocation = Path.GetFullPath(environmentManager.GetPath());
-            logger.LogDebug("Using virtual environment at {VirtualEnvironmentLocation} to install packages with uv.", virtualEnvironmentLocation);
+            logger?.LogDebug("Using virtual environment at {VirtualEnvironmentLocation} to install packages with uv.", virtualEnvironmentLocation);
             string venvScriptPath = Path.Combine(virtualEnvironmentLocation, RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Scripts" : "bin");
             string uvPath = Path.Combine(venvScriptPath, binaryName);
 
@@ -42,7 +55,7 @@ internal class UVInstaller(ILogger<UVInstaller> logger, string requirementsFileN
             if (!File.Exists(uvPath))
             {
                 // Install it with pip
-                PipInstaller.InstallPackagesWithPip(home, environmentManager, "uv", logger);
+                PipInstaller.InstallPackageWithPip(home, environmentManager, "uv", logger);
             }
 
             fileName = uvPath;

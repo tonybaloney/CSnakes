@@ -1,7 +1,16 @@
 using System.Collections;
 
 namespace CSnakes.Runtime.Python;
-public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGeneratorIterator<TYield, TSend, TReturn>
+
+public sealed class GeneratorIterator<TYield, TSend, TReturn>(PyObject coroutine) :
+    GeneratorIterator<TYield, TSend, TReturn,
+                      PyObjectImporters.Runtime<TYield>,
+                      PyObjectImporters.Runtime<TReturn>>(coroutine);
+
+public class GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(PyObject generator) :
+    IGeneratorIterator<TYield, TSend, TReturn>
+    where TYieldImporter : IPyObjectImporter<TYield>
+    where TReturnImporter : IPyObjectImporter<TReturn>
 {
     private bool _disposed = false;
     private readonly PyObject generator = generator;
@@ -32,7 +41,6 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
 
     public void Dispose()
     {
-        ObjectDisposedException.ThrowIf(_disposed, this);
         Dispose(true);
         GC.SuppressFinalize(this);
     }
@@ -54,7 +62,7 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
         try
         {
             using PyObject result = sendPyFunction.Call(value);
-            current = result.As<TYield>();
+            current = result.ImportAs<TYield, TYieldImporter>();
             return true;
         }
         catch (PythonInvocationException ex)
@@ -62,7 +70,7 @@ public class GeneratorIterator<TYield, TSend, TReturn>(PyObject generator) : IGe
             if (ex.InnerException is PythonStopIterationException stopIteration)
             {
                 using var @return = stopIteration.TakeValue();
-                this.@return = @return.As<TReturn>();
+                this.@return = @return.ImportAs<TReturn, TReturnImporter>();
                 return false;
             }
 

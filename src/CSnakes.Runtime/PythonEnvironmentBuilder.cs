@@ -17,7 +17,7 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
         Services.AddSingleton<IEnvironmentManagement>(
             sp =>
             {
-                var logger = sp.GetRequiredService<ILogger<VenvEnvironmentManagement>>();
+                var logger = sp.GetService<ILogger<VenvEnvironmentManagement>>();
                 return new VenvEnvironmentManagement(logger, path, ensureExists);
             });
         return this;
@@ -31,13 +31,13 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
                 try
                 {
                     var condaLocator = sp.GetRequiredService<CondaLocator>();
-                    var logger = sp.GetRequiredService<ILogger<CondaEnvironmentManagement>>();
+                    var logger = sp.GetService<ILogger<CondaEnvironmentManagement>>();
                     var condaEnvManager = new CondaEnvironmentManagement(logger, name, ensureEnvironment, condaLocator, environmentSpecPath, pythonVersion);
                     return condaEnvManager;
                 }
                 catch (InvalidOperationException)
                 {
-                    throw new InvalidOperationException("Conda environments much be used with Conda Locator.");
+                    throw new InvalidOperationException("Conda environments must be used with Conda Locator.");
                 }
             });
         return this;

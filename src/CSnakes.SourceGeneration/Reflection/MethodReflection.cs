@@ -121,23 +121,16 @@ public static class MethodReflection
                     Token(SyntaxKind.UsingKeyword)));
         }
 
-        InvocationExpressionSyntax? callExpression = null;
-
-        // IF no *args, *kwargs or keyword-only args
-        if (function.Parameters is { Keyword.IsEmpty: true, VariadicPositional: null, VariadicKeyword: null })
+        InvocationExpressionSyntax callExpression = function.Parameters switch
         {
-            callExpression = GenerateParamsCall(cSharpParameterList);
-        }
-        else if (GenerateArgsCall(function, cSharpParameterList) is { } argsCallExpression)
-        {
-            // IF *args but no kwargs or keyword-only arguments
-            callExpression = argsCallExpression;
-        }
-        else
-        {
-            // Support everything.
-            callExpression = GenerateKeywordCall(function, cSharpParameterList);
-        }
+            // IF no *args, *kwargs or keyword-only args
+            { Keyword.IsEmpty: true, VariadicPositional: null, VariadicKeyword: null } =>
+                GenerateParamsCall(cSharpParameterList),
+            // IF *args but neither kwargs nor keyword-only arguments
+            { Keyword.IsEmpty: true, VariadicPositional: not null, VariadicKeyword: null } =>
+                GenerateArgsCall(cSharpParameterList),
+            _ => GenerateKeywordCall(function, cSharpParameterList)
+        };
 
         ReturnStatementSyntax returnExpression;
         IEnumerable<StatementSyntax> resultConversionStatements = [];
@@ -344,12 +337,10 @@ public static class MethodReflection
                                        select Argument(IdentifierName($"{a.Identifier}_pyObject")))));
     }
 
-    private static InvocationExpressionSyntax? GenerateArgsCall(PythonFunctionDefinition function, CSharpParameterList parameterList)
+    private static InvocationExpressionSyntax GenerateArgsCall(CSharpParameterList parameterList)
     {
-        if (function.Parameters is not { VariadicPositional: { } vpp, Keyword.IsEmpty: true, VariadicKeyword: null })
-        {
-            return null;
-        }
+        if (parameterList is not { VariadicPositional: { } vpp })
+            throw new ArgumentException("Variadic positional parameter is required for *args call.", nameof(parameterList));
 
         // Merge the positional arguments and the *args into a single collection
         // Use CallWithArgs([arg1, arg2, ..args ?? []])
@@ -364,7 +355,7 @@ public static class MethodReflection
                 SpreadElement(
                     BinaryExpression(
                         SyntaxKind.CoalesceExpression,
-                        IdentifierName(vpp.Name),
+                        IdentifierName(vpp.Identifier),
                         CollectionExpression()
                     )
                 )
@@ -389,13 +380,13 @@ public static class MethodReflection
             SeparatedList<CollectionElementSyntax>(from a in parameterList.Positional.Concat(parameterList.Regular)
                                                    select ExpressionElement(IdentifierName($"{a.Identifier}_pyObject")));
 
-        if (function.Parameters.VariadicPositional is { } vpp)
+        if (parameterList.VariadicPositional is { } vpp)
         {
             collection = collection.Add(
                 SpreadElement(
                     BinaryExpression(
                         SyntaxKind.CoalesceExpression,
-                        IdentifierName(vpp.Name),
+                        IdentifierName(vpp.Identifier),
                         CollectionExpression()
                     )
                 )
@@ -403,44 +394,35 @@ public static class MethodReflection
         }
 
         // Create a collection of string constants for the keyword-only names
-        ArgumentSyntax kwnames = Argument(CollectionExpression(
+        var kwnames = CollectionExpression(
             SeparatedList<CollectionElementSyntax>(
                 from a in function.Parameters.Keyword
                 select ExpressionElement(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(a.Name)))
-            )));
+            ));
 
         // Create a collection of the converted PyObject identifiers for keyword-only values
-        ArgumentSyntax kwvalues = Argument(CollectionExpression(
+        var kwvalues = CollectionExpression(
             SeparatedList<CollectionElementSyntax>(
                 from a in parameterList.Keyword
                 select ExpressionElement(IdentifierName($"{a.Identifier}_pyObject")))
-                )
-            );
+                );
 
-        ArgumentSyntax kwargsArgument;
-        // If there is a kwargs dictionary, add it to the arguments
-        if (function.Parameters.VariadicKeyword is { } vkp)
-        {
-            // TODO: The internal name might be mutated
-            kwargsArgument = Argument(IdentifierName(vkp.Name));
-        }
-        else
-        {
-            kwargsArgument = Argument(IdentifierName("null"));
-        }
-
-        ArgumentSyntax[] pythonFunctionCallArguments = [
-            Argument(CollectionExpression(collection)),
-            kwnames,
-            kwvalues,
-            kwargsArgument
-            ];
+        var kwargsArgument =
+            // If there is a kwargs dictionary, add it to the arguments
+            parameterList.VariadicKeyword is { } vkp
+            ? IdentifierName(vkp.Identifier) // TODO: The internal name might be mutated
+            : IdentifierName("null");
 
         return InvocationExpression(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         IdentifierName("__underlyingPythonFunc"),
                         IdentifierName("CallWithKeywordArguments")),
-                    ArgumentList(SeparatedList(pythonFunctionCallArguments)));
+                    ArgumentList(SeparatedList([
+                        Argument(CollectionExpression(collection)),
+                        Argument(kwnames),
+                        Argument(kwvalues),
+                        Argument(kwargsArgument)
+                    ])));
     }
 }

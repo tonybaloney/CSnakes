@@ -281,51 +281,6 @@ public static class MethodReflection
         return new(syntax, parameterGenericArgs);
     }
 
-    private static ReturnStatementSyntax ProcessMethodWithReturnType(TypeSyntax returnSyntax, List<GenericNameSyntax> parameterGenericArgs)
-    {
-        ReturnStatementSyntax returnExpression;
-        if (returnSyntax is GenericNameSyntax rg)
-        {
-            parameterGenericArgs.Add(rg);
-        }
-
-        returnExpression = ReturnStatement(
-                    InvocationExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("__result_pyObject"),
-                            GenericName(Identifier("As"))
-                                .WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])))))
-                    .WithArgumentList(ArgumentList()));
-        return returnExpression;
-    }
-
-    private static ReturnStatementSyntax ProcessAsyncMethodWithReturnType(TypeSyntax returnSyntax, List<GenericNameSyntax> parameterGenericArgs)
-    {
-        ReturnStatementSyntax returnExpression;
-        if (returnSyntax is GenericNameSyntax rg)
-        {
-            parameterGenericArgs.Add(rg);
-        }
-        var pyObjectAs = InvocationExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("__result_pyObject"),
-                            GenericName(Identifier("As"))
-                                .WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])))));
-
-        returnExpression = ReturnStatement(
-             AwaitExpression(
-                    InvocationExpression(
-                        MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            pyObjectAs,
-                            IdentifierName("AsTask")))
-                    ));
-
-        return returnExpression;
-    }
-
     private static InvocationExpressionSyntax GenerateParamsCall(CSharpParameterList parameterList)
     {
         return InvocationExpression(

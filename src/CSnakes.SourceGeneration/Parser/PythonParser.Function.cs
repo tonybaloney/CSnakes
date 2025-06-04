@@ -10,13 +10,16 @@ namespace CSnakes.Parser;
 public static partial class PythonParser
 {
     public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionParser { get; } =
-        (from @async in Token.EqualTo(PythonToken.Async).OptionalOrDefault()
+        (from async in Token.EqualTo(PythonToken.Async).OptionalOrDefault()
          from def in Token.EqualTo(PythonToken.Def)
          from name in Token.EqualTo(PythonToken.Identifier)
          from parameters in PythonParameterListParser
-         from arrow in Token.EqualTo(PythonToken.Arrow).Then(returnType => PythonTypeDefinitionParser).AsNullable().OptionalOrDefault()
-         from colon in Token.EqualTo(PythonToken.Colon)
-         select new PythonFunctionDefinition(name.ToStringValue(), arrow, parameters, async.HasValue))
+         from @return in Token.EqualTo(PythonToken.Arrow)
+                              .IgnoreThen(PythonTypeDefinitionParser)
+                              .AsNullable()
+                              .OptionalOrDefault()
+                              .ThenIgnore(Token.EqualTo(PythonToken.Colon))
+         select new PythonFunctionDefinition(name.ToStringValue(), @return, parameters, async.HasValue))
         .Named("Function Definition");
 
     /// <summary>

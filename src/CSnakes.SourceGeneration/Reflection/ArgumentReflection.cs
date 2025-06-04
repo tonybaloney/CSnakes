@@ -6,7 +6,7 @@ namespace CSnakes.Reflection;
 
 public class ArgumentReflection
 {
-    private static readonly PythonTypeSpec DictStrAny = new("Optional", [new("dict", [new("str", []), PythonTypeSpec.Any])]);
+    private static readonly PythonTypeSpec OptionalDictStrAny = new("Optional", [new("dict", [new("str", []), PythonTypeSpec.Any])]);
     private static readonly TypeSyntax NullableArrayOfPyObject = SyntaxFactory.ParseTypeName("PyObject[]?");
 
     public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter) =>
@@ -20,7 +20,7 @@ public class ArgumentReflection
         var (reflectedType, defaultValue) = (parameterType, parameter) switch
         {
             (PythonFunctionParameterType.Star, _) => (NullableArrayOfPyObject, PythonConstant.None.Value),
-            (PythonFunctionParameterType.DoubleStar, _) => (TypeReflection.AsPredefinedType(DictStrAny, TypeReflection.ConversionDirection.ToPython), PythonConstant.None.Value),
+            (PythonFunctionParameterType.DoubleStar, _) => (TypeReflection.AsPredefinedType(OptionalDictStrAny, TypeReflection.ConversionDirection.ToPython), PythonConstant.None.Value),
             (PythonFunctionParameterType.Normal, { ImpliedTypeSpec: var type, DefaultValue: var dv }) => (TypeReflection.AsPredefinedType(type, TypeReflection.ConversionDirection.ToPython), dv),
             _ => throw new NotImplementedException()
         };

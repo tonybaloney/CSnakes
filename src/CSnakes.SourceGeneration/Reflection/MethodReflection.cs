@@ -141,6 +141,7 @@ public static class MethodReflection
         IEnumerable<StatementSyntax> resultConversionStatements = [];
         var callResultTypeSyntax = IdentifierName("PyObject");
         var returnNoneAsNull = false;
+        var resultShouldBeDisposed = true;
 
         switch (returnSyntax)
         {
@@ -151,6 +152,7 @@ public static class MethodReflection
             }
             case IdentifierNameSyntax { Identifier.ValueText: "PyObject" }:
             {
+                resultShouldBeDisposed = false;
                 callResultTypeSyntax = IdentifierName("PyObject");
                 returnExpression = ReturnStatement(IdentifierName("__result_pyObject"));
                 break;
@@ -191,13 +193,6 @@ public static class MethodReflection
                 break;
             }
         }
-
-        bool resultShouldBeDisposed = returnSyntax switch
-        {
-            PredefinedTypeSyntax s when s.Keyword.IsKind(SyntaxKind.VoidKeyword) => true,
-            IdentifierNameSyntax => false,
-            _ => true
-        };
 
         var functionObject = LocalDeclarationStatement(
             VariableDeclaration(

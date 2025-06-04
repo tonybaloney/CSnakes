@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using Superpower;
 using Superpower.Model;
+using System.Runtime.CompilerServices;
 
 namespace CSnakes.Tests;
 public class TokenizerTests
@@ -148,6 +149,7 @@ public class TokenizerTests
         {
             PythonConstant.Float { Value: var n } => (object)n,
             PythonConstant.Integer { Value: var n } => n,
+            var other => throw new SwitchExpressionException(other)
         });
         Assert.Same(PythonTypeSpec.Any, param.ImpliedTypeSpec);
         Assert.Null(param.TypeSpec);

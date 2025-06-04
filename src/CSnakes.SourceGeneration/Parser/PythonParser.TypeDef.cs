@@ -45,8 +45,8 @@ public static partial class PythonParser
                              typeDefinitionParser.ManyDelimitedBy(Token.EqualTo(PythonToken.Comma))
                                                  .Subscript()
                                                  .ThenIgnore(Token.EqualTo(PythonToken.Comma))
-                                                 .Then(a => from b in typeDefinitionParser
-                                                            select (Parameters: a, Return: b))
+                                                 .Then(ps => from r in typeDefinitionParser
+                                                             select (Parameters: ps, Return: r))
                                                  .Subscript()
                     select ImmutableArray.CreateRange(callable.Parameters.Append(callable.Return)),
                 _ =>

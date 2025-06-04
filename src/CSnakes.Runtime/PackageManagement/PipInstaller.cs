@@ -8,13 +8,15 @@ internal class PipInstaller(ILogger<PipInstaller>? logger, IEnvironmentManagemen
 {
     static readonly string pipBinaryName = $"pip{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
 
-    public Task InstallPackages(string home)
+    public Task InstallPackagesFromRequirements(string home) => InstallPackagesFromRequirements(home, requirementsFileName);
+
+    public Task InstallPackagesFromRequirements(string home, string fileName)
     {
-        string requirementsPath = Path.GetFullPath(Path.Combine(home, requirementsFileName));
+        string requirementsPath = Path.GetFullPath(Path.Combine(home, fileName));
         if (File.Exists(requirementsPath))
         {
             logger?.LogDebug("File {Requirements} was found.", requirementsPath);
-            RunPipInstall(home, environmentManager, ["-r", requirementsFileName], logger);
+            RunPipInstall(home, environmentManager, ["-r", fileName], logger);
         }
         else
         {
@@ -24,10 +26,11 @@ internal class PipInstaller(ILogger<PipInstaller>? logger, IEnvironmentManagemen
         return Task.CompletedTask;
     }
 
-    public Task InstallPackage(string package)
-    {
-        RunPipInstall(Directory.GetCurrentDirectory(), environmentManager, [package], logger);
+    public Task InstallPackage(string package) => InstallPackages([package]);
 
+    public Task InstallPackages(string[] packages)
+    {
+        RunPipInstall(Directory.GetCurrentDirectory(), environmentManager, packages, logger);
         return Task.CompletedTask;
     }
 

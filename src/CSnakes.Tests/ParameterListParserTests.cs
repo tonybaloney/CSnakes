@@ -132,5 +132,4 @@ public class ParameterListParserTests
         var ex = Assert.Throws<ParseException>(Act);
         Assert.Equal(expected, ex.Message);
     }
-
 }

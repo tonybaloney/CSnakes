@@ -76,3 +76,33 @@ Some other important notes about this implementation.
 - Must be used with `WithVirtualEnvironment()`, as pip requires a virtual environment to install packages into.
 - Will use the `UV_CACHE_DIR` environment variable to cache the packages in a directory if set.
 - Will disable the cache if the `UV_NO_CACHE` environment variable is set.
+
+## Installing packages at runtime
+
+You can resolve the `IPythonPackageInstaller` service to install packages in the virtual environment. This is useful if you want to install a package at runtime without having to modify the `requirements.txt` file.
+
+```csharp
+services // As existing (see above examples)
+    .WithPython()
+    .WithVirtualEnvironment(Path.Join(home, ".venv"))
+    .WithPipInstaller(); // Optional - installs packages listed in requirements.txt on startup
+
+// Environment/host builder setup
+
+var installer = serviceProvider.GetRequiredService<IPythonPackageInstaller>();
+await installer.InstallPackage("attrs==25.3.0");
+```
+
+This requires both an environment manager (UV or venv) and a package installer to be set up, as it uses the same mechanisms to install packages.
+
+Optionally, you can install multiple packages at once by passing a list of package names:
+
+```csharp
+await installer.InstallPackages(new[] { "attrs==25.3.0", "requests==2.31.0" });
+```
+
+Or, if the package names are in a file, you can use:
+
+```csharp
+await installer.InstallPackagesFromRequirements("requirements.txt");
+```

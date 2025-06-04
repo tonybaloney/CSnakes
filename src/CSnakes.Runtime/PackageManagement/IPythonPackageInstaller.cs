@@ -1,5 +1,3 @@
-using CSnakes.Runtime.EnvironmentManagement;
-
 namespace CSnakes.Runtime.PackageManagement;
 
 /// <summary>
@@ -8,19 +6,24 @@ namespace CSnakes.Runtime.PackageManagement;
 public interface IPythonPackageInstaller
 {
     /// <summary>
-    /// Installs the specified packages.
+    /// Install packages from a requirements file located in the specified home directory.
     /// </summary>
-    /// <param name="home">The home directory.</param>
-    /// <param name="virtualEnvironmentLocation">The location of the virtual environment (optional).</param>
+    /// <param name="home">The home directory where the requirements file is located.</param>
     /// <returns>A task representing the asynchronous package installation operation.</returns>
-    Task InstallPackages(string home, IEnvironmentManagement? environmentManager);
+    Task InstallPackagesFromRequirements(string home);
+    Task InstallPackagesFromRequirements(string home, string file);
 
     /// <summary>
     /// Install a single package.
     /// </summary>
-    /// <param name="home">The home directory.</param>
-    /// <param name="environmentManager">The location of the virtual environment (optional).</param>
     /// <param name="package">Name of the package to install.</param>
     /// <returns>A task representing the asynchronous package installation operation.</returns>
-    Task InstallPackage(string home, IEnvironmentManagement? environmentManager, string package);
+    Task InstallPackage(string package);
+
+    /// <summary>
+    /// Install multiple packages.
+    /// </summary>
+    /// <param name="packages">The packages to install.</param>
+    /// <returns>A task representing the asynchronous package installation operation.</returns>
+    Task InstallPackages(string[] packages);
 }

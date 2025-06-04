@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using CSnakes.Runtime.PackageManagement;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,7 @@ public sealed class PythonEnvironmentCollection : ICollectionFixture<PythonEnvir
 public sealed class PythonEnvironmentFixture : IDisposable
 {
     private readonly IPythonEnvironment env;
+    private readonly IPythonPackageInstaller installer;
     private readonly IHost app;
 
     public PythonEnvironmentFixture()
@@ -43,6 +45,7 @@ public sealed class PythonEnvironmentFixture : IDisposable
         app = builder.Build();
 
         env = app.Services.GetRequiredService<IPythonEnvironment>();
+        installer = app.Services.GetRequiredService<IPythonPackageInstaller>();
     }
 
     public void Dispose()
@@ -54,10 +57,12 @@ public sealed class PythonEnvironmentFixture : IDisposable
     }
 
     public IPythonEnvironment Env => env;
+    public IPythonPackageInstaller Installer => installer;
 }
 
 [Collection(PythonEnvironmentCollection.Name)]
 public abstract class IntegrationTestBase(PythonEnvironmentFixture fixture)
 {
     public IPythonEnvironment Env { get; } = fixture.Env;
+    public IPythonPackageInstaller Installer { get; } = fixture.Installer;
 }

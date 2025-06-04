@@ -20,8 +20,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AOTConsoleApp", "AOTConsole
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{9CF47860-2CEA-F379-09D8-9AEF27965D12}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{2311A35A-630F-8D56-15CD-BBB525570F8F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,10 +50,6 @@ Global
 		{9CF47860-2CEA-F379-09D8-9AEF27965D12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CF47860-2CEA-F379-09D8-9AEF27965D12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CF47860-2CEA-F379-09D8-9AEF27965D12}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2311A35A-630F-8D56-15CD-BBB525570F8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2311A35A-630F-8D56-15CD-BBB525570F8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2311A35A-630F-8D56-15CD-BBB525570F8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2311A35A-630F-8D56-15CD-BBB525570F8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

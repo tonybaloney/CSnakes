@@ -11,7 +11,7 @@ def python_uuid_str(val: str) -> None:
     return None
 
 def python_uuid_big_endian(val: bytes) -> None:
-    UUID(bytes==val)
+    UUID(bytes=val)
     return None
 
 def python_uuid_little_endian(val: bytes) -> None:

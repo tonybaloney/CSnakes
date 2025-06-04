@@ -8,7 +8,7 @@ public class Tuple1ConverterTests :
                       Tuple1ConverterTests>,
     IConverterTestCasesContainer<ValueTuple<long>>
 {
-    public static TheoryData<ValueTuple<long>> TestCases => [new(1)];
+    public static TheoryData<ValueTuple<long>> TestCases => new() { ValueTuple.Create(1) };
 }
 
 public class Tuple2ConverterTests :

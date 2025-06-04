@@ -4,36 +4,33 @@ using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.PackageManagement;
 
-internal class UVInstaller(ILogger<UVInstaller>? logger, string requirementsFileName) : IPythonPackageInstaller
+internal class UVInstaller(ILogger<UVInstaller>? logger, IEnvironmentManagement? environmentManager, string requirementsFileName) : IPythonPackageInstaller
 {
     static readonly string binaryName = $"uv{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
 
-    /// <summary>
-    /// Install packages from a requirements path
-    /// </summary>
-    /// <param name="home">HOME directory</param>
-    /// <param name="environmentManager">Environment manager</param>
-    /// <returns>A task.</returns>
-    public Task InstallPackages(string home, IEnvironmentManagement? environmentManager)
+    public Task InstallPackagesFromRequirements(string home) => InstallPackagesFromRequirements(home, requirementsFileName);
+
+    public Task InstallPackagesFromRequirements(string home, string fileName)
     {
-        string requirementsPath = Path.GetFullPath(Path.Combine(home, requirementsFileName));
+        string requirementsPath = Path.GetFullPath(Path.Combine(home, fileName));
         if (File.Exists(requirementsPath))
         {
-            logger?.LogDebug("File {Requirements} was found.", requirementsPath);
+            logger?.LogDebug("File {Requirements} was found.", fileName);
             RunUvPipInstall(home, environmentManager, ["-r", requirementsFileName], logger);
         }
         else
         {
-            logger?.LogWarning("File {Requirements} was not found.", requirementsPath);
+            logger?.LogWarning("File {Requirements} was not found.", fileName);
         }
 
         return Task.CompletedTask;
     }
 
-    public Task InstallPackage(string home, IEnvironmentManagement? environmentManager, string package)
-    {
-        RunUvPipInstall(home, environmentManager, [package], logger);
+    public Task InstallPackage(string package) => InstallPackages([package]);
 
+    public Task InstallPackages(string[] packages)
+    {
+        RunUvPipInstall(Directory.GetCurrentDirectory(), environmentManager, packages, logger);
         return Task.CompletedTask;
     }
 

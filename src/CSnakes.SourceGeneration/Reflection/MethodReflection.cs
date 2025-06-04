@@ -143,6 +143,7 @@ public static class MethodReflection
         IEnumerable<StatementSyntax> resultConversionStatements = [];
         var callResultTypeSyntax = IdentifierName("PyObject");
         var returnNoneAsNull = false;
+        var resultShouldBeDisposed = true;
 
         switch (returnSyntax)
         {
@@ -153,6 +154,7 @@ public static class MethodReflection
             }
             case IdentifierNameSyntax { Identifier.ValueText: "PyObject" }:
             {
+                resultShouldBeDisposed = false;
                 callResultTypeSyntax = IdentifierName("PyObject");
                 returnExpression = ReturnStatement(IdentifierName("__result_pyObject"));
                 break;
@@ -194,13 +196,6 @@ public static class MethodReflection
             }
         }
 
-        bool resultShouldBeDisposed = returnSyntax switch
-        {
-            PredefinedTypeSyntax s when s.Keyword.IsKind(SyntaxKind.VoidKeyword) => true,
-            IdentifierNameSyntax => false,
-            _ => true
-        };
-
         var functionObject = LocalDeclarationStatement(
             VariableDeclaration(
                 IdentifierName("PyObject"))
@@ -216,19 +211,20 @@ public static class MethodReflection
                                 IdentifierName($"__func_{function.Name}"))))))
             );
 
-        var callStatement = LocalDeclarationStatement(
-                VariableDeclaration(
-                        callResultTypeSyntax)
-                .WithVariables(
-                    SingletonSeparatedList(
-                        VariableDeclarator(
-                            Identifier("__result_pyObject"))
-                        .WithInitializer(
-                            EqualsValueClause(
-                                callExpression)))));
-
-        if (resultShouldBeDisposed)
-            callStatement = callStatement.WithUsingKeyword(Token(SyntaxKind.UsingKeyword));
+        StatementSyntax callStatement
+            = returnExpression.Expression is not null
+            ? LocalDeclarationStatement(
+                  VariableDeclaration(
+                          callResultTypeSyntax)
+                  .WithVariables(
+                      SingletonSeparatedList(
+                          VariableDeclarator(
+                              Identifier("__result_pyObject"))
+                          .WithInitializer(
+                              EqualsValueClause(
+                                  callExpression)))))
+                  .WithUsingKeyword(resultShouldBeDisposed ? Token(SyntaxKind.UsingKeyword) : Token(SyntaxKind.None))
+            : ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName("_"), callExpression));
 
         var logStatement = ExpressionStatement(
                 ConditionalAccessExpression(

@@ -9,6 +9,7 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
 {
     private readonly string[] extraPaths = [];
     private string home = Environment.CurrentDirectory;
+    private bool installSignalHandlers = true;
 
     public IServiceCollection Services { get; } = services;
 
@@ -50,5 +51,11 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
     }
 
     public PythonEnvironmentOptions GetOptions() =>
-        new(home, extraPaths);
+        new(home, extraPaths, installSignalHandlers);
+
+    public IPythonEnvironmentBuilder DisableSignalHandlers()
+    {
+        installSignalHandlers = false;
+        return this;
+    }
 }

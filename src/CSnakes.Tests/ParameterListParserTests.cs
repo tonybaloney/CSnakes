@@ -5,7 +5,7 @@ using Superpower;
 namespace CSnakes.Tests;
 public class ParameterListParserTests
 {
-    public static readonly IEnumerable<object[]> ValidTestCases = new TheoryData<string, string>
+    public static readonly TheoryData<string, string> ValidTestCases = new()
     {
         { "", "" },
         { "a", "a" },

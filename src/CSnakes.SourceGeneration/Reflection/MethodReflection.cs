@@ -301,8 +301,8 @@ public static class MethodReflection
         // Use CallWithArgs([arg1, arg2, ..args ?? []])
         var pythonFunctionCallArguments =
             parameterList.Positional.Concat(parameterList.Regular)
-                .Select((a) => Argument(IdentifierName($"{a.Identifier}_pyObject")))
-               .ToList();
+                                    .Select(a => Argument(IdentifierName($"{a.Identifier}_pyObject")))
+                                    .ToList();
 
         var collection =
             SeparatedList<CollectionElementSyntax>(pythonFunctionCallArguments.Select((a) => ExpressionElement(a.Expression)))

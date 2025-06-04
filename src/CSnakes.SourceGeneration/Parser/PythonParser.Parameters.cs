@@ -11,7 +11,7 @@ public static partial class PythonParser
         PythonParameterParser { get; } =
             (from name in Token.EqualTo(PythonToken.Identifier)
              from type in Token.EqualTo(PythonToken.Colon)
-                               .IgnoreThen(PythonTypeDefinitionParser.AssumeNotNull())
+                               .IgnoreThen(PythonTypeDefinitionParser.AsNullable())
                                .OptionalOrDefault()
              select new PythonFunctionParameter(name.ToStringValue(), type, null))
            .Named("Parameter");
@@ -20,7 +20,7 @@ public static partial class PythonParser
         OptionalPythonParameterParser { get; } =
             (from param in PythonParameterParser
              from defaultValue in Token.EqualTo(PythonToken.Equal)
-                                       .IgnoreThen(ConstantValueTokenizer)
+                                       .IgnoreThen(ConstantValueTokenizer.AsNullable())
                                        .OptionalOrDefault()
              select param.WithDefaultValue(defaultValue))
             .Named("Parameter");

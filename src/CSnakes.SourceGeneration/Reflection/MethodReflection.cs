@@ -319,7 +319,7 @@ public static class MethodReflection
                 SpreadElement(
                     BinaryExpression(
                         SyntaxKind.CoalesceExpression,
-                        IdentifierName(pythonParameter.Name),
+                        IdentifierName(cSharpParameter.Identifier),
                         CollectionExpression()
                     )
                 )
@@ -354,7 +354,7 @@ public static class MethodReflection
                 SpreadElement(
                     BinaryExpression(
                         SyntaxKind.CoalesceExpression,
-                        IdentifierName(parameterList.First(p => p.pythonParameter.ParameterType == PythonFunctionParameterType.Star).pythonParameter.Name),
+                        IdentifierName(parameterList.First(p => p.pythonParameter.ParameterType == PythonFunctionParameterType.Star).cSharpParameter.Identifier),
                         CollectionExpression()
                     )
                 )
@@ -386,7 +386,7 @@ public static class MethodReflection
         if (parameterList.Any((a) => a.pythonParameter.ParameterType == PythonFunctionParameterType.DoubleStar))
         {
             // TODO: The internal name might be mutated
-            kwargsArgument = Argument(IdentifierName(parameterList.First(p => p.pythonParameter.ParameterType == PythonFunctionParameterType.DoubleStar).pythonParameter.Name));
+            kwargsArgument = Argument(IdentifierName(parameterList.First(p => p.pythonParameter.ParameterType == PythonFunctionParameterType.DoubleStar).cSharpParameter.Identifier));
         }
         else
         {

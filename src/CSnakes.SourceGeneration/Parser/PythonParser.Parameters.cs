@@ -30,6 +30,18 @@ public static partial class PythonParser
 
     private static TokenListParser<PythonToken, PythonFunctionParameterList> CreatePythonParameterListParser()
     {
+        // In the interest of terseness and density, several short names are
+        // used for variables to represent parameters throughout this method.
+        // Below is the legend for these names:
+        //
+        // - p  : Parameter
+        // - ps : Parameters or parameter list ("PythonFunctionParameterList")
+        // - pps: Positional parameters
+        // - vp : Variadic positional parameter ("*args")
+        // - rps: Regular parameters (positional or keyword, but not variadic)
+        // - ks : Keyword-only parameters
+        // - vk : Variadic keyword parameter ("**kwargs")
+
         // For reference, the Python grammar for function parameters is as follows:
         //
         // parameter_list            ::=  defparameter ("," defparameter)* "," "/" ["," [parameter_list_no_posonly]]
@@ -101,12 +113,12 @@ public static partial class PythonParser
         // ["," "*" [star_parameter] ("," defparameter)* ["," "**" parameter]]
 
         var keywordParametersParser =
-            from namedArgParameters in
+            from ps in
                 Token.EqualTo(PythonToken.CommaStar)                        // ",*" token
                      .IgnoreThen(starParametersParser)                      // Parse "*args" and/or keyword-only parameters
                      .OptionalOrDefault(PythonFunctionParameterList.Empty)  // If not present, use empty list
-            from kwargParameter in optionalKwargsParameterParser            // Optional "**kwargs" parameter
-            select namedArgParameters.WithVariadicKeyword(kwargParameter);  // Combine into parameter list
+            from vk in optionalKwargsParameterParser                        // Optional "**kwargs" parameter
+            select ps.WithVariadicKeyword(vk);                              // Combine into parameter list
 
         // Parser for the case of regular (positional or keyword) parameters
         // being followed by keyword-only parameters.
@@ -133,18 +145,18 @@ public static partial class PythonParser
                 //
                 //     "**kwargs"
                 //
-                from vkp in Token.EqualTo(PythonToken.DoubleAsterisk)
+                from vk in Token.EqualTo(PythonToken.DoubleAsterisk)
                                  .IgnoreThen(PythonParameterParser)
-                select new PythonFunctionParameterList(varkw: vkp),
+                select new PythonFunctionParameterList(varkw: vk),
                 //
                 // Case 2: Starts with variadic positional parameter:
                 //
                 //     "*args[, param1, ...][, **kwargs])"
                 //
-                from kps in Token.EqualTo(PythonToken.Asterisk)
-                                 .IgnoreThen(starParametersParser)
-                from vkp in optionalKwargsParameterParser
-                select kps.WithVariadicKeyword(vkp),
+                from ps in Token.EqualTo(PythonToken.Asterisk)
+                                .IgnoreThen(starParametersParser)
+                from vk in optionalKwargsParameterParser
+                select ps.WithVariadicKeyword(vk),
                 //
                 // Case 3: Starts with positional parameters:
                 //

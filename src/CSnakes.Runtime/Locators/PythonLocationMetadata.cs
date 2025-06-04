@@ -13,4 +13,5 @@ public sealed record PythonLocationMetadata(
     string PythonPath,
     string PythonBinaryPath,
     bool Debug = false,
-    bool FreeThreaded = false);
+    bool FreeThreaded = false
+);

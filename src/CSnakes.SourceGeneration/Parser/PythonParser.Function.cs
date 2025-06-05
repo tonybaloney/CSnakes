@@ -70,7 +70,7 @@ public static partial class PythonParser
             currentBuffer.Add((line, repositionedTokens));
 
             // If this is a function definition on one line..
-            if (repositionedTokens.Last().Kind == PythonToken.Colon)
+            if (repositionedTokens.Any() && repositionedTokens.Last().Kind == PythonToken.Colon)
             {
                 ParsedTokens combinedTokens = new(currentBuffer.SelectMany(x => x.tokens).ToArray());
 

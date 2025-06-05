@@ -18,7 +18,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
     {
         // System.Diagnostics.Debugger.Launch();
         var pythonFilesPipeline = context.AdditionalTextsProvider
-            .Where(static text => Path.GetExtension(text.Path) == ".py");
+            .Where(static text => Path.GetExtension(text.Path) == ".py" || Path.GetExtension(text.Path) == ".pyi");
 
         // Get analyser config options
         var embedPythonSource = context.AnalyzerConfigOptionsProvider.Select(static (options, cancellationToken) =>

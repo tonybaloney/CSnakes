@@ -5,7 +5,7 @@ public class TypeStubTests(PythonEnvironmentFixture fixture) : IntegrationTestBa
     [Fact]
     public void TestHtml()
     {
-        
+        var mod = Env.Html();
+        Assert.Equal("&lt;hello&gt;", mod.Escape("<hello>"));
     }
-
 }

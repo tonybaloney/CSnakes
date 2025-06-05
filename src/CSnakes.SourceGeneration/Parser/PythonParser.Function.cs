@@ -69,6 +69,13 @@ public static partial class PythonParser
             }).ToArray());
             currentBuffer.Add((line, repositionedTokens));
 
+            // If the line ends Colon and Ellipsis, treat as a stub and strip the ellipsis.
+            // TODO: Handle single-line function definitions with the body on the same line.
+            if (repositionedTokens.Any() && repositionedTokens.Last().Kind == PythonToken.Ellipsis)
+            {
+                repositionedTokens = new([.. repositionedTokens.Take(repositionedTokens.Count() - 1)]);
+            }
+
             // If this is a function definition on one line..
             if (repositionedTokens.Any() && repositionedTokens.Last().Kind == PythonToken.Colon)
             {

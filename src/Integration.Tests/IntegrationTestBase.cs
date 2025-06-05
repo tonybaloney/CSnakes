@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using CSnakes.Runtime.PackageManagement;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

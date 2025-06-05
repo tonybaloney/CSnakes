@@ -7,6 +7,7 @@ namespace CSnakes.Tests;
 public class TypeReflectionTests
 {
     [Theory]
+    [InlineData("None", "PyObject")]
     [InlineData("int", "long")]
     [InlineData("str", "string")]
     [InlineData("float", "double")]
@@ -48,6 +49,12 @@ public class TypeReflectionTests
         ParsingTestInternal(pythonType, expectedType);
 
     [Theory]
+    [InlineData("Callable[[str], int]", "PyObject")]
+    [InlineData("Callable[[], int]", "PyObject")]
+    public void AsCallable(string pythonType, string expectedType) =>
+        ParsingTestInternal(pythonType, expectedType);
+
+    [Theory]
     [InlineData("tuple[str]", "ValueTuple<string>")]
     [InlineData("tuple[str, str]", "(string,string)")]
     [InlineData("tuple[str, str, str]", "(string,string,string)")]
@@ -75,5 +82,21 @@ public class TypeReflectionTests
         Assert.NotNull(result.Value);
         var reflectedType = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.FromPython);
         Assert.Equal(expectedType, reflectedType.ToString());
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("list[")]
+    [InlineData("list[]")]
+    [InlineData("[]")]
+    [InlineData("Callable[int]")]
+    [InlineData("Callable[int, int]")]
+    [InlineData("Callable[int, int, int]")]
+    [InlineData("Callable[int, [int, int]]")]
+    public void InvalidParsingTest(string pythonType)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
+        Assert.False(result.HasValue);
     }
 }

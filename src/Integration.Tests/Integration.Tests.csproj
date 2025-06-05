@@ -29,10 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="python\*.py">
+    <AdditionalFiles Include="python\**\*.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
-    <AdditionalFiles Include="python\*.pyi">
+    <AdditionalFiles Include="python\**\*.pyi">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </AdditionalFiles>
     <Content Include="python\requirements.txt">

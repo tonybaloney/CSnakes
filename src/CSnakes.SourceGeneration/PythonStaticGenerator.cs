@@ -38,6 +38,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             var @namespace = "CSnakes.Runtime";
 
             var fileName = Path.GetFileNameWithoutExtension(file.Path);
+            var fileExtension = Path.GetExtension(file.Path);
 
             // Don't embed sources for .pyi files, they aren't real Python files. 
             if (Path.GetExtension(file.Path) == ".pyi")
@@ -46,7 +47,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             }
 
             // Convert snake_case to PascalCase
-            var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s[1..]));
+            var pascalFileName = string.Join("", Path.GetFileNameWithoutExtension(file.Path).Split('_').Select(s => char.ToUpperInvariant(s[0]) + s[1..]));
 
             // Read the file
             var code = file.GetText(sourceContext.CancellationToken);
@@ -81,13 +82,13 @@ public class PythonStaticGenerator : IIncrementalGenerator
             {
                 var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
                 string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions, code, embedSourceSwitch);
-                sourceContext.AddSource($"{pascalFileName}.py.cs", source);
+                sourceContext.AddSource($"{pascalFileName}.{fileExtension}.cs", source);
                 sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs from {file.Path}", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
             }
         });
     }
 
-    public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions, SourceText sourceText, bool embedSourceText = false)
+    public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string moduleAbsoluteName, PythonFunctionDefinition[] functions, SourceText sourceText, bool embedSourceText = false)
     {
         var paramGenericArgs = methods
             .Select(m => m.ParameterGenericArgs)
@@ -157,7 +158,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                         this.logger = logger;
                         using (GIL.Acquire())
                         {
-                            logger?.LogDebug("Importing module {ModuleName}", "{{fileName}}");
+                            logger?.LogDebug("Importing module {ModuleName}", "{{moduleAbsoluteName}}");
                             this.module = ThisModule.Import();
             {{              Lines(IndentationLevel.Four,
                                   from f in functionNames
@@ -167,7 +168,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                     void IReloadableModuleImport.ReloadModule()
                     {
-                        logger?.LogDebug("Reloading module {ModuleName}", "{{fileName}}");
+                        logger?.LogDebug("Reloading module {ModuleName}", "{{moduleAbsoluteName}}");
                         using (GIL.Acquire())
                         {
                             Import.ReloadModule(ref module);
@@ -184,7 +185,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                     public void Dispose()
                     {
-                        logger?.LogDebug("Disposing module {ModuleName}", "{{fileName}}");
+                        logger?.LogDebug("Disposing module {ModuleName}", "{{moduleAbsoluteName}}");
             {{          Lines(IndentationLevel.Three,
                               from f in functionNames
                               select $"this.{f.Field}.Dispose();") }}
@@ -196,7 +197,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             }
 
             /// <summary>
-            /// Represents functions of the Python module <c>{{fileName}}</c>.
+            /// Represents functions of the Python module <c>{{moduleAbsoluteName}}</c>.
             /// </summary>
             public interface I{{pascalFileName}} : IReloadableModuleImport
             {
@@ -254,7 +255,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                         """"u8;
 
                     public static PyObject Import() =>
-                        CSnakes.Runtime.Python.Import.ImportModule("{{fileName}}", source, "{{fileName}}.py");
+                        CSnakes.Runtime.Python.Import.ImportModule("{{moduleAbsoluteName}}", source, "{{moduleAbsoluteName}}.py");
                 }
                 """"");
         }
@@ -264,7 +265,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 file static class ThisModule
                 {
                     public static PyObject Import() =>
-                        CSnakes.Runtime.Python.Import.ImportModule("{{fileName}}");
+                        CSnakes.Runtime.Python.Import.ImportModule("{{moduleAbsoluteName}}");
                 }
                 """);
         }

@@ -1,11 +1,11 @@
 using CSnakes.Parser;
 using CSnakes.Parser.Types;
 using CSnakes.Reflection;
-using CSnakes.SourceGeneration;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -35,6 +35,12 @@ public class PythonStaticGenerator : IIncrementalGenerator
             var @namespace = "CSnakes.Runtime";
 
             var fileName = Path.GetFileNameWithoutExtension(file.Path);
+
+            // Don't embed sources for .pyi files, they aren't real Python files. 
+            if (Path.GetExtension(file.Path) == ".pyi")
+            {
+                embedSourceSwitch = false;
+            }
 
             // Convert snake_case to PascalCase
             var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s[1..]));
@@ -70,7 +76,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
             if (result)
             {
-                var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName).ToImmutableArray();
+                var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
                 string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions, code, embedSourceSwitch);
                 sourceContext.AddSource($"{pascalFileName}.py.cs", source);
                 sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));

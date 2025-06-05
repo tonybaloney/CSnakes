@@ -15,7 +15,7 @@ public class MethodDefinition(MethodDeclarationSyntax syntax, IEnumerable<Generi
 
 public static class MethodReflection
 {
-    public static MethodDefinition FromMethod(PythonFunctionDefinition function, string moduleName)
+    public static MethodDefinition FromMethod(PythonFunctionDefinition function)
     {
         // Step 1: Determine the return type of the method
         PythonTypeSpec returnPythonType = function.ReturnType;

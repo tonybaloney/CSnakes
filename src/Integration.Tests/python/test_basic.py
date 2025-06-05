@@ -1,5 +1,8 @@
 from typing import Sequence
 
+def _test_private() -> None:
+    pass
+
 def test_int_float(a: int, b: float) -> float:
     return a + b
 

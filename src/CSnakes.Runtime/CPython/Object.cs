@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
@@ -34,7 +34,8 @@ internal unsafe partial class CPythonAPI
     /// </summary>
     /// <param name="ob">The Python object</param>
     /// <returns>A new reference to the type.</returns>
-    internal static IntPtr GetType(PyObject ob) {
+    internal static IntPtr GetType(PyObject ob)
+    {
         return PyObject_Type(ob);
     }
 
@@ -194,4 +195,20 @@ internal unsafe partial class CPythonAPI
 
     [LibraryImport(PythonLibraryName)]
     internal static partial int PyObject_RichCompareBool(PyObject ob1, PyObject ob2, RichComparisonType comparisonType);
+
+    /// <summary>
+    /// Returns 1 if the object is considered to be <see langword="true" />, and
+    /// 0 otherwise. This is equivalent to the Python expression <c>not not
+    /// ob</c>. On failure, return -1.
+    /// </summary>
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int PyObject_IsTrue(PyObject ob);
+
+    /// <summary>
+    /// Returns 0 if the object is considered to be <see langword="true" />, and
+    /// 1 otherwise. This is equivalent to the Python expression <c>not ob</c>.
+    /// On failure, return -1.
+    /// </summary>
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int PyObject_Not(PyObject ob);
 }

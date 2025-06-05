@@ -1,4 +1,4 @@
-﻿#if NET9_0_OR_GREATER
+#if NET9_0_OR_GREATER
 // https://learn.microsoft.com/dotnet/csharp/language-reference/statements/lock#guidelines
 global using Lock = System.Threading.Lock;
 #else
@@ -9,14 +9,13 @@ using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.EnvironmentManagement;
 using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
-using CSnakes.Runtime.Python;
 using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;
 
 internal class PythonEnvironment : IPythonEnvironment
 {
-    public ILogger<IPythonEnvironment> Logger { get; private set; }
+    public ILogger<IPythonEnvironment>? Logger { get; private set; }
 
     private readonly CPythonAPI api;
     private bool disposedValue;
@@ -24,7 +23,7 @@ internal class PythonEnvironment : IPythonEnvironment
     private static IPythonEnvironment? pythonEnvironment;
     private readonly static Lock locker = new();
 
-    public static IPythonEnvironment GetPythonEnvironment(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options, ILogger<IPythonEnvironment> logger, IEnvironmentManagement? environmentManager = null)
+    public static IPythonEnvironment GetPythonEnvironment(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options, ILogger<IPythonEnvironment>? logger, IEnvironmentManagement? environmentManager = null)
     {
         if (pythonEnvironment is null)
         {
@@ -40,7 +39,7 @@ internal class PythonEnvironment : IPythonEnvironment
         IEnumerable<PythonLocator> locators,
         IEnumerable<IPythonPackageInstaller> packageInstallers,
         PythonEnvironmentOptions options,
-        ILogger<IPythonEnvironment> logger,
+        ILogger<IPythonEnvironment>? logger,
         IEnvironmentManagement? environmentManager = null)
     {
         Logger = logger;
@@ -52,7 +51,7 @@ internal class PythonEnvironment : IPythonEnvironment
 
         if (location is null)
         {
-            logger.LogError("Python installation not found. There were {LocatorCount} locators registered.", locators.Count());
+            logger?.LogError("Python installation not found. There were {LocatorCount} locators registered.", locators.Count());
             throw new InvalidOperationException("Python installation not found.");
         }
 
@@ -62,27 +61,28 @@ internal class PythonEnvironment : IPythonEnvironment
         home = Path.GetFullPath(home);
         if (!Directory.Exists(home))
         {
-            logger.LogError("Python home directory does not exist: {Home}", home);
+            logger?.LogError("Python home directory does not exist: {Home}", home);
             throw new DirectoryNotFoundException("Python home directory does not exist.");
         }
 
-        if (environmentManager is not null) {
-            
+        if (environmentManager is not null)
+        {
+
             extraPaths = [.. options.ExtraPaths, environmentManager.GetExtraPackagePath(location!)];
 
             environmentManager.EnsureEnvironment(location);
         }
 
-        logger.LogDebug("Setting up Python environment from {PythonLocation} using home of {Home}", location.Folder, home);
+        logger?.LogDebug("Setting up Python environment from {PythonLocation} using home of {Home}", location.Folder, home);
 
         foreach (var installer in packageInstallers)
         {
-            installer.InstallPackages(home, environmentManager);
+            installer.InstallPackagesFromRequirements(home);
         }
 
         char sep = Path.PathSeparator;
 
-        api = SetupStandardLibrary(location);
+        api = SetupCPythonAPI(location, options);
 
         if (!string.IsNullOrEmpty(home))
         {
@@ -91,21 +91,21 @@ internal class PythonEnvironment : IPythonEnvironment
 
         if (extraPaths is { Length: > 0 })
         {
-            logger.LogDebug("Adding extra paths to PYTHONPATH: {ExtraPaths}", extraPaths);
+            logger?.LogDebug("Adding extra paths to PYTHONPATH: {ExtraPaths}", extraPaths);
             api.PythonPath = api.PythonPath + sep + string.Join(sep, extraPaths);
         }
         api.Initialize();
     }
 
-    private CPythonAPI SetupStandardLibrary(PythonLocationMetadata pythonLocationMetadata)
+    private CPythonAPI SetupCPythonAPI(PythonLocationMetadata pythonLocationMetadata, PythonEnvironmentOptions options)
     {
         string pythonDll = pythonLocationMetadata.LibPythonPath;
         string pythonPath = pythonLocationMetadata.PythonPath;
 
-        Logger.LogDebug("Python DLL: {PythonDLL}", pythonDll);
-        Logger.LogDebug("Python path: {PythonPath}", pythonPath);
+        Logger?.LogDebug("Python DLL: {PythonDLL}", pythonDll);
+        Logger?.LogDebug("Python path: {PythonPath}", pythonPath);
 
-        var api = new CPythonAPI(pythonDll, pythonLocationMetadata.Version, pythonLocationMetadata.PythonBinaryPath)
+        var api = new CPythonAPI(pythonDll, pythonLocationMetadata.Version, pythonLocationMetadata.PythonBinaryPath, options.InstallSignalHandlers)
         {
             PythonPath = pythonPath
         };

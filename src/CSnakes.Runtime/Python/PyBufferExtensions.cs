@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 #if NET9_0_OR_GREATER
 using System.Numerics.Tensors;
 #endif
@@ -62,7 +62,7 @@ public static class PyBufferExtensions
     #endregion
 
     #region AsReadOnlySpan2D
-    public static ReadOnlySpan2D<bool> AsBoolReadOnlySpan2D(this IPyBuffer buffer) => buffer.AsReadOnlySpan2D< bool>();
+    public static ReadOnlySpan2D<bool> AsBoolReadOnlySpan2D(this IPyBuffer buffer) => buffer.AsReadOnlySpan2D<bool>();
     public static ReadOnlySpan2D<byte> AsByteReadOnlySpan2D(this IPyBuffer buffer) => buffer.AsReadOnlySpan2D<byte>();
     public static ReadOnlySpan2D<sbyte> AsSByteReadOnlySpan2D(this IPyBuffer buffer) => buffer.AsReadOnlySpan2D<sbyte>();
     public static ReadOnlySpan2D<short> AsInt16ReadOnlySpan2D(this IPyBuffer buffer) => buffer.AsReadOnlySpan2D<short>();

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CSnakes.Runtime;
 
@@ -34,6 +34,12 @@ public interface IPythonEnvironmentBuilder
     /// <param name="home">The home directory path.</param>
     /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
     IPythonEnvironmentBuilder WithHome(string home);
+
+    /// <summary>
+    /// Disables signal handlers for the Python environment being built.
+    /// </summary>
+    /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
+    IPythonEnvironmentBuilder DisableSignalHandlers();
 
     /// <summary>
     /// Gets the options for the Python environment being built.

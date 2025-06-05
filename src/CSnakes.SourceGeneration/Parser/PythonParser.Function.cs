@@ -1,23 +1,25 @@
-﻿using Microsoft.CodeAnalysis.Text;
 using CSnakes.Parser.Types;
+using Microsoft.CodeAnalysis.Text;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
-
-using ParsedTokens = Superpower.Model.TokenList<CSnakes.Parser.PythonToken>;
 using System.Collections.Immutable;
+using ParsedTokens = Superpower.Model.TokenList<CSnakes.Parser.PythonToken>;
 
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
     public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionParser { get; } =
-        (from @async in Token.EqualTo(PythonToken.Async).OptionalOrDefault()
+        (from async in Token.EqualTo(PythonToken.Async).OptionalOrDefault()
          from def in Token.EqualTo(PythonToken.Def)
          from name in Token.EqualTo(PythonToken.Identifier)
-         from parameters in PythonParameterListParser.AssumeNotNull()
-         from arrow in Token.EqualTo(PythonToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionParser.AssumeNotNull().OptionalOrDefault())
-         from colon in Token.EqualTo(PythonToken.Colon)
-         select new PythonFunctionDefinition(name.ToStringValue(), arrow, parameters, async.HasValue))
+         from parameters in PythonParameterListParser
+         from @return in Token.EqualTo(PythonToken.Arrow)
+                              .IgnoreThen(PythonTypeDefinitionParser)
+                              .AsNullable()
+                              .OptionalOrDefault()
+                              .ThenIgnore(Token.EqualTo(PythonToken.Colon))
+         select new PythonFunctionDefinition(name.ToStringValue(), @return, parameters, async.HasValue))
         .Named("Function Definition");
 
     /// <summary>
@@ -75,7 +77,7 @@ public static partial class PythonParser
             {
                 ParsedTokens combinedTokens = new(currentBuffer.SelectMany(x => x.tokens).ToArray());
 
-                functionLines.Add(([..from x in currentBuffer select x.line], combinedTokens));
+                functionLines.Add(([.. from x in currentBuffer select x.line], combinedTokens));
                 currentBuffer = [];
                 unfinishedFunctionSpec = false;
                 continue;
@@ -109,7 +111,11 @@ public static partial class PythonParser
             }
         }
 
-        pythonSignatures = [.. functionDefinitions];
+        pythonSignatures = [..
+            from fd in functionDefinitions
+            where fd.Name is not ['_', ..]
+            select fd
+        ];
         errors = [.. currentErrors];
         return errors.Length == 0;
     }

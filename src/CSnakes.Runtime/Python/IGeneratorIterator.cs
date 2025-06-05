@@ -1,8 +1,8 @@
-﻿using System.Collections;
+using System.Collections;
 
 namespace CSnakes.Runtime.Python;
 
-public interface IGeneratorIterator<out TYield, in TSend, out TReturn>:
+public interface IGeneratorIterator<out TYield, in TSend, out TReturn> :
     IEnumerator<TYield>, IEnumerable<TYield>,
     IGeneratorIterator
 {

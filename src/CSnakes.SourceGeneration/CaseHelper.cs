@@ -1,4 +1,4 @@
-﻿namespace CSnakes
+namespace CSnakes
 {
     public static class CaseHelper
     {

@@ -1,10 +1,10 @@
-﻿using CommunityToolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 #if NET9_0_OR_GREATER
 using System.Numerics.Tensors;
 #endif
 
 namespace CSnakes.Runtime.Python;
-public interface IPyBuffer
+public interface IPyBuffer : IDisposable
 {
     /// <summary>
     /// The bit length of the buffer.

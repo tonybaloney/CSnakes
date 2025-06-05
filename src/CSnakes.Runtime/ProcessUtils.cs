@@ -1,18 +1,18 @@
-﻿using CSnakes.Runtime.Locators;
+using CSnakes.Runtime.Locators;
 using Microsoft.Extensions.Logging;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 
 namespace CSnakes.Runtime;
 
 internal static class ProcessUtils
 {
-    internal static (Process proc, string? result, string? errors) ExecutePythonCommand(ILogger logger, PythonLocationMetadata pythonLocation, string arguments)
+    internal static (Process proc, string? result, string? errors) ExecutePythonCommand(ILogger? logger, PythonLocationMetadata pythonLocation, params string[] arguments)
     {
-        ProcessStartInfo startInfo = new()
+
+        ProcessStartInfo startInfo = new(pythonLocation.PythonBinaryPath, arguments)
         {
             WorkingDirectory = pythonLocation.Folder,
-            FileName = pythonLocation.PythonBinaryPath,
-            Arguments = arguments,
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             CreateNoWindow = true,
@@ -20,12 +20,10 @@ internal static class ProcessUtils
         return ExecuteCommand(logger, startInfo);
     }
 
-    internal static (Process proc, string? result, string? errors) ExecuteCommand(ILogger logger, string fileName, string arguments)
+    internal static (Process proc, string? result, string? errors) ExecuteCommand(ILogger? logger, string fileName, params string[] arguments)
     {
-        ProcessStartInfo startInfo = new()
+        ProcessStartInfo startInfo = new(fileName, arguments)
         {
-            FileName = fileName,
-            Arguments = arguments,
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             CreateNoWindow = true,
@@ -33,13 +31,11 @@ internal static class ProcessUtils
         return ExecuteCommand(logger, startInfo);
     }
 
-    internal static bool ExecuteShellCommand(ILogger logger, string fileName, string arguments)
+    internal static bool ExecuteShellCommand(ILogger? logger, string fileName, params string[] arguments)
     {
-        logger.LogDebug("Executing shell command {FileName} {Arguments}", fileName, arguments);
-        ProcessStartInfo startInfo = new()
+        logger?.LogDebug("Executing shell command {FileName} {Arguments}", fileName, arguments);
+        ProcessStartInfo startInfo = new(fileName, arguments)
         {
-            FileName = fileName,
-            Arguments = arguments,
             UseShellExecute = true,
             CreateNoWindow = true,
             WindowStyle = ProcessWindowStyle.Hidden,
@@ -51,7 +47,8 @@ internal static class ProcessUtils
     }
 
 
-    private static (Process proc, string? result, string? errors) ExecuteCommand(ILogger logger, ProcessStartInfo startInfo) {
+    private static (Process proc, string? result, string? errors) ExecuteCommand(ILogger? logger, ProcessStartInfo startInfo)
+    {
         Process process = new() { StartInfo = startInfo };
         string? result = null;
         string? errors = null;
@@ -60,7 +57,7 @@ internal static class ProcessUtils
             if (!string.IsNullOrEmpty(e.Data))
             {
                 result += e.Data;
-                logger.LogDebug("{Data}", e.Data);
+                logger?.LogDebug("{Data}", e.Data);
             }
         };
 
@@ -69,7 +66,7 @@ internal static class ProcessUtils
             if (!string.IsNullOrEmpty(e.Data))
             {
                 errors += e.Data;
-                logger.LogError("{Data}", e.Data);
+                logger?.LogError("{Data}", e.Data);
             }
         };
 
@@ -79,13 +76,12 @@ internal static class ProcessUtils
         process.WaitForExit();
         return (process, result, errors);
     }
-    internal static void ExecuteProcess(string fileName, string arguments, string workingDirectory, string path, ILogger logger, IReadOnlyDictionary<string, string?>? extraEnv = null)
+
+    internal static void ExecuteProcess(string fileName, IEnumerable<string> arguments, string workingDirectory, string path, ILogger? logger, IReadOnlyDictionary<string, string?>? extraEnv = null)
     {
-        ProcessStartInfo startInfo = new()
+        ProcessStartInfo startInfo = new(fileName, arguments)
         {
             WorkingDirectory = workingDirectory,
-            FileName = fileName,
-            Arguments = arguments,
             CreateNoWindow = true,
         };
 
@@ -101,7 +97,7 @@ internal static class ProcessUtils
         }
         startInfo.RedirectStandardOutput = true;
         startInfo.RedirectStandardError = true;
-        logger.LogDebug($"Running {startInfo.FileName} with args {startInfo.Arguments} from {startInfo.WorkingDirectory}");
+        logger?.LogDebug($"Running {startInfo.FileName} with args {startInfo.Arguments} from {startInfo.WorkingDirectory}");
 
         using Process process = new() { StartInfo = startInfo };
         string stderr = string.Empty;
@@ -109,7 +105,7 @@ internal static class ProcessUtils
         {
             if (!string.IsNullOrEmpty(e.Data))
             {
-                logger.LogDebug("{Data}", e.Data);
+                logger?.LogDebug("{Data}", e.Data);
             }
         };
 
@@ -128,13 +124,14 @@ internal static class ProcessUtils
 
         if (process.ExitCode != 0)
         {
-            logger.LogError("Failed to install packages. ");
-            logger.LogError("Output was: {stderr}", stderr);
+            logger?.LogError("Failed to install packages. ");
+            logger?.LogError("Output was: {stderr}", stderr);
             throw new InvalidOperationException("Failed to install packages");
-        } else
+        }
+        else
         {
-            logger.LogDebug("Successfully installed packages.");
-            logger.LogDebug("Output was: {stderr}", stderr);
+            logger?.LogDebug("Successfully installed packages.");
+            logger?.LogDebug("Output was: {stderr}", stderr);
         }
     }
 }

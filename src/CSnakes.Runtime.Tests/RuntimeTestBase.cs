@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -15,18 +15,15 @@ public class RuntimeTestBase : IDisposable
         bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "true";
         string shortVersion = string.Join('.', pythonVersion.Split('.').Take(2));
 
-        app = Host.CreateDefaultBuilder()
-            .ConfigureServices((context, services) =>
-            {
-                var pb = services.WithPython();
-                pb.WithHome(Environment.CurrentDirectory);
+        var builder = Host.CreateApplicationBuilder();
+        builder.Services
+          .WithPython()
+          .WithHome(Environment.CurrentDirectory)
+          .FromRedistributable(version: shortVersion, freeThreaded: freeThreaded);
 
-                pb
-                  .FromRedistributable(version: shortVersion, freeThreaded: freeThreaded);
-
-                services.AddLogging(builder => builder.AddXUnit());
-            })
-            .Build();
+        builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
+        
+        app = builder.Build();
 
         env = app.Services.GetRequiredService<IPythonEnvironment>();
     }

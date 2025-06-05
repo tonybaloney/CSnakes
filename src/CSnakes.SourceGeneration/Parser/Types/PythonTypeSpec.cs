@@ -1,16 +1,16 @@
-﻿namespace CSnakes.Parser.Types;
-public class PythonTypeSpec(string name, PythonTypeSpec[] arguments)
+using System.Collections.Immutable;
+
+namespace CSnakes.Parser.Types;
+public class PythonTypeSpec(string name, ImmutableArray<PythonTypeSpec> arguments)
 {
     public string Name { get; } = name;
 
-    public PythonTypeSpec[] Arguments { get; } = arguments;
+    public ImmutableArray<PythonTypeSpec> Arguments { get; } = arguments;
 
     public override string ToString() =>
-        HasArguments() ?
-            $"{Name}[{string.Join(", ", Arguments.Select(a => a.ToString()))}]" :
+        Arguments is { Length: > 0 } args ?
+            $"{Name}[{string.Join(", ", args.Select(a => a.ToString()))}]" :
             Name;
 
-    public bool HasArguments() => Arguments is not null && Arguments.Length > 0;
-
-    public static PythonTypeSpec Any => new("Any", []);
+    public static readonly PythonTypeSpec Any = new("Any", []);
 }

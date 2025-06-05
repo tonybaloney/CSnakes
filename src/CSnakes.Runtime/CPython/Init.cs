@@ -1,7 +1,6 @@
-﻿using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python;
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
@@ -18,12 +17,15 @@ internal unsafe partial class CPythonAPI : IDisposable
     private bool disposedValue = false;
     private Task? initializationTask = null;
     private readonly ManualResetEventSlim disposalEvent = new();
+    private readonly TaskCompletionSource finalizationTaskCompletionSource = new();
+    private readonly bool initSignalHandlers;
 
-    public CPythonAPI(string pythonLibraryPath, Version version, string pythonExecutablePath)
+    public CPythonAPI(string pythonLibraryPath, Version version, string pythonExecutablePath, bool initSignalHandlers = true)
     {
         PythonVersion = version;
         CPythonAPI.pythonLibraryPath = pythonLibraryPath;
         CPythonAPI.pythonExecutablePath = pythonExecutablePath;
+        this.initSignalHandlers = initSignalHandlers;
         try
         {
             NativeLibrary.SetDllImportResolver(typeof(CPythonAPI).Assembly, DllImportResolver);
@@ -110,8 +112,17 @@ internal unsafe partial class CPythonAPI : IDisposable
                 return;
             }
             initializationTaskCompletionSource.SetResult();
+
             disposalEvent.Wait();
-            FinalizeEmbeddedPython(initializationTState);
+            try
+            {
+                FinalizeEmbeddedPython(initializationTState);
+                finalizationTaskCompletionSource.SetResult();
+            }
+            catch (Exception ex)
+            {
+                finalizationTaskCompletionSource.SetException(ex);
+            }
         });
 
         initializationTaskCompletionSource.Task.GetAwaiter().GetResult();
@@ -124,7 +135,7 @@ internal unsafe partial class CPythonAPI : IDisposable
         else
             Py_SetPath_UCS4_UTF32(PythonPath);
         Debug.WriteLine($"Initializing Python on thread {GetNativeThreadId()}");
-        Py_Initialize();
+        Py_InitializeEx(initSignalHandlers ? 1: 0);
 
         // Setup type statics
         if (PyErr_Occurred())
@@ -173,8 +184,12 @@ internal unsafe partial class CPythonAPI : IDisposable
     [LibraryImport(PythonLibraryName, StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller))]
     internal static partial string? Py_GetVersion();
 
+    /// <summary>
+    /// Initialize the Python interpreter.
+    /// </summary>
+    /// <param name="initsigs">Install initialization signal handlers for the Python interpreter.</param>
     [LibraryImport(PythonLibraryName)]
-    internal static partial void Py_Initialize();
+    internal static partial void Py_InitializeEx(int initsigs);
 
     [LibraryImport(PythonLibraryName)]
     internal static partial void Py_Finalize();
@@ -236,7 +251,7 @@ internal unsafe partial class CPythonAPI : IDisposable
 
                     try
                     {
-                        initializationTask.GetAwaiter().GetResult();
+                        finalizationTaskCompletionSource.Task.GetAwaiter().GetResult();
                     }
                     catch (Exception ex)
                     {

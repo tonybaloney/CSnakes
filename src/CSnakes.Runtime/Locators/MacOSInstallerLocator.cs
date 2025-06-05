@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.Locators;
 internal class MacOSInstallerLocator(Version version, bool freeThreaded = false) : PythonLocator

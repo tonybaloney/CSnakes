@@ -1,9 +1,8 @@
-﻿namespace CSnakes.Runtime.Tests.Converter;
+namespace CSnakes.Runtime.Tests.Converter;
 
-public class BoolConverterTest : ConverterTestBase
+public class BoolConverterTest :
+    ConverterTestBase<bool, BoolConverterTest>,
+    IConverterTestCasesContainer<bool>
 {
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void TestBoolBidirectional(bool input) => RunTest(input);
+    public static TheoryData<bool> TestCases => new() { true, false };
 }

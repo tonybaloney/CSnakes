@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.CPython;
+using CSnakes.Runtime.CPython;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -29,7 +29,8 @@ public static class GIL
     [ThreadStatic] internal static nint pythonThreadState;
     private static ConcurrentQueue<nint> handlesToDispose = new();
 
-    static GIL() {
+    static GIL()
+    {
         currentState = null;
         pythonThreadState = 0;
     }
@@ -40,7 +41,8 @@ public static class GIL
 
         public PyGilState()
         {
-            if (pythonThreadState == 0){
+            if (pythonThreadState == 0)
+            {
                 pythonThreadState = CPythonAPI.PyThreadState_New();
             }
             Debug.Assert(CPythonAPI.IsInitialized);
@@ -81,7 +83,18 @@ public static class GIL
         public int RecursionCount => recursionCount;
     }
 
-    public static IDisposable Acquire()
+    public readonly ref struct Lock : IDisposable
+    {
+        private readonly PyGilState state;
+
+        internal Lock(PyGilState state) => this.state = state;
+
+        public void Dispose() => state.Dispose();
+
+        internal bool Equals(Lock other) => state == other.state;
+    }
+
+    public static Lock Acquire()
     {
         if (currentState == null)
         {
@@ -91,7 +104,7 @@ public static class GIL
         {
             currentState.Ensure();
         }
-        return currentState;
+        return new(currentState);
     }
 
     internal static void QueueForDisposal(nint handle)
@@ -100,5 +113,12 @@ public static class GIL
         handlesToDispose.Enqueue(handle);
     }
 
-    public static bool IsAcquired => currentState != null && currentState.RecursionCount > 0;
+    public static bool IsAcquired => currentState is { RecursionCount: > 0 };
+
+    internal static void Require()
+    {
+        if (IsAcquired)
+            return;
+        throw new InvalidOperationException("This operation is invalid when the GIL is not acquired.");
+    }
 }

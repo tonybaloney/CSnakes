@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime;
+using CSnakes.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -6,20 +6,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
-var builder = Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services =>
-    {
-        var home = Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency");
-        var venv = Path.Join(home, ".venv");
-        services
-        .WithPython()
-        .WithHome(home)
-        .WithVirtualEnvironment(venv)
-        .FromNuGet("3.12.4")
-        .FromMacOSInstallerLocator("3.12")
-        .FromEnvironmentVariable("Python3_ROOT_DIR", "3.12")
-        .WithPipInstaller();
-    });
+var builder = Host.CreateApplicationBuilder(args);
+var home = Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency");
+var venv = Path.Join(home, ".venv");
+builder.Services
+  .WithPython()
+  .WithHome(home)
+  .WithVirtualEnvironment(venv)
+  .FromNuGet("3.12.4")
+  .FromMacOSInstallerLocator("3.12")
+  .FromEnvironmentVariable("Python3_ROOT_DIR", "3.12")
+  .WithPipInstaller();
 
 var app = builder.Build();
 
@@ -60,7 +57,7 @@ static void RunKmeansDemo(IPythonEnvironment env)
         (10, 2), (10, 4), (10, 0)
     ];
 
-    var (centroids, inertia)= kmeansExample.CalculateKmeansInertia(data, 4);
+    var (centroids, inertia) = kmeansExample.CalculateKmeansInertia(data, 4);
     var resultMatrix = centroids.AsReadOnlySpan2D<double>();
     Console.WriteLine($"KMeans inertia is {inertia}, centroids are:");
     for (int i = 0; i < resultMatrix.Height; i++)

@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.EnvironmentManagement;
+using CSnakes.Runtime.EnvironmentManagement;
 using CSnakes.Runtime.Locators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -9,6 +9,7 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
 {
     private readonly string[] extraPaths = [];
     private string home = Environment.CurrentDirectory;
+    private bool installSignalHandlers = true;
 
     public IServiceCollection Services { get; } = services;
 
@@ -17,7 +18,7 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
         Services.AddSingleton<IEnvironmentManagement>(
             sp =>
             {
-                var logger = sp.GetRequiredService<ILogger<VenvEnvironmentManagement>>();
+                var logger = sp.GetService<ILogger<VenvEnvironmentManagement>>();
                 return new VenvEnvironmentManagement(logger, path, ensureExists);
             });
         return this;
@@ -26,17 +27,18 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
     public IPythonEnvironmentBuilder WithCondaEnvironment(string name, string? environmentSpecPath = null, bool ensureEnvironment = false, string? pythonVersion = null)
     {
         Services.AddSingleton<IEnvironmentManagement>(
-            sp => {
+            sp =>
+            {
                 try
                 {
                     var condaLocator = sp.GetRequiredService<CondaLocator>();
-                    var logger = sp.GetRequiredService<ILogger<CondaEnvironmentManagement>>();
+                    var logger = sp.GetService<ILogger<CondaEnvironmentManagement>>();
                     var condaEnvManager = new CondaEnvironmentManagement(logger, name, ensureEnvironment, condaLocator, environmentSpecPath, pythonVersion);
                     return condaEnvManager;
                 }
                 catch (InvalidOperationException)
                 {
-                    throw new InvalidOperationException("Conda environments much be used with Conda Locator.");
+                    throw new InvalidOperationException("Conda environments must be used with Conda Locator.");
                 }
             });
         return this;
@@ -49,5 +51,11 @@ internal partial class PythonEnvironmentBuilder(IServiceCollection services) : I
     }
 
     public PythonEnvironmentOptions GetOptions() =>
-        new(home, extraPaths);
+        new(home, extraPaths, installSignalHandlers);
+
+    public IPythonEnvironmentBuilder DisableSignalHandlers()
+    {
+        installSignalHandlers = false;
+        return this;
+    }
 }

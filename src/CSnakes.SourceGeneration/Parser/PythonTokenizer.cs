@@ -1,4 +1,4 @@
-﻿using Superpower;
+using Superpower;
 using Superpower.Parsers;
 using Superpower.Tokenizers;
 
@@ -14,6 +14,10 @@ public static class PythonTokenizer
         .Match(Character.EqualTo('['), PythonToken.OpenBracket)
         .Match(Character.EqualTo(']'), PythonToken.CloseBracket)
         .Match(Character.EqualTo(':'), PythonToken.Colon)
+        .Match(Character.EqualTo(',').IgnoreThen(Character.In(' ', '\t').Many()).IgnoreThen(Span.EqualTo("**")), PythonToken.CommaStarStar)
+        .Match(Character.EqualTo(',').IgnoreThen(Character.In(' ', '\t').Many()).IgnoreThen(Character.EqualTo('*')), PythonToken.CommaStar)
+        .Match(Character.EqualTo(',').IgnoreThen(Character.In(' ', '\t').Many()).IgnoreThen(Character.EqualTo('/')), PythonToken.CommaSlash)
+        .Match(Character.EqualTo(',').IgnoreThen(Character.In(' ', '\t').Many()).IgnoreThen(Character.EqualTo(')')), PythonToken.CommaCloseParenthesis)
         .Match(Character.EqualTo(','), PythonToken.Comma)
         .Match(Character.EqualTo('*').IgnoreThen(Character.EqualTo('*')), PythonToken.DoubleAsterisk)
         .Match(Character.EqualTo('*'), PythonToken.Asterisk)
@@ -26,7 +30,8 @@ public static class PythonTokenizer
         .Match(Span.EqualTo("None"), PythonToken.None, requireDelimiters: true)
         .Match(Span.EqualTo("True"), PythonToken.True, requireDelimiters: true)
         .Match(Span.EqualTo("False"), PythonToken.False, requireDelimiters: true)
-        .Match(PythonParser.QualifiedName, PythonToken.Identifier, requireDelimiters: true)
+        .Match(PythonParser.Identifier, PythonToken.Identifier, requireDelimiters: true)
+        .Match(PythonParser.QualifiedName, PythonToken.QualifiedIdentifier, requireDelimiters: true)
         .Match(PythonParser.IntegerConstantToken, PythonToken.Integer, requireDelimiters: true)
         .Match(PythonParser.DecimalConstantToken, PythonToken.Decimal, requireDelimiters: true)
         .Match(PythonParser.HexidecimalConstantToken, PythonToken.HexidecimalInteger, requireDelimiters: true)

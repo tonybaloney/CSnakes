@@ -14,7 +14,6 @@ public class GILTests : RuntimeTestBase
     {
         using var gil = GIL.Acquire();
 
-        Assert.NotNull(gil);
         Assert.True(GIL.IsAcquired);
     }
 
@@ -52,7 +51,7 @@ public class GILTests : RuntimeTestBase
             using (var inner = GIL.Acquire())
             {
                 Assert.True(GIL.IsAcquired);
-                Assert.Same(outer, inner); // Should get the same instance
+                Assert.True(outer.Equals(inner)); // Should be the same lock
             }
 
             Assert.True(GIL.IsAcquired); // After inner disposal, GIL should still be held

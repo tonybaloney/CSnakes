@@ -9,7 +9,10 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
+// Leave as simple namespace for compability with older versions
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace CSnakes;
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 
 [Generator(LanguageNames.CSharp)]
 public class PythonStaticGenerator : IIncrementalGenerator

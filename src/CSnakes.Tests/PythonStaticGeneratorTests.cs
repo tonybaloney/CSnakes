@@ -34,7 +34,7 @@ public class PythonStaticGeneratorTests
         _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
 
-        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test").ToImmutableArray();
+        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
 
         // Just keep last part of the dotted name, e.g.:
         // "CSnakes.Tests.python.test_args.py" -> "test_args"

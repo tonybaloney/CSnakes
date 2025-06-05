@@ -54,7 +54,7 @@ public class GeneratedSignatureTests
         // create a Python scope
         PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
-        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test").ToImmutableArray();
+        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
         var method = Assert.Single(module);
         Assert.Equal($"public {expected}", method.Syntax.WithBody(null).NormalizeWhitespace().ToString());
 

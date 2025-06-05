@@ -19,7 +19,13 @@ public class PythonStaticGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // System.Diagnostics.Debugger.Launch();
+        
+#if DEBUG
+    if (!System.Diagnostics.Debugger.IsAttached) 
+    {
+         System.Diagnostics.Debugger.Launch(); 
+    }
+#endif
         var pythonFilesPipeline = context.AdditionalTextsProvider
             .Where(static text => Path.GetExtension(text.Path) == ".py" || Path.GetExtension(text.Path) == ".pyi");
 
@@ -47,7 +53,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             }
 
             // Convert snake_case to PascalCase
-            var pascalFileName = string.Join("", Path.GetFileNameWithoutExtension(file.Path).Split('_').Select(s => char.ToUpperInvariant(s[0]) + s[1..]));
+            var pascalFileName = Path.GetFileNameWithoutExtension(file.Path).ToPascalCase();
 
             // Read the file
             var code = file.GetText(sourceContext.CancellationToken);

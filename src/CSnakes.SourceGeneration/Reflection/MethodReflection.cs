@@ -49,8 +49,8 @@ public static class MethodReflection
                 returnPythonType = new PythonTypeSpec("Coroutine",
                     [
                         returnPythonType, // Yield type
-                        new PythonTypeSpec("None", []), // Send type
-                        new PythonTypeSpec("None", []) // Return type, TODO: Swap with yield on #480
+                        PythonTypeSpec.None, // Send type
+                        PythonTypeSpec.None, // Return type, TODO: Swap with yield on #480
                     ]);
             }
 

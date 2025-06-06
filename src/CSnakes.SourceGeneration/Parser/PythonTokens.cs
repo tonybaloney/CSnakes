@@ -4,6 +4,9 @@ namespace CSnakes.Parser;
 
 public enum PythonToken
 {
+    [Token(Example = "|")]
+    Pipe,
+
     [Token(Example = "(")]
     OpenParenthesis,
 

@@ -1,4 +1,5 @@
 using CSnakes.Parser;
+using CSnakes.Parser.Types;
 using CSnakes.Reflection;
 using Superpower;
 
@@ -25,6 +26,12 @@ public class TypeReflectionTests
     [InlineData("tuple[str, list[int]]", "(string,IReadOnlyList<long>)")]
     [InlineData("dict[str, int]", "IReadOnlyDictionary<string,long>")]
     [InlineData("tuple[int, int, tuple[int, int]]", "(long,long,(long,long))")]
+    [InlineData("None | str", "string?")]
+    [InlineData("None | int", "long?")]
+    [InlineData("str | None", "string?")]
+    [InlineData("int | None", "long?")]
+    [InlineData("list[int | None]", "IReadOnlyList<long?>")]
+    [InlineData("None | list[int | None]", "IReadOnlyList<long?>?")]
     public void AsPredefinedType(string pythonType, string expectedType) =>
         ParsingTestInternal(pythonType, expectedType);
 
@@ -98,5 +105,34 @@ public class TypeReflectionTests
         var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
         var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
         Assert.False(result.HasValue);
+    }
+
+    [Theory]
+    [InlineData("int | None")]
+    [InlineData("None | int")]
+    public void UnionNoneTest(string pythonType)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
+        Assert.True(result.Remainder.IsAtEnd);
+        Assert.True(result.HasValue, result.ToString());
+        Assert.NotNull(result.Value);
+        Assert.Equal("Optional",result.Value.Name);
+        var arg = Assert.Single(result.Value.Arguments);
+        Assert.Equal("int", arg.Name);
+        Assert.Empty(arg.Arguments);
+    }
+
+    [Theory]
+    [InlineData("None | None")]
+    [InlineData("string | int | None")]
+    public void InvalidNoneUnionCombinationTest(string pythonType)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
+        // While the parsing will technically succeed, ...
+        Assert.True(result.HasValue, result.ToString());
+        // ...it won't have consumed the whole input (and therefore will as part of larger grammar).
+        Assert.False(result.Remainder.IsAtEnd);
     }
 }

@@ -155,6 +155,15 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
+    internal virtual PyObject GetAIter()
+    {
+        RaiseOnPythonNotInitialized();
+        using (GIL.Acquire())
+        {
+            return Create(CPythonAPI.PyObject_GetAIter(this));
+        }
+    }
+
     /// <summary>
     /// Returns an <see cref="IEnumerable{T}"/> that calls <c>iter()</c> on the
     /// object and yields values of type T when iterated.
@@ -184,6 +193,27 @@ public partial class PyObject : SafeHandle, ICloneable
         {
             return new PyEnumerable<T, TImporter>(Clone());
         }
+    }
+
+    public IAsyncEnumerable<T> AsAsyncEnumerable<T>() =>
+        AsAsyncEnumerable<T, PyObjectImporters.Runtime<T>>();
+
+    public IAsyncEnumerable<T> AsAsyncEnumerable<T, TImporter>()
+        where TImporter : IPyObjectImporter<T> =>
+        AsPyAsyncEnumerable<T, TImporter>();
+
+    private PyAsyncEnumerable<T, TImporter> AsPyAsyncEnumerable<T, TImporter>()
+        where TImporter : IPyObjectImporter<T> =>
+        new(Clone());
+
+    public IAsyncEnumerator<T> AsAsyncEnumerator<T>(CancellationToken cancellationToken = default) =>
+        AsAsyncEnumerator<T, PyObjectImporters.Runtime<T>>(cancellationToken);
+
+    public IAsyncEnumerator<T> AsAsyncEnumerator<T, TImporter>(CancellationToken cancellationToken = default)
+        where TImporter : IPyObjectImporter<T>
+    {
+        using var enumerable = AsPyAsyncEnumerable<T, TImporter>();
+        return enumerable.GetAsyncEnumerator(cancellationToken);
     }
 
     /// <summary>

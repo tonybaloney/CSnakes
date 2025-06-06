@@ -152,6 +152,14 @@ internal unsafe partial class CPythonAPI
     internal static partial IntPtr PyObject_GetIter(PyObject ob);
 
     /// <summary>
+    /// Get the async iterator for the given object
+    /// </summary>
+    /// <param name="ob"></param>
+    /// <returns>A new reference to the async iterator</returns>
+    [LibraryImport(PythonLibraryName)]
+    internal static partial IntPtr PyObject_GetAIter(PyObject ob);
+
+    /// <summary>
     /// Get the str(ob) form of the object
     /// </summary>
     /// <param name="ob">The Python object</param>

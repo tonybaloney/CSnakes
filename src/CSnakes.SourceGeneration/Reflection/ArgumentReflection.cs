@@ -6,7 +6,7 @@ namespace CSnakes.Reflection;
 
 public class ArgumentReflection
 {
-    private static readonly PythonTypeSpec OptionalDictStrAny = new("Optional", [new("dict", [new("str", []), PythonTypeSpec.Any])]);
+    private static readonly PythonTypeSpec OptionalDictStrAny = PythonTypeSpec.Optional(new("dict", [new("str"), PythonTypeSpec.Any]));
     private static readonly TypeSyntax NullableArrayOfPyObject = SyntaxFactory.ParseTypeName("PyObject[]?");
 
     public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter) =>

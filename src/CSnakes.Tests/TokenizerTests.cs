@@ -13,7 +13,7 @@ public class TokenizerTests
     [Fact]
     public void Tokenize()
     {
-        var tokens = PythonTokenizer.Instance.Tokenize("def foo(a: int, b: str, c: typing.Optional[int]) -> None:");
+        var tokens = PythonTokenizer.Instance.Tokenize("def foo(a: int, b: str, c: typing.Optional[int], d: int | None) -> None:");
         Assert.Equal(
         [
             PythonToken.Def,
@@ -33,6 +33,12 @@ public class TokenizerTests
             PythonToken.OpenBracket,
             PythonToken.Identifier,
             PythonToken.CloseBracket,
+            PythonToken.Comma,
+            PythonToken.Identifier,
+            PythonToken.Colon,
+            PythonToken.Identifier,
+            PythonToken.Pipe,
+            PythonToken.None,
             PythonToken.CloseParenthesis,
             PythonToken.Arrow,
             PythonToken.None,

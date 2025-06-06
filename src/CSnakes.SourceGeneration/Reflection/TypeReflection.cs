@@ -17,6 +17,7 @@ public static class TypeReflection
         (pythonType, direction) switch
         {
             ({ Name: "list" or "typing.List" or "List" or "typing.Sequence" or "Sequence", Arguments: [var t] }, _) => CreateListType(t, direction),
+            ({ Name: "Iterable" or "typing.Iterable" or "collections.abc.Iterable", Arguments: [var t] }, _) => CreateIterableType(t, direction),
             ({ Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: var ts }, _) => CreateTupleType(ts, direction),
             ({ Name: "dict" or "typing.Dict" or "Dict" or "typing.Mapping" or "Mapping", Arguments: [var kt, var vt] }, _) => CreateDictionaryType(kt, vt, direction),
             ({ Name: "typing.Optional" or "Optional", Arguments: [var t] }, _) => SyntaxFactory.NullableType(AsPredefinedType(t, direction)),
@@ -69,6 +70,8 @@ public static class TypeReflection
     }
 
     private static TypeSyntax CreateListType(PythonTypeSpec genericOf, ConversionDirection direction) => CreateGenericType("IReadOnlyList", [AsPredefinedType(genericOf, direction)]);
+
+    private static TypeSyntax CreateIterableType(PythonTypeSpec genericOf, ConversionDirection direction) => CreateGenericType("IPyIterable", [AsPredefinedType(genericOf, direction)]);
 
     internal static GenericNameSyntax CreateGenericType(string typeName, IEnumerable<TypeSyntax> genericArguments) =>
         SyntaxFactory.GenericName(

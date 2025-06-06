@@ -129,6 +129,18 @@ public static partial class PyObjectImporters
         }
     }
 
+    public sealed class Iterable<T, TImporter> : IPyObjectImporter<IPyIterable<T>>
+        where TImporter : IPyObjectImporter<T>
+    {
+        private Iterable() { }
+
+        static IPyIterable<T> IPyObjectImporter<IPyIterable<T>>.BareImport(PyObject obj)
+        {
+            GIL.Require();
+            return new PyEnumerable<T, TImporter>(obj); // There is no easy HasIter method in CPythonAPI
+        }
+    }
+
     public sealed class List<T, TImporter> : IPyObjectImporter<IReadOnlyList<T>>
         where TImporter : IPyObjectImporter<T>
     {

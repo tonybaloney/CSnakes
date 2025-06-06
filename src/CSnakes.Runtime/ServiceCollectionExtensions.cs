@@ -259,7 +259,8 @@ public static partial class ServiceCollectionExtensions
             sp =>
             {
                 var logger = sp.GetService<ILogger<PipInstaller>>();
-                return new PipInstaller(logger, requirementsPath);
+                var environmentManager = sp.GetService<IEnvironmentManagement>();
+                return new PipInstaller(logger, environmentManager, requirementsPath);
             }
         );
         return builder;
@@ -277,7 +278,8 @@ public static partial class ServiceCollectionExtensions
             sp =>
             {
                 var logger = sp.GetService<ILogger<UVInstaller>>();
-                return new UVInstaller(logger, requirementsPath);
+                var environmentManager = sp.GetService<IEnvironmentManagement>();
+                return new UVInstaller(logger, environmentManager, requirementsPath);
             }
         );
         return builder;

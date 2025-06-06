@@ -159,7 +159,7 @@ public class PyObjectTests : RuntimeTestBase
         Assert.Equal(expectedGT, obj1 >= obj2);
     }
 
-    public static IEnumerable<object[]> BooleanishTestCases(bool yes) => new TheoryData<bool, object?>
+    public static TheoryData<bool, object?> BooleanishTestCases(bool yes) => new()
     {
         { yes,  /* True      */ true },
         { !yes, /* False     */ false },
@@ -182,7 +182,7 @@ public class PyObjectTests : RuntimeTestBase
     /// </summary>
     [Theory]
     [MemberData(nameof(BooleanishTestCases), true)]
-    public void TestTruthy(bool expected, object input)
+    public void TestTruthy(bool expected, object? input)
     {
         using var obj = PyObject.From(input);
         if (obj)
@@ -196,7 +196,7 @@ public class PyObjectTests : RuntimeTestBase
     /// </summary>
     [Theory]
     [MemberData(nameof(BooleanishTestCases), false)]
-    public void TestFalsy(bool expected, object input)
+    public void TestFalsy(bool expected, object? input)
     {
         using var obj = PyObject.From(input);
         var result = !obj;

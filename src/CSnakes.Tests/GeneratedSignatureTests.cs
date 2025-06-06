@@ -33,8 +33,8 @@ public class GeneratedSignatureTests
     [InlineData("def hello_world(a: bytes, b: bool = False, c: float = 0.1) -> None: \n ...\n", "void HelloWorld(byte[] a, bool b = false, double c = 0.1)")]
     [InlineData("def hello_world(a: str = 'default') -> None: \n ...\n", "void HelloWorld(string a = \"default\")")]
     [InlineData("def hello_world(a: str, *args) -> None: \n ...\n", "void HelloWorld(string a, PyObject[]? args = null)")]
-    [InlineData("def hello_world(a: str, *, b: int) -> None: \n ...\n", "void HelloWorld(string a, long b, PyObject[]? args = null)")]
-    [InlineData("def hello_world(a: str, *, b: int = 3) -> None: \n ...\n", "void HelloWorld(string a, long b = 3, PyObject[]? args = null)")]
+    [InlineData("def hello_world(a: str, *, b: int) -> None: \n ...\n", "void HelloWorld(string a, long b)")]
+    [InlineData("def hello_world(a: str, *, b: int = 3) -> None: \n ...\n", "void HelloWorld(string a, long b = 3)")]
     [InlineData("def hello_world(a: str, *args, **kwargs) -> None: \n ...\n", "void HelloWorld(string a, PyObject[]? args = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)")]
     [InlineData("def hello(a: int = 0xdeadbeef) -> None:\n ...\n", "void Hello(long a = 0xDEADBEEF)")]
     [InlineData("def hello(a: int = 0b10101010) -> None:\n ...\n", "void Hello(long a = 0b10101010)")]
@@ -59,7 +59,7 @@ public class GeneratedSignatureTests
 
         // Check that the sample C# code compiles
         string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test", functions, sourceText);
-        var tree = CSharpSyntaxTree.ParseText(compiledCode);
+        var tree = CSharpSyntaxTree.ParseText(compiledCode, cancellationToken: TestContext.Current.CancellationToken);
         var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
 #if NET8_0
             .WithReferenceAssemblies(ReferenceAssemblyKind.Net80)
@@ -71,7 +71,7 @@ public class GeneratedSignatureTests
             .AddReferences(MetadataReference.CreateFromFile(typeof(IPythonEnvironmentBuilder).Assembly.Location))
             .AddReferences(MetadataReference.CreateFromFile(typeof(ILogger<>).Assembly.Location))
             .AddSyntaxTrees(tree);
-        var result = compilation.Emit(Stream.Null);
+        var result = compilation.Emit(Stream.Null, cancellationToken: TestContext.Current.CancellationToken);
         // TODO : Log compiler warnings.
         result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList().ForEach(d => Assert.Fail(d.ToString()));
         Assert.True(result.Success, compiledCode + "\n" + string.Join("\n", result.Diagnostics));

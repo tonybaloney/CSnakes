@@ -9,7 +9,7 @@ public interface IConverterTestCasesContainer<T>
 public abstract class ConverterTestBase<T, TTestCases> : RuntimeTestBase
     where TTestCases : IConverterTestCasesContainer<T>
 {
-    public static IEnumerable<object[]> SubTestCases => TTestCases.TestCases;
+    public static TheoryData<T> SubTestCases => TTestCases.TestCases;
 
     protected static void TestRoundtrip(T input, Func<PyObject, T> converter)
     {

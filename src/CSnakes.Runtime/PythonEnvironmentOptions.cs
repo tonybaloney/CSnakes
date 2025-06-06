@@ -1,2 +1,2 @@
 namespace CSnakes.Runtime;
-public record PythonEnvironmentOptions(string Home, string[] ExtraPaths);
+public record PythonEnvironmentOptions(string Home, string[] ExtraPaths, bool InstallSignalHandlers = true);

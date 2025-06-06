@@ -34,7 +34,7 @@ public class PythonStaticGeneratorTests
         _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
 
-        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test").ToImmutableArray();
+        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
 
         // Just keep last part of the dotted name, e.g.:
         // "CSnakes.Tests.python.test_args.py" -> "test_args"
@@ -66,4 +66,21 @@ public class PythonStaticGeneratorTests
             // so we catch it and should be harmless to ignore.
         }
     }
+
+    [Theory]
+    [InlineData("/tmp/example.py", "", "CSnakes.Runtime", "Example")]
+    [InlineData("/tmp/example.py", "tmp", "CSnakes.Runtime", "Example")]
+    [InlineData("/tmp/submodule/example.py", "tmp", "CSnakes.Runtime.Submodule", "Example")]
+    [InlineData("/tmp/another_example.py", "", "CSnakes.Runtime", "AnotherExample")]
+    [InlineData("/tmp/submodule/__init__.py", "tmp", "CSnakes.Runtime", "Submodule")]
+    [InlineData("/tmp/submodule/another_example.py", "tmp", "CSnakes.Runtime.Submodule", "AnotherExample")]
+    [InlineData("/tmp/submodule/foo/__init__.py", "tmp", "CSnakes.Runtime.Submodule", "Foo")]
+    [InlineData("/tmp/submodule/bar/__init__.py", "tmp/submodule", "CSnakes.Runtime.Bar", "Bar")]
+    public void VerifySimpleNamespace(string path, string root, string expectedNamespace, string expectedClass)
+    {
+        var (@namespace, className) = PythonStaticGenerator.GetNamespaceAndClassName(path, root);
+        @namespace.ShouldBe(expectedNamespace);
+        className.ShouldBe(expectedClass);
+    }
+
 }

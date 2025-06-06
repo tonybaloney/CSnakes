@@ -112,6 +112,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             {
                 // Walk up the directory tree until we find the root directory
                 var steps = 0;
+                var skip = 0;
                 foreach (var folder in folders.Reverse())
                 {
                     if (string.Equals(folder, configuredRootDir, StringComparison.InvariantCultureIgnoreCase)) break;
@@ -123,11 +124,12 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 if (Path.GetFileNameWithoutExtension(path) == "__init__")
                 {
                     steps--;
+                    skip = 1;
                     pascalFileName = folders.Last().ToPascalCase();
                 }
                 if (steps > 0)
                 {
-                    @namespace += "." + string.Join(".", folders.Reverse().Take(steps).Select(f => f.ToPascalCase()));
+                    @namespace += "." + string.Join(".", folders.Reverse().Skip(skip).Take(steps).Select(f => f.ToPascalCase()));
                 }
             }
         }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
@@ -39,5 +39,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Update=".globalconfig">
+      <Generator>SettingsSingleFileGenerator</Generator>
+    </EditorConfigFiles>
   </ItemGroup>
 </Project>

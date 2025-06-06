@@ -5,9 +5,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.IO;
 
 // Leave as simple namespace for compability with older versions
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -19,29 +19,53 @@ public class PythonStaticGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        
-#if DEBUG
-    if (!System.Diagnostics.Debugger.IsAttached) 
-    {
-         System.Diagnostics.Debugger.Launch(); 
-    }
-#endif
+//#if DEBUG
+//        if (!System.Diagnostics.Debugger.IsAttached)
+//        {
+//            System.Diagnostics.Debugger.Launch();
+//        }
+//#endif
         var pythonFilesPipeline = context.AdditionalTextsProvider
             .Where(static text => Path.GetExtension(text.Path) == ".py" || Path.GetExtension(text.Path) == ".pyi");
 
         // Get analyser config options
         var embedPythonSource = context.AnalyzerConfigOptionsProvider.Select(static (options, cancellationToken) =>
             options.GlobalOptions.TryGetValue("csnakes_embed_source", out var embedSourceSwitch)
-                ? embedSourceSwitch.Equals("true", StringComparison.InvariantCultureIgnoreCase)
-                : false); // Default
+            && embedSourceSwitch.Equals("true", StringComparison.InvariantCultureIgnoreCase)); // Default
 
-        context.RegisterSourceOutput(pythonFilesPipeline.Combine(embedPythonSource), static (sourceContext, opts) =>
+        // Get directory traversal root
+        var rootDirectory = context.AnalyzerConfigOptionsProvider.Select(static (options, cancellationToken) =>
+            options.GlobalOptions.TryGetValue("csnakes_root_directory", out var rootDir)
+                ? rootDir
+                : string.Empty); // Default to empty string
+
+        context.RegisterSourceOutput(pythonFilesPipeline.Combine(embedPythonSource).Combine(rootDirectory), static (sourceContext, opts) =>
         {
-            var file = opts.Left;
-            var embedSourceSwitch = opts.Right;
+            var (file, embedSourceSwitch) = opts.Left;
+            var rootDir = opts.Right;
 
             // Add environment path
-            var @namespace = "CSnakes.Runtime";
+            var @namespace = $"CSnakes.Runtime";
+            if (!string.IsNullOrEmpty(rootDir))
+            {
+                // Get path relative to the root directory
+                var fileDirectory = Path.GetDirectoryName(file.Path);
+
+                // Split the file directory into folders
+                var folders = fileDirectory.Split(Path.DirectorySeparatorChar);
+
+                if (Path.GetFileName(fileDirectory) != rootDir)
+                {
+                    // Walk up the directory tree until we find the root directory
+                    var steps = 0;
+                    foreach (var folder in folders.Reverse())
+                    {
+                        if (string.Equals(folder, rootDir, StringComparison.InvariantCultureIgnoreCase)) break;
+                        steps++;
+                    }
+                    @namespace += "." + string.Join(".", folders.Reverse().Take(steps).Select(f => f.ToPascalCase()));
+                }
+            }
 
             var fileName = Path.GetFileNameWithoutExtension(file.Path);
             var fileExtension = Path.GetExtension(file.Path);
@@ -88,8 +112,8 @@ public class PythonStaticGenerator : IIncrementalGenerator
             {
                 var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
                 string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions, code, embedSourceSwitch);
-                sourceContext.AddSource($"{pascalFileName}.{fileExtension}.cs", source);
-                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs from {file.Path}", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
+                sourceContext.AddSource($"{pascalFileName}{fileExtension}.cs", source);
+                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.{fileExtension}.cs from {file.Path}", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
             }
         });
     }

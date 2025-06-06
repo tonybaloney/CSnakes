@@ -72,6 +72,10 @@ public class PythonStaticGeneratorTests
     [InlineData("/tmp/example.py", "tmp", "CSnakes.Runtime", "Example")]
     [InlineData("/tmp/submodule/example.py", "tmp", "CSnakes.Runtime.Submodule", "Example")]
     [InlineData("/tmp/another_example.py", "", "CSnakes.Runtime", "AnotherExample")]
+    [InlineData("/tmp/submodule/__init__.py", "tmp", "CSnakes.Runtime", "Submodule")]
+    [InlineData("/tmp/submodule/another_example.py", "tmp", "CSnakes.Runtime.Submodule", "AnotherExample")]
+    [InlineData("/tmp/submodule/foo/__init__.py", "tmp/submodule", "CSnakes.Runtime", "Foo")]
+    [InlineData("/tmp/submodule/bar/__init__.py", "tmp/submodule/bar", "CSnakes.Runtime.Submodule.Bar", "Bar")]
     public void VerifySimpleNamespace(string path, string root, string expectedNamespace, string expectedClass)
     {
         var (@namespace, className) = PythonStaticGenerator.GetNamespaceAndClassName(path, root);

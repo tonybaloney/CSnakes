@@ -98,6 +98,8 @@ public class PythonStaticGenerator : IIncrementalGenerator
     public static (string @namespace, string pascalFileName) GetNamespaceAndClassName(string path, string configuredRootDir)
     {
         var @namespace = $"CSnakes.Runtime";
+        var pascalFileName = Path.GetFileNameWithoutExtension(path).ToPascalCase();
+
         if (!string.IsNullOrEmpty(configuredRootDir))
         {
             // Get path relative to the root directory
@@ -115,10 +117,25 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     if (string.Equals(folder, configuredRootDir, StringComparison.InvariantCultureIgnoreCase)) break;
                     steps++;
                 }
-                @namespace += "." + string.Join(".", folders.Reverse().Take(steps).Select(f => f.ToPascalCase()));
+
+                // If the filename is __init__, take one less step and name it after the namespace
+                // So foo/bar/__init__.py becomes IBar in the namespace CSnakes.Runtime.Foo.Bar
+                if (Path.GetFileNameWithoutExtension(path) == "__init__")
+                {
+                    steps--;
+                    pascalFileName = folders.Last().ToPascalCase();
+                }
+                if (steps > 0)
+                {
+                    @namespace += "." + string.Join(".", folders.Reverse().Take(steps).Select(f => f.ToPascalCase()));
+                }
             }
         }
-        var pascalFileName = Path.GetFileNameWithoutExtension(path).ToPascalCase();
+        else
+        {
+            // TODO: warn if the file is called __init__.py because there is no root directory
+        }
+
         return (@namespace, pascalFileName);
     }
 

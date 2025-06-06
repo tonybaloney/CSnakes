@@ -44,29 +44,6 @@ public class PythonStaticGenerator : IIncrementalGenerator
             var (file, embedSourceSwitch) = opts.Left;
             var rootDir = opts.Right;
 
-            // Add environment path
-            var @namespace = $"CSnakes.Runtime";
-            if (!string.IsNullOrEmpty(rootDir))
-            {
-                // Get path relative to the root directory
-                var fileDirectory = Path.GetDirectoryName(file.Path);
-
-                // Split the file directory into folders
-                var folders = fileDirectory.Split(Path.DirectorySeparatorChar);
-
-                if (Path.GetFileName(fileDirectory) != rootDir)
-                {
-                    // Walk up the directory tree until we find the root directory
-                    var steps = 0;
-                    foreach (var folder in folders.Reverse())
-                    {
-                        if (string.Equals(folder, rootDir, StringComparison.InvariantCultureIgnoreCase)) break;
-                        steps++;
-                    }
-                    @namespace += "." + string.Join(".", folders.Reverse().Take(steps).Select(f => f.ToPascalCase()));
-                }
-            }
-
             var fileName = Path.GetFileNameWithoutExtension(file.Path);
             var fileExtension = Path.GetExtension(file.Path);
 
@@ -77,7 +54,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             }
 
             // Convert snake_case to PascalCase
-            var pascalFileName = Path.GetFileNameWithoutExtension(file.Path).ToPascalCase();
+            var (@namespace, pascalFileName) = GetNamespaceAndClassName(file.Path, rootDir);
 
             // Read the file
             var code = file.GetText(sourceContext.CancellationToken);
@@ -116,6 +93,33 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.{fileExtension}.cs from {file.Path}", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
             }
         });
+    }
+
+    public static (string @namespace, string pascalFileName) GetNamespaceAndClassName(string path, string configuredRootDir)
+    {
+        var @namespace = $"CSnakes.Runtime";
+        if (!string.IsNullOrEmpty(configuredRootDir))
+        {
+            // Get path relative to the root directory
+            var fileDirectory = Path.GetDirectoryName(path);
+
+            // Split the file directory into folders
+            var folders = fileDirectory.Split(Path.DirectorySeparatorChar);
+
+            if (Path.GetFileName(fileDirectory) != configuredRootDir)
+            {
+                // Walk up the directory tree until we find the root directory
+                var steps = 0;
+                foreach (var folder in folders.Reverse())
+                {
+                    if (string.Equals(folder, configuredRootDir, StringComparison.InvariantCultureIgnoreCase)) break;
+                    steps++;
+                }
+                @namespace += "." + string.Join(".", folders.Reverse().Take(steps).Select(f => f.ToPascalCase()));
+            }
+        }
+        var pascalFileName = Path.GetFileNameWithoutExtension(path).ToPascalCase();
+        return (@namespace, pascalFileName);
     }
 
     public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string moduleAbsoluteName, PythonFunctionDefinition[] functions, SourceText sourceText, bool embedSourceText = false)

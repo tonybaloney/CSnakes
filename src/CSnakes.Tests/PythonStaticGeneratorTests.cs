@@ -66,4 +66,17 @@ public class PythonStaticGeneratorTests
             // so we catch it and should be harmless to ignore.
         }
     }
+
+    [Theory]
+    [InlineData("/tmp/example.py", "", "CSnakes.Runtime", "Example")]
+    [InlineData("/tmp/example.py", "tmp", "CSnakes.Runtime", "Example")]
+    [InlineData("/tmp/submodule/example.py", "tmp", "CSnakes.Runtime.Submodule", "Example")]
+    [InlineData("/tmp/another_example.py", "", "CSnakes.Runtime", "AnotherExample")]
+    public void VerifySimpleNamespace(string path, string root, string expectedNamespace, string expectedClass)
+    {
+        var (@namespace, className) = PythonStaticGenerator.GetNamespaceAndClassName(path, root);
+        @namespace.ShouldBe(expectedNamespace);
+        className.ShouldBe(expectedClass);
+    }
+
 }

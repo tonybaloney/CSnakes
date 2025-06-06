@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "3203de645180bcf0543230e918dea7a9"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "1848cdfa4c35d7dd55e968358f065089"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -261,7 +261,7 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>test_optional_int</c>:
     /// <code><![CDATA[
-    /// def test_optional_int(a: int | None = None) -> bool: ...
+    /// def test_optional_int(a: Optional[int] = None) -> bool: ...
     /// ]]></code>
     /// </summary>
     bool TestOptionalInt(long? a = null);
@@ -269,7 +269,7 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>test_optional_str</c>:
     /// <code><![CDATA[
-    /// def test_optional_str(a: str | None = None) -> bool: ...
+    /// def test_optional_str(a: Optional[str] = None) -> bool: ...
     /// ]]></code>
     /// </summary>
     bool TestOptionalStr(string? a = null);
@@ -277,7 +277,7 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>test_optional_list</c>:
     /// <code><![CDATA[
-    /// def test_optional_list(a: list[int] | None = None) -> bool: ...
+    /// def test_optional_list(a: Optional[list[int]] = None) -> bool: ...
     /// ]]></code>
     /// </summary>
     bool TestOptionalList(IReadOnlyList<long>? a = null);
@@ -285,7 +285,7 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>test_optional_any</c>:
     /// <code><![CDATA[
-    /// def test_optional_any(a: Any | None = None) -> bool: ...
+    /// def test_optional_any(a: Optional[Any] = None) -> bool: ...
     /// ]]></code>
     /// </summary>
     bool TestOptionalAny(PyObject? a = null);

@@ -1,10 +1,10 @@
-from typing import Any
+from typing import Any, Optional
 
-def test_int(n: int | None) -> int | None:
+def test_int(n: Optional[int]) -> Optional[int]:
     return n
 
-def test_str(s: str | None) -> str | None:
+def test_str(s: Optional[str]) -> Optional[str]:
     return s
 
-def test_any(obj: Any | None) -> Any | None:
+def test_any(obj: Optional[Any]) -> Optional[Any]:
     return obj

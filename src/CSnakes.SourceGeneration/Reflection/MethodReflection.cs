@@ -48,19 +48,19 @@ public static class MethodReflection
             {
                 returnPythonType = new PythonTypeSpec("Coroutine",
                     [
-                        returnPythonType, // Yield type
+                        PythonTypeSpec.None, // Yield type
                         PythonTypeSpec.None, // Send type
-                        PythonTypeSpec.None, // Return type, TODO: Swap with yield on #480
+                        returnPythonType // Return type
                     ]);
             }
 
             returnSyntax = returnPythonType switch
             {
-                { Name: "Coroutine", Arguments: [{ Name: "None" }, _, _] } =>
+                { Name: "Coroutine", Arguments: [_, _, { Name: "None" }] } =>
                     // Make it PyObject otherwise we need to annotate as Task instead of Task<T> and that adds a lot of complexity and little value
                     ParseTypeName("PyObject"),
-                { Name: "Coroutine", Arguments: [var tYield, _, _] } =>
-                    TypeReflection.AsPredefinedType(tYield, TypeReflection.ConversionDirection.FromPython),
+                { Name: "Coroutine", Arguments: [_, _, var tReturn] } =>
+                    TypeReflection.AsPredefinedType(tReturn, TypeReflection.ConversionDirection.FromPython),
                 _ => throw new ArgumentException("Async function must return a Coroutine[T1, T2, T3]")
             };
             // return is a Task of <T>

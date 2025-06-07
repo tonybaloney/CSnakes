@@ -32,9 +32,11 @@ CSnakes supports the following typed scenarios:
 | `T | None`             | `T?`              |
 | `typing.Generator[TYield, TSend, TReturn]` | `IGeneratorIterator<TYield, TSend, TReturn>` |
 | `typing.Buffer`        | `IPyBuffer` [2](buffers.md) |
-| `typing.Coroutine[TYield, TSend, TReturn]` | `Task<TYield>` [3](async.md) |
+| `typing.Coroutine[None, None, T]` | `Task<T>` [3](async.md) |
 | `typing.Union[T1, T2, ...] | [C# Overloads](#unions) |
 | `None` (Return)        | `void`            |
+
+Note that only coroutines where the yield and send types are `None` are supported.
 
 ## Optional Types
 

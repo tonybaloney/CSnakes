@@ -119,6 +119,8 @@ public sealed record DictType(PythonTypeSpec Key, PythonTypeSpec Value) : Closed
 
 public sealed record CoroutineType(PythonTypeSpec Yield, PythonTypeSpec Send, PythonTypeSpec Return) : ClosedGenericType("Coroutine")
 {
+    public CoroutineType(PythonTypeSpec returnType) : this(None, None, returnType) { }
+
     public override string ToString() => Format($"{Yield}, {Send}, {Return}");
 }
 

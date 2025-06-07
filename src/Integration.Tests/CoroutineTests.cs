@@ -78,11 +78,19 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
     }
 
     [Fact]
+    public async Task BareCoroutine()
+    {
+        var mod = Env.TestCoroutines();
+        long result = await mod.TestCoroutineBare(cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Equal(5, result);
+    }
+
+    [Fact]
     public void GeneratorBasedCoroutineIsNotSupported()
     {
         var mod = Env.TestCoroutines();
         using var coro = mod.TestGeneratorBasedCoroutine();
-        void Act() => _ = coro.As<ICoroutine<PyObject, PyObject, PyObject>>();
+        void Act() => _ = coro.As<ICoroutine<PyObject>>();
         Assert.Throws<InvalidCastException>(Act);
     }
 }

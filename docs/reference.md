@@ -19,6 +19,7 @@ CSnakes supports the following typed scenarios:
 | `typing.Mapping[K, V]` | `IReadOnlyDictionary<K, V>` |
 | `typing.Tuple[T1, T2, ...]` | `(T1, T2, ...)` |
 | `typing.Optional[T]`   | `T?`              |
+| `T \| None`            | `T?`              |
 | `typing.Generator[TYield, TSend, TReturn]` | `IGeneratorIterator<TYield, TSend, TReturn>` [1](#generators) |
 | `typing.Buffer`        | `IPyBuffer` [2](buffers.md) |
 | `typing.Coroutine[TYield, TSend, TReturn]` | `Task<TYield>` [3](async_support.md) |

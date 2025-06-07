@@ -1,20 +1,334 @@
 using CommunityToolkit.HighPerformance;
 using CSnakes.Runtime.CPython;
+using System.Buffers;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
+
 #if NET9_0_OR_GREATER
 using System.Numerics.Tensors;
 #endif
 
 namespace CSnakes.Runtime.Python;
-internal sealed class PyBuffer : IPyBuffer
-{
-    private CPythonAPI.Py_buffer _buffer;
-    private bool _disposed;
-    private readonly bool _isScalar;
-    private readonly string _format;
-    private readonly ByteOrder _byteOrder;
 
+public interface IPyBuffer<T> : IPyBuffer where T : unmanaged;
+
+internal class PyBuffer<T>(in CPythonAPI.Py_buffer buffer) : IPyBuffer<T> where T : unmanaged
+{
+    protected static readonly int ItemSize = Unsafe.SizeOf<T>();
+
+    protected readonly int ItemCount = (int)(buffer.len / ItemSize);
+
+    private CPythonAPI.Py_buffer _buffer = buffer;
+
+    ~PyBuffer()
+    {
+        Dispose(disposing: false);
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    private bool IsDisposed => _buffer.buf == 0;
+
+    private void Dispose(bool disposing)
+    {
+        if (IsDisposed)
+            return;
+
+        if (disposing)
+        {
+            using (GIL.Acquire())
+                CPythonAPI.ReleaseBuffer(ref _buffer);
+        }
+        else if (GIL.IsAcquired)
+        {
+            // If the GIL is acquired, we can safely release the buffer without acquiring it again
+            CPythonAPI.ReleaseBuffer(ref _buffer);
+        }
+        else
+        {
+            // If the GIL is not acquired, we should not release the buffer here
+            // as it may lead to
+            GIL.QueueForDisposal(ref _buffer);
+            Debug.Assert(_buffer.buf == 0);
+            return;
+        }
+
+        _buffer = default;
+    }
+
+    protected ref readonly CPythonAPI.Py_buffer Buffer
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get
+        {
+            ObjectDisposedException.ThrowIf(IsDisposed, this);
+            return ref _buffer;
+        }
+    }
+
+    public long Length => Buffer.len;
+
+    public bool IsScalar => Buffer.ndim is 0 or 1;
+
+    public bool IsReadOnly => Buffer.@readonly == 1;
+
+    public int Dimensions => Buffer.ndim == 0 ? 1 : Buffer.ndim;
+
+    public Type ItemType => typeof(T);
+
+    protected unsafe ReadOnlySpan<nint> Shape =>
+        _buffer switch
+        {
+            { shape: not null and var shape, strides: not null, ndim: var ndim } => new ReadOnlySpan<nint>(shape, ndim),
+            _ => throw new InvalidOperationException("Buffer does not have shape and strides."),
+        };
+
+    Span<TItemType> IPyBuffer.AsSpan<TItemType>() =>
+        typeof(TItemType) != typeof(T)
+            ? throw new InvalidOperationException($"Cannot cast buffer of type {typeof(T)} to {typeof(TItemType)}.")
+            : ((IPyArrayBuffer<TItemType>)this).AsSpan();
+
+    ReadOnlySpan<TItemType> IPyBuffer.AsReadOnlySpan<TItemType>() =>
+        ((IPyBuffer)this).AsSpan<TItemType>();
+
+    Span2D<TItemType> IPyBuffer.AsSpan2D<TItemType>() =>
+        typeof(TItemType) != typeof(T)
+            ? throw new InvalidOperationException($"Cannot cast buffer of type {typeof(T)} to {typeof(TItemType)}.")
+            : ((IPyArray2DBuffer<TItemType>)this).AsSpan2D();
+
+    ReadOnlySpan2D<TItemType> IPyBuffer.AsReadOnlySpan2D<TItemType>() =>
+        ((IPyBuffer)this).AsSpan2D<TItemType>();
+
+#if NET9_0_OR_GREATER
+    TensorSpan<TItemType> IPyBuffer.AsTensorSpan<TItemType>() =>
+        typeof(TItemType) != typeof(T)
+            ? throw new InvalidOperationException($"Cannot cast buffer of type {typeof(T)} to {typeof(TItemType)}.")
+            : ((IPyTensorBuffer<TItemType>)this).AsTensorSpan();
+
+    ReadOnlyTensorSpan<TItemType> IPyBuffer.AsReadOnlyTensorSpan<TItemType>() =>
+        ((IPyBuffer)this).AsTensorSpan<TItemType>();
+#endif // NET9_0_OR_GREATER
+}
+
+public delegate TResult SpanFunc<T, out TResult>(ReadOnlySpan<T> span) where T : unmanaged;
+public delegate TResult SpanFunc<T, in TArg, out TResult>(ReadOnlySpan<T> span, TArg arg) where T : unmanaged;
+
+public interface IPyArrayBuffer<T> : IPyBuffer<T>, IMemoryOwner<T> where T : unmanaged
+{
+    internal Span<T> AsSpan();
+
+    T this[int index]
+    {
+        get => AsSpan()[index];
+        set => AsSpan()[index] = value;
+    }
+
+    public TResult Map<TResult>(SpanFunc<T, TResult> function) =>
+        function(AsSpan());
+
+    public TResult Map<TArg, TResult>(TArg arg, SpanFunc<T, TArg, TResult> function) =>
+        function(AsSpan(), arg);
+
+    public void Do<TArg>(TArg arg, SpanAction<T, TArg> action) =>
+        action(AsSpan(), arg);
+
+    void CopyFrom(scoped ReadOnlySpan<T> source)
+    {
+        if (IsReadOnly)
+            throw new InvalidOperationException("Buffer is read-only.");
+
+        source.CopyTo(AsSpan());
+    }
+
+    void CopyTo(scoped Span<T> destination) => AsSpan().CopyTo(destination);
+
+    /// <summary>
+    /// Gets the memory directly underlying the buffer, which is tied to the lifetime of the buffer.
+    /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
+    /// </summary>
+    /// <remarks>
+    /// See <see
+    /// href="https://learn.microsoft.com/en-us/dotnet/standard/memory-and-spans/memory-t-usage-guidelines"><see
+    /// cref="Memory{T}"/> and <see cref="Span{T}"/> usage guidelines</see> for more information.
+    /// </remarks>
+    Memory<T> UnsafeMemory { get; }
+}
+
+internal sealed class PyArrayBuffer<T>(in CPythonAPI.Py_buffer buffer) :
+    PyBuffer<T>(Validate(buffer)),
+    IPyArrayBuffer<T>
+    where T : unmanaged
+{
+    private UnmanagedMemoryManager? _memoryManager;
+
+    internal static ref readonly CPythonAPI.Py_buffer Validate(in CPythonAPI.Py_buffer buffer)
+    {
+        if (buffer.len % ItemSize != 0)
+            throw new ArgumentException($"Buffer length is {buffer.len}, which is not a multiple of {ItemSize}.", nameof(buffer));
+
+        if (buffer.itemsize != ItemSize)
+            throw new ArgumentException($"Buffer item size is {buffer.itemsize} instead of {ItemSize}.", nameof(buffer));
+
+        return ref buffer;
+    }
+
+    unsafe Span<T> AsSpan() => new((void*)Buffer.buf, ItemCount);
+
+    Span<T> IPyArrayBuffer<T>.AsSpan() => AsSpan();
+
+    public Memory<T> UnsafeMemory => (_memoryManager ??= new UnmanagedMemoryManager(this)).Memory;
+
+    Memory<T> IMemoryOwner<T>.Memory => UnsafeMemory;
+
+    private sealed class UnmanagedMemoryManager(PyArrayBuffer<T> buffer) : MemoryManager<T>
+    {
+        public override Span<T> GetSpan() => buffer.AsSpan();
+
+        public override unsafe MemoryHandle Pin(int elementIndex = 0)
+        {
+            // There is no pinning to do since we are dealing with unmanaged memory and the GC
+            // will not move or collect it. The memory handle will point directly to the
+            // buffer's data at the specified index.
+
+            fixed (void* pointer = buffer.AsSpan()[elementIndex..])
+                return new MemoryHandle(pointer);
+        }
+
+        public override void Unpin()
+        {
+            // Nothing to do here since pinning isn't needed for unmanaged memory.
+        }
+
+        protected override void Dispose(bool disposing) => buffer.Dispose();
+
+        protected override bool TryGetArray(out ArraySegment<T> segment)
+        {
+            // Not supported for unmanaged memory
+            segment = default;
+            return false;
+        }
+    }
+}
+
+public interface IPyArray2DBuffer<T> : IPyBuffer<T> where T : unmanaged
+{
+    internal Span2D<T> AsSpan2D();
+
+    T this[int row, int column]
+    {
+        get => AsSpan2D()[row, column];
+        set => AsSpan2D()[row, column] = value;
+    }
+
+    void CopyFrom(scoped ReadOnlySpan2D<T> source)
+    {
+        if (IsReadOnly)
+            throw new InvalidOperationException("Buffer is read-only.");
+
+        source.CopyTo(AsSpan2D());
+    }
+
+    void CopyTo(scoped Span<T> destination) => AsSpan2D().CopyTo(destination);
+    void CopyTo(scoped Span2D<T> destination) => AsSpan2D().CopyTo(destination);
+}
+
+internal sealed class PyArray2DBuffer<T>(in CPythonAPI.Py_buffer buffer) :
+    PyBuffer<T>(Validate(buffer)),
+    IPyArray2DBuffer<T>
+    where T : unmanaged
+{
+    private static ref readonly CPythonAPI.Py_buffer Validate(in CPythonAPI.Py_buffer buffer)
+    {
+        _ = PyArrayBuffer<T>.Validate(buffer);
+
+        if (buffer.ndim != 2)
+            throw new ArgumentException("Buffer is not 2D.", nameof(buffer));
+
+        unsafe
+        {
+            if (buffer is { shape: null } or { strides: null })
+                throw new InvalidOperationException("Buffer does not have shape and strides.");
+
+            if (buffer.shape[0] * buffer.shape[1] * ItemSize != buffer.len)
+                throw new ArgumentException("Buffer length is not equal to shape.", nameof(buffer));
+        }
+
+        return ref buffer;
+    }
+
+    unsafe Span2D<T> IPyArray2DBuffer<T>.AsSpan2D()
+    {
+        ref readonly var buffer = ref Buffer;
+        return new((void*)buffer.buf,
+                   height: (int)buffer.shape[0],
+                   width: (int)buffer.shape[1],
+                   pitch: (int)((int)buffer.strides[0] - (buffer.shape[1] * buffer.itemsize))); // pitch = stride - (width * itemsize)
+    }
+}
+
+#if NET9_0_OR_GREATER
+
+public interface IPyTensorBuffer<T> : IPyBuffer<T> where T : unmanaged
+{
+    internal TensorSpan<T> AsTensorSpan();
+
+    T this[params scoped ReadOnlySpan<nint> indices]
+    {
+        get => AsTensorSpan()[indices];
+        set => AsTensorSpan()[indices] = value;
+    }
+}
+
+internal sealed class PyTensorBuffer<T> :
+    PyBuffer<T>,
+    IPyTensorBuffer<T>
+    where T : unmanaged
+{
+    private readonly nint[] strides;
+
+    public PyTensorBuffer(in CPythonAPI.Py_buffer buffer) : base(Validate(buffer))
+    {
+        this.strides = new nint[buffer.ndim];
+        for (var i = 0; i < buffer.ndim; i++)
+        {
+            nint stride;
+            unsafe
+            {
+                stride = buffer.strides[i];
+            }
+            this.strides[i] = stride / ItemSize;
+        }
+    }
+
+    private static ref readonly CPythonAPI.Py_buffer Validate(in CPythonAPI.Py_buffer buffer)
+    {
+        _ = PyArrayBuffer<T>.Validate(buffer);
+
+        unsafe
+        {
+            if (buffer is { shape: null } or { strides: null })
+                throw new InvalidOperationException("Buffer does not have shape and strides.");
+        }
+
+        return ref buffer;
+    }
+
+    unsafe TensorSpan<T> IPyTensorBuffer<T>.AsTensorSpan()
+    {
+        ref readonly var buffer = ref Buffer;
+        return new((T*)buffer.buf, buffer.len, Shape, this.strides);
+    }
+}
+
+#endif // NET9_0_OR_GREATER
+
+internal static class PyBuffer
+{
     /// <summary>
     /// Struct byte order and offset type see https://docs.python.org/3/library/struct.html#byte-order-size-and-alignment
     /// </summary>
@@ -26,6 +340,113 @@ internal sealed class PyBuffer : IPyBuffer
         Big = '>', // big-endian, standard size and no alignment
         Network = '!' // big-endian, standard size and no alignment
     }
+
+    struct Unknown;
+
+    public static IPyBuffer Create(PyObject exporter)
+    {
+        CPythonAPI.Py_buffer buffer;
+        using (GIL.Acquire())
+        {
+            if (!CPythonAPI.IsBuffer(exporter))
+            {
+                throw new ArgumentException("The provided Python object does not support the buffer protocol.",
+                    nameof(exporter));
+            }
+
+            CPythonAPI.GetBuffer(exporter, out buffer);
+        }
+
+        var format = Marshal.PtrToStringUTF8(buffer.format) ?? "B";
+
+        if (GetByteOrder(format) is not ByteOrder.Native)
+            return new PyBuffer<Unknown>(buffer); // Return a generic buffer if byte order is not native
+
+        var bufferObject = buffer switch
+        {
+            { ndim: 0 or 1 } => // Treat scalar (ndim: 0) as a 1D array for simplicity
+                GetFormat(format) switch
+                {
+                    Format.Float => new PyArrayBuffer<float>(buffer),
+                    Format.Double => new PyArrayBuffer<double>(buffer),
+                    Format.Char => new PyArrayBuffer<sbyte>(buffer),
+                    Format.UChar => new PyArrayBuffer<byte>(buffer),
+                    Format.Short => new PyArrayBuffer<short>(buffer),
+                    Format.UShort => new PyArrayBuffer<ushort>(buffer),
+                    Format.Int => new PyArrayBuffer<int>(buffer),
+                    Format.UInt => new PyArrayBuffer<uint>(buffer),
+                    Format.Long when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyArrayBuffer<int>(buffer), // LLP64 (long is 32 bits)
+                    Format.ULong when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyArrayBuffer<uint>(buffer), // LLP64 (long is 32 bits)
+                    Format.Long => new PyArrayBuffer<long>(buffer), // LP64 (long is 64 bits)
+                    Format.ULong => new PyArrayBuffer<ulong>(buffer), // LP64 (long is 64 bits)
+                    Format.LongLong => new PyArrayBuffer<long>(buffer),
+                    Format.ULongLong => new PyArrayBuffer<ulong>(buffer),
+                    Format.Bool => new PyArrayBuffer<bool>(buffer),
+                    Format.SizeT => new PyArrayBuffer<nuint>(buffer),
+                    Format.SSizeT => new PyArrayBuffer<nint>(buffer),
+                    _ => null,
+                },
+            { ndim: 2, HasShape: true, HasStrides: true } =>
+                GetFormat(format) switch
+                {
+                    Format.Float => new PyArray2DBuffer<float>(buffer),
+                    Format.Double => new PyArray2DBuffer<double>(buffer),
+                    Format.Char => new PyArray2DBuffer<sbyte>(buffer),
+                    Format.UChar => new PyArray2DBuffer<byte>(buffer),
+                    Format.Short => new PyArray2DBuffer<short>(buffer),
+                    Format.UShort => new PyArray2DBuffer<ushort>(buffer),
+                    Format.Int => new PyArray2DBuffer<int>(buffer),
+                    Format.UInt => new PyArray2DBuffer<uint>(buffer),
+                    Format.Long when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyArray2DBuffer<int>(buffer), // LLP64 (long is 32 bits)
+                    Format.ULong when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyArray2DBuffer<uint>(buffer), // LLP64 (long is 32 bits)
+                    Format.Long => new PyArray2DBuffer<long>(buffer), // LP64 (long is 64 bits)
+                    Format.ULong => new PyArray2DBuffer<ulong>(buffer), // LP64 (long is 64 bits)
+                    Format.LongLong => new PyArray2DBuffer<long>(buffer),
+                    Format.ULongLong => new PyArray2DBuffer<ulong>(buffer),
+                    Format.Bool => new PyArray2DBuffer<bool>(buffer),
+                    Format.SizeT => new PyArray2DBuffer<nuint>(buffer),
+                    Format.SSizeT => new PyArray2DBuffer<nint>(buffer),
+                    _ => null,
+                },
+#if NET9_0_OR_GREATER
+            { ndim: > 2, HasShape: true, HasStrides: true } =>
+                GetFormat(format) switch
+                {
+                    Format.Float => new PyTensorBuffer<float>(buffer),
+                    Format.Double => new PyTensorBuffer<double>(buffer),
+                    Format.Char => new PyTensorBuffer<sbyte>(buffer),
+                    Format.UChar => new PyTensorBuffer<byte>(buffer),
+                    Format.Short => new PyTensorBuffer<short>(buffer),
+                    Format.UShort => new PyTensorBuffer<ushort>(buffer),
+                    Format.Int => new PyTensorBuffer<int>(buffer),
+                    Format.UInt => new PyTensorBuffer<uint>(buffer),
+                    Format.Long when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyTensorBuffer<int>(buffer),
+                    Format.ULong when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyTensorBuffer<uint>(buffer),
+                    Format.Long => new PyTensorBuffer<long>(buffer),
+                    Format.ULong => new PyTensorBuffer<ulong>(buffer),
+                    Format.LongLong => new PyTensorBuffer<long>(buffer),
+                    Format.ULongLong => new PyTensorBuffer<ulong>(buffer),
+                    Format.Bool => new PyTensorBuffer<bool>(buffer),
+                    Format.SizeT => new PyTensorBuffer<nuint>(buffer),
+                    Format.SSizeT => new PyTensorBuffer<nint>(buffer),
+                    _ => null,
+                },
+#endif // NET9_0_OR_GREATER
+            _ => (IPyBuffer?)null,
+        };
+
+        return bufferObject ?? new PyBuffer<Unknown>(buffer);
+    }
+
+    private static ByteOrder GetByteOrder(string format) =>
+        // The first character of the format string is the byte order
+        // If the format string is empty, the byte order is native
+        // If the first character is not a byte order, the byte order is native
+        format switch
+        {
+            [var ch, ..] when Enum.IsDefined((ByteOrder)ch) => (ByteOrder)ch,
+            _ => ByteOrder.Native
+        };
 
     private enum Format
     {
@@ -47,251 +468,16 @@ internal sealed class PyBuffer : IPyBuffer
         SSizeT = 'N', // C ssize_t
     }
 
-    public PyBuffer(PyObject exporter)
-    {
-        using (GIL.Acquire())
-        {
-            CPythonAPI.GetBuffer(exporter, out _buffer);
-        }
-        _disposed = false;
-        _isScalar = _buffer.ndim == 0 || _buffer.ndim == 1;
-        _format = Marshal.PtrToStringUTF8(_buffer.format) ?? string.Empty;
-        _byteOrder = GetByteOrder();
-    }
-
-    public void Dispose()
-    {
-        if (!_disposed)
-        {
-            using (GIL.Acquire())
-            {
-                CPythonAPI.ReleaseBuffer(ref _buffer);
-            }
-            _disposed = true;
-        }
-    }
-
-    public long Length => _buffer.len;
-
-    public bool IsScalar => _isScalar;
-
-    public bool IsReadOnly => _buffer.@readonly == 1;
-
-    public int Dimensions => _buffer.ndim == 0 ? 1 : _buffer.ndim;
-
-    private unsafe ReadOnlySpan<nint> Shape
-    {
-        get
-        {
-            EnsureShapeAndStrides();
-            return new ReadOnlySpan<nint>(_buffer.shape, _buffer.ndim);
-        }
-    }
-
-    public Type GetItemType()
+    private static Format? GetFormat(string format)
     {
         // The format string contains the type of the buffer, normally in the first
         // position, but the first character can also be the byte order.
-        foreach (char f in _format)
+        foreach (Format f in format)
         {
-            if (!Enum.IsDefined((Format)f))
-            {
-                continue;
-            }
-
-            return (Format)f switch
-            {
-                Format.Float => typeof(float),
-                Format.Double => typeof(double),
-                Format.Char => typeof(sbyte),
-                Format.UChar => typeof(byte),
-                Format.Short => typeof(short),
-                Format.UShort => typeof(ushort),
-                Format.Int => typeof(int),
-                Format.UInt => typeof(uint),
-                Format.Long => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? typeof(int) : typeof(long),
-                Format.ULong => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? typeof(uint) : typeof(ulong),
-                Format.LongLong => typeof(long),
-                Format.ULongLong => typeof(ulong),
-                Format.Bool => typeof(bool),
-                Format.SizeT => typeof(nuint),
-                Format.SSizeT => typeof(nint),
-                _ => throw new InvalidOperationException($"Format {f} not mapped to CLR type")
-            };
+            if (Enum.IsDefined(f))
+               return f;
         }
-        throw new InvalidOperationException($"Unknown format {_format}");
+
+        return null;
     }
-
-    public Span<T> AsSpan<T>() where T : unmanaged => AsSpanInternal<T>();
-    public ReadOnlySpan<T> AsReadOnlySpan<T>() where T : unmanaged => AsReadOnlySpanInternal<T>();
-    public Span2D<T> AsSpan2D<T>() where T : unmanaged => AsSpan2DInternal<T>();
-    public ReadOnlySpan2D<T> AsReadOnlySpan2D<T>() where T : unmanaged => AsReadOnlySpan2DInternal<T>();
-
-    private ByteOrder GetByteOrder()
-    {
-        // The first character of the format string is the byte order
-        // If the format string is empty, the byte order is native
-        // If the first character is not a byte order, the byte order is native
-        if (_format.Length == 0)
-        {
-            return ByteOrder.Native;
-        }
-
-        return Enum.IsDefined(typeof(ByteOrder), (int)_format[0]) ? (ByteOrder)_format[0] : ByteOrder.Native;
-    }
-
-    private void EnsureFormat(char format)
-    {
-        if (!_format.Contains(format))
-        {
-            throw new InvalidOperationException($"Buffer is not a {format}, it is {_format}");
-        }
-    }
-
-    private void EnsureScalar()
-    {
-        if (!IsScalar)
-        {
-            throw new InvalidOperationException("Buffer is not a scalar");
-        }
-    }
-
-    private void EnsureDimensions(int dimensions)
-    {
-        if (Dimensions != dimensions)
-        {
-            throw new InvalidOperationException($"Buffer is not {dimensions}D");
-        }
-    }
-
-    private unsafe void EnsureShapeAndStrides()
-    {
-        if (_buffer.shape is null || _buffer.strides is null)
-        {
-            throw new InvalidOperationException("Buffer does not have shape and strides");
-        }
-    }
-    private unsafe void ValidateBufferCommon<T>() where T : unmanaged
-    {
-        if (_byteOrder != ByteOrder.Native)
-        {
-            // TODO: support byte order conversion
-            throw new InvalidOperationException("Buffer is not in native byte order");
-        }
-        if (typeof(T) != GetItemType())
-        {
-            throw new InvalidOperationException($"Buffer item type is {GetItemType()} not {typeof(T)}");
-        }
-        if (Length % sizeof(T) != 0)
-        {
-            throw new InvalidOperationException($"Buffer length is not a multiple of {sizeof(T)}");
-        }
-        if (_buffer.itemsize != sizeof(T))
-        {
-            throw new InvalidOperationException($"Buffer item size is {_buffer.itemsize} not {sizeof(T)}");
-        }
-    }
-
-    private unsafe void Validate2DBufferCommon<T>() where T : unmanaged
-    {
-        EnsureDimensions(2);
-        EnsureShapeAndStrides();
-        if (Shape[0] * Shape[1] * sizeof(T) != Length)
-        {
-            throw new InvalidOperationException("Buffer length is not equal to shape");
-        }
-    }
-
-    private unsafe Span<T> AsSpanInternal<T>() where T : unmanaged
-    {
-        if (IsReadOnly)
-        {
-            throw new InvalidOperationException("Buffer is read-only, use the AsReadOnlySpan method.");
-        }
-        ValidateBufferCommon<T>();
-        EnsureScalar();
-        return new Span<T>((void*)_buffer.buf, (int)(Length / sizeof(T)));
-    }
-
-    private unsafe ReadOnlySpan<T> AsReadOnlySpanInternal<T>() where T : unmanaged
-    {
-        ValidateBufferCommon<T>();
-        EnsureScalar();
-        return new ReadOnlySpan<T>((void*)_buffer.buf, (int)(Length / sizeof(T)));
-    }
-
-    private unsafe Span2D<T> AsSpan2DInternal<T>() where T : unmanaged
-    {
-        if (IsReadOnly)
-        {
-            throw new InvalidOperationException("Buffer is read-only, use an As[T]ReadOnlySpan method.");
-        }
-        ValidateBufferCommon<T>();
-        Validate2DBufferCommon<T>();
-        return new Span2D<T>(
-            (void*)_buffer.buf,
-            (int)_buffer.shape[0],
-            (int)_buffer.shape[1],
-            (int)((int)_buffer.strides[0] - (_buffer.shape[1] * _buffer.itemsize)) // pitch = stride - (width * itemsize)
-        );
-    }
-
-    private unsafe ReadOnlySpan2D<T> AsReadOnlySpan2DInternal<T>() where T : unmanaged
-    {
-        ValidateBufferCommon<T>();
-        Validate2DBufferCommon<T>();
-        return new ReadOnlySpan2D<T>(
-            (void*)_buffer.buf,
-            (int)_buffer.shape[0],
-            (int)_buffer.shape[1],
-            (int)((int)_buffer.strides[0] - (_buffer.shape[1] * _buffer.itemsize)) // pitch = stride - (width * itemsize)
-        );
-    }
-
-    #region Tensors
-#if NET9_0_OR_GREATER
-    private unsafe TensorSpan<T> AsTensorSpanInternal<T>() where T : unmanaged
-    {
-        if (IsReadOnly)
-        {
-            throw new InvalidOperationException("Buffer is read-only, use an As[T]ReadOnlyTensorSpan method.");
-        }
-        ValidateBufferCommon<T>();
-        EnsureShapeAndStrides();
-        nint[] strides = new nint[_buffer.ndim];
-        for (int i = 0; i < _buffer.ndim; i++)
-        {
-            strides[i] = _buffer.strides[i] / sizeof(T);
-        }
-        return new TensorSpan<T>(
-            (T*)_buffer.buf,
-            _buffer.len,
-            Shape,
-            strides
-        );
-    }
-
-    private unsafe ReadOnlyTensorSpan<T> AsReadOnlyTensorSpanInternal<T>() where T : unmanaged
-    {
-        ValidateBufferCommon<T>();
-        EnsureShapeAndStrides();
-        nint[] strides = new nint[_buffer.ndim];
-        for (int i = 0; i < _buffer.ndim; i++)
-        {
-            strides[i] = _buffer.strides[i] / sizeof(T);
-        }
-
-        return new ReadOnlyTensorSpan<T>(
-            (T*)_buffer.buf,
-            _buffer.len,
-            Shape,
-            strides
-        );
-    }
-
-    public TensorSpan<T> AsTensorSpan<T>() where T : unmanaged => AsTensorSpanInternal<T>();
-    public ReadOnlyTensorSpan<T> AsReadOnlyTensorSpan<T>() where T : unmanaged => AsReadOnlyTensorSpanInternal<T>();
-
-#endif
-    #endregion
 }

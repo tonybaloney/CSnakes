@@ -9,6 +9,7 @@ public static class PythonTokenizer
         new TokenizerBuilder<PythonToken>()
         .Ignore(Span.WhiteSpace)
         .Ignore(Comment.ShellStyle)
+        .Match(Character.EqualTo('|'), PythonToken.Pipe)
         .Match(Character.EqualTo('('), PythonToken.OpenParenthesis)
         .Match(Character.EqualTo(')'), PythonToken.CloseParenthesis)
         .Match(Character.EqualTo('['), PythonToken.OpenBracket)

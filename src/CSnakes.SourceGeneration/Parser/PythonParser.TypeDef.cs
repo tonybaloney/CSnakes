@@ -27,10 +27,11 @@ public static partial class PythonParser
     {
         var typeDefinitionParser = Parse.Ref(() => PythonTypeDefinitionParser);
 
-        return
-            from name in Parse.OneOf(Token.EqualTo(PythonToken.Identifier),
-                                     Token.EqualTo(PythonToken.QualifiedIdentifier),
-                                     Token.EqualTo(PythonToken.None))
+        // Parser for anything but "None"
+
+        var someParser =
+            from name in Token.EqualTo(PythonToken.Identifier)
+                              .Or(Token.EqualTo(PythonToken.QualifiedIdentifier))
             select name.ToStringValue() into name
             from args in name switch
             {
@@ -57,6 +58,29 @@ public static partial class PythonParser
                     select ImmutableArray.Create(subscript)
             }
             select new PythonTypeSpec(name, args);
+
+        // Parser for: x | None
+
+        var unionNoneParser =
+            from t in someParser.ThenIgnore(Token.EqualTo(PythonToken.Pipe))
+                                .ThenIgnore(Token.EqualTo(PythonToken.None))
+            select PythonTypeSpec.Optional(t);
+
+        // Parser for: None | x
+
+        var noneUnionParser =
+            from t in Token.EqualTo(PythonToken.None)
+                           .IgnoreThen(Token.EqualTo(PythonToken.Pipe))
+                           .IgnoreThen(someParser)
+            select PythonTypeSpec.Optional(t);
+
+        // Parser for one of the above or "None"
+
+        return Parse.OneOf(noneUnionParser.Try(),
+                           unionNoneParser.Try(),
+                           Token.EqualTo(PythonToken.None)
+                                .IgnoreThen(Parse.Return<PythonToken, PythonTypeSpec>(PythonTypeSpec.None)),
+                           someParser);
     }
 
     private static TokenListParser<PythonToken, T> Subscript<T>(this TokenListParser<PythonToken, T> parser) =>

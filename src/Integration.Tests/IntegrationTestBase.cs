@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using CSnakes.Runtime.PackageManagement;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,24 +20,20 @@ public sealed class PythonEnvironmentFixture : IDisposable
 {
     private readonly IPythonEnvironment env;
     private readonly IPythonPackageInstaller installer;
+
     private readonly IHost app;
 
     public PythonEnvironmentFixture()
     {
-        string pythonVersionWindows = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9";
-        string pythonVersionMacOS = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
-        string pythonVersionLinux = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
+        string pythonVersion = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
         bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "true";
         string venvPath = Path.Join(Environment.CurrentDirectory, "python", ".venv");
+        string shortVersion = string.Join('.', pythonVersion.Split('.').Take(2));
 
         var builder = Host.CreateApplicationBuilder();
-        var pb = builder.Services.WithPython();
-        pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
-
-        pb.FromNuGet(pythonVersionWindows)
-          .FromMacOSInstallerLocator(pythonVersionMacOS, freeThreaded)
-          .FromWindowsStore("3.12")
-          .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux)
+        var pb = builder.Services.WithPython()
+          .WithHome(Path.Join(Environment.CurrentDirectory, "python"))
+          .FromRedistributable(shortVersion, freeThreaded)
           .WithVirtualEnvironment(venvPath)
           .WithPipInstaller();
 

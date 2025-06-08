@@ -44,9 +44,6 @@ public class PythonStaticGenerator : IIncrementalGenerator
             var (file, embedSourceSwitch) = opts.Left;
             var rootDir = opts.Right;
 
-            var fileName = Path.GetFileNameWithoutExtension(file.Path);
-            var fileExtension = Path.GetExtension(file.Path);
-
             // Don't embed sources for .pyi files, they aren't real Python files. 
             if (Path.GetExtension(file.Path) == ".pyi")
             {
@@ -54,7 +51,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             }
 
             // Convert snake_case to PascalCase
-            var (@namespace, pascalFileName) = GetNamespaceAndClassName(file.Path, rootDir);
+            var (@namespace, pascalFileName, generatedFileName, moduleAbsoluteName) = GetNamespaceAndClassName(file.Path, rootDir);
 
             // Read the file
             var code = file.GetText(sourceContext.CancellationToken);
@@ -88,18 +85,19 @@ public class PythonStaticGenerator : IIncrementalGenerator
             if (result)
             {
                 var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
-                string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions, code, embedSourceSwitch);
-                sourceContext.AddSource($"{pascalFileName}{fileExtension}.cs", source);
-                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.{fileExtension}.cs from {file.Path}", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
+                string source = FormatClassFromMethods(@namespace, pascalFileName, methods, moduleAbsoluteName, functions, code, embedSourceSwitch);
+                sourceContext.AddSource(generatedFileName, source);
+                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {generatedFileName} from {file.Path}", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
             }
         });
     }
 
-    public static (string @namespace, string pascalFileName) GetNamespaceAndClassName(string path, string configuredRootDir)
+    public static (string @namespace, string generatedFileName, string pascalFileName, string moduleAbsoluteName) GetNamespaceAndClassName(string path, string configuredRootDir)
     {
         var @namespace = $"CSnakes.Runtime";
         var pascalFileName = Path.GetFileNameWithoutExtension(path).ToPascalCase();
-
+        var fileExtension = Path.GetExtension(path);
+        var moduleAbsoluteName = Path.GetFileNameWithoutExtension(path).Replace('.', '_'); // Replace dots with underscores for module name
         if (!string.IsNullOrEmpty(configuredRootDir))
         {
             // Get path relative to the root directory
@@ -126,19 +124,22 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     steps--;
                     skip = 1;
                     pascalFileName = folders.Last().ToPascalCase();
+                    moduleAbsoluteName = folders.Last().Replace('.', '_'); // If this is a submodule, it will get overridden in the next stage
                 }
                 if (steps > 0)
                 {
                     @namespace += "." + string.Join(".", folders.Reverse().Skip(skip).Take(steps).Select(f => f.ToPascalCase()));
+                    moduleAbsoluteName = string.Join(".", folders.Reverse().Skip(skip).Take(steps).Select(f => f.Replace('.', '_'))) + "." + moduleAbsoluteName;
                 }
-            }
+            } // Otherwise there is a root directory, but the file is in the root directory itself, so we don't need to add anything to the namespace.
         }
         else
         {
             // TODO: warn if the file is called __init__.py because there is no root directory
         }
-
-        return (@namespace, pascalFileName);
+        // Namespace the generated file names so they can't collide.
+        var generatedFileName = $"{@namespace}.{pascalFileName}{fileExtension}.g.cs";
+        return (@namespace, generatedFileName, pascalFileName, moduleAbsoluteName);
     }
 
     public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string moduleAbsoluteName, PythonFunctionDefinition[] functions, SourceText sourceText, bool embedSourceText = false)

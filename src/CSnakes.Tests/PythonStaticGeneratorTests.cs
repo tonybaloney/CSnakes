@@ -68,19 +68,20 @@ public class PythonStaticGeneratorTests
     }
 
     [Theory]
-    [InlineData("/tmp/example.py", "", "CSnakes.Runtime", "Example")]
-    [InlineData("/tmp/example.py", "tmp", "CSnakes.Runtime", "Example")]
-    [InlineData("/tmp/submodule/example.py", "tmp", "CSnakes.Runtime.Submodule", "Example")]
-    [InlineData("/tmp/another_example.py", "", "CSnakes.Runtime", "AnotherExample")]
-    [InlineData("/tmp/submodule/__init__.py", "tmp", "CSnakes.Runtime", "Submodule")]
-    [InlineData("/tmp/submodule/another_example.py", "tmp", "CSnakes.Runtime.Submodule", "AnotherExample")]
-    [InlineData("/tmp/submodule/foo/__init__.py", "tmp", "CSnakes.Runtime.Submodule", "Foo")]
-    [InlineData("/tmp/submodule/bar/__init__.py", "tmp/submodule", "CSnakes.Runtime.Bar", "Bar")]
-    public void VerifySimpleNamespace(string path, string root, string expectedNamespace, string expectedClass)
+    [InlineData("/tmp/example.py", "", "CSnakes.Runtime", "Example", "CSnakes.Runtime.Example.py.g.cs", "example")]
+    [InlineData("/tmp/example.py", "tmp", "CSnakes.Runtime", "Example", "CSnakes.Runtime.Example.py.g.cs", "example")]
+    [InlineData("/tmp/submodule/example.py", "tmp", "CSnakes.Runtime.Submodule", "Example", "CSnakes.Runtime.Submodule.Example.py.g.cs", "submodule.example")]
+    [InlineData("/tmp/another_example.py", "", "CSnakes.Runtime", "AnotherExample", "CSnakes.Runtime.AnotherExample.py.g.cs", "another_example")]
+    [InlineData("/tmp/submodule/__init__.py", "tmp", "CSnakes.Runtime", "Submodule", "CSnakes.Runtime.Submodule.py.g.cs", "submodule")]
+    [InlineData("/tmp/submodule/another_example.py", "tmp", "CSnakes.Runtime.Submodule", "AnotherExample", "CSnakes.Runtime.Submodule.AnotherExample.py.g.cs", "submodule.another_example")]
+    [InlineData("/tmp/submodule/foo/__init__.py", "tmp", "CSnakes.Runtime.Submodule", "Foo", "CSnakes.Runtime.Submodule.Foo.py.g.cs", "submodule.foo")]
+    [InlineData("/tmp/submodule/bar/__init__.py", "tmp/submodule", "CSnakes.Runtime.Bar", "Bar", "CSnakes.Runtime.Bar.py.g.cs", "bar")]
+    public void VerifySimpleNamespace(string path, string root, string expectedNamespace, string expectedClass, string expectedFileName, string expectedModuleAbsoluteName)
     {
-        var (@namespace, className) = PythonStaticGenerator.GetNamespaceAndClassName(path, root);
+        var (@namespace, generatedFileName, className, moduleAbsoluteName) = PythonStaticGenerator.GetNamespaceAndClassName(path, root);
         @namespace.ShouldBe(expectedNamespace);
         className.ShouldBe(expectedClass);
+        generatedFileName.ShouldBe(expectedFileName);
+        moduleAbsoluteName.ShouldBe(expectedModuleAbsoluteName);
     }
-
 }

@@ -2,6 +2,10 @@ using CommunityToolkit.HighPerformance;
 using CSnakes.Runtime.CPython;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+
+
 #if NET9_0_OR_GREATER
 using System.Numerics.Tensors;
 #endif
@@ -10,8 +14,6 @@ namespace CSnakes.Runtime.Python;
 internal sealed class PyBuffer : IPyBuffer
 {
     private CPythonAPI.Py_buffer _buffer;
-    private bool _disposed;
-    private readonly bool _isScalar;
     private readonly string _format;
     private readonly ByteOrder _byteOrder;
 
@@ -53,38 +55,75 @@ internal sealed class PyBuffer : IPyBuffer
         {
             CPythonAPI.GetBuffer(exporter, out _buffer);
         }
-        _disposed = false;
-        _isScalar = _buffer.ndim == 0 || _buffer.ndim == 1;
+        IsScalar = _buffer.ndim is 0 or 1;
         _format = Marshal.PtrToStringUTF8(_buffer.format) ?? string.Empty;
         _byteOrder = GetByteOrder();
     }
 
+    ~PyBuffer()
+    {
+        Dispose(disposing: false);
+    }
+
     public void Dispose()
     {
-        if (!_disposed)
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    private bool IsDisposed => _buffer.buf == 0;
+
+    private void Dispose(bool disposing)
+    {
+        if (IsDisposed)
+            return;
+
+        if (disposing)
         {
             using (GIL.Acquire())
-            {
                 CPythonAPI.ReleaseBuffer(ref _buffer);
-            }
-            _disposed = true;
+        }
+        else if (GIL.IsAcquired)
+        {
+            // If the GIL is acquired, we can safely release the buffer without acquiring it again
+            CPythonAPI.ReleaseBuffer(ref _buffer);
+        }
+        else
+        {
+            // If the GIL is not acquired, we should not release the buffer here
+            // as it may lead to
+            GIL.QueueForDisposal(ref _buffer);
+            Debug.Assert(_buffer.buf == 0);
+            return;
+        }
+
+        _buffer = default;
+    }
+
+    private ref readonly CPythonAPI.Py_buffer Buffer
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get
+        {
+            ObjectDisposedException.ThrowIf(IsDisposed, this);
+            return ref _buffer;
         }
     }
 
-    public long Length => _buffer.len;
+    public long Length => Buffer.len;
 
-    public bool IsScalar => _isScalar;
+    public bool IsScalar { get; }
 
-    public bool IsReadOnly => _buffer.@readonly == 1;
+    public bool IsReadOnly => Buffer.@readonly == 1;
 
-    public int Dimensions => _buffer.ndim == 0 ? 1 : _buffer.ndim;
+    public int Dimensions => Buffer.ndim switch { 0 => 1, var n => n };
 
     private unsafe ReadOnlySpan<nint> Shape
     {
         get
         {
             EnsureShapeAndStrides();
-            return new ReadOnlySpan<nint>(_buffer.shape, _buffer.ndim);
+            return new ReadOnlySpan<nint>(Buffer.shape, Buffer.ndim);
         }
     }
 
@@ -166,7 +205,7 @@ internal sealed class PyBuffer : IPyBuffer
 
     private unsafe void EnsureShapeAndStrides()
     {
-        if (_buffer.shape is null || _buffer.strides is null)
+        if (Buffer.shape is null || Buffer.strides is null)
         {
             throw new InvalidOperationException("Buffer does not have shape and strides");
         }
@@ -186,9 +225,9 @@ internal sealed class PyBuffer : IPyBuffer
         {
             throw new InvalidOperationException($"Buffer length is not a multiple of {sizeof(T)}");
         }
-        if (_buffer.itemsize != sizeof(T))
+        if (Buffer.itemsize is var itemSize && itemSize != sizeof(T))
         {
-            throw new InvalidOperationException($"Buffer item size is {_buffer.itemsize} not {sizeof(T)}");
+            throw new InvalidOperationException($"Buffer item size is {itemSize} not {sizeof(T)}");
         }
     }
 
@@ -210,14 +249,14 @@ internal sealed class PyBuffer : IPyBuffer
         }
         ValidateBufferCommon<T>();
         EnsureScalar();
-        return new Span<T>((void*)_buffer.buf, (int)(Length / sizeof(T)));
+        return new Span<T>((void*)Buffer.buf, (int)(Length / sizeof(T)));
     }
 
     private unsafe ReadOnlySpan<T> AsReadOnlySpanInternal<T>() where T : unmanaged
     {
         ValidateBufferCommon<T>();
         EnsureScalar();
-        return new ReadOnlySpan<T>((void*)_buffer.buf, (int)(Length / sizeof(T)));
+        return new ReadOnlySpan<T>((void*)Buffer.buf, (int)(Length / sizeof(T)));
     }
 
     private unsafe Span2D<T> AsSpan2DInternal<T>() where T : unmanaged
@@ -228,11 +267,12 @@ internal sealed class PyBuffer : IPyBuffer
         }
         ValidateBufferCommon<T>();
         Validate2DBufferCommon<T>();
+        var buffer = Buffer;
         return new Span2D<T>(
-            (void*)_buffer.buf,
-            (int)_buffer.shape[0],
-            (int)_buffer.shape[1],
-            (int)((int)_buffer.strides[0] - (_buffer.shape[1] * _buffer.itemsize)) // pitch = stride - (width * itemsize)
+            (void*)buffer.buf,
+            (int)buffer.shape[0],
+            (int)buffer.shape[1],
+            (int)((int)buffer.strides[0] - (buffer.shape[1] * buffer.itemsize)) // pitch = stride - (width * itemsize)
         );
     }
 
@@ -240,11 +280,12 @@ internal sealed class PyBuffer : IPyBuffer
     {
         ValidateBufferCommon<T>();
         Validate2DBufferCommon<T>();
+        var buffer = Buffer;
         return new ReadOnlySpan2D<T>(
-            (void*)_buffer.buf,
-            (int)_buffer.shape[0],
-            (int)_buffer.shape[1],
-            (int)((int)_buffer.strides[0] - (_buffer.shape[1] * _buffer.itemsize)) // pitch = stride - (width * itemsize)
+            (void*)buffer.buf,
+            (int)buffer.shape[0],
+            (int)buffer.shape[1],
+            (int)((int)buffer.strides[0] - (buffer.shape[1] * buffer.itemsize)) // pitch = stride - (width * itemsize)
         );
     }
 
@@ -258,14 +299,15 @@ internal sealed class PyBuffer : IPyBuffer
         }
         ValidateBufferCommon<T>();
         EnsureShapeAndStrides();
-        nint[] strides = new nint[_buffer.ndim];
-        for (int i = 0; i < _buffer.ndim; i++)
+        var buffer = Buffer;
+        nint[] strides = new nint[buffer.ndim];
+        for (int i = 0; i < buffer.ndim; i++)
         {
-            strides[i] = _buffer.strides[i] / sizeof(T);
+            strides[i] = buffer.strides[i] / sizeof(T);
         }
         return new TensorSpan<T>(
-            (T*)_buffer.buf,
-            _buffer.len,
+            (T*)buffer.buf,
+            buffer.len,
             Shape,
             strides
         );
@@ -275,15 +317,16 @@ internal sealed class PyBuffer : IPyBuffer
     {
         ValidateBufferCommon<T>();
         EnsureShapeAndStrides();
-        nint[] strides = new nint[_buffer.ndim];
-        for (int i = 0; i < _buffer.ndim; i++)
+        var buffer = Buffer;
+        nint[] strides = new nint[buffer.ndim];
+        for (int i = 0; i < buffer.ndim; i++)
         {
-            strides[i] = _buffer.strides[i] / sizeof(T);
+            strides[i] = buffer.strides[i] / sizeof(T);
         }
 
         return new ReadOnlyTensorSpan<T>(
-            (T*)_buffer.buf,
-            _buffer.len,
+            (T*)buffer.buf,
+            buffer.len,
             Shape,
             strides
         );

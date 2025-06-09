@@ -7,6 +7,73 @@ namespace Integration.Tests;
 
 public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
+    public abstract class BufferUseAfterDisposalTestsBase(PythonEnvironmentFixture fixture) :
+        IntegrationTestBase(fixture)
+    {
+        [Fact]
+        public void TestLength() => Test(buffer => _ = buffer.Length);
+
+        [Fact]
+        public void TestDimensions() => Test(buffer => _ = buffer.Dimensions);
+
+        [Fact]
+        public abstract void TestAsSpan();
+
+        [Fact]
+        public abstract void TestAsReadOnlySpan();
+
+        protected abstract IPyBuffer GetBuffer(ITestBuffer module);
+
+        protected void Test(Action<IPyBuffer> action)
+        {
+            var testModule = Env.TestBuffer();
+            using var bufferObject = GetBuffer(testModule);
+            bufferObject.Dispose();
+            var ex = Assert.Throws<ObjectDisposedException>(() => action(bufferObject));
+            Assert.Equal(bufferObject.GetType().FullName, ex.ObjectName);
+        }
+    }
+
+    public class ArrayBufferUseAfterDisposalTests(PythonEnvironmentFixture fixture) :
+        BufferUseAfterDisposalTestsBase(fixture)
+    {
+        [Fact]
+        public override void TestAsSpan() => Test(buffer => _ = buffer.AsSpan<int>());
+
+        [Fact]
+        public override void TestAsReadOnlySpan() => Test(buffer => _ = buffer.AsReadOnlySpan<int>());
+
+        protected override IPyBuffer GetBuffer(ITestBuffer module) => module.TestInt32Buffer();
+    }
+
+    public class Array2DBufferUseAfterDisposalTests(PythonEnvironmentFixture fixture) :
+        BufferUseAfterDisposalTestsBase(fixture)
+    {
+        [Fact]
+        public override void TestAsSpan() => Test(buffer => _ = buffer.AsSpan2D<int>());
+
+        [Fact]
+        public override void TestAsReadOnlySpan() => Test(buffer => _ = buffer.AsReadOnlySpan2D<int>());
+
+        protected override IPyBuffer GetBuffer(ITestBuffer module) => module.TestInt322dBuffer();
+    }
+
+#if NET9_0_OR_GREATER
+
+    public class TensorBufferUseAfterDisposalTests(PythonEnvironmentFixture fixture) :
+        BufferUseAfterDisposalTestsBase(fixture)
+    {
+        [Fact]
+        public override void TestAsSpan() => Test(buffer => _ = buffer.AsTensorSpan<int>());
+
+        [Fact]
+        public override void TestAsReadOnlySpan() => Test(buffer => _ = buffer.AsReadOnlyTensorSpan<int>());
+
+        protected override IPyBuffer GetBuffer(ITestBuffer module) => module.TestNdim3dBuffer();
+    }
+
+#endif
+
     [Fact]
     [Trait("requires", "numpy")]
     public void TestBoolBuffer()

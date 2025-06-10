@@ -33,9 +33,9 @@ public class RedistributablePythonTestBase : IDisposable
         };
         var builder = Host.CreateApplicationBuilder();
         var pb = builder.Services.WithPython();
-        pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
-
-        pb.FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
+        pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"))
+          .DisableSignalHandlers()
+          .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
           .WithUvInstaller()
           .WithVirtualEnvironment(venvPath);
 

@@ -4,6 +4,9 @@ namespace CSnakes.Parser;
 
 public enum PythonToken
 {
+    [Token(Example = "|")]
+    Pipe,
+
     [Token(Example = "(")]
     OpenParenthesis,
 
@@ -29,6 +32,8 @@ public enum PythonToken
     DoubleAsterisk,
 
     Identifier,
+
+    [Token(Category = "qualified identifier")]
     QualifiedIdentifier,
 
     [Token(Example = "->")]
@@ -57,5 +62,17 @@ public enum PythonToken
     None,
 
     [Token(Example = "...")]
-    Ellipsis
+    Ellipsis,
+
+    [Token(Example = ", /")]
+    CommaSlash,
+
+    [Token(Example = ", *")]
+    CommaStar,
+
+    [Token(Example = ", **")]
+    CommaStarStar,
+
+    [Token(Example = ", )")]
+    CommaCloseParenthesis,
 }

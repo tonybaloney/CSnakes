@@ -7,7 +7,6 @@ using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.IO;
 
 // Leave as simple namespace for compability with older versions
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -51,7 +50,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             }
 
             // Convert snake_case to PascalCase
-            var (@namespace, pascalFileName, generatedFileName, moduleAbsoluteName) = GetNamespaceAndClassName(file.Path, rootDir);
+            var (@namespace, generatedFileName, pascalFileName, moduleAbsoluteName) = GetNamespaceAndClassName(file.Path, rootDir);
 
             // Read the file
             var code = file.GetText(sourceContext.CancellationToken);
@@ -92,10 +91,44 @@ public class PythonStaticGenerator : IIncrementalGenerator
         });
     }
 
+    /// <summary>
+    /// Get the file path after the relative path.
+    /// .e.g. if the absolute path is "/tmp/foo/bar/baz.py" and the relative path is "foo/bar",
+    /// it will return "baz.py".
+    /// </summary>
+    /// <param name="absolutePath"></param>
+    /// <param name="relativePath"></param>
+    /// <returns></returns>
+    private static string? GetPathAfter(string absolutePath, string relativePath)
+    {
+        // Normalize and split paths
+        var absParts = Path.GetFullPath(absolutePath).Trim(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            .ToArray();
+        var relParts = relativePath.Trim(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            .Where(p => !string.IsNullOrEmpty(p))
+            .ToArray();
+
+        // Find the index where relParts matches a subsequence in absParts
+        var matchIndex = absParts
+            .Select((_, i) => i)
+            .FirstOrDefault(i => i + relParts.Length <= absParts.Length &&
+                relParts.SequenceEqual(absParts.Skip(i).Take(relParts.Length)));
+
+        // If not found, return null
+        if (matchIndex == 0 && (relParts.Length == 0 || !relParts.SequenceEqual(absParts.Take(relParts.Length))))
+            return null;
+
+        // Return the parts after the match
+        var afterParts = absParts.Skip(matchIndex + relParts.Length);
+        return string.Join(Path.DirectorySeparatorChar.ToString(), afterParts);
+    }
+
     public static (string @namespace, string generatedFileName, string pascalFileName, string moduleAbsoluteName) GetNamespaceAndClassName(string path, string configuredRootDir)
     {
         var @namespace = $"CSnakes.Runtime";
-        var pascalFileName = Path.GetFileNameWithoutExtension(path).ToPascalCase();
+        var pascalFileName = NamespaceHelper.AsDotNetClassName(path);
         var fileExtension = Path.GetExtension(path);
         var moduleAbsoluteName = Path.GetFileNameWithoutExtension(path).Replace('.', '_'); // Replace dots with underscores for module name
         if (!string.IsNullOrEmpty(configuredRootDir))
@@ -103,35 +136,25 @@ public class PythonStaticGenerator : IIncrementalGenerator
             // Get path relative to the root directory
             var fileDirectory = Path.GetDirectoryName(path);
 
-            // Split the file directory into folders
-            var folders = fileDirectory.Split(Path.DirectorySeparatorChar);
+            // root directory can be a relative path with / denoting subfolders
+            // Normalize this back into the platform-specific directory separator character
+            var normalizedRootDir = configuredRootDir.Replace('/', Path.DirectorySeparatorChar);
 
-            if (Path.GetFileName(fileDirectory) != configuredRootDir)
+            if (Path.GetFileName(fileDirectory) != normalizedRootDir)
             {
-                // Walk up the directory tree until we find the root directory
-                var steps = 0;
-                var skip = 0;
-                foreach (var folder in folders.Reverse())
-                {
-                    if (string.Equals(folder, configuredRootDir, StringComparison.InvariantCultureIgnoreCase)) break;
-                    steps++;
-                }
+                var normalizedPath = GetPathAfter(path, normalizedRootDir);
 
-                // If the filename is __init__, take one less step and name it after the namespace
-                // So foo/bar/__init__.py becomes IBar in the namespace CSnakes.Runtime.Foo.Bar
-                if (Path.GetFileNameWithoutExtension(path) == "__init__")
+                // TODO : Handle null case.
+                moduleAbsoluteName = NamespaceHelper.AsPythonImportPath(normalizedPath);
+                var extraNamespace = NamespaceHelper.AsDotNetNamespace(normalizedPath);
+                if (!string.IsNullOrEmpty(extraNamespace))
                 {
-                    steps--;
-                    skip = 1;
-                    pascalFileName = folders.Last().ToPascalCase();
-                    moduleAbsoluteName = folders.Last().Replace('.', '_'); // If this is a submodule, it will get overridden in the next stage
+                    @namespace += "." + extraNamespace;
                 }
-                if (steps > 0)
-                {
-                    @namespace += "." + string.Join(".", folders.Reverse().Skip(skip).Take(steps).Select(f => f.ToPascalCase()));
-                    moduleAbsoluteName = string.Join(".", folders.Reverse().Skip(skip).Take(steps).Select(f => f.Replace('.', '_'))) + "." + moduleAbsoluteName;
-                }
-            } // Otherwise there is a root directory, but the file is in the root directory itself, so we don't need to add anything to the namespace.
+                pascalFileName = NamespaceHelper.AsDotNetClassName(normalizedPath);
+            }
+            // Otherwise there is a root directory, but the file is in the root directory itself, so we don't need to add anything to the namespace.
+            // TODO: this condition could cause confusion if the configured root directory is "python" and the file is called "python/foo/python/bar.py"
         }
         else
         {

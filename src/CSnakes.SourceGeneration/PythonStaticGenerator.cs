@@ -80,10 +80,6 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
     public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions, SourceText sourceText, bool embedSourceText = false)
     {
-        var paramGenericArgs = methods
-            .Select(m => m.ParameterGenericArgs)
-            .Where(l => l is not null && l.Any());
-
         var functionNames = functions.Select(f => (Attr: f.Name, Field: $"__func_{f.Name}")).Distinct().ToImmutableArray();
 
 #pragma warning disable format

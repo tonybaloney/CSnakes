@@ -1,3 +1,4 @@
+from asyncio import Future
 from typing import Any, overload, AnyStr
 
 StrType = str
@@ -23,3 +24,12 @@ def test_overload_unsupported_type(x: Any) -> str:
 
 def test_overload_unsupported_type(x: AnyStr) -> str:
     return str(x) + "!"
+
+# This is a real overload from asyncio.graph module. Causes CS0111 without proper handling.
+@overload
+def test_same_types_but_different_defaults(future: None = None, /, *, depth: int = 1, limit: int | None = None) -> None:
+   ...
+
+@overload
+def test_same_types_but_different_defaults(future: Future[Any], /, *, depth: int = 1, limit: int | None = None) -> None:
+    ...

@@ -38,6 +38,7 @@ public class GeneratedSignatureTests
     [InlineData("def hello_world(a: str, *args, **kwargs) -> None: \n ...\n", "void HelloWorld(string a, PyObject[]? args = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)")]
     [InlineData("def hello(a: int = 0xdeadbeef) -> None:\n ...\n", "void Hello(long a = 0xDEADBEEF)")]
     [InlineData("def hello(a: int = 0b10101010) -> None:\n ...\n", "void Hello(long a = 0b10101010)")]
+    [InlineData("def hello(a: int = 0o777) -> None:\n ...\n", "void Hello(long a = 0x1FF)")]
     [InlineData("def hello(a: int = 2147483648) -> None:\n ...\n", "void Hello(long a = 2147483648L)")]
     [InlineData("def hello(a: Optional[int] = None, b: typing.Optional[int] = None) -> None:\n ...\n", "void Hello(long? a = null, long? b = null)")]
     [InlineData("def hello(a: typing.List[int], b: typing.Dict[str, int]) -> typing.Tuple[str, int]:\n ...\n", "(string, long) Hello(IReadOnlyList<long> a, IReadOnlyDictionary<string, long> b)")]

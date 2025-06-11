@@ -208,7 +208,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     {
                         instance = new {{pascalFileName}}Internal(env.Logger);
                     }
-                    Debug.Assert(!env.IsDisposed());
+                    System.Diagnostics.Debug.Assert(!env.IsDisposed());
                     return instance;
                 }
 

@@ -134,32 +134,6 @@ public static class TestClassExtensions
                 return __return;
             }
         }
-
-        public string TestOverloadUnsupportedType(PyObject x)
-        {
-            using (GIL.Acquire())
-            {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_unsupported_type");
-                PyObject __underlyingPythonFunc = this.__func_test_overload_unsupported_type;
-                using PyObject x_pyObject = PyObject.From(x)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(x_pyObject);
-                var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
-                return __return;
-            }
-        }
-
-        public string TestOverloadUnsupportedType(PyObject x)
-        {
-            using (GIL.Acquire())
-            {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_unsupported_type");
-                PyObject __underlyingPythonFunc = this.__func_test_overload_unsupported_type;
-                using PyObject x_pyObject = PyObject.From(x)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(x_pyObject);
-                var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
-                return __return;
-            }
-        }
     }
 }
 
@@ -196,22 +170,6 @@ public interface ITestClass : IReloadableModuleImport
     /// Invokes the Python function <c>test_overload_unsupported_type</c>:
     /// <code><![CDATA[
     /// def test_overload_unsupported_type(x: StrType) -> str: ...
-    /// ]]></code>
-    /// </summary>
-    string TestOverloadUnsupportedType(PyObject x);
-
-    /// <summary>
-    /// Invokes the Python function <c>test_overload_unsupported_type</c>:
-    /// <code><![CDATA[
-    /// def test_overload_unsupported_type(x: Any) -> str: ...
-    /// ]]></code>
-    /// </summary>
-    string TestOverloadUnsupportedType(PyObject x);
-
-    /// <summary>
-    /// Invokes the Python function <c>test_overload_unsupported_type</c>:
-    /// <code><![CDATA[
-    /// def test_overload_unsupported_type(x: AnyStr) -> str: ...
     /// ]]></code>
     /// </summary>
     string TestOverloadUnsupportedType(PyObject x);

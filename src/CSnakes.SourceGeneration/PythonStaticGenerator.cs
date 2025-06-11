@@ -1,7 +1,6 @@
 using CSnakes.Parser;
 using CSnakes.Parser.Types;
 using CSnakes.Reflection;
-using CSnakes.SourceGeneration;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
@@ -70,7 +69,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
             if (result)
             {
-                var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName).ToImmutableArray();
+                var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName).Distinct(new MethodDefinitionComparator()).ToImmutableArray();
                 string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions, code, embedSourceSwitch);
                 sourceContext.AddSource($"{pascalFileName}.py.cs", source);
                 sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
@@ -80,11 +79,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
     public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions, SourceText sourceText, bool embedSourceText = false)
     {
-        var paramGenericArgs = methods
-            .Select(m => m.ParameterGenericArgs)
-            .Where(l => l is not null && l.Any());
-
-        var functionNames = functions.Select(f => (Attr: f.Name, Field: $"__func_{f.Name}")).ToImmutableArray();
+        var functionNames = functions.Select(f => (Attr: f.Name, Field: $"__func_{f.Name}")).Distinct().ToImmutableArray();
 
 #pragma warning disable format
 

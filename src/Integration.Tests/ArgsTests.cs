@@ -1,6 +1,5 @@
 using CSnakes.Runtime.Python;
 using System.Collections.Generic;
-using System.ComponentModel;
 
 namespace Integration.Tests;
 public class ArgsTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)

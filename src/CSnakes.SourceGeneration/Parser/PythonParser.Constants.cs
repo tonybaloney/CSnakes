@@ -98,16 +98,16 @@ public static partial class PythonParser
         .Named("None Constant");
 
     // Any constant value
-    public static TokenListParser<PythonToken, PythonConstant?> ConstantValueTokenizer { get; } =
-        DecimalConstantTokenizer.AsBase().AsNullable()
-        .Or(IntegerConstantTokenizer.AsBase().AsNullable())
-        .Or(HexidecimalIntegerConstantTokenizer.AsBase().AsNullable())
-        .Or(BinaryIntegerConstantTokenizer.AsBase().AsNullable())
+    public static TokenListParser<PythonToken, PythonConstant> ConstantValueTokenizer { get; } =
+        DecimalConstantTokenizer.AsBase()
+        .Or(IntegerConstantTokenizer.AsBase())
+        .Or(HexidecimalIntegerConstantTokenizer.AsBase())
+        .Or(BinaryIntegerConstantTokenizer.AsBase())
         .Or(OctalIntegerConstantTokenizer.AsBase().AsNullable())
-        .Or(BoolConstantTokenizer.AsBase().AsNullable())
-        .Or(NoneConstantTokenizer.AsBase().AsNullable())
-        .Or(DoubleQuotedStringConstantTokenizer.AsBase().AsNullable())
-        .Or(SingleQuotedStringConstantTokenizer.AsBase().AsNullable())
+        .Or(BoolConstantTokenizer.AsBase())
+        .Or(NoneConstantTokenizer.AsBase())
+        .Or(DoubleQuotedStringConstantTokenizer.AsBase())
+        .Or(SingleQuotedStringConstantTokenizer.AsBase())
         .Named("Constant");
 
     static class ConstantParsers

@@ -83,7 +83,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
             if (result)
             {
-                var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions).Distinct().ToImmutableArray();
+                var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions).Distinct(new MethodDefinitionComparator()).ToImmutableArray();
                 string source = FormatClassFromMethods(@namespace, pascalFileName, methods, moduleAbsoluteName, functions, code, embedSourceSwitch);
                 sourceContext.AddSource(generatedFileName, source);
                 sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {generatedFileName} from {file.Path}", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
@@ -167,10 +167,6 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
     public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string moduleAbsoluteName, PythonFunctionDefinition[] functions, SourceText sourceText, bool embedSourceText = false)
     {
-        var paramGenericArgs = methods
-            .Select(m => m.ParameterGenericArgs)
-            .Where(l => l is not null && l.Any());
-
         var functionNames = functions.Select(f => (Attr: f.Name, Field: $"__func_{f.Name}")).Distinct().ToImmutableArray();
 
 #pragma warning disable format

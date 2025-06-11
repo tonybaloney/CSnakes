@@ -7,24 +7,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using CSharpParameterList = CSnakes.Parser.Types.PythonFunctionParameterList<Microsoft.CodeAnalysis.CSharp.Syntax.ParameterSyntax>;
 
 namespace CSnakes.Reflection;
-public class MethodDefinition(MethodDeclarationSyntax syntax, IEnumerable<GenericNameSyntax> parameterGenericArgs)
-{
-    public MethodDeclarationSyntax Syntax { get; } = syntax;
 
-    public IEnumerable<GenericNameSyntax> ParameterGenericArgs { get; } = parameterGenericArgs;
-
-    public override bool Equals(object obj)
-    {
-        if (obj is not MethodDefinition other)
-            return false;
-        return Syntax.ToFullString() == other.Syntax.ToFullString();
-    }
-
-    public override int GetHashCode()
-    {
-        return Syntax.ToFullString().GetHashCode();
-    }
-}
 
 public static class MethodReflection
 {
@@ -290,7 +273,7 @@ public static class MethodReflection
             .WithBody(body)
             .WithParameterList(ParameterList(SeparatedList(methodParameters)));
 
-        return new(syntax, parameterGenericArgs);
+        return new(syntax);
     }
 
     private static InvocationExpressionSyntax GenerateParamsCall(CSharpParameterList parameterList)

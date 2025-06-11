@@ -3,11 +3,9 @@ using CSnakes.Reflection;
 using CSnakes.Runtime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
-using System.ComponentModel;
 using Basic.Reference.Assemblies;
 
 namespace CSnakes.Tests;
@@ -80,4 +78,62 @@ public class GeneratedSignatureTests
         result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList().ForEach(d => Assert.Fail(d.ToString()));
         Assert.True(result.Success, compiledCode + "\n" + string.Join("\n", result.Diagnostics));
     }
+
+    [Theory]
+    // Same parameter types, different defaults.
+    [InlineData(
+        "def x(future: None = None, /, *, depth: int = 1, limit: int | None = None) -> None:\n ...",
+        "def x(future: Future[Any], /, *, depth: int = 1, limit: int | None = None) -> None:\n ...")]
+    // Same parameter types, different names
+    [InlineData(
+        "def x(foo: int, bar: str = 'default') -> None:\n ...",
+        "def x(foo_2: int, bar: str = 'default') -> None:\n ...")]
+    // Same parameter types, different defaults and names
+    [InlineData(
+        "def x(foo: int, bar: str = 'default1') -> None:\n ...",
+        "def x(foo_2: int, bar: str = 'default2') -> None:\n ...")]
+    public void TestMethodEquivalence(string code1, string code2)
+    {
+        SourceText sourceText1 = SourceText.From(code1);
+        SourceText sourceText2 = SourceText.From(code2);
+
+        // create a Python scope
+        Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText1, out var functions1, out var errors1));
+        Assert.Empty(errors1);
+        Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText2, out var functions2, out var errors2));
+        Assert.Empty(errors2);
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
+        var method1 = Assert.Single(module1);
+        var module2 = ModuleReflection.MethodsFromFunctionDefinitions(functions2).ToImmutableArray();
+        var method2 = Assert.Single(module2);
+
+        var comparator = new MethodDefinitionComparator();
+        Assert.True(comparator.Equals(method1, method2));
+        Assert.Single(new[] { method1, method2 }.Distinct(comparator));
+    }
+
+    [Theory]
+    [InlineData("def x(a: str) -> str:\n ...", "def x(a: int) -> int:\n ...")]
+    [InlineData("def x(a: float) -> float:\n ...", "def x(a: Any) -> float:\n ...")]
+    [InlineData("def x(a: bool) -> bool:\n ...", "def x(a: bool | None = None) -> Any:\n ...")]
+    [InlineData("def x(a: str) -> str:\n ...", "def x(a: str, b: int) -> str:\n ...")]
+    public void TestMethodInequivalence(string code1, string code2)
+    {
+        SourceText sourceText1 = SourceText.From(code1);
+        SourceText sourceText2 = SourceText.From(code2);
+        // create a Python scope
+        Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText1, out var functions1, out var errors1));
+        Assert.Empty(errors1);
+        Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText2, out var functions2, out var errors2));
+        Assert.Empty(errors2);
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
+        var method1 = Assert.Single(module1);
+        var module2 = ModuleReflection.MethodsFromFunctionDefinitions(functions2).ToImmutableArray();
+        var method2 = Assert.Single(module2);
+
+        var comparator = new MethodDefinitionComparator();
+        Assert.False(comparator.Equals(method1, method2));
+        Assert.Equal(2, new[] { method1, method2 }.Distinct(comparator).Count());
+    }
+
 }

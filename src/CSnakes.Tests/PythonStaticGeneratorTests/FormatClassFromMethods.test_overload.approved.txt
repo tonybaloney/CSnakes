@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "03a781599a1d053a335de7538fdb0626"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "c220b8d73949aea9812a735d2d4ce12a"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -252,7 +252,7 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>test_same_types_but_different_defaults</c>:
     /// <code><![CDATA[
-    /// def test_same_types_but_different_defaults(future: None = None, /, *, depth: int = 1, limit: int | None = None) -> None: ...
+    /// def test_same_types_but_different_defaults(future: None = None, /, *, depth: int = 1, limit: Optional[int] = None) -> None: ...
     /// ]]></code>
     /// </summary>
     void TestSameTypesButDifferentDefaults(PyObject future = null, long depth = 1, long? limit = null);
@@ -260,7 +260,7 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>test_same_types_but_different_defaults</c>:
     /// <code><![CDATA[
-    /// def test_same_types_but_different_defaults(future: Future[Any], /, *, depth: int = 1, limit: int | None = None) -> None: ...
+    /// def test_same_types_but_different_defaults(future: Future[Any], /, *, depth: int = 1, limit: Optional[int] = None) -> None: ...
     /// ]]></code>
     /// </summary>
     void TestSameTypesButDifferentDefaults(PyObject future, long depth = 1, long? limit = null);

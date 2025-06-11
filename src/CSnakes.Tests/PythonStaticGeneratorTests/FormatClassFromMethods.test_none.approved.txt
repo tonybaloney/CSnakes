@@ -88,7 +88,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "returns_none");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "returns_none");
                 PyObject __underlyingPythonFunc = this.__func_returns_none;
                 PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 return __result_pyObject;
@@ -99,7 +99,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_none_result");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_none_result");
                 PyObject __underlyingPythonFunc = this.__func_test_none_result;
                 using PyObject arg_pyObject = PyObject.From(arg)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(arg_pyObject);

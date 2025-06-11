@@ -123,7 +123,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "positional_only_args");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "positional_only_args");
                 PyObject __underlyingPythonFunc = this.__func_positional_only_args;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
@@ -138,7 +138,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "collect_star_args");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "collect_star_args");
                 PyObject __underlyingPythonFunc = this.__func_collect_star_args;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
@@ -152,7 +152,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "keyword_only_args");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "keyword_only_args");
                 PyObject __underlyingPythonFunc = this.__func_keyword_only_args;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
@@ -167,7 +167,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "collect_star_star_kwargs");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "collect_star_star_kwargs");
                 PyObject __underlyingPythonFunc = this.__func_collect_star_star_kwargs;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
@@ -181,7 +181,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "positional_and_kwargs");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "positional_and_kwargs");
                 PyObject __underlyingPythonFunc = this.__func_positional_and_kwargs;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
@@ -196,7 +196,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "collect_star_args_and_keyword_only_args");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "collect_star_args_and_keyword_only_args");
                 PyObject __underlyingPythonFunc = this.__func_collect_star_args_and_keyword_only_args;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
@@ -211,7 +211,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "naming1");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "naming1");
                 PyObject __underlyingPythonFunc = this.__func_naming1;
                 _ = __underlyingPythonFunc.CallWithArgs([..varArg ?? []]);
                 return;
@@ -222,7 +222,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "naming2");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "naming2");
                 PyObject __underlyingPythonFunc = this.__func_naming2;
                 using PyObject posArg_pyObject = PyObject.From(posArg)!;
                 using PyObject regArg_pyObject = PyObject.From(regArg)!;
@@ -235,7 +235,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "naming3");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "naming3");
                 PyObject __underlyingPythonFunc = this.__func_naming3;
                 using PyObject posArg_pyObject = PyObject.From(posArg)!;
                 using PyObject regArg_pyObject = PyObject.From(regArg)!;

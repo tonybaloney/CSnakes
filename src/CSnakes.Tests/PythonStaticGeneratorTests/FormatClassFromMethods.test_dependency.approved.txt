@@ -88,7 +88,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_nothing");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_nothing");
                 PyObject __underlyingPythonFunc = this.__func_test_nothing;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<bool, global::CSnakes.Runtime.Python.PyObjectImporters.Boolean>();
@@ -100,7 +100,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_attrs_function");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_attrs_function");
                 PyObject __underlyingPythonFunc = this.__func_test_attrs_function;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<bool, global::CSnakes.Runtime.Python.PyObjectImporters.Boolean>();

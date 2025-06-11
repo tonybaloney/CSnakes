@@ -98,7 +98,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_int");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_int");
                 PyObject __underlyingPythonFunc = this.__func_test_dict_str_int;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -111,7 +111,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_list_int");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_list_int");
                 PyObject __underlyingPythonFunc = this.__func_test_dict_str_list_int;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -124,7 +124,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_dict_int");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_dict_str_dict_int");
                 PyObject __underlyingPythonFunc = this.__func_test_dict_str_dict_int;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -137,7 +137,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_mapping");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_mapping");
                 PyObject __underlyingPythonFunc = this.__func_test_mapping;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);

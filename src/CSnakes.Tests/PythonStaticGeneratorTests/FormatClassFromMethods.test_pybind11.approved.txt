@@ -83,7 +83,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_pybind11_function");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_pybind11_function");
                 PyObject __underlyingPythonFunc = this.__func_test_pybind11_function;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<bool, global::CSnakes.Runtime.Python.PyObjectImporters.Boolean>();

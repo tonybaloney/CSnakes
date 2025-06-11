@@ -83,7 +83,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "switch");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "switch");
                 PyObject __underlyingPythonFunc = this.__func_switch;
                 using PyObject @new_pyObject = PyObject.From(@new)!;
                 _ = __underlyingPythonFunc.Call(@new_pyObject);

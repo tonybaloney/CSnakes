@@ -7,42 +7,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using CSharpParameterList = CSnakes.Parser.Types.PythonFunctionParameterList<Microsoft.CodeAnalysis.CSharp.Syntax.ParameterSyntax>;
 
 namespace CSnakes.Reflection;
-public class MethodDefinition(MethodDeclarationSyntax syntax)
-{
-    public MethodDeclarationSyntax Syntax { get; } = syntax;
 
-    public override bool Equals(object obj)
-    {
-        if (obj is not MethodDefinition other)
-            return false;
-
-        if (Syntax.ToFullString() == other.Syntax.ToFullString())
-            return true;
-
-        if (Syntax.ParameterList.Parameters.Count != other.Syntax.ParameterList.Parameters.Count)
-            return false;
-
-        // Are all the parameter types the same?
-        return Syntax.ParameterList.Parameters.Zip(other.Syntax.ParameterList.Parameters, (p1, p2) =>
-            {
-                if (p1.Type?.Kind() != p2.Type?.Kind())
-                    return false;
-
-                return (p1.Type?.Kind()) switch
-                {
-                    SyntaxKind.PredefinedType => (p1.Type as PredefinedTypeSyntax)?.Keyword.Text == (p2.Type as PredefinedTypeSyntax)?.Keyword.Text,
-                    SyntaxKind.GenericName => (p1.Type as GenericNameSyntax)?.Identifier.Text == (p2.Type as GenericNameSyntax)?.Identifier.Text,
-                    SyntaxKind.NullableType => (p1.Type as NullableTypeSyntax)?.ElementType.ToFullString() == (p2.Type as NullableTypeSyntax)?.ElementType.ToFullString(),
-                    _ => p1.Type?.ToFullString() == p2.Type?.ToFullString(),// For other types, we just compare the full string representation
-                };
-            }).All(p => p);
-    }
-
-    public override int GetHashCode()
-    {
-        return Syntax.ToFullString().GetHashCode();
-    }
-}
 
 public static class MethodReflection
 {

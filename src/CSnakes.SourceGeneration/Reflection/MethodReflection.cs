@@ -12,6 +12,18 @@ public class MethodDefinition(MethodDeclarationSyntax syntax, IEnumerable<Generi
     public MethodDeclarationSyntax Syntax { get; } = syntax;
 
     public IEnumerable<GenericNameSyntax> ParameterGenericArgs { get; } = parameterGenericArgs;
+
+    public override bool Equals(object obj)
+    {
+        if (obj is not MethodDefinition other)
+            return false;
+        return Syntax.ToFullString() == other.Syntax.ToFullString();
+    }
+
+    public override int GetHashCode()
+    {
+        return Syntax.ToFullString().GetHashCode();
+    }
 }
 
 public static class MethodReflection

@@ -31,6 +31,7 @@ public static class PythonTokenizer
         .Match(PythonParser.DecimalConstantToken, PythonToken.Decimal, requireDelimiters: true)
         .Match(PythonParser.HexidecimalConstantToken, PythonToken.HexidecimalInteger, requireDelimiters: true)
         .Match(PythonParser.BinaryConstantToken, PythonToken.BinaryInteger, requireDelimiters: true)
+        .Match(PythonParser.OctalConstantToken, PythonToken.OctalInteger, requireDelimiters: true)
         .Match(PythonParser.DoubleQuotedStringConstantToken, PythonToken.DoubleQuotedString)
         .Match(PythonParser.SingleQuotedStringConstantToken, PythonToken.SingleQuotedString)
         .Build();

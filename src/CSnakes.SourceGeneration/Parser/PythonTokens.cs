@@ -50,6 +50,7 @@ public enum PythonToken
     Decimal,
     HexidecimalInteger,
     BinaryInteger,
+    OctalInteger,
     DoubleQuotedString,
     SingleQuotedString,
     True,

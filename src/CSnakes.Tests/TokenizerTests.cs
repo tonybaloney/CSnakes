@@ -503,7 +503,11 @@ if __name__ == '__main__':
     [InlineData("0b10", 0b10)]
     [InlineData("0b10101101", 0b10101101)]
     [InlineData("0b1010_1101", 0b10101101)]
-    // [InlineData("0o123", 0o123)] Octal literals are not supported in C#
+    [InlineData("0o1234", 0x29C)]
+    [InlineData("0o777", 0x1FF)]
+    [InlineData("0o0", 0x0)]
+    [InlineData("0o1234567", 0x53977)]
+    [InlineData("0o123_456_7", 0x53977)]
     [InlineData("1234567", 1234567)]
     [InlineData("-1234567", -1234567)]
     [InlineData("0xdeadbeef", 0xdeadbeef)]

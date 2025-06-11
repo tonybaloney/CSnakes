@@ -32,6 +32,11 @@ public static partial class PythonParser
         from digits in Character.In('0', '1', '_').AtLeastOnce()
         select Unit.Value;
 
+    public static TextParser<Unit> OctalConstantToken { get; } =
+        from prefix in Span.EqualTo("0o")
+        from digits in Character.In('0', '1', '2', '3', '4', '5', '6', '7', '_').AtLeastOnce()
+        select Unit.Value;
+
     public static TextParser<Unit> DoubleQuotedStringConstantToken { get; } =
         from open in Character.EqualTo('"')
         from chars in Character.ExceptIn('"').Many()
@@ -71,6 +76,11 @@ public static partial class PythonParser
         .Select(d => new PythonConstant.HexidecimalInteger(long.Parse(d.ToStringValue().Substring(2).Replace("_", ""), NumberStyles.HexNumber)))
         .Named("Hexidecimal Integer Constant");
 
+    public static TokenListParser<PythonToken, PythonConstant.HexidecimalInteger> OctalIntegerConstantTokenizer { get; } =
+        Token.EqualTo(PythonToken.OctalInteger)
+        .Select(d => new PythonConstant.HexidecimalInteger(PythonParserConstants.ParseOctal(d.ToStringValue().Substring(2))))
+        .Named("Octal Integer Constant");
+
     public static TokenListParser<PythonToken, PythonConstant.BinaryInteger> BinaryIntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.BinaryInteger)
         // TODO: Consider Binary Format specifier introduced in .NET 8 https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings#binary-format-specifier-b
@@ -93,6 +103,7 @@ public static partial class PythonParser
         .Or(IntegerConstantTokenizer.AsBase().AsNullable())
         .Or(HexidecimalIntegerConstantTokenizer.AsBase().AsNullable())
         .Or(BinaryIntegerConstantTokenizer.AsBase().AsNullable())
+        .Or(OctalIntegerConstantTokenizer.AsBase().AsNullable())
         .Or(BoolConstantTokenizer.AsBase().AsNullable())
         .Or(NoneConstantTokenizer.AsBase().AsNullable())
         .Or(DoubleQuotedStringConstantTokenizer.AsBase().AsNullable())
@@ -132,4 +143,25 @@ file static class Extensions
     public static TokenListParser<TKind, PythonConstant> AsBase<TKind, T>(this TokenListParser<TKind, T> parser)
         where T : PythonConstant =>
         parser.Cast<TKind, T, PythonConstant>();
+}
+
+public static class PythonParserConstants
+{
+    /// <summary>
+    /// Parses an octal string (e.g., "123") into a long integer.
+    /// Ignores underscores in the string.
+    /// </summary>
+    /// <param name="octal">The octal string to parse.</param>
+    /// <returns>The parsed long integer value.</returns>
+    public static long ParseOctal(string octal)
+    {
+        long result = 0;
+        foreach (char c in octal)
+        {
+            if (c == '_') continue; // Ignore underscores
+            if (c < '0' || c > '7') throw new ArgumentException("Invalid octal character.");
+            result = (result * 8) + (c - '0');
+        }
+        return result;
+    }
 }

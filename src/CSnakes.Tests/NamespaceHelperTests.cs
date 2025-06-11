@@ -5,7 +5,6 @@ public class NamespaceHelperTests
     [Theory]
     [InlineData("foo/bar/baz.py", "foo.bar.baz")]
     [InlineData("foo/bar/__init__.py", "foo.bar")]
-    [InlineData("foo/bar/baz.py", "foo.bar.baz")]
     public void VerifyAsPythonImportPath(string path, string expected) =>
         Assert.Equal(expected, NamespaceHelper.AsPythonImportPath(path));
 

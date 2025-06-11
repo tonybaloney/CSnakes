@@ -615,30 +615,17 @@ if __name__ == '__main__':
         Assert.Equal("unexpected `=`, expected Type Definition", errors[0].Message);
     }
 
-    [Fact]
-    public void ErrorInParamDefaultValueReturnsCorrectLineAndColumn()
-    {
-        var code = """
-        def test_octal_literal(a: int = 0o1234) -> None:
-            pass
-        """;
-        SourceText sourceText = SourceText.From(code);
-        _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var _, out var errors);
-        Assert.NotEmpty(errors);
-        Assert.Equal(0, errors[0].StartLine);
-        Assert.Equal(0, errors[0].EndLine);
-        Assert.Equal(33, errors[0].StartColumn);
-        Assert.Equal(49, errors[0].EndColumn);
-        Assert.Equal("invalid binaryinteger, unexpected `o`, expected `b` at line 1, column 34", errors[0].Message);
-    }
-
     [Theory]
     /* See https://github.com/python/cpython/blob/main/Lib/test/test_tokenize.py#L2063-L2126 */
     [InlineData("255", 255)]
     [InlineData("0b10", 0b10)]
     [InlineData("0b10101101", 0b10101101)]
     [InlineData("0b1010_1101", 0b10101101)]
-    // [InlineData("0o123", 0o123)] Octal literals are not supported in C#
+    [InlineData("0o1234", 0x29C)]
+    [InlineData("0o777", 0x1FF)]
+    [InlineData("0o0", 0x0)]
+    [InlineData("0o1234567", 0x53977)]
+    [InlineData("0o123_456_7", 0x53977)]
     [InlineData("1234567", 1234567)]
     [InlineData("-1234567", -1234567)]
     [InlineData("0xdeadbeef", 0xdeadbeef)]

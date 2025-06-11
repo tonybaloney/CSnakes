@@ -224,7 +224,7 @@ public static class TestClassExtensions
             }
         }
 
-        public string TestUnionWithDefaultConstant(PyObject a = 42)
+        public string TestUnionWithDefaultConstant(PyObject a = null)
         {
             using (GIL.Acquire())
             {
@@ -314,7 +314,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def test_union_with_default_constant(a: Union[int, str] = 42) -> str: ...
     /// ]]></code>
     /// </summary>
-    string TestUnionWithDefaultConstant(PyObject a = 42);
+    string TestUnionWithDefaultConstant(PyObject a = null);
 }
 
 file static class ThisModule

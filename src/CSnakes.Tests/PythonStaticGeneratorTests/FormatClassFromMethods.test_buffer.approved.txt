@@ -32,7 +32,7 @@ public static class TestClassExtensions
         {
             instance = new TestClassInternal(env.Logger);
         }
-        Debug.Assert(!env.IsDisposed());
+        System.Diagnostics.Debug.Assert(!env.IsDisposed());
         return instance;
     }
 
@@ -233,7 +233,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_bool_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_bool_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_bool_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -245,7 +245,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int8_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int8_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_int8_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -257,7 +257,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint8_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint8_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_uint8_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -269,7 +269,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int16_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int16_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_int16_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -281,7 +281,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint16_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint16_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_uint16_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -293,7 +293,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int32_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int32_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_int32_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -305,7 +305,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int64_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int64_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_int64_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -317,7 +317,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint32_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint32_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_uint32_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -329,7 +329,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint64_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint64_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_uint64_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -341,7 +341,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float32_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float32_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_float32_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -353,7 +353,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float64_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float64_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_float64_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -365,7 +365,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_vector_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_vector_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_vector_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -377,7 +377,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int8_2d_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int8_2d_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_int8_2d_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -389,7 +389,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint8_2d_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint8_2d_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_uint8_2d_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -401,7 +401,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int16_2d_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int16_2d_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_int16_2d_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -413,7 +413,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint16_2d_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint16_2d_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_uint16_2d_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -425,7 +425,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int32_2d_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int32_2d_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_int32_2d_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -437,7 +437,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint32_2d_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint32_2d_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_uint32_2d_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -449,7 +449,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int64_2d_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int64_2d_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_int64_2d_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -461,7 +461,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint64_2d_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint64_2d_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_uint64_2d_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -473,7 +473,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float32_2d_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float32_2d_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_float32_2d_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -485,7 +485,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float64_2d_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float64_2d_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_float64_2d_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -497,7 +497,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_global_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_global_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_global_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -509,7 +509,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_bytes_as_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_bytes_as_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_bytes_as_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -521,7 +521,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_bytearray_as_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_bytearray_as_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_bytearray_as_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -533,7 +533,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_non_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_non_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_non_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -545,7 +545,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_non_contiguous_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_non_contiguous_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_non_contiguous_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -557,7 +557,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_transposed_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_transposed_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_transposed_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -569,7 +569,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_ndim_3d_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_ndim_3d_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_ndim_3d_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -581,7 +581,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_ndim_4d_buffer");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_ndim_4d_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_ndim_4d_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
@@ -593,7 +593,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "sum_of_2d_array");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "sum_of_2d_array");
                 PyObject __underlyingPythonFunc = this.__func_sum_of_2d_array;
                 using PyObject n_pyObject = PyObject.From(n)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(n_pyObject);

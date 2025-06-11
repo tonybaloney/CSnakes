@@ -32,7 +32,7 @@ public static class TestClassExtensions
         {
             instance = new TestClassInternal(env.Logger);
         }
-        Debug.Assert(!env.IsDisposed());
+        System.Diagnostics.Debug.Assert(!env.IsDisposed());
         return instance;
     }
 
@@ -88,7 +88,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_raise_python_exception");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_raise_python_exception");
                 PyObject __underlyingPythonFunc = this.__func_test_raise_python_exception;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
@@ -100,7 +100,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_nested_python_exception");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_nested_python_exception");
                 PyObject __underlyingPythonFunc = this.__func_test_nested_python_exception;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();

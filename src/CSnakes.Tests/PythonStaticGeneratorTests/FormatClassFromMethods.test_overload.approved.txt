@@ -32,7 +32,7 @@ public static class TestClassExtensions
         {
             instance = new TestClassInternal(env.Logger);
         }
-        Debug.Assert(!env.IsDisposed());
+        System.Diagnostics.Debug.Assert(!env.IsDisposed());
         return instance;
     }
 
@@ -93,7 +93,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_supported_type");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_supported_type");
                 PyObject __underlyingPythonFunc = this.__func_test_overload_supported_type;
                 using PyObject x_pyObject = PyObject.From(x)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(x_pyObject);
@@ -106,7 +106,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_supported_type");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_supported_type");
                 PyObject __underlyingPythonFunc = this.__func_test_overload_supported_type;
                 using PyObject x_pyObject = PyObject.From(x)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(x_pyObject);
@@ -119,7 +119,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_supported_type");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_supported_type");
                 PyObject __underlyingPythonFunc = this.__func_test_overload_supported_type;
                 using PyObject x_pyObject = PyObject.From(x)!;
                 PyObject __result_pyObject = __underlyingPythonFunc.Call(x_pyObject);
@@ -131,7 +131,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_unsupported_type");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_unsupported_type");
                 PyObject __underlyingPythonFunc = this.__func_test_overload_unsupported_type;
                 using PyObject x_pyObject = PyObject.From(x)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(x_pyObject);
@@ -144,7 +144,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_unsupported_type");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_unsupported_type");
                 PyObject __underlyingPythonFunc = this.__func_test_overload_unsupported_type;
                 using PyObject x_pyObject = PyObject.From(x)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(x_pyObject);
@@ -157,7 +157,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_unsupported_type");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_unsupported_type");
                 PyObject __underlyingPythonFunc = this.__func_test_overload_unsupported_type;
                 using PyObject x_pyObject = PyObject.From(x)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(x_pyObject);
@@ -170,7 +170,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_same_types_but_different_defaults");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_same_types_but_different_defaults");
                 PyObject __underlyingPythonFunc = this.__func_test_same_types_but_different_defaults;
                 using PyObject future_pyObject = PyObject.From(future)!;
                 using PyObject depth_pyObject = PyObject.From(depth)!;
@@ -184,7 +184,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_same_types_but_different_defaults");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_same_types_but_different_defaults");
                 PyObject __underlyingPythonFunc = this.__func_test_same_types_but_different_defaults;
                 using PyObject future_pyObject = PyObject.From(future)!;
                 using PyObject depth_pyObject = PyObject.From(depth)!;

@@ -16,7 +16,8 @@ public static class NamespaceHelper
         string filename = Path.GetFileNameWithoutExtension(path);
         string directory = Path.GetDirectoryName(path) ?? string.Empty;
         var folders = directory.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-            .Select(p => p.Replace(".", "_"));
+            .Select(p => p.Replace(".", "_"))
+            .Where(p => !string.IsNullOrWhiteSpace(p));
 
         if (filename == "__init__")
         {
@@ -32,7 +33,8 @@ public static class NamespaceHelper
         string filename = Path.GetFileNameWithoutExtension(path);
         string directory = Path.GetDirectoryName(path) ?? string.Empty;
         var folders = directory.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-            .Select(p => p.Replace(".", "_"));
+            .Select(p => p.Replace(".", "_"))
+            .Where(p => !string.IsNullOrWhiteSpace(p));
 
         if (filename == "__init__")
         {

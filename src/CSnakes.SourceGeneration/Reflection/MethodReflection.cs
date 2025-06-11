@@ -216,7 +216,7 @@ public static class MethodReflection
 
         var logStatement = ExpressionStatement(
                 ConditionalAccessExpression(
-                    IdentifierName("logger"),
+                    IdentifierName("this.logger"),
                     InvocationExpression(
                         MemberBindingExpression(
                             IdentifierName("LogDebug")))

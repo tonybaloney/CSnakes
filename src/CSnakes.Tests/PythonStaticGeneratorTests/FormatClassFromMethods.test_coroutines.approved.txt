@@ -32,7 +32,7 @@ public static class TestClassExtensions
         {
             instance = new TestClassInternal(env.Logger);
         }
-        Debug.Assert(!env.IsDisposed());
+        System.Diagnostics.Debug.Assert(!env.IsDisposed());
         return instance;
     }
 
@@ -93,7 +93,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine;
                 using PyObject seconds_pyObject = PyObject.From(seconds)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);
@@ -106,7 +106,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_raises_exception");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_raises_exception");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_raises_exception;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<ICoroutine<long, PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>>().AsTask(cancellationToken);
@@ -118,7 +118,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_returns_nothing");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_returns_nothing");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_returns_nothing;
                 using PyObject seconds_pyObject = PyObject.From(seconds)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);

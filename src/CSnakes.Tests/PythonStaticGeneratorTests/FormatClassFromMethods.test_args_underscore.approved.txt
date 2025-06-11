@@ -32,7 +32,7 @@ public static class TestClassExtensions
         {
             instance = new TestClassInternal(env.Logger);
         }
-        Debug.Assert(!env.IsDisposed());
+        System.Diagnostics.Debug.Assert(!env.IsDisposed());
         return instance;
     }
 
@@ -83,7 +83,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_with_underscore");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_with_underscore");
                 PyObject __underlyingPythonFunc = this.__func_test_with_underscore;
                 using PyObject testx_pyObject = PyObject.From(testx)!;
                 using PyObject testy_pyObject = PyObject.From(testy)!;

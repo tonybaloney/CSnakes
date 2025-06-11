@@ -32,7 +32,7 @@ public static class TestClassExtensions
         {
             instance = new TestClassInternal(env.Logger);
         }
-        Debug.Assert(!env.IsDisposed());
+        System.Diagnostics.Debug.Assert(!env.IsDisposed());
         return instance;
     }
 
@@ -88,7 +88,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_keyword_only");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_keyword_only");
                 PyObject __underlyingPythonFunc = this.__func_test_keyword_only;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
@@ -101,7 +101,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_named_keyword_only");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_named_keyword_only");
                 PyObject __underlyingPythonFunc = this.__func_test_named_keyword_only;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;

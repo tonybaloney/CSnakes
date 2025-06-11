@@ -32,7 +32,7 @@ public static class TestClassExtensions
         {
             instance = new TestClassInternal(env.Logger);
         }
-        Debug.Assert(!env.IsDisposed());
+        System.Diagnostics.Debug.Assert(!env.IsDisposed());
         return instance;
     }
 
@@ -88,7 +88,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_number");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_number");
                 PyObject __underlyingPythonFunc = this.__func_test_number;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>();
@@ -100,7 +100,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "reload_module");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "reload_module");
                 PyObject __underlyingPythonFunc = this.__func_reload_module;
                 PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 return __result_pyObject;

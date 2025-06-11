@@ -48,6 +48,13 @@ public class ArgumentReflection
             _ => SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
         };
 
+        // If the default value is a literal expression, but we could not resolve the type to a builtin type,
+        // avoid CS1750 (no standard conversion to PyObject)
+        if (literalExpressionSyntax is not null && reflectedType is not PredefinedTypeSyntax)
+        {
+            literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+        }
+
         return SyntaxFactory
             .Parameter(SyntaxFactory.Identifier(Keywords.ValidIdentifier(parameter.Name.ToLowerPascalCase())))
             .WithType(reflectedType)

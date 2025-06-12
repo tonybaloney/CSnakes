@@ -52,6 +52,8 @@ public class TypeReflectionTests
     [InlineData("Optional[str]", "string?")]
     [InlineData("Optional[int]", "long?")]
     [InlineData("Callable[[str], int]", "PyObject")]
+    [InlineData("Literal['foo']", "PyObject")]
+    [InlineData("Literal['bar', 1, 0x0, 3.14]", "PyObject")]
     public void AsPredefinedTypeOldTypeNames(string pythonType, string expectedType) =>
         ParsingTestInternal(pythonType, expectedType);
 
@@ -100,6 +102,8 @@ public class TypeReflectionTests
     [InlineData("Callable[int, int]")]
     [InlineData("Callable[int, int, int]")]
     [InlineData("Callable[int, [int, int]]")]
+    [InlineData("Literal")] // Literal must have arguments
+    [InlineData("Literal[]")]
     public void InvalidParsingTest(string pythonType)
     {
         var tokens = PythonTokenizer.Instance.Tokenize(pythonType);

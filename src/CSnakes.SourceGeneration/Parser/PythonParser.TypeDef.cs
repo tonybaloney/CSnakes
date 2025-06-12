@@ -50,6 +50,16 @@ public static partial class PythonParser
                                                              select (Parameters: ps, Return: r))
                                                  .Subscript()
                     select ImmutableArray.CreateRange(callable.Parameters.Append(callable.Return)),
+                "Literal" =>
+                    // Literal can contain any PythonConstant, or a list of them.
+                    // See PEP586 https://peps.python.org/pep-0586/
+                    // It can also contain an expression, like a typedef but we don't support that yet.
+                    // It could also contain another Literal, but we don't support that yet either.
+                    from literals in
+                        ConstantValueTokenizer.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Comma))
+                                              .Subscript()
+                                              .OptionalOrDefault([])
+                    select ImmutableArray.CreateRange([PythonTypeSpec.Literal([.. literals])]),
                 _ =>
                     from subscript in
                         typeDefinitionParser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Comma))

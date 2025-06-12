@@ -16,4 +16,6 @@ public sealed class PythonTypeSpec(string name, ImmutableArray<PythonTypeSpec> a
     public static readonly PythonTypeSpec None = new("None");
 
     public static PythonTypeSpec Optional(PythonTypeSpec type) => new("Optional", [type]);
+    public static PythonTypeSpec Literal(ImmutableArray<PythonConstant> values) =>
+        new("Literal") /* TODO: Capture literal values */;
 }

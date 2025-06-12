@@ -58,7 +58,6 @@ public static partial class PythonParser
                     from literals in
                         ConstantValueTokenizer.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Comma))
                                               .Subscript()
-                                              .OptionalOrDefault([])
                     select ImmutableArray.CreateRange([PythonTypeSpec.Literal([.. literals])]),
                 _ =>
                     from subscript in

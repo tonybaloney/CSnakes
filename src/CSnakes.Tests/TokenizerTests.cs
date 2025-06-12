@@ -103,6 +103,9 @@ public class TokenizerTests
     [InlineData("nest: list[tuple[int, int]]", "nest", "list[tuple[int, int]]")]
     [InlineData("max_length: int", "max_length", "int")]
     [InlineData("max_length: int = 50", "max_length", "int")]
+    [InlineData("temp: Literal[10]", "temp", "Literal[Literal]")]
+    [InlineData("value: Literal[1, 2, 3]", "value", "Literal[Literal]")]
+    [InlineData("value: Literal[1, 'two', 3.0]", "value", "Literal[Literal]")]
     public void ParseFunctionParameter(string code, string expectedName, string expectedType)
     {
         var tokens = PythonTokenizer.Instance.Tokenize(code);
@@ -451,6 +454,10 @@ public class TokenizerTests
     [InlineData("def format_name(name: str, max_length: int = 50) -> str:")]
     [InlineData("def calculate_kmeans_interia(data: list[tuple[int, int]], n_clusters: int) -> float:")]
     [InlineData("def invoke_mistral_inference(messages: list[str], lang: str = \"en-US\", temperature=0.0) -> str:")]
+    // Literal expressions
+    [InlineData("def process_data(data: Literal[1]) -> None:")]
+    [InlineData("def process_data(data: Literal[1, 2, 3]) -> None:")]
+    [InlineData("def process_data(data: Literal[1, 'two', 3.0]) -> None:")]
     public void ParseFunctionDefinitionComplex(string code)
     {
         var tokens = PythonTokenizer.Instance.Tokenize(code);

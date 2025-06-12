@@ -11,6 +11,8 @@ public class NamespaceHelperTests
     [Theory]
     [InlineData("foo/bar/baz.py", "Foo.Bar")]
     [InlineData("foo/bar/__init__.py", "Foo")]
+    [InlineData("_csv.py", "")]
+    [InlineData("/_csv.py", "")]
     public void VerifyAsDotNetNamespace(string path, string expected) =>
         Assert.Equal(expected, NamespaceHelper.AsDotNetNamespace(path));
 

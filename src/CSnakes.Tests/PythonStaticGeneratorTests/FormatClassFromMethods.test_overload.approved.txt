@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "03a781599a1d053a335de7538fdb0626"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "64be9ea452021f3d12165a570456cf97"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -177,8 +177,8 @@ public static class TestClassExtensions
                 using PyObject limit_pyObject = PyObject.From(limit)!;
                 _ = __underlyingPythonFunc.CallWithKeywordArguments([future_pyObject], ["depth", "limit"], [depth_pyObject, limit_pyObject], null);
                 return;
-            }
-        }
+    }
+}
 
         public void TestSameTypesButDifferentDefaults(PyObject future, long depth = 1, long? limit = null)
         {

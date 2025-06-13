@@ -600,7 +600,7 @@ if __name__ == '__main__':
     {
         // This is common in Black-formatted code and has come up as a parser issue
         var code = @"def a(
-    opener: str = '',
+    opener: str = 'foo',
 ) -> Any:
     pass
 ";
@@ -615,7 +615,7 @@ if __name__ == '__main__':
         Assert.Equal("opener", opener.Name);
         Assert.Equal("str", opener.ImpliedTypeSpec.Name);
         Assert.NotNull(opener.DefaultValue);
-        Assert.Equal("''", opener.DefaultValue.ToString());
+        Assert.Equal("foo", opener.DefaultValue.ToString());
     }
 
     [Fact]

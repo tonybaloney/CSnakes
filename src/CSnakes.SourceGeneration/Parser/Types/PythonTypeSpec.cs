@@ -58,9 +58,8 @@ public sealed class PythonTypeSpec(string name, ImmutableArray<PythonTypeSpec> a
                             case "Optional": Flatten([t.Arguments[0], None]); break;
                             default:
                             {
-                                if (set?.Add(t) ?? list?.Contains(t) is null or false)
+                                if (set?.Add(t) ?? !list.Contains(t))
                                 {
-                                    list ??= ImmutableArray.CreateBuilder<PythonTypeSpec>();
                                     list.Add(t);
                                     if (list.Count == setThreshold)
                                         set = [..list];

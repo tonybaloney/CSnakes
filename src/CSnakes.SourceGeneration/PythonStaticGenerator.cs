@@ -83,7 +83,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
             if (result)
             {
-                var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions).Distinct(new MethodDefinitionComparator()).ToImmutableArray();
+                var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
                 string source = FormatClassFromMethods(@namespace, pascalFileName, methods, moduleAbsoluteName, functions, code, embedSourceSwitch);
                 sourceContext.AddSource(generatedFileName, source);
                 sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {generatedFileName} from {file.Path}", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));

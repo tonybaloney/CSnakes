@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using CSnakes.Runtime;
+using CSnakes.Runtime.Python;
 
 namespace StdLib.Tests;
 
@@ -25,10 +26,12 @@ public class StdLibTests
     }
 
     [Fact]
-    public void CsvDialects()
+    public void TestStatisticsMode()
     {
-        //var mod = env._Csv();
-
-        //Assert.NotNull(mod);
+        using var mod = env.Statistics();
+        Assert.NotNull(mod);
+        using var mode = mod.Mode(PyObject.From(new[] { 1, 2, 2, 3, 4 }));
+        Assert.NotNull(mode);
+        Assert.Equal(2, mode.As<long>());
     }
 }

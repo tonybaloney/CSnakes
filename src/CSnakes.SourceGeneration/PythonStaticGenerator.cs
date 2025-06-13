@@ -8,35 +8,49 @@ using System.Collections.Immutable;
 using System.Text;
 using System.Text.RegularExpressions;
 
+// Leave as simple namespace for compability with older versions
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace CSnakes;
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 
 [Generator(LanguageNames.CSharp)]
 public class PythonStaticGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // System.Diagnostics.Debugger.Launch();
+//#if DEBUG
+//        if (!System.Diagnostics.Debugger.IsAttached)
+//        {
+//            System.Diagnostics.Debugger.Launch();
+//        }
+//#endif
         var pythonFilesPipeline = context.AdditionalTextsProvider
-            .Where(static text => Path.GetExtension(text.Path) == ".py");
+            .Where(static text => Path.GetExtension(text.Path) == ".py" || Path.GetExtension(text.Path) == ".pyi");
 
         // Get analyser config options
         var embedPythonSource = context.AnalyzerConfigOptionsProvider.Select(static (options, cancellationToken) =>
             options.GlobalOptions.TryGetValue("csnakes_embed_source", out var embedSourceSwitch)
-                ? embedSourceSwitch.Equals("true", StringComparison.InvariantCultureIgnoreCase)
-                : false); // Default
+            && embedSourceSwitch.Equals("true", StringComparison.InvariantCultureIgnoreCase)); // Default
 
-        context.RegisterSourceOutput(pythonFilesPipeline.Combine(embedPythonSource), static (sourceContext, opts) =>
+        // Get directory traversal root
+        var rootDirectory = context.AnalyzerConfigOptionsProvider.Select(static (options, cancellationToken) =>
+            options.GlobalOptions.TryGetValue("csnakes_root_directory", out var rootDir)
+                ? rootDir
+                : string.Empty); // Default to empty string
+
+        context.RegisterSourceOutput(pythonFilesPipeline.Combine(embedPythonSource).Combine(rootDirectory), static (sourceContext, opts) =>
         {
-            var file = opts.Left;
-            var embedSourceSwitch = opts.Right;
+            var (file, embedSourceSwitch) = opts.Left;
+            var rootDir = opts.Right;
 
-            // Add environment path
-            var @namespace = "CSnakes.Runtime";
-
-            var fileName = Path.GetFileNameWithoutExtension(file.Path);
+            // Don't embed sources for .pyi files, they aren't real Python files. 
+            if (Path.GetExtension(file.Path) == ".pyi")
+            {
+                embedSourceSwitch = false;
+            }
 
             // Convert snake_case to PascalCase
-            var pascalFileName = string.Join("", fileName.Split('_').Select(s => char.ToUpperInvariant(s[0]) + s[1..]));
+            var (@namespace, generatedFileName, pascalFileName, moduleAbsoluteName) = GetNamespaceAndClassName(file.Path, rootDir);
 
             // Read the file
             var code = file.GetText(sourceContext.CancellationToken);
@@ -64,20 +78,94 @@ public class PythonStaticGenerator : IIncrementalGenerator
             {
                 // Update text span
                 Location errorLocation = Location.Create(file.Path, TextSpan.FromBounds(0, 1), new LinePositionSpan(new LinePosition(error.StartLine, error.StartColumn), new LinePosition(error.EndLine, error.EndColumn)));
-                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error.Message, "PythonStaticGenerator", DiagnosticSeverity.Error, true), errorLocation));
+                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error.Message, "PythonStaticGenerator", DiagnosticSeverity.Warning, true), errorLocation));
             }
 
             if (result)
             {
-                var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, fileName).ToImmutableArray();
-                string source = FormatClassFromMethods(@namespace, pascalFileName, methods, fileName, functions, code, embedSourceSwitch);
-                sourceContext.AddSource($"{pascalFileName}.py.cs", source);
-                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {pascalFileName}.py.cs", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
+                var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
+                string source = FormatClassFromMethods(@namespace, pascalFileName, methods, moduleAbsoluteName, functions, code, embedSourceSwitch);
+                sourceContext.AddSource(generatedFileName, source);
+                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {generatedFileName} from {file.Path}", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
             }
         });
     }
 
-    public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string fileName, PythonFunctionDefinition[] functions, SourceText sourceText, bool embedSourceText = false)
+    /// <summary>
+    /// Get the file path after the relative path.
+    /// .e.g. if the absolute path is "/tmp/foo/bar/baz.py" and the relative path is "foo/bar",
+    /// it will return "baz.py".
+    /// </summary>
+    /// <param name="absolutePath"></param>
+    /// <param name="relativePath"></param>
+    /// <returns></returns>
+    private static string? GetPathAfter(string absolutePath, string relativePath)
+    {
+        // Normalize and split paths
+        var absParts = Path.GetFullPath(absolutePath).Trim(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            .ToArray();
+        var relParts = relativePath.Trim(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            .Where(p => !string.IsNullOrEmpty(p))
+            .ToArray();
+
+        // Find the index where relParts matches a subsequence in absParts
+        var matchIndex = absParts
+            .Select((_, i) => i)
+            .FirstOrDefault(i => i + relParts.Length <= absParts.Length &&
+                relParts.SequenceEqual(absParts.Skip(i).Take(relParts.Length)));
+
+        // If not found, return null
+        if (matchIndex == 0 && (relParts.Length == 0 || !relParts.SequenceEqual(absParts.Take(relParts.Length))))
+            return null;
+
+        // Return the parts after the match
+        var afterParts = absParts.Skip(matchIndex + relParts.Length);
+        return string.Join(Path.DirectorySeparatorChar.ToString(), afterParts);
+    }
+
+    public static (string @namespace, string generatedFileName, string pascalFileName, string moduleAbsoluteName) GetNamespaceAndClassName(string path, string configuredRootDir)
+    {
+        var @namespace = $"CSnakes.Runtime";
+        var pascalFileName = NamespaceHelper.AsDotNetClassName(path);
+        var fileExtension = Path.GetExtension(path);
+        var moduleAbsoluteName = Path.GetFileNameWithoutExtension(path).Replace('.', '_'); // Replace dots with underscores for module name
+        if (!string.IsNullOrEmpty(configuredRootDir))
+        {
+            // Get path relative to the root directory
+            var fileDirectory = Path.GetDirectoryName(path);
+
+            // root directory can be a relative path with / denoting subfolders
+            // Normalize this back into the platform-specific directory separator character
+            var normalizedRootDir = configuredRootDir.Replace('/', Path.DirectorySeparatorChar);
+
+            if (Path.GetFileName(fileDirectory) != normalizedRootDir)
+            {
+                var normalizedPath = GetPathAfter(path, normalizedRootDir);
+
+                // TODO : Handle null case.
+                moduleAbsoluteName = NamespaceHelper.AsPythonImportPath(normalizedPath);
+                var extraNamespace = NamespaceHelper.AsDotNetNamespace(normalizedPath);
+                if (!string.IsNullOrEmpty(extraNamespace))
+                {
+                    @namespace += "." + extraNamespace;
+                }
+                pascalFileName = NamespaceHelper.AsDotNetClassName(normalizedPath);
+            }
+            // Otherwise there is a root directory, but the file is in the root directory itself, so we don't need to add anything to the namespace.
+            // TODO: this condition could cause confusion if the configured root directory is "python" and the file is called "python/foo/python/bar.py"
+        }
+        else
+        {
+            // TODO: warn if the file is called __init__.py because there is no root directory
+        }
+        // Namespace the generated file names so they can't collide.
+        var generatedFileName = $"{@namespace}.{pascalFileName}{fileExtension}.g.cs";
+        return (@namespace, generatedFileName, pascalFileName, moduleAbsoluteName);
+    }
+
+    public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string moduleAbsoluteName, PythonFunctionDefinition[] functions, SourceText sourceText, bool embedSourceText = false)
     {
         var functionNames = functions.Select(f => (Attr: f.Name, Field: $"__func_{f.Name}")).Distinct().ToImmutableArray();
 
@@ -120,7 +208,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     {
                         instance = new {{pascalFileName}}Internal(env.Logger);
                     }
-                    Debug.Assert(!env.IsDisposed());
+                    System.Diagnostics.Debug.Assert(!env.IsDisposed());
                     return instance;
                 }
 
@@ -143,7 +231,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                         this.logger = logger;
                         using (GIL.Acquire())
                         {
-                            logger?.LogDebug("Importing module {ModuleName}", "{{fileName}}");
+                            logger?.LogDebug("Importing module {ModuleName}", "{{moduleAbsoluteName}}");
                             this.module = ThisModule.Import();
             {{              Lines(IndentationLevel.Four,
                                   from f in functionNames
@@ -153,7 +241,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                     void IReloadableModuleImport.ReloadModule()
                     {
-                        logger?.LogDebug("Reloading module {ModuleName}", "{{fileName}}");
+                        logger?.LogDebug("Reloading module {ModuleName}", "{{moduleAbsoluteName}}");
                         using (GIL.Acquire())
                         {
                             Import.ReloadModule(ref module);
@@ -170,7 +258,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                     public void Dispose()
                     {
-                        logger?.LogDebug("Disposing module {ModuleName}", "{{fileName}}");
+                        logger?.LogDebug("Disposing module {ModuleName}", "{{moduleAbsoluteName}}");
             {{          Lines(IndentationLevel.Three,
                               from f in functionNames
                               select $"this.{f.Field}.Dispose();") }}
@@ -182,7 +270,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             }
 
             /// <summary>
-            /// Represents functions of the Python module <c>{{fileName}}</c>.
+            /// Represents functions of the Python module <c>{{moduleAbsoluteName}}</c>.
             /// </summary>
             public interface I{{pascalFileName}} : IReloadableModuleImport
             {
@@ -240,7 +328,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                         """"u8;
 
                     public static PyObject Import() =>
-                        CSnakes.Runtime.Python.Import.ImportModule("{{fileName}}", source, "{{fileName}}.py");
+                        CSnakes.Runtime.Python.Import.ImportModule("{{moduleAbsoluteName}}", source, "{{moduleAbsoluteName}}.py");
                 }
                 """"");
         }
@@ -250,7 +338,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 file static class ThisModule
                 {
                     public static PyObject Import() =>
-                        CSnakes.Runtime.Python.Import.ImportModule("{{fileName}}");
+                        CSnakes.Runtime.Python.Import.ImportModule("{{moduleAbsoluteName}}");
                 }
                 """);
         }

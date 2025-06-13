@@ -30,12 +30,13 @@ public static partial class PythonParser
         // Parser for anything but "None"
 
         var someParser =
-            from name in Token.EqualTo(PythonToken.Identifier)
-                              .Or(Token.EqualTo(PythonToken.QualifiedIdentifier))
-            select name.ToStringValue() into name
-            from args in name switch
+            from name in Parse.OneOf(Token.EqualTo(PythonToken.None),
+                                     Token.EqualTo(PythonToken.Identifier),
+                                     Token.EqualTo(PythonToken.QualifiedIdentifier))
+            from type in name.ToStringValue() switch
             {
-                "Callable" =>
+                "None" => Parse.Return<PythonToken, PythonTypeSpec>(PythonTypeSpec.None),
+                "Callable" and var n =>
                     // > The subscription syntax must always be used with exactly two values: the argument list and the
                     // > return type. The argument list must be a list of types, a `ParamSpec`, `Concatenate`, or an
                     // > ellipsis. The return type must be a single type.
@@ -49,7 +50,7 @@ public static partial class PythonParser
                                                  .Then(ps => from r in typeDefinitionParser
                                                              select (Parameters: ps, Return: r))
                                                  .Subscript()
-                    select ImmutableArray.CreateRange(callable.Parameters.Append(callable.Return)),
+                    select new PythonTypeSpec(n, [..callable.Parameters.Append(callable.Return)]),
                 "Literal" =>
                     // Literal can contain any PythonConstant, or a list of them.
                     // See PEP586 https://peps.python.org/pep-0586/
@@ -58,38 +59,27 @@ public static partial class PythonParser
                     from literals in
                         ConstantValueTokenizer.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Comma))
                                               .Subscript()
-                    select ImmutableArray.CreateRange([PythonTypeSpec.Literal([.. literals])]),
-                _ =>
+                    select new PythonTypeSpec("Literal", [PythonTypeSpec.Literal([.. literals])]),
+                "Union" =>
+                    from subscript in
+                        typeDefinitionParser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Comma))
+                                            .Subscript()
+                    select PythonTypeSpec.Union(subscript),
+                var other =>
                     from subscript in
                         typeDefinitionParser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Comma))
                                             .Subscript()
                                             .OptionalOrDefault([])
-                    select ImmutableArray.Create(subscript)
+                    select new PythonTypeSpec(other, [..subscript]),
             }
-            select new PythonTypeSpec(name, args);
+            select type;
 
-        // Parser for: x | None
-
-        var unionNoneParser =
-            from t in someParser.ThenIgnore(Token.EqualTo(PythonToken.Pipe))
-                                .ThenIgnore(Token.EqualTo(PythonToken.None))
-            select PythonTypeSpec.Optional(t);
-
-        // Parser for: None | x
-
-        var noneUnionParser =
-            from t in Token.EqualTo(PythonToken.None)
-                           .IgnoreThen(Token.EqualTo(PythonToken.Pipe))
-                           .IgnoreThen(someParser)
-            select PythonTypeSpec.Optional(t);
-
-        // Parser for one of the above or "None"
-
-        return Parse.OneOf(noneUnionParser.Try(),
-                           unionNoneParser.Try(),
-                           Token.EqualTo(PythonToken.None)
-                                .IgnoreThen(Parse.Return<PythonToken, PythonTypeSpec>(PythonTypeSpec.None)),
-                           someParser);
+        return from ts in someParser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Pipe))
+               select ts switch
+               {
+                   [var single] => single,
+                   var multiple => PythonTypeSpec.Union([..multiple])
+               };
     }
 
     private static TokenListParser<PythonToken, T> Subscript<T>(this TokenListParser<PythonToken, T> parser) =>

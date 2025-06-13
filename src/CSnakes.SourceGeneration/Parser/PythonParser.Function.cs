@@ -75,9 +75,26 @@ public static partial class PythonParser
             // If this is a function definition on one line..
             if (repositionedTokens.Last().Kind == PythonToken.Colon)
             {
-                ParsedTokens combinedTokens = new(currentBuffer.SelectMany(x => x.tokens).ToArray());
+                // We re-tokenize the merged lines from the buffer because some of the tokens may have been split across lines
+                string mergedFunctionSpec = string.Join("", from x in currentBuffer select x.line.ToString());
 
-                functionLines.Add(([.. from x in currentBuffer select x.line], combinedTokens));
+                Result<ParsedTokens> combinedResult = PythonTokenizer.Instance.TryTokenize(mergedFunctionSpec);
+                if (!combinedResult.HasValue)
+                {
+                    currentErrors.Add(new(
+                        line.LineNumber,
+                        line.LineNumber,
+                        combinedResult.ErrorPosition.Column,
+                        combinedResult.ErrorPosition.Column + combinedResult.Location.Length,
+                        combinedResult.FormatErrorMessageFragment())
+                    );
+                    
+                } else
+                {
+                    functionLines.Add(([.. from x in currentBuffer select x.line], combinedResult.Value));
+                }
+
+                // Reset buffer
                 currentBuffer = [];
                 unfinishedFunctionSpec = false;
                 continue;

@@ -81,10 +81,7 @@ public class ParameterListParserTests
     [InlineData("a,,", "Syntax error (line 1, column 4): unexpected `,)`, expected Parameter.")]
     [InlineData("a,, b", "Syntax error (line 1, column 4): unexpected `,`, expected Parameter.")]
     [InlineData("a: | None", "Syntax error (line 1, column 5): unexpected `|`, expected Type Definition.")]
-    [InlineData("a: None |", "Syntax error (line 1, column 10): unexpected `|`, expected `)`.")]
-    [InlineData("a: None | None", "Syntax error (line 1, column 10): unexpected `|`, expected `)`.")]
-    // Technically, the following is valid syntax Python, but unions are not fully supported by the parser yet:
-    [InlineData("a: int | str | None", "Syntax error (line 1, column 9): unexpected `|`, expected `)`.")]
+    [InlineData("a: None |", "Syntax error (line 1, column 11): unexpected `)`, expected none, identifier or qualifiedidentifier.")]
     // The following test cases were taken directly from the CPython test suite:
     // https://github.com/python/cpython/blob/ffc2f1dd1c023b44b488311511db790a96d757db/Lib/test/test_syntax.py#L385-L537
     [InlineData("None=1", "Syntax error (line 1, column 2): unexpected none `None`, expected `)`.")]                // invalid syntax

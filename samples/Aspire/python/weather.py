@@ -10,7 +10,6 @@ from opentelemetry.instrumentation.psycopg2 import Psycopg2Instrumentor
 import csv
 import pathlib
 import pandas as pd
-import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 tracer = configure_oltp_grpc_tracing()
@@ -81,4 +80,3 @@ def seed_database() -> None:
             logger.info(f"Database seeded with {counter} records")
             cursor.close()
             cnx.commit()
-

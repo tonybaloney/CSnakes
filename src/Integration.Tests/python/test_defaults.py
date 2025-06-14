@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 def test_default_str_arg(a: str = "hello") -> str:
     return a
@@ -26,3 +26,7 @@ def test_optional_list(a: Optional[list[int]] = None) -> bool:
 
 def test_optional_any(a: Optional[Any] = None) -> bool:
     return a is None
+
+
+def test_union_with_default_constant(a: Union[int, str] = 42) -> str:
+    return "foo"

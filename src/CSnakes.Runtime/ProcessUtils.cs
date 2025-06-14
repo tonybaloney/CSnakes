@@ -1,18 +1,18 @@
 using CSnakes.Runtime.Locators;
 using Microsoft.Extensions.Logging;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 
 namespace CSnakes.Runtime;
 
 internal static class ProcessUtils
 {
-    internal static (Process proc, string? result, string? errors) ExecutePythonCommand(ILogger? logger, PythonLocationMetadata pythonLocation, string arguments)
+    internal static (Process proc, string? result, string? errors) ExecutePythonCommand(ILogger? logger, PythonLocationMetadata pythonLocation, params string[] arguments)
     {
-        ProcessStartInfo startInfo = new()
+
+        ProcessStartInfo startInfo = new(pythonLocation.PythonBinaryPath, arguments)
         {
             WorkingDirectory = pythonLocation.Folder,
-            FileName = pythonLocation.PythonBinaryPath,
-            Arguments = arguments,
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             CreateNoWindow = true,
@@ -20,12 +20,10 @@ internal static class ProcessUtils
         return ExecuteCommand(logger, startInfo);
     }
 
-    internal static (Process proc, string? result, string? errors) ExecuteCommand(ILogger? logger, string fileName, string arguments)
+    internal static (Process proc, string? result, string? errors) ExecuteCommand(ILogger? logger, string fileName, params string[] arguments)
     {
-        ProcessStartInfo startInfo = new()
+        ProcessStartInfo startInfo = new(fileName, arguments)
         {
-            FileName = fileName,
-            Arguments = arguments,
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             CreateNoWindow = true,
@@ -33,13 +31,11 @@ internal static class ProcessUtils
         return ExecuteCommand(logger, startInfo);
     }
 
-    internal static bool ExecuteShellCommand(ILogger? logger, string fileName, string arguments)
+    internal static bool ExecuteShellCommand(ILogger? logger, string fileName, params string[] arguments)
     {
         logger?.LogDebug("Executing shell command {FileName} {Arguments}", fileName, arguments);
-        ProcessStartInfo startInfo = new()
+        ProcessStartInfo startInfo = new(fileName, arguments)
         {
-            FileName = fileName,
-            Arguments = arguments,
             UseShellExecute = true,
             CreateNoWindow = true,
             WindowStyle = ProcessWindowStyle.Hidden,
@@ -80,13 +76,12 @@ internal static class ProcessUtils
         process.WaitForExit();
         return (process, result, errors);
     }
-    internal static void ExecuteProcess(string fileName, string arguments, string workingDirectory, string path, ILogger? logger, IReadOnlyDictionary<string, string?>? extraEnv = null)
+
+    internal static void ExecuteProcess(string fileName, IEnumerable<string> arguments, string workingDirectory, string path, ILogger? logger, IReadOnlyDictionary<string, string?>? extraEnv = null)
     {
-        ProcessStartInfo startInfo = new()
+        ProcessStartInfo startInfo = new(fileName, arguments)
         {
             WorkingDirectory = workingDirectory,
-            FileName = fileName,
-            Arguments = arguments,
             CreateNoWindow = true,
         };
 

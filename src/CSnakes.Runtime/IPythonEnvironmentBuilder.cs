@@ -36,6 +36,12 @@ public interface IPythonEnvironmentBuilder
     IPythonEnvironmentBuilder WithHome(string home);
 
     /// <summary>
+    /// Disables signal handlers for the Python environment being built.
+    /// </summary>
+    /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
+    IPythonEnvironmentBuilder DisableSignalHandlers();
+
+    /// <summary>
     /// Gets the options for the Python environment being built.
     /// </summary>
     /// <returns>The <see cref="PythonEnvironmentOptions"/> for the current environment.</returns>

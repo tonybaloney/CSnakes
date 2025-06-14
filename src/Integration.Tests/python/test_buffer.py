@@ -86,7 +86,7 @@ def test_bytearray_as_buffer() -> Buffer:
     return bytearray(b"hello")
 
 def test_non_buffer() -> Buffer:
-    return "hello"
+    return "hello"  # type: ignore[return-value]
 
 def test_non_contiguous_buffer() -> Buffer:
     return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32)[::2]

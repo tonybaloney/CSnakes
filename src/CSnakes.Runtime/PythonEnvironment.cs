@@ -9,7 +9,6 @@ using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.EnvironmentManagement;
 using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
-using CSnakes.Runtime.Python;
 using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;
@@ -78,12 +77,12 @@ internal class PythonEnvironment : IPythonEnvironment
 
         foreach (var installer in packageInstallers)
         {
-            installer.InstallPackages(home, environmentManager);
+            installer.InstallPackagesFromRequirements(home);
         }
 
         char sep = Path.PathSeparator;
 
-        api = SetupStandardLibrary(location);
+        api = SetupCPythonAPI(location, options);
 
         if (!string.IsNullOrEmpty(home))
         {
@@ -98,7 +97,7 @@ internal class PythonEnvironment : IPythonEnvironment
         api.Initialize();
     }
 
-    private CPythonAPI SetupStandardLibrary(PythonLocationMetadata pythonLocationMetadata)
+    private CPythonAPI SetupCPythonAPI(PythonLocationMetadata pythonLocationMetadata, PythonEnvironmentOptions options)
     {
         string pythonDll = pythonLocationMetadata.LibPythonPath;
         string pythonPath = pythonLocationMetadata.PythonPath;
@@ -106,7 +105,7 @@ internal class PythonEnvironment : IPythonEnvironment
         Logger?.LogDebug("Python DLL: {PythonDLL}", pythonDll);
         Logger?.LogDebug("Python path: {PythonPath}", pythonPath);
 
-        var api = new CPythonAPI(pythonDll, pythonLocationMetadata.Version, pythonLocationMetadata.PythonBinaryPath)
+        var api = new CPythonAPI(pythonDll, pythonLocationMetadata.Version, pythonLocationMetadata.PythonBinaryPath, options.InstallSignalHandlers)
         {
             PythonPath = pythonPath
         };

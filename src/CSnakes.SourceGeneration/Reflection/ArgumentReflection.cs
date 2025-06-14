@@ -6,25 +6,22 @@ namespace CSnakes.Reflection;
 
 public class ArgumentReflection
 {
-    private static readonly TypeSyntax StarReflectedType = SyntaxFactory.ParseTypeName("PyObject[]?");
-    private static readonly TypeSyntax DoubleStarReflectedType = SyntaxFactory.ParseTypeName("IReadOnlyDictionary<string, PyObject>?");
+    private static readonly PythonTypeSpec OptionalDictStrAny = PythonTypeSpec.Optional(new("dict", [new("str"), PythonTypeSpec.Any]));
+    private static readonly TypeSyntax NullableArrayOfPyObject = SyntaxFactory.ParseTypeName("PyObject[]?");
 
-    public static ParameterSyntax? ArgumentSyntax(PythonFunctionParameter parameter)
+    public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter) =>
+        ArgumentSyntax(parameter, PythonFunctionParameterType.Normal);
+
+    public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter,
+                                                 PythonFunctionParameterType parameterType)
     {
-        // The parameter / is a special syntax, not a parameter.
-        if (parameter.ParameterType == PythonFunctionParameterType.Slash)
-        {
-            return null;
-        }
-
         // Treat *args as list<Any>=None and **kwargs as dict<str, Any>=None
         // TODO: Handle the user specifying *args with a type annotation like tuple[int, str]
-        var (reflectedType, defaultValue) = parameter switch
+        var (reflectedType, defaultValue) = (parameterType, parameter) switch
         {
-            { ParameterType: PythonFunctionParameterType.Star } => (StarReflectedType, PythonConstant.None.Value),
-            { ParameterType: PythonFunctionParameterType.DoubleStar } => (DoubleStarReflectedType, PythonConstant.None.Value),
-            { ParameterType: PythonFunctionParameterType.Normal, Type: var pt, DefaultValue: var dv } =>
-                (TypeReflection.AsPredefinedType(pt, TypeReflection.ConversionDirection.ToPython), dv),
+            (PythonFunctionParameterType.Star, _) => (NullableArrayOfPyObject, PythonConstant.None.Value),
+            (PythonFunctionParameterType.DoubleStar, _) => (TypeReflection.AsPredefinedType(OptionalDictStrAny, TypeReflection.ConversionDirection.ToPython), PythonConstant.None.Value),
+            (PythonFunctionParameterType.Normal, { ImpliedTypeSpec: var type, DefaultValue: var dv }) => (TypeReflection.AsPredefinedType(type, TypeReflection.ConversionDirection.ToPython), dv),
             _ => throw new NotImplementedException()
         };
 
@@ -51,24 +48,16 @@ public class ArgumentReflection
             _ => SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
         };
 
+        // If the default value is a literal expression, but we could not resolve the type to a builtin type,
+        // avoid CS1750 (no standard conversion to PyObject)
+        if (literalExpressionSyntax is not null && reflectedType is not PredefinedTypeSyntax)
+        {
+            literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+        }
+
         return SyntaxFactory
             .Parameter(SyntaxFactory.Identifier(Keywords.ValidIdentifier(parameter.Name.ToLowerPascalCase())))
             .WithType(reflectedType)
             .WithDefault(literalExpressionSyntax is not null ? SyntaxFactory.EqualsValueClause(literalExpressionSyntax) : null);
-    }
-
-    public static List<(PythonFunctionParameter, ParameterSyntax)> FunctionParametersAsParameterSyntaxPairs(PythonFunctionParameter[] parameters)
-    {
-        List<(PythonFunctionParameter, ParameterSyntax)> parametersList = [];
-        foreach (var parameter in parameters)
-        {
-            var argument = ArgumentSyntax(parameter);
-            if (argument != null)
-            {
-                parametersList.Add((parameter, argument));
-            }
-        }
-
-        return parametersList;
     }
 }

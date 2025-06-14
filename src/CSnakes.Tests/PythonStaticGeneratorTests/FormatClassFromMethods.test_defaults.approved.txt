@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "1848cdfa4c35d7dd55e968358f065089"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "491b6747b2808297ba36f2ca3f5dc245"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -54,6 +54,7 @@ public static class TestClassExtensions
         private PyObject __func_test_optional_str;
         private PyObject __func_test_optional_list;
         private PyObject __func_test_optional_any;
+        private PyObject __func_test_union_with_default_constant;
 
         internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
@@ -70,6 +71,7 @@ public static class TestClassExtensions
                 this.__func_test_optional_str = module.GetAttr("test_optional_str");
                 this.__func_test_optional_list = module.GetAttr("test_optional_list");
                 this.__func_test_optional_any = module.GetAttr("test_optional_any");
+                this.__func_test_union_with_default_constant = module.GetAttr("test_union_with_default_constant");
             }
         }
 
@@ -88,6 +90,7 @@ public static class TestClassExtensions
                 this.__func_test_optional_str.Dispose();
                 this.__func_test_optional_list.Dispose();
                 this.__func_test_optional_any.Dispose();
+                this.__func_test_union_with_default_constant.Dispose();
                 // Bind to new functions
                 this.__func_test_default_str_arg = module.GetAttr("test_default_str_arg");
                 this.__func_test_default_int_arg = module.GetAttr("test_default_int_arg");
@@ -97,6 +100,7 @@ public static class TestClassExtensions
                 this.__func_test_optional_str = module.GetAttr("test_optional_str");
                 this.__func_test_optional_list = module.GetAttr("test_optional_list");
                 this.__func_test_optional_any = module.GetAttr("test_optional_any");
+                this.__func_test_union_with_default_constant = module.GetAttr("test_union_with_default_constant");
             }
         }
 
@@ -111,6 +115,7 @@ public static class TestClassExtensions
             this.__func_test_optional_str.Dispose();
             this.__func_test_optional_list.Dispose();
             this.__func_test_optional_any.Dispose();
+            this.__func_test_union_with_default_constant.Dispose();
             module.Dispose();
         }
 
@@ -118,7 +123,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_default_str_arg");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_default_str_arg");
                 PyObject __underlyingPythonFunc = this.__func_test_default_str_arg;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -131,7 +136,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_default_int_arg");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_default_int_arg");
                 PyObject __underlyingPythonFunc = this.__func_test_default_int_arg;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -144,7 +149,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_default_float_arg");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_default_float_arg");
                 PyObject __underlyingPythonFunc = this.__func_test_default_float_arg;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -157,7 +162,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int_literals");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int_literals");
                 PyObject __underlyingPythonFunc = this.__func_test_int_literals;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
@@ -171,7 +176,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_optional_int");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_optional_int");
                 PyObject __underlyingPythonFunc = this.__func_test_optional_int;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -184,7 +189,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_optional_str");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_optional_str");
                 PyObject __underlyingPythonFunc = this.__func_test_optional_str;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -197,7 +202,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_optional_list");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_optional_list");
                 PyObject __underlyingPythonFunc = this.__func_test_optional_list;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
@@ -210,11 +215,24 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_optional_any");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_optional_any");
                 PyObject __underlyingPythonFunc = this.__func_test_optional_any;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
                 var __return = __result_pyObject.BareImportAs<bool, global::CSnakes.Runtime.Python.PyObjectImporters.Boolean>();
+                return __return;
+            }
+        }
+
+        public string TestUnionWithDefaultConstant(PyObject a = null)
+        {
+            using (GIL.Acquire())
+            {
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_union_with_default_constant");
+                PyObject __underlyingPythonFunc = this.__func_test_union_with_default_constant;
+                using PyObject a_pyObject = PyObject.From(a)!;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
                 return __return;
             }
         }
@@ -289,6 +307,14 @@ public interface ITestClass : IReloadableModuleImport
     /// ]]></code>
     /// </summary>
     bool TestOptionalAny(PyObject? a = null);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_union_with_default_constant</c>:
+    /// <code><![CDATA[
+    /// def test_union_with_default_constant(a: Union[int, str] = 42) -> str: ...
+    /// ]]></code>
+    /// </summary>
+    string TestUnionWithDefaultConstant(PyObject a = null);
 }
 
 file static class ThisModule

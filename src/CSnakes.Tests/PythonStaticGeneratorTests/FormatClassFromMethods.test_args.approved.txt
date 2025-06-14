@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "fb3f77ef96b716122ce4f1a0f0115065"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "090d99d4499abcbe5d10a2bc81daf1c6"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -52,6 +52,9 @@ public static class TestClassExtensions
         private PyObject __func_collect_star_star_kwargs;
         private PyObject __func_positional_and_kwargs;
         private PyObject __func_collect_star_args_and_keyword_only_args;
+        private PyObject __func_naming1;
+        private PyObject __func_naming2;
+        private PyObject __func_naming3;
 
         internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
@@ -66,6 +69,9 @@ public static class TestClassExtensions
                 this.__func_collect_star_star_kwargs = module.GetAttr("collect_star_star_kwargs");
                 this.__func_positional_and_kwargs = module.GetAttr("positional_and_kwargs");
                 this.__func_collect_star_args_and_keyword_only_args = module.GetAttr("collect_star_args_and_keyword_only_args");
+                this.__func_naming1 = module.GetAttr("naming1");
+                this.__func_naming2 = module.GetAttr("naming2");
+                this.__func_naming3 = module.GetAttr("naming3");
             }
         }
 
@@ -82,6 +88,9 @@ public static class TestClassExtensions
                 this.__func_collect_star_star_kwargs.Dispose();
                 this.__func_positional_and_kwargs.Dispose();
                 this.__func_collect_star_args_and_keyword_only_args.Dispose();
+                this.__func_naming1.Dispose();
+                this.__func_naming2.Dispose();
+                this.__func_naming3.Dispose();
                 // Bind to new functions
                 this.__func_positional_only_args = module.GetAttr("positional_only_args");
                 this.__func_collect_star_args = module.GetAttr("collect_star_args");
@@ -89,6 +98,9 @@ public static class TestClassExtensions
                 this.__func_collect_star_star_kwargs = module.GetAttr("collect_star_star_kwargs");
                 this.__func_positional_and_kwargs = module.GetAttr("positional_and_kwargs");
                 this.__func_collect_star_args_and_keyword_only_args = module.GetAttr("collect_star_args_and_keyword_only_args");
+                this.__func_naming1 = module.GetAttr("naming1");
+                this.__func_naming2 = module.GetAttr("naming2");
+                this.__func_naming3 = module.GetAttr("naming3");
             }
         }
 
@@ -101,6 +113,9 @@ public static class TestClassExtensions
             this.__func_collect_star_star_kwargs.Dispose();
             this.__func_positional_and_kwargs.Dispose();
             this.__func_collect_star_args_and_keyword_only_args.Dispose();
+            this.__func_naming1.Dispose();
+            this.__func_naming2.Dispose();
+            this.__func_naming3.Dispose();
             module.Dispose();
         }
 
@@ -108,7 +123,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "positional_only_args");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "positional_only_args");
                 PyObject __underlyingPythonFunc = this.__func_positional_only_args;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
@@ -123,7 +138,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "collect_star_args");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "collect_star_args");
                 PyObject __underlyingPythonFunc = this.__func_collect_star_args;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
@@ -133,16 +148,16 @@ public static class TestClassExtensions
             }
         }
 
-        public long KeywordOnlyArgs(long a, long b, long c, PyObject[]? args = null)
+        public long KeywordOnlyArgs(long a, long b, long c)
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "keyword_only_args");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "keyword_only_args");
                 PyObject __underlyingPythonFunc = this.__func_keyword_only_args;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
                 using PyObject c_pyObject = PyObject.From(c)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, ..args ?? []], ["b", "c"], [b_pyObject, c_pyObject], null);
+                using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject], ["b", "c"], [b_pyObject, c_pyObject], null);
                 var __return = __result_pyObject.BareImportAs<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>();
                 return __return;
             }
@@ -152,7 +167,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "collect_star_star_kwargs");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "collect_star_star_kwargs");
                 PyObject __underlyingPythonFunc = this.__func_collect_star_star_kwargs;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
@@ -162,16 +177,16 @@ public static class TestClassExtensions
             }
         }
 
-        public long PositionalAndKwargs(long a, long b, long c, PyObject[]? args = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)
+        public long PositionalAndKwargs(long a, long b, long c, IReadOnlyDictionary<string, PyObject>? kwargs = null)
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "positional_and_kwargs");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "positional_and_kwargs");
                 PyObject __underlyingPythonFunc = this.__func_positional_and_kwargs;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
                 using PyObject c_pyObject = PyObject.From(c)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, b_pyObject, ..args ?? []], ["c"], [c_pyObject], kwargs);
+                using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, b_pyObject], ["c"], [c_pyObject], kwargs);
                 var __return = __result_pyObject.BareImportAs<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>();
                 return __return;
             }
@@ -181,7 +196,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "collect_star_args_and_keyword_only_args");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "collect_star_args_and_keyword_only_args");
                 PyObject __underlyingPythonFunc = this.__func_collect_star_args_and_keyword_only_args;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
@@ -189,6 +204,44 @@ public static class TestClassExtensions
                 using PyObject __result_pyObject = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, b_pyObject, ..args ?? []], ["c"], [c_pyObject], null);
                 var __return = __result_pyObject.BareImportAs<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>();
                 return __return;
+            }
+        }
+
+        public void Naming1(PyObject[]? varArg = null)
+        {
+            using (GIL.Acquire())
+            {
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "naming1");
+                PyObject __underlyingPythonFunc = this.__func_naming1;
+                _ = __underlyingPythonFunc.CallWithArgs([..varArg ?? []]);
+                return;
+            }
+        }
+
+        public void Naming2(PyObject posArg, PyObject regArg, PyObject[]? varArg = null)
+        {
+            using (GIL.Acquire())
+            {
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "naming2");
+                PyObject __underlyingPythonFunc = this.__func_naming2;
+                using PyObject posArg_pyObject = PyObject.From(posArg)!;
+                using PyObject regArg_pyObject = PyObject.From(regArg)!;
+                _ = __underlyingPythonFunc.CallWithArgs([posArg_pyObject, regArg_pyObject, ..varArg ?? []]);
+                return;
+            }
+        }
+
+        public void Naming3(PyObject posArg, PyObject regArg, PyObject kwArg, PyObject[]? varArg = null, IReadOnlyDictionary<string, PyObject>? kwArgs = null)
+        {
+            using (GIL.Acquire())
+            {
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "naming3");
+                PyObject __underlyingPythonFunc = this.__func_naming3;
+                using PyObject posArg_pyObject = PyObject.From(posArg)!;
+                using PyObject regArg_pyObject = PyObject.From(regArg)!;
+                using PyObject kwArg_pyObject = PyObject.From(kwArg)!;
+                _ = __underlyingPythonFunc.CallWithKeywordArguments([posArg_pyObject, ..varArg ?? []], ["reg_arg", "kw_arg"], [regArg_pyObject, kwArg_pyObject], kwArgs);
+                return;
             }
         }
     }
@@ -221,7 +274,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def keyword_only_args(a: int, *, b: int, c: int) -> int: ...
     /// ]]></code>
     /// </summary>
-    long KeywordOnlyArgs(long a, long b, long c, PyObject[]? args = null);
+    long KeywordOnlyArgs(long a, long b, long c);
 
     /// <summary>
     /// Invokes the Python function <c>collect_star_star_kwargs</c>:
@@ -237,7 +290,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def positional_and_kwargs(a: int, b: int, *, c: int, **kwargs) -> int: ...
     /// ]]></code>
     /// </summary>
-    long PositionalAndKwargs(long a, long b, long c, PyObject[]? args = null, IReadOnlyDictionary<string, PyObject>? kwargs = null);
+    long PositionalAndKwargs(long a, long b, long c, IReadOnlyDictionary<string, PyObject>? kwargs = null);
 
     /// <summary>
     /// Invokes the Python function <c>collect_star_args_and_keyword_only_args</c>:
@@ -246,6 +299,30 @@ public interface ITestClass : IReloadableModuleImport
     /// ]]></code>
     /// </summary>
     long CollectStarArgsAndKeywordOnlyArgs(long a, long b, long c, PyObject[]? args = null);
+
+    /// <summary>
+    /// Invokes the Python function <c>naming1</c>:
+    /// <code><![CDATA[
+    /// def naming1(*var_arg) -> None: ...
+    /// ]]></code>
+    /// </summary>
+    void Naming1(PyObject[]? varArg = null);
+
+    /// <summary>
+    /// Invokes the Python function <c>naming2</c>:
+    /// <code><![CDATA[
+    /// def naming2(pos_arg, /, reg_arg, *var_arg) -> None: ...
+    /// ]]></code>
+    /// </summary>
+    void Naming2(PyObject posArg, PyObject regArg, PyObject[]? varArg = null);
+
+    /// <summary>
+    /// Invokes the Python function <c>naming3</c>:
+    /// <code><![CDATA[
+    /// def naming3(pos_arg, /, *var_arg, reg_arg, kw_arg, **kw_args) -> None: ...
+    /// ]]></code>
+    /// </summary>
+    void Naming3(PyObject posArg, PyObject regArg, PyObject kwArg, PyObject[]? varArg = null, IReadOnlyDictionary<string, PyObject>? kwArgs = null);
 }
 
 file static class ThisModule

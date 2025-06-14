@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "dd599dd46d004b81caef306dbd9dc329"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "957082c529003e202b09b8cb1995251f"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -83,7 +83,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_pybind11_function");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_pybind11_function");
                 PyObject __underlyingPythonFunc = this.__func_test_pybind11_function;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<bool, global::CSnakes.Runtime.Python.PyObjectImporters.Boolean>();

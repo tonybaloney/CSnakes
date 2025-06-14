@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "61c51b5413b819959bcfa362dfc8b9cf"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "08afa2080196c6ea4204b0a0576ebec8"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -93,7 +93,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine;
                 using PyObject seconds_pyObject = PyObject.From(seconds)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);
@@ -106,7 +106,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_raises_exception");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_raises_exception");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_raises_exception;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<ICoroutine<long, PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>>().AsTask(cancellationToken);
@@ -118,7 +118,7 @@ public static class TestClassExtensions
         {
             using (GIL.Acquire())
             {
-                logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_returns_nothing");
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_returns_nothing");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_returns_nothing;
                 using PyObject seconds_pyObject = PyObject.From(seconds)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);
@@ -137,7 +137,7 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>test_coroutine</c>:
     /// <code><![CDATA[
-    /// async def test_coroutine(seconds: float = 0.1) -> Coroutine[int, None, None]: ...
+    /// async def test_coroutine(seconds: float = 0.1) -> int: ...
     /// ]]></code>
     /// </summary>
     Task<long> TestCoroutine(double seconds = 0.1, CancellationToken cancellationToken = default);
@@ -145,7 +145,7 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>test_coroutine_raises_exception</c>:
     /// <code><![CDATA[
-    /// async def test_coroutine_raises_exception() -> Coroutine[int, None, None]: ...
+    /// async def test_coroutine_raises_exception() -> int: ...
     /// ]]></code>
     /// </summary>
     Task<long> TestCoroutineRaisesException(CancellationToken cancellationToken = default);
@@ -153,7 +153,7 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>test_coroutine_returns_nothing</c>:
     /// <code><![CDATA[
-    /// async def test_coroutine_returns_nothing(seconds: float = 0.1) -> Coroutine[None, None, None]: ...
+    /// async def test_coroutine_returns_nothing(seconds: float = 0.1) -> None: ...
     /// ]]></code>
     /// </summary>
     Task<PyObject> TestCoroutineReturnsNothing(double seconds = 0.1, CancellationToken cancellationToken = default);

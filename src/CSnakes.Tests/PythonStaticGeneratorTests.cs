@@ -43,10 +43,6 @@ public class PythonStaticGeneratorTests
         string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test", functions, sourceText,
                                                                            embedSourceText: nameDiscriminator.Equals("test_source", StringComparison.OrdinalIgnoreCase));
 
-        const int maxMatchRetries = 3;
-        var matchAttempt = 1;
-        retryMatch:
-
         try
         {
             compiledCode.ShouldMatchApproved(options =>
@@ -54,17 +50,6 @@ public class PythonStaticGeneratorTests
                        .SubFolder(GetType().Name)
                        .WithFilenameGenerator((info, d, type, ext) => $"{info.MethodName}{d}.{type}.{ext}")
                        .NoDiff());
-        }
-        catch (ShouldMatchApprovedException) when (matchAttempt < maxMatchRetries)
-        {
-            // `ShouldMatchApproved` has been observed to be flaky (the received file is empty)
-            // on some platforms (particularly on ARM-based CI runners) so retry a few times
-            // before giving up.
-
-            TestContext.Current.TestOutputHelper?.WriteLine($"Warning! Attempt #{matchAttempt} failed.");
-            Thread.Sleep(TimeSpan.FromSeconds(1));
-            matchAttempt++;
-            goto retryMatch; // Retry the match
         }
         catch (FileNotFoundException ex) when (ex.FileName is { } fn
                                                && fn.Contains(".received.", StringComparison.OrdinalIgnoreCase))

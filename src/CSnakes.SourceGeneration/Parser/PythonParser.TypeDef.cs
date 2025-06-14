@@ -27,9 +27,7 @@ public static partial class PythonParser
     {
         var typeDefinitionParser = Parse.Ref(() => PythonTypeDefinitionParser);
 
-        // Parser for anything but "None"
-
-        var someParser =
+        var parser =
             from name in Parse.OneOf(Token.EqualTo(PythonToken.None),
                                      Token.EqualTo(PythonToken.Identifier),
                                      Token.EqualTo(PythonToken.QualifiedIdentifier))
@@ -74,7 +72,7 @@ public static partial class PythonParser
             }
             select type;
 
-        return from ts in someParser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Pipe))
+        return from ts in parser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Pipe))
                select ts switch
                {
                    [var single] => single,

@@ -33,7 +33,7 @@ internal partial class PyObjectTypeConverter
 
         if (CPythonAPI.IsBuffer(pyObject) && destinationType.IsAssignableTo(bufferType))
         {
-            return new PyBuffer(pyObject);
+            return PyBuffer.Create(pyObject);
         }
 
         throw new InvalidCastException($"Attempting to cast {destinationType} from {pyObject.GetPythonType()}");

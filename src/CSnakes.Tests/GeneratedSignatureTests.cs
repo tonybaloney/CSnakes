@@ -100,6 +100,9 @@ public class GeneratedSignatureTests
     [InlineData(
         "def x(foo: Optional[FooBar]) -> None:\n ...",
         "def x(foo: FooBar) -> None:\n ...")]
+    [InlineData(
+        "def x(foo: str) -> None:\n ...",
+        "def x(foo: Optional[str]) -> None:\n ...")]
     public void TestMethodEquivalence(string code1, string code2)
     {
         SourceText sourceText1 = SourceText.From(code1);

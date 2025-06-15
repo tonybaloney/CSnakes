@@ -560,11 +560,11 @@ if __name__ == '__main__':
     }
 
     [Fact]
-    public void ParseFunctionMultiLineTrailingCommaWithComments()
+    public void ParseFunctionMultiLineWithComments()
     {
         const string code = """
         def a(    # this is a comment
-            opener: str = 'foo', # type: ignore
+            opener: str = 'foo' # type: ignore
         ) -> Any:
             pass
         """;

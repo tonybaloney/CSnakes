@@ -76,7 +76,7 @@ public static partial class PythonParser
             if (repositionedTokens.Last().Kind == PythonToken.Colon)
             {
                 // We re-tokenize the merged lines from the buffer because some of the tokens may have been split across lines
-                string mergedFunctionSpec = string.Join("", from x in currentBuffer select x.line.ToString());
+                string mergedFunctionSpec = string.Join("\n", from x in currentBuffer select x.line.ToString());
 
                 Result<ParsedTokens> combinedResult = PythonTokenizer.Instance.TryTokenize(mergedFunctionSpec);
                 if (!combinedResult.HasValue)

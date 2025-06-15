@@ -583,6 +583,30 @@ if __name__ == '__main__':
     }
 
     [Fact]
+    public void ParseFunctionMultiLineTrailingCommaWithComments()
+    {
+        const string code = """
+        def a(    # this is a comment
+            opener: str = 'foo', # type: ignore
+        ) -> Any:
+            pass
+        """;
+        SourceText sourceText = SourceText.From(code);
+        _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
+        Assert.Empty(errors);
+        Assert.NotNull(functions);
+        Assert.Single(functions);
+        Assert.Equal("a", functions[0].Name);
+        var parameters = functions[0].Parameters.Enumerable().ToArray();
+        var opener = parameters[0];
+        Assert.Equal("opener", opener.Name);
+        Assert.Equal("str", opener.ImpliedTypeSpec.Name);
+        Assert.NotNull(opener.DefaultValue);
+        Assert.Equal("foo", opener.DefaultValue.ToString());
+    }
+
+
+    [Fact]
     public void ParseFunctionTrailingSpaceAfterColon()
     {
         var code = @"def bar(a: int,

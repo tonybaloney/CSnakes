@@ -30,6 +30,17 @@ public static partial class PythonParser
     static bool IsFunctionSignature(string line) =>
         line.StartsWith("def ") || line.StartsWith("async def");
 
+    static string StripTrailingComments(this string line)
+    {
+        // Strip trailing comments to simplify parser
+        int commentIndex = line.IndexOf('#');
+        if (commentIndex >= 0)
+        {
+            return line.Substring(0, commentIndex).TrimEnd();
+        }
+        return line.TrimEnd();
+    }
+
     public static bool TryParseFunctionDefinitions(SourceText source, out PythonFunctionDefinition[] pythonSignatures, out GeneratorError[] errors)
     {
         // Go line by line
@@ -76,7 +87,8 @@ public static partial class PythonParser
             if (repositionedTokens.Last().Kind == PythonToken.Colon)
             {
                 // We re-tokenize the merged lines from the buffer because some of the tokens may have been split across lines
-                string mergedFunctionSpec = string.Join("\n", from x in currentBuffer select x.line.ToString());
+                // Strip trailing comments to simplify parser
+                string mergedFunctionSpec = string.Join("\n", from x in currentBuffer select x.line.ToString().StripTrailingComments());
 
                 Result<ParsedTokens> combinedResult = PythonTokenizer.Instance.TryTokenize(mergedFunctionSpec);
                 if (!combinedResult.HasValue)

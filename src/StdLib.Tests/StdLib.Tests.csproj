@@ -18,6 +18,7 @@
     <PackageReference Include="MartinCostello.Logging.XUnit.v3" />
   </ItemGroup>
 
+
   <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="CSnakes.Runtime" />
@@ -29,16 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="python\**\*.py">
+    <AdditionalFiles Include="typeshed\stdlib\**\*.pyi">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
-    <AdditionalFiles Include="python\**\*.pyi">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </AdditionalFiles>
-    <Content Include="python\requirements.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

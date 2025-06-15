@@ -30,6 +30,17 @@ public static partial class PythonParser
     static bool IsFunctionSignature(string line) =>
         line.StartsWith("def ") || line.StartsWith("async def");
 
+    static string StripTrailingComments(this string line)
+    {
+        // Strip trailing comments to simplify parser
+        int commentIndex = line.IndexOf('#');
+        if (commentIndex >= 0)
+        {
+            return line.Substring(0, commentIndex).TrimEnd();
+        }
+        return line.TrimEnd();
+    }
+
     public static bool TryParseFunctionDefinitions(SourceText source, out PythonFunctionDefinition[] pythonSignatures, out GeneratorError[] errors)
     {
         // Go line by line
@@ -82,9 +93,27 @@ public static partial class PythonParser
             // If this is a function definition on one line..
             if (repositionedTokens.Any() && repositionedTokens.Last().Kind == PythonToken.Colon)
             {
-                ParsedTokens combinedTokens = new(currentBuffer.SelectMany(x => x.tokens).ToArray());
+                // We re-tokenize the merged lines from the buffer because some of the tokens may have been split across lines
+                // Strip trailing comments to simplify parser
+                string mergedFunctionSpec = string.Join("\n", from x in currentBuffer select x.line.ToString().StripTrailingComments());
 
-                functionLines.Add(([.. from x in currentBuffer select x.line], combinedTokens));
+                Result<ParsedTokens> combinedResult = PythonTokenizer.Instance.TryTokenize(mergedFunctionSpec);
+                if (!combinedResult.HasValue)
+                {
+                    currentErrors.Add(new(
+                        line.LineNumber,
+                        line.LineNumber,
+                        combinedResult.ErrorPosition.Column,
+                        combinedResult.ErrorPosition.Column + combinedResult.Location.Length,
+                        combinedResult.FormatErrorMessageFragment())
+                    );
+                    
+                } else
+                {
+                    functionLines.Add(([.. from x in currentBuffer select x.line], combinedResult.Value));
+                }
+
+                // Reset buffer
                 currentBuffer = [];
                 unfinishedFunctionSpec = false;
                 continue;

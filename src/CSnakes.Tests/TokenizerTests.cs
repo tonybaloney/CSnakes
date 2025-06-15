@@ -603,6 +603,29 @@ if __name__ == '__main__':
     }
 
     [Fact]
+    public void ParseFunctionMultiLineTrailingComma()
+    {
+        // This is common in Black-formatted code and has come up as a parser issue
+        var code = @"def a(
+    opener: str = 'foo',
+) -> Any:
+    pass
+";
+        SourceText sourceText = SourceText.From(code);
+        _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
+        Assert.Empty(errors);
+        Assert.NotNull(functions);
+        Assert.Single(functions);
+        Assert.Equal("a", functions[0].Name);
+        var parameters = functions[0].Parameters.Enumerable().ToArray();
+        var opener = parameters[0];
+        Assert.Equal("opener", opener.Name);
+        Assert.Equal("str", opener.ImpliedTypeSpec.Name);
+        Assert.NotNull(opener.DefaultValue);
+        Assert.Equal("foo", opener.DefaultValue.ToString());
+    }
+
+    [Fact]
     public void ErrorInParamSignatureReturnsCorrectLineAndColumn()
     {
         var code = """
@@ -616,7 +639,7 @@ if __name__ == '__main__':
         _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var _, out var errors);
         Assert.NotEmpty(errors);
         Assert.Equal(3, errors[0].StartLine);
-        Assert.Equal(5, errors[0].EndLine);
+        Assert.Equal(3, errors[0].EndLine);
         Assert.Equal(19, errors[0].StartColumn);
         Assert.Equal(20, errors[0].EndColumn);
         Assert.Equal("unexpected `=`, expected Type Definition", errors[0].Message);

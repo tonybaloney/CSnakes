@@ -93,6 +93,13 @@ public class GeneratedSignatureTests
     [InlineData(
         "def x(foo: int, bar: str = 'default1') -> None:\n ...",
         "def x(foo_2: int, bar: str = 'default2') -> None:\n ...")]
+    // Same parameter types, one with a default, one without
+    [InlineData(
+        "def x(foo: int = 5) -> None:\n ...",
+        "def x(foo: int) -> None:\n ...")]
+    [InlineData(
+        "def x(foo: Optional[FooBar]) -> None:\n ...",
+        "def x(foo: FooBar) -> None:\n ...")]
     public void TestMethodEquivalence(string code1, string code2)
     {
         SourceText sourceText1 = SourceText.From(code1);

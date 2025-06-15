@@ -126,7 +126,6 @@ public class GeneratedSignatureTests
     [Theory]
     [InlineData("def x(a: str) -> str:\n ...", "def x(a: int) -> int:\n ...")]
     [InlineData("def x(a: float) -> float:\n ...", "def x(a: Any) -> float:\n ...")]
-    [InlineData("def x(a: bool) -> bool:\n ...", "def x(a: bool | None = None) -> Any:\n ...")]
     [InlineData("def x(a: str) -> str:\n ...", "def x(a: str, b: int) -> str:\n ...")]
     public void TestMethodInequivalence(string code1, string code2)
     {

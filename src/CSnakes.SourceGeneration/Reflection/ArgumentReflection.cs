@@ -1,4 +1,5 @@
 using CSnakes.Parser.Types;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -50,9 +51,14 @@ public class ArgumentReflection
 
         // If the default value is a literal expression, but we could not resolve the type to a builtin type,
         // avoid CS1750 (no standard conversion to PyObject)
-        if (literalExpressionSyntax is not null && reflectedType is not PredefinedTypeSyntax)
+        if (literalExpressionSyntax is not null
+            && !literalExpressionSyntax.IsKind(SyntaxKind.NullLiteralExpression)
+            && reflectedType is not PredefinedTypeSyntax)
         {
             literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+            if (reflectedType is not NullableTypeSyntax)
+                // If the type is not already nullable, make it nullable to avoid CS1750
+                reflectedType = SyntaxFactory.NullableType(reflectedType);
         }
 
         return SyntaxFactory

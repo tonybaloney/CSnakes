@@ -49,4 +49,11 @@ public class DefaultsTests(PythonEnvironmentFixture fixture) : IntegrationTestBa
         var testDefaults = Env.TestDefaults();
         Assert.True(testDefaults.TestOptionalAny());
     }
+
+    [Fact]
+    public void TestDefault_Bytes()
+    {
+        var testDefaults = Env.TestDefaults();
+        Assert.Equal("hello"u8, testDefaults.TestDefaultBytes());
+    }
 }

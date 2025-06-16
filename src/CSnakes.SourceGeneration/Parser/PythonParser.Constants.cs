@@ -7,6 +7,8 @@ using System.Globalization;
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
+    static readonly char[] pythonStringPrefixes = { 'u', 'U', 'b', 'B' };
+
     public static TextParser<char> UnderScoreOrDigit { get; } =
         Character.Matching(char.IsDigit, "digit").Or(Character.EqualTo('_'));
 
@@ -38,12 +40,14 @@ public static partial class PythonParser
         select Unit.Value;
 
     public static TextParser<Unit> DoubleQuotedStringConstantToken { get; } =
+        from prefix in Character.In(pythonStringPrefixes).OptionalOrDefault() // TODO: support raw literals
         from open in Character.EqualTo('"')
         from chars in Character.ExceptIn('"').Many()
         from close in Character.EqualTo('"')
         select Unit.Value;
 
     public static TextParser<Unit> SingleQuotedStringConstantToken { get; } =
+        from prefix in Character.In(pythonStringPrefixes).OptionalOrDefault()
         from open in Character.EqualTo('\'')
         from chars in Character.ExceptIn('\'').Many()
         from close in Character.EqualTo('\'')
@@ -113,6 +117,7 @@ public static partial class PythonParser
     static class ConstantParsers
     {
         public static TextParser<string> DoubleQuotedString { get; } =
+            from prefix in Character.In(pythonStringPrefixes).OptionalOrDefault()
             from open in Character.EqualTo('"')
             from chars in Character.ExceptIn('"', '\\')
                 .Or(Character.EqualTo('\\')
@@ -125,6 +130,7 @@ public static partial class PythonParser
             select new string(chars);
 
         public static TextParser<string> SingleQuotedString { get; } =
+            from prefix in Character.In(pythonStringPrefixes).OptionalOrDefault()
             from open in Character.EqualTo('\'')
             from chars in Character.ExceptIn('\'', '\\')
                 .Or(Character.EqualTo('\\')

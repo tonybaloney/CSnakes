@@ -56,13 +56,11 @@ public static partial class PythonParser
     public static TokenListParser<PythonToken, PythonConstant.String> DoubleQuotedStringConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.DoubleQuotedString)
         .Apply(ConstantParsers.DoubleQuotedString)
-        .Select(s => new PythonConstant.String(s))
         .Named("Double Quoted String Constant");
 
     public static TokenListParser<PythonToken, PythonConstant.String> SingleQuotedStringConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.SingleQuotedString)
         .Apply(ConstantParsers.SingleQuotedString)
-        .Select(s => new PythonConstant.String(s))
         .Named("Single Quoted String Constant");
 
     public static TokenListParser<PythonToken, PythonConstant.Float> DecimalConstantTokenizer { get; } =
@@ -116,8 +114,8 @@ public static partial class PythonParser
 
     static class ConstantParsers
     {
-        public static TextParser<string> DoubleQuotedString { get; } =
-            from prefix in Character.In(pythonStringPrefixes).OptionalOrDefault()
+        public static TextParser<PythonConstant.String> DoubleQuotedString { get; } =
+            from prefix in Character.In(pythonStringPrefixes).Optional() // TODO : support raw literals
             from open in Character.EqualTo('"')
             from chars in Character.ExceptIn('"', '\\')
                 .Or(Character.EqualTo('\\')
@@ -127,10 +125,10 @@ public static partial class PythonParser
                         .Named("escape sequence")))
                 .Many()
             from close in Character.EqualTo('"')
-            select new string(chars);
+            select new PythonConstant.String(new string(chars), prefix);
 
-        public static TextParser<string> SingleQuotedString { get; } =
-            from prefix in Character.In(pythonStringPrefixes).OptionalOrDefault()
+        public static TextParser<PythonConstant.String> SingleQuotedString { get; } =
+            from prefix in Character.In(pythonStringPrefixes).Optional() // TODO : support raw literals
             from open in Character.EqualTo('\'')
             from chars in Character.ExceptIn('\'', '\\')
                 .Or(Character.EqualTo('\\')
@@ -140,7 +138,7 @@ public static partial class PythonParser
                         .Named("escape sequence")))
                 .Many()
             from close in Character.EqualTo('\'')
-            select new string(chars);
+            select new PythonConstant.String(new string(chars), prefix);
     }
 }
 

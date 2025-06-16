@@ -28,9 +28,15 @@ public abstract class PythonConstant
         public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
     }
 
-    public sealed class String(string value) : PythonConstant
+    public sealed class String(string value, char? prefix = 'u') : PythonConstant
     {
+        public enum PrefixKind {
+            Unicode,
+            Bytes
+        }
+
         public string Value { get; } = value;
+        public PrefixKind Prefix { get; } = prefix.HasValue ? (prefix == 'u' || prefix == 'U' ? PrefixKind.Unicode : PrefixKind.Bytes) : PrefixKind.Unicode;
         public override string ToString() => Value;
     }
 

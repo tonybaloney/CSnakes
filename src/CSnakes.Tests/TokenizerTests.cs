@@ -196,6 +196,34 @@ public class TokenizerTests
     }
 
     [Fact]
+    public void ParseFunctionParameterDefaultSingleQuotedStringWithUnicodePrefix()
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize($"a: str = u'hello'");
+        var result = PythonParser.OptionalPythonParameterParser.TryParse(tokens);
+        Assert.True(result.HasValue);
+        var param = result.Value;
+        Assert.Equal("a", param.Name);
+        var constant = Assert.IsType<PythonConstant.String>(param.DefaultValue);
+        Assert.Equal("hello", constant.Value);
+        Assert.Equal(PythonConstant.String.PrefixKind.Unicode, constant.Prefix);
+        Assert.NotNull(param.TypeSpec);
+    }
+
+    [Fact]
+    public void ParseFunctionParameterDefaultSingleQuotedStringWithBytesPrefix()
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize($"a: bytes = b'hello'");
+        var result = PythonParser.OptionalPythonParameterParser.TryParse(tokens);
+        Assert.True(result.HasValue);
+        var param = result.Value;
+        Assert.Equal("a", param.Name);
+        var constant = Assert.IsType<PythonConstant.String>(param.DefaultValue);
+        Assert.Equal("hello", constant.Value);
+        Assert.Equal(PythonConstant.String.PrefixKind.Bytes, constant.Prefix);
+        Assert.NotNull(param.TypeSpec);
+    }
+
+    [Fact]
     public void ParseFunctionParameterDefaultDouble()
     {
         var tokens = PythonTokenizer.Instance.Tokenize($"a: float = -1.1");

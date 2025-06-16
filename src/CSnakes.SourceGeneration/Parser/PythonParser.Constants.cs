@@ -22,7 +22,7 @@ public static partial class PythonParser
             from rest in UnderScoreOrDigit.Or(Character.In('.', 'e', 'E', '+', '-')).IgnoreMany()
             select Unit.Value;
 
-    public static TextParser<Unit> HexidecimalConstantToken { get; } =
+    public static TextParser<Unit> HexadecimalConstantToken { get; } =
         from prefix in Span.EqualTo("0x")
         from digits in Character.EqualTo('_').Or(Character.HexDigit).AtLeastOnce()
         select Unit.Value;
@@ -74,7 +74,7 @@ public static partial class PythonParser
     public static TokenListParser<PythonToken, PythonConstant.HexidecimalInteger> HexidecimalIntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.HexidecimalInteger)
         .Select(d => new PythonConstant.HexidecimalInteger(long.Parse(d.ToStringValue().Substring(2).Replace("_", ""), NumberStyles.HexNumber)))
-        .Named("Hexidecimal Integer Constant");
+        .Named("Hexadecimal Integer Constant");
 
     public static TokenListParser<PythonToken, PythonConstant.HexidecimalInteger> OctalIntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.OctalInteger)

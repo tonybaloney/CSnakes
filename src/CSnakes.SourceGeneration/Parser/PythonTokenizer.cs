@@ -35,7 +35,7 @@ public static class PythonTokenizer
         .Match(PythonParser.QualifiedName, PythonToken.QualifiedIdentifier, requireDelimiters: true)
         .Match(PythonParser.IntegerConstantToken, PythonToken.Integer, requireDelimiters: true)
         .Match(PythonParser.DecimalConstantToken, PythonToken.Decimal, requireDelimiters: true)
-        .Match(PythonParser.HexidecimalConstantToken, PythonToken.HexidecimalInteger, requireDelimiters: true)
+        .Match(PythonParser.HexadecimalConstantToken, PythonToken.HexidecimalInteger, requireDelimiters: true)
         .Match(PythonParser.BinaryConstantToken, PythonToken.BinaryInteger, requireDelimiters: true)
         .Match(PythonParser.OctalConstantToken, PythonToken.OctalInteger, requireDelimiters: true)
         .Match(PythonParser.DoubleQuotedStringConstantToken, PythonToken.DoubleQuotedString)

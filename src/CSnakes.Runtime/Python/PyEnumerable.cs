@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace CSnakes.Runtime.Python;
 
-internal class PyEnumerable<TValue, TImporter>(PyObject pyIterable) : IEnumerable<TValue>, IDisposable
+internal class PyEnumerable<TValue, TImporter>(PyObject pyIterable) : IPyIterable<TValue>, IDisposable
     where TImporter : IPyObjectImporter<TValue>
 {
     public void Dispose() => pyIterable.Dispose();

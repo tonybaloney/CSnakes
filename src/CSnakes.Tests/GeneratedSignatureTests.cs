@@ -49,6 +49,7 @@ public class GeneratedSignatureTests
     [InlineData("def hello() -> Buffer:\n ...\n", "IPyBuffer Hello()")]
     [InlineData("def hello(a: Union[int, str] = 5) -> Any:\n ...\n", "PyObject Hello(PyObject? a = null)")]
     [InlineData("def hello(data: Literal[1, 'two', 3.0]) -> None:\n ...\n", "void Hello(PyObject data)")]
+    [InlineData("def escape(s: str, quote: bool = True) -> str: ...\n", "string Escape(string s, bool quote = true)")]
     [InlineData("def hello(n: None = None) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
     public void TestGeneratedSignature(string code, string expected)
     {
@@ -57,7 +58,7 @@ public class GeneratedSignatureTests
         // create a Python scope
         PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
-        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test").ToImmutableArray();
+        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
         var method = Assert.Single(module);
         Assert.Equal($"public {expected}", method.Syntax.WithBody(null).NormalizeWhitespace().ToString());
 
@@ -114,9 +115,9 @@ public class GeneratedSignatureTests
         Assert.Empty(errors1);
         Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText2, out var functions2, out var errors2));
         Assert.Empty(errors2);
-        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1, "test").ToImmutableArray();
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
         var method1 = Assert.Single(module1);
-        var module2 = ModuleReflection.MethodsFromFunctionDefinitions(functions2, "test").ToImmutableArray();
+        var module2 = ModuleReflection.MethodsFromFunctionDefinitions(functions2).ToImmutableArray();
         var method2 = Assert.Single(module2);
 
         var comparator = new MethodDefinitionComparator();
@@ -137,9 +138,9 @@ public class GeneratedSignatureTests
         Assert.Empty(errors1);
         Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText2, out var functions2, out var errors2));
         Assert.Empty(errors2);
-        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1, "test").ToImmutableArray();
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
         var method1 = Assert.Single(module1);
-        var module2 = ModuleReflection.MethodsFromFunctionDefinitions(functions2, "test").ToImmutableArray();
+        var module2 = ModuleReflection.MethodsFromFunctionDefinitions(functions2).ToImmutableArray();
         var method2 = Assert.Single(module2);
 
         var comparator = new MethodDefinitionComparator();

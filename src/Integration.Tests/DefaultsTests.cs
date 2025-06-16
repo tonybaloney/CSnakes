@@ -54,6 +54,6 @@ public class DefaultsTests(PythonEnvironmentFixture fixture) : IntegrationTestBa
     public void TestDefault_Bytes()
     {
         var testDefaults = Env.TestDefaults();
-        Assert.Equal("hello"u8, testDefaults.TestDefaultBytes());
+        Assert.Equal("hello"u8, testDefaults.TestDefaultBytes("hello"u8.ToArray()));
     }
 }

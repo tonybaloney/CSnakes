@@ -50,7 +50,7 @@ public class GeneratedSignatureTests
     [InlineData("def hello(a: Union[int, str] = 5) -> Any:\n ...\n", "PyObject Hello(PyObject? a = null)")]
     [InlineData("def hello(data: Literal[1, 'two', 3.0]) -> None:\n ...\n", "void Hello(PyObject data)")]
     [InlineData("def hello(n: None = None) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
-    [InlineData("def hello(val: bytes = b'hello', /) -> None:\n ...\n", "void Hello(byte[] val = \"hello\"u8)")]
+    [InlineData("def hello(val: bytes = b'hello', /) -> None:\n ...\n", "void Hello(byte[]? val = null)")]
     [InlineData("def hello(val: str = u'world', /) -> None:\n ...\n", "void Hello(string val = \"world\")")]
     public void TestGeneratedSignature(string code, string expected)
     {

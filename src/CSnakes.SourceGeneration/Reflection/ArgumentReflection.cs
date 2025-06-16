@@ -13,17 +13,6 @@ public class ArgumentReflection
     public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter) =>
         ArgumentSyntax(parameter, PythonFunctionParameterType.Normal);
 
-    // For some reason, there is no syntax factory for Utf8StringLiteralExpression,
-    private static LiteralExpressionSyntax AsUtf8StringLiteralExpression(string stringValue, string QuoteCharacter = "\"", string Suffix = "u8")
-        => SyntaxFactory.LiteralExpression(SyntaxKind.Utf8StringLiteralExpression,
-            SyntaxFactory.Token(
-                leading: SyntaxTriviaList.Empty,
-                kind: SyntaxKind.Utf8StringLiteralToken,
-                text: QuoteCharacter + stringValue + QuoteCharacter + Suffix,
-                valueText: "",
-                trailing: SyntaxTriviaList.Empty));
-
-
     public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter,
                                                  PythonFunctionParameterType parameterType)
     {
@@ -51,8 +40,6 @@ public class ArgumentReflection
                 SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((int)v)),
             PythonConstant.Integer { Value: var v } =>
                 SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),
-            PythonConstant.String { Value: var v, Prefix: PythonConstant.String.PrefixKind.Bytes } =>
-                AsUtf8StringLiteralExpression(v),
             PythonConstant.String { Value: var v, Prefix: PythonConstant.String.PrefixKind.Unicode } =>
                 SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(v)),
             PythonConstant.Float { Value: var v } =>

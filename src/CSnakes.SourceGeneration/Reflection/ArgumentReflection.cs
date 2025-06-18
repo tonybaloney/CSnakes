@@ -40,7 +40,7 @@ public class ArgumentReflection
                 SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((int)v)),
             PythonConstant.Integer { Value: var v } =>
                 SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),
-            PythonConstant.String { Value: var v } =>
+            PythonConstant.String { Value: var v, Prefix: PythonConstant.String.PrefixKind.Unicode } =>
                 SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(v)),
             PythonConstant.Float { Value: var v } =>
                 SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),
@@ -53,7 +53,7 @@ public class ArgumentReflection
         // avoid CS1750 (no standard conversion to PyObject)
         if (literalExpressionSyntax is not null
             && !literalExpressionSyntax.IsKind(SyntaxKind.NullLiteralExpression)
-            && reflectedType is not PredefinedTypeSyntax)
+            && reflectedType is IdentifierNameSyntax)
         {
             literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
         }

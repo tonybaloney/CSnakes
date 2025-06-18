@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "491b6747b2808297ba36f2ca3f5dc245"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "5a665cc5c27036355ca894cfe2b14b40"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -55,6 +55,7 @@ public static class TestClassExtensions
         private PyObject __func_test_optional_list;
         private PyObject __func_test_optional_any;
         private PyObject __func_test_union_with_default_constant;
+        private PyObject __func_test_default_bytes;
 
         internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
@@ -72,6 +73,7 @@ public static class TestClassExtensions
                 this.__func_test_optional_list = module.GetAttr("test_optional_list");
                 this.__func_test_optional_any = module.GetAttr("test_optional_any");
                 this.__func_test_union_with_default_constant = module.GetAttr("test_union_with_default_constant");
+                this.__func_test_default_bytes = module.GetAttr("test_default_bytes");
             }
         }
 
@@ -91,6 +93,7 @@ public static class TestClassExtensions
                 this.__func_test_optional_list.Dispose();
                 this.__func_test_optional_any.Dispose();
                 this.__func_test_union_with_default_constant.Dispose();
+                this.__func_test_default_bytes.Dispose();
                 // Bind to new functions
                 this.__func_test_default_str_arg = module.GetAttr("test_default_str_arg");
                 this.__func_test_default_int_arg = module.GetAttr("test_default_int_arg");
@@ -101,6 +104,7 @@ public static class TestClassExtensions
                 this.__func_test_optional_list = module.GetAttr("test_optional_list");
                 this.__func_test_optional_any = module.GetAttr("test_optional_any");
                 this.__func_test_union_with_default_constant = module.GetAttr("test_union_with_default_constant");
+                this.__func_test_default_bytes = module.GetAttr("test_default_bytes");
             }
         }
 
@@ -116,6 +120,7 @@ public static class TestClassExtensions
             this.__func_test_optional_list.Dispose();
             this.__func_test_optional_any.Dispose();
             this.__func_test_union_with_default_constant.Dispose();
+            this.__func_test_default_bytes.Dispose();
             module.Dispose();
         }
 
@@ -236,6 +241,19 @@ public static class TestClassExtensions
                 return __return;
             }
         }
+
+        public byte[] TestDefaultBytes(byte[]? a = null)
+        {
+            using (GIL.Acquire())
+            {
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_default_bytes");
+                PyObject __underlyingPythonFunc = this.__func_test_default_bytes;
+                using PyObject a_pyObject = PyObject.From(a)!;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                var __return = __result_pyObject.BareImportAs<byte[], global::CSnakes.Runtime.Python.PyObjectImporters.ByteArray>();
+                return __return;
+            }
+        }
     }
 }
 
@@ -315,6 +333,14 @@ public interface ITestClass : IReloadableModuleImport
     /// ]]></code>
     /// </summary>
     string TestUnionWithDefaultConstant(PyObject? a = null);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_default_bytes</c>:
+    /// <code><![CDATA[
+    /// def test_default_bytes(a: bytes = b"hello") -> bytes: ...
+    /// ]]></code>
+    /// </summary>
+    byte[] TestDefaultBytes(byte[]? a = null);
 }
 
 file static class ThisModule

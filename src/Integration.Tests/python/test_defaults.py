@@ -30,3 +30,7 @@ def test_optional_any(a: Optional[Any] = None) -> bool:
 
 def test_union_with_default_constant(a: Union[int, str] = 42) -> str:
     return "foo"
+
+
+def test_default_bytes(a: bytes = b"hello") -> bytes:
+    return a

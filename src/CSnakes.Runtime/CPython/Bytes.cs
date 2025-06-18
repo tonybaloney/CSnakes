@@ -22,6 +22,10 @@ internal unsafe partial class CPythonAPI
     internal static byte[] PyBytes_AsByteArray(PyObject bytes)
     {
         byte* ptr = PyBytes_AsString(bytes);
+        if (ptr is null)
+        {
+            throw PyObject.ThrowPythonExceptionAsClrException();
+        }
         nint size = PyBytes_Size(bytes);
         byte[] byteArray = new byte[size];
         Marshal.Copy((IntPtr)ptr, byteArray, 0, (int)size);

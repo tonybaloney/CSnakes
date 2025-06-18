@@ -36,7 +36,7 @@ public abstract class PythonConstant
         }
 
         public string Value { get; } = value;
-        public PrefixKind Prefix { get; } = prefix.HasValue ? (prefix == 'u' || prefix == 'U' ? PrefixKind.Unicode : PrefixKind.Bytes) : PrefixKind.Unicode;
+        public PrefixKind Prefix { get; } = prefix is 'b' or 'B' ? PrefixKind.Bytes : PrefixKind.Unicode;
         public override string ToString() => Value;
     }
 

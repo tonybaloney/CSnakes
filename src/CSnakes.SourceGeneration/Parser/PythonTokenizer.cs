@@ -40,6 +40,5 @@ public static class PythonTokenizer
         .Match(PythonParser.HexidecimalConstantToken, PythonToken.HexidecimalInteger, requireDelimiters: true)
         .Match(PythonParser.BinaryConstantToken, PythonToken.BinaryInteger, requireDelimiters: true)
         .Match(PythonParser.OctalConstantToken, PythonToken.OctalInteger, requireDelimiters: true)
-        
         .Build();
 }

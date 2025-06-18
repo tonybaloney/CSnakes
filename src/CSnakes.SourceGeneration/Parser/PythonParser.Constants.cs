@@ -7,7 +7,7 @@ using System.Globalization;
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
-    static readonly char[] pythonStringPrefixes = { 'u', 'U', 'b', 'B' };
+    static readonly char[] pythonStringPrefixes = ['u', 'U', 'b', 'B'];
 
     public static TextParser<char> UnderScoreOrDigit { get; } =
         Character.Matching(char.IsDigit, "digit").Or(Character.EqualTo('_'));

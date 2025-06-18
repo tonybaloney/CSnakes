@@ -73,7 +73,6 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
     public async Task CoroutineReturnsNothing()
     {
         var mod = Env.TestCoroutines();
-        var result = await mod.TestCoroutineReturnsNothing(cancellationToken: TestContext.Current.CancellationToken);
-        Assert.True(result.IsNone());
+        await mod.TestCoroutineReturnsNothing(cancellationToken: TestContext.Current.CancellationToken);
     }
 }

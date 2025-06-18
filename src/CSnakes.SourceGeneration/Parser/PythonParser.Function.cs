@@ -33,7 +33,7 @@ public static partial class PythonParser
     static string StripTrailingComments(this string line)
     {
         // Strip trailing comments to simplify parser
-        int commentIndex = line.IndexOf('#');
+        int commentIndex = line.LastIndexOf('#');
         if (commentIndex >= 0)
         {
             return line.Substring(0, commentIndex).TrimEnd();

@@ -17,12 +17,10 @@ public class BaseBenchmark
         IHost app = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
-                var pb = services.WithPython();
-                pb.WithHome(Path.Join(Environment.CurrentDirectory));
-
-                pb.FromNuGet(pythonVersionWindows)
-                  .FromMacOSInstallerLocator(pythonVersionMacOS)
-                  .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux);
+                var pb = services
+                    .WithPython()
+                    .WithHome(Path.Join(Environment.CurrentDirectory))
+                    .FromRedistributable();   
             })
             .Build();
 

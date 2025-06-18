@@ -1,1 +1,2 @@
 #nullable enable
+static CSnakes.Runtime.Python.PyObject.From(System.ReadOnlySpan<byte> value) -> CSnakes.Runtime.Python.PyObject!

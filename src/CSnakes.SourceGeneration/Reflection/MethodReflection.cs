@@ -19,17 +19,14 @@ public static class MethodReflection
         TypeSyntax returnSyntax;
         ParameterSyntax? cancellationTokenParameterSyntax = null;
         const string cancellationTokenName = "cancellationToken";
+        var argumentReflection = function.IsAsync ? ArgumentReflection.SafeContext : ArgumentReflection.RefSafeContext;
 
         if (!function.IsAsync)
         {
-            if (returnPythonType.Name == "None")
-            {
-                returnSyntax = PredefinedType(Token(SyntaxKind.VoidKeyword));
-            }
-            else
-            {
-                returnSyntax = TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython);
-            }
+            returnSyntax = returnPythonType.Name == "None"
+                         ? PredefinedType(Token(SyntaxKind.VoidKeyword))
+                         : TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython,
+                                                           argumentReflection.RefSafetyContext);
         }
         else
         {
@@ -65,11 +62,11 @@ public static class MethodReflection
 
         // Step 3: Build arguments
         var cSharpParameterList =
-            function.Parameters.Map(ArgumentReflection.ArgumentSyntax,
-                                    ArgumentReflection.ArgumentSyntax,
-                                    p => ArgumentReflection.ArgumentSyntax(p, PythonFunctionParameterType.Star),
-                                    ArgumentReflection.ArgumentSyntax,
-                                    p => ArgumentReflection.ArgumentSyntax(p, PythonFunctionParameterType.DoubleStar));
+            function.Parameters.Map(argumentReflection.ArgumentSyntax,
+                                    argumentReflection.ArgumentSyntax,
+                                    p => argumentReflection.ArgumentSyntax(p, PythonFunctionParameterType.Star),
+                                    argumentReflection.ArgumentSyntax,
+                                    p => argumentReflection.ArgumentSyntax(p, PythonFunctionParameterType.DoubleStar));
 
         var parameterGenericArgs =
             cSharpParameterList.Enumerable()

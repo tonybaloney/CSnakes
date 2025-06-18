@@ -10,6 +10,24 @@ namespace CSnakes.Reflection;
 public class MethodDefinitionComparator
      : IEqualityComparer<MethodDefinition>
 {
+    private static bool TypesAreEquivalent(TypeSyntax left, TypeSyntax right)
+    {
+        // If either side is a nullable type, we compare the element types
+        if (left is NullableTypeSyntax)
+            left = (left as NullableTypeSyntax)?.ElementType ?? left;
+        if (right is NullableTypeSyntax)
+            right = (right as NullableTypeSyntax)?.ElementType ?? right;
+
+        if (left.Kind() != right.Kind())
+            return false;
+        return (left.Kind()) switch
+        {
+            SyntaxKind.PredefinedType => (left as PredefinedTypeSyntax)?.Keyword.Text == (right as PredefinedTypeSyntax)?.Keyword.Text,
+            SyntaxKind.GenericName => (left as GenericNameSyntax)?.Identifier.Text == (right as GenericNameSyntax)?.Identifier.Text,
+            _ => left.ToFullString() == right.ToFullString(), // For other types, we just compare the full string representation
+        };
+    }
+
     public bool Equals(MethodDefinition x, MethodDefinition other)
     {
         // Different names
@@ -27,16 +45,12 @@ public class MethodDefinitionComparator
         // Are all the parameter types the same?
         return x.Syntax.ParameterList.Parameters.Zip(other.Syntax.ParameterList.Parameters, (p1, p2) =>
         {
-            if (p1.Type?.Kind() != p2.Type?.Kind())
-                return false;
-
-            return (p1.Type?.Kind()) switch
-            {
-                SyntaxKind.PredefinedType => (p1.Type as PredefinedTypeSyntax)?.Keyword.Text == (p2.Type as PredefinedTypeSyntax)?.Keyword.Text,
-                SyntaxKind.GenericName => (p1.Type as GenericNameSyntax)?.Identifier.Text == (p2.Type as GenericNameSyntax)?.Identifier.Text,
-                SyntaxKind.NullableType => (p1.Type as NullableTypeSyntax)?.ElementType.ToFullString() == (p2.Type as NullableTypeSyntax)?.ElementType.ToFullString(),
-                _ => p1.Type?.ToFullString() == p2.Type?.ToFullString(),// For other types, we just compare the full string representation
-            };
+            if (p1.Type is null && p2.Type is not null ||
+                p1.Type is not null && p2.Type is null)
+                return false; // If either type is null, they are not equivalent
+            if (p1.Type is null && p2.Type is null)
+                return true; // Both types are null, so they are equivalent
+            return TypesAreEquivalent(p1.Type!, p2.Type!);
         }).All(p => p);
     }
 

@@ -54,4 +54,11 @@ public abstract class PythonConstant
 
         public override string ToString() => "None";
     }
+
+    public sealed class Ellipsis : PythonConstant
+    {
+        public static readonly Ellipsis Value = new();
+        private Ellipsis() { }
+        public override string ToString() => "...";
+    }
 }

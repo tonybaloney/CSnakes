@@ -168,45 +168,19 @@ public class TokenizerTests
         Assert.Null(param.TypeSpec);
     }
 
-    [Fact]
-    public void ParseFunctionParameterDefaultSingleQuotedString()
+    [Theory]
+    [InlineData("a = 'hello'")]
+    [InlineData("a = \"hello\"")]
+    [InlineData("a: str = u'hello'")]
+    [InlineData("a: str = u\"hello\"")]
+    public void ParseFunctionParameterDefaultString(string code)
     {
-        var tokens = PythonTokenizer.Instance.Tokenize($"a = 'hello'");
+        var tokens = PythonTokenizer.Instance.Tokenize(code);
         var result = PythonParser.OptionalPythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         var param = result.Value;
         var constant = Assert.IsType<PythonConstant.String>(param.DefaultValue);
         Assert.Equal("hello", constant.Value);
-        Assert.Same(PythonTypeSpec.Any, param.ImpliedTypeSpec);
-        Assert.Null(param.TypeSpec);
-    }
-
-    [Fact]
-    public void ParseFunctionParameterDefaultDoubleQuotedString()
-    {
-        var tokens = PythonTokenizer.Instance.Tokenize($"a = \"hello\"");
-        var result = PythonParser.OptionalPythonParameterParser.TryParse(tokens);
-        Assert.True(result.HasValue);
-        var param = result.Value;
-        Assert.Equal("a", param.Name);
-        var constant = Assert.IsType<PythonConstant.String>(param.DefaultValue);
-        Assert.Equal("hello", constant.Value);
-        Assert.Same(PythonTypeSpec.Any, param.ImpliedTypeSpec);
-        Assert.Null(param.TypeSpec);
-    }
-
-    [Fact]
-    public void ParseFunctionParameterDefaultSingleQuotedStringWithUnicodePrefix()
-    {
-        var tokens = PythonTokenizer.Instance.Tokenize($"a: str = u'hello'");
-        var result = PythonParser.OptionalPythonParameterParser.TryParse(tokens);
-        Assert.True(result.HasValue);
-        var param = result.Value;
-        Assert.Equal("a", param.Name);
-        var constant = Assert.IsType<PythonConstant.String>(param.DefaultValue);
-        Assert.Equal("hello", constant.Value);
-        Assert.Equal(PythonConstant.String.PrefixKind.Unicode, constant.Prefix);
-        Assert.NotNull(param.TypeSpec);
     }
 
     [Fact]

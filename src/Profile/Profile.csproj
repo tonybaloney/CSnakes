@@ -1,29 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-  <TargetFrameworks>net10.0</TargetFrameworks>
+    <TargetFrameworks>net10.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
+    <NoWarn>$(NoWarn);SYSLIB5001</NoWarn>
+    <RuntimeIdentifier>linux-arm64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
-
-  <FrameworkReference Update="Microsoft.NETCore.App" RuntimeFrameworkVersion="10.0.0-dev" />
+    <FrameworkReference Update="Microsoft.NETCore.App" RuntimeFrameworkVersion="10.0.0-dev" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="*.py" />
+    <None Remove="python\*.py" />
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="*.py">
+    <AdditionalFiles Include="python\*.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AdditionalFiles>
+    <AdditionalFiles Include="python\requirements.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </AdditionalFiles>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" />
     <PackageReference Include="Microsoft.VisualStudio.DiagnosticsHub.BenchmarkDotNetDiagnosers" />
-    <PackageReference Include="python" />
   </ItemGroup>
 
   <ItemGroup>

@@ -12,16 +12,14 @@ public class BaseBenchmark
 
     public BaseBenchmark()
     {
-        string pythonVersionWindows = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9";
-        string pythonVersionMacOS = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
-        string pythonVersionLinux = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
-
-
         var builder = Host.CreateApplicationBuilder();
-        var pb = builder.Services.WithPython();
-        pb.WithHome(Path.Join(Environment.CurrentDirectory));
-
-        pb.FromRedistributable();
+        
+        string home = Path.Join(Environment.CurrentDirectory, "python");
+        builder.Services.WithPython()
+            .WithHome(home)
+            .WithVirtualEnvironment(Path.Join(home, ".venv"))
+            .WithUvInstaller()
+            .FromRedistributable();
         
         IHost app = builder.Build();
 

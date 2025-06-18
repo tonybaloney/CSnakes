@@ -1,15 +1,15 @@
-﻿using CommunityToolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 using CSnakes.Runtime.CPython;
-using System.Runtime.InteropServices.Marshalling;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 #if NET9_0_OR_GREATER
 using System.Numerics.Tensors;
 #endif
 
 namespace CSnakes.Runtime.Python;
-internal sealed class PyBuffer : IPyBuffer, IDisposable
+internal sealed class PyBuffer : IPyBuffer
 {
-    private readonly CPythonAPI.Py_buffer _buffer;
+    private CPythonAPI.Py_buffer _buffer;
     private bool _disposed;
     private readonly bool _isScalar;
     private readonly string _format;
@@ -47,15 +47,15 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         SSizeT = 'N', // C ssize_t
     }
 
-    public unsafe PyBuffer(PyObject exporter)
+    public PyBuffer(PyObject exporter)
     {
         using (GIL.Acquire())
         {
-            _buffer = CPythonAPI.GetBuffer(exporter);
+            CPythonAPI.GetBuffer(exporter, out _buffer);
         }
         _disposed = false;
         _isScalar = _buffer.ndim == 0 || _buffer.ndim == 1;
-        _format = Utf8StringMarshaller.ConvertToManaged(_buffer.format) ?? string.Empty;
+        _format = Marshal.PtrToStringUTF8(_buffer.format) ?? string.Empty;
         _byteOrder = GetByteOrder();
     }
 
@@ -65,7 +65,7 @@ internal sealed class PyBuffer : IPyBuffer, IDisposable
         {
             using (GIL.Acquire())
             {
-                CPythonAPI.ReleaseBuffer(_buffer);
+                CPythonAPI.ReleaseBuffer(ref _buffer);
             }
             _disposed = true;
         }

@@ -1,6 +1,6 @@
-﻿using System.Formats.Tar;
-using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using System.Formats.Tar;
+using System.Runtime.InteropServices;
 using ZstdSharp;
 
 namespace CSnakes.Runtime.Locators;
@@ -32,7 +32,7 @@ public enum RedistributablePythonVersion
     Python3_14,
 }
 
-internal class RedistributableLocator(ILogger<RedistributableLocator> logger, RedistributablePythonVersion version, int installerTimeout = 360, bool debug = false, bool freeThreaded = false) : PythonLocator
+internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, RedistributablePythonVersion version, int installerTimeout = 360, bool debug = false, bool freeThreaded = false) : PythonLocator
 {
     private const string standaloneRelease = "20250212";
     private const string MutexName = @"Global\CSnakesPythonInstall-1"; // run-time name includes Python version
@@ -188,11 +188,11 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
             string downloadUrl = $"https://github.com/astral-sh/python-build-standalone/releases/download/{standaloneRelease}/cpython-{Version.Major}.{Version.Minor}.{Version.Build}+{standaloneRelease}-{platform}.tar.zst";
 
             // Download and extract the Zstd tarball
-            logger.LogDebug("Downloading Python from {DownloadUrl}", downloadUrl);
+            logger?.LogDebug("Downloading Python from {DownloadUrl}", downloadUrl);
             string tempFilePath = DownloadFileToTempDirectoryAsync(downloadUrl).GetAwaiter().GetResult();
             string tarFilePath = DecompressZstFile(tempFilePath);
             ExtractTar(tarFilePath, downloadPath, logger);
-            logger.LogDebug("Extracted Python to {downloadPath}", downloadPath);
+            logger?.LogDebug("Extracted Python to {downloadPath}", downloadPath);
 
             // Delete the tarball and temp file
             File.Delete(tarFilePath);
@@ -200,7 +200,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to download and extract Python");
+            logger?.LogError(ex, "Failed to download and extract Python");
             // If the install failed somewhere, delete the folder incase it's half downloaded
             if (Directory.Exists(installPath))
             {
@@ -265,7 +265,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
         return tarFilePath;
     }
 
-    private static void ExtractTar(string tarFilePath, string extractPath, ILogger logger)
+    private static void ExtractTar(string tarFilePath, string extractPath, ILogger? logger)
     {
         using FileStream tarStream = File.OpenRead(tarFilePath);
         using TarReader tarReader = new(tarStream);
@@ -277,30 +277,33 @@ internal class RedistributableLocator(ILogger<RedistributableLocator> logger, Re
             if (entry.EntryType == TarEntryType.Directory)
             {
                 Directory.CreateDirectory(entryPath);
-                logger.LogDebug("Creating directory: {EntryPath}", entryPath);
+                logger?.LogDebug("Creating directory: {EntryPath}", entryPath);
             }
             else if (entry.EntryType == TarEntryType.RegularFile)
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(entryPath)!);
                 entry.ExtractToFile(entryPath, true);
-            } else if (entry.EntryType == TarEntryType.SymbolicLink) {
+            }
+            else if (entry.EntryType == TarEntryType.SymbolicLink)
+            {
                 // Delay the creation of symlinks until after all files have been extracted
                 symlinks.Add((entryPath, entry.LinkName));
-            } else
+            }
+            else
             {
-                logger.LogDebug("Skipping entry: {EntryPath} ({EntryType})", entryPath, entry.EntryType);
+                logger?.LogDebug("Skipping entry: {EntryPath} ({EntryType})", entryPath, entry.EntryType);
             }
         }
         foreach (var (path, link) in symlinks)
         {
-            logger.LogDebug("Creating symlink: {Path} -> {Link}", path, link);
+            logger?.LogDebug("Creating symlink: {Path} -> {Link}", path, link);
             try
             {
                 File.CreateSymbolicLink(path, link);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to create symlink: {Path} -> {Link}", path, link);
+                logger?.LogError(ex, "Failed to create symlink: {Path} -> {Link}", path, link);
             }
         }
     }

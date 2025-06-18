@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.CPython;
@@ -26,7 +26,7 @@ internal unsafe partial class CPythonAPI
         public nint itemsize;
         public int @readonly;
         public int ndim;
-        public byte* format;
+        public nint format;
         public nint* shape;
         public nint* strides;
         public nint* suboffsets;
@@ -35,24 +35,22 @@ internal unsafe partial class CPythonAPI
 
     public static bool IsBuffer(PyObject p) => PyObject_CheckBuffer(p) == 1;
 
-    internal static Py_buffer GetBuffer(PyObject p)
+    internal static void GetBuffer(PyObject p, out Py_buffer buffer)
     {
-        Py_buffer view = default;
-        if (PyObject_GetBuffer(p, &view, (int)(PyBUF.Format | PyBUF.CContiguous)) != 0)
+        if (PyObject_GetBuffer(p, out buffer, (int)(PyBUF.Format | PyBUF.CContiguous)) != 0)
         {
             throw PyObject.ThrowPythonExceptionAsClrException();
         }
-        return view;
     }
 
-    internal static void ReleaseBuffer(Py_buffer view) => PyBuffer_Release(&view);
+    internal static void ReleaseBuffer(ref Py_buffer view) => PyBuffer_Release(ref view);
 
     [LibraryImport(PythonLibraryName)]
     private static partial int PyObject_CheckBuffer(PyObject ob);
 
     [LibraryImport(PythonLibraryName)]
-    private static partial int PyObject_GetBuffer(PyObject ob, Py_buffer* view, int flags);
+    private static partial int PyObject_GetBuffer(PyObject ob, out Py_buffer view, int flags);
 
     [LibraryImport(PythonLibraryName)]
-    private static partial void PyBuffer_Release(Py_buffer* view);
+    private static partial void PyBuffer_Release(ref Py_buffer view);
 }

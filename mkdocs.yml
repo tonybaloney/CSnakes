@@ -5,6 +5,7 @@ nav:
   - Reference: reference.md
   - Environment and Package Management: environments.md
   - Asynchronous Functions: async_support.md
+  - Performance Considerations: performance.md
   - Buffer Protocol and NumPy Arrays: buffers.md
   - Advanced Usage: advanced.md
   - Limitations: limitations.md
@@ -13,8 +14,22 @@ nav:
 
 theme:
   name: material
+  logo: res/logo.jpeg
   features:
     - content.code.copy
+  palette:
+    - scheme: default  # Light Mode
+      primary: black
+      accent: pink
+      toggle:
+        icon: material/brightness-2
+        name: Switch to dark mode
+    - scheme: slate # Dark Mode
+      primary: amber
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to light mode
 repo_url: https://github.com/tonybaloney/csnakes
 markdown_extensions:
   - pymdownx.highlight:

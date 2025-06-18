@@ -1,20 +1,16 @@
 using CSnakes.Runtime.Locators;
-using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Xunit.Abstractions;
 
 namespace RedistributablePython.Tests;
 public class RedistributablePythonTestBase : IDisposable
 {
     private readonly IPythonEnvironment env;
     private readonly IHost app;
-    private readonly ITestOutputHelper _testOutputHelper;
 
-    public RedistributablePythonTestBase(ITestOutputHelper testOutputHelper)
+    public RedistributablePythonTestBase()
     {
-        _testOutputHelper = testOutputHelper;
         Version pythonVersionToTest = ServiceCollectionExtensions.ParsePythonVersion(Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9");
         bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "1";
         bool debugPython = Environment.GetEnvironmentVariable("PYTHON_DEBUG") == "1";
@@ -35,25 +31,20 @@ public class RedistributablePythonTestBase : IDisposable
             14 => RedistributablePythonVersion.Python3_14,
             _ => throw new NotSupportedException($"Python version {pythonVersionToTest} is not supported.")
         };
-        app = Host.CreateDefaultBuilder()
-            .ConfigureServices((context, services) =>
-            {
-                var pb = services.WithPython();
-                pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
+        var builder = Host.CreateApplicationBuilder();
+        var pb = builder.Services.WithPython();
+        pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"))
+          .DisableSignalHandlers()
+          .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
+          .WithUvInstaller()
+          .WithVirtualEnvironment(venvPath);
 
-                pb.FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
-                  .WithUvInstaller()
-                  .WithVirtualEnvironment(venvPath);
+        builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
 
-                services.AddSingleton<ILoggerProvider>(new XUnitLoggerProvider(_testOutputHelper, appendScope: true));
-
-            })
-            .ConfigureLogging(builder =>
-            {
-                builder.SetMinimumLevel(LogLevel.Debug);
-                builder.AddFilter(_ => true);
-            })
-            .Build();
+        builder.Logging.SetMinimumLevel(LogLevel.Debug);
+        builder.Logging.AddFilter(_ => true);
+        
+        app = builder.Build();
 
         env = app.Services.GetRequiredService<IPythonEnvironment>();
     }

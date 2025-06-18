@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Python;
 public class PyDictionaryTests : RuntimeTestBase
@@ -37,6 +37,28 @@ public class PyDictionaryTests : RuntimeTestBase
     }
 
     [Fact]
+    public void TestKeysEnumeratorFunctionsDespiteEarlyDictionaryDisposal()
+    {
+        var testDict = new Dictionary<string, string>
+        {
+            ["Hello"] = "World?",
+            ["Foo"] = "Bar"
+        };
+        var pyDict = PyObject.From(testDict).As<IReadOnlyDictionary<string, string>>();
+
+        using var e = pyDict.Keys.GetEnumerator();
+        ((IDisposable)pyDict).Dispose();
+
+        Assert.True(e.MoveNext());
+        Assert.Equal("Hello", e.Current);
+
+        Assert.True(e.MoveNext());
+        Assert.Equal("Foo", e.Current);
+
+        Assert.False(e.MoveNext());
+    }
+
+    [Fact]
     public void TestValues()
     {
         var testDict = new Dictionary<string, string>()
@@ -50,6 +72,28 @@ public class PyDictionaryTests : RuntimeTestBase
         Assert.Equal(2, pyDict.Count);
         Assert.Contains("World?", pyDict.Values);
         Assert.Contains("Bar", pyDict.Values);
+    }
+
+    [Fact]
+    public void TestValuesEnumeratorFunctionsDespiteEarlyDictionaryDisposal()
+    {
+        var testDict = new Dictionary<string, string>
+        {
+            ["Hello"] = "World?",
+            ["Foo"] = "Bar"
+        };
+        var pyDict = PyObject.From(testDict).As<IReadOnlyDictionary<string, string>>();
+
+        using var e = pyDict.Values.GetEnumerator();
+        ((IDisposable)pyDict).Dispose();
+
+        Assert.True(e.MoveNext());
+        Assert.Equal("World?", e.Current);
+
+        Assert.True(e.MoveNext());
+        Assert.Equal("Bar", e.Current);
+
+        Assert.False(e.MoveNext());
     }
 
     [Fact]
@@ -98,5 +142,27 @@ public class PyDictionaryTests : RuntimeTestBase
         Assert.True(pyDict.TryGetValue("Foo", out value));
         Assert.Equal("Bar", value);
         Assert.False(pyDict.TryGetValue("Bar", out _));
+    }
+
+    [Fact]
+    public void TestGetEnumeratorFunctionsDespiteEarlyDictionaryDisposal()
+    {
+        var testDict = new Dictionary<string, string>
+        {
+            ["Hello"] = "World?",
+            ["Foo"] = "Bar"
+        };
+        var pyDict = PyObject.From(testDict).As<IReadOnlyDictionary<string, string>>();
+
+        using var e = pyDict.GetEnumerator();
+        ((IDisposable)pyDict).Dispose();
+
+        Assert.True(e.MoveNext());
+        Assert.Equal(new KeyValuePair<string, string>("Hello", "World?"), e.Current);
+
+        Assert.True(e.MoveNext());
+        Assert.Equal(new KeyValuePair<string, string>("Foo", "Bar"), e.Current);
+
+        Assert.False(e.MoveNext());
     }
 }

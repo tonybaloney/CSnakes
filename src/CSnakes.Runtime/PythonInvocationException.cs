@@ -1,4 +1,4 @@
-﻿using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python;
 using System.Diagnostics;
 
 namespace CSnakes.Runtime;
@@ -13,7 +13,8 @@ public class PythonInvocationException(string exceptionType,
                 : new PythonRuntimeException(exception, pythonStackTrace))
 {
     public PythonInvocationException(string exceptionType, PyObject? exception, PyObject? pythonStackTrace) :
-        this(exceptionType, exception, pythonStackTrace, $"The Python runtime raised a {exceptionType} exception, see InnerException for details.") { }
+        this(exceptionType, exception, pythonStackTrace, $"The Python runtime raised a {exceptionType} exception, see InnerException for details.")
+    { }
 
     public string PythonExceptionType { get; } = exceptionType;
 }

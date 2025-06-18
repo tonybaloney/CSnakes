@@ -1,4 +1,4 @@
-﻿namespace CSnakesAspire.ApiService;
+namespace CSnakesAspire.ApiService;
 
 public class Weather
 {

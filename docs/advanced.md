@@ -35,14 +35,11 @@ CSnakes supports free-threading mode, but it is disabled by default.
 To use free-threading you can use the `RedistributableLocator` from version Python 3.13 and request `freeThreaded` builds:
 
 ```csharp
-app = Host.CreateDefaultBuilder()
-    .ConfigureServices((context, services) =>
-    {
-        var pb = services.WithPython();
-            pb.WithHome(Environment.CurrentDirectory); // Path to your Python modules.
-            pb.FromRedistributable("3.13", freeThreaded: true);
-    })
-    .Build();
+var builder = Host.CreateApplicationBuilder();
+var pb = builder.Services.WithPython()
+  .WithHome(Environment.CurrentDirectory) // Path to your Python modules.
+  .FromRedistributable("3.13", freeThreaded: true);
+var app = builder.Build();
 
 env = app.Services.GetRequiredService<IPythonEnvironment>();
 ```
@@ -147,3 +144,21 @@ Beyond the C# [limitations](https://learn.microsoft.com/visualstudio/debugger/su
 - Changing the name of a module
 
 The Hot Reload feature is useful for iterating on the __body__ of a Python function, without having to restart the debugger or application.
+
+## Disabling Signal Handlers in Python
+
+By default, Python will install signal handlers for certain signals, such as `SIGINT` (Ctrl+C) and `SIGTERM`. This can interfere with the normal operation of your application, especially if you are using a framework that has its own signal handlers.
+This means that signal handlers on C# code will not be called when the signal is received, and the Python code will handle the signal instead.
+
+You can disable this behavior by using the `.DisableSignalHandlers()` method on the `IPythonEnvironment` instance:
+
+```csharp
+var builder = Host.CreateApplicationBuilder();
+var pb = builder.Services.WithPython()
+  .WithHome(Environment.CurrentDirectory)
+  .FromRedistributable()
+  .DisableSignalHandlers(); // Disable Python signal handlers
+var app = builder.Build();
+
+env = app.Services.GetRequiredService<IPythonEnvironment>();
+```

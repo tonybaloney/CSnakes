@@ -81,15 +81,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
-var builder = Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services =>
-    {
-        var home = Path.Join(Environment.CurrentDirectory, "."); /* Path to your Python modules */
-        services
-            .WithPython()
-            .WithHome(home)
-            .FromRedistributable(); // Download Python 3.12 and store it locally
-    });
+var builder = Host.CreateApplicationBuilder(args);
+var home = Path.Join(Environment.CurrentDirectory, "."); /* Path to your Python modules */
+builder.Services
+    .WithPython()
+    .WithHome(home)
+    .FromRedistributable(); // Download Python 3.12 and store it locally
 
 var app = builder.Build();
 
@@ -108,7 +105,7 @@ You can also optionally use the `.WithPipInstaller()` method to install packages
 
 ```csharp
 var home = Path.Join(Environment.CurrentDirectory, "."); /* Path to your Python modules */
-services
+builder.Services
     .WithPython()
     .WithHome(home)
     .FromRedistributable()

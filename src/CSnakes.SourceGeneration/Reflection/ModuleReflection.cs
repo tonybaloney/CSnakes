@@ -1,7 +1,7 @@
-﻿using Microsoft.CodeAnalysis;
+using CSnakes.Parser.Types;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using CSnakes.Parser.Types;
 
 namespace CSnakes.Reflection;
 
@@ -9,7 +9,8 @@ public static class ModuleReflection
 {
     public static IEnumerable<MethodDefinition> MethodsFromFunctionDefinitions(IEnumerable<PythonFunctionDefinition> functions, string moduleName)
     {
-        return functions.Select(function => MethodReflection.FromMethod(function, moduleName));
+        return functions.Select(function => MethodReflection.FromMethod(function, moduleName))
+                        .Distinct(new MethodDefinitionComparator());
     }
 
     public static string Compile(this IEnumerable<MethodDeclarationSyntax> methods)

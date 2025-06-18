@@ -1,3 +1,14 @@
 {
-    "dotnet.defaultSolution": "src/CSnakes.sln"
+    "dotnet.defaultSolution": "src/CSnakes.sln",
+    "github.copilot.enable": {
+        "*": false,
+        "plaintext": true,
+        "markdown": true,
+        "scminput": false,
+        "yaml": true,
+        "typescript": true,
+        "jsonc": true,
+        "python": true,
+        "csv": false
+    }
 }

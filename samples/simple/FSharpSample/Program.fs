@@ -1,4 +1,4 @@
-﻿open CSnakes.Runtime
+open CSnakes.Runtime
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
 open System

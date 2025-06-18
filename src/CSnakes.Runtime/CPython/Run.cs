@@ -1,5 +1,6 @@
-﻿using CSnakes.Runtime.Python;
+using CSnakes.Runtime.Python;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace CSnakes.Runtime.CPython;
 
@@ -14,6 +15,6 @@ internal unsafe partial class CPythonAPI
 
     internal static PyObject PyRun_String(string str, InputType start, PyObject globals, PyObject locals) => PyObject.Create(PyRun_String_(str, start, globals, locals));
 
-    [LibraryImport(PythonLibraryName, EntryPoint = "PyRun_String", StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(NonFreeUtf8StringMarshaller))]
+    [LibraryImport(PythonLibraryName, EntryPoint = "PyRun_String", StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(Utf8StringMarshaller))]
     private static partial nint PyRun_String_(string str, InputType start, PyObject globals, PyObject locals);
 }

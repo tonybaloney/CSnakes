@@ -1,4 +1,4 @@
-﻿namespace CSnakes.Runtime;
+namespace CSnakes.Runtime;
 
 public interface IReloadableModuleImport : IDisposable
 {

@@ -1,23 +1,25 @@
-﻿using Microsoft.CodeAnalysis.Text;
 using CSnakes.Parser.Types;
+using Microsoft.CodeAnalysis.Text;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
-
-using ParsedTokens = Superpower.Model.TokenList<CSnakes.Parser.PythonToken>;
 using System.Collections.Immutable;
+using ParsedTokens = Superpower.Model.TokenList<CSnakes.Parser.PythonToken>;
 
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
     public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionParser { get; } =
-        (from @async in Token.EqualTo(PythonToken.Async).OptionalOrDefault()
+        (from async in Token.EqualTo(PythonToken.Async).OptionalOrDefault()
          from def in Token.EqualTo(PythonToken.Def)
          from name in Token.EqualTo(PythonToken.Identifier)
-         from parameters in PythonParameterListParser.AssumeNotNull()
-         from arrow in Token.EqualTo(PythonToken.Arrow).Optional().Then(returnType => PythonTypeDefinitionParser.AssumeNotNull().OptionalOrDefault())
-         from colon in Token.EqualTo(PythonToken.Colon)
-         select new PythonFunctionDefinition(name.ToStringValue(), arrow, parameters, async.HasValue))
+         from parameters in PythonParameterListParser
+         from @return in Token.EqualTo(PythonToken.Arrow)
+                              .IgnoreThen(PythonTypeDefinitionParser)
+                              .AsNullable()
+                              .OptionalOrDefault()
+                              .ThenIgnore(Token.EqualTo(PythonToken.Colon))
+         select new PythonFunctionDefinition(name.ToStringValue(), @return, parameters, async.HasValue))
         .Named("Function Definition");
 
     /// <summary>
@@ -27,6 +29,17 @@ public static partial class PythonParser
     /// <returns></returns>
     static bool IsFunctionSignature(string line) =>
         line.StartsWith("def ") || line.StartsWith("async def");
+
+    static string StripTrailingComments(this string line)
+    {
+        // Strip trailing comments to simplify parser
+        int commentIndex = line.IndexOf('#');
+        if (commentIndex >= 0)
+        {
+            return line.Substring(0, commentIndex).TrimEnd();
+        }
+        return line.TrimEnd();
+    }
 
     public static bool TryParseFunctionDefinitions(SourceText source, out PythonFunctionDefinition[] pythonSignatures, out GeneratorError[] errors)
     {
@@ -73,9 +86,27 @@ public static partial class PythonParser
             // If this is a function definition on one line..
             if (repositionedTokens.Last().Kind == PythonToken.Colon)
             {
-                ParsedTokens combinedTokens = new(currentBuffer.SelectMany(x => x.tokens).ToArray());
+                // We re-tokenize the merged lines from the buffer because some of the tokens may have been split across lines
+                // Strip trailing comments to simplify parser
+                string mergedFunctionSpec = string.Join("\n", from x in currentBuffer select x.line.ToString().StripTrailingComments());
 
-                functionLines.Add(([..from x in currentBuffer select x.line], combinedTokens));
+                Result<ParsedTokens> combinedResult = PythonTokenizer.Instance.TryTokenize(mergedFunctionSpec);
+                if (!combinedResult.HasValue)
+                {
+                    currentErrors.Add(new(
+                        line.LineNumber,
+                        line.LineNumber,
+                        combinedResult.ErrorPosition.Column,
+                        combinedResult.ErrorPosition.Column + combinedResult.Location.Length,
+                        combinedResult.FormatErrorMessageFragment())
+                    );
+                    
+                } else
+                {
+                    functionLines.Add(([.. from x in currentBuffer select x.line], combinedResult.Value));
+                }
+
+                // Reset buffer
                 currentBuffer = [];
                 unfinishedFunctionSpec = false;
                 continue;
@@ -109,7 +140,11 @@ public static partial class PythonParser
             }
         }
 
-        pythonSignatures = [.. functionDefinitions];
+        pythonSignatures = [..
+            from fd in functionDefinitions
+            where fd.Name is not ['_', ..]
+            select fd
+        ];
         errors = [.. currentErrors];
         return errors.Length == 0;
     }

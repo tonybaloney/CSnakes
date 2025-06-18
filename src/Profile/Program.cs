@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Running;
+using BenchmarkDotNet.Running;
 using Profile;
 
-var summary = BenchmarkRunner.Run<MarshallingBenchmarks>(args: args);
+BenchmarkSwitcher.FromAssembly(typeof(BaseBenchmark).Assembly)
+                 .Run(args);

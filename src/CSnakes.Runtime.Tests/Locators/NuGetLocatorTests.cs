@@ -1,5 +1,5 @@
 using CSnakes.Runtime.Locators;
-using Microsoft.TestUtilities;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.Tests.Locators;
 
@@ -21,11 +21,14 @@ public sealed class NuGetLocatorTests : IDisposable
         Environment.SetEnvironmentVariable(NugetPackagesEnvVarName, initialNuGetPackagesEnvVar);
     }
 
-    [ConditionalTheory]
-    [OSSkipCondition(OperatingSystems.Linux | OperatingSystems.MacOSX)]
+    [Theory]
     [MemberData(nameof(GetValues))]
     public void LocatePython_returns_expected_when_environmentVariables_set(string envVarName, string envVarValue, string expectedPath)
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return; // Skip on non-Windows
+        }
         if (!NugetPackagesEnvVarName.Equals(envVarValue, StringComparison.OrdinalIgnoreCase))
             Environment.SetEnvironmentVariable(NugetPackagesEnvVarName, null);
 
@@ -44,14 +47,17 @@ public sealed class NuGetLocatorTests : IDisposable
         yield return new object[] { NugetPackagesEnvVarName, @"C:\NuGetPackages", $@"C:\NuGetPackages\python\{PythonNugetVersion}\tools" };
     }
 
-    [ConditionalTheory]
-    [OSSkipCondition(OperatingSystems.Linux | OperatingSystems.MacOSX)]
+    [Theory]
     [InlineData(null, null)]
     [InlineData(null, "")]
     [InlineData("", null)]
     [InlineData("", "")]
     public void LocatePython_should_throw_DirectoryNotFoundException_if_environmentVariables_unset(string? valueUSERPROFILE, string? valueNUGET_PACKAGES)
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return; // Skip on non-Windows
+        }
         Environment.SetEnvironmentVariable(UserProfileEnvVarName, valueUSERPROFILE);
         Environment.SetEnvironmentVariable(NugetPackagesEnvVarName, valueNUGET_PACKAGES);
         MockNuGetLocator locator = new(PythonNugetVersion, PythonVersion);
@@ -60,19 +66,25 @@ public sealed class NuGetLocatorTests : IDisposable
         Assert.Equal($"Neither {NugetPackagesEnvVarName} or {UserProfileEnvVarName} environments variable were found, which are needed to locate the NuGet package cache.", ex.Message);
     }
 
-    [ConditionalFact]
-    [OSSkipCondition(OperatingSystems.Linux | OperatingSystems.MacOSX)]
+    [Fact]
     public void IsSupported_Windows_should_return_expected()
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return; // Skip on non-Windows
+        }
         NuGetLocator locator = new(PythonNugetVersion, PythonVersion);
 
         Assert.True(locator.IsSupported());
     }
 
-    [ConditionalFact]
-    [OSSkipCondition(OperatingSystems.Windows)]
+    [Fact]
     public void IsSupported_not_Windows_should_return_expected()
     {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return;
+        }
         NuGetLocator locator = new(PythonNugetVersion, PythonVersion);
 
         Assert.False(locator.IsSupported());

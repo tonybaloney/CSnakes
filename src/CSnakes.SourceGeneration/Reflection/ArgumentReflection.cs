@@ -7,29 +7,22 @@ namespace CSnakes.Reflection;
 
 public class ArgumentReflection
 {
-    public static readonly ArgumentReflection SafeContext = new(RefSafetyContext.Safe);
-    public static readonly ArgumentReflection RefSafeContext = new(RefSafetyContext.RefSafe);
-
     private static readonly PythonTypeSpec OptionalDictStrAny = PythonTypeSpec.Optional(new("dict", [new("str"), PythonTypeSpec.Any]));
     private static readonly TypeSyntax NullableArrayOfPyObject = SyntaxFactory.ParseTypeName("PyObject[]?");
 
-    private ArgumentReflection(RefSafetyContext refSafetyContext) => RefSafetyContext = refSafetyContext;
-
-    public RefSafetyContext RefSafetyContext { get; }
-
-    public ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter) =>
+    public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter) =>
         ArgumentSyntax(parameter, PythonFunctionParameterType.Normal);
 
-    public ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter,
-                                          PythonFunctionParameterType parameterType)
+    public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter,
+                                                 PythonFunctionParameterType parameterType)
     {
         // Treat *args as list<Any>=None and **kwargs as dict<str, Any>=None
         // TODO: Handle the user specifying *args with a type annotation like tuple[int, str]
         var (reflectedType, defaultValue) = (parameterType, parameter) switch
         {
             (PythonFunctionParameterType.Star, _) => (NullableArrayOfPyObject, PythonConstant.None.Value),
-            (PythonFunctionParameterType.DoubleStar, _) => (TypeReflection.AsPredefinedType(OptionalDictStrAny, TypeReflection.ConversionDirection.ToPython, this.RefSafetyContext), PythonConstant.None.Value),
-            (PythonFunctionParameterType.Normal, { ImpliedTypeSpec: var type, DefaultValue: var dv }) => (TypeReflection.AsPredefinedType(type, TypeReflection.ConversionDirection.ToPython, this.RefSafetyContext), dv),
+            (PythonFunctionParameterType.DoubleStar, _) => (TypeReflection.AsPredefinedType(OptionalDictStrAny, TypeReflection.ConversionDirection.ToPython), PythonConstant.None.Value),
+            (PythonFunctionParameterType.Normal, { ImpliedTypeSpec: var type, DefaultValue: var dv }) => (TypeReflection.AsPredefinedType(type, TypeReflection.ConversionDirection.ToPython), dv),
             _ => throw new NotImplementedException()
         };
 

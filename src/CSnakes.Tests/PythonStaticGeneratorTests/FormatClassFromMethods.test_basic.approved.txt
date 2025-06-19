@@ -258,7 +258,7 @@ public static class TestClassExtensions
             }
         }
 
-        public Task<byte[]> TestBytesAsync(byte[] a, CancellationToken cancellationToken = default)
+        public Task<byte[]> TestBytesAsync(ReadOnlySpan<byte> a, CancellationToken cancellationToken = default)
         {
             using (GIL.Acquire())
             {
@@ -382,7 +382,7 @@ public interface ITestClass : IReloadableModuleImport
     /// async def test_bytes_async(a: bytes) -> bytes: ...
     /// ]]></code>
     /// </summary>
-    Task<byte[]> TestBytesAsync(byte[] a, CancellationToken cancellationToken = default);
+    Task<byte[]> TestBytesAsync(ReadOnlySpan<byte> a, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Invokes the Python function <c>test_sequence</c>:

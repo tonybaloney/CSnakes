@@ -58,16 +58,15 @@ public class BasicTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
     public void TestBasic_TestBytes()
     {
         var testModule = Env.TestBasic();
-        ReadOnlySpan<byte> expected = [0x04, 0x03, 0x02, 0x01];
-        Assert.Equal(expected, testModule.TestBytes([0x01, 0x02, 0x03, 0x04]));
+        Assert.Equal("raboof"u8, testModule.TestBytes("foobar"u8));
     }
 
     [Fact]
     public async Task TestBasic_TestBytesAsync()
     {
         var testModule = Env.TestBasic();
-        var actual = await testModule.TestBytesAsync([0x01, 0x02, 0x03, 0x04], TestContext.Current.CancellationToken);
-        Assert.Equal([0x04, 0x03, 0x02, 0x01], actual);
+        var actual = await testModule.TestBytesAsync("foobar"u8, TestContext.Current.CancellationToken);
+        Assert.Equal("raboof"u8, actual);
     }
 
     [Fact]

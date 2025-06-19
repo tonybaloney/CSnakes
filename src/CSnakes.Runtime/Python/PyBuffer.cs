@@ -1,7 +1,6 @@
 using CommunityToolkit.HighPerformance;
 using CSnakes.Runtime.CPython;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
 #if NET9_0_OR_GREATER
 using System.Numerics.Tensors;
 #endif
@@ -126,6 +125,15 @@ internal sealed class PyBuffer : IPyBuffer
     public ReadOnlySpan<T> AsReadOnlySpan<T>() where T : unmanaged => AsReadOnlySpanInternal<T>();
     public Span2D<T> AsSpan2D<T>() where T : unmanaged => AsSpan2DInternal<T>();
     public ReadOnlySpan2D<T> AsReadOnlySpan2D<T>() where T : unmanaged => AsReadOnlySpan2DInternal<T>();
+
+    /// <summary>
+    ///  DELETE ME LATER!!!!
+    /// </summary>
+    /// <returns></returns>
+    public nint GetAddressOf()
+    {
+        return (nint)_buffer.buf;
+    }
 
     private ByteOrder GetByteOrder()
     {

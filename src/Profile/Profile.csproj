@@ -4,23 +4,14 @@
     <TargetFrameworks>net10.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <NoWarn>$(NoWarn);SYSLIB5001</NoWarn>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-
-  <ItemGroup>
-    <FrameworkReference Update="Microsoft.NETCore.App" RuntimeFrameworkVersion="10.0.0-dev" />
-  
-  </ItemGroup>
   
   <ItemGroup>
     <None Remove="python\*.py" />
    
   </ItemGroup>
-  <ItemGroup>
-  <Reference Include="System.Numerics, Version=42.42.42.42424">
-    <HintPath>c:\dn\runtime\artifacts\bin\ref\netcoreapp\System.Numerics.dll</HintPath>
-    <Private>false</Private>
-  </Reference>
-</ItemGroup>
+
 
   <ItemGroup>
     <AdditionalFiles Include="python\*.py">

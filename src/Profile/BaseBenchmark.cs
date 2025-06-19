@@ -1,5 +1,6 @@
 using BenchmarkDotNet.Attributes;
 using CSnakes.Runtime;
+using CSnakes.Runtime.Locators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -19,7 +20,7 @@ public class BaseBenchmark
             .WithHome(home)
             .WithVirtualEnvironment(Path.Join(home, ".venv"))
             .WithUvInstaller()
-            .FromRedistributable();
+            .FromRedistributable(RedistributablePythonVersion.Python3_12);
         
         IHost app = builder.Build();
 

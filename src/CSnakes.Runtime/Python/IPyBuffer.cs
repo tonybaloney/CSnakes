@@ -38,5 +38,5 @@ public interface IPyBuffer : IDisposable
     TensorSpan<T> AsTensorSpan<T>() where T : unmanaged;
     ReadOnlyTensorSpan<T> AsReadOnlyTensorSpan<T>() where T : unmanaged;
 #endif
-
+    nint GetAddressOf();
 }

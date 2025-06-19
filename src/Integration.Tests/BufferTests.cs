@@ -1,5 +1,10 @@
 using System;
 using System.Collections.Generic;
+#if NET9_0_OR_GREATER
+using System.Numerics.Tensors;
+using System.Runtime.CompilerServices;
+
+#endif
 using CSnakes.Runtime.Python;
 using Xunit;
 
@@ -416,6 +421,31 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     }
 
 #if NET9_0_OR_GREATER
+
+    [Fact]
+    public unsafe void TestNDim2Tensor()
+    {
+        var testModule = Env.TestBuffer();
+        using var bufferObject = testModule.TestFloat32Bytes();
+        var byteSpan = bufferObject.AsByteReadOnlySpan();
+        var dimensions = new nint[] { 2, 3 };
+        var strides = new nint[] { 3, 1 }; // Assuming 4 bytes per float and 3 columns
+
+        // Create a TensorSpan from the byte span
+        // Note: The TensorSpan type is experimental and may change in future versions.
+        // Use with caution and ensure compatibility with your code.
+#pragma warning disable SYSLIB5001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        var tensor = new TensorSpan<float>(
+            (float*)bufferObject.GetAddressOf(),
+            0x018, // Length
+            dimensions, // Dimensions
+            strides // Strides
+        );
+#pragma warning restore SYSLIB5001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        Assert.Equal(1.1, tensor[0, 0], 0.00001);
+        Assert.Equal(6.6, tensor[1, 2], 0.00001);
+    }
+
     [Fact]
     public void TestNDim3Tensor()
     {

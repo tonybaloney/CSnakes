@@ -71,6 +71,9 @@ def test_uint64_2d_buffer() -> Buffer:
 def test_float32_2d_buffer() -> Buffer:
     return np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float32)
 
+def test_float32_bytes() -> Buffer:
+    return np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float32).tobytes()
+
 def test_float64_2d_buffer() -> Buffer:
     return np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float64)
 

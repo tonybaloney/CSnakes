@@ -27,7 +27,7 @@ public static class TypeReflection
             ({ Name: "str" }, _, _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword)),
             ({ Name: "float" }, _, _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DoubleKeyword)),
             ({ Name: "bool" }, _, _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword)),
-            ({ Name: "bytes" }, _, RefSafetyContext.RefSafe) => SyntaxFactory.ParseTypeName("ReadOnlySpan<byte>"),
+            ({ Name: "bytes" }, ConversionDirection.ToPython, RefSafetyContext.RefSafe) => SyntaxFactory.ParseTypeName("ReadOnlySpan<byte>"),
             ({ Name: "bytes" }, _, _) => SyntaxFactory.ParseTypeName("byte[]"),
             ({ Name: "Buffer" or "collections.abc.Buffer" }, ConversionDirection.FromPython, _) => SyntaxFactory.ParseTypeName("IPyBuffer"),
             _ => SyntaxFactory.ParseTypeName("PyObject"),

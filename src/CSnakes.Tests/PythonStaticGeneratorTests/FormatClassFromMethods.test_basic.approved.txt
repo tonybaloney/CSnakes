@@ -245,7 +245,7 @@ public static class TestClassExtensions
             }
         }
 
-        public ReadOnlySpan<byte> TestBytes(ReadOnlySpan<byte> a)
+        public byte[] TestBytes(ReadOnlySpan<byte> a)
         {
             using (GIL.Acquire())
             {
@@ -374,7 +374,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def test_bytes(a: bytes) -> bytes: ...
     /// ]]></code>
     /// </summary>
-    ReadOnlySpan<byte> TestBytes(ReadOnlySpan<byte> a);
+    byte[] TestBytes(ReadOnlySpan<byte> a);
 
     /// <summary>
     /// Invokes the Python function <c>test_bytes_async</c>:

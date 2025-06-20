@@ -13,22 +13,23 @@ public static class TypeReflection
         FromPython
     }
 
-    public static TypeSyntax AsPredefinedType(PythonTypeSpec pythonType, ConversionDirection direction) =>
-        (pythonType, direction) switch
+    public static TypeSyntax AsPredefinedType(PythonTypeSpec pythonType, ConversionDirection direction, RefSafetyContext refSafetyContext = RefSafetyContext.Safe) =>
+        (pythonType, direction, refSafetyContext) switch
         {
-            ({ Name: "list" or "typing.List" or "List" or "typing.Sequence" or "Sequence", Arguments: [var t] }, _) => CreateListType(t, direction),
-            ({ Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: var ts }, _) => CreateTupleType(ts, direction),
-            ({ Name: "dict" or "typing.Dict" or "Dict" or "typing.Mapping" or "Mapping", Arguments: [var kt, var vt] }, _) => CreateDictionaryType(kt, vt, direction),
-            ({ Name: "typing.Optional" or "Optional", Arguments: [var t] }, _) => SyntaxFactory.NullableType(AsPredefinedType(t, direction)),
-            ({ Name: "typing.Generator" or "Generator", Arguments: [var yt, var st, var rt] }, _) => CreateGeneratorType(yt, st, rt, direction),
-            ({ Name: "typing.Coroutine" or "Coroutine", Arguments: [var yt, var st, var rt] }, _) => CreateCoroutineType(yt, st, rt, direction),
+            ({ Name: "list" or "typing.List" or "List" or "typing.Sequence" or "Sequence", Arguments: [var t] }, _, _) => CreateListType(t, direction),
+            ({ Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: var ts }, _, _) => CreateTupleType(ts, direction),
+            ({ Name: "dict" or "typing.Dict" or "Dict" or "typing.Mapping" or "Mapping", Arguments: [var kt, var vt] }, _, _) => CreateDictionaryType(kt, vt, direction),
+            ({ Name: "typing.Optional" or "Optional", Arguments: [var t] }, _, _) => SyntaxFactory.NullableType(AsPredefinedType(t, direction, refSafetyContext)),
+            ({ Name: "typing.Generator" or "Generator", Arguments: [var yt, var st, var rt] }, _, _) => CreateGeneratorType(yt, st, rt, direction),
+            ({ Name: "typing.Coroutine" or "Coroutine", Arguments: [var yt, var st, var rt] }, _, _) => CreateCoroutineType(yt, st, rt, direction),
             // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
-            ({ Name: "int" }, _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword)),
-            ({ Name: "str" }, _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword)),
-            ({ Name: "float" }, _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DoubleKeyword)),
-            ({ Name: "bool" }, _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword)),
-            ({ Name: "bytes" }, _) => SyntaxFactory.ParseTypeName("byte[]"),
-            ({ Name: "Buffer" or "collections.abc.Buffer" }, ConversionDirection.FromPython) => SyntaxFactory.ParseTypeName("IPyBuffer"),
+            ({ Name: "int" }, _, _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword)),
+            ({ Name: "str" }, _, _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword)),
+            ({ Name: "float" }, _, _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DoubleKeyword)),
+            ({ Name: "bool" }, _, _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword)),
+            ({ Name: "bytes" }, ConversionDirection.ToPython, RefSafetyContext.RefSafe) => SyntaxFactory.ParseTypeName("ReadOnlySpan<byte>"),
+            ({ Name: "bytes" }, _, _) => SyntaxFactory.ParseTypeName("byte[]"),
+            ({ Name: "Buffer" or "collections.abc.Buffer" }, ConversionDirection.FromPython, _) => SyntaxFactory.ParseTypeName("IPyBuffer"),
             _ => SyntaxFactory.ParseTypeName("PyObject"),
         };
 

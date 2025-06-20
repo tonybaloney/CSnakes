@@ -22,14 +22,9 @@ public static class MethodReflection
 
         if (!function.IsAsync)
         {
-            if (returnPythonType.Name == "None")
-            {
-                returnSyntax = PredefinedType(Token(SyntaxKind.VoidKeyword));
-            }
-            else
-            {
-                returnSyntax = TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython);
-            }
+            returnSyntax = returnPythonType.Name == "None"
+                         ? PredefinedType(Token(SyntaxKind.VoidKeyword))
+                         : TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython, RefSafetyContext.RefSafe);
         }
         else
         {

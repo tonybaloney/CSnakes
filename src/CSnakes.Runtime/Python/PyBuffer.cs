@@ -2,6 +2,8 @@ using CommunityToolkit.HighPerformance;
 using CSnakes.Runtime.CPython;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
+using System.Diagnostics;
+
 #if NET9_0_OR_GREATER
 using System.Numerics.Tensors;
 #endif
@@ -265,7 +267,7 @@ internal sealed class PyBuffer : IPyBuffer
         }
         return new TensorSpan<T>(
             (T*)_buffer.buf,
-            _buffer.len,
+            _buffer.len / sizeof(T),
             Shape,
             strides
         );
@@ -280,10 +282,9 @@ internal sealed class PyBuffer : IPyBuffer
         {
             strides[i] = _buffer.strides[i] / sizeof(T);
         }
-
         return new ReadOnlyTensorSpan<T>(
             (T*)_buffer.buf,
-            _buffer.len,
+            _buffer.len / sizeof(T),
             Shape,
             strides
         );

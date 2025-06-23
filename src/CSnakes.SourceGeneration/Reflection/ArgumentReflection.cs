@@ -29,7 +29,7 @@ public class ArgumentReflection
         var literalExpressionSyntax = defaultValue switch
         {
             null => null,
-            PythonConstant.HexidecimalInteger { Value: var v } =>
+            PythonConstant.HexadecimalInteger { Value: var v } =>
                 SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
                                                 SyntaxFactory.Literal($"0x{v:X}", v)),
             PythonConstant.BinaryInteger { Value: var v } =>

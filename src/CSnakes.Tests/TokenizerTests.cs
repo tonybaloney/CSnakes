@@ -601,6 +601,7 @@ if __name__ == '__main__':
         const string code = """
         def a(    # this is a comment
             opener: str = 'foo', # type: ignore
+            hash_in_literal: str = '#', 
         ) -> Any:
             pass
         """;

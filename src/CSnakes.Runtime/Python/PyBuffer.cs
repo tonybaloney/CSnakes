@@ -5,7 +5,6 @@ using System.Runtime.InteropServices.Marshalling;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-
 #if NET9_0_OR_GREATER
 using System.Numerics.Tensors;
 #endif
@@ -307,7 +306,7 @@ internal sealed class PyBuffer : IPyBuffer
         }
         return new TensorSpan<T>(
             (T*)buffer.buf,
-            buffer.len,
+            buffer.len / sizeof(T),
             Shape,
             strides
         );
@@ -323,10 +322,9 @@ internal sealed class PyBuffer : IPyBuffer
         {
             strides[i] = buffer.strides[i] / sizeof(T);
         }
-
         return new ReadOnlyTensorSpan<T>(
             (T*)buffer.buf,
-            buffer.len,
+            buffer.len / sizeof(T),
             Shape,
             strides
         );

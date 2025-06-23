@@ -140,7 +140,7 @@ public static class TestClassExtensions
             }
         }
 
-        public void TestSameTypesButDifferentDefaults(PyObject future = null, long depth = 1, long? limit = null)
+        public void TestSameTypesButDifferentDefaults(PyObject? future = null, long depth = 1, long? limit = null)
         {
             using (GIL.Acquire())
             {
@@ -199,7 +199,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def test_overload_unsupported_type(x: Any) -> str: ...
     /// ]]></code>
     /// </summary>
-    void TestSameTypesButDifferentDefaults(PyObject future = null, long depth = 1, long? limit = null);
+    void TestSameTypesButDifferentDefaults(PyObject? future = null, long depth = 1, long? limit = null);
 }
 
 file static class ThisModule

@@ -32,7 +32,7 @@ public class GeneratedSignatureTests
     [InlineData("def hello_world(a: int | None, b: str | None) -> bool | None: \n ...\n", "bool? HelloWorld(long? a, string? b)")]
     [InlineData("def hello_world(a: bytes, b: bool = False, c: float = 0.1) -> None: \n ...\n", "void HelloWorld(ReadOnlySpan<byte> a, bool b = false, double c = 0.1)")]
     [InlineData("def hello_world(a: bytes) -> bytes: \n ...\n", "byte[] HelloWorld(ReadOnlySpan<byte> a)")]
-    [InlineData("async def hello_world(a: bytes, b: bool = False, c: float = 0.1) -> None: \n ...\n", "Task<PyObject> HelloWorld(ReadOnlySpan<byte> a, bool b = false, double c = 0.1, CancellationToken cancellationToken = default)")]
+    [InlineData("async def hello_world(a: bytes, b: bool = False, c: float = 0.1) -> None: \n ...\n", "Task HelloWorld(ReadOnlySpan<byte> a, bool b = false, double c = 0.1, CancellationToken cancellationToken = default)")]
     [InlineData("async def hello_world(a: bytes) -> bytes: \n ...\n", "Task<byte[]> HelloWorld(ReadOnlySpan<byte> a, CancellationToken cancellationToken = default)")]
     [InlineData("def hello_world(a: str = 'default') -> None: \n ...\n", "void HelloWorld(string a = \"default\")")]
     [InlineData("def hello_world(a: str, *args) -> None: \n ...\n", "void HelloWorld(string a, PyObject[]? args = null)")]
@@ -53,6 +53,9 @@ public class GeneratedSignatureTests
     [InlineData("def hello(a: Union[int, str] = 5) -> Any:\n ...\n", "PyObject Hello(PyObject? a = null)")]
     [InlineData("def hello(data: Literal[1, 'two', 3.0]) -> None:\n ...\n", "void Hello(PyObject data)")]
     [InlineData("def hello(n: None = None) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
+    [InlineData("async def hello() -> None:\n ...\n", "Task Hello(CancellationToken cancellationToken = default)")]
+    [InlineData("async def hello():\n ...\n", "Task<PyObject> Hello(CancellationToken cancellationToken = default)")]
+    [InlineData("def hello(n: Foo = ...) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
     public void TestGeneratedSignature(string code, string expected)
     {
         SourceText sourceText = SourceText.From(code);

@@ -16,17 +16,17 @@ public static class MethodReflection
         // Step 1: Determine the return type of the method
         PythonTypeSpec returnPythonType = function.ReturnType;
 
-        TypeSyntax returnSyntax;
         ParameterSyntax? cancellationTokenParameterSyntax = null;
         const string cancellationTokenName = "cancellationToken";
 
-        if (!function.IsAsync)
-        {
-            returnSyntax = returnPythonType.Name == "None"
-                         ? PredefinedType(Token(SyntaxKind.VoidKeyword))
-                         : TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython, RefSafetyContext.RefSafe);
-        }
-        else
+        var doesReturnValue = returnPythonType.Name is not "None";
+
+        var returnSyntax
+            = doesReturnValue
+            ? TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython)
+            : PredefinedType(Token(SyntaxKind.VoidKeyword));
+
+        if (function.IsAsync)
         {
             cancellationTokenParameterSyntax =
                 Parameter(Identifier(cancellationTokenName))
@@ -53,9 +53,11 @@ public static class MethodReflection
                     TypeReflection.AsPredefinedType(tYield, TypeReflection.ConversionDirection.FromPython),
                 _ => throw new ArgumentException("Async function must return a Coroutine[T1, T2, T3]")
             };
-            // return is a Task of <T>
-            returnSyntax = GenericName(Identifier("Task"))
-                .WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])));
+            // return is a Task of <T> or Task when void
+            returnSyntax
+                = doesReturnValue
+                ? GenericName(Identifier("Task")).WithTypeArgumentList(TypeArgumentList(SeparatedList([returnSyntax])))
+                : IdentifierName("Task");
         }
 
         // Step 3: Build arguments

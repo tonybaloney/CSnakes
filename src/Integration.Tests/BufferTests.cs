@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+#if NET9_0_OR_GREATER
+using System.Numerics.Tensors;
+#endif
 using CSnakes.Runtime.Python;
-using Xunit;
 
 namespace Integration.Tests;
 
@@ -493,6 +495,21 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
         Assert.Equal(typeof(int), bufferObject.GetItemType());
         Assert.Equal(1, tensor[0, 0, 0]);
         Assert.Equal(3, tensor[1, 2, 3]);
+    }
+
+    [Fact]
+    public void TestNDim3Float32TensorProductPrimitive()
+    {
+        var testModule = Env.TestBuffer();
+        using var bufferObject = testModule.TestNdim3dFloat32Buffer();
+        var tensor = bufferObject.AsTensorSpan<float>();
+        Assert.Equal(sizeof(int) * 3 * 4 * 5, bufferObject.Length);
+#pragma warning disable SYSLIB5001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        var tmpTensor = Tensor.Create<float>(tensor.Lengths);
+        var shapeProduct = (long)TensorPrimitives.Product(tensor.Lengths);
+        Assert.Equal(shapeProduct, tensor.FlattenedLength);
+        var result = Tensor.Multiply(tensor, 255.0f, tmpTensor);
+#pragma warning restore SYSLIB5001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
     }
 
     [Fact]

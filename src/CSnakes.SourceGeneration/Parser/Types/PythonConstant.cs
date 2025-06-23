@@ -12,7 +12,7 @@ public abstract class PythonConstant
         public override string ToString() => Value.ToString();
     }
 
-    public sealed class HexidecimalInteger(long value) : Integer(value)
+    public sealed class HexadecimalInteger(long value) : Integer(value)
     {
         public override string ToString() => $"0x{Value:X}";
     }

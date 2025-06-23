@@ -29,7 +29,7 @@ public class ArgumentReflection
         var literalExpressionSyntax = defaultValue switch
         {
             null => null,
-            PythonConstant.HexidecimalInteger { Value: var v } =>
+            PythonConstant.HexadecimalInteger { Value: var v } =>
                 SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
                                                 SyntaxFactory.Literal($"0x{v:X}", v)),
             PythonConstant.BinaryInteger { Value: var v } =>
@@ -56,9 +56,14 @@ public class ArgumentReflection
             && reflectedType is not PredefinedTypeSyntax)
         {
             literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
-            if (reflectedType is not NullableTypeSyntax)
-                // If the type is not already nullable, make it nullable to avoid CS1750
-                reflectedType = SyntaxFactory.NullableType(reflectedType);
+        }
+
+        // If we ended up with PyObject x = null, we need to ensure the argument is nullable
+        if (literalExpressionSyntax is not null
+            && literalExpressionSyntax.IsKind(SyntaxKind.NullLiteralExpression)
+            && reflectedType is not NullableTypeSyntax)
+        {
+            reflectedType = SyntaxFactory.NullableType(reflectedType);
         }
 
         return SyntaxFactory

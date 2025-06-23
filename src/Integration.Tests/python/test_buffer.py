@@ -101,6 +101,10 @@ def test_ndim_3d_buffer() -> Buffer:
     arr[1, 2, 3] = 3
     return arr
 
+def test_ndim_3d_float32_buffer() -> Buffer:
+    arr = np.ones((3, 4, 5), dtype=np.float32)
+    return arr
+
 def test_ndim_4d_buffer() -> Buffer:
     arr = np.zeros((2, 3, 4, 5), dtype=np.int32)
     arr[0, 0, 0, 0] = 1

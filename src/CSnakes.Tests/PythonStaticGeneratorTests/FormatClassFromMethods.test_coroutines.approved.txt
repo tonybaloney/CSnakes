@@ -114,7 +114,7 @@ public static class TestClassExtensions
             }
         }
 
-        public Task<PyObject> TestCoroutineReturnsNothing(double seconds = 0.1, CancellationToken cancellationToken = default)
+        public Task TestCoroutineReturnsNothing(double seconds = 0.1, CancellationToken cancellationToken = default)
         {
             using (GIL.Acquire())
             {
@@ -156,7 +156,7 @@ public interface ITestClass : IReloadableModuleImport
     /// async def test_coroutine_returns_nothing(seconds: float = 0.1) -> None: ...
     /// ]]></code>
     /// </summary>
-    Task<PyObject> TestCoroutineReturnsNothing(double seconds = 0.1, CancellationToken cancellationToken = default);
+    Task TestCoroutineReturnsNothing(double seconds = 0.1, CancellationToken cancellationToken = default);
 }
 
 file static class ThisModule

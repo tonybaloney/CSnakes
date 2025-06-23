@@ -72,18 +72,16 @@ public static partial class PythonParser
             }).ToArray());
             currentBuffer.Add((line, repositionedTokens));
 
-            // If the line ends Colon and Ellipsis, treat as a stub and strip the ellipsis.
-            // TODO: Handle single-line function definitions with the body on the same line.
-            if (repositionedTokens.Any() && repositionedTokens.Last().Kind == PythonToken.Ellipsis)
-            {
-                repositionedTokens = new([.. repositionedTokens.Take(repositionedTokens.Count() - 1)]);
-            }
-
             // If this is a function definition on one line..
-            if (repositionedTokens.Any() && repositionedTokens.Last().Kind == PythonToken.Colon)
+            if (repositionedTokens.Last().Kind == PythonToken.Colon)
             {
                 // We re-tokenize the merged lines from the buffer because some of the tokens may have been split across lines
-                string mergedFunctionSpec = string.Join("", from x in currentBuffer select x.line.ToString());
+                // Strip trailing comments to simplify parser
+                string mergedFunctionSpec = string.Join("\n", from x in currentBuffer select x.line.ToString()
+                    .Substring(0,
+                        // Get the position of the end of the last token to strip trailing comments
+                        x.tokens.Last().Position.Absolute + x.tokens.Last().Span.Length)
+                    );
 
                 Result<ParsedTokens> combinedResult = PythonTokenizer.Instance.TryTokenize(mergedFunctionSpec);
                 if (!combinedResult.HasValue)

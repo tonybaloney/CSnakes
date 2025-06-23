@@ -28,6 +28,7 @@ public static class GIL
     [ThreadStatic] private static PyGilState? currentState;
     [ThreadStatic] internal static nint pythonThreadState;
     private static ConcurrentQueue<nint> handlesToDispose = new();
+    private static ConcurrentQueue<CPythonAPI.Py_buffer> buffersToDispose = new();
 
     static GIL()
     {
@@ -77,6 +78,10 @@ public static class GIL
             {
                 CPythonAPI.Py_DecRefRaw(handle);
             }
+            while (buffersToDispose.TryDequeue(out var buffer))
+            {
+                CPythonAPI.ReleaseBuffer(ref buffer);
+            }
             pythonThreadState = CPythonAPI.PyEval_SaveThread();
         }
 
@@ -111,6 +116,16 @@ public static class GIL
     {
         // Put the handle in a queue
         handlesToDispose.Enqueue(handle);
+    }
+
+    /// <remarks>
+    /// This method resets or zero-fills <paramref name="buffer"/> on success.
+    /// </remarks>
+    internal static void QueueForDisposal(ref CPythonAPI.Py_buffer buffer)
+    {
+        // Put the buffer in a queue
+        buffersToDispose.Enqueue(buffer);
+        buffer = default;
     }
 
     public static bool IsAcquired => currentState is { RecursionCount: > 0 };

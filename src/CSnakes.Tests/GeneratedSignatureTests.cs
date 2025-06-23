@@ -54,6 +54,7 @@ public class GeneratedSignatureTests
     [InlineData("async def hello():\n ...\n", "Task<PyObject> Hello(CancellationToken cancellationToken = default)")]
     [InlineData("def hello(n: Foo = ...) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
     [InlineData("def escape(s: str, quote: bool = True) -> str: ...\n", "string Escape(string s, bool quote = true)")]
+    [InlineData("def hello(n: None = None) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
     public void TestGeneratedSignature(string code, string expected)
     {
         SourceText sourceText = SourceText.From(code);

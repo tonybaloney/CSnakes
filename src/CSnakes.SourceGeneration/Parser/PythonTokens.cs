@@ -53,7 +53,7 @@ public enum PythonToken
 
     Integer,
     Decimal,
-    HexidecimalInteger,
+    HexadecimalInteger,
     BinaryInteger,
     OctalInteger,
     DoubleQuotedString,

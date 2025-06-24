@@ -18,12 +18,6 @@ public class PythonStaticGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-//#if DEBUG
-//        if (!System.Diagnostics.Debugger.IsAttached)
-//        {
-//            System.Diagnostics.Debugger.Launch();
-//        }
-//#endif
         var pythonFilesPipeline = context.AdditionalTextsProvider
             .Where(static text => Path.GetExtension(text.Path) == ".py" || Path.GetExtension(text.Path) == ".pyi");
 
@@ -63,7 +57,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             if (code.Lines
                     .Select(line => line.ToString().TrimStart())
                     .TakeWhile(line => line is ['#', _]) // Take as long as a comment
-                    .Take(2) // Mus be first or second line according to PEP 263
+                    .Take(2) // Must be first or second line according to PEP 263
                     .Select(line => Regex.Match(line, @"^[ \t\f]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+)").Groups[0])
                     .FirstOrDefault(g => g.Success) is { Value: var encodingMagicCommentValue } &&
                 !"utf-8".Equals(encodingMagicCommentValue, StringComparison.OrdinalIgnoreCase))
@@ -72,21 +66,35 @@ public class PythonStaticGenerator : IIncrementalGenerator
             }
 
             // Parse the Python file
-            var result = PythonParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);
-
-            foreach (var error in errors)
+            try
             {
-                // Update text span
-                Location errorLocation = Location.Create(file.Path, TextSpan.FromBounds(0, 1), new LinePositionSpan(new LinePosition(error.StartLine, error.StartColumn), new LinePosition(error.EndLine, error.EndColumn)));
-                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error.Message, "PythonStaticGenerator", DiagnosticSeverity.Warning, true), errorLocation));
-            }
+                var result = PythonParser.TryParseFunctionDefinitions(code, out PythonFunctionDefinition[] functions, out GeneratorError[]? errors);
 
-            if (result)
-            {
-                var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
-                string source = FormatClassFromMethods(@namespace, pascalFileName, methods, moduleAbsoluteName, functions, code, embedSourceSwitch);
-                sourceContext.AddSource(generatedFileName, source);
-                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {generatedFileName} from {file.Path}", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
+                foreach (var error in errors)
+                {
+                    // Update text span
+                    Location errorLocation = Location.Create(file.Path, TextSpan.FromBounds(0, 1), new LinePositionSpan(new LinePosition(error.StartLine, error.StartColumn), new LinePosition(error.EndLine, error.EndColumn)));
+                    sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG004", "PythonStaticGenerator", error.Message, "PythonStaticGenerator", DiagnosticSeverity.Warning, true), errorLocation));
+                }
+
+                if (result)
+                {
+                    var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
+                    string source = FormatClassFromMethods(@namespace, pascalFileName, methods, moduleAbsoluteName, functions, code, embedSourceSwitch);
+                    sourceContext.AddSource(generatedFileName, source);
+                    sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {generatedFileName} from {file.Path}", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));
+                }
+            } catch (Exception ex) {
+                Location errorLocation = Location.Create(file.Path, TextSpan.FromBounds(0, 1), new LinePositionSpan(new LinePosition(0, 1), new LinePosition(1, 1)));
+                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG999", "PythonStaticGenerator", ex.Message, "PythonStaticGenerator", DiagnosticSeverity.Error, true), null));
+
+#if DEBUG
+                if (!System.Diagnostics.Debugger.IsAttached)
+                {
+                    // This is a good place to debug parser crashes.
+                    // System.Diagnostics.Debugger.Launch();
+                }
+#endif
             }
         });
     }

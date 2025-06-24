@@ -2,7 +2,6 @@ using CSnakes.Parser.Types;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
-using System.Collections.Immutable;
 
 namespace CSnakes.Parser;
 public static partial class PythonParser

@@ -263,6 +263,12 @@ public static class MethodReflection
             from p in ps
             select p;
 
+        // Sort parameters to move all optional parameters to the end
+        // CS1737: Optional parameters must appear after all required parameters
+        methodParameters = methodParameters.OrderBy(
+            p => p.Default is null ? 0 : 1
+        );
+
         if (cancellationTokenParameterSyntax is { } someCancellationTokenParameterSyntax)
             methodParameters = methodParameters.Append(someCancellationTokenParameterSyntax);
 

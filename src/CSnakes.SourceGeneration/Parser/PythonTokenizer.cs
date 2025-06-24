@@ -31,6 +31,10 @@ public static class PythonTokenizer
         .Match(Span.EqualTo("None"), PythonToken.None, requireDelimiters: true)
         .Match(Span.EqualTo("True"), PythonToken.True, requireDelimiters: true)
         .Match(Span.EqualTo("False"), PythonToken.False, requireDelimiters: true)
+        .Match(PythonParser.DoubleQuotedStringConstantToken, PythonToken.DoubleQuotedString)
+        .Match(PythonParser.SingleQuotedStringConstantToken, PythonToken.SingleQuotedString)
+        .Match(PythonParser.DoubleQuotedByteStringConstantToken, PythonToken.DoubleQuotedByteString)
+        .Match(PythonParser.SingleQuotedByteStringConstantToken, PythonToken.SingleQuotedByteString)
         .Match(PythonParser.Identifier, PythonToken.Identifier, requireDelimiters: true)
         .Match(PythonParser.QualifiedName, PythonToken.QualifiedIdentifier, requireDelimiters: true)
         .Match(PythonParser.IntegerConstantToken, PythonToken.Integer, requireDelimiters: true)
@@ -38,7 +42,5 @@ public static class PythonTokenizer
         .Match(PythonParser.HexadecimalConstantToken, PythonToken.HexadecimalInteger, requireDelimiters: true)
         .Match(PythonParser.BinaryConstantToken, PythonToken.BinaryInteger, requireDelimiters: true)
         .Match(PythonParser.OctalConstantToken, PythonToken.OctalInteger, requireDelimiters: true)
-        .Match(PythonParser.DoubleQuotedStringConstantToken, PythonToken.DoubleQuotedString)
-        .Match(PythonParser.SingleQuotedStringConstantToken, PythonToken.SingleQuotedString)
         .Build();
 }

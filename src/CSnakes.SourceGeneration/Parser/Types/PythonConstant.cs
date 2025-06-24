@@ -1,4 +1,5 @@
 using System.Globalization;
+using static CSnakes.Parser.Types.PythonConstant.String;
 
 namespace CSnakes.Parser.Types;
 
@@ -31,6 +32,20 @@ public abstract class PythonConstant
     public sealed class String(string value) : PythonConstant
     {
         public string Value { get; } = value;
+        public override string ToString() => Value;
+    }
+
+    public sealed class ByteString : PythonConstant
+    {
+        private readonly string value;
+        public ByteString(string value)
+        {
+            // Check value doesn't contain any non-ASCII characters
+            if (value.Any(c => c > 127))
+                throw new ArgumentException("Byte strings must contain only ASCII characters.", nameof(value));
+            this.value = value;
+        }
+        public string Value => value;
         public override string ToString() => Value;
     }
 

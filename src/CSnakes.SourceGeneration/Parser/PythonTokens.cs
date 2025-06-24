@@ -58,6 +58,8 @@ public enum PythonToken
     OctalInteger,
     DoubleQuotedString,
     SingleQuotedString,
+    DoubleQuotedByteString,
+    SingleQuotedByteString,
     True,
     False,
     None,

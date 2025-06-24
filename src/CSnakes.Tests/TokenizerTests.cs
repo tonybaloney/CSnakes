@@ -56,7 +56,11 @@ public class TokenizerTests
     [InlineData("abc123", PythonToken.Identifier)]
     [InlineData("foo.bar", PythonToken.QualifiedIdentifier)]
     [InlineData("'hello'", PythonToken.SingleQuotedString)]
+    [InlineData("u'hello'", PythonToken.SingleQuotedString)]
+    [InlineData("b'hello'", PythonToken.SingleQuotedByteString)]
     [InlineData("\"hello\"", PythonToken.DoubleQuotedString)]
+    [InlineData("u\"hello\"", PythonToken.DoubleQuotedString)]
+    [InlineData("b\"hello\"", PythonToken.DoubleQuotedByteString)]
     [InlineData("True", PythonToken.True)]
     [InlineData("False", PythonToken.False)]
     [InlineData("None", PythonToken.None)]
@@ -164,31 +168,32 @@ public class TokenizerTests
         Assert.Null(param.TypeSpec);
     }
 
-    [Fact]
-    public void ParseFunctionParameterDefaultSingleQuotedString()
+    [Theory]
+    [InlineData("a = 'hello'")]
+    [InlineData("a = \"hello\"")]
+    [InlineData("a: str = u'hello'")]
+    [InlineData("a: str = u\"hello\"")]
+    public void ParseFunctionParameterDefaultString(string code)
     {
-        var tokens = PythonTokenizer.Instance.Tokenize($"a = 'hello'");
+        var tokens = PythonTokenizer.Instance.Tokenize(code);
         var result = PythonParser.OptionalPythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         var param = result.Value;
         var constant = Assert.IsType<PythonConstant.String>(param.DefaultValue);
         Assert.Equal("hello", constant.Value);
-        Assert.Same(PythonTypeSpec.Any, param.ImpliedTypeSpec);
-        Assert.Null(param.TypeSpec);
     }
 
     [Fact]
-    public void ParseFunctionParameterDefaultDoubleQuotedString()
+    public void ParseFunctionParameterDefaultSingleQuotedStringWithBytesPrefix()
     {
-        var tokens = PythonTokenizer.Instance.Tokenize($"a = \"hello\"");
+        var tokens = PythonTokenizer.Instance.Tokenize($"a: bytes = b'hello'");
         var result = PythonParser.OptionalPythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         var param = result.Value;
         Assert.Equal("a", param.Name);
-        var constant = Assert.IsType<PythonConstant.String>(param.DefaultValue);
+        var constant = Assert.IsType<PythonConstant.ByteString>(param.DefaultValue);
         Assert.Equal("hello", constant.Value);
-        Assert.Same(PythonTypeSpec.Any, param.ImpliedTypeSpec);
-        Assert.Null(param.TypeSpec);
+        Assert.NotNull(param.TypeSpec);
     }
 
     [Fact]

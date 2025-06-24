@@ -53,7 +53,7 @@ public class ArgumentReflection
         // avoid CS1750 (no standard conversion to PyObject)
         if (literalExpressionSyntax is not null
             && !literalExpressionSyntax.IsKind(SyntaxKind.NullLiteralExpression)
-            && reflectedType is not PredefinedTypeSyntax)
+            && reflectedType is IdentifierNameSyntax)
         {
             literalExpressionSyntax = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
         }

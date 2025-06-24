@@ -30,7 +30,10 @@ public class GeneratedSignatureTests
     [InlineData("def hello_world(a: bool = True, b: str | None = None) -> bool: \n ...\n", "bool HelloWorld(bool a = true, string? b = null)")]
     [InlineData("def hello_world(a: Optional[int], b: Optional[str]) -> Optional[bool]: \n ...\n", "bool? HelloWorld(long? a, string? b)")]
     [InlineData("def hello_world(a: int | None, b: str | None) -> bool | None: \n ...\n", "bool? HelloWorld(long? a, string? b)")]
-    [InlineData("def hello_world(a: bytes, b: bool = False, c: float = 0.1) -> None: \n ...\n", "void HelloWorld(byte[] a, bool b = false, double c = 0.1)")]
+    [InlineData("def hello_world(a: bytes, b: bool = False, c: float = 0.1) -> None: \n ...\n", "void HelloWorld(ReadOnlySpan<byte> a, bool b = false, double c = 0.1)")]
+    [InlineData("def hello_world(a: bytes) -> bytes: \n ...\n", "byte[] HelloWorld(ReadOnlySpan<byte> a)")]
+    [InlineData("async def hello_world(a: bytes, b: bool = False, c: float = 0.1) -> None: \n ...\n", "Task HelloWorld(ReadOnlySpan<byte> a, bool b = false, double c = 0.1, CancellationToken cancellationToken = default)")]
+    [InlineData("async def hello_world(a: bytes) -> bytes: \n ...\n", "Task<byte[]> HelloWorld(ReadOnlySpan<byte> a, CancellationToken cancellationToken = default)")]
     [InlineData("def hello_world(a: str = 'default') -> None: \n ...\n", "void HelloWorld(string a = \"default\")")]
     [InlineData("def hello_world(a: str, *args) -> None: \n ...\n", "void HelloWorld(string a, PyObject[]? args = null)")]
     [InlineData("def hello_world(a: str, *, b: int) -> None: \n ...\n", "void HelloWorld(string a, long b)")]
@@ -53,6 +56,7 @@ public class GeneratedSignatureTests
     [InlineData("async def hello() -> None:\n ...\n", "Task Hello(CancellationToken cancellationToken = default)")]
     [InlineData("async def hello():\n ...\n", "Task<PyObject> Hello(CancellationToken cancellationToken = default)")]
     [InlineData("def hello(n: Foo = ...) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
+    [InlineData("def hello(a: str, b: int = 4, *, kw: str) -> None:\n ...\n", "void Hello(string a, string kw, long b = 4)")]
     [InlineData("def escape(s: str, quote: bool = True) -> str: ...\n", "string Escape(string s, bool quote = true)")]
     [InlineData("def hello(n: None = None) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
     public void TestGeneratedSignature(string code, string expected)
@@ -64,7 +68,6 @@ public class GeneratedSignatureTests
         Assert.Empty(errors);
         var module = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
         var method = Assert.Single(module);
-        Assert.Equal($"public {expected}", method.Syntax.WithBody(null).NormalizeWhitespace().ToString());
 
         // Check that the sample C# code compiles
         string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test", functions, sourceText);
@@ -84,6 +87,8 @@ public class GeneratedSignatureTests
         // TODO : Log compiler warnings.
         result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList().ForEach(d => Assert.Fail(d.ToString()));
         Assert.True(result.Success, compiledCode + "\n" + string.Join("\n", result.Diagnostics));
+
+        Assert.Equal($"public {expected}", method.Syntax.WithBody(null).NormalizeWhitespace().ToString());
     }
 
     [Theory]

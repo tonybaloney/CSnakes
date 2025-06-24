@@ -659,12 +659,6 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
-    public static PyObject From(ReadOnlySpan<byte> value)
-    {
-        using (GIL.Acquire())
-            return Create(CPythonAPI.PyBytes_FromByteSpan(value));
-    }
-
     public static PyObject From(IEnumerable? value)
     {
         switch (value)

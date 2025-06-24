@@ -57,10 +57,10 @@ public class TokenizerTests
     [InlineData("foo.bar", PythonToken.QualifiedIdentifier)]
     [InlineData("'hello'", PythonToken.SingleQuotedString)]
     [InlineData("u'hello'", PythonToken.SingleQuotedString)]
-    [InlineData("b'hello'", PythonToken.SingleQuotedString)]
+    [InlineData("b'hello'", PythonToken.SingleQuotedByteString)]
     [InlineData("\"hello\"", PythonToken.DoubleQuotedString)]
     [InlineData("u\"hello\"", PythonToken.DoubleQuotedString)]
-    [InlineData("b\"hello\"", PythonToken.DoubleQuotedString)]
+    [InlineData("b\"hello\"", PythonToken.DoubleQuotedByteString)]
     [InlineData("True", PythonToken.True)]
     [InlineData("False", PythonToken.False)]
     [InlineData("None", PythonToken.None)]
@@ -191,9 +191,8 @@ public class TokenizerTests
         Assert.True(result.HasValue);
         var param = result.Value;
         Assert.Equal("a", param.Name);
-        var constant = Assert.IsType<PythonConstant.String>(param.DefaultValue);
+        var constant = Assert.IsType<PythonConstant.ByteString>(param.DefaultValue);
         Assert.Equal("hello", constant.Value);
-        Assert.Equal(PythonConstant.String.PrefixKind.Bytes, constant.Prefix);
         Assert.NotNull(param.TypeSpec);
     }
 

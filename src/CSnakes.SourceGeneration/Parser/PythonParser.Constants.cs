@@ -7,7 +7,8 @@ using System.Globalization;
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
-    static readonly char[] pythonStringPrefixes = ['u', 'U', 'b', 'B'];
+    static readonly char[] pythonStringPrefixes = ['u', 'U'];
+    static readonly char[] pythonByteStringPrefixes = ['b', 'B'];
 
     public static TextParser<char> UnderScoreOrDigit { get; } =
         Character.Matching(char.IsDigit, "digit").Or(Character.EqualTo('_'));
@@ -53,6 +54,20 @@ public static partial class PythonParser
         from close in Character.EqualTo('\'')
         select Unit.Value;
 
+    public static TextParser<Unit> DoubleQuotedByteStringConstantToken { get; } =
+        from prefix in Character.In(pythonByteStringPrefixes) // TODO: support raw literals
+        from open in Character.EqualTo('"')
+        from chars in Character.ExceptIn('"').Many()
+        from close in Character.EqualTo('"')
+        select Unit.Value;
+
+    public static TextParser<Unit> SingleQuotedByteStringConstantToken { get; } =
+        from prefix in Character.In(pythonByteStringPrefixes)
+        from open in Character.EqualTo('\'')
+        from chars in Character.ExceptIn('\'').Many()
+        from close in Character.EqualTo('\'')
+        select Unit.Value;
+
     public static TokenListParser<PythonToken, PythonConstant.String> DoubleQuotedStringConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.DoubleQuotedString)
         .Apply(ConstantParsers.DoubleQuotedString)
@@ -62,6 +77,16 @@ public static partial class PythonParser
         Token.EqualTo(PythonToken.SingleQuotedString)
         .Apply(ConstantParsers.SingleQuotedString)
         .Named("Single Quoted String Constant");
+
+    public static TokenListParser<PythonToken, PythonConstant.ByteString> DoubleQuotedByteStringConstantTokenizer { get; } =
+        Token.EqualTo(PythonToken.DoubleQuotedByteString)
+        .Apply(ConstantParsers.DoubleQuotedByteString)
+        .Named("Double Quoted Byte String Constant");
+
+    public static TokenListParser<PythonToken, PythonConstant.ByteString> SingleQuotedByteStringConstantTokenizer { get; } =
+        Token.EqualTo(PythonToken.SingleQuotedByteString)
+        .Apply(ConstantParsers.SingleQuotedByteString)
+        .Named("Single Quoted Byte String Constant");
 
     public static TokenListParser<PythonToken, PythonConstant.Float> DecimalConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.Decimal)
@@ -116,35 +141,59 @@ public static partial class PythonParser
         .Or(EllipsisConstantTokenizer.AsBase())
         .Or(DoubleQuotedStringConstantTokenizer.AsBase())
         .Or(SingleQuotedStringConstantTokenizer.AsBase())
+        .Or(DoubleQuotedByteStringConstantTokenizer.AsBase())
+        .Or(SingleQuotedByteStringConstantTokenizer.AsBase())
         .Named("Constant");
 
     static class ConstantParsers
     {
+        private static readonly TextParser<char> escapeString = Character.EqualTo('\\')
+                            .IgnoreThen(
+                                Character.EqualTo('\\')
+                                .Or(Character.EqualTo('"'))
+                                .Named("escape sequence"));
+
+        private static readonly TextParser<char> singleQuoteEscapeString = Character.EqualTo('\\')
+                            .IgnoreThen(
+                                Character.EqualTo('\\')
+                                .Or(Character.EqualTo('"'))
+                                .Named("escape sequence"));
+
         public static TextParser<PythonConstant.String> DoubleQuotedString { get; } =
             from prefix in Character.In(pythonStringPrefixes).Optional() // TODO : support raw literals
             from open in Character.EqualTo('"')
             from chars in Character.ExceptIn('"', '\\')
-                .Or(Character.EqualTo('\\')
-                    .IgnoreThen(
-                        Character.EqualTo('\\')
-                        .Or(Character.EqualTo('"'))
-                        .Named("escape sequence")))
+                .Or(escapeString)
                 .Many()
             from close in Character.EqualTo('"')
-            select new PythonConstant.String(new string(chars), prefix);
+            select new PythonConstant.String(new string(chars));
+
+        public static TextParser<PythonConstant.ByteString> DoubleQuotedByteString { get; } =
+            from prefix in Character.In(pythonByteStringPrefixes) // TODO : support raw literals
+            from open in Character.EqualTo('"')
+            from chars in Character.ExceptIn('"', '\\')
+                .Or(escapeString)
+                .Many()
+            from close in Character.EqualTo('"')
+            select new PythonConstant.ByteString(new string(chars));
 
         public static TextParser<PythonConstant.String> SingleQuotedString { get; } =
             from prefix in Character.In(pythonStringPrefixes).Optional() // TODO : support raw literals
             from open in Character.EqualTo('\'')
             from chars in Character.ExceptIn('\'', '\\')
-                .Or(Character.EqualTo('\\')
-                    .IgnoreThen(
-                        Character.EqualTo('\\')
-                        .Or(Character.EqualTo('\''))
-                        .Named("escape sequence")))
+                .Or(singleQuoteEscapeString)
                 .Many()
             from close in Character.EqualTo('\'')
-            select new PythonConstant.String(new string(chars), prefix);
+            select new PythonConstant.String(new string(chars));
+
+        public static TextParser<PythonConstant.ByteString> SingleQuotedByteString { get; } =
+            from prefix in Character.In(pythonByteStringPrefixes) // TODO : support raw literals
+            from open in Character.EqualTo('\'')
+            from chars in Character.ExceptIn('\'', '\\')
+                .Or(singleQuoteEscapeString)
+                .Many()
+            from close in Character.EqualTo('\'')
+            select new PythonConstant.ByteString(new string(chars));
     }
 }
 

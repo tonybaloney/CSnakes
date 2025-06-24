@@ -40,7 +40,7 @@ public class ArgumentReflection
                 SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((int)v)),
             PythonConstant.Integer { Value: var v } =>
                 SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),
-            PythonConstant.String { Value: var v, Prefix: PythonConstant.String.PrefixKind.Unicode } =>
+            PythonConstant.String { Value: var v } =>
                 SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(v)),
             PythonConstant.Float { Value: var v } =>
                 SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),

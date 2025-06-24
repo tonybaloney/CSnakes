@@ -33,6 +33,8 @@ public static class PythonTokenizer
         .Match(Span.EqualTo("False"), PythonToken.False, requireDelimiters: true)
         .Match(PythonParser.DoubleQuotedStringConstantToken, PythonToken.DoubleQuotedString)
         .Match(PythonParser.SingleQuotedStringConstantToken, PythonToken.SingleQuotedString)
+        .Match(PythonParser.DoubleQuotedByteStringConstantToken, PythonToken.DoubleQuotedByteString)
+        .Match(PythonParser.SingleQuotedByteStringConstantToken, PythonToken.SingleQuotedByteString)
         .Match(PythonParser.Identifier, PythonToken.Identifier, requireDelimiters: true)
         .Match(PythonParser.QualifiedName, PythonToken.QualifiedIdentifier, requireDelimiters: true)
         .Match(PythonParser.IntegerConstantToken, PythonToken.Integer, requireDelimiters: true)

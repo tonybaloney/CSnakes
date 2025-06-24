@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-
 namespace Integration.Tests;
 
 public class BasicTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
@@ -58,15 +55,7 @@ public class BasicTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
     public void TestBasic_TestBytes()
     {
         var testModule = Env.TestBasic();
-        Assert.Equal("raboof"u8, testModule.TestBytes("foobar"u8));
-    }
-
-    [Fact]
-    public async Task TestBasic_TestBytesAsync()
-    {
-        var testModule = Env.TestBasic();
-        var actual = await testModule.TestBytesAsync("foobar"u8, TestContext.Current.CancellationToken);
-        Assert.Equal("raboof"u8, actual);
+        Assert.Equal(new byte[] { 0x04, 0x03, 0x02, 0x01 }, testModule.TestBytes([0x01, 0x02, 0x03, 0x04]));
     }
 
     [Fact]

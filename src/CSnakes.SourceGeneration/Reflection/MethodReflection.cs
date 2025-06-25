@@ -11,7 +11,7 @@ namespace CSnakes.Reflection;
 
 public static class MethodReflection
 {
-    public static MethodDefinition FromMethod(PythonFunctionDefinition function, string moduleName)
+    public static IEnumerable<MethodDefinition> FromMethod(PythonFunctionDefinition function, string moduleName)
     {
         // Step 1: Determine the return type of the method
         PythonTypeSpec returnPythonType = function.ReturnType;
@@ -279,7 +279,7 @@ public static class MethodReflection
             .WithBody(body)
             .WithParameterList(ParameterList(SeparatedList(methodParameters)));
 
-        return new(syntax);
+        yield return new(syntax);
     }
 
     private static InvocationExpressionSyntax GenerateParamsCall(CSharpParameterList parameterList)

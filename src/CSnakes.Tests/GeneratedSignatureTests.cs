@@ -53,9 +53,12 @@ public class GeneratedSignatureTests
     [InlineData("def hello(a: Union[int, str] = 5) -> Any:\n ...\n", "PyObject Hello(PyObject? a = null)")]
     [InlineData("def hello(data: Literal[1, 'two', 3.0]) -> None:\n ...\n", "void Hello(PyObject data)")]
     [InlineData("def hello(n: None = None) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
+    [InlineData("def hello(val: bytes = b'hello', /) -> None:\n ...\n", "void Hello(byte[]? val = null)")]
+    [InlineData("def hello(val: str = u'world', /) -> None:\n ...\n", "void Hello(string val = \"world\")")]
     [InlineData("async def hello() -> None:\n ...\n", "Task Hello(CancellationToken cancellationToken = default)")]
     [InlineData("async def hello():\n ...\n", "Task<PyObject> Hello(CancellationToken cancellationToken = default)")]
     [InlineData("def hello(n: Foo = ...) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
+    [InlineData("def hello(a: str, b: int = 4, *, kw: str) -> None:\n ...\n", "void Hello(string a, string kw, long b = 4)")]
     public void TestGeneratedSignature(string code, string expected)
     {
         SourceText sourceText = SourceText.From(code);
@@ -65,7 +68,6 @@ public class GeneratedSignatureTests
         Assert.Empty(errors);
         var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test").ToImmutableArray();
         var method = Assert.Single(module);
-        Assert.Equal($"public {expected}", method.Syntax.WithBody(null).NormalizeWhitespace().ToString());
 
         // Check that the sample C# code compiles
         string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test", functions, sourceText);
@@ -85,6 +87,8 @@ public class GeneratedSignatureTests
         // TODO : Log compiler warnings.
         result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList().ForEach(d => Assert.Fail(d.ToString()));
         Assert.True(result.Success, compiledCode + "\n" + string.Join("\n", result.Diagnostics));
+
+        Assert.Equal($"public {expected}", method.Syntax.WithBody(null).NormalizeWhitespace().ToString());
     }
 
     [Theory]

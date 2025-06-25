@@ -33,6 +33,7 @@ public class GeneratedSignatureTests
     [InlineData("def hello_world(a: bytes, b: bool = False, c: float = 0.1) -> None: \n ...\n", "void HelloWorld(ReadOnlySpan<byte> a, bool b = false, double c = 0.1)")]
     [InlineData("def hello_world(a: bytes) -> bytes: \n ...\n", "byte[] HelloWorld(ReadOnlySpan<byte> a)")]
     [InlineData("def hello_world(a: bytes = b'hello') -> bytes: \n ...\n", "byte[] HelloWorld(byte[]? a = null)")]
+    [InlineData("def hello_world(a: bytes | None) -> bytes: \n ...\n", "byte[] HelloWorld(byte[]? a)")]
     [InlineData("async def hello_world(a: bytes, b: bool = False, c: float = 0.1) -> None: \n ...\n", "Task HelloWorld(ReadOnlySpan<byte> a, bool b = false, double c = 0.1, CancellationToken cancellationToken = default)")]
     [InlineData("async def hello_world(a: bytes) -> bytes: \n ...\n", "Task<byte[]> HelloWorld(ReadOnlySpan<byte> a, CancellationToken cancellationToken = default)")]
     [InlineData("def hello_world(a: str = 'default') -> None: \n ...\n", "void HelloWorld(string a = \"default\")")]

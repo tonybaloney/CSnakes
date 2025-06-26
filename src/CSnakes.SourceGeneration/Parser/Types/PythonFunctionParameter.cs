@@ -97,51 +97,119 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
             [.. Keyword.Select(keywordProjector)],
             VariadicKeyword is { } vkp ? variadicKeywordProjector(vkp) : null);
 
-    public int Count => Positional.Length
-                        + Regular.Length
-                        + (VariadicPositional is not null ? 1 : 0)
-                        + Keyword.Length
-                        + (VariadicKeyword is not null ? 1 : 0);
-
-    private string DebuggerDisplay()
+    public IEnumerable<PythonFunctionParameterList<TResult>>
+        MapMany<TResult>(Func<T, IEnumerable<TResult>> positionalProjector,
+                         Func<T, IEnumerable<TResult>> regularProjector,
+                         Func<T, IEnumerable<TResult>> variadicPositionalProjector,
+                         Func<T, IEnumerable<TResult>> keywordProjector,
+                         Func<T, IEnumerable<TResult>> variadicKeywordProjector)
+        where TResult : class
     {
-        if (typeof(T) != typeof(PythonFunctionParameter))
-            return ToString();
+        /* Each parameter group will be a list of parameters with a list of potential types.
+         * 
+         * | Positional        | Regular         | VariadicPositional | Keyword        | VariadicKeyword  |
+         * |-------------------|-----------------|--------------------|----------------|------------------|
+         * | 0: [type1, type2] | [type3]         | ...                | [type5, type6] | [type7]          |
+         * | 1: [type8]        |                 |                    | [type12]       |                  |
+         * 
+         * etc. 
+         */
+        // Skip all this malarky if there are no parameters at all
+        if (Positional.IsEmpty && Regular.IsEmpty && VariadicPositional is { } && Keyword.IsEmpty && VariadicKeyword is { })
+            yield return new PythonFunctionParameterList<TResult>();
 
-        var sb = new StringBuilder("(");
+        // Get the number of parameters
+        int count = Positional.Length
+            + Regular.Length
+            + (VariadicPositional is { } ? 1 : 0)
+            + Keyword.Length
+            + (VariadicKeyword is { } ? 1 : 0);
 
-        if (Positional.Any())
-        {
-            foreach (var p in Positional)
-                _ = sb.Append(p).Append(", ");
-            _ = sb.Append("/");
-        }
+        int[] indexes = new int[count];
 
-        StringBuilder Delimit() => sb.Length > 1 ? sb.Append(", ") : sb;
+        // TODO: Is this default behaviour in C# anyway?
+        for (int i = 0; i < count; i++)
+            indexes[i] = 0;
 
-        foreach (var p in Regular)
-            _ = Delimit().Append(p);
+        var positionalOptions = Positional.Select(positionalProjector);
+        var regularOptions = Regular.Select(regularProjector);
+        var variadicOption = VariadicPositional is { } vpp ? variadicPositionalProjector(vpp) : null;
+        var keywordOptions = Keyword.Select(keywordProjector);
+        var variadicKeywordOption = VariadicKeyword is { } vkp ? variadicKeywordProjector(vkp) : null;
 
-        if (VariadicPositional is { } vpp)
-            _ = Delimit().Append('*').Append(vpp);
+        // TODO : Increment indexes to get all combinations of parameters
 
-        if (Keyword.Any())
-        {
-            _ = Delimit().Append('*');
-            foreach (var p in Keyword)
-                _ = sb.Append(", ").Append(p);
-        }
+        List<TResult> positionalTurn = new(positionalOptions.Count());
+        for (int i = 0; i < positionalOptions.Count(); i++)
+            positionalTurn.Add(positionalOptions.ElementAt(i).ElementAt(indexes[i]));
+        List<TResult> regularTurn = new(regularOptions.Count());
+        for (int i = 0; i < regularOptions.Count(); i++)
+            regularTurn.Add(regularOptions.ElementAt(i).ElementAt(indexes[Positional.Length + i]));
+        TResult? variadicPositionalTurn = null;
+        if (variadicOption is not null)
+            variadicPositionalTurn = variadicOption.ElementAt(indexes[Positional.Length + Regular.Length]);
+        List<TResult> keywordTurn = new(keywordOptions.Count());
+        for (int i = 0; i < keywordOptions.Count(); i++)
+            keywordTurn.Add(keywordOptions.ElementAt(i).ElementAt(indexes[Positional.Length + Regular.Length + (VariadicPositional is not null ? 1 : 0) + i]));
+        TResult? variadicKeywordTurn = null;
+        if (variadicKeywordOption is not null)
+            variadicKeywordTurn = variadicKeywordOption.ElementAt(indexes[^1]);
 
-        if (VariadicKeyword is { } vkp)
-            _ = Delimit().Append("**").Append(vkp);
-
-        return sb.Append(")").ToString();
+        yield return new PythonFunctionParameterList<TResult>(
+            [.. positionalTurn],
+            [.. regularTurn],
+            variadicPositionalTurn,
+            [.. keywordTurn],
+            variadicKeywordTurn
+            );
     }
+
+
+    public int Count => Positional.Length
+                + Regular.Length
+                + (VariadicPositional is not null ? 1 : 0)
+                + Keyword.Length
+                + (VariadicKeyword is not null ? 1 : 0);
+
+private string DebuggerDisplay()
+{
+if (typeof(T) != typeof(PythonFunctionParameter))
+    return ToString();
+
+var sb = new StringBuilder("(");
+
+if (Positional.Any())
+{
+    foreach (var p in Positional)
+        _ = sb.Append(p).Append(", ");
+    _ = sb.Append("/");
+}
+
+StringBuilder Delimit() => sb.Length > 1 ? sb.Append(", ") : sb;
+
+foreach (var p in Regular)
+    _ = Delimit().Append(p);
+
+if (VariadicPositional is { } vpp)
+    _ = Delimit().Append('*').Append(vpp);
+
+if (Keyword.Any())
+{
+    _ = Delimit().Append('*');
+    foreach (var p in Keyword)
+        _ = sb.Append(", ").Append(p);
+}
+
+if (VariadicKeyword is { } vkp)
+    _ = Delimit().Append("**").Append(vkp);
+
+return sb.Append(")").ToString();
+}
 }
 
 public static class PythonFunctionParameterListExtensions
 {
-    public static IEnumerable<T> Enumerable<T>(this PythonFunctionParameterList<T> list)
-        where T : class =>
-        list.Enumerable(x => x, x => x, x => x, x => x, x => x);
+public static IEnumerable<T> Enumerable<T>(this PythonFunctionParameterList<T> list)
+where T : class =>
+list.Enumerable(x => x, x => x, x => x, x => x, x => x);
 }

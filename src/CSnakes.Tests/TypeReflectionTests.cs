@@ -89,7 +89,7 @@ public class TypeReflectionTests
         var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
         Assert.True(result.HasValue, result.ToString());
         Assert.NotNull(result.Value);
-        var reflectedType = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.FromPython);
+        var reflectedType = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.FromPython).First();
         Assert.Equal(expectedType, reflectedType.ToString());
     }
 

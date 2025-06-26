@@ -47,7 +47,6 @@ public class GeneratedSignatureTests
     [InlineData("def hello() -> Generator[int, str, bool]:\n ...\n", "IGeneratorIterator<long, string, bool> Hello()")]
     [InlineData("def hello() -> typing.Generator[int, str, bool]:\n ...\n", "IGeneratorIterator<long, string, bool> Hello()")]
     [InlineData("def hello() -> Buffer:\n ...\n", "IPyBuffer Hello()")]
-    [InlineData("def hello(a: Union[int, str] = 5) -> Any:\n ...\n", "PyObject Hello(PyObject? a = null)")]
     [InlineData("def hello(data: Literal[1, 'two', 3.0]) -> None:\n ...\n", "void Hello(PyObject data)")]
     [InlineData("def hello(n: None = None) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
     [InlineData("def hello(val: bytes = b'hello', /) -> None:\n ...\n", "void Hello(byte[]? val = null)")]
@@ -154,4 +153,16 @@ public class GeneratedSignatureTests
         Assert.Equal(2, new[] { method1, method2 }.Distinct(comparator).Count());
     }
 
+    [Fact]
+    public void TestSimpleUnionOverloads()
+    {
+        SourceText code = SourceText.From("def hello(a: Union[int, str] = 5) -> Any:\n ...\n");
+
+        // create a Python scope
+        Assert.True(PythonParser.TryParseFunctionDefinitions(code, out var functions1, out var errors1));
+        Assert.Empty(errors1);
+
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1, "test").ToImmutableArray();
+        Assert.Equal(2, module1.Length);
+    }
 }

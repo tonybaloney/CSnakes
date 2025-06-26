@@ -10,14 +10,6 @@ public class ArgumentReflection
     private static readonly PythonTypeSpec OptionalDictStrAny = PythonTypeSpec.Optional(new("dict", [new("str"), PythonTypeSpec.Any]));
     private static readonly TypeSyntax NullableArrayOfPyObject = SyntaxFactory.ParseTypeName("PyObject[]?");
 
-    public static IEnumerable<IEnumerable<T>> GetPermutations<T>(IEnumerable<T> items)
-    {
-        return items.Count() > 1
-            ? items.SelectMany(item => GetPermutations(items.Where(i => i!.Equals(item))),
-                                   (item, permutation) => new[] { item }.Concat(permutation))
-            : [items];
-    }
-
     public static IEnumerable<ParameterSyntax> ArgumentSyntax(PythonFunctionParameter parameter) =>
         ArgumentSyntax(parameter, PythonFunctionParameterType.Normal);
 

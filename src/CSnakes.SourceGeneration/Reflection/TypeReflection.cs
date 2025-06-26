@@ -23,6 +23,7 @@ public static class TypeReflection
             ({ Name: "typing.Generator" or "Generator", Arguments: [var yt, var st, var rt] }, _) => CreateGeneratorType(yt, st, rt, direction),
             ({ Name: "typing.Coroutine" or "Coroutine", Arguments: [var yt, var st, var rt] }, _) => CreateCoroutineType(yt, st, rt, direction),
             ({ Name: "typing.Union" or "Union", Arguments: var ts }, _) => [.. ts.SelectMany(t => AsPredefinedType(t, direction))],
+            ({ Name: "typing.AnyStr" or "AnyStr"}, _) => [SyntaxFactory.ParseTypeName("string"), SyntaxFactory.ParseTypeName("byte[]")], 
             // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
             ({ Name: "int" }, _) => [SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword))],
             ({ Name: "str" }, _) => [SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword))],
@@ -61,6 +62,7 @@ public static class TypeReflection
         {
             foreach (var type in AsPredefinedType(tupleTypes[0], direction))
                 yield return CreateGenericType("ValueTuple", [type]);
+            yield break;
         }
 
         var tupleTypeSpecs = tupleTypes.Select((x, i) => new { Index = i, Value = x })

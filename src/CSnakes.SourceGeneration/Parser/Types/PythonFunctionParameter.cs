@@ -97,6 +97,38 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
             [.. Keyword.Select(keywordProjector)],
             VariadicKeyword is { } vkp ? variadicKeywordProjector(vkp) : null);
 
+    public static IEnumerable<int[]> Permutations(IEnumerable<int> ranges)
+    {
+        // Given a list of ranges, e.g.
+        // [2, 3, 1] (2 options for first, 3 for second, 1 for third), return all combinations of indexes
+        // e.g. [0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]
+
+        // Convert to array for index access
+        var rangeArray = ranges.ToArray();
+        if (rangeArray.Length == 0)
+            yield break;
+
+        var indices = new int[rangeArray.Length];
+        while (true)
+        {
+            // Yield a copy of the current indices
+            yield return (int[])indices.Clone();
+
+            // Increment indices like an odometer
+            int pos = rangeArray.Length - 1;
+            while (pos >= 0)
+            {
+                indices[pos]++;
+                if (indices[pos] < rangeArray[pos])
+                    break;
+                indices[pos] = 0;
+                pos--;
+            }
+            if (pos < 0)
+                break;
+        }
+    }
+
     public IEnumerable<PythonFunctionParameterList<TResult>>
         MapMany<TResult>(Func<T, IEnumerable<TResult>> positionalProjector,
                          Func<T, IEnumerable<TResult>> regularProjector,
@@ -115,21 +147,12 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
          * etc. 
          */
         // Skip all this malarky if there are no parameters at all
-        if (Positional.IsEmpty && Regular.IsEmpty && VariadicPositional is { } && Keyword.IsEmpty && VariadicKeyword is { })
+        if (Positional.IsEmpty && Regular.IsEmpty && VariadicPositional is not { } && Keyword.IsEmpty && VariadicKeyword is not { })
+        {
             yield return new PythonFunctionParameterList<TResult>();
+            yield break;
+        }
 
-        // Get the number of parameters
-        int count = Positional.Length
-            + Regular.Length
-            + (VariadicPositional is { } ? 1 : 0)
-            + Keyword.Length
-            + (VariadicKeyword is { } ? 1 : 0);
-
-        int[] indexes = new int[count];
-
-        // TODO: Is this default behaviour in C# anyway?
-        for (int i = 0; i < count; i++)
-            indexes[i] = 0;
 
         var positionalOptions = Positional.Select(positionalProjector);
         var regularOptions = Regular.Select(regularProjector);
@@ -138,30 +161,41 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
         var variadicKeywordOption = VariadicKeyword is { } vkp ? variadicKeywordProjector(vkp) : null;
 
         // TODO : Increment indexes to get all combinations of parameters
-
-        List<TResult> positionalTurn = new(positionalOptions.Count());
-        for (int i = 0; i < positionalOptions.Count(); i++)
-            positionalTurn.Add(positionalOptions.ElementAt(i).ElementAt(indexes[i]));
-        List<TResult> regularTurn = new(regularOptions.Count());
-        for (int i = 0; i < regularOptions.Count(); i++)
-            regularTurn.Add(regularOptions.ElementAt(i).ElementAt(indexes[Positional.Length + i]));
-        TResult? variadicPositionalTurn = null;
+        List<int> ranges = [
+            .. positionalOptions.Select(x => x.Count()),
+            .. regularOptions.Select(x => x.Count()),
+        ];
         if (variadicOption is not null)
-            variadicPositionalTurn = variadicOption.ElementAt(indexes[Positional.Length + Regular.Length]);
-        List<TResult> keywordTurn = new(keywordOptions.Count());
-        for (int i = 0; i < keywordOptions.Count(); i++)
-            keywordTurn.Add(keywordOptions.ElementAt(i).ElementAt(indexes[Positional.Length + Regular.Length + (VariadicPositional is not null ? 1 : 0) + i]));
-        TResult? variadicKeywordTurn = null;
+            ranges.Add(variadicOption.Count());
+        ranges.AddRange(keywordOptions.Select(x => x.Count()));
         if (variadicKeywordOption is not null)
-            variadicKeywordTurn = variadicKeywordOption.ElementAt(indexes[^1]);
+            ranges.Add(variadicKeywordOption.Count());
 
-        yield return new PythonFunctionParameterList<TResult>(
-            [.. positionalTurn],
-            [.. regularTurn],
-            variadicPositionalTurn,
-            [.. keywordTurn],
-            variadicKeywordTurn
-            );
+        foreach (var turn in Permutations(ranges)) {
+            List<TResult> positionalTurn = new(positionalOptions.Count());
+            for (int i = 0; i < positionalOptions.Count(); i++)
+                positionalTurn.Add(positionalOptions.ElementAt(i).ElementAt(turn[i]));
+            List<TResult> regularTurn = new(regularOptions.Count());
+            for (int i = 0; i < regularOptions.Count(); i++)
+                regularTurn.Add(regularOptions.ElementAt(i).ElementAt(turn[Positional.Length + i]));
+            TResult? variadicPositionalTurn = null;
+            if (variadicOption is not null)
+                variadicPositionalTurn = variadicOption.ElementAt(turn[Positional.Length + Regular.Length]);
+            List<TResult> keywordTurn = new(keywordOptions.Count());
+            for (int i = 0; i < keywordOptions.Count(); i++)
+                keywordTurn.Add(keywordOptions.ElementAt(i).ElementAt(turn[Positional.Length + Regular.Length + (VariadicPositional is not null ? 1 : 0) + i]));
+            TResult? variadicKeywordTurn = null;
+            if (variadicKeywordOption is not null)
+                variadicKeywordTurn = variadicKeywordOption.ElementAt(turn[^1]);
+
+            yield return new PythonFunctionParameterList<TResult>(
+                [.. positionalTurn],
+                [.. regularTurn],
+                variadicPositionalTurn,
+                [.. keywordTurn],
+                variadicKeywordTurn
+                );
+        }
     }
 
 

@@ -31,17 +31,28 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest, ubuntu-24.04-arm]
-        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14.0-alpha.5"]
       fail-fast: false
     runs-on: "${{ matrix.os }}"
 
     steps:
       - uses: actions/checkout@v4
-      - uses: conda-incubator/setup-miniconda@v3.1.0
+      - uses: conda-incubator/setup-miniconda@v3.1.1
         id: setup-conda
+        if: ${{ !(startsWith(matrix.python, '3.14')) }}
         with:
           auto-update-conda: true
+          channels: conda-forge
           python-version: "${{ matrix.python }}"
+          activate-environment: csnakes_test
+          environment-file: src/Conda.Tests/python/environment.yml
+      - uses: conda-incubator/setup-miniconda@v3.1.1
+        id: setup-conda-2
+        if: startsWith(matrix.python, '3.14')
+        with:
+          auto-update-conda: true
+          channels: conda-forge
+          python-version: "3.13"
           activate-environment: csnakes_test
           environment-file: src/Conda.Tests/python/environment.yml
       - name: cleanup conda-incubator/setup-miniconda

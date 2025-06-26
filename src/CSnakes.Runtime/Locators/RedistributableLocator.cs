@@ -38,13 +38,18 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
     private const string MutexName = @"Global\CSnakesPythonInstall-1"; // run-time name includes Python version
     protected override Version Version
     {
+        get => ServiceCollectionExtensions.ParsePythonVersion(VersionString);
+    }
+
+    protected string VersionString
+    {
         get
         {
             // Get the version from the attribute
             var versionAttribute = (StaticVersionAttribute)Attribute.GetCustomAttribute(
                 typeof(RedistributablePythonVersion).GetField(version.ToString())!,
                 typeof(StaticVersionAttribute))!;
-            return new Version(versionAttribute.Version);
+            return versionAttribute.Version;
         }
     }
 
@@ -185,7 +190,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
                 throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
             }
 
-            string downloadUrl = $"https://github.com/astral-sh/python-build-standalone/releases/download/{standaloneRelease}/cpython-{Version.Major}.{Version.Minor}.{Version.Build}+{standaloneRelease}-{platform}.tar.zst";
+            string downloadUrl = $"https://github.com/astral-sh/python-build-standalone/releases/download/{standaloneRelease}/cpython-{VersionString}+{standaloneRelease}-{platform}.tar.zst";
 
             // Download and extract the Zstd tarball
             logger?.LogDebug("Downloading Python from {DownloadUrl}", downloadUrl);

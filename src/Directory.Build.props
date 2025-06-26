@@ -4,7 +4,24 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
-    <WarningsAsErrors>true</WarningsAsErrors>
+    <WarningsAsErrors>
+      <!-- https://github.com/dotnet/roslyn/blob/a8287cc3de7fcb65645413c5d6a089d2a2db4061/src/RoslynAnalyzers/PublicApiAnalyzers/Microsoft.CodeAnalysis.PublicApiAnalyzers.md -->
+      RS0016; <!-- Add public types and members to the declared API -->
+      RS0017; <!-- Remove deleted types and members from the declared API -->
+      RS0022; <!-- Constructor make noninheritable base class inheritable -->
+      RS0024; <!-- The contents of the public API files are invalid -->
+      RS0025; <!-- Do not duplicate symbols in public API files -->
+      RS0026; <!-- Do not add multiple public overloads with optional parameters -->
+      RS0027; <!-- API with optional parameter(s) should have the most parameters amongst its public overloads -->
+      RS0036; <!-- Annotate nullability of public types and members in the declared API -->
+      RS0037; <!-- Enable tracking of nullability of reference types in the declared API -->
+      RS0041; <!-- Public members should not use oblivious types -->
+      RS0048; <!-- Missing shipped or unshipped public API file -->
+      RS0050; <!-- API is marked as removed but it exists in source code -->
+      RS0059; <!-- Do not add multiple public overloads with optional parameters -->
+      RS0060; <!-- API with optional parameter(s) should have the most parameters amongst its public overloads -->
+      RS0061; <!-- Constructor make noninheritable base class inheritable -->
+    </WarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup Condition="$([MSBuild]::VersionGreaterThanOrEquals($(MSBuildVersion), '17.12.0.0'))">

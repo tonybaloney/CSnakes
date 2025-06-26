@@ -22,6 +22,7 @@ public static class TypeReflection
             ({ Name: "typing.Optional" or "Optional", Arguments: [var t] }, _) => AsPredefinedType(t, direction).Select(SyntaxFactory.NullableType),
             ({ Name: "typing.Generator" or "Generator", Arguments: [var yt, var st, var rt] }, _) => CreateGeneratorType(yt, st, rt, direction),
             ({ Name: "typing.Coroutine" or "Coroutine", Arguments: [var yt, var st, var rt] }, _) => CreateCoroutineType(yt, st, rt, direction),
+            ({ Name: "typing.Union" or "Union", Arguments: var ts }, _) => [.. ts.SelectMany(t => AsPredefinedType(t, direction))],
             // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
             ({ Name: "int" }, _) => [SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword))],
             ({ Name: "str" }, _) => [SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword))],

@@ -94,6 +94,26 @@ public class TypeReflectionTests
     }
 
     [Theory]
+    [InlineData("int | str", "long", "string")]
+    [InlineData("int | str | bool", "long", "string", "bool")]
+    public void UnionParsingTest(string pythonType, params string[] expectedTypes)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
+        Assert.True(result.HasValue, result.ToString());
+        Assert.NotNull(result.Value);
+        Assert.Equal("Union", result.Value.Name);
+        var reflectedTypes = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.FromPython);
+
+        Assert.Equal(expectedTypes.Length, reflectedTypes.Count());
+        for (int i = 0; i < expectedTypes.Length; i++)
+        {
+            var arg = result.Value.Arguments[i];
+            Assert.Equal(expectedTypes[i], reflectedTypes.ElementAt(i).ToString());
+        }
+    }
+
+    [Theory]
     [InlineData("")]
     [InlineData("list[")]
     [InlineData("list[]")]

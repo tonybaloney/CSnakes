@@ -112,6 +112,24 @@ public class TypeReflectionTests
     }
 
     [Theory]
+    [InlineData("int")]
+    [InlineData("str | None")]
+    [InlineData("Foo | None")]
+    [InlineData("int | str | None")]
+    [InlineData("AnyStr")]
+    [InlineData("AnyStr | None")]
+    [InlineData("tuple[str] | None")]
+    public void UnionParsingTestFromPythonAlwaysSingle(string pythonType)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
+        Assert.True(result.HasValue, result.ToString());
+        Assert.NotNull(result.Value);
+        var reflectedTypes = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.FromPython);
+        Assert.Single(reflectedTypes);
+    }
+
+    [Theory]
     [InlineData("")]
     [InlineData("list[")]
     [InlineData("list[]")]

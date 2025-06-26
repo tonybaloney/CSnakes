@@ -165,4 +165,30 @@ public class GeneratedSignatureTests
         var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1, "test").ToImmutableArray();
         Assert.Equal(2, module1.Length);
     }
+
+    [Fact]
+    public void TestMultipleUnknownUnionOverloads()
+    {
+        // Verify that multiple unknown types are reduced to a single PyObject. 
+        SourceText code = SourceText.From("def hello(a: Union[A, B, C]) -> Any:\n ...\n");
+
+        // create a Python scope
+        Assert.True(PythonParser.TryParseFunctionDefinitions(code, out var functions1, out var errors1));
+        Assert.Empty(errors1);
+
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1, "test").ToImmutableArray();
+        Assert.Single(module1);
+    }
+
+    [Fact]
+    public void TestProductUnionOverloads()
+    {
+        // Verify that a product of unions is reduced to a single overload with a tuple type.
+        SourceText code = SourceText.From("def hello(a: Union[int, str], b: Union[float, bool]) -> Any:\n ...\n");
+        // create a Python scope
+        Assert.True(PythonParser.TryParseFunctionDefinitions(code, out var functions1, out var errors1));
+        Assert.Empty(errors1);
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1, "test").ToImmutableArray();
+        Assert.Equal(4, module1.Length);
+    }
 }

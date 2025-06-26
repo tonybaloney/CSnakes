@@ -282,7 +282,7 @@ public static class MethodReflection
                 .WithBody(body)
                 .WithParameterList(ParameterList(SeparatedList(methodParameters)));
 
-            yield return new(syntax);
+            yield return new(syntax, function);
         }
     }
 

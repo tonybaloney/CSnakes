@@ -1,5 +1,4 @@
 using CSnakes.Parser;
-using CSnakes.Parser.Types;
 using CSnakes.Reflection;
 using Superpower;
 
@@ -108,7 +107,6 @@ public class TypeReflectionTests
         Assert.Equal(expectedTypes.Length, reflectedTypes.Count());
         for (int i = 0; i < expectedTypes.Length; i++)
         {
-            var arg = result.Value.Arguments[i];
             Assert.Equal(expectedTypes[i], reflectedTypes.ElementAt(i).ToString());
         }
     }

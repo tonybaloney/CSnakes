@@ -26,31 +26,47 @@ public class ArgumentReflection
             _ => throw new NotImplementedException()
         };
 
-        var literalExpressionSyntax = defaultValue switch
-        {
-            null => null,
-            PythonConstant.HexadecimalInteger { Value: var v } =>
-                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
-                                                SyntaxFactory.Literal($"0x{v:X}", v)),
-            PythonConstant.BinaryInteger { Value: var v } =>
-                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
-                                                SyntaxFactory.Literal($"0b{Convert.ToString(v, 2)}", v)),
-            PythonConstant.Integer { Value: var v and >= int.MinValue and <= int.MaxValue } =>
-                // Downcast long to int if the value is small as the code is more readable without the L suffix
-                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((int)v)),
-            PythonConstant.Integer { Value: var v } =>
-                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),
-            PythonConstant.String { Value: var v } =>
-                SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(v)),
-            PythonConstant.Float { Value: var v } =>
-                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),
-            PythonConstant.Bool { Value: true } => SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression),
-            PythonConstant.Bool { Value: false } => SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression),
-            _ => SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
-        };
-
         foreach (var reflectedType in reflectedTypes)
         {
+            // Defaults with literal expressions should be yielded on the matching type,
+            // E.g. Union[str, int] = 3
+            // Should yield
+            //    ParameterSyntax: int x = 3
+            //    ParameterSyntax: str x
+            // This should stop multiple defaults being yielded for the same parameter, which would
+            // cause a compilation error.
+            // Also this would stop something like "string y = 3" which is also invalid.
+            var literalExpressionSyntax = (defaultValue, reflectedType) switch
+            {
+                (null, _) => null,
+                (PythonConstant.HexadecimalInteger { Value: var v },
+                 PredefinedTypeSyntax { Keyword.Value: "long" }) =>
+                    SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
+                                                    SyntaxFactory.Literal($"0x{v:X}", v)),
+                (PythonConstant.BinaryInteger { Value: var v },
+                 PredefinedTypeSyntax { Keyword.Value: "long" }) =>
+                    SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
+                                                    SyntaxFactory.Literal($"0b{Convert.ToString(v, 2)}", v)),
+                (PythonConstant.Integer { Value: var v and >= int.MinValue and <= int.MaxValue },
+                 PredefinedTypeSyntax { Keyword.Value: "long" or "double" }) =>
+                    // Downcast long to int if the value is small as the code is more readable without the L suffix
+                    SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((int)v)),
+                (PythonConstant.Integer { Value: var v },
+                 PredefinedTypeSyntax { Keyword.Value: "long" or "double" }) =>
+                    SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),
+                (PythonConstant.String { Value: var v },
+                 PredefinedTypeSyntax { Keyword.Value: "string" }) =>
+                    SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(v)),
+                (PythonConstant.Float { Value: var v },
+                 PredefinedTypeSyntax { Keyword.Value: "double" }) =>
+                    SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),
+                (PythonConstant.Bool { Value: true },
+                 PredefinedTypeSyntax { Keyword.Value: "bool" }) => SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression),
+                (PythonConstant.Bool { Value: false },
+                 PredefinedTypeSyntax { Keyword.Value: "bool" }) => SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression),
+                (_, _) => SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
+            };
+
             // Create a new variable to avoid modifying the foreach iteration variable
             var adjustedReflectedType = reflectedType;
 

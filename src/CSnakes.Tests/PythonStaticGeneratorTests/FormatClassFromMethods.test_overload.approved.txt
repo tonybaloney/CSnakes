@@ -203,7 +203,7 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>test_overload_unsupported_type</c>:
     /// <code><![CDATA[
-    /// def test_overload_unsupported_type(x: Any) -> str: ...
+    /// def test_overload_unsupported_type(x: AnyStr) -> str: ...
     /// ]]></code>
     /// </summary>
     string TestOverloadUnsupportedType(string x);

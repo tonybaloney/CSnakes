@@ -153,14 +153,12 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
             yield break;
         }
 
-
         var positionalOptions = Positional.Select(positionalProjector);
         var regularOptions = Regular.Select(regularProjector);
         var variadicOption = VariadicPositional is { } vpp ? variadicPositionalProjector(vpp) : null;
         var keywordOptions = Keyword.Select(keywordProjector);
         var variadicKeywordOption = VariadicKeyword is { } vkp ? variadicKeywordProjector(vkp) : null;
 
-        // TODO : Increment indexes to get all combinations of parameters
         List<int> ranges = [
             .. positionalOptions.Select(x => x.Count()),
             .. regularOptions.Select(x => x.Count()),
@@ -207,43 +205,43 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
 
 private string DebuggerDisplay()
 {
-if (typeof(T) != typeof(PythonFunctionParameter))
-    return ToString();
+    if (typeof(T) != typeof(PythonFunctionParameter))
+        return ToString();
 
-var sb = new StringBuilder("(");
+    var sb = new StringBuilder("(");
 
-if (Positional.Any())
-{
-    foreach (var p in Positional)
-        _ = sb.Append(p).Append(", ");
-    _ = sb.Append("/");
-}
+    if (Positional.Any())
+    {
+        foreach (var p in Positional)
+            _ = sb.Append(p).Append(", ");
+        _ = sb.Append("/");
+    }
 
-StringBuilder Delimit() => sb.Length > 1 ? sb.Append(", ") : sb;
+    StringBuilder Delimit() => sb.Length > 1 ? sb.Append(", ") : sb;
 
-foreach (var p in Regular)
-    _ = Delimit().Append(p);
+    foreach (var p in Regular)
+        _ = Delimit().Append(p);
 
-if (VariadicPositional is { } vpp)
-    _ = Delimit().Append('*').Append(vpp);
+    if (VariadicPositional is { } vpp)
+        _ = Delimit().Append('*').Append(vpp);
 
-if (Keyword.Any())
-{
-    _ = Delimit().Append('*');
-    foreach (var p in Keyword)
-        _ = sb.Append(", ").Append(p);
-}
+    if (Keyword.Any())
+    {
+        _ = Delimit().Append('*');
+        foreach (var p in Keyword)
+            _ = sb.Append(", ").Append(p);
+    }
 
-if (VariadicKeyword is { } vkp)
-    _ = Delimit().Append("**").Append(vkp);
+    if (VariadicKeyword is { } vkp)
+        _ = Delimit().Append("**").Append(vkp);
 
-return sb.Append(")").ToString();
-}
+    return sb.Append(")").ToString();
+    }
 }
 
 public static class PythonFunctionParameterListExtensions
 {
-public static IEnumerable<T> Enumerable<T>(this PythonFunctionParameterList<T> list)
-where T : class =>
-list.Enumerable(x => x, x => x, x => x, x => x, x => x);
+    public static IEnumerable<T> Enumerable<T>(this PythonFunctionParameterList<T> list)
+        where T : class =>
+        list.Enumerable(x => x, x => x, x => x, x => x, x => x);
 }

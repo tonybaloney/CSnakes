@@ -102,7 +102,7 @@ public class TypeReflectionTests
         Assert.True(result.HasValue, result.ToString());
         Assert.NotNull(result.Value);
         Assert.Equal("Union", result.Value.Name);
-        var reflectedTypes = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.FromPython);
+        var reflectedTypes = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.ToPython);
 
         Assert.Equal(expectedTypes.Length, reflectedTypes.Count());
         for (int i = 0; i < expectedTypes.Length; i++)

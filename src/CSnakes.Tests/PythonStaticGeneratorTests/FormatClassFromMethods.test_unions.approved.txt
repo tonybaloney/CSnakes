@@ -130,15 +130,14 @@ public static class TestClassExtensions
             }
         }
 
-        public long TestUnionReturn()
+        public PyObject TestUnionReturn()
         {
             using (GIL.Acquire())
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_union_return");
                 PyObject __underlyingPythonFunc = this.__func_test_union_return;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = __result_pyObject.BareImportAs<long, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<long>>();
-                return __return;
+                PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                return __result_pyObject;
             }
         }
 
@@ -243,7 +242,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def test_union_return() -> Union[int, str, bytes]: ...
     /// ]]></code>
     /// </summary>
-    long TestUnionReturn();
+    PyObject TestUnionReturn();
 
     /// <summary>
     /// Invokes the Python function <c>test_multiple_unions</c>:

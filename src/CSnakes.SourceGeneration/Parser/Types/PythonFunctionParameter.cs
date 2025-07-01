@@ -169,7 +169,8 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
         if (variadicKeywordOption is not null)
             ranges.Add(variadicKeywordOption.Count());
 
-        foreach (var turn in Permutations(ranges)) {
+        foreach (var turn in Permutations(ranges))
+        {
             List<TResult> positionalTurn = new(positionalOptions.Count());
             for (int i = 0; i < positionalOptions.Count(); i++)
                 positionalTurn.Add(positionalOptions.ElementAt(i).ElementAt(turn[i]));
@@ -203,39 +204,39 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
                 + Keyword.Length
                 + (VariadicKeyword is not null ? 1 : 0);
 
-private string DebuggerDisplay()
-{
-    if (typeof(T) != typeof(PythonFunctionParameter))
-        return ToString();
-
-    var sb = new StringBuilder("(");
-
-    if (Positional.Any())
+    private string DebuggerDisplay()
     {
-        foreach (var p in Positional)
-            _ = sb.Append(p).Append(", ");
-        _ = sb.Append("/");
-    }
+        if (typeof(T) != typeof(PythonFunctionParameter))
+            return ToString();
 
-    StringBuilder Delimit() => sb.Length > 1 ? sb.Append(", ") : sb;
+        var sb = new StringBuilder("(");
 
-    foreach (var p in Regular)
-        _ = Delimit().Append(p);
+        if (Positional.Any())
+        {
+            foreach (var p in Positional)
+                _ = sb.Append(p).Append(", ");
+            _ = sb.Append("/");
+        }
 
-    if (VariadicPositional is { } vpp)
-        _ = Delimit().Append('*').Append(vpp);
+        StringBuilder Delimit() => sb.Length > 1 ? sb.Append(", ") : sb;
 
-    if (Keyword.Any())
-    {
-        _ = Delimit().Append('*');
-        foreach (var p in Keyword)
-            _ = sb.Append(", ").Append(p);
-    }
+        foreach (var p in Regular)
+            _ = Delimit().Append(p);
 
-    if (VariadicKeyword is { } vkp)
-        _ = Delimit().Append("**").Append(vkp);
+        if (VariadicPositional is { } vpp)
+            _ = Delimit().Append('*').Append(vpp);
 
-    return sb.Append(")").ToString();
+        if (Keyword.Any())
+        {
+            _ = Delimit().Append('*');
+            foreach (var p in Keyword)
+                _ = sb.Append(", ").Append(p);
+        }
+
+        if (VariadicKeyword is { } vkp)
+            _ = Delimit().Append("**").Append(vkp);
+
+        return sb.Append(")").ToString();
     }
 }
 

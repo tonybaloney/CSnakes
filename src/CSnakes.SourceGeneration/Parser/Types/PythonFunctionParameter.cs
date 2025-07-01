@@ -97,38 +97,6 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
             [.. Keyword.Select(keywordProjector)],
             VariadicKeyword is { } vkp ? variadicKeywordProjector(vkp) : null);
 
-    public static IEnumerable<int[]> Permutations(IEnumerable<int> ranges)
-    {
-        // Given a list of ranges, e.g.
-        // [2, 3, 1] (2 options for first, 3 for second, 1 for third), return all combinations of indexes
-        // e.g. [0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]
-
-        // Convert to array for index access
-        var rangeArray = ranges.ToArray();
-        if (rangeArray.Length == 0)
-            yield break;
-
-        var indices = new int[rangeArray.Length];
-        while (true)
-        {
-            // Yield a copy of the current indices
-            yield return (int[])indices.Clone();
-
-            // Increment indices like an odometer
-            int pos = rangeArray.Length - 1;
-            while (pos >= 0)
-            {
-                indices[pos]++;
-                if (indices[pos] < rangeArray[pos])
-                    break;
-                indices[pos] = 0;
-                pos--;
-            }
-            if (pos < 0)
-                break;
-        }
-    }
-
     public IEnumerable<PythonFunctionParameterList<TResult>>
         MapMany<TResult>(Func<T, IEnumerable<TResult>> positionalProjector,
                          Func<T, IEnumerable<TResult>> regularProjector,
@@ -169,7 +137,7 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
         if (variadicKeywordOption is not null)
             ranges.Add(variadicKeywordOption.Count());
 
-        foreach (var turn in Permutations(ranges))
+        foreach (var turn in ranges.Permutations())
         {
             List<TResult> positionalTurn = new(positionalOptions.Count());
             for (int i = 0; i < positionalOptions.Count(); i++)

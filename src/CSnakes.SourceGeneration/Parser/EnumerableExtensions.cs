@@ -31,4 +31,37 @@ internal static partial class EnumerableExtensions
             }
         }
     }
+
+    public static IEnumerable<int[]> Permutations(this IEnumerable<int> ranges)
+    {
+        // Given a list of ranges, e.g.
+        // [2, 3, 1] (2 options for first, 3 for second, 1 for third), return all combinations of indexes
+        // e.g. [0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]
+
+        // Convert to array for index access
+        var rangeArray = ranges.ToArray();
+        if (rangeArray.Length == 0)
+            yield break;
+
+        var indices = new int[rangeArray.Length];
+        while (true)
+        {
+            // Yield a copy of the current indices
+            yield return (int[])indices.Clone();
+
+            // Increment indices like an odometer
+            int pos = rangeArray.Length - 1;
+            while (pos >= 0)
+            {
+                indices[pos]++;
+                if (indices[pos] < rangeArray[pos])
+                    break;
+                indices[pos] = 0;
+                pos--;
+            }
+            if (pos < 0)
+                break;
+        }
+    }
+
 }

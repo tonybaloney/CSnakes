@@ -97,6 +97,15 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
             [.. Keyword.Select(keywordProjector)],
             VariadicKeyword is { } vkp ? variadicKeywordProjector(vkp) : null);
 
+    enum ParameterGroup
+    {
+        Positional,
+        Regular,
+        VariadicPositional,
+        Keyword,
+        VariadicKeyword
+    }
+
     public IEnumerable<PythonFunctionParameterList<TResult>>
         MapMany<TResult>(Func<T, IEnumerable<TResult>> positionalProjector,
                          Func<T, IEnumerable<TResult>> regularProjector,
@@ -115,53 +124,35 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
          * etc. 
          */
         // Skip all this malarky if there are no parameters at all
-        if (Positional.IsEmpty && Regular.IsEmpty && VariadicPositional is not { } && Keyword.IsEmpty && VariadicKeyword is not { })
+        if (Count is 0)
         {
             yield return new PythonFunctionParameterList<TResult>();
             yield break;
         }
 
-        var positionalOptions = Positional.Select(positionalProjector);
-        var regularOptions = Regular.Select(regularProjector);
-        var variadicOption = VariadicPositional is { } vpp ? variadicPositionalProjector(vpp) : null;
-        var keywordOptions = Keyword.Select(keywordProjector);
-        var variadicKeywordOption = VariadicKeyword is { } vkp ? variadicKeywordProjector(vkp) : null;
+        var options = Map(positionalProjector, regularProjector, variadicPositionalProjector, keywordProjector, variadicKeywordProjector);
 
-        List<int> ranges = [
-            .. positionalOptions.Select(x => x.Count()),
-            .. regularOptions.Select(x => x.Count()),
+        var ranges = options.Enumerable(x => x.Count(), x => x.Count(), x => x.Count(), x => x.Count(), x => x.Count());
+
+        ImmutableArray<(ParameterGroup Group, IEnumerable<TResult> Choices)> ps = [
+            ..options.Enumerable(p => (ParameterGroup.Positional, p),
+                                 p => (ParameterGroup.Regular, p),
+                                 p => (ParameterGroup.VariadicPositional, p),
+                                 p => (ParameterGroup.Keyword, p),
+                                 p => (ParameterGroup.VariadicKeyword, p))
         ];
-        if (variadicOption is not null)
-            ranges.Add(variadicOption.Count());
-        ranges.AddRange(keywordOptions.Select(x => x.Count()));
-        if (variadicKeywordOption is not null)
-            ranges.Add(variadicKeywordOption.Count());
 
         foreach (var turn in ranges.Permutations())
         {
-            List<TResult> positionalTurn = new(positionalOptions.Count());
-            for (int i = 0; i < positionalOptions.Count(); i++)
-                positionalTurn.Add(positionalOptions.ElementAt(i).ElementAt(turn[i]));
-            List<TResult> regularTurn = new(regularOptions.Count());
-            for (int i = 0; i < regularOptions.Count(); i++)
-                regularTurn.Add(regularOptions.ElementAt(i).ElementAt(turn[Positional.Length + i]));
-            TResult? variadicPositionalTurn = null;
-            if (variadicOption is not null)
-                variadicPositionalTurn = variadicOption.ElementAt(turn[Positional.Length + Regular.Length]);
-            List<TResult> keywordTurn = new(keywordOptions.Count());
-            for (int i = 0; i < keywordOptions.Count(); i++)
-                keywordTurn.Add(keywordOptions.ElementAt(i).ElementAt(turn[Positional.Length + Regular.Length + (VariadicPositional is not null ? 1 : 0) + i]));
-            TResult? variadicKeywordTurn = null;
-            if (variadicKeywordOption is not null)
-                variadicKeywordTurn = variadicKeywordOption.ElementAt(turn[^1]);
+            var selections = turn.Zip(ps, (i, p) => (p.Group, Value: p.Choices.ElementAt(i)))
+                                 .ToLookup(e => e.Group, e => e.Value);
 
             yield return new PythonFunctionParameterList<TResult>(
-                [.. positionalTurn],
-                [.. regularTurn],
-                variadicPositionalTurn,
-                [.. keywordTurn],
-                variadicKeywordTurn
-                );
+                [.. selections[ParameterGroup.Positional]],
+                [.. selections[ParameterGroup.Regular]],
+                selections[ParameterGroup.VariadicPositional].FirstOrDefault(),
+                [.. selections[ParameterGroup.Keyword]],
+                selections[ParameterGroup.VariadicKeyword].FirstOrDefault());
         }
     }
 

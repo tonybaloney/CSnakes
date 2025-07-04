@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "54c007a9f2b09baa3ae5654cb5561b6f"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "719b781f79f36e2db7651bed2a5a03b6"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -239,7 +239,7 @@ public static class TestClassExtensions
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(pattern_pyObject, @string_pyObject, flags_pyObject);
                 if (__result_pyObject.IsNone())
                     return null;
-                var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
+                var __return = __result_pyObject.BareImportAs<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>();
                 return __return;
             }
         }

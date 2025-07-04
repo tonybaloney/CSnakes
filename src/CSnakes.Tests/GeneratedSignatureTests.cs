@@ -1,4 +1,6 @@
+using Basic.Reference.Assemblies;
 using CSnakes.Parser;
+using CSnakes.Parser.Types;
 using CSnakes.Reflection;
 using CSnakes.Runtime;
 using Microsoft.CodeAnalysis;
@@ -6,7 +8,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
-using Basic.Reference.Assemblies;
 
 namespace CSnakes.Tests;
 
@@ -58,15 +59,29 @@ public class GeneratedSignatureTests
     public void TestGeneratedSignature(string code, string expected)
     {
         SourceText sourceText = SourceText.From(code);
-
-        // create a Python scope
         PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
         var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test").ToImmutableArray();
         var method = Assert.Single(module);
+        CompileAndVerifyCode(module, functions, sourceText);
+        Assert.Equal($"public {expected}", method.Syntax.WithBody(null).NormalizeWhitespace().ToString());
+    }
 
-        // Check that the sample C# code compiles
-        string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test", functions, sourceText);
+    [Theory]
+    [InlineData("def t() -> Match[str] | None:\n ...\n")]
+    [InlineData("def t(pattern: str | Pattern[str]) -> Match[str] | None:\n ...\n")]
+    public void TestGeneratedSignatureCompiledUnions(string code)
+    {
+        SourceText sourceText = SourceText.From(code);
+        PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
+        Assert.Empty(errors);
+        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test").ToImmutableArray();
+        CompileAndVerifyCode(module, functions, sourceText);
+    }
+
+    private static void CompileAndVerifyCode(ImmutableArray<MethodDefinition> methods, PythonFunctionDefinition[] functions, SourceText sourceText)
+    {
+        string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", methods, "test", functions, sourceText);
         var tree = CSharpSyntaxTree.ParseText(compiledCode, cancellationToken: TestContext.Current.CancellationToken);
         var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
 #if NET8_0
@@ -83,8 +98,6 @@ public class GeneratedSignatureTests
         // TODO : Log compiler warnings.
         result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList().ForEach(d => Assert.Fail(d.ToString()));
         Assert.True(result.Success, compiledCode + "\n" + string.Join("\n", result.Diagnostics));
-
-        Assert.Equal($"public {expected}", method.Syntax.WithBody(null).NormalizeWhitespace().ToString());
     }
 
     [Theory]
@@ -190,5 +203,20 @@ public class GeneratedSignatureTests
         Assert.Empty(errors1);
         var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1, "test").ToImmutableArray();
         Assert.Equal(4, module1.Length);
+    }
+
+    [Theory]
+    [InlineData("Union[str, None]")]
+    [InlineData("str | bytes")]
+    [InlineData("Foo[str] | None")]
+    public void TestUnionReturnType(string returnType)
+    {
+        // Verify that a union return type only generates 1 method
+        SourceText code = SourceText.From($"def hello() -> {returnType}:\n ...\n");
+        // create a Python scope
+        Assert.True(PythonParser.TryParseFunctionDefinitions(code, out var functions1, out var errors1));
+        Assert.Empty(errors1);
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1, "test").ToImmutableArray();
+        Assert.Single(module1);
     }
 }

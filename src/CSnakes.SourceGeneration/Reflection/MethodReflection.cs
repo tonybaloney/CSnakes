@@ -68,6 +68,15 @@ public static class MethodReflection
                                         ArgumentReflection.ArgumentSyntax,
                                         p => ArgumentReflection.ArgumentSyntax(p, PythonFunctionParameterType.DoubleStar));
 
+        // Narrow Optional[T]
+        var returnNoneAsNull = false;
+
+        if (returnSyntax is NullableTypeSyntax)
+        {
+            returnNoneAsNull = true;
+            // Assume `Optional[T]` and narrow to `T`
+            returnPythonType = returnPythonType.Arguments[0];
+        }
 
         foreach (CSharpParameterList cSharpParameterList in cSharpParameterListPermutations)
         {
@@ -129,8 +138,6 @@ public static class MethodReflection
 
             ReturnStatementSyntax returnExpression;
             IEnumerable<StatementSyntax> resultConversionStatements = [];
-            var callResultTypeSyntax = IdentifierName("PyObject");
-            var returnNoneAsNull = false;
             var resultShouldBeDisposed = true;
 
             switch (returnSyntax)
@@ -143,16 +150,8 @@ public static class MethodReflection
                 case IdentifierNameSyntax { Identifier.ValueText: "PyObject" }:
                     {
                         resultShouldBeDisposed = false;
-                        callResultTypeSyntax = IdentifierName("PyObject");
                         returnExpression = ReturnStatement(IdentifierName("__result_pyObject"));
                         break;
-                    }
-                case NullableTypeSyntax:
-                    {
-                        returnNoneAsNull = true;
-                        // Assume `Optional[T]` and narrow to `T`
-                        returnPythonType = returnPythonType.Arguments[0];
-                        goto default;
                     }
                 default:
                     {
@@ -203,7 +202,7 @@ public static class MethodReflection
                 = returnExpression.Expression is not null
                 ? LocalDeclarationStatement(
                       VariableDeclaration(
-                              callResultTypeSyntax)
+                              IdentifierName("PyObject"))
                       .WithVariables(
                           SingletonSeparatedList(
                               VariableDeclarator(

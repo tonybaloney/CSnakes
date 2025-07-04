@@ -11,7 +11,6 @@ def test_union_return() -> Union[int, str, bytes]:
 def test_multiple_unions(a: Union[int, bool], b: Union[int, str]) -> None:
     pass
 
-
 class A:
     ...
 

@@ -35,7 +35,8 @@ internal static partial class EnumerableExtensions
     public static IEnumerable<int[]> Permutations(this IEnumerable<int> ranges)
     {
         // Given a list of ranges, e.g.
-        // [2, 3, 1] (2 options for first, 3 for second, 1 for third), return all combinations of indexes
+        // [2, 3, 1] (2 options for first, 3 for second, 1 for third),
+        // return all permutations of indexes, 0-indexed
         // e.g. [0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]
 
         // Convert to array for index access

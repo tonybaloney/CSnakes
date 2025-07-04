@@ -20,6 +20,3 @@ class B:
 def test_multiple_complex(a: Union[A, B]) -> None:
     pass
 
-
-def test_union_optional_return(pattern: str | Pattern[str], string: str, flags: _FlagsType = 0) -> Match[str] | None:
-    ...

@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "719b781f79f36e2db7651bed2a5a03b6"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "416c47521c21c3056f6e522820113730"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -50,7 +50,6 @@ public static class TestClassExtensions
         private PyObject __func_test_union_return;
         private PyObject __func_test_multiple_unions;
         private PyObject __func_test_multiple_complex;
-        private PyObject __func_test_union_optional_return;
 
         internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
@@ -63,7 +62,6 @@ public static class TestClassExtensions
                 this.__func_test_union_return = module.GetAttr("test_union_return");
                 this.__func_test_multiple_unions = module.GetAttr("test_multiple_unions");
                 this.__func_test_multiple_complex = module.GetAttr("test_multiple_complex");
-                this.__func_test_union_optional_return = module.GetAttr("test_union_optional_return");
             }
         }
 
@@ -78,13 +76,11 @@ public static class TestClassExtensions
                 this.__func_test_union_return.Dispose();
                 this.__func_test_multiple_unions.Dispose();
                 this.__func_test_multiple_complex.Dispose();
-                this.__func_test_union_optional_return.Dispose();
                 // Bind to new functions
                 this.__func_test_union_basic = module.GetAttr("test_union_basic");
                 this.__func_test_union_return = module.GetAttr("test_union_return");
                 this.__func_test_multiple_unions = module.GetAttr("test_multiple_unions");
                 this.__func_test_multiple_complex = module.GetAttr("test_multiple_complex");
-                this.__func_test_union_optional_return = module.GetAttr("test_union_optional_return");
             }
         }
 
@@ -95,7 +91,6 @@ public static class TestClassExtensions
             this.__func_test_union_return.Dispose();
             this.__func_test_multiple_unions.Dispose();
             this.__func_test_multiple_complex.Dispose();
-            this.__func_test_union_optional_return.Dispose();
             module.Dispose();
         }
 
@@ -209,40 +204,6 @@ public static class TestClassExtensions
                 return;
             }
         }
-
-        public PyObject? TestUnionOptionalReturn(string pattern, string @string, PyObject? flags = null)
-        {
-            using (GIL.Acquire())
-            {
-                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_union_optional_return");
-                PyObject __underlyingPythonFunc = this.__func_test_union_optional_return;
-                using PyObject pattern_pyObject = PyObject.From(pattern)!;
-                using PyObject @string_pyObject = PyObject.From(@string)!;
-                using PyObject flags_pyObject = PyObject.From(flags)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(pattern_pyObject, @string_pyObject, flags_pyObject);
-                if (__result_pyObject.IsNone())
-                    return null;
-                var __return = __result_pyObject.BareImportAs<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>();
-                return __return;
-            }
-        }
-
-        public PyObject? TestUnionOptionalReturn(PyObject pattern, string @string, PyObject? flags = null)
-        {
-            using (GIL.Acquire())
-            {
-                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_union_optional_return");
-                PyObject __underlyingPythonFunc = this.__func_test_union_optional_return;
-                using PyObject pattern_pyObject = PyObject.From(pattern)!;
-                using PyObject @string_pyObject = PyObject.From(@string)!;
-                using PyObject flags_pyObject = PyObject.From(flags)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(pattern_pyObject, @string_pyObject, flags_pyObject);
-                if (__result_pyObject.IsNone())
-                    return null;
-                var __return = __result_pyObject.BareImportAs<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>();
-                return __return;
-            }
-        }
     }
 }
 
@@ -322,22 +283,6 @@ public interface ITestClass : IReloadableModuleImport
     /// ]]></code>
     /// </summary>
     void TestMultipleComplex(PyObject a);
-
-    /// <summary>
-    /// Invokes the Python function <c>test_union_optional_return</c>:
-    /// <code><![CDATA[
-    /// def test_union_optional_return(pattern: str | Pattern[str], string: str, flags: _FlagsType = 0) -> Match[str] | None: ...
-    /// ]]></code>
-    /// </summary>
-    PyObject? TestUnionOptionalReturn(string pattern, string @string, PyObject? flags = null);
-
-    /// <summary>
-    /// Invokes the Python function <c>test_union_optional_return</c>:
-    /// <code><![CDATA[
-    /// def test_union_optional_return(pattern: str | Pattern[str], string: str, flags: _FlagsType = 0) -> Match[str] | None: ...
-    /// ]]></code>
-    /// </summary>
-    PyObject? TestUnionOptionalReturn(PyObject pattern, string @string, PyObject? flags = null);
 }
 
 file static class ThisModule

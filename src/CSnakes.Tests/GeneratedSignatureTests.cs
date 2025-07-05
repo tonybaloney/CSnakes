@@ -56,7 +56,7 @@ public class GeneratedSignatureTests
     [InlineData("async def hello():\n ...\n", "Task<PyObject> Hello(CancellationToken cancellationToken = default)")]
     [InlineData("def hello(n: Foo = ...) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
     [InlineData("def hello(a: str, b: int = 4, *, kw: str) -> None:\n ...\n", "void Hello(string a, string kw, long b = 4)")]
-    [InlineData("def t() -> str | int: \n  ...\n", "PyObject T()")]
+    [InlineData("def hello() -> str | int: \n  ...\n", "PyObject Hello()")]
     public void TestGeneratedSignature(string code, string expected)
     {
         SourceText sourceText = SourceText.From(code);

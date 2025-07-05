@@ -158,6 +158,10 @@ static CSnakes.Runtime.Python.PyBufferExtensions.AsDoubleReadOnlySpan(this CSnak
 static CSnakes.Runtime.Python.PyBufferExtensions.AsDoubleReadOnlySpan2D(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> CommunityToolkit.HighPerformance.ReadOnlySpan2D<double>
 static CSnakes.Runtime.Python.PyBufferExtensions.AsDoubleSpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.Span<double>
 static CSnakes.Runtime.Python.PyBufferExtensions.AsDoubleSpan2D(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> CommunityToolkit.HighPerformance.Span2D<double>
+static CSnakes.Runtime.Python.PyBufferExtensions.AsHalfReadOnlySpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.ReadOnlySpan<System.Half>
+static CSnakes.Runtime.Python.PyBufferExtensions.AsHalfReadOnlySpan2D(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> CommunityToolkit.HighPerformance.ReadOnlySpan2D<System.Half>
+static CSnakes.Runtime.Python.PyBufferExtensions.AsHalfSpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.Span<System.Half>
+static CSnakes.Runtime.Python.PyBufferExtensions.AsHalfSpan2D(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> CommunityToolkit.HighPerformance.Span2D<System.Half>
 static CSnakes.Runtime.Python.PyBufferExtensions.AsFloatReadOnlySpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.ReadOnlySpan<float>
 static CSnakes.Runtime.Python.PyBufferExtensions.AsFloatReadOnlySpan2D(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> CommunityToolkit.HighPerformance.ReadOnlySpan2D<float>
 static CSnakes.Runtime.Python.PyBufferExtensions.AsFloatSpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.Span<float>

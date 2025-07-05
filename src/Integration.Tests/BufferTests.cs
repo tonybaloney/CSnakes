@@ -213,11 +213,26 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     }
 
     [Fact]
+    public void TestFloat16Buffer()
+    {
+        var testModule = Env.TestBuffer();
+        using var bufferObject = testModule.TestFloat16Buffer();
+        Assert.Equal(10, bufferObject.Length); // 5 * sizeof(o)
+        Assert.True(bufferObject.IsScalar);
+
+        // Check the buffer contents
+        Span<Half> result = bufferObject.AsHalfSpan();
+        Assert.Equal(typeof(Half), bufferObject.GetItemType());
+        Assert.Equal(1.1f, (float)result[0], 0.01);
+        Assert.Equal(5.5f, (float)result[4], 0.01);
+    }
+
+    [Fact]
     public void TestFloat32Buffer()
     {
         var testModule = Env.TestBuffer();
         using var bufferObject = testModule.TestFloat32Buffer();
-        Assert.Equal(20, bufferObject.Length); // 5 * sizeof(int)
+        Assert.Equal(20, bufferObject.Length); // 5 * sizeof(o)
         Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
@@ -358,6 +373,19 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
         Assert.Equal(typeof(ulong), bufferObject.GetItemType());
         Assert.Equal(1UL, matrix[0, 0]);
         Assert.Equal(6UL, matrix[1, 2]);
+    }
+
+    [Fact]
+    public void TestFloat16MatrixBuffer()
+    {
+        var testModule = Env.TestBuffer();
+        using var bufferObject = testModule.TestFloat162dBuffer();
+        Assert.Equal(2 * 2 * 3, bufferObject.Length);
+        Assert.Equal(2, bufferObject.Dimensions);
+        var matrix = bufferObject.AsHalfSpan2D();
+        Assert.Equal(typeof(Half), bufferObject.GetItemType());
+        Assert.Equal(1.1f, (float)matrix[0, 0], 0.01);
+        Assert.Equal(6.6f, (float)matrix[1, 2], 0.01);
     }
 
     [Fact]

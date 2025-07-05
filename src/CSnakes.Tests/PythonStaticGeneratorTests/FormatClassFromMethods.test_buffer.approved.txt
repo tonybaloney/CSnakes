@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "d2b1297ae47725e0879de76db1b332a8"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "648fa64ee4e57f1215ea2d6c75e52f78"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -55,6 +55,7 @@ public static class TestClassExtensions
         private PyObject __func_test_int64_buffer;
         private PyObject __func_test_uint32_buffer;
         private PyObject __func_test_uint64_buffer;
+        private PyObject __func_test_float16_buffer;
         private PyObject __func_test_float32_buffer;
         private PyObject __func_test_float64_buffer;
         private PyObject __func_test_vector_buffer;
@@ -66,6 +67,7 @@ public static class TestClassExtensions
         private PyObject __func_test_uint32_2d_buffer;
         private PyObject __func_test_int64_2d_buffer;
         private PyObject __func_test_uint64_2d_buffer;
+        private PyObject __func_test_float16_2d_buffer;
         private PyObject __func_test_float32_2d_buffer;
         private PyObject __func_test_float64_2d_buffer;
         private PyObject __func_test_global_buffer;
@@ -95,6 +97,7 @@ public static class TestClassExtensions
                 this.__func_test_int64_buffer = module.GetAttr("test_int64_buffer");
                 this.__func_test_uint32_buffer = module.GetAttr("test_uint32_buffer");
                 this.__func_test_uint64_buffer = module.GetAttr("test_uint64_buffer");
+                this.__func_test_float16_buffer = module.GetAttr("test_float16_buffer");
                 this.__func_test_float32_buffer = module.GetAttr("test_float32_buffer");
                 this.__func_test_float64_buffer = module.GetAttr("test_float64_buffer");
                 this.__func_test_vector_buffer = module.GetAttr("test_vector_buffer");
@@ -106,6 +109,7 @@ public static class TestClassExtensions
                 this.__func_test_uint32_2d_buffer = module.GetAttr("test_uint32_2d_buffer");
                 this.__func_test_int64_2d_buffer = module.GetAttr("test_int64_2d_buffer");
                 this.__func_test_uint64_2d_buffer = module.GetAttr("test_uint64_2d_buffer");
+                this.__func_test_float16_2d_buffer = module.GetAttr("test_float16_2d_buffer");
                 this.__func_test_float32_2d_buffer = module.GetAttr("test_float32_2d_buffer");
                 this.__func_test_float64_2d_buffer = module.GetAttr("test_float64_2d_buffer");
                 this.__func_test_global_buffer = module.GetAttr("test_global_buffer");
@@ -137,6 +141,7 @@ public static class TestClassExtensions
                 this.__func_test_int64_buffer.Dispose();
                 this.__func_test_uint32_buffer.Dispose();
                 this.__func_test_uint64_buffer.Dispose();
+                this.__func_test_float16_buffer.Dispose();
                 this.__func_test_float32_buffer.Dispose();
                 this.__func_test_float64_buffer.Dispose();
                 this.__func_test_vector_buffer.Dispose();
@@ -148,6 +153,7 @@ public static class TestClassExtensions
                 this.__func_test_uint32_2d_buffer.Dispose();
                 this.__func_test_int64_2d_buffer.Dispose();
                 this.__func_test_uint64_2d_buffer.Dispose();
+                this.__func_test_float16_2d_buffer.Dispose();
                 this.__func_test_float32_2d_buffer.Dispose();
                 this.__func_test_float64_2d_buffer.Dispose();
                 this.__func_test_global_buffer.Dispose();
@@ -170,6 +176,7 @@ public static class TestClassExtensions
                 this.__func_test_int64_buffer = module.GetAttr("test_int64_buffer");
                 this.__func_test_uint32_buffer = module.GetAttr("test_uint32_buffer");
                 this.__func_test_uint64_buffer = module.GetAttr("test_uint64_buffer");
+                this.__func_test_float16_buffer = module.GetAttr("test_float16_buffer");
                 this.__func_test_float32_buffer = module.GetAttr("test_float32_buffer");
                 this.__func_test_float64_buffer = module.GetAttr("test_float64_buffer");
                 this.__func_test_vector_buffer = module.GetAttr("test_vector_buffer");
@@ -181,6 +188,7 @@ public static class TestClassExtensions
                 this.__func_test_uint32_2d_buffer = module.GetAttr("test_uint32_2d_buffer");
                 this.__func_test_int64_2d_buffer = module.GetAttr("test_int64_2d_buffer");
                 this.__func_test_uint64_2d_buffer = module.GetAttr("test_uint64_2d_buffer");
+                this.__func_test_float16_2d_buffer = module.GetAttr("test_float16_2d_buffer");
                 this.__func_test_float32_2d_buffer = module.GetAttr("test_float32_2d_buffer");
                 this.__func_test_float64_2d_buffer = module.GetAttr("test_float64_2d_buffer");
                 this.__func_test_global_buffer = module.GetAttr("test_global_buffer");
@@ -208,6 +216,7 @@ public static class TestClassExtensions
             this.__func_test_int64_buffer.Dispose();
             this.__func_test_uint32_buffer.Dispose();
             this.__func_test_uint64_buffer.Dispose();
+            this.__func_test_float16_buffer.Dispose();
             this.__func_test_float32_buffer.Dispose();
             this.__func_test_float64_buffer.Dispose();
             this.__func_test_vector_buffer.Dispose();
@@ -219,6 +228,7 @@ public static class TestClassExtensions
             this.__func_test_uint32_2d_buffer.Dispose();
             this.__func_test_int64_2d_buffer.Dispose();
             this.__func_test_uint64_2d_buffer.Dispose();
+            this.__func_test_float16_2d_buffer.Dispose();
             this.__func_test_float32_2d_buffer.Dispose();
             this.__func_test_float64_2d_buffer.Dispose();
             this.__func_test_global_buffer.Dispose();
@@ -336,6 +346,18 @@ public static class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint64_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_uint64_buffer;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
+                return __return;
+            }
+        }
+
+        public IPyBuffer TestFloat16Buffer()
+        {
+            using (GIL.Acquire())
+            {
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float16_buffer");
+                PyObject __underlyingPythonFunc = this.__func_test_float16_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
                 return __return;
@@ -468,6 +490,18 @@ public static class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_uint64_2d_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_uint64_2d_buffer;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
+                return __return;
+            }
+        }
+
+        public IPyBuffer TestFloat162dBuffer()
+        {
+            using (GIL.Acquire())
+            {
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float16_2d_buffer");
+                PyObject __underlyingPythonFunc = this.__func_test_float16_2d_buffer;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
                 return __return;
@@ -699,6 +733,14 @@ public interface ITestClass : IReloadableModuleImport
     IPyBuffer TestUint64Buffer();
 
     /// <summary>
+    /// Invokes the Python function <c>test_float16_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_float16_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
+    IPyBuffer TestFloat16Buffer();
+
+    /// <summary>
     /// Invokes the Python function <c>test_float32_buffer</c>:
     /// <code><![CDATA[
     /// def test_float32_buffer() -> Buffer: ...
@@ -785,6 +827,14 @@ public interface ITestClass : IReloadableModuleImport
     /// ]]></code>
     /// </summary>
     IPyBuffer TestUint642dBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_float16_2d_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_float16_2d_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
+    IPyBuffer TestFloat162dBuffer();
 
     /// <summary>
     /// Invokes the Python function <c>test_float32_2d_buffer</c>:

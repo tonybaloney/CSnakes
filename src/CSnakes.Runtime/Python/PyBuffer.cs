@@ -1,7 +1,6 @@
 using CommunityToolkit.HighPerformance;
 using CSnakes.Runtime.CPython;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
@@ -42,6 +41,7 @@ internal sealed class PyBuffer : IPyBuffer
         ULong = 'L', // C unsigned long
         LongLong = 'q', // C long long
         ULongLong = 'Q', // C unsigned long long
+        Half = 'e',  // float16
         Float = 'f', // C float
         Double = 'd', // C double
         SizeT = 'n', // C size_t
@@ -139,6 +139,7 @@ internal sealed class PyBuffer : IPyBuffer
 
             return (Format)f switch
             {
+                Format.Half => typeof(Half),
                 Format.Float => typeof(float),
                 Format.Double => typeof(double),
                 Format.Char => typeof(sbyte),

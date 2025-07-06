@@ -2,14 +2,45 @@
 
 To get started with CSnakes, you need to:
 
-* [Install Python](#installing-python)
-* [Put your Python files into a C# Project](#configuring-a-c-project-for-csnakes)
-* [Use type annotations for the functions you want to call from C#](#using-type-annotations-for-reflection)
-* [Install the `CSnakes.Runtime` package into the project](#installing-the-nuget-packages-for-csnakes)
-* [Mark them for source generation](#marking-files-for-generation)
-* [Install the `CSnakes.Runtime` nuget package in the C# Project you want to execute the Python code from](#building-the-project)
-* [Setup a Virtual Environment (Optional)](#using-virtual-environments)
-* [Instantiate a Python environment in C# and run the Python function](#calling-csnakes-code-from-cnet)
+- [Getting Started](#getting-started)
+  - [Configuring a C# Project for CSnakes](#configuring-a-c-project-for-csnakes)
+    - [Installing the NuGet package](#installing-the-nuget-package)
+  - [Adding Python files](#adding-python-files)
+  - [Marking files for generation](#marking-files-for-generation)
+  - [Building the project](#building-the-project)
+  - [Constructing a Python environment from C#](#constructing-a-python-environment-from-c)
+  - [Using Virtual Environments and Python Requirements](#using-virtual-environments-and-python-requirements)
+  - [Calling CSnakes code from C#.NET](#calling-csnakes-code-from-cnet)
+
+The fastest way to get started with CSnakes that will take care of the all of
+the above is to use the supplied template for a C# console project with the
+`dotnet new` command.
+
+The [templates] are installed by running the following command:
+
+    dotnet new --install CSnakes.Templates
+
+To create a C# console application project with the default options, run the
+following commands:
+
+    mkdir MyApp
+    cd MyApp
+    dotnet new pyapp
+
+If you run the new application with:
+
+    dotnet run
+
+it will print a greetings message from within a Python function that is invoked
+by C#! This may take a bit the first time you run it because CSnakes will
+download the Python runtime in a fully isolated environment for the application.
+
+To explore the various options offered by the `pyapp` template, run with the
+`-h` flag:
+
+    dotnet new pyapp -h
+
+[templates]: https://www.nuget.org/packages/CSnakes.Templates
 
 ## Configuring a C# Project for CSnakes
 

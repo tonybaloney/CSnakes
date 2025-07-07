@@ -29,12 +29,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="python\*.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-    <None Remove="python\test_simple.py" />
     <Content Include="python\environment.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
+  <Import Project="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.targets" />
+
 </Project>

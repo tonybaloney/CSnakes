@@ -1,0 +1,7 @@
+<Project>
+
+  <PropertyGroup>
+    <DisableDefaultPythonItems>false</DisableDefaultPythonItems>
+  </PropertyGroup>
+
+</Project>

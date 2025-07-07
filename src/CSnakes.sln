@@ -6,7 +6,10 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{24D80700-8F01-41C7-B858-2C1B242C4EE0}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
 		Directory.Packages.props = Directory.Packages.props
+		Packaging.props = Packaging.props
+		Packaging.targets = Packaging.targets
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject

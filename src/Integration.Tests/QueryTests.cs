@@ -2,12 +2,12 @@
 
 using Integration.Tests;
 using System.Collections.Immutable;
-using static CSnakes.Linq.PyObjectQuery;
+using static CSnakes.Linq.PyObjectReader;
 
 namespace CSnakes.Linq.Tests;
 public class QueryTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
-    public sealed class FooBarBaz : IPyObjectQueryable<FooBarBaz>
+    public sealed class FooBarBaz : IPyObjectReadable<FooBarBaz>
     {
         public long Foo { get; private init;  }
         public string? Bar { get; private init; }
@@ -15,7 +15,7 @@ public class QueryTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
         public (long, string) Qux { get; private init; }
         public required ImmutableDictionary<string, long> Quux { get; init; }
 
-        public static IPyObjectQuery<FooBarBaz> Query =>
+        public static IPyObjectReader<FooBarBaz> Reader =>
             from foo in GetAttr("foo", Int64)
             from bar in GetAttr("bar", String)
             from baz in GetAttr("baz", List(Int64, ImmutableArray.CreateRange))

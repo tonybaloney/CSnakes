@@ -219,12 +219,12 @@ public static partial class PyObjectImporters
 #pragma warning disable RS0016 // FIXME
     public sealed class Extern<T> : IPyObjectImporter<T>
 #pragma warning restore RS0016
-        where T : IPyObjectQueryable<T>
+        where T : IPyObjectReadable<T>
     {
         static T IPyObjectImporter<T>.BareImport(PyObject obj)
         {
             GIL.Require();
-            return T.Query.GetResult(obj);
+            return T.Reader.Read(obj);
         }
     }
 

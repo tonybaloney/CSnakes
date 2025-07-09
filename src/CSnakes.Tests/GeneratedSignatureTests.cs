@@ -81,13 +81,13 @@ public class GeneratedSignatureTests
             .AddReferences(MetadataReference.CreateFromFile(typeof(IPythonEnvironmentBuilder).Assembly.Location))
             .AddReferences(MetadataReference.CreateFromFile(typeof(ILogger<>).Assembly.Location))
             .AddSyntaxTrees(tree,
-                            CSharpSyntaxTree.ParseText(path: "Extern.cs", cancellationToken: TestContext.Current.CancellationToken, text: """
+                            CSharpSyntaxTree.ParseText(path: "FooBar.cs", cancellationToken: TestContext.Current.CancellationToken, text: """
                                 using System;
                                 using CSnakes.Linq;
 
-                                public class FooBar : IPyObjectQueryable<FooBar>
+                                public class FooBar : IPyObjectReadable<FooBar>
                                 {
-                                    public static IPyObjectQuery<FooBar> Query => throw new NotImplementedException();
+                                    public static IPyObjectReader<FooBar> Reader => throw new NotImplementedException();
                                 }
                                 """));
         var result = compilation.Emit(Stream.Null, cancellationToken: TestContext.Current.CancellationToken);

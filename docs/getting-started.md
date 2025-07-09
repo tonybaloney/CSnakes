@@ -2,15 +2,14 @@
 
 To get started with CSnakes, you need to:
 
-- [Getting Started](#getting-started)
-  - [Configuring a C# Project for CSnakes](#configuring-a-c-project-for-csnakes)
-    - [Installing the NuGet package](#installing-the-nuget-package)
-  - [Adding Python files](#adding-python-files)
-  - [Marking files for generation](#marking-files-for-generation)
-  - [Building the project](#building-the-project)
-  - [Constructing a Python environment from C#](#constructing-a-python-environment-from-c)
-  - [Using Virtual Environments and Python Requirements](#using-virtual-environments-and-python-requirements)
-  - [Calling CSnakes code from C#.NET](#calling-csnakes-code-from-cnet)
+* [Install Python](#installing-python)
+* [Put your Python files into a C# Project](#configuring-a-c-project-for-csnakes)
+* [Use type annotations for the functions you want to call from C#](#using-type-annotations-for-reflection)
+* [Install the `CSnakes.Runtime` package into the project](#installing-the-nuget-packages-for-csnakes)
+* [Mark them for source generation](#marking-files-for-generation)
+* [Install the `CSnakes.Runtime` nuget package in the C# Project you want to execute the Python code from](#building-the-project)
+* [Setup a Virtual Environment (Optional)](#using-virtual-environments)
+* [Instantiate a Python environment in C# and run the Python function](#calling-csnakes-code-from-cnet)
 
 The fastest way to get started with CSnakes that will take care of the all of
 the above is to use the supplied template for a C# console project with the
@@ -51,7 +50,7 @@ To setup a C# project for CSnakes, you need to:
 3. Mark the Python files as "Additional Files" in the project file.
 4. Install the `CSnakes.Runtime` NuGet package.
 5. Create a `PythonEnvironment` in C# and create an instance of the Python module.
-6. Call any Python code. 
+6. Call any Python code.
 
 ### Installing the NuGet package
 
@@ -63,7 +62,7 @@ Source Generation is recommended for the best experience, but you can also use t
 
 CSnakes uses the Python type annotations to generate C# code. You need to add Python files to your project and add type annotations to the functions you want to call from C#.
 
-For example, if you were to create a Python file called `demo.py` to your project with the following content: 
+For example, if you were to create a Python file called `demo.py` to your project with the following content:
 
 ```python
 def hello_world(name: str) -> str:

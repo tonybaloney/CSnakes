@@ -13,6 +13,12 @@ public static class TypeReflection
         FromPython
     }
 
+    public static string? TryGetExternalName(string name)
+    {
+        const string prefix = "__extern__.";
+        return name.StartsWith(prefix) ? name[prefix.Length..] : null;
+    }
+
     public static TypeSyntax AsPredefinedType(PythonTypeSpec pythonType, ConversionDirection direction) =>
         (pythonType, direction) switch
         {
@@ -29,6 +35,7 @@ public static class TypeReflection
             ({ Name: "bool" }, _) => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword)),
             ({ Name: "bytes" }, _) => SyntaxFactory.ParseTypeName("byte[]"),
             ({ Name: "Buffer" or "collections.abc.Buffer" }, ConversionDirection.FromPython) => SyntaxFactory.ParseTypeName("IPyBuffer"),
+            ({ Name: var name }, ConversionDirection.FromPython) when TryGetExternalName(name) is { } typeName => SyntaxFactory.ParseTypeName(typeName),
             _ => SyntaxFactory.ParseTypeName("PyObject"),
         };
 

@@ -8,5 +8,8 @@ class FooBarBaz:
     qux: tuple[int, str]
     quux: dict[str, int]
 
-def foo_bar_baz() -> FooBarBaz:
+def foo_bar_baz() -> "__extern__.CSnakes.Linq.Tests.QueryTests.FooBarBaz":
     return FooBarBaz(1, "hello", [1, 2, 3], (42, "world"), { "foo": 1, "bar": 2, "baz": 3 })
+
+def foo_bar_baz_list() -> list["__extern__.CSnakes.Linq.Tests.QueryTests.FooBarBaz"]:
+    return [foo_bar_baz()]

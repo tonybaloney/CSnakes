@@ -7,15 +7,15 @@ using static CSnakes.Linq.PyObjectQuery;
 namespace CSnakes.Linq.Tests;
 public class QueryTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
-    private sealed class FooBarBaz
+    public sealed class FooBarBaz : IPyObjectQueryable<FooBarBaz>
     {
         public long Foo { get; private init;  }
         public string? Bar { get; private init; }
         public required ImmutableArray<long> Baz { get; init; }
         public (long, string) Qux { get; private init; }
-        public ImmutableDictionary<string, long> Quux { get; private init; }
+        public required ImmutableDictionary<string, long> Quux { get; init; }
 
-        public static readonly IPyObjectQuery<FooBarBaz> Query =
+        public static IPyObjectQuery<FooBarBaz> Query =>
             from foo in GetAttr("foo", Int64)
             from bar in GetAttr("bar", String)
             from baz in GetAttr("baz", List(Int64, ImmutableArray.CreateRange))
@@ -35,7 +35,22 @@ public class QueryTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
     public void Test()
     {
         var module = Env.TestQuery();
-        var result = module.FooBarBaz().To(FooBarBaz.Query);
+        var result = module.FooBarBaz();
+        Assert.Equal(1, result.Foo);
+        Assert.Equal("hello", result.Bar);
+        Assert.Equal([1L, 2L, 3L], result.Baz);
+        Assert.Equal((42L, "world"), result.Qux);
+        Assert.Equal(3, result.Quux.Count);
+        Assert.Equal(1, result.Quux["foo"]);
+        Assert.Equal(2, result.Quux["bar"]);
+        Assert.Equal(3, result.Quux["baz"]);
+    }
+
+    [Fact]
+    public void TestList()
+    {
+        var module = Env.TestQuery();
+        var result = Assert.Single(module.FooBarBazList());
         Assert.Equal(1, result.Foo);
         Assert.Equal("hello", result.Bar);
         Assert.Equal([1L, 2L, 3L], result.Baz);

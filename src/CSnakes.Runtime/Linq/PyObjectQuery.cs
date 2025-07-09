@@ -16,6 +16,12 @@ public interface IPyObjectFallibleQuery<T>
     bool TryGetResult(PyObject obj, [NotNullWhen(true)]out T? value);
 }
 
+public interface IPyObjectQueryable<out TSelf>
+    where TSelf : IPyObjectQueryable<TSelf>
+{
+    static abstract IPyObjectQuery<TSelf> Query { get; }
+}
+
 public static class PyObjectQuery
 {
     public static T To<T>(this PyObject obj, IPyObjectQuery<T> query)

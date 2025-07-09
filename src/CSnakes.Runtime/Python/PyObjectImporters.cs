@@ -1,3 +1,4 @@
+using CSnakes.Linq;
 using CSnakes.Runtime.CPython;
 using System.Diagnostics.CodeAnalysis;
 
@@ -212,6 +213,18 @@ public static partial class PyObjectImporters
             return CPythonAPI.IsPyCoroutine(obj)
                 ? new Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(obj.Clone())
                 : throw InvalidCastException("coroutine", obj);
+        }
+    }
+
+#pragma warning disable RS0016 // FIXME
+    public sealed class Extern<T> : IPyObjectImporter<T>
+#pragma warning restore RS0016
+        where T : IPyObjectQueryable<T>
+    {
+        static T IPyObjectImporter<T>.BareImport(PyObject obj)
+        {
+            GIL.Require();
+            return T.Query.GetResult(obj);
         }
     }
 

@@ -20,17 +20,27 @@ public static partial class PythonParser
         );
 
     public static TokenListParser<PythonToken, PythonTypeSpec> PythonTypeDefinitionParser { get; } =
-        CreatePythonTypeDefinitionParser().Named("Type Definition");
+        CreatePythonTypeDefinitionParser(Parse.Ref(() => PythonTypeDefinitionParser)).Named("Type Definition");
 
-    private static TokenListParser<PythonToken, PythonTypeSpec> CreatePythonTypeDefinitionParser()
+    public static TokenListParser<PythonToken, PythonTypeSpec> PythonReturnTypeDefinitionParser { get; } =
+        CreatePythonTypeDefinitionParser(Parse.Ref(() => PythonReturnTypeDefinitionParser), allowForwardReferences: true).Named("Type Definition");
+
+    private static TokenListParser<PythonToken, PythonTypeSpec>
+        CreatePythonTypeDefinitionParser(TokenListParser<PythonToken, PythonTypeSpec> typeDefinitionParser,
+                                         bool allowForwardReferences = false)
     {
-        var typeDefinitionParser = Parse.Ref(() => PythonTypeDefinitionParser);
+        var nameParser =
+            from t in Parse.OneOf(Token.EqualTo(PythonToken.None),
+                                  Token.EqualTo(PythonToken.Identifier),
+                                  Token.EqualTo(PythonToken.QualifiedIdentifier))
+            select t.ToStringValue();
 
         var parser =
-            from name in Parse.OneOf(Token.EqualTo(PythonToken.None),
-                                     Token.EqualTo(PythonToken.Identifier),
-                                     Token.EqualTo(PythonToken.QualifiedIdentifier))
-            from type in name.ToStringValue() switch
+            from name in allowForwardReferences
+                       ? nameParser.Or(from t in Token.EqualTo(PythonToken.DoubleQuotedString)
+                                       select t.ToStringValue()[1..^1])
+                       : nameParser
+            from type in name switch
             {
                 "None" => Parse.Return<PythonToken, PythonTypeSpec>(PythonTypeSpec.None),
                 "Callable" and var n =>

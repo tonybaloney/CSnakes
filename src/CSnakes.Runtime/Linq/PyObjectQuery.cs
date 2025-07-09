@@ -2,18 +2,12 @@
 #pragma warning disable RS0016
 
 using CSnakes.Runtime.Python;
-using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Linq;
 
 public interface IPyObjectQuery<out T>
 {
     T GetResult(PyObject obj);
-}
-
-public interface IPyObjectFallibleQuery<T>
-{
-    bool TryGetResult(PyObject obj, [NotNullWhen(true)]out T? value);
 }
 
 public interface IPyObjectQueryable<out TSelf>

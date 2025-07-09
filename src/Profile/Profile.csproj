@@ -5,16 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="*.py" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="*.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" />
     <PackageReference Include="Microsoft.VisualStudio.DiagnosticsHub.BenchmarkDotNetDiagnosers" />
     <PackageReference Include="python" />
@@ -24,5 +14,7 @@
     <ProjectReference Include="..\CSnakes.Runtime\CSnakes.Runtime.csproj" />
     <ProjectReference Include="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
+
+  <Import Project="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.targets" />
 
 </Project>

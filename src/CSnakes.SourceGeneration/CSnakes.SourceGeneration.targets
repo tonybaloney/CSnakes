@@ -1,0 +1,18 @@
+<Project>
+
+  <Target Name="_InjectCSnakesAdditionalFiles" BeforeTargets="PrepareForBuild;CompileDesignTime;GenerateMSBuildEditorConfigFileShouldRun">
+    <ItemGroup>
+      <AdditionalFiles Include="@(None)"
+                       Condition="('$(DisableDefaultPythonItems)' == '' Or !$(DisableDefaultPythonItems)) And $([System.Text.RegularExpressions.Regex]::IsMatch('%(Extension)', '.py$'))"
+                       SourceItemType="Python">
+        <CopyToOutputDirectory Condition="'$(EmbedPythonSources)' != 'true'">Always</CopyToOutputDirectory>
+      </AdditionalFiles>
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <CompilerVisibleProperty Include="EmbedPythonSources" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="SourceItemType" />
+  </ItemGroup>
+
+</Project>

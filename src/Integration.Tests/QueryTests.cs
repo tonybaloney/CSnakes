@@ -1,10 +1,10 @@
 #pragma warning disable PRTEXP001
 
-using Integration.Tests;
+using CSnakes.Linq;
 using System.Collections.Immutable;
 using static CSnakes.Linq.PyObjectReader;
 
-namespace CSnakes.Linq.Tests;
+namespace Integration.Tests;
 public class QueryTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     public sealed class FooBarBaz : IPyObjectReadable<FooBarBaz>

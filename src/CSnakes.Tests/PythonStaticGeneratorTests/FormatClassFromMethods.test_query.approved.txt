@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "ccdb80a07511d4aacc7a55543e30493c"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "455a528e61f3e3afaab7a0293b772629"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -84,26 +84,26 @@ public static class TestClassExtensions
             module.Dispose();
         }
 
-        public CSnakes.Linq.Tests.QueryTests.FooBarBaz FooBarBaz()
+        public Integration.Tests.QueryTests.FooBarBaz FooBarBaz()
         {
             using (GIL.Acquire())
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "foo_bar_baz");
                 PyObject __underlyingPythonFunc = this.__func_foo_bar_baz;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = __result_pyObject.BareImportAs<CSnakes.Linq.Tests.QueryTests.FooBarBaz, global::CSnakes.Runtime.Python.PyObjectImporters.Extern<CSnakes.Linq.Tests.QueryTests.FooBarBaz>>();
+                var __return = __result_pyObject.BareImportAs<Integration.Tests.QueryTests.FooBarBaz, global::CSnakes.Runtime.Python.PyObjectImporters.Extern<Integration.Tests.QueryTests.FooBarBaz>>();
                 return __return;
             }
         }
 
-        public IReadOnlyList<CSnakes.Linq.Tests.QueryTests.FooBarBaz> FooBarBazList()
+        public IReadOnlyList<Integration.Tests.QueryTests.FooBarBaz> FooBarBazList()
         {
             using (GIL.Acquire())
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "foo_bar_baz_list");
                 PyObject __underlyingPythonFunc = this.__func_foo_bar_baz_list;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = __result_pyObject.BareImportAs<IReadOnlyList<CSnakes.Linq.Tests.QueryTests.FooBarBaz>, global::CSnakes.Runtime.Python.PyObjectImporters.List<CSnakes.Linq.Tests.QueryTests.FooBarBaz, global::CSnakes.Runtime.Python.PyObjectImporters.Extern<CSnakes.Linq.Tests.QueryTests.FooBarBaz>>>();
+                var __return = __result_pyObject.BareImportAs<IReadOnlyList<Integration.Tests.QueryTests.FooBarBaz>, global::CSnakes.Runtime.Python.PyObjectImporters.List<Integration.Tests.QueryTests.FooBarBaz, global::CSnakes.Runtime.Python.PyObjectImporters.Extern<Integration.Tests.QueryTests.FooBarBaz>>>();
                 return __return;
             }
         }
@@ -118,18 +118,18 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>foo_bar_baz</c>:
     /// <code><![CDATA[
-    /// def foo_bar_baz() -> "__extern__.CSnakes.Linq.Tests.QueryTests.FooBarBaz": ...
+    /// def foo_bar_baz() -> "__extern__.Integration.Tests.QueryTests.FooBarBaz": ...
     /// ]]></code>
     /// </summary>
-    CSnakes.Linq.Tests.QueryTests.FooBarBaz FooBarBaz();
+    Integration.Tests.QueryTests.FooBarBaz FooBarBaz();
 
     /// <summary>
     /// Invokes the Python function <c>foo_bar_baz_list</c>:
     /// <code><![CDATA[
-    /// def foo_bar_baz_list() -> list["__extern__.CSnakes.Linq.Tests.QueryTests.FooBarBaz"]: ...
+    /// def foo_bar_baz_list() -> list["__extern__.Integration.Tests.QueryTests.FooBarBaz"]: ...
     /// ]]></code>
     /// </summary>
-    IReadOnlyList<CSnakes.Linq.Tests.QueryTests.FooBarBaz> FooBarBazList();
+    IReadOnlyList<Integration.Tests.QueryTests.FooBarBaz> FooBarBazList();
 }
 
 file static class ThisModule

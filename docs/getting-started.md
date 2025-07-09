@@ -50,7 +50,7 @@ To setup a C# project for CSnakes, you need to:
 3. Mark the Python files as "Additional Files" in the project file.
 4. Install the `CSnakes.Runtime` NuGet package.
 5. Create a `PythonEnvironment` in C# and create an instance of the Python module.
-6. Call any Python code.
+6. Call any Python code. 
 
 ### Installing the NuGet package
 
@@ -62,7 +62,7 @@ Source Generation is recommended for the best experience, but you can also use t
 
 CSnakes uses the Python type annotations to generate C# code. You need to add Python files to your project and add type annotations to the functions you want to call from C#.
 
-For example, if you were to create a Python file called `demo.py` to your project with the following content:
+For example, if you were to create a Python file called `demo.py` to your project with the following content: 
 
 ```python
 def hello_world(name: str) -> str:

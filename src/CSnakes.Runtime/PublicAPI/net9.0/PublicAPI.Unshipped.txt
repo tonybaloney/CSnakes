@@ -1,1 +1,19 @@
 #nullable enable
+CSnakes.Runtime.Python.KeywordArg
+CSnakes.Runtime.Python.KeywordArg.Deconstruct(out string! Name, out CSnakes.Runtime.Python.PyObject! Value) -> void
+CSnakes.Runtime.Python.KeywordArg.Equals(CSnakes.Runtime.Python.KeywordArg other) -> bool
+CSnakes.Runtime.Python.KeywordArg.KeywordArg() -> void
+CSnakes.Runtime.Python.KeywordArg.KeywordArg(string! Name, CSnakes.Runtime.Python.PyObject! Value) -> void
+CSnakes.Runtime.Python.KeywordArg.Name.get -> string!
+CSnakes.Runtime.Python.KeywordArg.Name.init -> void
+CSnakes.Runtime.Python.KeywordArg.Value.get -> CSnakes.Runtime.Python.PyObject!
+CSnakes.Runtime.Python.KeywordArg.Value.init -> void
+CSnakes.Runtime.Python.PyObject.Call(params System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> args) -> CSnakes.Runtime.Python.PyObject!
+CSnakes.Runtime.Python.PyObject.Call(System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> args, params System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> argv) -> CSnakes.Runtime.Python.PyObject!
+CSnakes.Runtime.Python.PyObject.Call(System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> args, System.ReadOnlySpan<CSnakes.Runtime.Python.KeywordArg> kwargs) -> CSnakes.Runtime.Python.PyObject!
+CSnakes.Runtime.Python.PyObject.Call(System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> args, System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> argv, System.ReadOnlySpan<CSnakes.Runtime.Python.KeywordArg> kwargs, System.ReadOnlySpan<CSnakes.Runtime.Python.KeywordArg> kwargv) -> CSnakes.Runtime.Python.PyObject!
+override CSnakes.Runtime.Python.KeywordArg.GetHashCode() -> int
+static CSnakes.Runtime.Python.KeywordArg.operator !=(CSnakes.Runtime.Python.KeywordArg left, CSnakes.Runtime.Python.KeywordArg right) -> bool
+static CSnakes.Runtime.Python.KeywordArg.operator ==(CSnakes.Runtime.Python.KeywordArg left, CSnakes.Runtime.Python.KeywordArg right) -> bool
+~override CSnakes.Runtime.Python.KeywordArg.Equals(object obj) -> bool
+~override CSnakes.Runtime.Python.KeywordArg.ToString() -> string

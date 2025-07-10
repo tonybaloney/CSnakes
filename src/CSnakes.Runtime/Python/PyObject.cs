@@ -377,17 +377,71 @@ public partial class PyObject : SafeHandle, ICloneable
     /// </summary>
     /// <param name="args"></param>
     /// <returns>The resulting object, or NULL on error.</returns>
+    [Obsolete($"Use {nameof(Call)} overload that takes a read-only params span of arguments.")]
     public PyObject Call(params PyObject[] args)
     {
         return CallWithArgs(args);
     }
 
-    public PyObject CallWithArgs(PyObject[]? args = null)
+    [Obsolete($"Use {nameof(Call)} overload that takes a read-only params span of arguments.")]
+    public PyObject CallWithArgs(PyObject[]? args = null) => Call(args.AsSpan());
+
+    [Obsolete($"Use {nameof(Call)} overload that takes read-only spans of arguments and keyword arguments.")]
+    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null)
+    {
+        if (kwvalues is null || kwnames.Length != kwvalues.Length)
+            throw new ArgumentException("kwnames and kwvalues must be the same length.");
+
+        var kwargs =
+            from e in kwnames.Zip(kwvalues)
+            select new KeywordArg(e.First, e.Second);
+
+        return Call(args, kwargs.ToArray());
+    }
+
+    [Obsolete($"Use {nameof(Call)} overload that takes read-only spans of arguments and keyword arguments.")]
+    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)
+    {
+        // No keyword parameters supplied
+        if (kwnames is null && kwargs is null)
+            return CallWithArgs(args);
+        // Keyword args are empty and kwargs is empty.
+        if (kwnames is not null && kwnames.Length == 0 && (kwargs is null || kwargs.Count == 0))
+            return CallWithArgs(args);
+
+        MergeKeywordArguments(kwnames ?? [], kwvalues ?? [], kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues);
+        return CallWithKeywordArguments(args, combinedKwnames, combinedKwvalues);
+    }
+
+    public PyObject Call(ReadOnlySpan<PyObject> args, params ReadOnlySpan<PyObject> argv)
+    {
+        switch (args.Length, argv.Length)
+        {
+            case (_, 0): return Call(args);
+            case (0, _): return Call(argv);
+            case var (a, b) when a + b is <= 16 and var length:
+            {
+                InlineArray16<PyObject> all = default;
+                var j = 0;
+                // args.CopyTo(all);
+                foreach (var arg in args)
+                    all[j++] = arg;
+                // argv.CopyTo(all[args.Length..]);
+                foreach (var arg in argv)
+                    all[j++] = arg;
+                return Call(all[..length]);
+            }
+            default:
+                return Call([..args, ..argv]);
+        }
+    }
+
+    public PyObject Call(params ReadOnlySpan<PyObject> args)
     {
         RaiseOnPythonNotInitialized();
 
         // Don't do any marshalling if there aren't any arguments.
-        if (args is null || args.Length == 0)
+        if (args.IsEmpty)
         {
             using (GIL.Acquire())
             {
@@ -395,7 +449,6 @@ public partial class PyObject : SafeHandle, ICloneable
             }
         }
 
-        args ??= [];
         var marshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
         var argHandles = args.Length < 16
             ? stackalloc IntPtr[args.Length]
@@ -424,23 +477,62 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
-    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null)
+#if !NET10_0_OR_GREATER
+    [InlineArray(16)]
+    private struct InlineArray16<T>
     {
-        if (kwnames is null)
-            return CallWithArgs(args);
-        if (kwvalues is null || kwnames.Length != kwvalues.Length)
-            throw new ArgumentException("kwnames and kwvalues must be the same length.");
+        private T t;
+    }
+#endif
+
+    public PyObject Call(ReadOnlySpan<PyObject> args, ReadOnlySpan<PyObject> argv,
+                         ReadOnlySpan<KeywordArg> kwargs, ReadOnlySpan<KeywordArg> kwargv)
+    {
+        switch (args.Length, argv.Length, kwargs.Length, kwargv.Length)
+        {
+            case (0  , 0  , 0  , 0  ): return Call();
+            case (> 0, 0  , 0  , 0  ): return Call(args);
+            case (0  , > 0, 0  , 0  ): return Call(argv);
+            case (> 0, > 0, 0  , 0  ): return Call(args, argv);
+            case (0  , 0  , > 0, 0  ): return Call([], kwargs);
+            case (0  , 0  , 0  , > 0): return Call([], kwargv);
+            case (> 0, 0  , 0  , > 0): return Call(args, kwargv);
+            case (0  , > 0, 0  , > 0): return Call(argv, kwargv);
+            case (> 0, 0  , > 0, 0  ): return Call(args, kwargs);
+            case (0  , > 0, > 0, 0  ): return Call(argv, kwargs);
+            case var (a, b, c, d) when (a == 0 || b == 0) && c + d <= 16:
+            {
+                InlineArray16<KeywordArg> all = default;
+                kwargs.CopyTo(all);
+                kwargv.CopyTo(all[kwargs.Length..]);
+                return Call(a > 0 ? args : argv, all[..(c + d)]);
+            }
+            default:
+            {
+                return Call([..args, ..argv], [..kwargs, ..kwargv]);
+            }
+        }
+    }
+
+    public PyObject Call(ReadOnlySpan<PyObject> args, ReadOnlySpan<KeywordArg> kwargs)
+    {
+        if (kwargs.IsEmpty)
+            return Call(args);
+
         RaiseOnPythonNotInitialized();
-        args ??= [];
 
         var argMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
-        var kwargMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[kwvalues.Length];
+        var kwargMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[kwargs.Length];
         var argHandles = args.Length < 16
             ? stackalloc IntPtr[args.Length]
             : new IntPtr[args.Length];
-        var kwargHandles = kwvalues.Length < 16
-            ? stackalloc IntPtr[kwvalues.Length]
-            : new IntPtr[kwvalues.Length];
+        var names = new InlineArray16<string>();
+        Span<string> kwargNames = kwargs.Length <= 16
+            ? names[..kwargs.Length]
+            : new string[kwargs.Length];
+        var kwargHandles = kwargs.Length < 16
+            ? stackalloc IntPtr[kwargs.Length]
+            : new IntPtr[kwargs.Length];
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -448,18 +540,19 @@ public partial class PyObject : SafeHandle, ICloneable
             m.FromManaged(args[i]);
             argHandles[i] = m.ToUnmanaged();
         }
-        for (int i = 0; i < kwvalues.Length; i++)
+        for (int i = 0; i < kwargs.Length; i++)
         {
             ref var m = ref kwargMarshallers[i];
-            m.FromManaged(kwvalues[i]);
+            m.FromManaged(kwargs[i].Value);
             kwargHandles[i] = m.ToUnmanaged();
+            kwargNames[i] = kwargs[i].Name;
         }
 
         try
         {
             using (GIL.Acquire())
             {
-                return Create(CPythonAPI.Call(this, argHandles, kwnames, kwargHandles));
+                return Create(CPythonAPI.Call(this, argHandles, kwargNames, kwargHandles));
             }
         }
         finally
@@ -473,19 +566,6 @@ public partial class PyObject : SafeHandle, ICloneable
                 m.Free();
             }
         }
-    }
-
-    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)
-    {
-        // No keyword parameters supplied
-        if (kwnames is null && kwargs is null)
-            return CallWithArgs(args);
-        // Keyword args are empty and kwargs is empty.
-        if (kwnames is not null && kwnames.Length == 0 && (kwargs is null || kwargs.Count == 0))
-            return CallWithArgs(args);
-
-        MergeKeywordArguments(kwnames ?? [], kwvalues ?? [], kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues);
-        return CallWithKeywordArguments(args, combinedKwnames, combinedKwvalues);
     }
 
     /// <summary>

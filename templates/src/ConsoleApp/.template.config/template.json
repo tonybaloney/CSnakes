@@ -12,7 +12,7 @@
     "language": "C#",
     "type": "project"
   },
-  "sourceName": "ConsoleApp",
+  "sourceName": "ConsoleApp.1",
   "symbols": {
     "PythonVersion": {
       "type": "parameter",

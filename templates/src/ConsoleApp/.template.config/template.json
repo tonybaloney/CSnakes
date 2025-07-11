@@ -5,7 +5,8 @@
     "Python",
     "Console"
   ],
-  "identity": "CSnakes.Templates.Console",
+  "groupIdentity": "CSnakes.Templates.Console",
+  "identity": "CSnakes.Templates.Console.CSharp",
   "name": "Console App (CSnakes)",
   "shortName": "pyapp",
   "tags": {

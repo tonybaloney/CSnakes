@@ -11,6 +11,36 @@ To get started with CSnakes, you need to:
 * [Setup a Virtual Environment (Optional)](#using-virtual-environments)
 * [Instantiate a Python environment in C# and run the Python function](#calling-csnakes-code-from-cnet)
 
+The fastest way to get started with CSnakes that will take care of the all of
+the above is to use the supplied template for a C# console project with the
+`dotnet new` command.
+
+The [templates] are installed by running the following command:
+
+    dotnet new --install CSnakes.Templates
+
+To create a C# console application project with the default options, run the
+following commands:
+
+    mkdir MyApp
+    cd MyApp
+    dotnet new pyapp
+
+If you run the new application with:
+
+    dotnet run
+
+it will print a greetings message from within a Python function that is invoked
+by C#! This may take a bit the first time you run it because CSnakes will
+download the Python runtime in a fully isolated environment for the application.
+
+To explore the various options offered by the `pyapp` template, run with the
+`-h` flag:
+
+    dotnet new pyapp -h
+
+[templates]: https://www.nuget.org/packages/CSnakes.Templates
+
 ## Configuring a C# Project for CSnakes
 
 To setup a C# project for CSnakes, you need to:

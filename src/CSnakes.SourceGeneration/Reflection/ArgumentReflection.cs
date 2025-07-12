@@ -7,8 +7,8 @@ namespace CSnakes.Reflection;
 
 public class ArgumentReflection
 {
-    private static readonly PythonTypeSpec OptionalDictStrAny = PythonTypeSpec.Optional(new("dict", [new("str"), PythonTypeSpec.Any]));
-    private static readonly TypeSyntax NullableArrayOfPyObject = SyntaxFactory.ParseTypeName("PyObject[]?");
+    private static readonly TypeSyntax ReadOnlySpanOfKeywordArg = SyntaxFactory.ParseTypeName("ReadOnlySpan<KeywordArg>");
+    private static readonly TypeSyntax ReadOnlySpanOfPyObject = SyntaxFactory.ParseTypeName("ReadOnlySpan<PyObject>");
 
     public static ParameterSyntax ArgumentSyntax(PythonFunctionParameter parameter) =>
         ArgumentSyntax(parameter, PythonFunctionParameterType.Normal);
@@ -18,35 +18,33 @@ public class ArgumentReflection
     {
         // Treat *args as list<Any>=None and **kwargs as dict<str, Any>=None
         // TODO: Handle the user specifying *args with a type annotation like tuple[int, str]
-        var (reflectedType, defaultValue) = (parameterType, parameter) switch
+        var (reflectedType, literalExpressionSyntax) = (parameterType, parameter) switch
         {
-            (PythonFunctionParameterType.Star, _) => (NullableArrayOfPyObject, PythonConstant.None.Value),
-            (PythonFunctionParameterType.DoubleStar, _) => (TypeReflection.AsPredefinedType(OptionalDictStrAny, TypeReflection.ConversionDirection.ToPython), PythonConstant.None.Value),
-            (PythonFunctionParameterType.Normal, { ImpliedTypeSpec: var type, DefaultValue: var dv }) => (TypeReflection.AsPredefinedType(type, TypeReflection.ConversionDirection.ToPython), dv),
+            (PythonFunctionParameterType.Star, _) => (ReadOnlySpanOfPyObject, SyntaxFactory.LiteralExpression(SyntaxKind.DefaultLiteralExpression)),
+            (PythonFunctionParameterType.DoubleStar, _) => (ReadOnlySpanOfKeywordArg, SyntaxFactory.LiteralExpression(SyntaxKind.DefaultLiteralExpression)),
+            (PythonFunctionParameterType.Normal, { ImpliedTypeSpec: var type, DefaultValue: var dv }) => (TypeReflection.AsPredefinedType(type, TypeReflection.ConversionDirection.ToPython), dv switch
+            {
+                null => null,
+                PythonConstant.HexadecimalInteger { Value: var v } =>
+                    SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
+                                                    SyntaxFactory.Literal($"0x{v:X}", v)),
+                PythonConstant.BinaryInteger { Value: var v } =>
+                    SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
+                                                    SyntaxFactory.Literal($"0b{Convert.ToString(v, 2)}", v)),
+                PythonConstant.Integer { Value: var v and >= int.MinValue and <= int.MaxValue } =>
+                    // Downcast long to int if the value is small as the code is more readable without the L suffix
+                    SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((int)v)),
+                PythonConstant.Integer { Value: var v } =>
+                    SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),
+                PythonConstant.String { Value: var v } =>
+                    SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(v)),
+                PythonConstant.Float { Value: var v } =>
+                    SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),
+                PythonConstant.Bool { Value: true } => SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression),
+                PythonConstant.Bool { Value: false } => SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression),
+                _ => SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
+            }),
             _ => throw new NotImplementedException()
-        };
-
-        var literalExpressionSyntax = defaultValue switch
-        {
-            null => null,
-            PythonConstant.HexadecimalInteger { Value: var v } =>
-                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
-                                                SyntaxFactory.Literal($"0x{v:X}", v)),
-            PythonConstant.BinaryInteger { Value: var v } =>
-                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
-                                                SyntaxFactory.Literal($"0b{Convert.ToString(v, 2)}", v)),
-            PythonConstant.Integer { Value: var v and >= int.MinValue and <= int.MaxValue } =>
-                // Downcast long to int if the value is small as the code is more readable without the L suffix
-                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((int)v)),
-            PythonConstant.Integer { Value: var v } =>
-                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),
-            PythonConstant.String { Value: var v } =>
-                SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(v)),
-            PythonConstant.Float { Value: var v } =>
-                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(v)),
-            PythonConstant.Bool { Value: true } => SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression),
-            PythonConstant.Bool { Value: false } => SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression),
-            _ => SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
         };
 
         // If the default value is a literal expression, but we could not resolve the type to a builtin type,

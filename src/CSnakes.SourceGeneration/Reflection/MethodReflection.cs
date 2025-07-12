@@ -113,16 +113,22 @@ public static class MethodReflection
                     Token(SyntaxKind.UsingKeyword)));
         }
 
-        InvocationExpressionSyntax callExpression = function.Parameters switch
-        {
-            // IF no *args, *kwargs or keyword-only args
-            { Keyword.IsEmpty: true, VariadicPositional: null, VariadicKeyword: null } =>
-                GenerateParamsCall(cSharpParameterList),
-            // IF *args but neither kwargs nor keyword-only arguments
-            { Keyword.IsEmpty: true, VariadicPositional: not null, VariadicKeyword: null } =>
-                GenerateArgsCall(cSharpParameterList),
-            _ => GenerateKeywordCall(function, cSharpParameterList)
-        };
+        InvocationExpressionSyntax callExpression =
+            InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName("__underlyingPythonFunc"),
+                    IdentifierName("Call")),
+                function.Parameters switch
+                {
+                    // IF no *args, *kwargs or keyword-only args
+                    { Keyword.IsEmpty: true, VariadicPositional: null, VariadicKeyword: null } =>
+                        GenerateParamsCall(cSharpParameterList),
+                    // IF *args but neither kwargs nor keyword-only arguments
+                    { Keyword.IsEmpty: true, VariadicPositional: not null, VariadicKeyword: null } =>
+                        GenerateArgsCall(cSharpParameterList),
+                    var pyParameterList => GenerateKeywordCall(pyParameterList, cSharpParameterList)
+                });
 
         ReturnStatementSyntax returnExpression;
         IEnumerable<StatementSyntax> resultConversionStatements = [];
@@ -282,103 +288,46 @@ public static class MethodReflection
         return new(syntax);
     }
 
-    private static InvocationExpressionSyntax GenerateParamsCall(CSharpParameterList parameterList)
-    {
-        return InvocationExpression(
-            MemberAccessExpression(
-                SyntaxKind.SimpleMemberAccessExpression,
-                IdentifierName("__underlyingPythonFunc"),
-                IdentifierName("Call")),
-            ArgumentList(SeparatedList(from a in parameterList.Enumerable()
-                                       select Argument(IdentifierName($"{a.Identifier}_pyObject")))));
-    }
+    private static ArgumentListSyntax GenerateParamsCall(CSharpParameterList parameterList) =>
+        ArgumentList(SeparatedList(from a in parameterList.Positional.Concat(parameterList.Regular)
+                                   select Argument(IdentifierName($"{a.Identifier}_pyObject"))));
 
-    private static InvocationExpressionSyntax GenerateArgsCall(CSharpParameterList parameterList)
+    private static ArgumentListSyntax GenerateArgsCall(CSharpParameterList parameterList)
     {
         if (parameterList is not { VariadicPositional: { } vpp })
             throw new ArgumentException("Variadic positional parameter is required for *args call.", nameof(parameterList));
 
-        // Merge the positional arguments and the *args into a single collection
-        // Use CallWithArgs([arg1, arg2, ..args ?? []])
-        var pythonFunctionCallArguments =
-            parameterList.Positional.Concat(parameterList.Regular)
-                                    .Select(a => Argument(IdentifierName($"{a.Identifier}_pyObject")))
-                                    .ToList();
+        var args =
+            from a in parameterList.Positional.Concat(parameterList.Regular)
+            select IdentifierName($"{a.Identifier}_pyObject");
 
-        var collection =
-            SeparatedList<CollectionElementSyntax>(pythonFunctionCallArguments.Select((a) => ExpressionElement(a.Expression)))
-            .Add(
-                SpreadElement(
-                    BinaryExpression(
-                        SyntaxKind.CoalesceExpression,
-                        IdentifierName(vpp.Identifier),
-                        CollectionExpression()
-                    )
-                )
-            );
-        pythonFunctionCallArguments = [Argument(CollectionExpression(collection))];
-
-        return InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("__underlyingPythonFunc"),
-                        IdentifierName("CallWithArgs")),
-                    ArgumentList(SeparatedList(pythonFunctionCallArguments)));
+        return ArgumentList(SeparatedList([Argument(CollectionExpression(SeparatedList(args.Select(CollectionElementSyntax (a) => ExpressionElement(a))))),
+                                           Argument(IdentifierName(vpp.Identifier))]));
     }
 
-    private static InvocationExpressionSyntax GenerateKeywordCall(PythonFunctionDefinition function, CSharpParameterList parameterList)
+    private static ArgumentListSyntax GenerateKeywordCall(PythonFunctionParameterList parameters,
+                                                          CSharpParameterList reflectedParameters)
     {
-        // Same as args, use a collection expression for all the positional args
-        // [arg1, arg2, .. args ?? []]
-        // Create a collection of string constants for the keyword-only names
+        var args =
+            from a in reflectedParameters.Positional.Concat(reflectedParameters.Regular)
+            select IdentifierName($"{a.Identifier}_pyObject");
 
-        var collection =
-            SeparatedList<CollectionElementSyntax>(from a in parameterList.Positional.Concat(parameterList.Regular)
-                                                   select ExpressionElement(IdentifierName($"{a.Identifier}_pyObject")));
+        IEnumerable<CollectionElementSyntax> kwargs =
+            from a in parameters.Keyword.Zip(reflectedParameters.Keyword, (pp, rp) => (pp.Name, rp.Identifier))
+            select ArgumentList(SeparatedList([Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(a.Name))),
+                                               Argument(IdentifierName($"{a.Identifier}_pyObject"))]))
+            into a
+            select ExpressionElement(ImplicitObjectCreationExpression(a, null));
 
-        if (parameterList.VariadicPositional is { } vpp)
-        {
-            collection = collection.Add(
-                SpreadElement(
-                    BinaryExpression(
-                        SyntaxKind.CoalesceExpression,
-                        IdentifierName(vpp.Identifier),
-                        CollectionExpression()
-                    )
-                )
-            );
-        }
-
-        // Create a collection of string constants for the keyword-only names
-        var kwnames = CollectionExpression(
-            SeparatedList<CollectionElementSyntax>(
-                from a in function.Parameters.Keyword
-                select ExpressionElement(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(a.Name)))
-            ));
-
-        // Create a collection of the converted PyObject identifiers for keyword-only values
-        var kwvalues = CollectionExpression(
-            SeparatedList<CollectionElementSyntax>(
-                from a in parameterList.Keyword
-                select ExpressionElement(IdentifierName($"{a.Identifier}_pyObject")))
-                );
-
-        var kwargsArgument =
-            // If there is a kwargs dictionary, add it to the arguments
-            parameterList.VariadicKeyword is { } vkp
-            ? IdentifierName(vkp.Identifier) // TODO: The internal name might be mutated
-            : IdentifierName("null");
-
-        return InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("__underlyingPythonFunc"),
-                        IdentifierName("CallWithKeywordArguments")),
-                    ArgumentList(SeparatedList([
-                        Argument(CollectionExpression(collection)),
-                        Argument(kwnames),
-                        Argument(kwvalues),
-                        Argument(kwargsArgument)
-                    ])));
+        return ArgumentList(SeparatedList([
+                   Argument(CollectionExpression(SeparatedList(args.Select(CollectionElementSyntax (a) => ExpressionElement(a))))),
+                   reflectedParameters.VariadicPositional is { } vpp
+                       ? Argument(IdentifierName(vpp.Identifier))
+                       : Argument(LiteralExpression(SyntaxKind.DefaultLiteralExpression)),
+                   Argument(CollectionExpression(SeparatedList(kwargs))),
+                   reflectedParameters.VariadicKeyword is { } vkp
+                       ? Argument(IdentifierName(vkp.Identifier)) // TODO: The internal name might be mutated
+                       : Argument(LiteralExpression(SyntaxKind.DefaultLiteralExpression))
+               ]));
     }
 }

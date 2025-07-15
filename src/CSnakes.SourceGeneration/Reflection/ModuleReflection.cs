@@ -9,7 +9,7 @@ public static class ModuleReflection
 {
     public static IEnumerable<MethodDefinition> MethodsFromFunctionDefinitions(IEnumerable<PythonFunctionDefinition> functions, string moduleName)
     {
-        return functions.Select(function => MethodReflection.FromMethod(function, moduleName))
+        return functions.SelectMany(function => MethodReflection.FromMethod(function, moduleName))
                         .Distinct(new MethodDefinitionComparator());
     }
 

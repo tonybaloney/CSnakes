@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "microsoft.templateengine.authoring.cli": {
+      "version": "9.0.203",
+      "commands": [
+        "dotnet-template-authoring"
+      ],
+      "rollForward": false
+    },
+    "powershell": {
+      "version": "7.5.1",
+      "commands": [
+        "pwsh"
+      ],
+      "rollForward": false
+    }
+  }
+}

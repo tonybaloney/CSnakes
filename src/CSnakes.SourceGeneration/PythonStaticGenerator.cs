@@ -86,7 +86,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 }
             } catch (Exception ex) {
                 Location errorLocation = Location.Create(file.Path, TextSpan.FromBounds(0, 1), new LinePositionSpan(new LinePosition(0, 1), new LinePosition(1, 1)));
-                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG999", "PythonStaticGenerator", ex.Message, "PythonStaticGenerator", DiagnosticSeverity.Error, true), null));
+                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG999", "PythonStaticGenerator", ex.Message, "PythonStaticGenerator", DiagnosticSeverity.Error, true), errorLocation));
             }
         });
     }

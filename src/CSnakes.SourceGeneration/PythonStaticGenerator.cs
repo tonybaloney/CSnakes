@@ -19,7 +19,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var pythonFilesPipeline = context.AdditionalTextsProvider
-            .Where(static text => Path.GetExtension(text.Path) == ".py" || Path.GetExtension(text.Path) == ".pyi");
+            .Where(static text => Path.GetExtension(text.Path) is ".py" or ".pyi");
 
         // Get analyser config options
         var embedPythonSource = context.AnalyzerConfigOptionsProvider.Select(static (options, cancellationToken) =>
@@ -87,14 +87,6 @@ public class PythonStaticGenerator : IIncrementalGenerator
             } catch (Exception ex) {
                 Location errorLocation = Location.Create(file.Path, TextSpan.FromBounds(0, 1), new LinePositionSpan(new LinePosition(0, 1), new LinePosition(1, 1)));
                 sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG999", "PythonStaticGenerator", ex.Message, "PythonStaticGenerator", DiagnosticSeverity.Error, true), null));
-
-#if DEBUG
-                if (!System.Diagnostics.Debugger.IsAttached)
-                {
-                    // This is a good place to debug parser crashes.
-                    // System.Diagnostics.Debugger.Launch();
-                }
-#endif
             }
         });
     }
@@ -104,15 +96,11 @@ public class PythonStaticGenerator : IIncrementalGenerator
     /// .e.g. if the absolute path is "/tmp/foo/bar/baz.py" and the relative path is "foo/bar",
     /// it will return "baz.py".
     /// </summary>
-    /// <param name="absolutePath"></param>
-    /// <param name="relativePath"></param>
-    /// <returns></returns>
     private static string? GetPathAfter(string absolutePath, string relativePath)
     {
         // Normalize and split paths
         var absParts = Path.GetFullPath(absolutePath).Trim(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-            .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-            .ToArray();
+            .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         var relParts = relativePath.Trim(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
             .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
             .Where(p => !string.IsNullOrEmpty(p))
@@ -122,10 +110,10 @@ public class PythonStaticGenerator : IIncrementalGenerator
         var matchIndex = absParts
             .Select((_, i) => i)
             .FirstOrDefault(i => i + relParts.Length <= absParts.Length &&
-                relParts.SequenceEqual(absParts.Skip(i).Take(relParts.Length)));
+                relParts.AsSpan().SequenceEqual(absParts.AsSpan(i, relParts.Length)));
 
         // If not found, return null
-        if (matchIndex == 0 && (relParts.Length == 0 || !relParts.SequenceEqual(absParts.Take(relParts.Length))))
+        if (matchIndex == 0 && (relParts.Length == 0 || !relParts.AsSpan().SequenceEqual(absParts.AsSpan(0, relParts.Length))))
             return null;
 
         // Return the parts after the match

@@ -56,6 +56,8 @@ public class GeneratedSignatureTests
     [InlineData("async def hello():\n ...\n", "Task<PyObject> Hello(CancellationToken cancellationToken = default)")]
     [InlineData("def hello(n: Foo = ...) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
     [InlineData("def hello(a: str, b: int = 4, *, kw: str) -> None:\n ...\n", "void Hello(string a, string kw, long b = 4)")]
+    [InlineData("def escape(s: str, quote: bool = True) -> str: ...\n", "string Escape(string s, bool quote = true)")]
+    [InlineData("def hello(n: None = None) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
     public void TestGeneratedSignature(string code, string expected)
     {
         SourceText sourceText = SourceText.From(code);
@@ -63,7 +65,7 @@ public class GeneratedSignatureTests
         // create a Python scope
         PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
-        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test").ToImmutableArray();
+        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
         var method = Assert.Single(module);
 
         // Check that the sample C# code compiles
@@ -121,9 +123,9 @@ public class GeneratedSignatureTests
         Assert.Empty(errors1);
         Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText2, out var functions2, out var errors2));
         Assert.Empty(errors2);
-        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1, "test").ToImmutableArray();
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
         var method1 = Assert.Single(module1);
-        var module2 = ModuleReflection.MethodsFromFunctionDefinitions(functions2, "test").ToImmutableArray();
+        var module2 = ModuleReflection.MethodsFromFunctionDefinitions(functions2).ToImmutableArray();
         var method2 = Assert.Single(module2);
 
         var comparator = new MethodDefinitionComparator();
@@ -144,9 +146,9 @@ public class GeneratedSignatureTests
         Assert.Empty(errors1);
         Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText2, out var functions2, out var errors2));
         Assert.Empty(errors2);
-        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1, "test").ToImmutableArray();
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
         var method1 = Assert.Single(module1);
-        var module2 = ModuleReflection.MethodsFromFunctionDefinitions(functions2, "test").ToImmutableArray();
+        var module2 = ModuleReflection.MethodsFromFunctionDefinitions(functions2).ToImmutableArray();
         var method2 = Assert.Single(module2);
 
         var comparator = new MethodDefinitionComparator();

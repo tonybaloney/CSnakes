@@ -26,7 +26,6 @@ public static class NamespaceHelper
 
         var folders = directory.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
             .Select(p => p.Replace(".", "_"))
-            .Where(p => !string.IsNullOrWhiteSpace(p));
 
         // If the file is __init__.py, we don't need to include it in the import path.
         // Otherwise, we include the filename in the import path.

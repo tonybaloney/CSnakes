@@ -48,6 +48,9 @@ public static class PyObjectReader
         from value in has ? GetAttr(name, reader) : Return(default(T?))
         select value;
 
+    public static IPyObjectReader<T> Call<T>(string name, IPyObjectReader<T> reader) =>
+        Create(obj => obj.GetAttr(name).Call().To(reader));
+
     public static readonly IPyObjectReader<PyObject> Clone = As<PyObject, PyObjectImporters.Clone>();
     public static readonly IPyObjectReader<bool> Boolean = As<bool, PyObjectImporters.Boolean>();
     public static readonly IPyObjectReader<long> Int64 = As<long, PyObjectImporters.Int64>();

@@ -24,8 +24,6 @@ public static class PyObjectReader
             return reader.Read(obj);
     }
 
-    public static readonly IPyObjectReader<PyObject> Id = Create(static obj => obj);
-
     public static IPyObjectReader<bool> HasAttr(string name) =>
         Create(obj => obj.HasAttr(name));
 

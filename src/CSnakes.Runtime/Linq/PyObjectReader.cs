@@ -73,11 +73,11 @@ public static class PyObjectReader
         from tuple in As<(PyObject, PyObject), PyObjectImporters.Tuple<PyObject, PyObject, PyObjectImporters.Clone, PyObjectImporters.Clone>>()
         select (tuple.Item1.To(a), tuple.Item2.To(b));
 
-    public static IPyObjectReader<T> As<T, TImporter>()
+    private static IPyObjectReader<T> As<T, TImporter>()
         where TImporter : IPyObjectImporter<T> =>
         Create(static obj => obj.ImportAs<T, TImporter>());
 
-    public static IPyObjectReader<T> As<T, TImporter>(this IPyObjectReader<PyObject> reader)
+    private static IPyObjectReader<T> As<T, TImporter>(this IPyObjectReader<PyObject> reader)
         where TImporter : IPyObjectImporter<T> =>
         from obj in reader
         select obj.ImportAs<T, TImporter>();

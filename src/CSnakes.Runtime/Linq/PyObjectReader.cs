@@ -111,12 +111,12 @@ public static class PyObjectReader
 
     public static IPyObjectReader<T> Return<T>(T value) => Create(_ => value);
 
-    public static IPyObjectReader<T> Create<T>(Func<PyObject, T> selector) =>
-        new DelegatingReader<T>(selector);
+    public static IPyObjectReader<T> Create<T>(Func<PyObject, T> function) =>
+        new DelegatingReader<T>(function);
 
-    private sealed class DelegatingReader<T>(Func<PyObject, T> selector) :
+    private sealed class DelegatingReader<T>(Func<PyObject, T> delegatee) :
         IPyObjectReader<T>
     {
-        public T Read(PyObject obj) => selector(obj);
+        public T Read(PyObject obj) => delegatee(obj);
     }
 }

@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+from typing import Union
 
 @dataclass
 class FooBarBaz:
     foo: int
-    bar: str | None
+    bar: Union[str, None]
     baz: list[int]
     qux: tuple[int, str]
     quux: dict[str, int]

@@ -95,14 +95,15 @@ public static class PyObjectReader
         Create(obj => (first.Read(obj), second.Read(obj)));
 
     public static IPyObjectReader<TResult>
-        SelectMany<T, TResult>(this IPyObjectReader<T> first,
-                               Func<T, IPyObjectReader<TResult>> resultSelector) =>
-        Create(obj => resultSelector(first.Read(obj)).Read(obj));
+        Bind<T, TResult>(this IPyObjectReader<T> reader, Func<T, IPyObjectReader<TResult>> resultSelector) =>
+        Create(obj => resultSelector(reader.Read(obj)).Read(obj));
 
     public static IPyObjectReader<TResult>
         SelectMany<TFirst, TSecond, TResult>(this IPyObjectReader<TFirst> first,
                                              Func<TFirst, IPyObjectReader<TSecond>> secondSelector,
                                              Func<TFirst, TSecond, TResult> resultSelector) =>
+        // Could also be written as:
+        // first.Bind(a => secondSelector(a).Bind(b => Return(resultSelector(a, b))));
         Create(obj =>
         {
             var a = first.Read(obj);

@@ -107,7 +107,8 @@ public static class PyObjectReader
         Create(obj =>
         {
             var a = first.Read(obj);
-            return resultSelector(a, secondSelector(a).Read(obj));
+            var b = secondSelector(a).Read(obj);
+            return resultSelector(a, b);
         });
 
     public static IPyObjectReader<T> Return<T>(T value) => Create(_ => value);

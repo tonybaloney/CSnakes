@@ -104,11 +104,11 @@ public class PyObjectReaderTests : RuntimeTestBase
     [Fact]
     public void Select()
     {
-        var obj = PyObject.From(42);
-
         var reader =
             from x in PyObjectReader.Int64
             select x * 2;
+
+        using var obj = PyObject.From(42);
 
         var result = reader.Read(obj);
 
@@ -121,8 +121,6 @@ public class PyObjectReaderTests : RuntimeTestBase
         var len = PyObjectReader.Call("__len__", PyObjectReader.Int64);
         var tuple = PyObjectReader.Tuple(PyObjectReader.Int64, PyObjectReader.String);
 
-        var obj = PyObject.From((42L, "foobar"));
-
         var reader =
             from t in tuple
             from l in len
@@ -132,6 +130,8 @@ public class PyObjectReaderTests : RuntimeTestBase
                 t.Item1,
                 t.Item2,
             };
+
+        using var obj = PyObject.From((42L, "foobar"));
 
         var result = reader.Read(obj);
 

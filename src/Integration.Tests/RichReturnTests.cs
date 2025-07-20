@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using static CSnakes.Linq.PyObjectReader;
 
 namespace Integration.Tests;
-public class QueryTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
+public class RichReturnTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     public sealed class FooBarBaz : IPyObjectReadable<FooBarBaz>
     {
@@ -34,7 +34,7 @@ public class QueryTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
     [Fact]
     public void Test()
     {
-        var module = Env.TestQuery();
+        var module = Env.TestRichReturn();
         var result = module.FooBarBaz();
         Assert.Equal(1, result.Foo);
         Assert.Equal("hello", result.Bar);
@@ -49,7 +49,7 @@ public class QueryTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
     [Fact]
     public void TestList()
     {
-        var module = Env.TestQuery();
+        var module = Env.TestRichReturn();
         var result = Assert.Single(module.FooBarBazList());
         Assert.Equal(1, result.Foo);
         Assert.Equal("hello", result.Bar);
@@ -59,5 +59,21 @@ public class QueryTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
         Assert.Equal(1, result.Quux["foo"]);
         Assert.Equal(2, result.Quux["bar"]);
         Assert.Equal(3, result.Quux["baz"]);
+    }
+
+    [Fact]
+    public void TestDict()
+    {
+        var module = Env.TestRichReturn();
+        var (key, value) = Assert.Single(module.FooBarBazDict("key"));
+        Assert.Equal("key", key);
+        Assert.Equal(1, value.Foo);
+        Assert.Equal("hello", value.Bar);
+        Assert.Equal([1L, 2L, 3L], value.Baz);
+        Assert.Equal((42L, "world"), value.Qux);
+        Assert.Equal(3, value.Quux.Count);
+        Assert.Equal(1, value.Quux["foo"]);
+        Assert.Equal(2, value.Quux["bar"]);
+        Assert.Equal(3, value.Quux["baz"]);
     }
 }

@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "455a528e61f3e3afaab7a0293b772629"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "5919fa5414e7195e49d39edaf50f36a8"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -48,6 +48,7 @@ public static class TestClassExtensions
 
         private PyObject __func_foo_bar_baz;
         private PyObject __func_foo_bar_baz_list;
+        private PyObject __func_foo_bar_baz_dict;
 
         internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
@@ -58,6 +59,7 @@ public static class TestClassExtensions
                 this.module = ThisModule.Import();
                 this.__func_foo_bar_baz = module.GetAttr("foo_bar_baz");
                 this.__func_foo_bar_baz_list = module.GetAttr("foo_bar_baz_list");
+                this.__func_foo_bar_baz_dict = module.GetAttr("foo_bar_baz_dict");
             }
         }
 
@@ -70,9 +72,11 @@ public static class TestClassExtensions
                 // Dispose old functions
                 this.__func_foo_bar_baz.Dispose();
                 this.__func_foo_bar_baz_list.Dispose();
+                this.__func_foo_bar_baz_dict.Dispose();
                 // Bind to new functions
                 this.__func_foo_bar_baz = module.GetAttr("foo_bar_baz");
                 this.__func_foo_bar_baz_list = module.GetAttr("foo_bar_baz_list");
+                this.__func_foo_bar_baz_dict = module.GetAttr("foo_bar_baz_dict");
             }
         }
 
@@ -81,29 +85,43 @@ public static class TestClassExtensions
             logger?.LogDebug("Disposing module {ModuleName}", "test");
             this.__func_foo_bar_baz.Dispose();
             this.__func_foo_bar_baz_list.Dispose();
+            this.__func_foo_bar_baz_dict.Dispose();
             module.Dispose();
         }
 
-        public Integration.Tests.QueryTests.FooBarBaz FooBarBaz()
+        public Integration.Tests.RichReturnTests.FooBarBaz FooBarBaz()
         {
             using (GIL.Acquire())
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "foo_bar_baz");
                 PyObject __underlyingPythonFunc = this.__func_foo_bar_baz;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = __result_pyObject.BareImportAs<Integration.Tests.QueryTests.FooBarBaz, global::CSnakes.Runtime.Python.PyObjectImporters.Extern<Integration.Tests.QueryTests.FooBarBaz>>();
+                var __return = __result_pyObject.BareImportAs<Integration.Tests.RichReturnTests.FooBarBaz, global::CSnakes.Runtime.Python.PyObjectImporters.Extern<Integration.Tests.RichReturnTests.FooBarBaz>>();
                 return __return;
             }
         }
 
-        public IReadOnlyList<Integration.Tests.QueryTests.FooBarBaz> FooBarBazList()
+        public IReadOnlyList<Integration.Tests.RichReturnTests.FooBarBaz> FooBarBazList()
         {
             using (GIL.Acquire())
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "foo_bar_baz_list");
                 PyObject __underlyingPythonFunc = this.__func_foo_bar_baz_list;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = __result_pyObject.BareImportAs<IReadOnlyList<Integration.Tests.QueryTests.FooBarBaz>, global::CSnakes.Runtime.Python.PyObjectImporters.List<Integration.Tests.QueryTests.FooBarBaz, global::CSnakes.Runtime.Python.PyObjectImporters.Extern<Integration.Tests.QueryTests.FooBarBaz>>>();
+                var __return = __result_pyObject.BareImportAs<IReadOnlyList<Integration.Tests.RichReturnTests.FooBarBaz>, global::CSnakes.Runtime.Python.PyObjectImporters.List<Integration.Tests.RichReturnTests.FooBarBaz, global::CSnakes.Runtime.Python.PyObjectImporters.Extern<Integration.Tests.RichReturnTests.FooBarBaz>>>();
+                return __return;
+            }
+        }
+
+        public IReadOnlyDictionary<string, Integration.Tests.RichReturnTests.FooBarBaz> FooBarBazDict(string key)
+        {
+            using (GIL.Acquire())
+            {
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "foo_bar_baz_dict");
+                PyObject __underlyingPythonFunc = this.__func_foo_bar_baz_dict;
+                using PyObject key_pyObject = PyObject.From(key)!;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call(key_pyObject);
+                var __return = __result_pyObject.BareImportAs<IReadOnlyDictionary<string, Integration.Tests.RichReturnTests.FooBarBaz>, global::CSnakes.Runtime.Python.PyObjectImporters.Dictionary<string, Integration.Tests.RichReturnTests.FooBarBaz, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.Extern<Integration.Tests.RichReturnTests.FooBarBaz>>>();
                 return __return;
             }
         }
@@ -118,18 +136,26 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>foo_bar_baz</c>:
     /// <code><![CDATA[
-    /// def foo_bar_baz() -> "__extern__.Integration.Tests.QueryTests.FooBarBaz": ...
+    /// def foo_bar_baz() -> "__extern__.Integration.Tests.RichReturnTests.FooBarBaz": ...
     /// ]]></code>
     /// </summary>
-    Integration.Tests.QueryTests.FooBarBaz FooBarBaz();
+    Integration.Tests.RichReturnTests.FooBarBaz FooBarBaz();
 
     /// <summary>
     /// Invokes the Python function <c>foo_bar_baz_list</c>:
     /// <code><![CDATA[
-    /// def foo_bar_baz_list() -> list["__extern__.Integration.Tests.QueryTests.FooBarBaz"]: ...
+    /// def foo_bar_baz_list() -> list["__extern__.Integration.Tests.RichReturnTests.FooBarBaz"]: ...
     /// ]]></code>
     /// </summary>
-    IReadOnlyList<Integration.Tests.QueryTests.FooBarBaz> FooBarBazList();
+    IReadOnlyList<Integration.Tests.RichReturnTests.FooBarBaz> FooBarBazList();
+
+    /// <summary>
+    /// Invokes the Python function <c>foo_bar_baz_dict</c>:
+    /// <code><![CDATA[
+    /// def foo_bar_baz_dict(key: str) -> dict[str, "__extern__.Integration.Tests.RichReturnTests.FooBarBaz"]: ...
+    /// ]]></code>
+    /// </summary>
+    IReadOnlyDictionary<string, Integration.Tests.RichReturnTests.FooBarBaz> FooBarBazDict(string key);
 }
 
 file static class ThisModule

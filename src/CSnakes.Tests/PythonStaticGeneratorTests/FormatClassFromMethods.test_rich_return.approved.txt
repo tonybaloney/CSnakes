@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "dcee198e9981d5c68f1a59834a12fe3a"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "560ed23693afcebf55a9040a30c87df4"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -136,7 +136,7 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>foo_bar_baz</c>:
     /// <code><![CDATA[
-    /// def foo_bar_baz() -> "__extern__.Integration.Tests.RichReturnTests.FooBarBaz": ...
+    /// def foo_bar_baz() -> "__extern__.Integration.Tests.RichReturnTests.FooBarBaz": # pyright: ignore[reportUndefinedVariable]
     /// ]]></code>
     /// </summary>
     Integration.Tests.RichReturnTests.FooBarBaz FooBarBaz();
@@ -144,7 +144,7 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>foo_bar_baz_list</c>:
     /// <code><![CDATA[
-    /// def foo_bar_baz_list() -> list["__extern__.Integration.Tests.RichReturnTests.FooBarBaz"]: ...
+    /// def foo_bar_baz_list() -> list["__extern__.Integration.Tests.RichReturnTests.FooBarBaz"]: # pyright: ignore[reportUndefinedVariable]
     /// ]]></code>
     /// </summary>
     IReadOnlyList<Integration.Tests.RichReturnTests.FooBarBaz> FooBarBazList();
@@ -152,7 +152,7 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>foo_bar_baz_dict</c>:
     /// <code><![CDATA[
-    /// def foo_bar_baz_dict(key: str) -> dict[str, "__extern__.Integration.Tests.RichReturnTests.FooBarBaz"]: ...
+    /// def foo_bar_baz_dict(key: str) -> dict[str, "__extern__.Integration.Tests.RichReturnTests.FooBarBaz"]: # pyright: ignore[reportUndefinedVariable]
     /// ]]></code>
     /// </summary>
     IReadOnlyDictionary<string, Integration.Tests.RichReturnTests.FooBarBaz> FooBarBazDict(string key);

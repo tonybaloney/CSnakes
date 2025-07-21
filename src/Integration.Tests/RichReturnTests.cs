@@ -15,7 +15,7 @@ public class RichReturnTests(PythonEnvironmentFixture fixture) : IntegrationTest
         public (long, string) Qux { get; private init; }
         public required ImmutableDictionary<string, long> Quux { get; init; }
 
-        public static IPyObjectReader<FooBarBaz> Reader =>
+        public static IPyObjectReader<FooBarBaz> Reader { get; } =
             from foo in GetAttr("foo", Int64)
             from bar in GetAttr("bar", String)
             from baz in GetAttr("baz", List(Int64, ImmutableArray.CreateRange))

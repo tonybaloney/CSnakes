@@ -16,11 +16,7 @@
 
   <Target Name="_PackSourceGeneratorOutputs" BeforeTargets="_GetPackageFiles">
     <!-- Find out the source generator and its dependencies locations -->
-    <MSBuild Projects="@(ProjectReference)"
-             Targets="GetTargetPath"
-             BuildInParallel="true"
-             Properties="TargetFramework=netstandard2.0"
-             Condition="$([System.String]::Copy('%(Identity)').Contains('CSnakes.SourceGeneration'))">
+    <MSBuild Projects="@(ProjectReference)" Targets="GetTargetPath" BuildInParallel="true" Properties="TargetFramework=netstandard2.0" Condition="$([System.String]::Copy('%(Identity)').Contains('CSnakes.SourceGeneration'))">
       <Output TaskParameter="TargetOutputs" ItemName="DependentAssemblies" />
     </MSBuild>
 

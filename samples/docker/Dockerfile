@@ -16,6 +16,9 @@ RUN dotnet build "./ExampleApp.csproj" -c $BUILD_CONFIGURATION -o /app/build
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./ExampleApp.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet tool install --global CSnakes.Stage --version 1.1.0-dev.250723-1846
+ENV PATH="/root/.dotnet/tools:${PATH}"
+RUN CSnakes.Stage --python 3.12
 
 FROM base AS final
 WORKDIR /app

@@ -9,6 +9,7 @@ namespace CSnakes.Stage;
 
 internal class Program
 {
+    const int DefaultTimeout = 500; // Default timeout in seconds
     static int Main(string[] args)
     {
         var versionString = Assembly.GetEntryAssembly()?
@@ -21,23 +22,29 @@ internal class Program
             Description = "The Python version to use (e.g., 3.12)",
             Required = true
         };
+        Option<int> timeout = new("--timeout")
+        {
+            Description = $"The timeout in seconds for downloading Python (default is {DefaultTimeout} seconds)",
+            Required = false
+        };
         var rootCommand = new RootCommand
         {
-            versionOption
+            versionOption,
+            timeout
         };
 
         rootCommand.Description = $"CSnakes.Stage v{versionString} - A tool to manage Python environments and versions.";
 
         rootCommand.SetAction((version) =>
         {
-            Stage(version.GetRequiredValue(versionOption));
+            Stage(version.GetRequiredValue(versionOption), version.GetValue(timeout));
         });
 
         ParseResult parseResult = rootCommand.Parse(args);
         return parseResult.Invoke();
     }
 
-    private static void Stage(string version)
+    private static void Stage(string version, int? timeout)
     {
         Console.WriteLine($"Staging CSnakes for Python {version}...");
 
@@ -46,7 +53,7 @@ internal class Program
         builder.Services
             .WithPython()
             .WithHome(home)
-            .FromRedistributable(version, timeout: 500);
+            .FromRedistributable(version: version, timeout: timeout ??= DefaultTimeout);
 
         var app = builder.Build();
 

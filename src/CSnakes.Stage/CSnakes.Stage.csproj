@@ -6,4 +6,12 @@
     <ToolCommandName>CSnakes.Stage</ToolCommandName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CSnakes.Runtime\CSnakes.Runtime.csproj" />
+  </ItemGroup>
+
 </Project>

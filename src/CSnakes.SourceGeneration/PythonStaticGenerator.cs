@@ -1,6 +1,7 @@
 using CSnakes.Parser;
 using CSnakes.Parser.Types;
 using CSnakes.Reflection;
+using CSnakes.SourceGeneration;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
@@ -44,7 +45,11 @@ public class PythonStaticGenerator : IIncrementalGenerator
             }
 
             // Convert snake_case to PascalCase
-            var (@namespace, generatedFileName, pascalFileName, moduleAbsoluteName) = GetNamespaceAndClassName(file.Path, rootDir);
+            var derivedNames = GetNamespaceAndClassName(file.Path, rootDir);
+            var @namespace = derivedNames.Namespace;
+            var generatedFileName = derivedNames.GeneratedFileName;
+            var pascalFileName = derivedNames.PascalFileName;
+            var moduleAbsoluteName = derivedNames.ModuleAbsoluteName;
 
             // Read the file
             var code = file.GetText(sourceContext.CancellationToken);
@@ -121,7 +126,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
         return string.Join(Path.DirectorySeparatorChar.ToString(), afterParts);
     }
 
-    public static (string @namespace, string generatedFileName, string pascalFileName, string moduleAbsoluteName) GetNamespaceAndClassName(string path, string configuredRootDir)
+    public static DerivedNames GetNamespaceAndClassName(string path, string configuredRootDir)
     {
         var @namespace = $"CSnakes.Runtime";
         var pascalFileName = NamespaceHelper.AsDotNetClassName(path);
@@ -158,7 +163,14 @@ public class PythonStaticGenerator : IIncrementalGenerator
         }
         // Namespace the generated file names so they can't collide.
         var generatedFileName = $"{@namespace}.{pascalFileName}{fileExtension}.g.cs";
-        return (@namespace, generatedFileName, pascalFileName, moduleAbsoluteName);
+
+        return new DerivedNames
+        {
+            Namespace = @namespace,
+            GeneratedFileName = generatedFileName,
+            PascalFileName = pascalFileName,
+            ModuleAbsoluteName = moduleAbsoluteName
+        };
     }
 
     public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string moduleAbsoluteName, PythonFunctionDefinition[] functions, SourceText sourceText, bool embedSourceText = false)

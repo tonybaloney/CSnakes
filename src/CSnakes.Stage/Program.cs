@@ -9,15 +9,16 @@ namespace CSnakes.Stage;
 
 internal class Program
 {
-    static void Main(string[] args)
+    static int Main(string[] args)
     {
         var versionString = Assembly.GetEntryAssembly()?
                                     .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
                                     .InformationalVersion
                                     .ToString();
 
-        Option<RedistributablePythonVersion> versionOption = new("--version", "The Python version to use (e.g., 3.12)")
+        Option<string> versionOption = new("--python")
         {
+            Description = "The Python version to use (e.g., 3.12)",
             Required = true
         };
         var rootCommand = new RootCommand
@@ -31,9 +32,12 @@ internal class Program
         {
             Stage(version.GetRequiredValue(versionOption));
         });
+
+        ParseResult parseResult = rootCommand.Parse(args);
+        return parseResult.Invoke();
     }
 
-    private static void Stage(RedistributablePythonVersion version = RedistributablePythonVersion.Python3_12)
+    private static void Stage(string version)
     {
         Console.WriteLine($"Staging CSnakes for Python {version}...");
 
@@ -42,7 +46,7 @@ internal class Program
         builder.Services
             .WithPython()
             .WithHome(home)
-            .FromRedistributable(version);
+            .FromRedistributable(version, timeout: 500);
 
         var app = builder.Build();
 

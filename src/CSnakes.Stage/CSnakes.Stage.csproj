@@ -2,8 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
+    <PackageId>CSnakes.Templates</PackageId>
     <ToolCommandName>CSnakes.Stage</ToolCommandName>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

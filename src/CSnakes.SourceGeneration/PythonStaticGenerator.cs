@@ -145,7 +145,11 @@ public class PythonStaticGenerator : IIncrementalGenerator
             {
                 var normalizedPath = GetPathAfter(path, normalizedRootDir);
 
-                // TODO : Handle null case.
+                if (normalizedPath is null)
+                {
+                    throw new ArgumentException($"The file path '{path}' does not match the configured root directory '{configuredRootDir}'.");
+                }
+
                 moduleAbsoluteName = NamespaceHelper.AsPythonImportPath(normalizedPath);
                 var extraNamespace = NamespaceHelper.AsDotNetNamespace(normalizedPath);
                 if (!string.IsNullOrEmpty(extraNamespace))

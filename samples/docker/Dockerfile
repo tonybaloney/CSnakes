@@ -23,4 +23,5 @@ RUN CSnakes.Stage --python 3.12
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY --from=publish /root/.config/CSnakes /home/app/.config/CSnakes
 ENTRYPOINT ["dotnet", "ExampleApp.dll"]

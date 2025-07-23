@@ -301,9 +301,10 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
             {
                 File.CreateSymbolicLink(path, link);
             }
-            catch (Exception ex)
+            catch (System.IO.DirectoryNotFoundException ex)
             {
-                logger?.LogError(ex, "Failed to create symlink: {Path} -> {Link}", path, link);
+                // This is common in the packages
+                logger?.LogWarning(ex, "Failed to create symlink: {Path} -> {Link}", path, link);
             }
         }
     }

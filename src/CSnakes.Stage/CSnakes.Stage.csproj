@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
-    <PackageId>CSnakes.Templates</PackageId>
+    <PackageId>CSnakes.Stage</PackageId>
     <ToolCommandName>CSnakes.Stage</ToolCommandName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>

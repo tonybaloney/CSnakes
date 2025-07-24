@@ -94,7 +94,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
         }
 
         var appDataPath = Environment.GetEnvironmentVariable("CSNAKES_REDIST_CACHE");
-        if (string.IsNullOrEmpty(appDataPath))
+        if (string.IsNullOrWhiteSpace(appDataPath))
             appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
         var downloadPath = Path.Join(appDataPath, "CSnakes", $"python{dottedVersion}");
         var installPath = Path.Join(downloadPath, "python", "install");

@@ -7,6 +7,7 @@
     <RepositoryUrl>https://github.com/tonybaloney/CSnakes</RepositoryUrl>
     <VersionPrefix>1.1.0</VersionPrefix>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageDescription>Runtime for embedding Python code and libraries directly into .NET applications without REST, HTTP, or microservices. Supports Python 3.9-3.13, virtual environments, NumPy integration, and cross-platform deployment.</PackageDescription>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

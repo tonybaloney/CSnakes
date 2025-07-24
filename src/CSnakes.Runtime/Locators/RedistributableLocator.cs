@@ -93,7 +93,9 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
             throw new NotSupportedException($"Debug builds are not supported on macOS for version {Version}.");
         }
 
-        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
+        var appDataPath = Environment.GetEnvironmentVariable("CSNAKES_REDIST_CACHE");
+        if (string.IsNullOrWhiteSpace(appDataPath))
+            appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
         var downloadPath = Path.Join(appDataPath, "CSnakes", $"python{dottedVersion}");
         var installPath = Path.Join(downloadPath, "python", "install");
 

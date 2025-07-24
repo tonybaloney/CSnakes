@@ -40,6 +40,12 @@ internal class Program
             Description = "Path to a pip requirements file to install packages in the virtual environment.",
             Required = false
         };
+        Option<string> uvRequirements = new("--uv-requirements")
+        {
+            Description = "Path to a pyproject.toml or requirements.txt to install packages in the virtual environment with uv.",
+            Required = false
+        };
+
         Option<bool> verbose = new("--verbose")
         {
             Description = "Enable verbose output.",
@@ -52,6 +58,7 @@ internal class Program
             timeout,
             venvPath,
             pipRequirements,
+            uvRequirements,
             verbose
         };
 
@@ -59,17 +66,24 @@ internal class Program
 
         rootCommand.SetAction((version) =>
         {
-            Stage(version.GetRequiredValue(versionOption), version.GetValue(timeout), version.GetValue(venvPath), version.GetValue(pipRequirements), version.GetValue(verbose));
+            Stage(version.GetRequiredValue(versionOption), version.GetValue(timeout), version.GetValue(venvPath), version.GetValue(pipRequirements), version.GetValue(uvRequirements), version.GetValue(verbose));
         });
 
         ParseResult parseResult = rootCommand.Parse(args);
         return parseResult.Invoke();
     }
 
-    private static void Stage(string version, int? timeout, string? venvPath, string? pipRequirements, bool verbose)
+    private static void Stage(string version, int? timeout, string? venvPath, string? pipRequirements, string? uvRequirements, bool verbose)
     {
         bool withVenv = !string.IsNullOrEmpty(venvPath);
         bool withPipRequirements = !string.IsNullOrEmpty(pipRequirements);
+        bool withUvRequirements = !string.IsNullOrEmpty(uvRequirements);
+
+        if (withPipRequirements && withUvRequirements)
+        {
+            Console.WriteLine("Error: Both --pip-requirements and --uv-requirements are specified. Use only one.");
+            throw new ArgumentException("Cannot specify both --pip-requirements and --uv-requirements.");
+        }
 
         Console.WriteLine($"Staging CSnakes for Python {version}...");
 
@@ -100,6 +114,11 @@ internal class Program
             pythonEnvironmentBuilder.WithPipInstaller(pipRequirements!);
         }
 
+        if (withUvRequirements)
+        {
+            pythonEnvironmentBuilder.WithUvInstaller(uvRequirements!);
+        }
+
         var app = builder.Build();
 
         var locator = app.Services.GetRequiredService<PythonLocator>();
@@ -115,12 +134,12 @@ internal class Program
             Console.WriteLine($"Virtual environment created at: {venvPath}");
         }
 
-        if (withPipRequirements)
+        if (withPipRequirements || withUvRequirements)
         {
-            Console.WriteLine("Installing pip requirements...");
+            Console.WriteLine("Installing requirements...");
             var pipInstaller = app.Services.GetRequiredService<IPythonPackageInstaller>();
             pipInstaller.InstallPackagesFromRequirements(Environment.CurrentDirectory).GetAwaiter().GetResult();
-            Console.WriteLine($"Pip requirements installed from: {pipRequirements}");
+            Console.WriteLine($"Python requirements installed from: {pipRequirements ?? uvRequirements}");
         }
 
         Console.WriteLine("CSnakes staging completed successfully.");

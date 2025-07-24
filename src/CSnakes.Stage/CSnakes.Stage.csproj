@@ -5,6 +5,7 @@
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
     <PackageId>CSnakes.Stage</PackageId>
+    <PackageReadmeFile>README-CSnakes.Stage.md</PackageReadmeFile>
     <ToolCommandName>CSnakes.Stage</ToolCommandName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>

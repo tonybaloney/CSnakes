@@ -4,6 +4,7 @@ using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.CommandLine;
 using System.Reflection;
 
@@ -39,27 +40,33 @@ internal class Program
             Description = "Path to a pip requirements file to install packages in the virtual environment.",
             Required = false
         };
+        Option<bool> verbose = new("--verbose")
+        {
+            Description = "Enable verbose output.",
+            Required = false
+        };
 
         var rootCommand = new RootCommand
         {
             versionOption,
             timeout,
             venvPath,
-            pipRequirements
+            pipRequirements,
+            verbose
         };
 
         rootCommand.Description = $"CSnakes.Stage v{versionString} - A tool to manage Python environments and versions.";
 
         rootCommand.SetAction((version) =>
         {
-            Stage(version.GetRequiredValue(versionOption), version.GetValue(timeout), version.GetValue(venvPath), version.GetValue(pipRequirements));
+            Stage(version.GetRequiredValue(versionOption), version.GetValue(timeout), version.GetValue(venvPath), version.GetValue(pipRequirements), version.GetValue(verbose));
         });
 
         ParseResult parseResult = rootCommand.Parse(args);
         return parseResult.Invoke();
     }
 
-    private static void Stage(string version, int? timeout, string? venvPath, string? pipRequirements)
+    private static void Stage(string version, int? timeout, string? venvPath, string? pipRequirements, bool verbose)
     {
         bool withVenv = !string.IsNullOrEmpty(venvPath);
         bool withPipRequirements = !string.IsNullOrEmpty(pipRequirements);
@@ -72,6 +79,16 @@ internal class Program
             .WithPython()
             .WithHome(home)
             .FromRedistributable(version: version, timeout: timeout ?? DefaultTimeout);
+
+        // Enable verbose logging if needed
+        if (verbose)
+        {
+            pythonEnvironmentBuilder.Services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddConsole();
+                loggingBuilder.SetMinimumLevel(LogLevel.Debug);
+            });
+        }
 
         if (withVenv)
         {
@@ -102,7 +119,7 @@ internal class Program
         {
             Console.WriteLine("Installing pip requirements...");
             var pipInstaller = app.Services.GetRequiredService<IPythonPackageInstaller>();
-            pipInstaller.InstallPackagesFromRequirements(Environment.CurrentDirectory);
+            pipInstaller.InstallPackagesFromRequirements(Environment.CurrentDirectory).GetAwaiter().GetResult();
             Console.WriteLine($"Pip requirements installed from: {pipRequirements}");
         }
 

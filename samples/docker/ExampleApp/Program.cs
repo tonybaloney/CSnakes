@@ -8,8 +8,7 @@ builder.Services
     .WithPython()
     .WithHome(home)
     .FromRedistributable("3.12")
-    .WithVirtualEnvironment(Path.Join(home, ".venv"))
-    .WithPipInstaller(Path.Join(home, "requirements.txt"));
+    .WithVirtualEnvironment("/app/venv", false); // Created by CSnakes.Stage in Dockerfile
 
 var app = builder.Build();
 

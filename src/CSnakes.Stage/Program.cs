@@ -66,16 +66,35 @@ internal class Program
 
         rootCommand.SetAction((version) =>
         {
-            Stage(version.GetRequiredValue(versionOption), version.GetValue(timeout), version.GetValue(venvPath), version.GetValue(pipRequirements), version.GetValue(uvRequirements), version.GetValue(verbose));
+            var config = new StageConfig
+            {
+                Version = version.GetRequiredValue(versionOption),
+                Timeout = version.GetValue(timeout),
+                VenvPath = version.GetValue(venvPath),
+                PipRequirements = version.GetValue(pipRequirements),
+                UvRequirements = version.GetValue(uvRequirements),
+                Verbose = version.GetValue(verbose)
+            };
+            Stage(config);
         });
 
         ParseResult parseResult = rootCommand.Parse(args);
         return parseResult.Invoke();
     }
 
-    private static void Stage(string version, int? timeout, string? venvPath, string? pipRequirements, string? uvRequirements, bool verbose)
+    private class StageConfig
     {
-        bool withVenv = !string.IsNullOrEmpty(venvPath);
+        public string Version { get; set; }
+        public int? Timeout { get; set; }
+        public string? VenvPath { get; set; }
+        public string? PipRequirements { get; set; }
+        public string? UvRequirements { get; set; }
+        public bool Verbose { get; set; }
+    }
+
+    private static void Stage(StageConfig config)
+    {
+        bool withVenv = !string.IsNullOrEmpty(config.VenvPath);
         bool withPipRequirements = !string.IsNullOrEmpty(pipRequirements);
         bool withUvRequirements = !string.IsNullOrEmpty(uvRequirements);
 

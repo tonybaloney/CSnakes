@@ -84,7 +84,7 @@ internal class Program
 
     private class StageConfig
     {
-        public string Version { get; set; }
+        public required string Version { get; set; }
         public int? Timeout { get; set; }
         public string? VenvPath { get; set; }
         public string? PipRequirements { get; set; }
@@ -95,8 +95,8 @@ internal class Program
     private static void Stage(StageConfig config)
     {
         bool withVenv = !string.IsNullOrEmpty(config.VenvPath);
-        bool withPipRequirements = !string.IsNullOrEmpty(pipRequirements);
-        bool withUvRequirements = !string.IsNullOrEmpty(uvRequirements);
+        bool withPipRequirements = !string.IsNullOrEmpty(config.PipRequirements);
+        bool withUvRequirements = !string.IsNullOrEmpty(config.UvRequirements);
 
         if (withPipRequirements && withUvRequirements)
         {
@@ -104,17 +104,17 @@ internal class Program
             throw new ArgumentException("Cannot specify both --pip-requirements and --uv-requirements.");
         }
 
-        Console.WriteLine($"Staging CSnakes for Python {version}...");
+        Console.WriteLine($"Staging CSnakes for Python {config.Version}...");
 
         var builder = Host.CreateApplicationBuilder();
         var home = Path.Join(Environment.CurrentDirectory);
         IPythonEnvironmentBuilder pythonEnvironmentBuilder = builder.Services
             .WithPython()
             .WithHome(home)
-            .FromRedistributable(version: version, timeout: timeout ?? DefaultTimeout);
+            .FromRedistributable(version: config.Version, timeout: config.Timeout ?? DefaultTimeout);
 
         // Enable verbose logging if needed
-        if (verbose)
+        if (config.Verbose)
         {
             pythonEnvironmentBuilder.Services.AddLogging(loggingBuilder =>
             {
@@ -125,17 +125,17 @@ internal class Program
 
         if (withVenv)
         {
-            pythonEnvironmentBuilder.WithVirtualEnvironment(venvPath!, ensureEnvironment: true);
+            pythonEnvironmentBuilder.WithVirtualEnvironment(config.VenvPath!, ensureEnvironment: true);
         }
 
         if (withPipRequirements)
         {
-            pythonEnvironmentBuilder.WithPipInstaller(pipRequirements!);
+            pythonEnvironmentBuilder.WithPipInstaller(config.PipRequirements!);
         }
 
         if (withUvRequirements)
         {
-            pythonEnvironmentBuilder.WithUvInstaller(uvRequirements!);
+            pythonEnvironmentBuilder.WithUvInstaller(config.UvRequirements!);
         }
 
         var app = builder.Build();
@@ -143,14 +143,14 @@ internal class Program
         var locator = app.Services.GetRequiredService<PythonLocator>();
         var location = locator.LocatePython();
         
-        Console.WriteLine($"Python {version} downloaded and located at: {location.PythonBinaryPath}");
+        Console.WriteLine($"Python {config.Version} downloaded and located at: {location.PythonBinaryPath}");
 
         if (withVenv)
         {
             Console.WriteLine("Creating virtual environment...");
             var environmentManager = app.Services.GetRequiredService<IEnvironmentManagement>();
             environmentManager.EnsureEnvironment(location);
-            Console.WriteLine($"Virtual environment created at: {venvPath}");
+            Console.WriteLine($"Virtual environment created at: {config.VenvPath}");
         }
 
         if (withPipRequirements || withUvRequirements)
@@ -158,7 +158,7 @@ internal class Program
             Console.WriteLine("Installing requirements...");
             var pipInstaller = app.Services.GetRequiredService<IPythonPackageInstaller>();
             pipInstaller.InstallPackagesFromRequirements(Environment.CurrentDirectory).GetAwaiter().GetResult();
-            Console.WriteLine($"Python requirements installed from: {pipRequirements ?? uvRequirements}");
+            Console.WriteLine($"Python requirements installed from: {config.PipRequirements ?? config.UvRequirements}");
         }
 
         Console.WriteLine("CSnakes staging completed successfully.");

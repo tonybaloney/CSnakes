@@ -7,6 +7,7 @@ nav:
   - Asynchronous Functions: async_support.md
   - Performance Considerations: performance.md
   - Buffer Protocol and NumPy Arrays: buffers.md
+  - Running in Containers: docker.md
   - Advanced Usage: advanced.md
   - Limitations: limitations.md
   - FAQ: faq.md

@@ -1,12 +1,12 @@
-# GitHub Copilot Prompts for CSnakes
+# AI Development Assistant Prompts for CSnakes
 
-This page contains practical prompts designed to help you solve common CSnakes development challenges using GitHub Copilot.
+This page contains practical prompts designed to help you solve common CSnakes development challenges using AI development assistants like GitHub Copilot, ChatGPT, Claude, or other AI coding tools.
 
 ## Convert Python Script to CSnakes-ready Function
 
 **Problem**: You have a standalone Python script and need to convert it into a function that CSnakes can generate C# bindings for.
 
-**Copy this prompt into Copilot Chat:**
+**Copy this prompt into your AI assistant:**
 
 ```
 Convert this Python script into a CSnakes-compatible function with proper type annotations.
@@ -129,7 +129,7 @@ public (IReadOnlyList<IReadOnlyDictionary<string, object>>, long) ProcessDataFil
 When using this prompt:
 
 1. **Replace `[PASTE YOUR SCRIPT HERE]`** with your actual Python code
-2. **Review the suggestions** - Copilot might suggest breaking complex scripts into multiple functions
+2. **Review the suggestions** - AI assistants might suggest breaking complex scripts into multiple functions
 3. **Test the generated functions** in isolation before integrating with CSnakes
 4. **Consider data flow** - make sure all necessary data is passed as parameters rather than using global variables
 
@@ -139,7 +139,7 @@ For more information about supported types and CSnakes features, see the [Refere
 
 **Problem**: You have an existing C# application using Microsoft.Extensions.Hosting and need to integrate CSnakes with proper Python environment configuration.
 
-**Copy this prompt into Copilot Chat:**
+**Copy this prompt into your AI assistant:**
 
 ```
 Add CSnakes Python environment configuration to my existing Microsoft.Extensions.Hosting application.

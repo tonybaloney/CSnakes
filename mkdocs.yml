@@ -9,6 +9,7 @@ nav:
   - Buffer Protocol and NumPy Arrays: buffers.md
   - Advanced Usage: advanced.md
   - Limitations: limitations.md
+  - AI Prompts: copilot.md
   - FAQ: faq.md
   - Examples: examples.md
 

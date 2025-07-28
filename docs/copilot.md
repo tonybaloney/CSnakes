@@ -134,3 +134,156 @@ When using this prompt:
 4. **Consider data flow** - make sure all necessary data is passed as parameters rather than using global variables
 
 For more information about supported types and CSnakes features, see the [Reference Documentation](reference.md).
+
+## Setup CSnakes Python Environment in Host Builder
+
+**Problem**: You have an existing C# application using Microsoft.Extensions.Hosting and need to integrate CSnakes with proper Python environment configuration.
+
+**Copy this prompt into Copilot Chat:**
+
+```
+Add CSnakes Python environment configuration to my existing Microsoft.Extensions.Hosting application.
+
+Requirements:
+1. Configure CSnakes services with the Host Builder pattern
+2. Set up Python locators with fallback chain for cross-platform compatibility
+3. Configure virtual environment support if Python dependencies are needed
+4. Include proper error handling for missing Python installations
+5. Add IPythonEnvironment service resolution
+6. Show how to call Python functions from the configured environment
+
+Python locator options (choose based on deployment scenario):
+- FromRedistributable() - Downloads Python automatically (recommended for most cases)
+- FromVirtualEnvironment(path) - Suggested if using additional packages from Pip installer or Uv installer
+- FromConda(condaPath) - If using Conda environments
+
+Additional configuration options:
+- WithHome(path) - Path to your Python modules directory (required)
+- WithVirtualEnvironment(path) - Path to virtual environment
+- WithPipInstaller() - Auto-install packages from requirements.txt
+- WithCondaEnvironment(name) - Use specific Conda environment
+
+Here's my existing Host Builder code:
+[PASTE YOUR HOST BUILDER CODE HERE]
+```
+
+## Example Usage
+
+### Before (Basic Host Builder):
+```csharp
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+var builder = Host.CreateApplicationBuilder(args);
+
+// Configure logging
+builder.Services.AddLogging(configure => configure.AddConsole());
+
+// Add other services
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<MyService>();
+
+var app = builder.Build();
+
+// Run application
+await app.RunAsync();
+```
+
+### After (With CSnakes Integration):
+```csharp
+using CSnakes.Runtime;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System.IO;
+
+var builder = Host.CreateApplicationBuilder(args);
+
+// Configure logging
+builder.Services.AddLogging(configure => configure.AddConsole());
+
+// Add other services
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<MyService>();
+
+// Configure CSnakes Python environment
+var pythonHome = Path.Join(Environment.CurrentDirectory, "python_modules");
+builder.Services
+    .WithPython()
+    .WithHome(pythonHome)
+    .FromRedistributable()
+    // Optional: Virtual environment configuration
+    .WithVirtualEnvironment(Path.Join(pythonHome, ".venv"))
+    .WithPipInstaller();  // Auto-install from requirements.txt
+
+var app = builder.Build();
+
+// Example: Using the Python environment
+var pythonEnv = app.Services.GetRequiredService<IPythonEnvironment>();
+
+try 
+{
+    // Call your Python functions here
+    var myModule = pythonEnv.MyPythonModule();
+    var result = myModule.MyFunction("Hello from C#!");
+    Console.WriteLine($"Python returned: {result}");
+}
+catch (PythonInvocationException ex)
+{
+    Console.WriteLine($"Python error: {ex.Message}");
+}
+
+await app.RunAsync();
+```
+
+### Web Application Example:
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container
+builder.Services.AddControllers();
+
+// Configure CSnakes
+var pythonHome = Path.Join(builder.Environment.ContentRootPath, "python");
+builder.Services
+    .WithPython()
+    .WithHome(pythonHome)
+    .FromRedistributable()
+    .WithVirtualEnvironment(Path.Join(pythonHome, ".venv"))
+    .WithPipInstaller();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline
+app.UseRouting();
+app.MapControllers();
+
+// Example API endpoint using Python
+app.MapGet("/python-greeting/{name}", (string name, IPythonEnvironment env) =>
+{
+    try
+    {
+        var module = env.Greeting();
+        return Results.Ok(new { message = module.SayHello(name) });
+    }
+    catch (PythonInvocationException ex)
+    {
+        return Results.Problem($"Python error: {ex.Message}");
+    }
+});
+
+app.Run();
+```
+
+## Additional Tips
+
+When using this prompt:
+
+1. **Replace `[PASTE YOUR HOST BUILDER CODE HERE]`** with your actual Host Builder setup
+2. **Choose appropriate locators** - FromRedistributable() is recommended for most scenarios
+3. **Set correct paths** - Ensure WithHome() points to your Python modules directory
+4. **Handle errors gracefully** - Always wrap Python calls in try-catch blocks
+5. **Test Python isolation** - Verify your virtual environment setup if using external packages
+
+For more information about supported types and CSnakes features, see the [Reference Documentation](reference.md).

@@ -11,7 +11,7 @@ This page contains practical prompts designed to help you solve common CSnakes d
 ```
 Convert this Python script into a CSnakes-compatible function with proper type annotations.
 
-Use only these supported CSnakes type mappings:
+Use these supported type mappings:
 - int → long (C#)
 - float → double (C#) 
 - str → string (C#)
@@ -25,13 +25,13 @@ Use only these supported CSnakes type mappings:
 - None (return only) → void (C#)
 
 Requirements:
-1. Convert the script into one or more functions
+
+1. Convert the standalone script into a function with parameters
 2. Add proper type annotations to all parameters and return values
 3. Use default parameter values for optional arguments (int, float, str, bool only)
 4. Preserve the original logic and functionality
 5. Add docstrings explaining what each function does
 6. Handle any global variables by making them function parameters
-7. If the script uses unsupported types, suggest alternative approaches
 
 Here's my Python script:
 [PASTE YOUR SCRIPT HERE]

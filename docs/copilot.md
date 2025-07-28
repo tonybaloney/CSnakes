@@ -154,13 +154,13 @@ Requirements:
 
 Python locator options (choose based on deployment scenario):
 - FromRedistributable() - Downloads Python automatically (recommended for most cases)
-- FromVirtualEnvironment(path) - Suggested if using additional packages from Pip installer or Uv installer
+- FromVirtualEnvironment(path) - Suggested if using additional packages from Pip installer or UV installer
 - FromConda(condaPath) - If using Conda environments
 
 Additional configuration options:
 - WithHome(path) - Path to your Python modules directory (required)
 - WithVirtualEnvironment(path) - Path to virtual environment
-- WithPipInstaller() - Auto-install packages from requirements.txt
+- WithPipInstaller() - Auto-install packages from requirements.txt using the pip installer
 - WithCondaEnvironment(name) - Use specific Conda environment
 
 Here's my existing Host Builder code:

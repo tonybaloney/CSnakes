@@ -7,7 +7,6 @@
     <PackageId>CSnakes.Stage</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <ToolCommandName>CSnakes.Stage</ToolCommandName>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

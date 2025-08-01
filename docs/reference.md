@@ -109,7 +109,9 @@ The simplest and most user-friendly locator is the Redistributable Locator. This
 
 The `.FromRedistributable()` method automates the installation of a compatible version of Python. It will source Python and cache it locally. This download is about 50-80MB, so the first time you run your application, it will download the redistributable and cache it locally. The next time you run your application, it will use the cached redistributable. This could take a minute or two depending on your bandwidth.
 
-By default, Python 3.12 will be used. You can specify a different major version of Python:
+By default, Python 3.12 will be used and will be installed in the [application data](https://learn.microsoft.com/en-us/dotnet/api/system.environment.specialfolder?view=net-9.0) which depends on your operating system. You can change this location by setting the `CSNAKES_REDIST_CACHE` environment variable. Make sure the user running the application has permission to write to this folder.
+
+To specify a different major version of Python:
 
 ```csharp
 ...
@@ -344,6 +346,7 @@ using var result = env.ExecuteExpression("a+1", locals); // 102
 ```
 
 To execute a series of statements, you can use the `Execute` method, which also takes globals and locals:
+
 ```csharp
 var c = """
 a = 101
@@ -358,4 +361,7 @@ var globals = new Dictionary<string, PyObject>
     ["d"] = PyObject.From(100)
 };
 using var result = env.Execute(c, locals, globals);
+Console.WriteLine(locals["b"].ToString()); // 202
 ```
+
+The `locals` and `globals` dictionaries are mutable, so any changes to their values will be updated after the execution of the code.

@@ -17,7 +17,7 @@ the above is to use the supplied template for a C# console project with the
 
 The [templates] are installed by running the following command:
 
-    dotnet new --install CSnakes.Templates
+    dotnet new install CSnakes.Templates
 
 To create a C# console application project with the default options, run the
 following commands:

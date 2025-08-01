@@ -1,0 +1,3 @@
+[submodule "src/StdLib.Tests/typeshed"]
+	path = src/StdLib.Tests/typeshed
+	url = https://github.com/python/typeshed

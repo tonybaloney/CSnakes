@@ -30,6 +30,10 @@
       System.Diagnostics.CodeAnalysis.NotNullAttribute;
       System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
       System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+      System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute;
+      System.Runtime.CompilerServices.IsExternalInit;
+      System.Runtime.CompilerServices.RequiredMemberAttribute;
+      System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute;
     </PolySharpIncludeGeneratedTypes>
   </PropertyGroup>
 

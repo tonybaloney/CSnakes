@@ -43,9 +43,7 @@ See the [reference supported types](reference.md#supported-types) for a list of 
 
 ## Marking files for generation
 
-**Version 1.1 or earlier**: This step is required.
-
-For CSnakes to run the source generator over Python files, you need to mark the Python file as an "Additional File" in the CSProj file XML:
+For CSnakes to run the source generator over Python files, you either need to mark the Python files as an "Additional File" in the CSProj file XML:
 
 ```xml
     <ItemGroup>
@@ -55,31 +53,24 @@ For CSnakes to run the source generator over Python files, you need to mark the 
     </ItemGroup>
 ```
 
-Or, in Visual Studio change the properties of the file and set **Build Action** to **C# analyzer additional file**.
-
-![Visual Studio File Properties for CSnakes](res/screenshots/vs_file_properties.png)
-
-**Version 1.2 or later**: All `*.py` files are included by default, but you can
-disable this behavior by setting the `DisableDefaultPythonItems` property to
-`true` in the project file:
-
-```xml
-    <PropertyGroup>
-        <DisableDefaultPythonItems>true</DisableDefaultPythonItems>
-    </PropertyGroup>
-```
-
-Then you can manually specify which Python files to include as follows:
+MSBuild supports globbing, so you can also mark all Python files in a directory as additional files:
 
 ```xml
     <ItemGroup>
-        <AdditionalFiles Include="demo.py" SourceItemType="Python">
+        <AdditionalFiles Include="*.py">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
     </ItemGroup>
 ```
 
-Note that `SourceItemType="Python"` is required.
+Alternatively, you can set CSnakes to parse all `*.py` files by default, by setting the `DefaultPythonItems` property to
+`true` in the project file:
+
+```xml
+    <PropertyGroup>
+        <DefaultPythonItems>true</DefaultPythonItems>
+    </PropertyGroup>
+```
 
 ## Building the project
 

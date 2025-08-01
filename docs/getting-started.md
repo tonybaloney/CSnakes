@@ -73,7 +73,7 @@ See the [reference supported types](reference.md#supported-types) for a list of 
 
 ## Marking files for generation
 
-For CSnakes to run the source generator over Python files, you need to mark the Python file as an "Additional File" in the CSProj file XML:
+For CSnakes to run the source generator over Python files, you either need to mark the Python files as an "Additional File" in the CSProj file XML:
 
 ```xml
     <ItemGroup>
@@ -83,9 +83,24 @@ For CSnakes to run the source generator over Python files, you need to mark the 
     </ItemGroup>
 ```
 
-Or, in Visual Studio change the properties of the file and set **Build Action** to **Csharp analyzer additional file**.
+MSBuild supports globbing, so you can also mark all Python files in a directory as additional files:
 
-![Visual Studio File Properties for CSnakes](res/screenshots/vs_file_properties.png)
+```xml
+    <ItemGroup>
+        <AdditionalFiles Include="*.py">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </AdditionalFiles>
+    </ItemGroup>
+```
+
+Alternatively, you can set CSnakes to parse all `*.py` files by default, by setting the `DefaultPythonItems` property to
+`true` in the project file:
+
+```xml
+    <PropertyGroup>
+        <DefaultPythonItems>true</DefaultPythonItems>
+    </PropertyGroup>
+```
 
 ## Building the project
 

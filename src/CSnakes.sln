@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedistributablePython.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StdLib.Tests", "StdLib.Tests\StdLib.Tests.csproj", "{938D30D1-C712-41EC-AD11-7B1FF8742C8A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSnakes.Stage", "CSnakes.Stage\CSnakes.Stage.csproj", "{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,10 @@ Global
 		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

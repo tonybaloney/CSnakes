@@ -346,6 +346,7 @@ using var result = env.ExecuteExpression("a+1", locals); // 102
 ```
 
 To execute a series of statements, you can use the `Execute` method, which also takes globals and locals:
+
 ```csharp
 var c = """
 a = 101
@@ -360,4 +361,7 @@ var globals = new Dictionary<string, PyObject>
     ["d"] = PyObject.From(100)
 };
 using var result = env.Execute(c, locals, globals);
+Console.WriteLine(locals["b"].ToString()); // 202
 ```
+
+The `locals` and `globals` dictionaries are mutable, so any changes to their values will be updated after the execution of the code.

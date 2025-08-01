@@ -3,8 +3,17 @@ using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime;
+
 public static class PythonRunString
 {
+    private static void Merge(this IDictionary<string, PyObject> left, IReadOnlyDictionary<string, PyObject> right)
+    {
+        foreach (var entry in right)
+        {
+            left[entry.Key] = entry.Value;
+        }
+    }
+
     /// <summary>
     /// Execute a single expression in Python and return the result,
     /// e.g. `1 + 1` or `len([1, 2, 3])`
@@ -34,7 +43,9 @@ public static class PythonRunString
         {
             using var localsPyDict = PyObject.From(locals);
             using var globalsPyDict = PyObject.Create(CPythonAPI.PyDict_New());
-            return CPythonAPI.PyRun_String(code, CPythonAPI.InputType.Py_eval_input, globalsPyDict, localsPyDict);
+            var result = CPythonAPI.PyRun_String(code, CPythonAPI.InputType.Py_eval_input, globalsPyDict, localsPyDict);
+            locals.Merge(localsPyDict.As<IReadOnlyDictionary<string, PyObject>>());
+            return result;
         }
     }
 
@@ -52,7 +63,10 @@ public static class PythonRunString
         {
             using var localsPyDict = PyObject.From(locals);
             using var globalsPyDict = PyObject.From(globals);
-            return CPythonAPI.PyRun_String(code, CPythonAPI.InputType.Py_eval_input, globalsPyDict, localsPyDict);
+            var result = CPythonAPI.PyRun_String(code, CPythonAPI.InputType.Py_eval_input, globalsPyDict, localsPyDict);
+            locals.Merge(localsPyDict.As<IReadOnlyDictionary<string, PyObject>>());
+            globals.Merge(globalsPyDict.As<IReadOnlyDictionary<string, PyObject>>());
+            return result;
         }
     }
 
@@ -69,7 +83,10 @@ public static class PythonRunString
         {
             using var localsPyDict = PyObject.From(locals);
             using var globalsPyDict = PyObject.From(globals);
-            return CPythonAPI.PyRun_String(code, CPythonAPI.InputType.Py_file_input, globalsPyDict, localsPyDict);
+            var result = CPythonAPI.PyRun_String(code, CPythonAPI.InputType.Py_file_input, globalsPyDict, localsPyDict);
+            locals.Merge(localsPyDict.As<IReadOnlyDictionary<string, PyObject>>());
+            globals.Merge(globalsPyDict.As<IReadOnlyDictionary<string, PyObject>>());
+            return result;
         }
     }
 }

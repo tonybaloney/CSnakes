@@ -62,7 +62,7 @@ internal class Program
             verbose
         };
 
-        rootCommand.Description = $"CSnakes.Stage v{versionString} - A tool to manage Python environments and versions.";
+        rootCommand.Description = $"setup-python v{versionString} - A tool to install Python environments and versions.";
 
         rootCommand.SetAction((version) =>
         {

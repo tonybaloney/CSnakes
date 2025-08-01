@@ -21,7 +21,7 @@ dotnet tool install -g CSnakes.Stage
 ### Basic Syntax
 
 ```bash
-CSnakes.Stage --python <version> [options]
+setup-python --python <version> [options]
 ```
 
 ### Required Parameters
@@ -40,7 +40,7 @@ CSnakes.Stage --python <version> [options]
 ### Download Python 3.12
 
 ```bash
-CSnakes.Stage --python 3.12
+setup-python --python 3.12
 ```
 
 The path to Python will be printed to the console. This is the same path as used in `.FromRedistributable()` in CSnakes applications. (`%APPDATA%\CSnakes\pythonXX`)
@@ -49,18 +49,18 @@ The path to Python will be printed to the console. This is the same path as used
 ### Download Python and Create Virtual Environment
 
 ```bash
-CSnakes.Stage --python 3.12 --venv /app/my-venv
+setup-python --python 3.12 --venv /app/my-venv
 ```
 
 ### Download Python, Create Virtual Environment, and Install Dependencies
 
 ```bash
-CSnakes.Stage --python 3.12 --venv /app/my-venv --pip-requirements /src/requirements.txt
+setup-python --python 3.12 --venv /app/my-venv --pip-requirements /src/requirements.txt
 ```
 
 ## Example Dockerfile
 
-This dockerfile shows how to use CSnakes.Stage to set up a Python environment in a Docker image along with a published .NET application:
+This dockerfile shows how to use `setup-python` to set up a Python environment in a Docker image along with a published .NET application:
 
 ```dockerfile
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
@@ -83,7 +83,7 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./ExampleApp.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 RUN dotnet tool install --global CSnakes.Stage
 ENV PATH="/root/.dotnet/tools:${PATH}"
-RUN CSnakes.Stage --python 3.12 --venv /app/venv --pip-requirements /src/ExampleApp/requirements.txt --verbose
+RUN setup-python --python 3.12 --venv /app/venv --pip-requirements /src/ExampleApp/requirements.txt --verbose
 
 FROM base AS final
 WORKDIR /app

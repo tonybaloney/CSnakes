@@ -7,7 +7,7 @@
     <RepositoryUrl>https://github.com/tonybaloney/CSnakes</RepositoryUrl>
     <VersionPrefix>1.1.0</VersionPrefix>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-
+    <PackageTags>python interop</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <DebugType>embedded</DebugType>

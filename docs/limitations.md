@@ -44,6 +44,8 @@ Python coroutines declared using the `async` syntax are not supported. If you wo
 
 ## Native AOT
 
-When using Native AOT compilation, only the source generated bindings approach is supported. The manual Python binding method described in [Calling Python without the Source Generator](advanced.md#calling-python-without-the-source-generator) is not compatible with Native AOT due to reflection limitations.
+When using Native AOT compilation, only the source generated bindings approach is supported. The manual Python binding method described in [Calling Python without the Source Generator](advanced.md#calling-python-without-the-source-generator) is not compatible with Native AOT.
+
+This limitation exists because casting Python objects to .NET containers like `Tuple`, `Dictionary`, `List`, or `Coroutine` requires reflection when done dynamically, which is not supported in Native AOT compilation. The source generator solves this by generating compiled bindings and reflection code at build time without using `System.Reflection`, making the generated code AOT-ready.
 
 See the [Native AOT Support](advanced.md#native-aot-support) section for complete details on requirements and configuration.

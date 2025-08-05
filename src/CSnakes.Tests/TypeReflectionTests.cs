@@ -1,5 +1,4 @@
 using CSnakes.Parser;
-using CSnakes.Parser.Types;
 using CSnakes.Reflection;
 using Superpower;
 
@@ -89,8 +88,45 @@ public class TypeReflectionTests
         var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
         Assert.True(result.HasValue, result.ToString());
         Assert.NotNull(result.Value);
-        var reflectedType = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.FromPython);
+        var reflectedType = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.FromPython).First();
         Assert.Equal(expectedType, reflectedType.ToString());
+    }
+
+    [Theory]
+    [InlineData("int | str", "long", "string")]
+    [InlineData("int | str | bool", "long", "string", "bool")]
+    public void UnionParsingTest(string pythonType, params string[] expectedTypes)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
+        Assert.True(result.HasValue, result.ToString());
+        Assert.NotNull(result.Value);
+        Assert.Equal("Union", result.Value.Name);
+        var reflectedTypes = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.ToPython);
+
+        Assert.Equal(expectedTypes.Length, reflectedTypes.Count());
+        for (int i = 0; i < expectedTypes.Length; i++)
+        {
+            Assert.Equal(expectedTypes[i], reflectedTypes.ElementAt(i).ToString());
+        }
+    }
+
+    [Theory]
+    [InlineData("int")]
+    [InlineData("str | None")]
+    [InlineData("Foo | None")]
+    [InlineData("int | str | None")]
+    [InlineData("AnyStr")]
+    [InlineData("AnyStr | None")]
+    [InlineData("tuple[str] | None")]
+    public void UnionParsingTestFromPythonAlwaysSingle(string pythonType)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
+        Assert.True(result.HasValue, result.ToString());
+        Assert.NotNull(result.Value);
+        var reflectedTypes = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.FromPython);
+        Assert.Single(reflectedTypes);
     }
 
     [Theory]

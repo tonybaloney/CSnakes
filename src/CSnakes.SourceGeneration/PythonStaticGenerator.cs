@@ -188,11 +188,11 @@ public class PythonStaticGenerator : IIncrementalGenerator
             {
             {{  Lines(IndentationLevel.One,
                       Enumerable.Skip(count: 1, source:
-                          from m in methods.Zip(functions, (m, f) => new
+                          from m in methods.Select(m => new
                           {
                               m.Syntax,
-                              FunctionName = f.Name,
-                              f.SourceLines,
+                              FunctionName = m.PythonFunction.Name,
+                              m.PythonFunction.SourceLines,
                           })
                           let s = m.Syntax.Identifier.Text == "ReloadModule"
                                  // This prevents the warning:

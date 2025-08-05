@@ -274,6 +274,12 @@ dotnet publish -c Release -r win-x64
 
 For more information about publishing Native AOT applications and runtime identifiers, see the [Publishing Native AOT apps guide](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/).
 
+#### Python Environment Packaging
+
+**Important**: While `dotnet publish` builds a self-contained application, that application does not contain Python, the Python virtual environment, or its dependencies. The published application will still require a Python runtime and any required packages to be available on the target system.
+
+For packaging Python environments alongside your application, see the documentation on the [`CSnakes.Stage` tool](https://tonybaloney.github.io/CSnakes/docker/) which provides guidance on bundling Python environments with your .NET applications.
+
 ### Limitations and Considerations
 
 1. **Source Generator Required**: Native AOT only works with the source generator. Manual Python binding using the runtime API directly is not supported in AOT scenarios due to reflection limitations when dynamically casting Python objects to .NET containers.

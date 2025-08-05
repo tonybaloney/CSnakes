@@ -162,3 +162,138 @@ var app = builder.Build();
 
 env = app.Services.GetRequiredService<IPythonEnvironment>();
 ```
+
+## Native AOT Support
+
+CSnakes supports Native AOT (Ahead-of-Time) compilation, which allows you to compile your C# application to native code for faster startup times and reduced memory footprint. For comprehensive information about Native AOT in .NET, see the [Microsoft Native AOT documentation](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/).
+
+### Requirements for Native AOT
+
+Native AOT support in CSnakes **only works with source generated bindings**. This means:
+
+- You must use Python files marked as `AdditionalFiles` in your project
+- The source generator must be enabled (which is the default)
+- You cannot use the manual Python binding approach described in [Calling Python without the Source Generator](#calling-python-without-the-source-generator)
+
+#### Why Source Generator is Required
+
+The limitation exists because casting Python objects to .NET containers like `Tuple`, `Dictionary`, `List`, or `Coroutine` requires reflection when done dynamically, which is not supported in Native AOT compilation. The source generator solves this by generating compiled bindings and reflection code at build time without using `System.Reflection`, making the generated code AOT-ready.
+
+### Configuring Native AOT
+
+To enable Native AOT in your CSnakes project, add the following property to your `.csproj` file:
+
+```xml
+<PropertyGroup>
+  <PublishAot>true</PublishAot>
+  <InvariantGlobalization>true</InvariantGlobalization>
+</PropertyGroup>
+```
+
+The `InvariantGlobalization` setting is typically required for AOT compatibility, as it reduces the application's dependencies on culture-specific data. For more details on configuration options, see [Native AOT deployment overview](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/).
+
+### Example AOT Project
+
+Here's a complete example of a CSnakes project configured for Native AOT:
+
+**AOTConsoleApp.csproj:**
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="*.py">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AdditionalFiles>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
+  </ItemGroup>
+</Project>
+```
+
+**aot_demo.py:**
+```python
+def cool_things() -> list[str]:
+    return [
+        "Python",
+        "C#",
+    ]
+```
+
+**Program.cs:**
+```csharp
+using CSnakes.Runtime;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+var builder = Host.CreateApplicationBuilder(args);
+var home = Path.Join(Environment.CurrentDirectory);
+builder.Services
+    .WithPython()
+    .WithHome(home)
+    .FromRedistributable("3.12");
+
+var app = builder.Build();
+
+var env = app.Services.GetRequiredService<IPythonEnvironment>();
+
+RunQuickDemo(env);
+
+static void RunQuickDemo(IPythonEnvironment env)
+{
+    var quickDemo = env.AotDemo();
+    foreach (var thing in quickDemo.CoolThings())
+    {
+        Console.WriteLine(thing + " is cool!");
+    }
+    Console.WriteLine();
+}
+```
+
+### Publishing for Native AOT
+
+To publish your application with Native AOT, use the following command:
+
+```bash
+dotnet publish -c Release -r <runtime-identifier>
+```
+
+For example, to publish for Windows x64:
+```bash
+dotnet publish -c Release -r win-x64
+```
+
+For more information about publishing Native AOT applications and runtime identifiers, see the [Publishing Native AOT apps guide](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/).
+
+#### Python Environment Packaging
+
+**Important**: While `dotnet publish` builds a self-contained application, that application does not contain Python, the Python virtual environment, or its dependencies. The published application will still require a Python runtime and any required packages to be available on the target system.
+
+For packaging Python environments alongside your application, see the documentation on the [`CSnakes.Stage` tool](https://tonybaloney.github.io/CSnakes/docker/) which provides guidance on bundling Python environments with your .NET applications.
+
+### Limitations and Considerations
+
+1. **Source Generator Required**: Native AOT only works with the source generator. Manual Python binding using the runtime API directly is not supported in AOT scenarios due to reflection limitations when dynamically casting Python objects to .NET containers.
+
+2. **Reflection Limitations**: Native AOT has limited support for reflection, which is why the source generator approach is mandatory. For more details, see [Native AOT compatibility requirements](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/compatibility).
+
+3. **Python Runtime**: The Python runtime itself is not compiled to native code - only your C# application is. The Python interpreter still runs in its normal mode.
+
+4. **Debugging**: Debugging AOT-compiled applications can be more challenging than debugging JIT-compiled applications. See [Native AOT debugging](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/debugging) for more information.
+
+5. **Build Time**: Native AOT compilation takes longer than regular compilation.
+
+6. **File Size**: While memory usage may be reduced, the resulting executable may be larger due to including the entire runtime.
+
+### Sample Project
+
+A complete working example of Native AOT with CSnakes is available in the [samples/simple/AOTConsoleApp](https://github.com/tonybaloney/CSnakes/tree/main/samples/simple/AOTConsoleApp) directory of the repository. This sample demonstrates the proper configuration and usage patterns for AOT deployment.

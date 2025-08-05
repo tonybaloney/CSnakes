@@ -17,6 +17,27 @@ This demo generates the following C# method signature:
 public string FormatName(string name, long maxLength = 50);
 ```
 
+## Native AOT Console Application
+
+The [`AOTConsoleApp`](https://github.com/tonybaloney/CSnakes/tree/main/samples/simple/AOTConsoleApp) sample demonstrates how to use CSnakes with Native AOT (Ahead-of-Time) compilation for improved startup performance and reduced memory footprint.
+
+This sample shows:
+- Proper project configuration for Native AOT with the `<PublishAot>true</PublishAot>` setting  
+- Source generator usage (required for AOT support)
+- Simple Python function calls in an AOT-compiled application
+
+The Python file [`aot_demo.py`](https://github.com/tonybaloney/CSnakes/blob/main/samples/simple/AOTConsoleApp/aot_demo.py) contains:
+
+```python
+def cool_things() -> list[str]:
+    return [
+        "Python",
+        "C#",
+    ]
+```
+
+**Important**: Native AOT support in CSnakes only works with source generated bindings. Manual Python binding approaches are not compatible with AOT compilation. See the [Native AOT Support](advanced.md#native-aot-support) section in the Advanced Usage guide for complete details.
+
 ## KMeans Example
 
 A more complex example is the [`kmeans_example.py`](https://github.com/tonybaloney/CSnakes/blob/main/samples/simple/ExamplePythonDependency/kmeans_example.py) file, which contains a function `calculate_kmeans_inertia` that calculates the inertia of a KMeans clustering algorithm using the `sklearn` library:

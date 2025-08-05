@@ -41,3 +41,9 @@ var age = person.GetAttr("age");
 ## Async functions
 
 Python coroutines declared using the `async` syntax are not supported. If you would like this feature, please [raise an issue](https://github.com/tonybaloney/CSnakes/issues/new).
+
+## Native AOT
+
+When using Native AOT compilation, only the source generated bindings approach is supported. The manual Python binding method described in [Calling Python without the Source Generator](advanced.md#calling-python-without-the-source-generator) is not compatible with Native AOT due to reflection limitations.
+
+See the [Native AOT Support](advanced.md#native-aot-support) section for complete details on requirements and configuration.

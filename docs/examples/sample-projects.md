@@ -11,16 +11,19 @@ This section provides links and descriptions of complete sample projects that de
 **Description**: The simplest possible CSnakes implementation showing basic Python function calls from C#.
 
 **Features**:
+
 - Basic string manipulation functions
 - Mathematical operations  
 - Type conversion examples
 - Error handling demonstration
 
 **Key Files**:
+
 - `hello_world.py` - Simple greeting function with optional parameters
 - `Program.cs` - Basic C# console application setup
 
 **What You'll Learn**:
+
 - Basic CSnakes project setup
 - Simple function calls
 - Parameter passing
@@ -33,17 +36,20 @@ This section provides links and descriptions of complete sample projects that de
 **Description**: Demonstrates CSnakes compatibility with Native AOT compilation for improved performance.
 
 **Features**:
+
 - Native AOT compilation support
 - Minimal memory footprint
 - Fast startup times
 - Source generator usage (required for AOT)
 
 **Key Files**:
+
 - `aot_demo.py` - Simple Python functions for AOT demo
 - `Program.cs` - AOT-compatible C# code
 - `AOTConsoleApp.csproj` - Project configuration with `<PublishAot>true</PublishAot>`
 
 **What You'll Learn**:
+
 - AOT compatibility requirements
 - Performance benefits of AOT
 - Source generator usage
@@ -56,6 +62,7 @@ This section provides links and descriptions of complete sample projects that de
 **Description**: ASP.NET Core web application integrating Python data processing capabilities.
 
 **Features**:
+
 - REST API endpoints calling Python functions
 - Dependency injection integration
 - Machine learning model integration
@@ -63,12 +70,14 @@ This section provides links and descriptions of complete sample projects that de
 - Load testing configuration
 
 **Key Files**:
+
 - `kmeans_example.py` - K-means clustering implementation
 - `phi3_demo.py` - Small language model integration
 - `Controllers/` - Web API controllers
 - `loadtest.jmx` - JMeter load test configuration
 
 **What You'll Learn**:
+
 - Web application integration
 - Dependency injection setup
 - API design patterns
@@ -82,17 +91,20 @@ This section provides links and descriptions of complete sample projects that de
 **Description**: Demonstrates CSnakes usage in F# functional programming context.
 
 **Features**:
+
 - F# functional programming patterns
 - Immutable data structures
 - Pipeline operations
 - Type-safe Python integration
 
 **Key Files**:
+
 - `math_functions.py` - Mathematical operations
 - `Program.fs` - F# application using CSnakes
 - `FSharpSample.fsproj` - F# project configuration
 
 **What You'll Learn**:
+
 - F# and CSnakes integration
 - Functional programming patterns
 - Type safety in F#

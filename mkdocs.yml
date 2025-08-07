@@ -9,6 +9,7 @@ nav:
   - User Guide:
     - Basic Usage: user-guide/basic-usage.md
     - Type System: user-guide/type-system.md
+    - Working with PyObject: user-guide/pyobject.md
     - Environment Management: user-guide/environments.md
     - Exception Handling: user-guide/errors.md
     - Buffers & NumPy: user-guide/buffers.md

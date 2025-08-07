@@ -265,79 +265,6 @@ COPY --from=build /app/publish .
 ENTRYPOINT ["./AOTConsoleApp"]
 ```
 
-## Performance Characteristics
-
-### Startup Performance
-
-Native AOT applications typically show significant startup improvements:
-
-```csharp
-public class PerformanceBenchmark
-{
-    public static void MeasureStartup()
-    {
-        var stopwatch = Stopwatch.StartNew();
-        
-        // Application initialization
-        var builder = Host.CreateApplicationBuilder();
-        builder.Services.WithPython()
-            .WithHome(Environment.CurrentDirectory)
-            .FromRedistributable("3.12");
-        
-        var app = builder.Build();
-        var env = app.Services.GetRequiredService<IPythonEnvironment>();
-        
-        stopwatch.Stop();
-        Console.WriteLine($"Startup time: {stopwatch.ElapsedMilliseconds}ms");
-        
-        // First Python call
-        stopwatch.Restart();
-        var demo = env.AotDemo();
-        var result = demo.CoolThings();
-        stopwatch.Stop();
-        
-        Console.WriteLine($"First Python call: {stopwatch.ElapsedMilliseconds}ms");
-    }
-}
-```
-
-### Memory Usage
-
-Monitor memory usage in AOT applications:
-
-```csharp
-public class MemoryMonitor
-{
-    public static void MonitorMemoryUsage()
-    {
-        var initialMemory = GC.GetTotalMemory(false);
-        Console.WriteLine($"Initial memory: {initialMemory:N0} bytes");
-        
-        // Create Python environment
-        var builder = Host.CreateApplicationBuilder();
-        builder.Services.WithPython()
-            .WithHome(Environment.CurrentDirectory)
-            .FromRedistributable("3.12");
-        
-        var app = builder.Build();
-        var env = app.Services.GetRequiredService<IPythonEnvironment>();
-        
-        var afterPythonInit = GC.GetTotalMemory(false);
-        Console.WriteLine($"After Python init: {afterPythonInit:N0} bytes (+{afterPythonInit - initialMemory:N0})");
-        
-        // Perform Python operations
-        var demo = env.AotDemo();
-        for (int i = 0; i < 100; i++)
-        {
-            demo.ProcessData(Enumerable.Range(1, 100).ToList());
-        }
-        
-        var afterOperations = GC.GetTotalMemory(true);
-        Console.WriteLine($"After operations: {afterOperations:N0} bytes (+{afterOperations - afterPythonInit:N0})");
-    }
-}
-```
-
 ## Limitations and Considerations
 
 ### 1. Source Generator Required
@@ -397,100 +324,6 @@ While memory usage may be reduced, the resulting executable may be larger due to
 # Compare sizes
 ls -la bin/Release/net8.0/AOTConsoleApp.dll           # ~50KB
 ls -la bin/Release/net8.0/win-x64/publish/AOTConsoleApp.exe  # ~15-30MB
-```
-
-## Troubleshooting AOT Issues
-
-### Common Build Errors
-
-#### Missing AdditionalFiles
-
-```xml
-<!-- Error: No Python files found -->
-<!-- Solution: Add AdditionalFiles -->
-<ItemGroup>
-  <AdditionalFiles Include="*.py">
-    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-  </AdditionalFiles>
-</ItemGroup>
-```
-
-#### Reflection Warnings
-
-```csharp
-// Warning: Dynamic type loading detected
-// Solution: Use source generator instead of manual bindings
-
-// ❌ Problematic for AOT
-Type.GetType("SomeType").GetMethod("SomeMethod");
-
-// ✅ AOT-friendly with source generator
-var module = env.MyModule();
-module.SomeMethod();
-```
-
-#### Trim Warnings
-
-```xml
-<!-- If you see trim warnings, you may need: -->
-<PropertyGroup>
-  <PublishTrimmed>false</PublishTrimmed>
-</PropertyGroup>
-```
-
-### Runtime Issues
-
-#### Python Runtime Not Found
-
-```csharp
-// Ensure Python path is correct for deployment
-builder.Services.WithPython()
-    .WithHome(GetPythonPath()) // Use deployment-specific path
-    .FromRedistributable("3.12");
-
-private static string GetPythonPath()
-{
-    // Adjust path for different deployment scenarios
-    if (Environment.GetEnvironmentVariable("DEPLOYMENT_ENV") == "container")
-        return "/app/python";
-    
-    return Environment.CurrentDirectory;
-}
-```
-
-#### Missing Python Dependencies
-
-```bash
-# Ensure Python dependencies are available
-pip install -r requirements.txt --target ./python-packages
-```
-
-### Performance Issues
-
-```csharp
-// Monitor AOT performance
-public class AOTPerformanceProfiler
-{
-    public static void ProfileExecution()
-    {
-        var tasks = new[]
-        {
-            Task.Run(() => MeasureStartupTime()),
-            Task.Run(() => MeasureFirstCall()),
-            Task.Run(() => MeasureSubsequentCalls())
-        };
-        
-        Task.WaitAll(tasks);
-    }
-    
-    private static void MeasureStartupTime()
-    {
-        var sw = Stopwatch.StartNew();
-        // App initialization
-        sw.Stop();
-        Console.WriteLine($"Startup: {sw.ElapsedMilliseconds}ms");
-    }
-}
 ```
 
 ## Sample Project
@@ -565,16 +398,6 @@ public class AOTBenchmark
 }
 ```
 
-### 4. Document Deployment Requirements
-
-```markdown
-## Deployment Requirements
-
-- Native AOT executable: self-contained
-- Python runtime: Required on target system
-- Python packages: Must be available in PYTHONPATH
-- Environment variables: Set as needed for production
-```
 
 ## Next Steps
 

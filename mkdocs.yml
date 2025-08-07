@@ -12,11 +12,9 @@ nav:
     - Environment Management: user-guide/environments.md
     - Buffers & NumPy: user-guide/buffers.md
     - Async Functions: user-guide/async.md
-    - Deployment: user-guide/deployment.md
+    - Deployment in Containers: user-guide/deployment.md
   - Examples & Showcase:
     - Sample Projects: examples/sample-projects.md
-    - Use Cases: examples/use-cases.md
-    - Best Practices: examples/best-practices.md
     - Projects Using CSnakes: examples/projects-using-csnakes.md
   - Advanced Topics:
     - Overview: advanced/advanced-usage.md

@@ -9,6 +9,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
 #### Issue: "Python runtime not found"
 
 **Symptoms:**
+
 - Error message: "Could not locate Python runtime"
 - Application fails to start
 - PythonEnvironment initialization throws exception
@@ -43,6 +44,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
 #### Issue: "Module not found" errors
 
 **Symptoms:**
+
 - `ModuleNotFoundError` in Python code
 - ImportError for installed packages
 - Functions work in Python CLI but not in CSnakes
@@ -60,6 +62,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    ```
 
 2. **Verify Requirements.txt**
+
    ```text
    # requirements.txt
    numpy==1.24.3
@@ -68,12 +71,14 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    ```
 
 3. **Manual Package Installation**
+
    ```bash
    # In your virtual environment
    pip install -r requirements.txt
    ```
 
 4. **Check Python Path**
+
    ```python
    # Add to your Python file for debugging
    import sys
@@ -86,6 +91,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
 #### Issue: "Generated code not found"
 
 **Symptoms:**
+
 - IntelliSense doesn't show Python methods
 - Compiler errors about missing methods
 - `env.ModuleName()` not available
@@ -93,6 +99,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
 **Solutions:**
 
 1. **Check File Configuration**
+
    ```xml
    <ItemGroup>
      <AdditionalFiles Include="python_modules/**/*.py">
@@ -102,6 +109,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    ```
 
 2. **Verify Python File Syntax**
+
    ```python
    # Ensure proper type annotations
    def my_function(param: str) -> str:  # ✅ Good
@@ -112,18 +120,21 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    ```
 
 3. **Clean and Rebuild**
+
    ```bash
    dotnet clean
    dotnet build
    ```
 
 4. **Check Build Output**
+
    - Look for source generation errors in build output
    - Verify Python files are being copied to output directory
 
 #### Issue: "Type conversion errors"
 
 **Symptoms:**
+
 - Runtime exceptions during type conversion
 - Unexpected `null` values
 - Type mismatch errors
@@ -147,6 +158,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    ```
 
 2. **Handle Optional Types Properly**
+
    ```python
    def safe_function(value: str | None = None) -> str:
        if value is None:
@@ -166,6 +178,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
 #### Issue: "PythonInvocationException"
 
 **Symptoms:**
+
 - Python exceptions bubble up to C#
 - Stack traces point to Python code
 - Application crashes on Python errors
@@ -240,6 +253,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
 #### Issue: "Slow startup times"
 
 **Symptoms:**
+
 - Application takes long time to start
 - First Python call is very slow
 - High memory usage during startup
@@ -273,6 +287,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    ```
 
 2. **Optimize Python Imports**
+
    ```python
    # ✅ Import only what you need
    from sklearn.cluster import KMeans  # Specific import
@@ -284,6 +299,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    ```
 
 3. **Use Lazy Loading**
+
    ```python
    def process_with_heavy_imports(data: list[int]) -> list[int]:
        """Import heavy libraries only when needed."""
@@ -297,6 +313,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
 #### Issue: "High memory usage"
 
 **Symptoms:**
+
 - Memory usage grows over time
 - OutOfMemoryException
 - Application becomes unresponsive
@@ -304,6 +321,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
 **Solutions:**
 
 1. **Implement Resource Management**
+
    ```csharp
    public class ResourceManagedService
    {
@@ -361,6 +379,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
 #### Issue: "AOT compilation fails"
 
 **Symptoms:**
+
 - Build errors during AOT compilation
 - Runtime errors in AOT-compiled application
 - Missing dependencies in AOT build
@@ -378,6 +397,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    ```
 
 2. **Configure AOT Properly**
+
    ```xml
    <Project Sdk="Microsoft.NET.Sdk">
      <PropertyGroup>
@@ -389,6 +409,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    ```
 
 3. **Trim-Safe Code**
+
    ```csharp
    // Use attributes to preserve code from trimming
    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
@@ -513,7 +534,6 @@ Console.WriteLine($"Result: {result}");
 
 - [CSnakes GitHub Issues](https://github.com/tonybaloney/CSnakes/issues)
 - [Sample Projects](../examples/sample-projects.md)
-- [Best Practices](../examples/best-practices.md)
 - [Performance Guide](performance.md)
 
 ## Environment-Specific Issues
@@ -541,8 +561,10 @@ Console.WriteLine($"Result: {result}");
 ### Docker Issues
 
 **Issue: "Python not found in container"**
+
 - Solution: Install Python in Dockerfile
 - Use base images with Python pre-installed
+- Use [CSnakes.Stage](../user-guide/deployment.md)
 
 ```dockerfile
 FROM mcr.microsoft.com/dotnet/aspnet:8.0

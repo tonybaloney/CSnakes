@@ -87,7 +87,7 @@ string userName = users[1]; // "Alice"
 
 ### Tuples
 
-CSnakes supports both simple and named tuples:
+CSnakes supports simple tuples as types up to 17 items:
 
 ```python
 def get_name_age() -> tuple[str, int]:
@@ -96,15 +96,6 @@ def get_name_age() -> tuple[str, int]:
 def get_coordinates() -> tuple[float, float, float]:
     return (12.34, 56.78, 90.12)
 
-# Named tuples work too
-from typing import NamedTuple
-
-class Point(NamedTuple):
-    x: float
-    y: float
-
-def get_point() -> Point:
-    return Point(1.0, 2.0)
 ```
 
 ```csharp
@@ -113,14 +104,11 @@ Console.WriteLine($"{name} is {age} years old");
 
 var (x, y, z) = module.GetCoordinates();
 Console.WriteLine($"Position: ({x}, {y}, {z})");
-
-// Named tuples are returned as regular tuples
-var (pointX, pointY) = module.GetPoint();
 ```
 
 ## Default Values
 
-Python default values are preserved in the generated C# methods:
+Python default values for types which support compile-time constants in C# (string, int, float, bool) are preserved in the generated C# methods:
 
 ```python
 def greet(name: str, greeting: str = "Hello", punctuation: str = "!") -> str:
@@ -177,36 +165,9 @@ if (obj.HasAttribute("keys"))
     PyObject keys = obj.GetAttribute("keys");
     // ... work with the object
 }
-
-// Convert to specific types
-if (obj.TryConvert<Dictionary<string, object>>(out var dict))
-{
-    Console.WriteLine(dict["key"]);
-}
 ```
 
-## Error Handling
-
-Type conversion errors are handled gracefully:
-
-```python
-def divide(a: float, b: float) -> float:
-    if b == 0:
-        raise ValueError("Division by zero")
-    return a / b
-```
-
-```csharp
-try
-{
-    double result = module.Divide(10.0, 0.0);
-}
-catch (PythonInvocationException ex)
-{
-    Console.WriteLine($"Python error: {ex.Message}");
-    Console.WriteLine($"Exception type: {ex.PythonExceptionType}");
-}
-```
+See [reference](../reference/api.md#pyobject) on PyObject for more details.
 
 ## Best Practices
 

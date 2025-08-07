@@ -1,6 +1,14 @@
 # Type System
 
-CSnakes provides seamless integration between Python and C# type systems through automatic type conversion and source generation.
+CSnakes provides seamless integration between Python and C# type systems through automatic and manual type conversion.
+
+In Python, every object inherits from the base object type (`PyObject`). CSnakes has a `PyObject` class that represents all Python objects in C#. This class provides methods for attribute access, method invocation, and function calls, allowing you to interact with Python objects as if they were native C# objects.
+
+The `PyObject` class in CSnakes has conversions to and from many C# types. You can also do anything you can do in Python (get attributes, call methods, call functions) on instances of `PyObject`
+
+To make development easier, the CSnakes source generator generates the conversions (marshalling) calls to and from Python functions by using their type signatures.
+
+Any of the supported types can be used in the `PyObject.From<T>(T object)` and `T PyObject.As<T>(PyObject x)` calls to marshal data from C# types into Python objects. `PyObject` instances contain a `SafeHandle` to the allocated memory for the Python object in the Python interpreter. When the object is disposed in C#, the reference is decremented and the object is released. C# developers don't need to worry about manually incrementing and decrementing references to Python objects, they can work within the design of the existing .NET Garbage Collector.
 
 ## Supported Type Mappings
 
@@ -153,6 +161,58 @@ string msg3 = module.Greet("Charlie", "Hey", "?"); // "Hey, Charlie?"
 
 See [Roadmap](../community/roadmap.md) for a list of unsupported types and possible alternatives.
 
+## Handling None
+
+If you need to send `None` as a `PyObject` to any function call from C#, use the property `PyObject.None`:
+
+```csharp
+env.MethodToCall(PyObject.None);
+```
+
+You can also check if a PyObject is None by calling `IsNone()` on any PyObject:
+
+```csharp
+PyObject obj = env.MethodToCall();
+if (obj.IsNone())
+{
+  Console.WriteLine("The object is None");
+}
+```
+
+Python's type system is unconstrained, so even though a function can say it returns a `int` it can return `None` object. Sometimes it's also useful to check for `None` values.
+
+## Object comparisons
+
+The `PyObject` types can be compared with one another using the `is`, `==` and `!=` operators from Python. 
+
+The equivalent to the `x is y` operator in Python is :
+
+```csharp
+// Small numbers are the same object in Python (weird implementation detail)
+PyObject obj1 = PyObject.From(true);
+PyObject obj2 = PyObject.From(true);
+if (obj1!.Is(obj2))
+    Console.WriteLine("Objects are the same!");
+```
+
+Equality can be accessed from the `.Equals` method or using the `==` operators in C#:
+
+```csharp
+PyObject obj1 = PyObject.From(3.0);
+PyObject obj2 = PyObject.From(3);
+if (obj1 == obj2) 
+    Console.WriteLine("Objects are equal!");
+```
+
+Inequality can be accessed from the `.NotEquals` method or using the `!=` operators in C#:
+
+```csharp
+PyObject obj1 = PyObject.From(3.0);
+PyObject obj2 = PyObject.From(3);
+if (obj1 != obj2) 
+    Console.WriteLine("Objects are not equal!");
+```
+
 ## Working with PyObject
 
 For advanced scenarios, you can work directly with `PyObject`:
@@ -219,13 +279,13 @@ def safe_divide(a: float, b: float) -> float | None:
 
 ```csharp
 double? result = module.SafeDivide(10.0, 3.0);
-if (result.HasValue)
+if (result is null)
 {
-    Console.WriteLine($"Result: {result.Value}");
+    Console.WriteLine("Division failed");
 }
 else
 {
-    Console.WriteLine("Division failed");
+    Console.WriteLine($"Result: {result}");
 }
 ```
 

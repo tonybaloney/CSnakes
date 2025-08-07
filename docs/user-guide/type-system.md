@@ -4,17 +4,28 @@ CSnakes provides seamless integration between Python and C# type systems through
 
 ## Supported Type Mappings
 
-| Python Type | C# Type | Notes |
-|-------------|---------|-------|
-| `int` | `long` | Python integers can be arbitrarily large |
-| `float` | `double` | IEEE 754 double precision |
-| `str` | `string` | UTF-8 encoded strings |
-| `bytes` | `byte[]` | Raw byte arrays |
-| `bool` | `bool` | Boolean values |
-| `list[T]` | `IReadOnlyList<T>` | Immutable list interface |
-| `dict[K, V]` | `IReadOnlyDictionary<K, V>` | Immutable dictionary interface |
-| `tuple[T1, T2, ...]` | `(T1, T2, ...)` | Value tuples |
-| `None` (return) | `void` | No return value |
+CSnakes supports the following typed scenarios:
+
+| Python type annotation | Reflected C# Type |
+|------------------------|-------------------|
+| `int`                  | `long`            |
+| `float`                | `double`          |
+| `str`                  | `string`          |
+| `bytes`                | `byte[]`          |
+| `bool`                 | `bool`            |
+| `list[T]`              | `IReadOnlyList<T>`  |
+| `dict[K, V]`           | `IReadOnlyDictionary<K, V>` |
+| `tuple[T1, T2, ...]`   | `(T1, T2, ...)`   |
+| `typing.Sequence[T]`   | `IReadOnlyList<T>`  |
+| `typing.Dict[K, V]`    | `IReadOnlyDictionary<K, V>` |
+| `typing.Mapping[K, V]` | `IReadOnlyDictionary<K, V>` |
+| `typing.Tuple[T1, T2, ...]` | `(T1, T2, ...)` |
+| `typing.Optional[T]`   | `T?`              |
+| `T | None`             | `T?`              |
+| `typing.Generator[TYield, TSend, TReturn]` | `IGeneratorIterator<TYield, TSend, TReturn>` [1](#generators) |
+| `typing.Buffer`        | `IPyBuffer` [2](buffers.md) |
+| `typing.Coroutine[TYield, TSend, TReturn]` | `Task<TYield>` [3](async_support.md) |
+| `None` (Return)        | `void`            |
 
 ## Optional Types
 

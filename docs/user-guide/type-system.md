@@ -181,38 +181,6 @@ if (obj.IsNone())
 
 Python's type system is unconstrained, so even though a function can say it returns a `int` it can return `None` object. Sometimes it's also useful to check for `None` values.
 
-## Object comparisons
-
-The `PyObject` types can be compared with one another using the `is`, `==` and `!=` operators from Python. 
-
-The equivalent to the `x is y` operator in Python is :
-
-```csharp
-// Small numbers are the same object in Python (weird implementation detail)
-PyObject obj1 = PyObject.From(true);
-PyObject obj2 = PyObject.From(true);
-if (obj1!.Is(obj2))
-    Console.WriteLine("Objects are the same!");
-```
-
-Equality can be accessed from the `.Equals` method or using the `==` operators in C#:
-
-```csharp
-PyObject obj1 = PyObject.From(3.0);
-PyObject obj2 = PyObject.From(3);
-if (obj1 == obj2) 
-    Console.WriteLine("Objects are equal!");
-```
-
-Inequality can be accessed from the `.NotEquals` method or using the `!=` operators in C#:
-
-```csharp
-PyObject obj1 = PyObject.From(3.0);
-PyObject obj2 = PyObject.From(3);
-if (obj1 != obj2) 
-    Console.WriteLine("Objects are not equal!");
-```
-
 ## Working with PyObject
 
 For advanced scenarios, you can work directly with `PyObject`:
@@ -220,25 +188,25 @@ For advanced scenarios, you can work directly with `PyObject`:
 ```python
 from typing import Any
 
-def get_raw_object() -> Any:
-    return {"key": "value", "nested": [1, 2, 3]}
+def get_person() -> Any:
+    return ... # an object of some sort
 ```
 
 ```csharp
 using CSnakes.Runtime.Python;
 
-PyObject obj = module.GetRawObject();
+using PyObject obj = module.GetPerson();
 
 // Check type
-if (obj.HasAttribute("keys"))
+if (obj.HasAttr("keys"))
 {
     // It's a dictionary-like object
-    PyObject keys = obj.GetAttribute("keys");
+    PyObject keys = obj.GetAttr("keys");
     // ... work with the object
 }
 ```
 
-See the CSnakes documentation for more details on PyObject usage.
+See [handling Python Objects](pyobject.md) for more details and examples.
 
 ## Best Practices
 

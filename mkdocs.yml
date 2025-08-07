@@ -1,23 +1,46 @@
 site_name: CSnakes
 nav:
   - Home: index.md
-  - Getting Started: getting-started.md
-  - Reference: reference.md
-  - Environment and Package Management: environments.md
-  - Asynchronous Functions: async_support.md
-  - Performance Considerations: performance.md
-  - Buffer Protocol and NumPy Arrays: buffers.md
-  - Running in Containers: docker.md
-  - Advanced Usage: advanced.md
-  - Limitations: limitations.md
-  - FAQ: faq.md
-  - Examples: examples.md
+  - Getting Started:
+    - Quick Start: getting-started/quick-start.md
+    - Installation: getting-started/installation.md
+    - First Example: getting-started/first-example.md
+    - Templates: getting-started/templates.md
+  - User Guide:
+    - Basic Usage: user-guide/basic-usage.md
+    - Type System: user-guide/type-system.md
+    - Environment Management: user-guide/environments.md
+    - Buffers & NumPy: user-guide/buffers.md
+    - Async Functions: user-guide/async.md
+    - Deployment: user-guide/deployment.md
+  - Examples & Tutorials:
+    - Common Patterns: examples/common-patterns.md
+    - Real-world Use Cases: examples/use-cases.md
+    - Sample Projects: examples/sample-projects.md
+    - Best Practices: examples/best-practices.md
+  - Advanced Topics:
+    - Advanced Usage: advanced/advanced-usage.md
+    - Performance Optimization: advanced/performance.md
+    - Troubleshooting: advanced/troubleshooting.md
+    - Hot Reload & Development: advanced/development.md
+  - Reference:
+    - API Reference: reference/api.md
+    - Type Mapping: reference/type-mapping.md
+    - Configuration: reference/configuration.md
+    - Error Reference: reference/errors.md
+  - Community:
+    - FAQ: community/faq.md
+    - Limitations: community/limitations.md
+    - Roadmap: community/roadmap.md
+    - Contributing: community/contributing.md
 
 theme:
   name: material
   logo: res/logo.jpeg
   features:
     - content.code.copy
+    - navigation.tabs
+    - navigation.tabs.sticky
   palette:
     - scheme: default  # Light Mode
       primary: black

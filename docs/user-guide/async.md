@@ -38,4 +38,4 @@ Event though C# uses a thread-pool to schedule tasks, the Python Global Interpre
 This means that even if you use parallel LINQ or other parallel constructs in C#, CPU-bound Python code will mostly run in a single thread at a time.
 
 Python 3.13 and above have a feature called "free-threading mode" which allows the Python interpreter to run in a multi-threaded environment without the Global Interpreter Lock (GIL). This is a significant change to the Python runtime and can have a big impact on the performance of Python code running in a multi-threaded environment.
-See [Free-Threading Mode](advanced.md#free-threading-mode) for more information.
+See [Free-Threading Mode](../advanced/free-threading.md) for more information.

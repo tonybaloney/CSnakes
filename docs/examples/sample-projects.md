@@ -296,6 +296,5 @@ Comparison of startup times:
 
 ## Next Steps
 
-- [Learn best practices](best-practices.md)
 - [Explore advanced usage patterns](../advanced/advanced-usage.md)
 - [Understand performance optimization](../advanced/performance.md)

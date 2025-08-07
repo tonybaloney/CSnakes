@@ -119,5 +119,5 @@ catch (PythonInvocationException ex)
 ## Next Steps
 
 - [Learn about supported types](../user-guide/type-system.md)
-- [Explore more examples](../examples/common-patterns.md)
+- [Explore more examples](../examples/sample-projects.md)
 - [Set up virtual environments](../user-guide/environments.md)

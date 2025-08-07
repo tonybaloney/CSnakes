@@ -13,16 +13,22 @@ nav:
     - Buffers & NumPy: user-guide/buffers.md
     - Async Functions: user-guide/async.md
     - Deployment: user-guide/deployment.md
-  - Examples & Tutorials:
-    - Common Patterns: examples/common-patterns.md
-    - Real-world Use Cases: examples/use-cases.md
+  - Examples & Showcase:
     - Sample Projects: examples/sample-projects.md
+    - Use Cases: examples/use-cases.md
     - Best Practices: examples/best-practices.md
+    - Projects Using CSnakes: examples/projects-using-csnakes.md
   - Advanced Topics:
-    - Advanced Usage: advanced/advanced-usage.md
+    - Overview: advanced/advanced-usage.md
+    - Large Integers: advanced/big-integers.md
+    - Free-Threading: advanced/free-threading.md
+    - Manual Integration: advanced/manual-integration.md
+    - Hot Reload: advanced/hot-reload.md
+    - Signal Handlers: advanced/signal-handlers.md
+    - Native AOT: advanced/native-aot.md
     - Performance Optimization: advanced/performance.md
     - Troubleshooting: advanced/troubleshooting.md
-    - Hot Reload & Development: advanced/development.md
+    - Development Workflows: advanced/development.md
   - Reference:
     - API Reference: reference/api.md
     - Type Mapping: reference/type-mapping.md

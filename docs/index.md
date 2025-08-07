@@ -8,7 +8,7 @@ CSnakes is a .NET Source Generator and Runtime that you can use to embed **Pytho
 
 Check out the [getting started](getting-started.md) guide or check out the [demo solution](https://github.com/tonybaloney/CSnakes/tree/main/samples) to see more.
 
-<br /> <br />
+<br /><iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/fDbCqalegNU?si=a2mFVbXXhfkmYIWu" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><br />
 
 ![System diagram](res/architecture_simple.png)
 

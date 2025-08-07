@@ -105,24 +105,12 @@ This section provides links and descriptions of complete sample projects that de
 **Description**: .NET Aspire orchestrated application with multiple services using CSnakes.
 
 **Features**:
+
 - Service orchestration with .NET Aspire
 - Multiple microservices
 - Shared Python modules
 - Service discovery
 - Monitoring and observability
-
-**Key Files**:
-- `CSnakesAspire.AppHost/` - Aspire orchestration host
-- `CSnakesAspire.ApiService/` - API service with CSnakes
-- `CSnakesAspire.Web/` - Web frontend
-- `python/` - Shared Python modules
-
-**What You'll Learn**:
-- Microservices architecture
-- .NET Aspire orchestration
-- Service communication
-- Distributed system patterns
-- Monitoring and logging
 
 ## Sample Project Details
 
@@ -145,52 +133,11 @@ def calculate_kmeans_inertia(data: list[tuple[int, int]], n_clusters: int) -> tu
 ```
 
 **C# Usage**:
+
 ```csharp
 var kmeans = env.KmeansExample();
 var data = new[] { (1, 2), (1, 4), (1, 0), (10, 2), (10, 4), (10, 0) };
 var (centroids, inertia) = kmeans.CalculateKmeansInertia(data, 2);
-```
-
-#### Language Model Integration
-
-**File**: `phi3_demo.py`
-
-Demonstrates integration with Hugging Face transformers and PyTorch for running small language models directly in .NET applications.
-
-**Requirements**:
-- `transformers` package
-- `torch` package
-- Sufficient system memory for model loading
-
-### Data Processing Examples
-
-#### CSV Processing
-
-Shows how to process CSV data using pandas and return structured results to C#:
-
-```python
-def analyze_sales_data(csv_content: str) -> dict[str, float]:
-    df = pd.read_csv(StringIO(csv_content))
-    return {
-        "total_sales": float(df['sales'].sum()),
-        "average_sale": float(df['sales'].mean()),
-        "max_sale": float(df['sales'].max())
-    }
-```
-
-#### JSON Manipulation
-
-Demonstrates complex JSON processing and transformation:
-
-```python
-def transform_user_data(users: list[dict[str, any]]) -> dict[str, list[str]]:
-    by_department = {}
-    for user in users:
-        dept = user.get('department', 'unknown')
-        if dept not in by_department:
-            by_department[dept] = []
-        by_department[dept].append(user['name'])
-    return by_department
 ```
 
 ## Getting Started with Samples
@@ -258,33 +205,27 @@ The WebApp sample includes JMeter load test configurations showing:
 - **Memory**: Stable memory usage under load
 - **Scalability**: Linear scaling with CPU cores
 
-### Startup Performance
-
-Comparison of startup times:
-
-| Configuration | Cold Start | Warm Start |
-|--------------|------------|------------|
-| Standard Runtime | ~200ms | ~50ms |
-| AOT Compiled | ~50ms | ~10ms |
-| With Virtual Env | ~300ms | ~75ms |
-
 ## Troubleshooting Samples
 
 ### Common Issues
 
 1. **Python Not Found**
+
    - Solution: Use `FromRedistributable()` locator
    - Alternative: Set `PYTHONHOME` environment variable
 
 2. **Package Import Errors**
+
    - Solution: Check `requirements.txt` and virtual environment setup
    - Alternative: Use `WithPipInstaller()` method
 
 3. **Build Errors**
+
    - Solution: Ensure Python files are marked as `AdditionalFiles`
    - Alternative: Check .csproj configuration
 
 4. **Runtime Exceptions**
+
    - Solution: Check Python syntax and type annotations
    - Alternative: Use try-catch blocks around Python calls
 

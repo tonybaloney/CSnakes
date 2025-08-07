@@ -47,5 +47,4 @@ env = app.Services.GetRequiredService<IPythonEnvironment>();
 ## Next Steps
 
 - [Learn about Native AOT support](native-aot.md)
-- [Explore development workflows](development.md)
 - [Review troubleshooting guide](troubleshooting.md)

@@ -26,7 +26,6 @@ nav:
     - Native AOT: advanced/native-aot.md
     - Performance Optimization: advanced/performance.md
     - Troubleshooting: advanced/troubleshooting.md
-    - Development Workflows: advanced/development.md
   - Reference:
     - API Reference: reference/api.md
     - Type Mapping: reference/type-mapping.md

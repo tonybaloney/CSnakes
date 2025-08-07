@@ -577,4 +577,3 @@ RUN pip3 install -r requirements.txt
 
 - [Learn about performance optimization](performance.md)
 - [Explore advanced usage patterns](advanced-usage.md)
-- [Review development practices](development.md)

@@ -18,7 +18,7 @@ CSnakes provides seamless integration between Python and C# type systems through
 
 ## Optional Types
 
-CSnakes supports Python's optional type annotations:
+CSnakes supports Python's optional type annotations from both [`Optional[T]`](https://docs.python.org/3/library/typing.html#typing.Optional) and `T | None` (Python 3.10+):
 
 ```python
 def find_user(user_id: int) -> str | None:
@@ -30,6 +30,9 @@ def process_optional(value: int | None = None) -> str:
     if value is None:
         return "No value provided"
     return f"Value is {value}"
+
+def optional_old_style(value: Optional[int] = None) -> None:
+    pass
 ```
 
 Generated C# signatures:
@@ -37,6 +40,7 @@ Generated C# signatures:
 ```csharp
 public string? FindUser(long userId);
 public string ProcessOptional(long? value = null);
+public void OptionalOldStyle(long? value = null);
 ```
 
 ## Collections
@@ -146,75 +150,18 @@ string msg2 = module.Greet("Bob", "Hi"); // "Hi, Bob!"
 string msg3 = module.Greet("Charlie", "Hey", "?"); // "Hey, Charlie?"
 ```
 
-## Type Aliases
+## Unsupported Types
 
-Python type aliases are supported:
-
-```python
-from typing import TypeAlias
-
-UserId: TypeAlias = int
-UserName: TypeAlias = str
-UserData: TypeAlias = dict[str, str | int]
-
-def create_user(user_id: UserId, name: UserName) -> UserData:
-    return {"id": user_id, "name": name, "status": "active"}
-```
-
-The generated C# method uses the underlying types:
-
-```csharp
-public IReadOnlyDictionary<string, object> CreateUser(long userId, string name);
-```
-
-## Generic Types
-
-CSnakes supports generic collection types:
-
-```python
-from typing import TypeVar, Generic, List
-
-T = TypeVar('T')
-
-def first_item(items: list[T]) -> T | None:
-    return items[0] if items else None
-
-def last_items(items: list[T], count: int = 1) -> list[T]:
-    return items[-count:] if count > 0 else []
-```
-
-Note: Due to C# constraints, generic Python functions are generated with `object` types:
-
-```csharp
-public object? FirstItem(IReadOnlyList<object> items);
-public IReadOnlyList<object> LastItems(IReadOnlyList<object> items, long count = 1);
-```
-
-## Union Types
-
-Python union types (beyond optional) are mapped to `object`:
-
-```python
-def flexible_input(value: int | str | float) -> str:
-    return str(value)
-
-def process_mixed(items: list[int | str]) -> list[str]:
-    return [str(item) for item in items]
-```
-
-Generated C# methods:
-
-```csharp
-public string FlexibleInput(object value);
-public IReadOnlyList<string> ProcessMixed(IReadOnlyList<object> items);
-```
+See [Roadmap](../community/roadmap.md) for a list of unsupported types and possible alternatives.
 
 ## Working with PyObject
 
 For advanced scenarios, you can work directly with `PyObject`:
 
 ```python
-def get_raw_object() -> object:
+from typing import Any
+
+def get_raw_object() -> Any:
     return {"key": "value", "nested": [1, 2, 3]}
 ```
 

@@ -2,6 +2,8 @@
 
 The fastest way to get started with CSnakes is to use the supplied template for a C# console project with the `dotnet new` command.
 
+Alternatively, you can install the Nuget package and setup CSnakes in your environment. See [installation](installation.md) for more details.
+
 ## Using Templates
 
 The [templates](https://www.nuget.org/packages/CSnakes.Templates) are installed by running the following command:
@@ -32,9 +34,10 @@ To explore the various options offered by the `pyapp` template, run with the `-h
 dotnet new pyapp -h
 ```
 
-## What You Get
+### What You Get
 
 The template creates:
+
 - A C# console application with CSnakes.Runtime package
 - Example Python files with proper type annotations
 - Configured project file with Python files marked for source generation

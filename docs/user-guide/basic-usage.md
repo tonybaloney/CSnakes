@@ -41,7 +41,7 @@ Add the Python file to your `.csproj`:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CSnakes.Runtime" Version="0.16.0" />
+    <PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -92,13 +92,20 @@ foreach (var (key, value) in info)
 
 ## Naming Conventions
 
-CSnakes automatically converts Python naming conventions to C# conventions:
+CSnakes automatically converts Python naming conventions to C# conventions for function names:
 
 | Python | C# |
 |--------|-----|
 | `my_function` | `MyFunction` |
 | `calculate_average` | `CalculateAverage` |
 | `get_user_info` | `GetUserInfo` |
+
+Function argument names are converted to C# conventions in lower case:
+
+| Python | C# |
+|--------|-----|
+| `my_argument` | `myArgument` |
+| `arg1` | `arg1` |
 
 ## Module Access
 
@@ -204,82 +211,6 @@ def greet(name: str, prefix: str = "Hello", suffix: str = "!") -> str:
 var greeting1 = mathModule.Greet("Alice");                    // "Hello, Alice!"
 var greeting2 = mathModule.Greet("Bob", "Hi");                // "Hi, Bob!"
 var greeting3 = mathModule.Greet("Charlie", "Hey", "!!!");    // "Hey, Charlie!!!"
-```
-
-## Best Practices
-
-### 1. Use Type Hints
-
-Always use Python type hints for functions you want to call from C#:
-
-```python
-# Good
-def process_data(items: list[str]) -> dict[str, int]:
-    return {item: len(item) for item in items}
-
-# Bad - no type hints
-def process_data(items):
-    return {item: len(item) for item in items}
-```
-
-### 2. Handle Exceptions
-
-Always wrap Python calls in try-catch blocks for production code:
-
-```csharp
-try
-{
-    var result = module.SomeFunction();
-    return result;
-}
-catch (PythonInvocationException ex)
-{
-    // Log the error
-    logger.LogError(ex, "Python function failed");
-    return null; // or throw a more specific exception
-}
-```
-
-### 3. Organize Python Code
-
-Structure your Python code in logical modules:
-
-```
-python_modules/
-├── __init__.py
-├── data/
-│   ├── __init__.py
-│   ├── processors.py
-│   └── validators.py
-├── utils/
-│   ├── __init__.py
-│   ├── math_utils.py
-│   └── string_utils.py
-└── models/
-    ├── __init__.py
-    └── user.py
-```
-
-### 4. Environment Management
-
-Use dependency injection for the Python environment:
-
-```csharp
-public class DataService
-{
-    private readonly IPythonEnvironment _python;
-    
-    public DataService(IPythonEnvironment python)
-    {
-        _python = python;
-    }
-    
-    public async Task<ProcessedData> ProcessDataAsync(RawData data)
-    {
-        var processor = _python.DataProcessors();
-        return await Task.Run(() => processor.ProcessData(data.Items));
-    }
-}
 ```
 
 ## Next Steps

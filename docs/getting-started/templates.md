@@ -13,59 +13,35 @@ dotnet new pyapp
 ```
 
 **What it creates:**
+
 - Basic console application
 - Example Python file with type annotations
 - Configured `.csproj` file
 - Simple C# code demonstrating Python function calls
 
-**Options:**
-- `--framework` - Target framework (net8.0, net9.0)
-- `--use-top-level-statements` - Use top-level statements (default: true)
-
-### Web Application Template (`pyweb`)
-
-Creates an ASP.NET Core web application with CSnakes integration.
-
-```bash
-dotnet new pyweb
-```
-
-**What it creates:**
-- ASP.NET Core web application
-- Python modules for web-specific tasks
-- Dependency injection setup
-- Example controllers using Python functions
-
-### Library Template (`pylib`)
-
-Creates a class library project configured for CSnakes.
-
-```bash
-dotnet new pylib
-```
-
-**What it creates:**
-- Class library project
-- Python modules
-- Public API that wraps Python functionality
-- Unit test project (optional)
-
 ## Template Options
 
 ### Common Options
 
-All templates support these options:
+All templates support these standard dotnet new options:
 
-- `--name` - Project name
-- `--output` - Output directory
-- `--framework` - Target framework
-- `--langVersion` - C# language version
+- `--name` (`-n`) - The name for the output being created
+- `--output` (`-o`) - Location to place the generated output
+- `--dry-run` - Displays a summary of what would happen without creating files
+- `--force` - Forces content to be generated even if it would change existing files
+- `--no-update-check` - Disables checking for template package updates
+- `--project` - The project that should be used for context evaluation
+- `--language` (`-lang`) - Specifies the template language (C#)
+- `--type` - Specifies the template type (project)
 
-### Python-Specific Options
+### CSnakes Template-Specific Options
 
-- `--python-version` - Python version to target (3.9-3.13)
-- `--use-venv` - Set up virtual environment (default: true)
-- `--include-requirements` - Include requirements.txt (default: true)
+- `--PythonVersion` (`-P`) - Python version to target (default: 3.12)
+  - Available options: `3.9`, `3.10`, `3.11`, `3.12`, `3.13`
+- `--NoVirtualEnvironment` (`-N`) - Disable virtual environment setup (default: false)
+  - When false (default), a virtual environment will be created
+- `--PackageManager` (`-Pa`) - Package manager to use (default: none)
+  - Available options: `none`, `pip`, `uv`
 
 ## Examples
 
@@ -75,16 +51,28 @@ All templates support these options:
 dotnet new pyapp --name MyPythonApp --output ./MyPythonApp
 ```
 
-### Create with Specific Framework
+### Create with Specific Python Version
 
 ```bash
-dotnet new pyapp --framework net9.0
+dotnet new pyapp --PythonVersion 3.11
 ```
 
-### Create Web App with Virtual Environment
+### Create with Package Manager
 
 ```bash
-dotnet new pyweb --use-venv true --include-requirements true
+dotnet new pyapp --PackageManager pip
+```
+
+### Create Without Virtual Environment
+
+```bash
+dotnet new pyapp --NoVirtualEnvironment
+```
+
+### Create with Multiple Options
+
+```bash
+dotnet new pyapp --name DataProcessor --PythonVersion 3.12 --PackageManager uv --output ./data-app
 ```
 
 ## Template Structure
@@ -99,22 +87,6 @@ MyApp/
 │   ├── __init__.py
 │   └── demo.py
 └── requirements.txt
-```
-
-### Web App Template Structure
-
-```
-MyWebApp/
-├── MyWebApp.csproj
-├── Program.cs
-├── Controllers/
-│   └── PythonController.cs
-├── python_modules/
-│   ├── __init__.py
-│   ├── data_processing.py
-│   └── ml_models.py
-├── requirements.txt
-└── appsettings.json
 ```
 
 ## Customizing Templates
@@ -136,7 +108,7 @@ dotnet new install CSnakes.Templates
 ### Install Specific Version
 
 ```bash
-dotnet new install CSnakes.Templates::0.16.0
+dotnet new install CSnakes.Templates::1.1.0
 ```
 
 ### Update Templates

@@ -1,6 +1,6 @@
-# Installation
+# Installation (manual setup)
 
-To get started with CSnakes, you need to:
+To get started with CSnakes manually, you need to:
 
 * [Install Python](#installing-python)
 * [Install the CSnakes.Runtime NuGet package](#installing-the-nuget-package)
@@ -64,7 +64,7 @@ dotnet add package CSnakes.Runtime
 Add this to your `.csproj` file:
 
 ```xml
-<PackageReference Include="CSnakes.Runtime" Version="0.16.0" />
+<PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
 ```
 
 This package includes both the source generator and runtime libraries.

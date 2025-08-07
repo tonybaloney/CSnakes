@@ -32,6 +32,7 @@ Mark the Python file as an "Additional File" in your `.csproj` file:
 ```
 
 Alternatively, in Visual Studio:
+
 1. Right-click the Python file
 2. Select "Properties"
 3. Set **Build Action** to **C# analyzer additional file**

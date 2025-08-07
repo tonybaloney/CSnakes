@@ -36,21 +36,22 @@ nav:
 
 theme:
   name: material
-  logo: res/logo.jpeg
+  logo: res/icon_white.png
+  favicon: res/icon_black.png
   features:
     - content.code.copy
     - navigation.tabs
     - navigation.tabs.sticky
   palette:
     - scheme: default  # Light Mode
-      primary: black
+      primary: indigo
       accent: pink
       toggle:
         icon: material/brightness-2
         name: Switch to dark mode
     - scheme: slate # Dark Mode
-      primary: amber
-      accent: cyan
+      primary: deep purple
+      accent: amber
       toggle:
         icon: material/brightness-7
         name: Switch to light mode

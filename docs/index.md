@@ -18,8 +18,8 @@ Check out the [getting started](getting-started/quick-start.md) guide or check o
 - ⚡ Uses Python's C-API for fast invocation of Python code directly in the .NET process  
 - 🧠 Uses Python type hinting to generate function signatures with .NET native types  
 - 🧵 Supports [CPython 3.13 "free-threading" mode](advanced/free-threading.md)  
-- 🧩 Supports [nested sequence and mapping types (`tuple`, `dict`, `list`)](reference/type-mapping.md)  
-- 🏷️ Supports [default values](reference/configuration.md)  
+- 🧩 Supports nested sequence and mapping types (`tuple`, `dict`, `list`)  
+- 🏷️ Supports default values  
 - 🔥 Supports [Hot Reload](advanced/hot-reload.md) of Python code in Visual Studio and supported IDEs  
 - 🚀 Supports [UV](user-guide/environments.md#installing-dependencies-with-uv) for fast installation of Python packages and dependencies  
 

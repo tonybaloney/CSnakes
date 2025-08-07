@@ -21,16 +21,13 @@ nav:
     - Overview: advanced/advanced-usage.md
     - Large Integers: advanced/big-integers.md
     - Free-Threading: advanced/free-threading.md
+    - Generators: advanced/generators.md
     - Manual Integration: advanced/manual-integration.md
     - Hot Reload: advanced/hot-reload.md
     - Signal Handlers: advanced/signal-handlers.md
     - Native AOT: advanced/native-aot.md
     - Performance Optimization: advanced/performance.md
     - Troubleshooting: advanced/troubleshooting.md
-  - Reference:
-    - API Reference: reference/api.md
-    - Type Mapping: reference/type-mapping.md
-    - Configuration: reference/configuration.md
   - Community:
     - FAQ: community/faq.md
     - Limitations: community/limitations.md

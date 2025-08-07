@@ -167,7 +167,7 @@ if (obj.HasAttribute("keys"))
 }
 ```
 
-See [reference](../reference/api.md#pyobject) on PyObject for more details.
+See the CSnakes documentation for more details on PyObject usage.
 
 ## Best Practices
 

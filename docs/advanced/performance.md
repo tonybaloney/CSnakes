@@ -295,4 +295,4 @@ If you need to send lots of data from Python to .NET, you can either use the
 
 [array-mod]: https://docs.python.org/3/library/array.html
 [buffer]: ../user-guide/buffers.md
-[generator]: ../reference/type-mapping.md#generators
+[generator]: ../user-guide/type-system.md

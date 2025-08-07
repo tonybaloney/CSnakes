@@ -10,6 +10,7 @@ nav:
     - Basic Usage: user-guide/basic-usage.md
     - Type System: user-guide/type-system.md
     - Environment Management: user-guide/environments.md
+    - Exception Handling: user-guide/errors.md
     - Buffers & NumPy: user-guide/buffers.md
     - Async Functions: user-guide/async.md
     - Deployment in Containers: user-guide/deployment.md
@@ -30,7 +31,6 @@ nav:
     - API Reference: reference/api.md
     - Type Mapping: reference/type-mapping.md
     - Configuration: reference/configuration.md
-    - Error Reference: reference/errors.md
   - Community:
     - FAQ: community/faq.md
     - Limitations: community/limitations.md

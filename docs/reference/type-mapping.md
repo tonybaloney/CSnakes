@@ -408,15 +408,24 @@ catch (InvalidCastException ex)
     var objectResult = module.GetSomething().As<object>();
 }
 
-// Safe conversion
+// Safe conversion with exception handling
 using var result = module.GetSomething();
-if (result.TryConvert<string>(out var stringValue))
+try
 {
+    var stringValue = result.As<string>();
     Console.WriteLine($"Got string: {stringValue}");
 }
-else if (result.TryConvert<long>(out var longValue))
+catch (InvalidCastException)
 {
-    Console.WriteLine($"Got number: {longValue}");
+    try
+    {
+        var longValue = result.As<long>();
+        Console.WriteLine($"Got number: {longValue}");
+    }
+    catch (InvalidCastException)
+    {
+        Console.WriteLine("Could not convert to string or number");
+    }
 }
 ```
 
@@ -508,5 +517,5 @@ var dict = pyObj.As<Dictionary<string, object>>(); // PyObject → Dictionary
 ## Next Steps
 
 - [Learn about configuration options](configuration.md)
-- [Explore error handling](errors.md)
+- [Explore error handling](../user-guide/errors.md)
 - [Review API reference](api.md)

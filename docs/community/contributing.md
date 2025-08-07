@@ -9,10 +9,8 @@ We welcome contributions to CSnakes! This guide outlines how to contribute to th
 - [Types of Contributions](#types-of-contributions)
 - [Development Setup](#development-setup)
 - [Contribution Workflow](#contribution-workflow)
-- [Code Standards](#code-standards)
 - [Testing Guidelines](#testing-guidelines)
 - [Documentation](#documentation)
-- [Release Process](#release-process)
 
 ## Code of Conduct
 

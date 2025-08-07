@@ -709,6 +709,6 @@ spec:
 
 ## Next Steps
 
-- [Learn about error handling](errors.md)
+- [Learn about error handling](../user-guide/errors.md)
 - [Review API reference](api.md)
 - [Explore type mapping](type-mapping.md)

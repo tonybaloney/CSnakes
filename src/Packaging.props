@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Authors>Anthony Shaw, Aaron Powell, Atif Aziz</Authors>
     <PackageProjectUrl>https://github.com/tonybaloney/CSnakes</PackageProjectUrl>
-    <PackageIcon>icon.png</PackageIcon>
+    <PackageIcon>icon_black.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/tonybaloney/CSnakes</RepositoryUrl>
     <VersionPrefix>1.2.0</VersionPrefix>

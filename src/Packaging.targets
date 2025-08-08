@@ -1,6 +1,6 @@
 <Project>
   <ItemGroup>
-    <None Include="..\..\docs\res\icon_black.png" Pack="true" PackagePath="" Link="NuGet/icon.png" />
+    <None Include="..\..\docs\res\icon_black.png" Pack="true" PackagePath="" Link="NuGet/icon_black.png" />
     <None Include="..\..\README.md" Pack="true" PackagePath="" Link="NuGet/README.md" />
     <None Include="..\..\LICENSE" Pack="true" PackagePath="" Link="NuGet/LICENSE" />
   </ItemGroup>

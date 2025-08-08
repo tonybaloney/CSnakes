@@ -97,7 +97,8 @@ internal static class ResultConversionCodeGenerator
             case var other:
             {
                 var typeSyntax = TypeReflection.AsPredefinedType(other, TypeReflection.ConversionDirection.FromPython);
-                return new ConversionGenerator(typeSyntax, TypeReflection.CreateGenericType("Runtime", [typeSyntax]));
+                string genericImporterTypeName = TypeReflection.TryGetExternalName(other.Name) is not null ? "Extern" : "Runtime";
+                return new ConversionGenerator(typeSyntax, TypeReflection.CreateGenericType(genericImporterTypeName, [typeSyntax]));
             }
         }
     }

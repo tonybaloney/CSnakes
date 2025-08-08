@@ -15,7 +15,7 @@ public static partial class PythonParser
          from name in Token.EqualTo(PythonToken.Identifier)
          from parameters in PythonParameterListParser
          from @return in Token.EqualTo(PythonToken.Arrow)
-                              .IgnoreThen(PythonTypeDefinitionParser)
+                              .IgnoreThen(PythonReturnTypeDefinitionParser)
                               .AsNullable()
                               .OptionalOrDefault()
                               .ThenIgnore(Token.EqualTo(PythonToken.Colon))
@@ -93,7 +93,7 @@ public static partial class PythonParser
                         combinedResult.ErrorPosition.Column + combinedResult.Location.Length,
                         combinedResult.FormatErrorMessageFragment())
                     );
-                    
+
                 } else
                 {
                     functionLines.Add(([.. from x in currentBuffer select x.line], combinedResult.Value));

@@ -3,7 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <PropertyGroup>
-    <PythonVersion>3.13.5</PythonVersion>
+    <PythonVersion>3.13.6</PythonVersion>
     <!-- See https://github.com/tonybaloney/CSnakes/issues/154#issuecomment-2352116849 -->
     <PythonVersion Condition=" '$(PYTHON_VERSION)' != '' ">$(PYTHON_VERSION.Replace('alpha.','a').Replace('beta.','b').Replace('rc.','rc'))</PythonVersion>
   </PropertyGroup>

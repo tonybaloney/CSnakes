@@ -25,18 +25,20 @@ Mark the Python file as an "Additional File" in your `.csproj` file:
 
 ```xml
 <ItemGroup>
-    <AdditionalFiles Include="demo.py">
+    <AdditionalFiles Include="demo.py" SourceItemType="Python">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
 </ItemGroup>
 ```
+
+Take care to not forget the `SourceItemType="Python"` bit.
 
 MSBuild supports globbing, so you can also mark all Python files in a directory
 as additional files:
 
 ```xml
 <ItemGroup>
-    <AdditionalFiles Include="*.py">
+    <AdditionalFiles Include="*.py" SourceItemType="Python">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
 </ItemGroup>

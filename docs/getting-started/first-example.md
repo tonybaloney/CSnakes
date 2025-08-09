@@ -42,8 +42,8 @@ as additional files:
 </ItemGroup>
 ```
 
-Alternatively, you can set CSnakes to parse all `*.py` files by default, by
-setting the `DefaultPythonItems` property to `true` in the project file:
+Alternatively, you can configure CSnakes to parse all `*.py` files by default,
+by setting the `DefaultPythonItems` property to `true` in the project file:
 
 ```xml
 <PropertyGroup>

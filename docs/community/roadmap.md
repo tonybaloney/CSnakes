@@ -8,18 +8,18 @@ Note that any constructs which are not available will be typed as `PyObject`. Th
 
 | Construct (link) | Supported in CSnakes | Notes | Summary |
 |------------------|----------------------|-------|---------|
-| [Any](https://docs.python.org/3/library/typing.html#typing.Any) | Yes ([Reference](reference.md#supported-types)) |  | Special type that matches any type. |
+| [Any](https://docs.python.org/3/library/typing.html#typing.Any) | Yes |  | Special type that matches any type. |
 | [Union](https://docs.python.org/3/library/typing.html#typing.Union) | No | [No equivalent construct in C#, possibly could use overloads](https://github.com/tonybaloney/CSnakes/issues/23) | Accepts one of several types. |
-| [Optional](https://docs.python.org/3/library/typing.html#typing.Optional) | Yes ([Reference](reference.md#supported-types)) |  | Shorthand for a type or None. |
+| [Optional](https://docs.python.org/3/library/typing.html#typing.Optional) | Yes |  | Shorthand for a type or None. |
 | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal) | No | Possible with enums | Restricts a value to specific literal values. |
 | [Final](https://docs.python.org/3/library/typing.html#typing.Final) | No | Would be simple to implement, but not used on function signatures | Indicates a name cannot be reassigned. |
 | [ClassVar](https://docs.python.org/3/library/typing.html#typing.ClassVar) | No | Would be simple, but not used on function signatures | Marks a variable as a class variable. |
 | [Generic](https://docs.python.org/3/library/typing.html#typing.Generic) | No | Relies on class reflection | Base class for generic types. |
 | [TypeVar](https://docs.python.org/3/library/typing.html#typing.TypeVar) |  |  | Defines a generic type variable. |
 | [Callable](https://docs.python.org/3/library/typing.html#typing.Callable) | No | Callables would have to by Python objects, not C# functions | Represents a callable object (e.g., function). |
-| [Tuple](https://docs.python.org/3/library/typing.html#typing.Tuple) | Yes ([Reference](reference.md#supported-types)) |  | Fixed-length, ordered collection of types. |
-| [List](https://docs.python.org/3/library/typing.html#typing.List) | Yes ([Reference](reference.md#supported-types)) |  | Variable-length, ordered collection of types. |
-| [Dict](https://docs.python.org/3/library/typing.html#typing.Dict) | Yes ([Reference](reference.md#supported-types)) |  | Dictionary mapping keys to values. |
+| [Tuple](https://docs.python.org/3/library/typing.html#typing.Tuple) | Yes |  | Fixed-length, ordered collection of types. |
+| [List](https://docs.python.org/3/library/typing.html#typing.List) | Yes |  | Variable-length, ordered collection of types. |
+| [Dict](https://docs.python.org/3/library/typing.html#typing.Dict) | Yes |  | Dictionary mapping keys to values. |
 | [Set](https://docs.python.org/3/library/typing.html#typing.Set) |  | Usage of sets is quite niche, if you would like this feature please request it. | Unordered collection of unique elements. |
 | [FrozenSet](https://docs.python.org/3/library/typing.html#typing.FrozenSet) |  | As above | Immutable set. |
 | [Deque](https://docs.python.org/3/library/typing.html#typing.Deque) | No |  | Double-ended queue. |
@@ -48,7 +48,7 @@ Note that any constructs which are not available will be typed as `PyObject`. Th
 | [ItemsView (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.ItemsView) | No |  | View on dictionary's items. |
 | [Iterable (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable) | No | [Issue](https://github.com/tonybaloney/CSnakes/issues/479) | Object capable of returning its members one at a time. |
 | [Iterator (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator) | No |  | Produces items from an iterable. |
-| [Generator (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Generator) | Yes ([Reference](reference.md#generators)) | See [Generators](reference.md#generators) for details | Iterator that supports send(), throw(), and close(). |
+| [Generator (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Generator) | Yes | See [User Guide](../user-guide/type-system.md) for details | Iterator that supports send(), throw(), and close(). |
 | [Mapping (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping) | Yes |  | Collection of key-value pairs. |
 | [MappingView (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.MappingView) |  |  | View on dictionary's keys, values, or items. |
 | [MutableMapping (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping) |  |  | Mapping that can be changed. |
@@ -60,7 +60,7 @@ Note that any constructs which are not available will be typed as `PyObject`. Th
 | [Sized (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized) |  |  | Has a length. |
 | [ValuesView (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.ValuesView) |  |  | View on dictionary's values. |
 | [Awaitable (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable) | No | Unlikely to be useful | Can be used in an await expression. |
-| [Coroutine (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Coroutine) | Yes ([Reference](reference.md#supported-types)) | See [Async Support](async_support.md) | Awaitable object with send(), throw(), and close(). |
+| [Coroutine (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Coroutine) | Yes | See [Async Support](../user-guide/async.md) | Awaitable object with send(), throw(), and close(). |
 | [AsyncIterable (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.AsyncIterable) | No | [Issue](https://github.com/tonybaloney/CSnakes/issues/440) | Object capable of async iteration. |
 | [AsyncIterator (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.AsyncIterator) | No | [Issue](https://github.com/tonybaloney/CSnakes/issues/440) | Async iterator object. |
 

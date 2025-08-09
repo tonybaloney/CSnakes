@@ -114,12 +114,13 @@ The Numpy dtypes are mapped to C# types as follows:
 | `bool`      | `bool`   | `AsBoolSpan`   | `AsBoolReadOnlySpan`   | `AsBoolSpan2D`   | `AsBoolReadOnlySpan2D`   | `AsBoolTensorSpan`   | `AsBoolReadOnlyTensorSpan`   |
 | `int8`      | `sbyte`  | `AsSByteSpan`  | `AsSByteReadOnlySpan`  | `AsSByteSpan2D`  | `AsSByteReadOnlySpan2D`  | `AsSByteTensorSpan`  | `AsSByteReadOnlyTensorSpan`  |
 | `int16`     | `short`  | `AsInt16Span`  | `AsInt16ReadOnlySpan`  | `AsInt16Span2D`  | `AsInt16ReadOnlySpan2D`  | `AsInt16TensorSpan`  | `AsInt16ReadOnlyTensorSpan`  |
-| `int32`     | `int`    | `AsInt32pan`   | `AsInt32ReadOnlySpan`  | `AsInt32pan2D`   | `AsInt32ReadOnlySpan2D`  | `AsInt32TensorSpan`  | `AsInt32ReadOnlyTensorSpan`  |
+| `int32`     | `int`    | `AsInt32Span`  | `AsInt32ReadOnlySpan`  | `AsInt32Span2D`  | `AsInt32ReadOnlySpan2D`  | `AsInt32TensorSpan`  | `AsInt32ReadOnlyTensorSpan`  |
 | `int64`     | `long`   | `AsInt64Span`  | `AsInt64ReadOnlySpan`  | `AsInt64Span2D`  | `AsInt64ReadOnlySpan2D`  | `AsInt64TensorSpan`  | `AsInt64ReadOnlyTensorSpan`  |
 | `uint8`     | `byte`   | `AsByteSpan`   | `AsByteReadOnlySpan`   | `AsByteSpan2D`   | `AsByteReadOnlySpan2D`   | `AsByteTensorSpan`   | `AsByteReadOnlyTensorSpan`   |
 | `uint16`    | `ushort` | `AsUInt16Span` | `AsUInt16ReadOnlySpan` | `AsUInt16Span2D` | `AsUInt16ReadOnlySpan2D` | `AsUInt16TensorSpan` | `AsUInt16ReadOnlyTensorSpan` |
 | `uint32`    | `uint`   | `AsUInt32Span` | `AsUInt32ReadOnlySpan` | `AsUInt32Span2D` | `AsUInt32ReadOnlySpan2D` | `AsUInt32TensorSpan` | `AsUInt32ReadOnlyTensorSpan` |
 | `uint64`    | `ulong`  | `AsUInt64Span` | `AsUInt64ReadOnlySpan` | `AsUInt64Span2D` | `AsUInt64ReadOnlySpan2D` | `AsUInt64TensorSpan` | `AsUInt64ReadOnlyTensorSpan` |
+| `float16`   | `Half`   | `AsHalfSpan`   | `AsHalfReadOnlySpan`   | `AsHalfSpan2D`   | `AsHalfReadOnlySpan2D`   | `AsHalfTensorSpan`   | `AsHalfReadOnlyTensorSpan`   |
 | `float32`   | `float`  | `AsFloatSpan`  | `AsFloatReadOnlySpan`  | `AsFloatSpan2D`  | `AsFloatReadOnlySpan2D`  | `AsFloatTensorSpan`  | `AsFloatReadOnlyTensorSpan`  |
 | `float64`   | `double` | `AsDoubleSpan` | `AsDoubleReadOnlySpan` | `AsDoubleSpan2D` | `AsDoubleReadOnlySpan2D` | `AsDoubleTensorSpan` | `AsDoubleReadOnlyTensorSpan` |
 

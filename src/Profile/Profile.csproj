@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <DefaultPythonItems>true</DefaultPythonItems>
   </PropertyGroup>
 
   <ItemGroup>

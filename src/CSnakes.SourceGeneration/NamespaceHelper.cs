@@ -76,7 +76,7 @@ public static class NamespaceHelper
     {
         if (string.IsNullOrEmpty(input))
             return input;
-        // Remove all characters that are not letters, digits, or underscores using Regex.
-        return System.Text.RegularExpressions.Regex.Replace(input, @"[^\w]", string.Empty);
+        // Replace all characters that are not letters, digits, periods, or underscores using Regex
+        return System.Text.RegularExpressions.Regex.Replace(input, @"[^\w\.]", "_");
     }
 }

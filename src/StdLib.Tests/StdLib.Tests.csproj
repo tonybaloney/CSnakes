@@ -5,7 +5,8 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <IsTestProject>true</IsTestProject>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <PythonRoot>typeshed/stdlib</PythonRoot>
+    <DefaultPythonItems></DefaultPythonItems>
+    <PythonRoot>typeshed\stdlib</PythonRoot>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,5 +28,11 @@
   </ItemGroup>
 
   <Import Project="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.targets" />
+
+  <ItemGroup>
+    <AdditionalFiles Include="typeshed\stdlib\**\*.pyi" SourceItemType="python">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AdditionalFiles>
+  </ItemGroup>
 
 </Project>

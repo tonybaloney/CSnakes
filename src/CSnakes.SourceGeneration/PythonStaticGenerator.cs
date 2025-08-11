@@ -18,23 +18,29 @@ public class PythonStaticGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var pythonFilesPipeline = context.AdditionalTextsProvider
-            .Where(static text => Path.GetExtension(text.Path) is ".py" or ".pyi");
-
         // Get analyser config options
         var embedPythonSource = context.AnalyzerConfigOptionsProvider.Select(static (options, cancellationToken) =>
-            options.GlobalOptions.TryGetValue("csnakes_embed_source", out var embedSourceSwitch)
-            && embedSourceSwitch.Equals("true", StringComparison.InvariantCultureIgnoreCase)); // Default
+            options.GlobalOptions.TryGetValue("build_property.EmbedPythonSources", out var embedSourceSwitch)
+            && embedSourceSwitch.Equals("true", StringComparison.InvariantCultureIgnoreCase));
+
+        var pythonFilesPipeline =
+            context.AdditionalTextsProvider
+                   .Combine(context.AnalyzerConfigOptionsProvider)
+                   .Where(static e =>
+                       e is var (additionalText, analyzerConfigOptions)
+                       && analyzerConfigOptions.GetOptions(additionalText) is var options
+                       && options.TryGetValue("build_metadata.AdditionalFiles.SourceItemType", out var type)
+                       && "python".Equals(type, StringComparison.OrdinalIgnoreCase));
 
         // Get directory traversal root
         var rootDirectory = context.AnalyzerConfigOptionsProvider.Select(static (options, cancellationToken) =>
-            options.GlobalOptions.TryGetValue("csnakes_root_directory", out var rootDir)
+            options.GlobalOptions.TryGetValue("build_property.PythonRoot", out var rootDir)
                 ? rootDir
                 : string.Empty); // Default to empty string
 
         context.RegisterSourceOutput(pythonFilesPipeline.Combine(embedPythonSource).Combine(rootDirectory), static (sourceContext, opts) =>
         {
-            var (file, embedSourceSwitch) = opts.Left;
+            var ((file, _), embedSourceSwitch) = opts.Left;
             var rootDir = opts.Right;
 
             // Don't embed sources for .pyi files, they aren't real Python files. 

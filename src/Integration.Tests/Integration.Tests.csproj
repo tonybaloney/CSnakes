@@ -5,6 +5,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <IsTestProject>true</IsTestProject>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <DefaultPythonItems>true</DefaultPythonItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,21 +30,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="python\**\*.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-    <AdditionalFiles Include="python\**\*.pyi">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </AdditionalFiles>
     <Content Include="python\requirements.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <ItemGroup>
-    <EditorConfigFiles Update=".globalconfig">
-      <Generator>SettingsSingleFileGenerator</Generator>
-    </EditorConfigFiles>
-  </ItemGroup>
+  <Import Project="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.targets" />
+
 </Project>

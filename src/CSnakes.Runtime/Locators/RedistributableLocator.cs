@@ -93,7 +93,9 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
             throw new NotSupportedException($"Debug builds are not supported on macOS for version {Version}.");
         }
 
-        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
+        var appDataPath = Environment.GetEnvironmentVariable("CSNAKES_REDIST_CACHE");
+        if (string.IsNullOrWhiteSpace(appDataPath))
+            appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
         var downloadPath = Path.Join(appDataPath, "CSnakes", $"python{dottedVersion}");
         var installPath = Path.Join(downloadPath, "python", "install");
 
@@ -301,9 +303,10 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
             {
                 File.CreateSymbolicLink(path, link);
             }
-            catch (Exception ex)
+            catch (System.IO.DirectoryNotFoundException ex)
             {
-                logger?.LogError(ex, "Failed to create symlink: {Path} -> {Link}", path, link);
+                // This is common in the packages
+                logger?.LogWarning(ex, "Failed to create symlink: {Path} -> {Link}", path, link);
             }
         }
     }

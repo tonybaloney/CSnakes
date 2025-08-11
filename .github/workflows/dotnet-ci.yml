@@ -6,8 +6,16 @@ name: .NET CI
 on:
   push:
     branches: ["main"]
+    paths:
+      - "src/**"
+      - "templates/**"
+      - "samples/**"
   pull_request:
     branches: ["main"]
+    paths:
+      - "src/**"
+      - "templates/**"
+      - "samples/**"
 
 jobs:
   validate-python:

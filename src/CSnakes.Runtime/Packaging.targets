@@ -5,22 +5,31 @@
     <IsPackable>true</IsPackable>
 
     <!-- warning NU5128: Add lib or ref assemblies for the netstandard2.0 target framework -->
-    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <!-- warning NU5128: (see further below for why this is suppressed) -->
+    <NoWarn>$(NoWarn);NU5128;NU5129</NoWarn>
 
     <GeneratePackageOnBuild>$(EnableLocalPackaging)</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="NuGet\buildTransitive\**\*" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="buildTransitive\%(RecursiveDir)%(Filename)%(Extension)" />
+    <!--
+    Using a "PackagePath" of "build/$(TargetFramework)/%(Filename)%(Extension)" causes the
+    following error:
+
+      error NU5129: - At least one .targets file was found in 'build/netstandard2.0/', but
+        'build/netstandard2.0/CSnakes.Runtime.targets' was not.
+
+    Targeting specifically netstandard2.0 and suppressing NU5129 works and it is acceptable
+    since MSBuild assets are only needed for the source generate that must target netstandard2.0.
+    -->
+    <None Include="..\CSnakes.SourceGeneration\*.props;..\CSnakes.SourceGeneration\*.targets" Pack="true"
+          PackagePath="build/netstandard2.0/%(Filename)%(Extension)" />
   </ItemGroup>
 
   <Target Name="_PackSourceGeneratorOutputs" BeforeTargets="_GetPackageFiles">
     <!-- Find out the source generator and its dependencies locations -->
-    <MSBuild Projects="@(ProjectReference)"
-             Targets="GetTargetPath"
-             BuildInParallel="true"
-             Properties="TargetFramework=netstandard2.0"
-             Condition="$([System.String]::Copy('%(Identity)').Contains('CSnakes.SourceGeneration'))">
+    <MSBuild Projects="@(ProjectReference)" Targets="GetTargetPath" BuildInParallel="true" Properties="TargetFramework=netstandard2.0" Condition="$([System.String]::Copy('%(Identity)').Contains('CSnakes.SourceGeneration'))">
       <Output TaskParameter="TargetOutputs" ItemName="DependentAssemblies" />
     </MSBuild>
 

@@ -1,0 +1,7 @@
+<Project>
+
+  <PropertyGroup>
+    <DefaultPythonItems>false</DefaultPythonItems>
+  </PropertyGroup>
+
+</Project>

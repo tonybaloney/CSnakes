@@ -5,6 +5,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <IsTestProject>true</IsTestProject>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <PythonRoot>typeshed/stdlib</PythonRoot>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,15 +30,6 @@
     <ProjectReference Include="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
-  <ItemGroup>
-    <AdditionalFiles Include="typeshed\stdlib\**\*.pyi">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-  </ItemGroup>
+  <Import Project="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.targets" />
 
-  <ItemGroup>
-    <EditorConfigFiles Update=".globalconfig">
-      <Generator>SettingsSingleFileGenerator</Generator>
-    </EditorConfigFiles>
-  </ItemGroup>
 </Project>

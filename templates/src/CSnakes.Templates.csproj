@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>CSnakes.Templates</PackageId>
+    <Authors>Anthony Shaw, Aaron Powell, Atif Aziz</Authors>
+    <Description>CSnakes Templates</Description>
+    <language>en-US</language>
+    <VersionPrefix>1.0.1</VersionPrefix>
+    <IsPackable>true</IsPackable>
+    <PackageProjectUrl>https://tonybaloney.github.io/CSnakes/</PackageProjectUrl>
+    <PackageType>Template</PackageType>
+    <PackageTags>dotnet-new;templates;python</PackageTags>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <TargetFramework>net9.0</TargetFramework>
+    <IncludeSource>false</IncludeSource>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <PackageOutputPath>..\dist</PackageOutputPath>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <NoWarn>
+      <!-- CS2008: No source files specified. -->
+      2008;
+      <!-- https://learn.microsoft.com/en-us/nuget/reference/errors-and-warnings/nu5100 -->
+      NU5105
+    </NoWarn>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <!-- <NoWarn>$(NoWarn);NU1507</NoWarn> -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Remove="Microsoft.NETCore.App" />
+    <Content Include="**" PackagePath="content" />
+    <Content Remove="*.csproj" />
+    <Content Remove="**/obj/**" />
+    <Content Remove="**/bin/**" />
+  </ItemGroup>
+</Project>

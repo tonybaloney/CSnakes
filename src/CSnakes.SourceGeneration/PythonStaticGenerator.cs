@@ -44,9 +44,10 @@ public class PythonStaticGenerator : IIncrementalGenerator
             var ((file, _), embedSourceSwitch) = opts.Left;
             var rootDir = opts.Right;
 
-            // Don't embed sources for .pyi files, they aren't real Python files. 
             if (Path.GetExtension(file.Path) == ".pyi")
             {
+                // Don't embed sources for .pyi files, they aren't real Python files and embedding them
+                // would make no sense.
                 embedSourceSwitch = false;
             }
 
@@ -55,9 +56,11 @@ public class PythonStaticGenerator : IIncrementalGenerator
             try
             {
                 derivedNames = GetNamespaceAndClassName(file.Path, rootDir);
-            } catch (NamespaceNotInRootException)
+            } catch (NamespaceNotInRootException nir)
             {
                 // Skip this file if it's not in the configured namespace
+                Location errorLocation = Location.Create(file.Path, TextSpan.FromBounds(0, 1), new LinePositionSpan(new LinePosition(0, 1), new LinePosition(1, 1)));
+                sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG005", "PythonStaticGenerator", nir.Message, "PythonStaticGenerator", DiagnosticSeverity.Info, true), errorLocation));
                 return;
             }
             var @namespace = derivedNames.Namespace;

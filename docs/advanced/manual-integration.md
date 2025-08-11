@@ -93,7 +93,7 @@ The Source Generator will only activate on files that are marked as `AdditionalF
 <!-- Remove or comment out this section -->
 <!--
 <ItemGroup>
-  <AdditionalFiles Include="*.py" />
+  <AdditionalFiles Include="*.py" SourceItemType="Python"/>
 </ItemGroup>
 -->
 ```

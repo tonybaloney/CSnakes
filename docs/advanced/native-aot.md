@@ -76,7 +76,7 @@ Here's a complete example of a CSnakes project configured for Native AOT:
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="*.py">
+    <AdditionalFiles Include="*.py" SourceItemType="Python">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
   </ItemGroup>

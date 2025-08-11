@@ -61,10 +61,10 @@ public class PythonStaticGeneratorTests
     [InlineData("/tmp/submodule/bar/__init__.py", "tmp/submodule", "CSnakes.Runtime", "Bar", "CSnakes.Runtime.Bar.py.g.cs", "bar")]
     public void VerifySimpleNamespace(string path, string root, string expectedNamespace, string expectedClass, string expectedFileName, string expectedModuleAbsoluteName)
     {
-        var (@namespace, generatedFileName, className, moduleAbsoluteName) = PythonStaticGenerator.GetNamespaceAndClassName(path, root);
-        @namespace.ShouldBe(expectedNamespace);
-        className.ShouldBe(expectedClass);
-        generatedFileName.ShouldBe(expectedFileName);
-        moduleAbsoluteName.ShouldBe(expectedModuleAbsoluteName);
+        var names = PythonStaticGenerator.GetNamespaceAndClassName(path, root);
+        names.Namespace.ShouldBe(expectedNamespace);
+        names.PascalFileName.ShouldBe(expectedClass);
+        names.GeneratedFileName.ShouldBe(expectedFileName);
+        names.ModuleAbsoluteName.ShouldBe(expectedModuleAbsoluteName);
     }
 }

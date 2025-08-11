@@ -66,9 +66,17 @@ public static class NamespaceHelper
         string filename = Path.GetFileNameWithoutExtension(path);
         if (filename == "__init__")
         {
-            return Path.GetDirectoryName(path).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Last().ToPascalCase();
+            return Path.GetDirectoryName(path).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Last().ToPascalCase().Replace('-', '_');
         }
         // Otherwise, we return the filename as a PascalCase class name.
-        return filename.ToPascalCase();
+        return filename.ToPascalCase().Replace('-', '_');
+    }
+
+    internal static string RemoveNonLetterOrDigit(this string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+        // Remove all characters that are not letters, digits, or underscores using Regex.
+        return System.Text.RegularExpressions.Regex.Replace(input, @"[^\w]", string.Empty);
     }
 }

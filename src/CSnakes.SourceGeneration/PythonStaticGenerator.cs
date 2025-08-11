@@ -174,7 +174,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             // TODO: warn if the file is called __init__.py because there is no root directory
         }
         // Namespace the generated file names so they can't collide.
-        var generatedFileName = $"{@namespace}.{pascalFileName}{fileExtension}.g.cs";
+        var generatedFileName = $"{@namespace.RemoveNonLetterOrDigit()}.{pascalFileName}{fileExtension}.g.cs";
 
         return new DerivedNames
         {

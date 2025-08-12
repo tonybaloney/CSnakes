@@ -1274,15 +1274,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#union-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      Union Types
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -1413,15 +1404,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#union-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      Union Types
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -1469,8 +1451,6 @@
 <h2 id="type-hinting">Type Hinting</h2>
 <h3 id="variadic-generics">Variadic Generics</h3>
 <p>C# does not have a notion of <code>Tuple&lt;T...&gt;</code>, so the type annotation using <code>Tuple[*T]</code> in Python cannot be statically converted into a C#.NET type. See <a href="https://peps.python.org/pep-0646/">PEP646</a> for more details and <a href="https://github.com/tonybaloney/CSnakes/issues/25">25</a>.</p>
-<h3 id="union-types">Union Types</h3>
-<p>Python's type hinting supports <code>Union</code> types, which are not supported in C#.NET. This includes both <code>typing.Union</code> and the union operator described in <a href="https://peps.python.org/pep-0604/">PEP 604</a>.</p>
 <h2 id="classes">Classes</h2>
 <p>CSnakes does not support source generation for custom types, this includes dataclasses and named tuple instances. </p>
 <p>Functions which return class instances will return a <code>PyObject</code> in C#.NET which you can use to pass into other functions. This type is a reference to the return value. </p>

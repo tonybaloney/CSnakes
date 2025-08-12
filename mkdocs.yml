@@ -69,3 +69,8 @@ markdown_extensions:
   - attr_list
   - admonition
   - pymdownx.details
+plugins:
+  - mike
+extra:
+  version:
+    provider: mike

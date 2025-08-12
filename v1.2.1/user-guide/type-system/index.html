@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../configuration/">
+        <link rel="prev" href="../basic-usage/">
       
       
         <link rel="next" href="../pyobject/">
@@ -81,10 +81,6 @@
       
     </div>
     
-      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
-        
-      </div>
-    
     
       
 
@@ -148,6 +144,46 @@
       <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
     
     
       <div class="md-header__source">
@@ -576,29 +612,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../configuration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Configuration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -742,15 +755,6 @@
   <a href="#working-with-pyobject" class="md-nav__link">
     <span class="md-ellipsis">
       Working with PyObject
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#typing-third-party-packages-with-type-stubs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Typing Third-Party Packages with Type Stubs
     </span>
   </a>
   
@@ -1596,15 +1600,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#typing-third-party-packages-with-type-stubs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Typing Third-Party Packages with Type Stubs
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#best-practices" class="md-nav__link">
     <span class="md-ellipsis">
       Best Practices
@@ -1885,68 +1880,42 @@
 </span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>See <a href="../pyobject/">handling Python Objects</a> for more details and examples.</p>
-<h2 id="typing-third-party-packages-with-type-stubs">Typing Third-Party Packages with Type Stubs</h2>
-<p>Sometimes you want to use a package which doesn't have type information. Python provides the ability to describe the types and function
-signatures for a package using <a href="https://typing.python.org/en/latest/spec/distributing.html#stub-files">"type-stubs" in the form of <code>.pyi</code> files</a>.</p>
-<p>CSnakes will generate bindings for <code>.pyi</code> files in your project whether included <a href="../configuration/#discovering-python-files-for-source-generation">manually or automatically</a>.</p>
-<p>Python type stubs have no implementation for methods, functions, or attributes. Take this example:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="o">...</span>
-</span></code></pre></div>
-<p>The ellipsis (<code>...</code>) denotes this function has no implementation.</p>
-<p>This works best with <a href="../configuration/#namespaces-and-roots-optional">Root Namespaces</a>.</p>
-<p>IF there were a library called <code>http_client</code> which you want to use specific functions from, you could add a file, <code>http_client.pyi</code> to your .NET project:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    <span class="o">...</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    <span class="o">...</span>
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
-</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>    <span class="o">...</span>
-</span></code></pre></div>
-<p>Then CSnakes would generate a module for <code>http_client</code> called <code>HttpClient</code> with the methods:</p>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IReadOnlyDictionary</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Get</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">url</span><span class="p">);</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IReadOnlyDictionary</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Post</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="n">IReadOnlyDictionary</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="p">);</span>
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IReadOnlyDictionary</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Delete</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">url</span><span class="p">);</span>
-</span></code></pre></div>
-<p>When calling those methods, it would <code>import http_client</code>, so as long as that package is installed into the Python environment the functions will be available.</p>
 <h2 id="best-practices">Best Practices</h2>
 <h3 id="1-use-specific-types">1. Use Specific Types</h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Good - specific types</span>
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">process_user_data</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">email</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">user_id</span><span class="p">),</span> <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">email</span><span class="p">}</span>
-</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>
-</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="c1"># Avoid - too generic</span>
-</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">process_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    <span class="k">return</span> <span class="n">data</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Good - specific types</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">process_user_data</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">email</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">user_id</span><span class="p">),</span> <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">email</span><span class="p">}</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="c1"># Avoid - too generic</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">process_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    <span class="k">return</span> <span class="n">data</span>
 </span></code></pre></div>
 <h3 id="2-document-complex-return-types">2. Document Complex Return Types</h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_analysis_results</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
-</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="sd">    Returns analysis results.</span>
-</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>
-</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="sd">    Returns:</span>
-</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="sd">        Dictionary mapping category names to lists of (item_name, score) tuples.</span>
-</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>    <span class="k">return</span> <span class="p">{</span>
-</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>        <span class="s2">&quot;positive&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;item1&quot;</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;item2&quot;</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">)],</span>
-</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>        <span class="s2">&quot;negative&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;item3&quot;</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)]</span>
-</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>    <span class="p">}</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_analysis_results</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="sd">    Returns analysis results.</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="sd">    Returns:</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="sd">        Dictionary mapping category names to lists of (item_name, score) tuples.</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>    <span class="k">return</span> <span class="p">{</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>        <span class="s2">&quot;positive&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;item1&quot;</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;item2&quot;</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">)],</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>        <span class="s2">&quot;negative&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;item3&quot;</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)]</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>    <span class="p">}</span>
 </span></code></pre></div>
 <h3 id="3-handle-none-values">3. Handle None Values</h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">safe_divide</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>    <span class="k">return</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span> <span class="k">if</span> <span class="n">b</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">safe_divide</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="k">return</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span> <span class="k">if</span> <span class="n">b</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
 </span></code></pre></div>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kt">double?</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">module</span><span class="p">.</span><span class="n">SafeDivide</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span><span class="w"> </span><span class="mf">3.0</span><span class="p">);</span>
-</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span>
-</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="p">{</span>
-</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Division failed&quot;</span><span class="p">);</span>
-</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="p">}</span>
-</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="k">else</span>
-</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="p">{</span>
-</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$&quot;Result: {result}&quot;</span><span class="p">);</span>
-</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="p">}</span>
+<div class="language-csharp highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kt">double?</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">module</span><span class="p">.</span><span class="n">SafeDivide</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span><span class="w"> </span><span class="mf">3.0</span><span class="p">);</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="p">{</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Division failed&quot;</span><span class="p">);</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="p">}</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="k">else</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="p">{</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$&quot;Result: {result}&quot;</span><span class="p">);</span>
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="p">}</span>
 </span></code></pre></div>
 <h2 id="next-steps">Next Steps</h2>
 <ul>
@@ -2002,7 +1971,7 @@ signatures for a package using <a href="https://typing.python.org/en/latest/spec
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.tabs", "navigation.tabs.sticky"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.tabs", "navigation.tabs.sticky"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.50899def.min.js"></script>

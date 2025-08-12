@@ -90,6 +90,8 @@ public string ProcessData(string data);
 
 This feature only works with parameters, not return types. Any union return type will be treated as a `PyObject` and the developer will need to determine the type at runtime.
 
+If multiple parameters have union types, CSnakes will generate overloads for each combination of the union types.
+
 ## Collections
 
 ### Lists

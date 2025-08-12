@@ -1839,16 +1839,13 @@
 <div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>MyApp/
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>├── MyApp.csproj
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>├── Program.cs
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>├── python_modules/
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>│   ├── __init__.py
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>│   └── demo.py
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>└── requirements.txt
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>└── hello.py
 </span></code></pre></div>
 <h2 id="customizing-templates">Customizing Templates</h2>
 <p>You can modify the generated templates by:</p>
 <ol>
-<li><strong>Adding Python Dependencies</strong>: Edit <code>requirements.txt</code></li>
-<li><strong>Adding Python Modules</strong>: Create new <code>.py</code> files in the python_modules directory</li>
+<li><strong>Adding Python Dependencies</strong>: Add/Edit <code>requirements.txt</code></li>
+<li><strong>Adding Python Modules</strong>: Create new <code>.py</code> files in the project directory</li>
 <li><strong>Configuring Environment</strong>: Modify the Python environment setup in <code>Program.cs</code></li>
 </ol>
 <h2 id="installing-templates">Installing Templates</h2>
@@ -1856,7 +1853,7 @@
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>dotnet<span class="w"> </span>new<span class="w"> </span>install<span class="w"> </span>CSnakes.Templates
 </span></code></pre></div>
 <h3 id="install-specific-version">Install Specific Version</h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>dotnet<span class="w"> </span>new<span class="w"> </span>install<span class="w"> </span>CSnakes.Templates::1.1.0
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>dotnet<span class="w"> </span>new<span class="w"> </span>install<span class="w"> </span>CSnakes.Templates::1.0.1
 </span></code></pre></div>
 <h3 id="update-templates">Update Templates</h3>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>dotnet<span class="w"> </span>new<span class="w"> </span>update

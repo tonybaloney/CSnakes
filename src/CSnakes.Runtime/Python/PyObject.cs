@@ -503,8 +503,13 @@ public partial class PyObject : SafeHandle, ICloneable
             case var (a, b, c, d) when (a == 0 || b == 0) && c + d <= 16:
             {
                 InlineArray16<KeywordArg> all = default;
-                kwargs.CopyTo(all);
-                kwargv.CopyTo(all[kwargs.Length..]);
+                var j = 0;
+                // kwargs.CopyTo(all);
+                foreach (var arg in kwargs)
+                    all[j++] = arg;
+                // kwargv.CopyTo(all[kwargs.Length..]);
+                foreach (var arg in kwargv)
+                    all[j++] = arg;
                 return Call(a > 0 ? args : argv, all[..(c + d)]);
             }
             default:

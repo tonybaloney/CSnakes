@@ -19,7 +19,7 @@ If you want full control over which files in your project are source generated, 
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
+    <PackageReference Include="CSnakes.Runtime" Version="2.*-*" />
   </ItemGroup>
 
   <ItemGroup>

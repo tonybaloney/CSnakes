@@ -20,7 +20,7 @@ public class ArgumentReflection
         // TODO: Handle the user specifying *args with a type annotation like tuple[int, str]
         const TypeReflection.ConversionDirection conversionDirection = TypeReflection.ConversionDirection.ToPython;
 
-        var (reflectedType, defaultValue) = (parameterType, parameter) switch
+        var (reflectedTypes, defaultValue) = (parameterType, parameter) switch
         {
             (PythonFunctionParameterType.Star, _) => ([NullableArrayOfPyObject], PythonConstant.None.Value),
             (PythonFunctionParameterType.DoubleStar, _) => (TypeReflection.AsPredefinedType(OptionalDictStrAny, conversionDirection, RefSafetyContext.RefSafe), PythonConstant.None.Value),

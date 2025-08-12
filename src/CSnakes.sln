@@ -6,10 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{24D80700-8F01-41C7-B858-2C1B242C4EE0}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
-		Directory.Build.targets = Directory.Build.targets
 		Directory.Packages.props = Directory.Packages.props
-		Packaging.props = Packaging.props
-		Packaging.targets = Packaging.targets
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
@@ -32,6 +29,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conda.Tests", "Conda.Tests\Conda.Tests.csproj", "{38604D9B-2C01-4B82-AFA1-A00E184BAE03}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedistributablePython.Tests", "RedistributablePython.Tests\RedistributablePython.Tests.csproj", "{F43684F2-D7B3-403F-B6E8-1B4740513E2A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StdLib.Tests", "StdLib.Tests\StdLib.Tests.csproj", "{938D30D1-C712-41EC-AD11-7B1FF8742C8A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSnakes.Stage", "CSnakes.Stage\CSnakes.Stage.csproj", "{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}"
 EndProject
@@ -105,10 +104,24 @@ Global
 		{F43684F2-D7B3-403F-B6E8-1B4740513E2A}.Debug|x64.Build.0 = Debug|x64
 		{F43684F2-D7B3-403F-B6E8-1B4740513E2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F43684F2-D7B3-403F-B6E8-1B4740513E2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F43684F2-D7B3-403F-B6E8-1B4740513E2A}.Release|x64.ActiveCfg = Release|x64
+		{F43684F2-D7B3-403F-B6E8-1B4740513E2A}.Release|x64.Build.0 = Release|x64
+		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Debug|x64.Build.0 = Debug|Any CPU
+		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Release|x64.ActiveCfg = Release|Any CPU
+		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Release|x64.Build.0 = Release|Any CPU
 		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Debug|x64.Build.0 = Debug|Any CPU
 		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Release|x64.ActiveCfg = Release|Any CPU
+		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -121,7 +134,8 @@ Global
 		{CB00C1F5-8C01-4FE7-82AD-7F9B4398E3F8} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
 		{93264FC1-2880-4959-9576-50D260039BC2} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
 		{38604D9B-2C01-4B82-AFA1-A00E184BAE03} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
-		{F43684F2-D7B3-403F-B6E8-1B4740513E2A} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
+		{F43684F2-D7B3-403F-B6E8-1B4740513E2A} = {00000000-0000-0000-0000-000000000000}
+		{938D30D1-C712-41EC-AD11-7B1FF8742C8A} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4ACC77F9-1BB8-42DE-B647-01C458922F49}

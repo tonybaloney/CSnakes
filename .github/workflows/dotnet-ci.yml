@@ -6,8 +6,16 @@ name: .NET CI
 on:
   push:
     branches: ["main"]
+    paths:
+      - "src/**"
+      - "templates/**"
+      - "samples/**"
   pull_request:
     branches: ["main"]
+    paths:
+      - "src/**"
+      - "templates/**"
+      - "samples/**"
 
 jobs:
   validate-python:
@@ -15,6 +23,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
       - name: Setup Python
         id: installpython
         uses: actions/setup-python@v5
@@ -37,6 +47,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
       - uses: conda-incubator/setup-miniconda@v3.1.0
         id: setup-conda
         with:
@@ -145,7 +157,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          submodules: 'true'
       - name: Setup Python
         id: installpython
         uses: actions/setup-python@v5

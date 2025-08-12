@@ -11,7 +11,7 @@ namespace CSnakes.Reflection;
 
 public static class MethodReflection
 {
-    public static IEnumerable<MethodDefinition> FromMethod(PythonFunctionDefinition function, string moduleName)
+    public static IEnumerable<MethodDefinition> FromMethod(PythonFunctionDefinition function)
     {
         // Step 1: Determine the return type of the method
         PythonTypeSpec returnPythonType = function.ReturnType;

@@ -5,7 +5,8 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <Platforms>AnyCPU;x64</Platforms>
+    <DefaultPythonItems>true</DefaultPythonItems>
+    <EmbedPythonSources>true</EmbedPythonSources>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,17 +31,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="python\*.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
     <Content Include="python\requirements.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <EditorConfigFiles Update=".globalconfig">
-      <Generator>SettingsSingleFileGenerator</Generator>
-    </EditorConfigFiles>
-  </ItemGroup>
+  <Import Project="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.targets" />
+
 </Project>

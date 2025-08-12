@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsTestProject>true</IsTestProject>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <DefaultPythonItems>true</DefaultPythonItems>
+    <PythonRoot>typeshed\stdlib</PythonRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="MartinCostello.Logging.XUnit.v3" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="CSnakes.Runtime" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CSnakes.Runtime\CSnakes.Runtime.csproj" />
+    <ProjectReference Include="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+  </ItemGroup>
+
+  <Import Project="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.targets" />
+
+</Project>

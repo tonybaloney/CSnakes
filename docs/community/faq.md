@@ -8,7 +8,7 @@ CSnakes is a .NET Source Generator and Runtime that you can use to embed **Pytho
 
 CSnakes uses the Python C-API to invoke Python code directly from the .NET process. It generates C# code from Python files that are tagged as CSharp Analyzer Additional Files. The generated code includes the function signatures and type conversions based on the type hints in the Python code.
 
-See the [Getting Started](getting-started.md) guide for more information.
+See the [Getting Started](../getting-started/quick-start.md) guide for more information.
 
 ## What are the benefits of using CSnakes?
 
@@ -28,7 +28,7 @@ There are some similarities, such as Python.NET has a wrapper around the Python 
 
 ## Do I need to use the source generator?
 
-No. You can call Python code without the Source Generator, but you will need to write the boilerplate code yourself. See the [Advanced](advanced.md#calling-python-without-the-source-generator) guide for more information.
+No. You can call Python code without the Source Generator, but you will need to write the boilerplate code yourself. See the [Manual Integration](../advanced/manual-integration.md) guide for more information.
 
 ## My Python codes uses libraries which have C extensions, will this work?
 
@@ -40,4 +40,4 @@ No. Just the functions you want to call from C#. The Source Generator will gener
 
 ## I heard that Python is removing the GIL, does CSnakes handle threads that way?
 
-CSnakes supports free-threading mode, but it is disabled by default. You can use the `SourceLocator` to find a compiled Python runtime with free-threading enabled. See the [Advanced](advanced.md#free-threading-mode) guide for more information.
+CSnakes supports free-threading mode, but it is disabled by default. You can use the `SourceLocator` to find a compiled Python runtime with free-threading enabled. See the [Free-Threading](../advanced/free-threading.md) guide for more information.

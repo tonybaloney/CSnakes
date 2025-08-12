@@ -1,11 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <ImplicitUsings>disable</ImplicitUsings>
     <IsTestProject>true</IsTestProject>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <Platforms>AnyCPU;x64</Platforms>
+    <DefaultPythonItems>true</DefaultPythonItems>
+    <PythonRoot>python</PythonRoot>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,12 +31,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="python\*.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
     <Content Include="python\requirements.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <Import Project="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.targets" />
+
 </Project>

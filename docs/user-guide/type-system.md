@@ -208,6 +208,47 @@ if (obj.HasAttr("keys"))
 
 See [handling Python Objects](pyobject.md) for more details and examples.
 
+## Typing Third-Party Packages with Type Stubs
+
+Sometimes you want to use a package which doesn't have type information. Python provides the ability to describe the types and function
+signatures for a package using ["type-stubs" in the form of `.pyi` files](https://typing.python.org/en/latest/spec/distributing.html#stub-files).
+
+CSnakes will generate bindings for `.pyi` files in your project whether included [manually or automatically](configuration.md#discovering-python-files-for-source-generation).
+
+Python type stubs have no implementation for methods, functions, or attributes. Take this example:
+
+```python
+def create(name: str, count: int) -> list[str]:
+    ...
+```
+
+The ellipsis (`...`) denotes this function has no implementation.
+
+This works best with [Root Namespaces](configuration.md#namespaces-and-roots-optional).
+
+IF there were a library called `http_client` which you want to use specific functions from, you could add a file, `http_client.pyi` to your .NET project:
+
+```python
+def get(url: str) -> dict[str, Any]:
+    ...
+
+def post(url: str, data: dict[str, Any]) -> dict[str, Any]:
+    ...
+
+def delete(url: str) -> dict[str, Any]:
+    ...
+```
+
+Then CSnakes would generate a module for `http_client` called `HttpClient` with the methods:
+
+```csharp
+    public IReadOnlyDictionary<string, object> Get(string url);
+    public IReadOnlyDictionary<string, object> Post(string url, IReadOnlyDictionary<string, object> data);
+    public IReadOnlyDictionary<string, object> Delete(string url);
+```
+
+When calling those methods, it would `import http_client`, so as long as that package is installed into the Python environment the functions will be available.
+
 ## Best Practices
 
 ### 1. Use Specific Types

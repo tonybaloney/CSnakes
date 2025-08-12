@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Atif Aziz",
+  "classifications": [
+    "Python",
+    "Console"
+  ],
+  "groupIdentity": "CSnakes.Templates.Console",
+  "identity": "CSnakes.Templates.Console.CSharp",
+  "name": "Console App (CSnakes)",
+  "shortName": "pyapp",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "ConsoleApp.1",
+  "symbols": {
+    "PythonVersion": {
+      "type": "parameter",
+      "description": "Python version to target.",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "3.9",
+          "description": "Target Python 3.9",
+          "displayName": "Python 3.9"
+        },
+        {
+          "choice": "3.10",
+          "description": "Target Python 3.10",
+          "displayName": "Python 3.10"
+        },
+        {
+          "choice": "3.11",
+          "description": "Target Python 3.11",
+          "displayName": "Python 3.11"
+        },
+        {
+          "choice": "3.12",
+          "description": "Target Python 3.12",
+          "displayName": "Python 3.12"
+        },
+        {
+          "choice": "3.13",
+          "description": "Target Python 3.13",
+          "displayName": "Python 3.13"
+        }
+
+      ],
+      "defaultValue": "3.12"
+    },
+    "NoVirtualEnvironment": {
+      "type": "parameter",
+      "description": "Use a virtual environment for Python dependencies.",
+      "datatype": "bool",
+      "defaultValue": "false"
+    },
+    "PackageManager": {
+      "type": "parameter",
+      "description": "Package manager to use.",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "none",
+          "description": "No package manager.",
+          "displayName": "None"
+        },
+        {
+          "choice": "pip",
+          "description": "Use pip as the package manager.",
+          "displayName": "pip"
+        },
+        {
+          "choice": "uv",
+          "description": "Use uv as the package manager.",
+          "displayName": "uv"
+        }
+      ],
+      "defaultValue": "none"
+    },
+    "PythonVersionEnumMember": {
+      "type": "generated",
+      "generator": "switch",
+      "replaces": "Python3_12",
+      "parameters": {
+        "datatype": "string",
+        "cases": [
+          {
+            "condition": "(PythonVersion == '3.9')",
+            "value": "Python3_9"
+          },
+          {
+            "condition": "(PythonVersion == '3.10')",
+            "value": "Python3_10"
+          },
+          {
+            "condition": "(PythonVersion == '3.11')",
+            "value": "Python3_11"
+          },
+          {
+            "condition": "(PythonVersion == '3.12')",
+            "value": "Python3_12"
+          },
+          {
+            "condition": "(PythonVersion == '3.13')",
+            "value": "Python3_13"
+          }
+        ]
+      }
+    },
+    "UsePipInstaller": {
+      "type": "computed",
+      "value": "PackageManager == \"pip\""
+    },
+    "UseUvInstaller": {
+      "type": "computed",
+      "value": "PackageManager == \"uv\""
+    }
+  }
+}

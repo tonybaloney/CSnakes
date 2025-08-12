@@ -1,4 +1,6 @@
+using Basic.Reference.Assemblies;
 using CSnakes.Parser;
+using CSnakes.Parser.Types;
 using CSnakes.Reflection;
 using CSnakes.Runtime;
 using Microsoft.CodeAnalysis;
@@ -6,7 +8,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
-using Basic.Reference.Assemblies;
 
 namespace CSnakes.Tests;
 
@@ -52,7 +53,6 @@ public class GeneratedSignatureTests
     [InlineData("def hello() -> Generator[int, str, bool]:\n ...\n", "IGeneratorIterator<long, string, bool> Hello()")]
     [InlineData("def hello() -> typing.Generator[int, str, bool]:\n ...\n", "IGeneratorIterator<long, string, bool> Hello()")]
     [InlineData("def hello() -> Buffer:\n ...\n", "IPyBuffer Hello()")]
-    [InlineData("def hello(a: Union[int, str] = 5) -> Any:\n ...\n", "PyObject Hello(PyObject? a = null)")]
     [InlineData("def hello(data: Literal[1, 'two', 3.0]) -> None:\n ...\n", "void Hello(PyObject data)")]
     [InlineData("def hello(n: None = None) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
     [InlineData("def hello(val: bytes = b'hello', /) -> None:\n ...\n", "void Hello(byte[]? val = null)")]
@@ -61,18 +61,34 @@ public class GeneratedSignatureTests
     [InlineData("async def hello():\n ...\n", "Task<PyObject> Hello(CancellationToken cancellationToken = default)")]
     [InlineData("def hello(n: Foo = ...) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
     [InlineData("def hello(a: str, b: int = 4, *, kw: str) -> None:\n ...\n", "void Hello(string a, string kw, long b = 4)")]
+    [InlineData("def hello() -> str | int: \n  ...\n", "PyObject Hello()")]
+    [InlineData("def escape(s: str, quote: bool = True) -> str: ...\n", "string Escape(string s, bool quote = true)")]
     public void TestGeneratedSignature(string code, string expected)
     {
         SourceText sourceText = SourceText.From(code);
-
-        // create a Python scope
-        PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
+        Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors));
         Assert.Empty(errors);
-        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, "test").ToImmutableArray();
+        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
         var method = Assert.Single(module);
+        CompileAndVerifyCode(module, functions, sourceText);
+        Assert.Equal($"public {expected}", method.Syntax.WithBody(null).NormalizeWhitespace().ToString());
+    }
 
-        // Check that the sample C# code compiles
-        string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", module, "test", functions, sourceText);
+    [Theory]
+    [InlineData("def t() -> Match[str] | None:\n ...\n")]
+    [InlineData("def t(pattern: str | Pattern[str]) -> Match[str] | None:\n ...\n")]
+    public void TestGeneratedSignatureCompiledUnions(string code)
+    {
+        SourceText sourceText = SourceText.From(code);
+        Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors));
+        Assert.Empty(errors);
+        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
+        CompileAndVerifyCode(module, functions, sourceText);
+    }
+
+    private static void CompileAndVerifyCode(ImmutableArray<MethodDefinition> methods, PythonFunctionDefinition[] functions, SourceText sourceText)
+    {
+        string compiledCode = PythonStaticGenerator.FormatClassFromMethods("Python.Generated.Tests", "TestClass", methods, "test", functions, sourceText);
         var tree = CSharpSyntaxTree.ParseText(compiledCode, cancellationToken: TestContext.Current.CancellationToken);
         var compilation = CSharpCompilation.Create("HelloWorld", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
 #if NET8_0
@@ -89,8 +105,6 @@ public class GeneratedSignatureTests
         // TODO : Log compiler warnings.
         result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList().ForEach(d => Assert.Fail(d.ToString()));
         Assert.True(result.Success, compiledCode + "\n" + string.Join("\n", result.Diagnostics));
-
-        Assert.Equal($"public {expected}", method.Syntax.WithBody(null).NormalizeWhitespace().ToString());
     }
 
     [Theory]
@@ -126,9 +140,9 @@ public class GeneratedSignatureTests
         Assert.Empty(errors1);
         Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText2, out var functions2, out var errors2));
         Assert.Empty(errors2);
-        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1, "test").ToImmutableArray();
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
         var method1 = Assert.Single(module1);
-        var module2 = ModuleReflection.MethodsFromFunctionDefinitions(functions2, "test").ToImmutableArray();
+        var module2 = ModuleReflection.MethodsFromFunctionDefinitions(functions2).ToImmutableArray();
         var method2 = Assert.Single(module2);
 
         var comparator = new MethodDefinitionComparator();
@@ -149,9 +163,9 @@ public class GeneratedSignatureTests
         Assert.Empty(errors1);
         Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText2, out var functions2, out var errors2));
         Assert.Empty(errors2);
-        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1, "test").ToImmutableArray();
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
         var method1 = Assert.Single(module1);
-        var module2 = ModuleReflection.MethodsFromFunctionDefinitions(functions2, "test").ToImmutableArray();
+        var module2 = ModuleReflection.MethodsFromFunctionDefinitions(functions2).ToImmutableArray();
         var method2 = Assert.Single(module2);
 
         var comparator = new MethodDefinitionComparator();
@@ -159,4 +173,57 @@ public class GeneratedSignatureTests
         Assert.Equal(2, new[] { method1, method2 }.Distinct(comparator).Count());
     }
 
+    [Fact]
+    public void TestSimpleUnionOverloads()
+    {
+        SourceText code = SourceText.From("def hello(a: Union[int, str] = 5) -> Any:\n ...\n");
+
+        // create a Python scope
+        Assert.True(PythonParser.TryParseFunctionDefinitions(code, out var functions1, out var errors1));
+        Assert.Empty(errors1);
+
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
+        Assert.Equal(2, module1.Length);
+    }
+
+    [Fact]
+    public void TestMultipleUnknownUnionOverloads()
+    {
+        // Verify that multiple unknown types are reduced to a single PyObject. 
+        SourceText code = SourceText.From("def hello(a: Union[A, B, C]) -> Any:\n ...\n");
+
+        // create a Python scope
+        Assert.True(PythonParser.TryParseFunctionDefinitions(code, out var functions1, out var errors1));
+        Assert.Empty(errors1);
+
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
+        Assert.Single(module1);
+    }
+
+    [Fact]
+    public void TestProductUnionOverloads()
+    {
+        // Verify that a product of unions is reduced to a single overload with a tuple type.
+        SourceText code = SourceText.From("def hello(a: Union[int, str], b: Union[float, bool]) -> Any:\n ...\n");
+        // create a Python scope
+        Assert.True(PythonParser.TryParseFunctionDefinitions(code, out var functions1, out var errors1));
+        Assert.Empty(errors1);
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
+        Assert.Equal(4, module1.Length);
+    }
+
+    [Theory]
+    [InlineData("Union[str, None]")]
+    [InlineData("str | bytes")]
+    [InlineData("Foo[str] | None")]
+    public void TestUnionReturnType(string returnType)
+    {
+        // Verify that a union return type only generates 1 method
+        SourceText code = SourceText.From($"def hello() -> {returnType}:\n ...\n");
+        // create a Python scope
+        Assert.True(PythonParser.TryParseFunctionDefinitions(code, out var functions1, out var errors1));
+        Assert.Empty(errors1);
+        var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
+        Assert.Single(module1);
+    }
 }

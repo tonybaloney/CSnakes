@@ -11,7 +11,7 @@ namespace CSnakes.Reflection;
 
 public static class MethodReflection
 {
-    public static MethodDefinition FromMethod(PythonFunctionDefinition function, string moduleName)
+    public static IEnumerable<MethodDefinition> FromMethod(PythonFunctionDefinition function)
     {
         // Step 1: Determine the return type of the method
         PythonTypeSpec returnPythonType = function.ReturnType;
@@ -21,9 +21,9 @@ public static class MethodReflection
 
         var doesReturnValue = returnPythonType.Name is not "None";
 
-        var returnSyntax
+        TypeSyntax returnSyntax
             = doesReturnValue
-            ? TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython)
+            ? TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython).First()
             : PredefinedType(Token(SyntaxKind.VoidKeyword));
 
         if (function.IsAsync)
@@ -50,7 +50,7 @@ public static class MethodReflection
                     // Make it PyObject otherwise we need to annotate as Task instead of Task<T> and that adds a lot of complexity and little value
                     ParseTypeName("PyObject"),
                 { Name: "Coroutine", Arguments: [var tYield, _, _] } =>
-                    TypeReflection.AsPredefinedType(tYield, TypeReflection.ConversionDirection.FromPython),
+                    TypeReflection.AsPredefinedType(tYield, TypeReflection.ConversionDirection.FromPython).First(),
                 _ => throw new ArgumentException("Async function must return a Coroutine[T1, T2, T3]")
             };
             // return is a Task of <T> or Task when void
@@ -61,225 +61,228 @@ public static class MethodReflection
         }
 
         // Step 3: Build arguments
-        var cSharpParameterList =
-            function.Parameters.Map(ArgumentReflection.ArgumentSyntax,
-                                    ArgumentReflection.ArgumentSyntax,
-                                    p => ArgumentReflection.ArgumentSyntax(p, PythonFunctionParameterType.Star),
-                                    ArgumentReflection.ArgumentSyntax,
-                                    p => ArgumentReflection.ArgumentSyntax(p, PythonFunctionParameterType.DoubleStar));
+        var cSharpParameterListPermutations =
+            function.Parameters.MapMany(ArgumentReflection.ArgumentSyntax,
+                                        ArgumentReflection.ArgumentSyntax,
+                                        p => ArgumentReflection.ArgumentSyntax(p, PythonFunctionParameterType.Star),
+                                        ArgumentReflection.ArgumentSyntax,
+                                        p => ArgumentReflection.ArgumentSyntax(p, PythonFunctionParameterType.DoubleStar));
 
-        var parameterGenericArgs =
-            cSharpParameterList.Enumerable()
-                               .Select(p => p.Type)
-                               .OfType<GenericNameSyntax>()
-                               .ToList();
+        // Narrow Optional[T]
+        var returnNoneAsNull = false;
 
-        // Step 4: Build body
-        var pythonConversionStatements = new List<StatementSyntax>();
-        foreach (var cSharpParameter in cSharpParameterList.WithVariadicPositional(null)
-                                                           .WithVariadicKeyword(null)
-                                                           .Enumerable())
+        if (returnSyntax is NullableTypeSyntax)
         {
-            bool needsConversion = true; // TODO: Skip .From for PyObject arguments.
-            ExpressionSyntax rhs = IdentifierName(cSharpParameter.Identifier);
-            if (needsConversion)
-                rhs =
+            returnNoneAsNull = true;
+            // Assume `Optional[T]` and narrow to `T`
+            returnPythonType = returnPythonType.Arguments[0];
+        }
+
+        foreach (CSharpParameterList cSharpParameterList in cSharpParameterListPermutations)
+        {
+            var parameterGenericArgs =
+                cSharpParameterList.Enumerable()
+                                   .Select(p => p.Type)
+                                   .OfType<GenericNameSyntax>()
+                                   .ToList();
+
+            // Step 4: Build body
+            var pythonConversionStatements = new List<StatementSyntax>();
+            foreach (var cSharpParameter in cSharpParameterList.WithVariadicPositional(null)
+                                                               .WithVariadicKeyword(null)
+                                                               .Enumerable())
+            {
+                bool needsConversion = true; // TODO: Skip .From for PyObject arguments.
+                ExpressionSyntax rhs = IdentifierName(cSharpParameter.Identifier);
+                if (needsConversion)
+                    rhs =
+                        InvocationExpression(
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("PyObject"),
+                                IdentifierName("From")))
+                            .WithArgumentList(
+                                ArgumentList(
+                                    SingletonSeparatedList(
+                                        Argument(
+                                            IdentifierName(cSharpParameter.Identifier)))));
+
+                pythonConversionStatements.Add(
+                    LocalDeclarationStatement(
+                        VariableDeclaration(
+                            IdentifierName("PyObject"))
+                        .WithVariables(
+                            SingletonSeparatedList(
+                                VariableDeclarator(
+                                    Identifier($"{cSharpParameter.Identifier}_pyObject"))
+                                .WithInitializer(
+                                    EqualsValueClause(
+                                        PostfixUnaryExpression(
+                                            SyntaxKind.SuppressNullableWarningExpression,
+                                            rhs
+                                            ))))))
+                    .WithUsingKeyword(
+                        Token(SyntaxKind.UsingKeyword)));
+            }
+
+            InvocationExpressionSyntax callExpression = function.Parameters switch
+            {
+                // IF no *args, *kwargs or keyword-only args
+                { Keyword.IsEmpty: true, VariadicPositional: null, VariadicKeyword: null } =>
+                    GenerateParamsCall(cSharpParameterList),
+                // IF *args but neither kwargs nor keyword-only arguments
+                { Keyword.IsEmpty: true, VariadicPositional: not null, VariadicKeyword: null } =>
+                    GenerateArgsCall(cSharpParameterList),
+                _ => GenerateKeywordCall(function, cSharpParameterList)
+            };
+
+            ReturnStatementSyntax returnExpression;
+            IEnumerable<StatementSyntax> resultConversionStatements = [];
+            var resultShouldBeDisposed = true;
+
+            switch (returnSyntax)
+            {
+                case PredefinedTypeSyntax s when s.Keyword.IsKind(SyntaxKind.VoidKeyword):
+                    {
+                        returnExpression = ReturnStatement(null);
+                        break;
+                    }
+                case IdentifierNameSyntax { Identifier.ValueText: "PyObject" }:
+                    {
+                        resultShouldBeDisposed = false;
+                        returnExpression = ReturnStatement(IdentifierName("__result_pyObject"));
+                        break;
+                    }
+                default:
+                    {
+                        if (returnSyntax is GenericNameSyntax rg)
+                            parameterGenericArgs.Add(rg);
+
+                        resultConversionStatements =
+                            ResultConversionCodeGenerator.GenerateCode(returnPythonType,
+                                                                       "__result_pyObject", "__return",
+                                                                       cancellationTokenName);
+
+                        if (returnNoneAsNull)
+                        {
+                            resultConversionStatements =
+                                resultConversionStatements.Prepend(
+                                    IfStatement(
+                                        InvocationExpression(
+                                            MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName("__result_pyObject"),
+                                                IdentifierName("IsNone"))),
+                                        ReturnStatement(
+                                            LiteralExpression(SyntaxKind.NullLiteralExpression))
+                                    ));
+                        }
+
+                        returnExpression = ReturnStatement(IdentifierName("__return"));
+                        break;
+                    }
+            }
+
+            var functionObject = LocalDeclarationStatement(
+                VariableDeclaration(
+                    IdentifierName("PyObject"))
+                .WithVariables(
+                    SingletonSeparatedList(
+                        VariableDeclarator(
+                            Identifier("__underlyingPythonFunc"))
+                        .WithInitializer(
+                            EqualsValueClause(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    ThisExpression(),
+                                    IdentifierName($"__func_{function.Name}"))))))
+                );
+
+            StatementSyntax callStatement
+                = returnExpression.Expression is not null
+                ? LocalDeclarationStatement(
+                      VariableDeclaration(
+                              IdentifierName("PyObject"))
+                      .WithVariables(
+                          SingletonSeparatedList(
+                              VariableDeclarator(
+                                  Identifier("__result_pyObject"))
+                              .WithInitializer(
+                                  EqualsValueClause(
+                                      callExpression)))))
+                      .WithUsingKeyword(resultShouldBeDisposed ? Token(SyntaxKind.UsingKeyword) : Token(SyntaxKind.None))
+                : ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName("_"), callExpression));
+
+            var logStatement = ExpressionStatement(
+                    ConditionalAccessExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            ThisExpression(),
+                            IdentifierName("logger")),
+                        InvocationExpression(
+                            MemberBindingExpression(
+                                IdentifierName("LogDebug")))
+                            .WithArgumentList(
+                                ArgumentList(
+                                    SeparatedList(
+                                        [
+                                            Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Invoking Python function: {FunctionName}"))),
+                                        Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(function.Name)))
+                                        ])))
+                            ));
+
+            var body = Block(
+                UsingStatement(
+                    null,
                     InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName("PyObject"),
-                            IdentifierName("From")))
-                        .WithArgumentList(
-                            ArgumentList(
-                                SingletonSeparatedList(
-                                    Argument(
-                                        IdentifierName(cSharpParameter.Identifier)))));
-
-            pythonConversionStatements.Add(
-                LocalDeclarationStatement(
-                    VariableDeclaration(
-                        IdentifierName("PyObject"))
-                    .WithVariables(
-                        SingletonSeparatedList(
-                            VariableDeclarator(
-                                Identifier($"{cSharpParameter.Identifier}_pyObject"))
-                            .WithInitializer(
-                                EqualsValueClause(
-                                    PostfixUnaryExpression(
-                                        SyntaxKind.SuppressNullableWarningExpression,
-                                        rhs
-                                        ))))))
-                .WithUsingKeyword(
-                    Token(SyntaxKind.UsingKeyword)));
-        }
-
-        InvocationExpressionSyntax callExpression = function.Parameters switch
-        {
-            // IF no *args, *kwargs or keyword-only args
-            { Keyword.IsEmpty: true, VariadicPositional: null, VariadicKeyword: null } =>
-                GenerateParamsCall(cSharpParameterList),
-            // IF *args but neither kwargs nor keyword-only arguments
-            { Keyword.IsEmpty: true, VariadicPositional: not null, VariadicKeyword: null } =>
-                GenerateArgsCall(cSharpParameterList),
-            _ => GenerateKeywordCall(function, cSharpParameterList)
-        };
-
-        ReturnStatementSyntax returnExpression;
-        IEnumerable<StatementSyntax> resultConversionStatements = [];
-        var callResultTypeSyntax = IdentifierName("PyObject");
-        var returnNoneAsNull = false;
-        var resultShouldBeDisposed = true;
-
-        switch (returnSyntax)
-        {
-            case PredefinedTypeSyntax s when s.Keyword.IsKind(SyntaxKind.VoidKeyword):
-            {
-                returnExpression = ReturnStatement(null);
-                break;
-            }
-            case IdentifierNameSyntax { Identifier.ValueText: "PyObject" }:
-            {
-                resultShouldBeDisposed = false;
-                callResultTypeSyntax = IdentifierName("PyObject");
-                returnExpression = ReturnStatement(IdentifierName("__result_pyObject"));
-                break;
-            }
-            case NullableTypeSyntax:
-            {
-                returnNoneAsNull = true;
-                // Assume `Optional[T]` and narrow to `T`
-                returnPythonType = returnPythonType.Arguments[0];
-                goto default;
-            }
-            default:
-            {
-                if (returnSyntax is GenericNameSyntax rg)
-                    parameterGenericArgs.Add(rg);
-
-                resultConversionStatements =
-                    ResultConversionCodeGenerator.GenerateCode(returnPythonType,
-                                                               "__result_pyObject", "__return",
-                                                               cancellationTokenName);
-
-                if (returnNoneAsNull)
-                {
-                    resultConversionStatements =
-                        resultConversionStatements.Prepend(
-                            IfStatement(
-                                InvocationExpression(
-                                    MemberAccessExpression(
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        IdentifierName("__result_pyObject"),
-                                        IdentifierName("IsNone"))),
-                                ReturnStatement(
-                                    LiteralExpression(SyntaxKind.NullLiteralExpression))
-                            ));
-                }
-
-                returnExpression = ReturnStatement(IdentifierName("__return"));
-                break;
-            }
-        }
-
-        var functionObject = LocalDeclarationStatement(
-            VariableDeclaration(
-                IdentifierName("PyObject"))
-            .WithVariables(
-                SingletonSeparatedList(
-                    VariableDeclarator(
-                        Identifier("__underlyingPythonFunc"))
-                    .WithInitializer(
-                        EqualsValueClause(
-                            MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                ThisExpression(),
-                                IdentifierName($"__func_{function.Name}"))))))
-            );
-
-        StatementSyntax callStatement
-            = returnExpression.Expression is not null
-            ? LocalDeclarationStatement(
-                  VariableDeclaration(
-                          callResultTypeSyntax)
-                  .WithVariables(
-                      SingletonSeparatedList(
-                          VariableDeclarator(
-                              Identifier("__result_pyObject"))
-                          .WithInitializer(
-                              EqualsValueClause(
-                                  callExpression)))))
-                  .WithUsingKeyword(resultShouldBeDisposed ? Token(SyntaxKind.UsingKeyword) : Token(SyntaxKind.None))
-            : ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, IdentifierName("_"), callExpression));
-
-        var logStatement = ExpressionStatement(
-                ConditionalAccessExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        ThisExpression(),
-                        IdentifierName("logger")),
-                    InvocationExpression(
-                        MemberBindingExpression(
-                            IdentifierName("LogDebug")))
-                        .WithArgumentList(
-                            ArgumentList(
-                                SeparatedList(
-                                    [
-                                        Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Invoking Python function: {FunctionName}"))),
-                                        Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(function.Name)))
-                                    ])))
-                        ));
-
-        var body = Block(
-            UsingStatement(
-                null,
-                InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("GIL"),
-                        IdentifierName("Acquire"))),
-                Block((StatementSyntax[])[
-                    logStatement,
+                            IdentifierName("GIL"),
+                            IdentifierName("Acquire"))),
+                    Block((StatementSyntax[])[
+                        logStatement,
                     functionObject,
                     .. pythonConversionStatements,
                     callStatement,
                     .. resultConversionStatements,
                     returnExpression])
-                ));
+                    ));
 
-        // Sort the method parameters into this order
-        // 1. All positional arguments
-        // 2. All keyword-only arguments
-        // 3. Any *args argument
-        // 4. Any **kwargs argument
-        var methodParameters =
-            from ps in new[]
-            {
+            // Sort the method parameters into this order
+            // 1. All positional arguments
+            // 2. All keyword-only arguments
+            // 3. Any *args argument
+            // 4. Any **kwargs argument
+            var methodParameters =
+                from ps in new[]
+                {
                 cSharpParameterList.Positional,
                 cSharpParameterList.Regular,
                 cSharpParameterList.Keyword,
                 cSharpParameterList.VariadicPositional is { } vpd ? [vpd] : [],
                 cSharpParameterList.VariadicKeyword is { } vkd ? [vkd] : [],
-            }
-            from p in ps
-            select p;
+                }
+                from p in ps
+                select p;
 
-        // Sort parameters to move all optional parameters to the end
-        // CS1737: Optional parameters must appear after all required parameters
-        methodParameters = methodParameters.OrderBy(
-            p => p.Default is null ? 0 : 1
-        );
+            // Sort parameters to move all optional parameters to the end
+            // CS1737: Optional parameters must appear after all required parameters
+            methodParameters = methodParameters.OrderBy(
+                p => p.Default is null ? 0 : 1
+            );
 
-        if (cancellationTokenParameterSyntax is { } someCancellationTokenParameterSyntax)
-            methodParameters = methodParameters.Append(someCancellationTokenParameterSyntax);
+            if (cancellationTokenParameterSyntax is { } someCancellationTokenParameterSyntax)
+                methodParameters = methodParameters.Append(someCancellationTokenParameterSyntax);
 
-        var syntax = MethodDeclaration(
-            returnSyntax,
-            Identifier(function.Name.ToPascalCase()))
-            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-            .WithBody(body)
-            .WithParameterList(ParameterList(SeparatedList(methodParameters)));
+            var syntax = MethodDeclaration(
+                returnSyntax,
+                Identifier(function.Name.ToPascalCase()))
+                .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+                .WithBody(body)
+                .WithParameterList(ParameterList(SeparatedList(methodParameters)));
 
-        return new(syntax);
+            yield return new(syntax, function);
+        }
     }
 
     private static InvocationExpressionSyntax GenerateParamsCall(CSharpParameterList parameterList)

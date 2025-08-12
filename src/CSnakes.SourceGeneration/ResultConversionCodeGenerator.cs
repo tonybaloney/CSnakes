@@ -96,7 +96,7 @@ internal static class ResultConversionCodeGenerator
             }
             case var other:
             {
-                var typeSyntax = TypeReflection.AsPredefinedType(other, TypeReflection.ConversionDirection.FromPython);
+                var typeSyntax = TypeReflection.AsPredefinedType(other, TypeReflection.ConversionDirection.FromPython).First(); // TODO: Investigate union
                 return new ConversionGenerator(typeSyntax, TypeReflection.CreateGenericType("Runtime", [typeSyntax]));
             }
         }

@@ -97,11 +97,71 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
             [.. Keyword.Select(keywordProjector)],
             VariadicKeyword is { } vkp ? variadicKeywordProjector(vkp) : null);
 
+    enum ParameterGroup
+    {
+        Positional,
+        Regular,
+        VariadicPositional,
+        Keyword,
+        VariadicKeyword
+    }
+
+    public IEnumerable<PythonFunctionParameterList<TResult>>
+        MapMany<TResult>(Func<T, IEnumerable<TResult>> positionalProjector,
+                         Func<T, IEnumerable<TResult>> regularProjector,
+                         Func<T, IEnumerable<TResult>> variadicPositionalProjector,
+                         Func<T, IEnumerable<TResult>> keywordProjector,
+                         Func<T, IEnumerable<TResult>> variadicKeywordProjector)
+        where TResult : class
+    {
+        /* Each parameter group will be a list of parameters with a list of potential types.
+         * 
+         * | Positional        | Regular         | VariadicPositional | Keyword        | VariadicKeyword  |
+         * |-------------------|-----------------|--------------------|----------------|------------------|
+         * | 0: [type1, type2] | [type3]         | ...                | [type5, type6] | [type7]          |
+         * | 1: [type8]        |                 |                    | [type12]       |                  |
+         * 
+         * etc. 
+         */
+        // Skip all this malarky if there are no parameters at all
+        if (Count is 0)
+        {
+            yield return new PythonFunctionParameterList<TResult>();
+            yield break;
+        }
+
+        var options = Map(positionalProjector, regularProjector, variadicPositionalProjector, keywordProjector, variadicKeywordProjector);
+
+        var ranges = options.Enumerable(x => x.Count(), x => x.Count(), x => x.Count(), x => x.Count(), x => x.Count());
+
+        ImmutableArray<(ParameterGroup Group, IEnumerable<TResult> Choices)> ps = [
+            ..options.Enumerable(p => (ParameterGroup.Positional, p),
+                                 p => (ParameterGroup.Regular, p),
+                                 p => (ParameterGroup.VariadicPositional, p),
+                                 p => (ParameterGroup.Keyword, p),
+                                 p => (ParameterGroup.VariadicKeyword, p))
+        ];
+
+        foreach (var turn in ranges.Permutations())
+        {
+            var selections = turn.Zip(ps, (i, p) => (p.Group, Value: p.Choices.ElementAt(i)))
+                                 .ToLookup(e => e.Group, e => e.Value);
+
+            yield return new PythonFunctionParameterList<TResult>(
+                [.. selections[ParameterGroup.Positional]],
+                [.. selections[ParameterGroup.Regular]],
+                selections[ParameterGroup.VariadicPositional].FirstOrDefault(),
+                [.. selections[ParameterGroup.Keyword]],
+                selections[ParameterGroup.VariadicKeyword].FirstOrDefault());
+        }
+    }
+
+
     public int Count => Positional.Length
-                        + Regular.Length
-                        + (VariadicPositional is not null ? 1 : 0)
-                        + Keyword.Length
-                        + (VariadicKeyword is not null ? 1 : 0);
+                + Regular.Length
+                + (VariadicPositional is not null ? 1 : 0)
+                + Keyword.Length
+                + (VariadicKeyword is not null ? 1 : 0);
 
     private string DebuggerDisplay()
     {

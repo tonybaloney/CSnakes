@@ -6,7 +6,10 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{24D80700-8F01-41C7-B858-2C1B242C4EE0}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
 		Directory.Packages.props = Directory.Packages.props
+		Packaging.props = Packaging.props
+		Packaging.targets = Packaging.targets
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
@@ -30,10 +33,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conda.Tests", "Conda.Tests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedistributablePython.Tests", "RedistributablePython.Tests\RedistributablePython.Tests.csproj", "{F43684F2-D7B3-403F-B6E8-1B4740513E2A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StdLib.Tests", "StdLib.Tests\StdLib.Tests.csproj", "{938D30D1-C712-41EC-AD11-7B1FF8742C8A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSnakes.Stage", "CSnakes.Stage\CSnakes.Stage.csproj", "{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{3912E0F4-493B-4B26-A44D-B095F6CF7538}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -68,6 +77,15 @@ Global
 		{F43684F2-D7B3-403F-B6E8-1B4740513E2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F43684F2-D7B3-403F-B6E8-1B4740513E2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F43684F2-D7B3-403F-B6E8-1B4740513E2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{938D30D1-C712-41EC-AD11-7B1FF8742C8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{286485E4-FB7C-9B1C-44E7-B02BC0A729BA}.Release|Any CPU.Build.0 = Release|Any CPU
+
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +99,7 @@ Global
 		{93264FC1-2880-4959-9576-50D260039BC2} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
 		{38604D9B-2C01-4B82-AFA1-A00E184BAE03} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
 		{F43684F2-D7B3-403F-B6E8-1B4740513E2A} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
+		{938D30D1-C712-41EC-AD11-7B1FF8742C8A} = {E52DC71C-FB58-4E57-9CCA-8A78EAA49123}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4ACC77F9-1BB8-42DE-B647-01C458922F49}

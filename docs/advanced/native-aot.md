@@ -82,7 +82,7 @@ Here's a complete example of a CSnakes project configured for Native AOT:
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
+    <PackageReference Include="CSnakes.Runtime" Version="2.*-*" />
   </ItemGroup>
 </Project>
 ```

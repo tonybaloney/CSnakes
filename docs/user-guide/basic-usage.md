@@ -41,7 +41,7 @@ Add the Python file to your `.csproj`:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
+    <PackageReference Include="CSnakes.Runtime" Version="2.*-*" />
   </ItemGroup>
 
   <ItemGroup>

@@ -18,11 +18,14 @@ public class ArgumentReflection
     {
         // Treat *args as list<Any>=None and **kwargs as dict<str, Any>=None
         // TODO: Handle the user specifying *args with a type annotation like tuple[int, str]
+        const TypeReflection.ConversionDirection conversionDirection = TypeReflection.ConversionDirection.ToPython;
+
         var (reflectedTypes, defaultValue) = (parameterType, parameter) switch
         {
             (PythonFunctionParameterType.Star, _) => ([NullableArrayOfPyObject], PythonConstant.None.Value),
-            (PythonFunctionParameterType.DoubleStar, _) => (TypeReflection.AsPredefinedType(OptionalDictStrAny, TypeReflection.ConversionDirection.ToPython), PythonConstant.None.Value),
-            (PythonFunctionParameterType.Normal, { ImpliedTypeSpec: var type, DefaultValue: var dv }) => (TypeReflection.AsPredefinedType(type, TypeReflection.ConversionDirection.ToPython), dv),
+            (PythonFunctionParameterType.DoubleStar, _) => (TypeReflection.AsPredefinedType(OptionalDictStrAny, conversionDirection, RefSafetyContext.RefSafe), PythonConstant.None.Value),
+            (PythonFunctionParameterType.Normal, { ImpliedTypeSpec: var type, DefaultValue: null }) => (TypeReflection.AsPredefinedType(type, conversionDirection, RefSafetyContext.RefSafe), null),
+            (PythonFunctionParameterType.Normal, { ImpliedTypeSpec: var type, DefaultValue: var dv }) => (TypeReflection.AsPredefinedType(type, conversionDirection), dv),
             _ => throw new NotImplementedException()
         };
 

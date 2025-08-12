@@ -64,7 +64,7 @@ dotnet add package CSnakes.Runtime
 Add this to your `.csproj` file:
 
 ```xml
-<PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
+<PackageReference Include="CSnakes.Runtime" Version="2.*-*" />
 ```
 
 This package includes both the source generator and runtime libraries.

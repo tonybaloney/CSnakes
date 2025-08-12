@@ -83,18 +83,15 @@ dotnet new pyapp --name DataProcessor --PythonVersion 3.12 --PackageManager uv -
 MyApp/
 ├── MyApp.csproj
 ├── Program.cs
-├── python_modules/
-│   ├── __init__.py
-│   └── demo.py
-└── requirements.txt
+└── hello.py
 ```
 
 ## Customizing Templates
 
 You can modify the generated templates by:
 
-1. **Adding Python Dependencies**: Edit `requirements.txt`
-2. **Adding Python Modules**: Create new `.py` files in the python_modules directory
+1. **Adding Python Dependencies**: Add/Edit `requirements.txt`
+2. **Adding Python Modules**: Create new `.py` files in the project directory
 3. **Configuring Environment**: Modify the Python environment setup in `Program.cs`
 
 ## Installing Templates
@@ -108,7 +105,7 @@ dotnet new install CSnakes.Templates
 ### Install Specific Version
 
 ```bash
-dotnet new install CSnakes.Templates::1.1.0
+dotnet new install CSnakes.Templates::1.0.1
 ```
 
 ### Update Templates

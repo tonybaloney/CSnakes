@@ -9,7 +9,7 @@ Note that any constructs which are not available will be typed as `PyObject`. Th
 | Construct (link) | Supported in CSnakes | Notes | Summary |
 |------------------|----------------------|-------|---------|
 | [Any](https://docs.python.org/3/library/typing.html#typing.Any) | Yes |  | Special type that matches any type. |
-| [Union](https://docs.python.org/3/library/typing.html#typing.Union) | No | [No equivalent construct in C#, possibly could use overloads](https://github.com/tonybaloney/CSnakes/issues/23) | Accepts one of several types. |
+| [Union](https://docs.python.org/3/library/typing.html#typing.Union) | Yes |  | Generates overloads. |
 | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional) | Yes |  | Shorthand for a type or None. |
 | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal) | No | Possible with enums | Restricts a value to specific literal values. |
 | [Final](https://docs.python.org/3/library/typing.html#typing.Final) | No | Would be simple to implement, but not used on function signatures | Indicates a name cannot be reassigned. |

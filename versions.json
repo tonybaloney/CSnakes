@@ -12,5 +12,10 @@
     "aliases": [
       "stable"
     ]
+  },
+  {
+    "version": "v1",
+    "title": "v1",
+    "aliases": []
   }
 ]

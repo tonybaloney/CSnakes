@@ -33,6 +33,7 @@ CSnakes supports the following typed scenarios:
 | `typing.Generator[TYield, TSend, TReturn]` | `IGeneratorIterator<TYield, TSend, TReturn>` |
 | `typing.Buffer`        | `IPyBuffer` [2](buffers.md) |
 | `typing.Coroutine[TYield, TSend, TReturn]` | `Task<TYield>` [3](async.md) |
+| `typing.Union[T1, T2, ...] | [C# Overloads](#unions) |
 | `None` (Return)        | `void`            |
 
 ## Optional Types
@@ -61,6 +62,35 @@ public string? FindUser(long userId);
 public string ProcessOptional(long? value = null);
 public void OptionalOldStyle(long? value = null);
 ```
+
+## Unions
+
+Python has two ways of specifying type unions. 
+
+1. From Python 3.10, type unions can be written as `T1 | T2`
+1. Using the `typing.Union[T1, T2, ...]` syntax
+
+CSnakes will generate overloads for the union types when any of them are supported types in [supported type mappings](#supported-type-mappings).
+
+For example, this function in Python:
+
+```python
+def process_data(data: int | str) -> str:
+    if isinstance(data, int):
+        return f"Processing integer: {data}"
+    return f"Processing string: {data}"
+```
+
+Will generate overloads in C#:
+
+```csharp
+public string ProcessData(long data);
+public string ProcessData(string data);
+```
+
+This feature only works with parameters, not return types. Any union return type will be treated as a `PyObject` and the developer will need to determine the type at runtime.
+
+If multiple parameters have union types, CSnakes will generate overloads for each combination of the union types.
 
 ## Collections
 

@@ -29,7 +29,7 @@ If you have Python installed on your system, you can use it directly:
 builder.Services
     .WithPython()
     .WithHome(home)
-    .FromEnvironmentVariable("PYTHONHOME"); // Uses system Python
+    .FromEnvironmentVariable("PYTHONHOME", "3.12"); // Uses system Python
 ```
 
 ### Option 3: Use Conda
@@ -40,7 +40,7 @@ If you're using Conda environments:
 builder.Services
     .WithPython()
     .WithHome(home)
-    .FromConda("myenv"); // Uses specified Conda environment
+    .FromConda(condaBinPath); // Uses `conda` at specified path
 ```
 
 ## Installing the NuGet Package

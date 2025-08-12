@@ -102,7 +102,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
 
    ```xml
    <ItemGroup>
-     <AdditionalFiles Include="python_modules/**/*.py">
+     <AdditionalFiles Include="python_modules/**/*.py" SourceItemType="Python">
        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
      </AdditionalFiles>
    </ItemGroup>

@@ -45,7 +45,7 @@ Add the Python file to your `.csproj`:
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="math_utils.py">
+    <AdditionalFiles Include="math_utils.py" SourceItemType="Python">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
   </ItemGroup>

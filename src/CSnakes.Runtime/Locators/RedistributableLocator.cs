@@ -40,7 +40,7 @@ public enum RedistributablePythonVersion
 
 file static class RedistributablePythonVersionExtensions
 {
-    public static Version AsVersion(this RedistributablePythonVersion version)
+    internal static Version AsVersion(this RedistributablePythonVersion version)
     {
         // Get the version from the attribute
         var versionAttribute = (StaticVersionAttribute)Attribute.GetCustomAttribute(
@@ -49,7 +49,7 @@ file static class RedistributablePythonVersionExtensions
         return versionAttribute.VersionBranch;
     }
 
-    public static string AsString(this RedistributablePythonVersion version)
+    internal static string AsString(this RedistributablePythonVersion version)
     {
         // Get the version from the attribute
         var versionAttribute = (StaticVersionAttribute)Attribute.GetCustomAttribute(

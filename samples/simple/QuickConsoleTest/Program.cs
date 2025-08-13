@@ -7,7 +7,7 @@ using System.IO;
 using System.Text.Json;
 
 var builder = Host.CreateApplicationBuilder(args);
-var home = Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency");
+var home = Path.Join(Environment.CurrentDirectory, "..", "ExamplePythonDependency");
 var venv = Path.Join(home, ".venv");
 builder.Services
   .WithPython()

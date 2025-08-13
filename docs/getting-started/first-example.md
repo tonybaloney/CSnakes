@@ -70,8 +70,11 @@ builder.Services
 
 var app = builder.Build();
 var env = app.Services.GetRequiredService<IPythonEnvironment>();
+```
 
-// Get the Python module
+**Tip:** You can customize where Python is downloaded by setting the `CSNAKES_REDIST_CACHE` environment variable to override the default application data folder.
+
+```csharp
 var module = env.Demo();
 
 // Call Python functions

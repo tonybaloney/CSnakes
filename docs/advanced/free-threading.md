@@ -20,6 +20,8 @@ var app = builder.Build();
 env = app.Services.GetRequiredService<IPythonEnvironment>();
 ```
 
+**Note:** You can customize the cache location for downloaded Python files by setting the `CSNAKES_REDIST_CACHE` environment variable to override the default application data folder.
+
 ## Requirements
 
 - **Python 3.13 or later**: Free-threading is only available in Python 3.13+

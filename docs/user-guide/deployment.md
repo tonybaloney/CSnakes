@@ -45,6 +45,8 @@ setup-python --python 3.12
 
 The path to Python will be printed to the console. This is the same path as used in `.FromRedistributable()` in CSnakes applications. (`%APPDATA%\CSnakes\pythonXX`)
 
+**Note:** You can customize the cache location by setting the `CSNAKES_REDIST_CACHE` environment variable to override the default application data folder where Python is downloaded and stored.
+
 
 ### Download Python and Create Virtual Environment
 

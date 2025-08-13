@@ -21,6 +21,16 @@ builder.Services
     .FromRedistributable(); // Downloads Python 3.12 automatically
 ```
 
+By default, the downloaded Python files are cached in your user's application data folder (`%APPDATA%\CSnakes` on Windows, `~/.local/share/CSnakes` on Linux, etc.). You can override this location by setting the `CSNAKES_REDIST_CACHE` environment variable:
+
+```bash
+# Windows
+set CSNAKES_REDIST_CACHE=C:\MyCustomCache
+
+# Linux/macOS  
+export CSNAKES_REDIST_CACHE=/path/to/custom/cache
+```
+
 ### Option 2: Use System Python
 
 If you have Python installed on your system, you can use it directly:

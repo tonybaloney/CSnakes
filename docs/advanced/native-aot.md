@@ -237,6 +237,10 @@ builder.Services
     .FromRedistributable("3.12"); // This downloads Python automatically
 ```
 
+**Note:** You can customize the Python cache location by setting the `CSNAKES_REDIST_CACHE` environment variable to override the default application data folder.
+
+```csharp
+
 #### 3. Docker Deployment
 
 ```dockerfile

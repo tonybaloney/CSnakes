@@ -23,11 +23,18 @@ builder.Services
 
 By default, the downloaded Python files are cached in your user's application data folder (`%APPDATA%\CSnakes` on Windows, `~/.local/share/CSnakes` on Linux, etc.). You can override this location by setting the `CSNAKES_REDIST_CACHE` environment variable:
 
-```bash
-# Windows
+**Windows (Command Prompt):**
+```cmd
 set CSNAKES_REDIST_CACHE=C:\MyCustomCache
+```
 
-# Linux/macOS  
+**Windows (PowerShell):**
+```powershell
+$env:CSNAKES_REDIST_CACHE = "C:\MyCustomCache"
+```
+
+**Linux/macOS:**
+```bash
 export CSNAKES_REDIST_CACHE=/path/to/custom/cache
 ```
 

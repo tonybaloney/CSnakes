@@ -3,14 +3,6 @@ using System.Runtime.InteropServices;
 
 
 namespace CSnakes.Runtime.Tests.Locators;
-// Plan (pseudocode):
-// - Introduce a record (DownloadUrlCase) encapsulating: Platform, Architecture, FreeThreaded, Debug, Version.
-// - Replace multiple InlineData theories with a single MemberData theory using DownloadUrlCase.
-// - Provide MemberData by generating sequences equivalent to the original InlineData coverage:
-//   - Windows X64: specific version set with freeThreaded variations.
-//   - Windows ARM64: specific version set with freeThreaded variations.
-//   - Mac/Linux: for each (freeThreaded, debug, version) combination, generate 4 cases for (OSX Arm64/X64, Linux Arm64/X64).
-// - Keep VerifyDownloadUrl helper unchanged; adapt the theory to pass args from the record.
 
 public class RedistributableLocatorTests
 {

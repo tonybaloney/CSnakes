@@ -155,11 +155,6 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
 
         try
         {
-            // Determine binary name, see https://gregoryszorc.com/docs/python-build-standalone/main/running.html#obtaining-distributions
-            // Windows doesn't have LTO builds
-            // Linux aarch64 doesn't have PGO, only LTO
-            // macOS has both PGO and LTO builds
-
             // TODO: Find a better way to determine the OS platform enum at runtime.
             OSPlatform osPlatform = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? OSPlatform.Windows :
                 RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OSPlatform.OSX :

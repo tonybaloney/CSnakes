@@ -13,40 +13,55 @@ internal class StaticVersionAttribute(string version, bool supportsFreeThreading
 
 public enum RedistributablePythonVersion
 {
-    [StaticVersion("3.9.21", false)]
+    [StaticVersion("3.9.23", false)]
     Python3_9,
 
-    [StaticVersion("3.10.16", false)]
+    [StaticVersion("3.10.18", false)]
     Python3_10,
 
-    [StaticVersion("3.11.11", false)]
+    [StaticVersion("3.11.13", false)]
     Python3_11,
 
-    [StaticVersion("3.12.9", false)]
+    [StaticVersion("3.12.11", false)]
     Python3_12,
 
-    [StaticVersion("3.13.2", true)]
+    [StaticVersion("3.13.6", true)]
     Python3_13,
 
-    [StaticVersion("3.14.0a5", true)]
+    [StaticVersion("3.14.0rc1", true)]
     Python3_14,
+}
+
+file static class RedistributablePythonVersionExtensions
+{
+    public static Version AsVersion(this RedistributablePythonVersion version)
+    {
+        // Get the version from the attribute
+        var versionAttribute = (StaticVersionAttribute)Attribute.GetCustomAttribute(
+            typeof(RedistributablePythonVersion).GetField(version.ToString())!,
+            typeof(StaticVersionAttribute))!;
+        // Strip bX or rcX suffixes if present
+
+        return new Version(versionAttribute.Version);
+    }
+
+    public static string AsString(this RedistributablePythonVersion version)
+    {
+        // Get the version from the attribute
+        var versionAttribute = (StaticVersionAttribute)Attribute.GetCustomAttribute(
+            typeof(RedistributablePythonVersion).GetField(version.ToString())!,
+            typeof(StaticVersionAttribute))!;
+        return versionAttribute.Version;
+    }
 }
 
 internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, RedistributablePythonVersion version, int installerTimeout = 360, bool debug = false, bool freeThreaded = false) : PythonLocator
 {
-    private const string standaloneRelease = "20250212";
+    private const string standaloneRelease = "20250808";
     private const string MutexName = @"Global\CSnakesPythonInstall-1"; // run-time name includes Python version
-    protected override Version Version
-    {
-        get
-        {
-            // Get the version from the attribute
-            var versionAttribute = (StaticVersionAttribute)Attribute.GetCustomAttribute(
-                typeof(RedistributablePythonVersion).GetField(version.ToString())!,
-                typeof(StaticVersionAttribute))!;
-            return new Version(versionAttribute.Version);
-        }
-    }
+
+    protected override Version Version => version.AsVersion();
+    protected string VersionString => version.AsString();
 
     protected bool SupportsFreeThreading
     {
@@ -73,7 +88,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
 
     public override PythonLocationMetadata LocatePython()
     {
-        string dottedVersion = $"{Version.Major}.{Version.Minor}.{Version.Build}";
+        string dottedVersion = VersionString;
         if (debug)
         {
             dottedVersion += "d";
@@ -91,6 +106,11 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && debug && (Version.Major == 3 && Version.Minor < 11))
         {
             throw new NotSupportedException($"Debug builds are not supported on macOS for version {Version}.");
+        }
+        // No ARM64 builds for Python 3.9 or 3.10 on Windows
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && RuntimeInformation.ProcessArchitecture == Architecture.Arm64 && (Version.Major == 3 && Version.Minor < 11))
+        {
+            throw new NotSupportedException($"ARM64 builds are not supported on Windows for version {Version}.");
         }
 
         var appDataPath = Environment.GetEnvironmentVariable("CSNAKES_REDIST_CACHE");
@@ -136,58 +156,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
             // Linux aarch64 doesn't have PGO, only LTO
             // macOS has both PGO and LTO builds
 
-            string optFlags = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "pgo" : "pgo+lto";
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
-            {
-                optFlags = "lto";
-            }
-            string platform;
-            string build;
-            if (freeThreaded)
-            {
-                build = debug ? "freethreaded+debug" : $"freethreaded+{optFlags}";
-            }
-            else
-            {
-                build = debug ? "debug" : optFlags;
-            }
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                platform = RuntimeInformation.ProcessArchitecture switch
-                {
-                    Architecture.X86 => $"i686-pc-windows-msvc-shared-{build}-full",
-                    Architecture.X64 => $"x86_64-pc-windows-msvc-shared-{build}-full",
-                    _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
-                };
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                platform = RuntimeInformation.ProcessArchitecture switch
-                {
-                    // No such thing as i686 mac
-                    Architecture.X64 => $"x86_64-apple-darwin-{build}-full",
-                    Architecture.Arm64 => $"aarch64-apple-darwin-{build}-full",
-                    _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
-                };
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                platform = RuntimeInformation.ProcessArchitecture switch
-                {
-                    Architecture.X86 => $"i686-unknown-linux-gnu-{build}-full",
-                    Architecture.X64 => $"x86_64-unknown-linux-gnu-{build}-full",
-                    Architecture.Arm64 => $"aarch64-unknown-linux-gnu-{build}-full",
-                    // .NET doesn't run on armv7 anyway.. don't try that
-                    _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
-                };
-            }
-            else
-            {
-                throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
-            }
-
-            string downloadUrl = $"https://github.com/astral-sh/python-build-standalone/releases/download/{standaloneRelease}/cpython-{Version.Major}.{Version.Minor}.{Version.Build}+{standaloneRelease}-{platform}.tar.zst";
+            string downloadUrl = GetDownloadUrl(OSPlatform.Create(RuntimeInformation.OSDescription), RuntimeInformation.ProcessArchitecture, freeThreaded, debug, version);
 
             // Download and extract the Zstd tarball
             logger?.LogDebug("Downloading Python from {DownloadUrl}", downloadUrl);
@@ -215,6 +184,59 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
         mutex.ReleaseMutex(); // Everything supposedly went well so release mutex
 
         return LocatePythonInternal(installPath, freeThreaded);
+    }
+
+    internal static string GetDownloadUrl(OSPlatform platform, Architecture architecture, bool freeThreaded, bool debug, RedistributablePythonVersion version)
+    {
+        string optFlags = platform == OSPlatform.Windows ? "pgo" : "pgo+lto";
+        string platformLabel;
+        string build;
+        if (freeThreaded)
+        {
+            build = debug ? "freethreaded+debug" : $"freethreaded+{optFlags}";
+        }
+        else
+        {
+            build = debug ? "debug" : optFlags;
+        }
+
+        if (platform == OSPlatform.Windows)
+        {
+            platformLabel = architecture switch
+            {
+                Architecture.X86 => $"i686-pc-windows-msvc-{build}-full",
+                Architecture.X64 => $"x86_64-pc-windows-msvc-{build}-full",
+                Architecture.Arm64 => $"aarch64-pc-windows-msvc-{build}-full",
+                _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{architecture}'.")
+            };
+        }
+        else if (platform == OSPlatform.OSX)
+        {
+            platformLabel = architecture switch
+            {
+                // No such thing as i686 mac
+                Architecture.X64 => $"x86_64-apple-darwin-{build}-full",
+                Architecture.Arm64 => $"aarch64-apple-darwin-{build}-full",
+                _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{architecture}'.")
+            };
+        }
+        else if (platform == OSPlatform.Linux)
+        {
+            platformLabel = architecture switch
+            {
+                Architecture.X86 => $"i686-unknown-linux-gnu-{build}-full",
+                Architecture.X64 => $"x86_64-unknown-linux-gnu-{build}-full",
+                Architecture.Arm64 => $"aarch64-unknown-linux-gnu-{build}-full",
+                // .NET doesn't run on armv7 anyway.. don't try that
+                _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{architecture}'.")
+            };
+        }
+        else
+        {
+            throw new PlatformNotSupportedException($"Unsupported platform: '{platform}'.");
+        }
+
+        return $"https://github.com/astral-sh/python-build-standalone/releases/download/{standaloneRelease}/cpython-{version.AsString()}+{standaloneRelease}-{platformLabel}.tar.zst";
     }
 
     protected override string GetLibPythonPath(string folder, bool freeThreaded = false)
@@ -303,7 +325,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
             {
                 File.CreateSymbolicLink(path, link);
             }
-            catch (System.IO.DirectoryNotFoundException ex)
+            catch (DirectoryNotFoundException ex)
             {
                 // This is common in the packages
                 logger?.LogWarning(ex, "Failed to create symlink: {Path} -> {Link}", path, link);

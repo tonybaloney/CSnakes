@@ -5,9 +5,15 @@ using ZstdSharp;
 
 namespace CSnakes.Runtime.Locators;
 
-internal class StaticVersionAttribute(string version, bool supportsFreeThreading) : Attribute
+internal class StaticVersionAttribute(string version, int minor, int build, bool supportsFreeThreading) : Attribute
 {
+    internal StaticVersionAttribute(string version, bool supportsFreeThreading)
+        : this(version, int.Parse(version.Split('.')[1]), int.Parse(version.Split('.')[2]), supportsFreeThreading)
+    {
+    }
+
     public string Version => version;
+    public Version VersionBranch => new(3, minor, build);
     public bool SupportsFreeThreading => supportsFreeThreading;
 }
 
@@ -28,7 +34,7 @@ public enum RedistributablePythonVersion
     [StaticVersion("3.13.6", true)]
     Python3_13,
 
-    [StaticVersion("3.14.0rc1", true)]
+    [StaticVersion("3.14.0rc1", 14, 0, true)]
     Python3_14,
 }
 
@@ -40,9 +46,7 @@ file static class RedistributablePythonVersionExtensions
         var versionAttribute = (StaticVersionAttribute)Attribute.GetCustomAttribute(
             typeof(RedistributablePythonVersion).GetField(version.ToString())!,
             typeof(StaticVersionAttribute))!;
-        // Strip bX or rcX suffixes if present
-
-        return new Version(versionAttribute.Version);
+        return versionAttribute.VersionBranch;
     }
 
     public static string AsString(this RedistributablePythonVersion version)
@@ -156,7 +160,13 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
             // Linux aarch64 doesn't have PGO, only LTO
             // macOS has both PGO and LTO builds
 
-            string downloadUrl = GetDownloadUrl(OSPlatform.Create(RuntimeInformation.OSDescription), RuntimeInformation.ProcessArchitecture, freeThreaded, debug, version);
+            // TODO: Find a better way to determine the OS platform enum at runtime.
+            OSPlatform osPlatform = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? OSPlatform.Windows :
+                RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OSPlatform.OSX :
+                RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? OSPlatform.Linux :
+                throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
+
+            string downloadUrl = GetDownloadUrl(osPlatform, RuntimeInformation.ProcessArchitecture, freeThreaded, debug, version);
 
             // Download and extract the Zstd tarball
             logger?.LogDebug("Downloading Python from {DownloadUrl}", downloadUrl);

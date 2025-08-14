@@ -399,20 +399,6 @@ public partial class PyObject : SafeHandle, ICloneable
         return Call(args, kwargs.ToArray());
     }
 
-    [Obsolete($"Use {nameof(Call)} overload that takes read-only spans of arguments and keyword arguments.")]
-    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)
-    {
-        // No keyword parameters supplied
-        if (kwnames is null && kwargs is null)
-            return CallWithArgs(args);
-        // Keyword args are empty and kwargs is empty.
-        if (kwnames is not null && kwnames.Length == 0 && (kwargs is null || kwargs.Count == 0))
-            return CallWithArgs(args);
-
-        MergeKeywordArguments(kwnames ?? [], kwvalues ?? [], kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues);
-        return CallWithKeywordArguments(args, combinedKwnames, combinedKwvalues);
-    }
-
     public PyObject Call(ReadOnlySpan<PyObject> args, params ReadOnlySpan<PyObject> argv)
     {
         switch (args.Length, argv.Length)
@@ -571,6 +557,20 @@ public partial class PyObject : SafeHandle, ICloneable
                 m.Free();
             }
         }
+    }
+
+    [Obsolete($"Use {nameof(Call)} overload that takes read-only spans of arguments and keyword arguments.")]
+    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)
+    {
+        // No keyword parameters supplied
+        if (kwnames is null && kwargs is null)
+            return CallWithArgs(args);
+        // Keyword args are empty and kwargs is empty.
+        if (kwnames is not null && kwnames.Length == 0 && (kwargs is null || kwargs.Count == 0))
+            return CallWithArgs(args);
+
+        MergeKeywordArguments(kwnames ?? [], kwvalues ?? [], kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues);
+        return CallWithKeywordArguments(args, combinedKwnames, combinedKwvalues);
     }
 
     /// <summary>

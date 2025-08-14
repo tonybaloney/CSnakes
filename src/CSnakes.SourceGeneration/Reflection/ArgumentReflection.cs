@@ -42,7 +42,6 @@ public class ArgumentReflection
                     from t in TypeReflection.AsPredefinedType(type, conversionDirection)
                     select (Type: t, LiteralExpression: (dv, t) switch
                     {
-                        (null, _) => null,
                         (PythonConstant.HexadecimalInteger { Value: var v },
                          PredefinedTypeSyntax { Keyword.Value: "long" }) =>
                             SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,

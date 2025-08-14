@@ -39,7 +39,7 @@ jobs:
           "For each of the added lines in this output from git diff (those starting +), review grammatical \
           or spelling mistakes and print out the fixes. Only report spelling, punctuation and grammatical errors. \
           Use the formatting for GitHub Actions, e.g. \
-              >> ::warning file=app.py,line=10,col=5::Code formatting issues detected"
+              ::warning file=app.py,line=10,col=5::Code formatting issues detected"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build HTML with mkdocs (strict)

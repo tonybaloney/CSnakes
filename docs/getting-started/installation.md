@@ -29,7 +29,7 @@ If you have Python installed on your system, you can use it directly:
 builder.Services
     .WithPython()
     .WithHome(home)
-    .FromEnvironmentVariable("PYTHONHOME"); // Uses system Python
+    .FromEnvironmentVariable("PYTHONHOME", "3.12"); // Uses system Python
 ```
 
 ### Option 3: Use Conda
@@ -40,7 +40,7 @@ If you're using Conda environments:
 builder.Services
     .WithPython()
     .WithHome(home)
-    .FromConda("myenv"); // Uses specified Conda environment
+    .FromConda(condaBinPath); // Uses `conda` at specified path
 ```
 
 ## Installing the NuGet Package
@@ -64,7 +64,7 @@ dotnet add package CSnakes.Runtime
 Add this to your `.csproj` file:
 
 ```xml
-<PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
+<PackageReference Include="CSnakes.Runtime" Version="2.*-*" />
 ```
 
 This package includes both the source generator and runtime libraries.

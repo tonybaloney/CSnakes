@@ -33,6 +33,7 @@ CSnakes supports the following typed scenarios:
 | `typing.Generator[TYield, TSend, TReturn]` | `IGeneratorIterator<TYield, TSend, TReturn>` |
 | `typing.Buffer`        | `IPyBuffer` [2](buffers.md) |
 | `typing.Coroutine[TYield, TSend, TReturn]` | `Task<TYield>` [3](async.md) |
+| `typing.Union[T1, T2, ...] | [C# Overloads](#unions) |
 | `None` (Return)        | `void`            |
 
 ## Optional Types
@@ -61,6 +62,35 @@ public string? FindUser(long userId);
 public string ProcessOptional(long? value = null);
 public void OptionalOldStyle(long? value = null);
 ```
+
+## Unions
+
+Python has two ways of specifying type unions. 
+
+1. From Python 3.10, type unions can be written as `T1 | T2`
+1. Using the `typing.Union[T1, T2, ...]` syntax
+
+CSnakes will generate overloads for the union types when any of them are supported types in [supported type mappings](#supported-type-mappings).
+
+For example, this function in Python:
+
+```python
+def process_data(data: int | str) -> str:
+    if isinstance(data, int):
+        return f"Processing integer: {data}"
+    return f"Processing string: {data}"
+```
+
+Will generate overloads in C#:
+
+```csharp
+public string ProcessData(long data);
+public string ProcessData(string data);
+```
+
+This feature only works with parameters, not return types. Any union return type will be treated as a `PyObject` and the developer will need to determine the type at runtime.
+
+If multiple parameters have union types, CSnakes will generate overloads for each combination of the union types.
 
 ## Collections
 
@@ -207,6 +237,47 @@ if (obj.HasAttr("keys"))
 ```
 
 See [handling Python Objects](pyobject.md) for more details and examples.
+
+## Typing Third-Party Packages with Type Stubs
+
+Sometimes you want to use a package which doesn't have type information. Python provides the ability to describe the types and function
+signatures for a package using ["type-stubs" in the form of `.pyi` files](https://typing.python.org/en/latest/spec/distributing.html#stub-files).
+
+CSnakes will generate bindings for `.pyi` files in your project whether included [manually or automatically](configuration.md#discovering-python-files-for-source-generation).
+
+Python type stubs have no implementation for methods, functions, or attributes. Take this example:
+
+```python
+def create(name: str, count: int) -> list[str]:
+    ...
+```
+
+The ellipsis (`...`) denotes this function has no implementation.
+
+This works best with [Root Namespaces](configuration.md#namespaces-and-roots-optional).
+
+IF there were a library called `http_client` which you want to use specific functions from, you could add a file, `http_client.pyi` to your .NET project:
+
+```python
+def get(url: str) -> dict[str, Any]:
+    ...
+
+def post(url: str, data: dict[str, Any]) -> dict[str, Any]:
+    ...
+
+def delete(url: str) -> dict[str, Any]:
+    ...
+```
+
+Then CSnakes would generate a module for `http_client` called `HttpClient` with the methods:
+
+```csharp
+    public IReadOnlyDictionary<string, object> Get(string url);
+    public IReadOnlyDictionary<string, object> Post(string url, IReadOnlyDictionary<string, object> data);
+    public IReadOnlyDictionary<string, object> Delete(string url);
+```
+
+When calling those methods, it would `import http_client`, so as long as that package is installed into the Python environment the functions will be available.
 
 ## Best Practices
 

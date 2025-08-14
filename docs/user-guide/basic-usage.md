@@ -41,11 +41,11 @@ Add the Python file to your `.csproj`:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
+    <PackageReference Include="CSnakes.Runtime" Version="2.*-*" />
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="math_utils.py">
+    <AdditionalFiles Include="math_utils.py" SourceItemType="Python">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
   </ItemGroup>

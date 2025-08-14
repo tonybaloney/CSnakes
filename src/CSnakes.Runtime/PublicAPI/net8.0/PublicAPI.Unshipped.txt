@@ -1,4 +1,5 @@
 #nullable enable
+static CSnakes.Runtime.Python.PyObject.From(System.ReadOnlySpan<byte> value) -> CSnakes.Runtime.Python.PyObject!
 CSnakes.Runtime.Python.KeywordArg
 CSnakes.Runtime.Python.KeywordArg.Deconstruct(out string! Name, out CSnakes.Runtime.Python.PyObject! Value) -> void
 CSnakes.Runtime.Python.KeywordArg.Equals(CSnakes.Runtime.Python.KeywordArg other) -> bool

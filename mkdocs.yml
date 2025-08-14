@@ -8,6 +8,7 @@ nav:
     - Templates: getting-started/templates.md
   - User Guide:
     - Basic Usage: user-guide/basic-usage.md
+    - Configuration: user-guide/configuration.md
     - Type System: user-guide/type-system.md
     - Working with PyObject: user-guide/pyobject.md
     - Environment Management: user-guide/environments.md
@@ -68,3 +69,8 @@ markdown_extensions:
   - attr_list
   - admonition
   - pymdownx.details
+plugins:
+  - mike
+extra:
+  version:
+    provider: mike

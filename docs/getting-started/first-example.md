@@ -25,17 +25,33 @@ Mark the Python file as an "Additional File" in your `.csproj` file:
 
 ```xml
 <ItemGroup>
-    <AdditionalFiles Include="demo.py">
+    <AdditionalFiles Include="demo.py" SourceItemType="Python">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
 </ItemGroup>
 ```
 
-Alternatively, in Visual Studio:
+Take care to not forget the `SourceItemType="Python"` bit.
 
-1. Right-click the Python file
-2. Select "Properties"
-3. Set **Build Action** to **C# analyzer additional file**
+MSBuild supports globbing, so you can also mark all Python files in a directory
+as additional files:
+
+```xml
+<ItemGroup>
+    <AdditionalFiles Include="*.py" SourceItemType="Python">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AdditionalFiles>
+</ItemGroup>
+```
+
+Alternatively, you can configure CSnakes to parse all `*.py` files by default,
+by setting the `DefaultPythonItems` property to `true` in the project file:
+
+```xml
+<PropertyGroup>
+    <DefaultPythonItems>true</DefaultPythonItems>
+</PropertyGroup>
+```
 
 ## Step 3: Write the C# Code
 

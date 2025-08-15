@@ -70,6 +70,8 @@ var app = builder.Build();
 var env = app.Services.GetRequiredService<IPythonEnvironment>();
 ```
 
+**Note:** `FromRedistributable()` automatically downloads and caches Python. You can customize the cache location by setting the `CSNAKES_REDIST_CACHE` environment variable to override the default application data folder.
+
 ### 4. Call Python Functions
 
 ```csharp

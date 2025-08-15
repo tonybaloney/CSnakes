@@ -23,6 +23,8 @@ This guide helps you diagnose and resolve common issues when working with CSnake
        .WithHome(pythonHome)
        .FromRedistributable(); // Automatically downloads Python
    ```
+   
+   **Tip:** You can customize the cash location by setting the `CSNAKES_REDIST_CACHE` environment variable to override, the default application data folder.
 
 2. **Set Environment Variable**
    ```bash

@@ -44,6 +44,8 @@ var app = builder.Build();
 env = app.Services.GetRequiredService<IPythonEnvironment>();
 ```
 
+**Note:** You can customize the Python cache location by setting the `CSNAKES_REDIST_CACHE` environment variable to override the default application data folder.
+
 ## Next Steps
 
 - [Learn about Native AOT support](native-aot.md)

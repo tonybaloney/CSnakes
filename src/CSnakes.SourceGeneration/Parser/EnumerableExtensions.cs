@@ -69,5 +69,5 @@ internal static partial class EnumerableExtensions
     }
 
     public static IEnumerable<T> Append<T>(this IEnumerable<T> source, T item) =>
-        source.Concat([ item ]);
+        source.Concat([item]);
 }

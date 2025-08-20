@@ -12,19 +12,16 @@ public class BaseBenchmark
 
     public BaseBenchmark()
     {
-        string pythonVersionWindows = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9";
-        string pythonVersionMacOS = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
-        string pythonVersionLinux = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
-
+        var pythonVersion = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
 
         var builder = Host.CreateApplicationBuilder();
         var pb = builder.Services.WithPython();
         pb.WithHome(Path.Join(Environment.CurrentDirectory));
 
-        pb.FromNuGet(pythonVersionWindows)
-          .FromMacOSInstallerLocator(pythonVersionMacOS)
-          .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux);
-        
+        pb.FromRedistributable(pythonVersion)
+          .FromMacOSInstallerLocator(pythonVersion)
+          .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersion);
+
         IHost app = builder.Build();
 
         Env = app.Services.GetRequiredService<IPythonEnvironment>();

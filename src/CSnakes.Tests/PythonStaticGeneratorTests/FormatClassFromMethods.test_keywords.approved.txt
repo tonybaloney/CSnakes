@@ -92,12 +92,12 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_keyword_only;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
-                _ = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject], ["b"], [b_pyObject], null);
+                _ = __underlyingPythonFunc.Call([a_pyObject], default, [new("b", b_pyObject)], default);
                 return;
             }
         }
 
-        public void TestNamedKeywordOnly(string a, long b = 0, PyObject[]? args = null)
+        public void TestNamedKeywordOnly(string a, long b = 0, ReadOnlySpan<PyObject> args = default)
         {
             using (GIL.Acquire())
             {
@@ -105,7 +105,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_named_keyword_only;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
-                _ = __underlyingPythonFunc.CallWithKeywordArguments([a_pyObject, ..args ?? []], ["b"], [b_pyObject], null);
+                _ = __underlyingPythonFunc.Call([a_pyObject], args, [new("b", b_pyObject)], default);
                 return;
             }
         }
@@ -131,7 +131,7 @@ public interface ITestClass : IReloadableModuleImport
     /// def test_named_keyword_only(a: str, *args, b: int = 0) -> None: ...
     /// ]]></code>
     /// </summary>
-    void TestNamedKeywordOnly(string a, long b = 0, PyObject[]? args = null);
+    void TestNamedKeywordOnly(string a, long b = 0, ReadOnlySpan<PyObject> args = default);
 }
 
 file static class ThisModule

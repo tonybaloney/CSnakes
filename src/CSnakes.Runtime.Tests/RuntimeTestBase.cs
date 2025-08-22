@@ -11,20 +11,15 @@ public class RuntimeTestBase : IDisposable
 
     public RuntimeTestBase()
     {
-        string pythonVersionWindows = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9";
-        string pythonVersionMacOS = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
-        string pythonVersionLinux = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
+        string pythonVersion = Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12";
         bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "true";
+        string shortVersion = string.Join('.', pythonVersion.Split('.').Take(2));
 
         var builder = Host.CreateApplicationBuilder();
-        var pb = builder.Services.WithPython();
-        pb.WithHome(Environment.CurrentDirectory);
-
-        pb
-          .FromNuGet(pythonVersionWindows)
-          .FromMacOSInstallerLocator(pythonVersionMacOS, freeThreaded)
-          .FromWindowsStore("3.12")
-          .FromEnvironmentVariable("Python3_ROOT_DIR", pythonVersionLinux); // This last one is for GitHub Actions
+        builder.Services
+          .WithPython()
+          .WithHome(Environment.CurrentDirectory)
+          .FromRedistributable(version: shortVersion, freeThreaded: freeThreaded);
 
         builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
         

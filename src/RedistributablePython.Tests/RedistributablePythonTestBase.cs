@@ -14,7 +14,7 @@ public class RedistributablePythonTestBase : IDisposable
         Version pythonVersionToTest = ServiceCollectionExtensions.ParsePythonVersion(Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9");
         bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "1";
         bool debugPython = Environment.GetEnvironmentVariable("PYTHON_DEBUG") == "1";
-        string venvPath = Path.Join(Environment.CurrentDirectory, "python", $".venv-{pythonVersionToTest}{freeThreaded ? "t"}{debugPython ? "d"}");
+        string venvPath = Path.Join(Environment.CurrentDirectory, "python", $".venv-{pythonVersionToTest}{(freeThreaded ? "t" : "")}{(debugPython ? "d" : "")}");
 
         RedistributablePythonVersion redistributableVersion = pythonVersionToTest.Minor switch
         {

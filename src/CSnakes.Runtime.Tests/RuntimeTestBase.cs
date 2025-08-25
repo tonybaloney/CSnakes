@@ -1,3 +1,4 @@
+using CSnakes.Runtime.Locators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -29,7 +30,7 @@ public class RuntimeTestBase : IDisposable
         var builder = Host.CreateApplicationBuilder();
         var pb = builder.Services.WithPython();
         pb.WithHome(Environment.CurrentDirectory)
-          .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
+          .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded);
 
         builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
         

@@ -41,7 +41,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest, ubuntu-24.04-arm]
-        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
       fail-fast: false
     runs-on: "${{ matrix.os }}"
 
@@ -54,6 +54,7 @@ jobs:
         with:
           auto-update-conda: true
           python-version: "${{ matrix.python }}"
+          channels: conda-forge, conda-forge/label/python_rc
           activate-environment: csnakes_test
           environment-file: src/Conda.Tests/python/environment.yml
       - name: cleanup conda-incubator/setup-miniconda
@@ -62,11 +63,6 @@ jobs:
         run: |
           conda env export --name csnakes_test
           conda info
-      - name: Setup Python
-        id: installpython
-        uses: actions/setup-python@v5
-        with:
-          python-version: "${{ matrix.python }}"
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -88,7 +84,7 @@ jobs:
         run: dotnet restore -bl:${{ github.workspace }}/restore-${{ matrix.os }}-${{ matrix.python }}.binlog
         working-directory: src
         env:
-          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          PYTHON_VERSION: ${{ matrix.python }}
 
       - name: Build
         run: dotnet build --no-restore -bl:${{ github.workspace }}/build-${{ matrix.os }}-${{ matrix.python }}.binlog
@@ -98,7 +94,7 @@ jobs:
         run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog
         working-directory: src
         env:
-          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          PYTHON_VERSION: ${{ matrix.python }}
           UV_NO_CACHE: 1
 
       - name: Test Free Threaded
@@ -106,7 +102,7 @@ jobs:
         if: startsWith(matrix.python, '3.13') || startsWith(matrix.python, '3.14')
         working-directory: src
         env:
-          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          PYTHON_VERSION: ${{ matrix.python }}
           UV_NO_CACHE: 1
           PYTHON_FREETHREADED: 1
 
@@ -116,7 +112,7 @@ jobs:
         # Only test Linux
         if: runner.os == 'Linux'
         env:
-          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          PYTHON_VERSION: ${{ matrix.python }}
           UV_NO_CACHE: 1
           PYTHON_DEBUG: 1
 
@@ -125,7 +121,7 @@ jobs:
         if: (startsWith(matrix.python, '3.13') || startsWith(matrix.python, '3.14')) && runner.os != 'Windows'
         working-directory: src
         env:
-          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          PYTHON_VERSION: ${{ matrix.python }}
           UV_NO_CACHE: 1
           PYTHON_FREETHREADED: 1
           PYTHON_DEBUG: 1

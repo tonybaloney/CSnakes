@@ -84,7 +84,7 @@ jobs:
         run: dotnet restore -bl:${{ github.workspace }}/restore-${{ matrix.os }}-${{ matrix.python }}.binlog
         working-directory: src
         env:
-          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          PYTHON_VERSION: ${{ matrix.python }}
 
       - name: Build
         run: dotnet build --no-restore -bl:${{ github.workspace }}/build-${{ matrix.os }}-${{ matrix.python }}.binlog
@@ -94,7 +94,7 @@ jobs:
         run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog
         working-directory: src
         env:
-          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          PYTHON_VERSION: ${{ matrix.python }}
           UV_NO_CACHE: 1
 
       - name: Test Free Threaded
@@ -102,7 +102,7 @@ jobs:
         if: startsWith(matrix.python, '3.13') || startsWith(matrix.python, '3.14')
         working-directory: src
         env:
-          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          PYTHON_VERSION: ${{ matrix.python }}
           UV_NO_CACHE: 1
           PYTHON_FREETHREADED: 1
 
@@ -112,7 +112,7 @@ jobs:
         # Only test Linux
         if: runner.os == 'Linux'
         env:
-          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          PYTHON_VERSION: ${{ matrix.python }}
           UV_NO_CACHE: 1
           PYTHON_DEBUG: 1
 
@@ -121,7 +121,7 @@ jobs:
         if: (startsWith(matrix.python, '3.13') || startsWith(matrix.python, '3.14')) && runner.os != 'Windows'
         working-directory: src
         env:
-          PYTHON_VERSION: ${{ steps.installpython.outputs.python-version }}
+          PYTHON_VERSION: ${{ matrix.python }}
           UV_NO_CACHE: 1
           PYTHON_FREETHREADED: 1
           PYTHON_DEBUG: 1

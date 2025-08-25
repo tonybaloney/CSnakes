@@ -15,7 +15,6 @@
     <PackageReference Include="System.Text.RegularExpressions" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio" />
-    <PackageReference Include="python" />
     <PackageReference Include="MartinCostello.Logging.XUnit.v3" />
   </ItemGroup>
 

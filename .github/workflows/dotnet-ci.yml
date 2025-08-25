@@ -63,11 +63,6 @@ jobs:
         run: |
           conda env export --name csnakes_test
           conda info
-      - name: Setup Python
-        id: installpython
-        uses: actions/setup-python@v5
-        with:
-          python-version: "${{ matrix.python }}"
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4

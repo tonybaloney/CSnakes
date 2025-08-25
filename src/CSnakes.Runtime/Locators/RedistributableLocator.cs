@@ -5,58 +5,23 @@ using ZstdSharp;
 
 namespace CSnakes.Runtime.Locators;
 
-internal class StaticVersionAttribute(string version, int minor, int build, bool supportsFreeThreading) : Attribute
+public sealed record RedistributablePythonVersion
 {
-    internal StaticVersionAttribute(string version, bool supportsFreeThreading)
-        : this(version, int.Parse(version.Split('.')[1]), int.Parse(version.Split('.')[2]), supportsFreeThreading)
-    {
-    }
+    public static readonly RedistributablePythonVersion Python3_9  = new(new Version(3, 9, 23));
+    public static readonly RedistributablePythonVersion Python3_10 = new(new Version(3, 10, 18));
+    public static readonly RedistributablePythonVersion Python3_11 = new(new Version(3, 11, 13));
+    public static readonly RedistributablePythonVersion Python3_12 = new(new Version(3, 12, 11));
+    public static readonly RedistributablePythonVersion Python3_13 = new(new Version(3, 13, 6)) { SupportsFreeThreading = true };
+    public static readonly RedistributablePythonVersion Python3_14 = new(new Version(3, 14, 0), "rc1") { SupportsFreeThreading = true };
 
-    public string Version => version;
-    public Version VersionBranch => new(3, minor, build);
-    public bool SupportsFreeThreading => supportsFreeThreading;
-}
+    private RedistributablePythonVersion(Version version, string? preRelease = null) =>
+        (Version, PreRelease) = (version, preRelease);
 
-public enum RedistributablePythonVersion
-{
-    [StaticVersion("3.9.23", false)]
-    Python3_9,
+    internal Version Version { get; init; }
+    internal string? PreRelease { get; init; }
+    internal bool SupportsFreeThreading { get; init; }
 
-    [StaticVersion("3.10.18", false)]
-    Python3_10,
-
-    [StaticVersion("3.11.13", false)]
-    Python3_11,
-
-    [StaticVersion("3.12.11", false)]
-    Python3_12,
-
-    [StaticVersion("3.13.6", true)]
-    Python3_13,
-
-    [StaticVersion("3.14.0rc1", 14, 0, true)]
-    Python3_14,
-}
-
-file static class RedistributablePythonVersionExtensions
-{
-    internal static Version AsVersion(this RedistributablePythonVersion version)
-    {
-        // Get the version from the attribute
-        var versionAttribute = (StaticVersionAttribute)Attribute.GetCustomAttribute(
-            typeof(RedistributablePythonVersion).GetField(version.ToString())!,
-            typeof(StaticVersionAttribute))!;
-        return versionAttribute.VersionBranch;
-    }
-
-    internal static string AsString(this RedistributablePythonVersion version)
-    {
-        // Get the version from the attribute
-        var versionAttribute = (StaticVersionAttribute)Attribute.GetCustomAttribute(
-            typeof(RedistributablePythonVersion).GetField(version.ToString())!,
-            typeof(StaticVersionAttribute))!;
-        return versionAttribute.Version;
-    }
+    internal string DottedString => $"{Version}{PreRelease}"; // e.g. 3.14.0rc1
 }
 
 internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, RedistributablePythonVersion version, int installerTimeout = 360, bool debug = false, bool freeThreaded = false) : PythonLocator
@@ -64,20 +29,8 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
     private const string standaloneRelease = "20250808";
     private const string MutexName = @"Global\CSnakesPythonInstall-1"; // run-time name includes Python version
 
-    protected override Version Version => version.AsVersion();
-    protected string VersionString => version.AsString();
-
-    protected bool SupportsFreeThreading
-    {
-        get
-        {
-            // Get the supportsFreeThreading from the attribute
-            var versionAttribute = (StaticVersionAttribute)Attribute.GetCustomAttribute(
-                typeof(RedistributablePythonVersion).GetField(version.ToString())!,
-                typeof(StaticVersionAttribute))!;
-            return versionAttribute.SupportsFreeThreading;
-        }
-    }
+    protected override Version Version => version.Version;
+    protected bool SupportsFreeThreading => version.SupportsFreeThreading;
 
     protected override string GetPythonExecutablePath(string folder, bool freeThreaded = false)
     {
@@ -92,7 +45,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
 
     public override PythonLocationMetadata LocatePython()
     {
-        string dottedVersion = VersionString;
+        string dottedVersion = version.DottedString;
         if (debug)
         {
             dottedVersion += "d";
@@ -241,7 +194,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
             throw new PlatformNotSupportedException($"Unsupported platform: '{platform}'.");
         }
 
-        return $"https://github.com/astral-sh/python-build-standalone/releases/download/{standaloneRelease}/cpython-{version.AsString()}+{standaloneRelease}-{platformLabel}.tar.zst";
+        return $"https://github.com/astral-sh/python-build-standalone/releases/download/{standaloneRelease}/cpython-{version.DottedString}+{standaloneRelease}-{platformLabel}.tar.zst";
     }
 
     protected override string GetLibPythonPath(string folder, bool freeThreaded = false)

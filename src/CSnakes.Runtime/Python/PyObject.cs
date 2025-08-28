@@ -492,16 +492,24 @@ public partial class PyObject : SafeHandle, ICloneable
     {
         switch (args.Length, argv.Length, kwargs.Length, kwargv.Length)
         {
-            case (0  , 0  , 0  , 0  ): return Call();
-            case (> 0, 0  , 0  , 0  ): return Call(args);
-            case (0  , > 0, 0  , 0  ): return Call(argv);
-            case (> 0, > 0, 0  , 0  ): return Call(args, argv);
-            case (0  , 0  , > 0, 0  ): return Call([], kwargs);
-            case (0  , 0  , 0  , > 0): return Call([], kwargv);
-            case (> 0, 0  , 0  , > 0): return Call(args, kwargv);
-            case (0  , > 0, 0  , > 0): return Call(argv, kwargv);
-            case (> 0, 0  , > 0, 0  ): return Call(args, kwargs);
-            case (0  , > 0, > 0, 0  ): return Call(argv, kwargs);
+            //
+            // Fast paths for common cases without needing any array allocations for combining the
+            // arguments...
+            //
+            case (0  , 0  , 0  , 0  ): /* No arguments at all          */ return Call();
+            case (> 0, 0  , 0  , 0  ): /* Only positional args         */ return Call(args);
+            case (0  , > 0, 0  , 0  ): /* Only "*args"                 */ return Call(argv);
+            case (> 0, > 0, 0  , 0  ): /* Positional args & "*args"    */ return Call(args, argv);
+            case (0  , 0  , > 0, 0  ): /* Only keyword args            */ return Call([], kwargs);
+            case (0  , 0  , 0  , > 0): /* Only "**kwargs"              */ return Call([], kwargv);
+            case (> 0, 0  , 0  , > 0): /* Positional args & "**kwargs" */ return Call(args, kwargv);
+            case (0  , > 0, 0  , > 0): /* "*args" & "**kwargs"         */ return Call(argv, kwargv);
+            case (> 0, 0  , > 0, 0  ): /* Positional & keyword args    */ return Call(args, kwargs);
+            case (0  , > 0, > 0, 0  ): /* "*args" & keyword args       */ return Call(argv, kwargs);
+            //
+            // Combine keyword args & "**kwargs" without needing an array allocation when total
+            // count <= 16 and only either positional arguments or "*args" are present.
+            //
             case var (a, b, c, d) when (a == 0 || b == 0) && c + d <= 16:
             {
                 InlineArray16<KeywordArg> all = default;

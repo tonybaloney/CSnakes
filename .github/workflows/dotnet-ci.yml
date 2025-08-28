@@ -36,8 +36,41 @@ jobs:
           python -m pip install pyright attrs
           python -m pip install -r src/Integration.Tests/python/requirements.txt
           pyright src/*.Tests/**/*.py
+  unit-test:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest, ubuntu-24.04-arm]
+      fail-fast: true
+    runs-on: "${{ matrix.os }}"
+    steps:
+      - uses: actions/cache@v4
+        name: Cache NuGet packages
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('src/Directory.Packages.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
-  build:
+      - name: Restore dependencies
+        run: dotnet restore -bl:${{ github.workspace }}/restore-${{ matrix.os }}-${{ matrix.python }}.binlog
+        working-directory: src
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
+
+      - name: Build
+        run: dotnet build --no-restore -bl:${{ github.workspace }}/build-${{ matrix.os }}-${{ matrix.python }}.binlog
+        working-directory: src
+
+      - name: Test CSnakes.Tests
+        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog CSnakes.Tests
+        working-directory: src
+      - name: Test CSnakes.Runtime.Tests
+        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog CSnakes.Runtime.Tests
+        working-directory: src
+      - name: Test StdLib.Tests
+        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog StdLib.Tests
+        working-directory: src
+  integration-test:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest, ubuntu-24.04-arm]
@@ -90,15 +123,15 @@ jobs:
         run: dotnet build --no-restore -bl:${{ github.workspace }}/build-${{ matrix.os }}-${{ matrix.python }}.binlog
         working-directory: src
 
-      - name: Test
-        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog
+      - name: Integration Tests
+        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog Integration.Tests
         working-directory: src
         env:
           PYTHON_VERSION: ${{ matrix.python }}
           UV_NO_CACHE: 1
 
-      - name: Test Free Threaded
-        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog RedistributablePython.Tests
+      - name: Integration Tests (Free Threaded)
+        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog Integration.Tests
         if: startsWith(matrix.python, '3.13') || startsWith(matrix.python, '3.14')
         working-directory: src
         env:
@@ -106,26 +139,18 @@ jobs:
           UV_NO_CACHE: 1
           PYTHON_FREETHREADED: 1
 
-      - name: Test debug Python
-        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog RedistributablePython.Tests
-        working-directory: src
-        # Only test Linux
-        if: runner.os == 'Linux'
-        env:
-          PYTHON_VERSION: ${{ matrix.python }}
-          UV_NO_CACHE: 1
-          PYTHON_DEBUG: 1
-
-      - name: Test Free Threaded Debug
-        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog RedistributablePython.Tests
-        if: (startsWith(matrix.python, '3.13') || startsWith(matrix.python, '3.14')) && runner.os != 'Windows'
+      - name: Test Conda
+        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog Conda.Tests
         working-directory: src
         env:
           PYTHON_VERSION: ${{ matrix.python }}
           UV_NO_CACHE: 1
-          PYTHON_FREETHREADED: 1
-          PYTHON_DEBUG: 1
-
+      - name: Test UV/Redist
+        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog RedistributablePython.Tests
+        working-directory: src
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
+          UV_NO_CACHE: 1
       - name: Upload logs
         uses: actions/upload-artifact@v4
         if: always()

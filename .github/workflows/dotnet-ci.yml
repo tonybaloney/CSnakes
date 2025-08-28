@@ -7,15 +7,21 @@ on:
   push:
     branches: ["main"]
     paths:
+      - ".github/workflows/dotnet-ci.yml"
       - "src/**"
       - "templates/**"
       - "samples/**"
   pull_request:
     branches: ["main"]
     paths:
+      - ".github/workflows/dotnet-ci.yml"
       - "src/**"
       - "templates/**"
       - "samples/**"
+
+permissions:
+  contents: read
+
 
 jobs:
   validate-python:
@@ -37,6 +43,9 @@ jobs:
           python -m pip install -r src/Integration.Tests/python/requirements.txt
           pyright src/*.Tests/**/*.py
   unit-test:
+    permissions:
+      contents: read
+      actions: write # For actions/cache
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest, ubuntu-24.04-arm]
@@ -52,7 +61,7 @@ jobs:
           dotnet-version: |
             8.0.x
             9.0.x
-            10.0.100-preview.4.25258.110
+            10.0.100-preview.7.25380.108
       - uses: actions/cache@v4
         name: Cache NuGet packages
         with:
@@ -81,6 +90,9 @@ jobs:
         run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog StdLib.Tests
         working-directory: src
   integration-test:
+    permissions:
+      contents: read
+      actions: write # For actions/cache and upload-artifact
     needs: unit-test
     strategy:
       matrix:
@@ -114,7 +126,7 @@ jobs:
           dotnet-version: |
             8.0.x
             9.0.x
-            10.0.100-preview.4.25258.110
+            10.0.100-preview.7.25380.108
 
       - uses: actions/cache@v4
         name: Cache NuGet packages
@@ -204,7 +216,7 @@ jobs:
           dotnet-version: |
             8.0.x
             9.0.x
-            10.0.100-preview.4.25258.110
+            10.0.100-preview.7.25380.108
 
       - name: Install Aspire workload
         run: dotnet workload install aspire

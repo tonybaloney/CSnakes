@@ -23,6 +23,7 @@ nav:
     - Overview: advanced/advanced-usage.md
     - Large Integers: advanced/big-integers.md
     - Free-Threading: advanced/free-threading.md
+    - Additional Python Locators: advanced/additional-locators.md
     - Generators: advanced/generators.md
     - Manual Integration: advanced/manual-integration.md
     - Hot Reload: advanced/hot-reload.md

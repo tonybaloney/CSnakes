@@ -37,7 +37,7 @@ All templates support these standard dotnet new options:
 ### CSnakes Template-Specific Options
 
 - `--PythonVersion` (`-P`) - Python version to target (default: 3.12)
-  - Available options: `3.9`, `3.10`, `3.11`, `3.12`, `3.13`
+  - Available options: `3.9`, `3.10`, `3.11`, `3.12`, `3.13`, `3.14`
 - `--NoVirtualEnvironment` (`-N`) - Disable virtual environment setup (default: false)
   - When false (default), a virtual environment will be created
 - `--PackageManager` (`-Pa`) - Package manager to use (default: none)

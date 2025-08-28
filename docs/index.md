@@ -10,14 +10,14 @@ Check out the [getting started](getting-started/quick-start.md) guide or check o
 
 ## Features
 
-- 🤖 Supports .NET 8 and 9  
-- 🐍 Supports Python 3.9-3.13  
+- 🤖 Supports .NET 8, 9, and 10
+- 🐍 Supports Python 3.9-3.14
 - 📦 [Supports Virtual Environments and C-Extensions](user-guide/environments.md)  
 - 💻 Supports Windows, macOS, and Linux  
 - 🧮 [Tight integration between NumPy ndarrays and Spans, 2D Spans and TensorSpans (.NET 9)](user-guide/buffers.md)  
 - ⚡ Uses Python's C-API for fast invocation of Python code directly in the .NET process  
 - 🧠 Uses Python type hinting to generate function signatures with .NET native types  
-- 🧵 Supports [CPython 3.13 "free-threading" mode](advanced/free-threading.md)  
+- 🧵 Supports [CPython 3.13+ "free-threading" mode](advanced/free-threading.md)  
 - 🧩 Supports nested sequence and mapping types (`tuple`, `dict`, `list`)  
 - 🏷️ Supports default values  
 - 🔥 Supports [Hot Reload](advanced/hot-reload.md) of Python code in Visual Studio and supported IDEs  
@@ -26,7 +26,7 @@ Check out the [getting started](getting-started/quick-start.md) guide or check o
 ## Benefits
 
 - Uses native Python type hinting standards to produce clean, readable C# code with minimal boiler plate!
-- Integration between .NET and Python is done at the C-API, meaning strong compatibility between Python versions 3.8-3.13 and .NET 8-9.
+- Integration between .NET and Python is done at the C-API, meaning strong compatibility between Python versions 3.9-3.14 and .NET 8-10.
 - Integration is low-level and high-performance.
 - CSnakes uses the CPython C-API and is compatible with all Python extensions.
 - Invocation of Python code and libraries is in the same process as .NET

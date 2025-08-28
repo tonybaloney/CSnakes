@@ -389,6 +389,8 @@ public partial class PyObject : SafeHandle, ICloneable
     [Obsolete($"Use {nameof(Call)} overload that takes read-only spans of arguments and keyword arguments.")]
     public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null)
     {
+        if (kwnames is null)
+            return CallWithArgs(args);
         if (kwvalues is null || kwnames.Length != kwvalues.Length)
             throw new ArgumentException("kwnames and kwvalues must be the same length.");
 

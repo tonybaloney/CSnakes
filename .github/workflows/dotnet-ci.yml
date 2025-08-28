@@ -43,6 +43,9 @@ jobs:
       fail-fast: true
     runs-on: "${{ matrix.os }}"
     steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
       - uses: actions/cache@v4
         name: Cache NuGet packages
         with:
@@ -71,6 +74,7 @@ jobs:
         run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog StdLib.Tests
         working-directory: src
   integration-test:
+    needs: unit-test
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest, ubuntu-24.04-arm]
@@ -168,6 +172,7 @@ jobs:
             ${{ github.workspace }}/src/test-results/**
 
   build-samples:
+    needs: unit-test
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]

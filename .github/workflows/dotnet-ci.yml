@@ -48,7 +48,7 @@ jobs:
       actions: write # For actions/cache
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest, ubuntu-24.04-arm]
+        os: [windows-latest, windows-11-arm, ubuntu-latest, macos-latest, ubuntu-24.04-arm]
       fail-fast: true
     runs-on: "${{ matrix.os }}"
     steps:

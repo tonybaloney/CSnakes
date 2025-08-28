@@ -8,7 +8,7 @@ To get started with CSnakes manually, you need to:
 
 ## Installing Python
 
-CSnakes supports Python 3.9-3.13 and works on Windows, macOS, and Linux.
+CSnakes supports Python 3.9-3.14 and works on Windows, macOS, and Linux.
 
 ### Option 1: Let CSnakes Download Python (Recommended)
 
@@ -21,18 +21,7 @@ builder.Services
     .FromRedistributable(); // Downloads Python 3.12 automatically
 ```
 
-### Option 2: Use System Python
-
-If you have Python installed on your system, you can use it directly:
-
-```csharp
-builder.Services
-    .WithPython()
-    .WithHome(home)
-    .FromEnvironmentVariable("PYTHONHOME", "3.12"); // Uses system Python
-```
-
-### Option 3: Use Conda
+### Option 2: Use Conda
 
 If you're using Conda environments:
 
@@ -42,6 +31,11 @@ builder.Services
     .WithHome(home)
     .FromConda(condaBinPath); // Uses `conda` at specified path
 ```
+
+### Option 3: Use Platform Specific Locators for System Python
+
+If you have Python installed on your system, there are platform specific locators.
+See [Additional Locators](../advanced/additional-locators.md) for reference.
 
 ## Installing the NuGet Package
 
@@ -81,8 +75,8 @@ To setup a C# project for CSnakes, you need to:
 
 ### Requirements
 
-- .NET 8 or 9
-- Python 3.9-3.13
+- .NET 8, 9, or 10
+- Python 3.9-3.14
 - Windows, macOS, or Linux
 
 ## Next Steps

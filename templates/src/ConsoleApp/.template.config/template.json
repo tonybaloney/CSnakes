@@ -44,6 +44,11 @@
           "choice": "3.13",
           "description": "Target Python 3.13",
           "displayName": "Python 3.13"
+        },
+        {
+          "choice": "3.14",
+          "description": "Target Python 3.14",
+          "displayName": "Python 3.14"
         }
 
       ],
@@ -104,6 +109,10 @@
           {
             "condition": "(PythonVersion == '3.13')",
             "value": "Python3_13"
+          },
+          {
+            "condition": "(PythonVersion == '3.14')",
+            "value": "Python3_14"
           }
         ]
       }

@@ -124,4 +124,4 @@ var pythonBuilder = services.WithPython()
                             .FromConda(@"C:\path\to\conda");
 ```
 
-The Conda Locator should be combined with the `WithCondaEnvironment` method to specify the name of the Conda environment you want to use. See [Environment and Package Management](environments.md) for more information on managing Python environments and dependencies.
+The Conda Locator should be combined with the `WithCondaEnvironment` method to specify the name of the Conda environment you want to use. See [Environment and Package Management](../user-guide/environments.md) for more information on managing Python environments and dependencies.

@@ -473,6 +473,20 @@ public partial class PyObject : SafeHandle, ICloneable
     }
 #endif
 
+    /// <summary>
+    /// Calls the object with the given arguments and returns the result.
+    /// </summary>
+    /// <param name="args">The positional arguments.</param>
+    /// <param name="argv">
+    /// The variadic positional arguments, otherwise known as the <c>*args</c>
+    /// argument in Python.</param>
+    /// <param name="kwargs">The keyword arguments.</param>
+    /// <param name="kwargv">
+    /// The variadic keyword arguments, otherwise known as the <c>**kwargs</c>
+    /// argument.</param>
+    /// <returns>
+    /// The result of the call.
+    /// </returns>
     public PyObject Call(ReadOnlySpan<PyObject> args, ReadOnlySpan<PyObject> argv,
                          ReadOnlySpan<KeywordArg> kwargs, ReadOnlySpan<KeywordArg> kwargv)
     {

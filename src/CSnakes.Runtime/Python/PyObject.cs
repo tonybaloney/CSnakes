@@ -510,7 +510,9 @@ public partial class PyObject : SafeHandle, ICloneable
             // Combine keyword args & "**kwargs" without needing an array allocation when total
             // count <= 16 and only either positional arguments or "*args" are present.
             //
-            case var (a, b, c, d) when (a == 0 || b == 0) && c + d <= 16:
+            // Legend: c = count; v = variadic; p = positional; k = keyword
+            //
+            case var (pc, vpc, kc, vkc) when (pc == 0 || vpc == 0) && kc + vkc <= 16:
             {
                 InlineArray16<KeywordArg> all = default;
                 var j = 0;
@@ -520,7 +522,7 @@ public partial class PyObject : SafeHandle, ICloneable
                 // kwargv.CopyTo(all[kwargs.Length..]);
                 foreach (var arg in kwargv)
                     all[j++] = arg;
-                return Call(a > 0 ? args : argv, all[..(c + d)]);
+                return Call(pc > 0 ? args : argv, all[..(kc + vkc)]);
             }
             default:
             {

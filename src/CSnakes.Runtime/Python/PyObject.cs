@@ -401,6 +401,16 @@ public partial class PyObject : SafeHandle, ICloneable
         return Call(args, kwargs.ToArray());
     }
 
+    /// <summary>
+    /// Calls the object with the given positional arguments and returns the result.
+    /// </summary>
+    /// <param name="args">The positional arguments.</param>
+    /// <param name="argv">
+    /// The variadic positional arguments, otherwise known as the <c>*args</c>
+    /// argument in Python.</param>
+    /// <returns>
+    /// The result of the call.
+    /// </returns>
     public PyObject Call(ReadOnlySpan<PyObject> args, params ReadOnlySpan<PyObject> argv)
     {
         switch (args.Length, argv.Length)
@@ -424,6 +434,13 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
+    /// <summary>
+    /// Calls the object with the given positional arguments and returns the result.
+    /// </summary>
+    /// <param name="args">The positional arguments.</param>
+    /// <returns>
+    /// The result of the call.
+    /// </returns>
     public PyObject Call(params ReadOnlySpan<PyObject> args)
     {
         RaiseOnPythonNotInitialized();
@@ -531,6 +548,14 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
+    /// <summary>
+    /// Calls the object with the given arguments and returns the result.
+    /// </summary>
+    /// <param name="args">The positional arguments.</param>
+    /// <param name="kwargs">The keyword arguments.</param>
+    /// <returns>
+    /// The result of the call.
+    /// </returns>
     public PyObject Call(ReadOnlySpan<PyObject> args, ReadOnlySpan<KeywordArg> kwargs)
     {
         if (kwargs.IsEmpty)

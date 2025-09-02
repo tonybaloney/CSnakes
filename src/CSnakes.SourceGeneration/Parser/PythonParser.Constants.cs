@@ -130,7 +130,9 @@ public static partial class PythonParser
         .Named("Ellipsis (unspecified) Constant");
 
     // Any constant value
-    public static TokenListParser<PythonToken, PythonConstant> ConstantValueTokenizer { get; } =
+    public static TokenListParser<PythonToken, PythonConstant> ConstantValueParser { get; }
+
+    private static TokenListParser<PythonToken, PythonConstant> CreateConstantValueParser() =>
         DecimalConstantTokenizer.AsBase()
         .Or(IntegerConstantTokenizer.AsBase())
         .Or(HexadecimalIntegerConstantTokenizer.AsBase())

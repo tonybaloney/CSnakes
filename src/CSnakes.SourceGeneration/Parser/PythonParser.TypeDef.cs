@@ -19,8 +19,7 @@ public static partial class PythonParser
             .AtLeastOnceDelimitedBy(Character.EqualTo('.'))
         );
 
-    public static TokenListParser<PythonToken, PythonTypeSpec> PythonTypeDefinitionParser { get; } =
-        CreatePythonTypeDefinitionParser().Named("Type Definition");
+    public static TokenListParser<PythonToken, PythonTypeSpec> PythonTypeDefinitionParser { get; }
 
     private static TokenListParser<PythonToken, PythonTypeSpec> CreatePythonTypeDefinitionParser()
     {
@@ -54,7 +53,7 @@ public static partial class PythonParser
                     // It can also contain an expression, like a typedef but we don't support that yet.
                     // It could also contain another Literal, but we don't support that yet either.
                     from literals in
-                        ConstantValueTokenizer.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Comma))
+                        ConstantValueParser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Comma))
                                               .Subscript()
                     select new PythonTypeSpec("Literal", [PythonTypeSpec.Literal([.. literals])]),
                 "Union" =>
@@ -71,12 +70,13 @@ public static partial class PythonParser
             }
             select type;
 
-        return from ts in parser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Pipe))
-               select ts switch
-               {
-                   [var single] => single,
-                   var multiple => PythonTypeSpec.Union([..multiple])
-               };
+        return Combinators.Named(name: "Type Definition", parser:
+                  from ts in parser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Pipe))
+                  select ts switch
+                  {
+                      [var single] => single,
+                      var multiple => PythonTypeSpec.Union([..multiple])
+                  });
     }
 
     private static TokenListParser<PythonToken, T> Subscript<T>(this TokenListParser<PythonToken, T> parser) =>

@@ -723,7 +723,7 @@ if __name__ == '__main__':
     {
         var tokens = PythonTokenizer.Instance.Tokenize(code);
         Assert.Single(tokens);
-        var result = PythonParser.ConstantValueTokenizer.TryParse(tokens);
+        var result = PythonParser.ConstantValueParser.TryParse(tokens);
 
         Assert.True(result.HasValue);
         Assert.NotNull(result.Value);

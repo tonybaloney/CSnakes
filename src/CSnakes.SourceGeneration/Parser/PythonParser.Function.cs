@@ -9,7 +9,9 @@ using ParsedTokens = Superpower.Model.TokenList<CSnakes.Parser.PythonToken>;
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
-    public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionParser { get; } =
+    public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionParser { get; }
+
+    static TokenListParser<PythonToken, PythonFunctionDefinition> CreatePythonFunctionDefinitionParser() =>
         (from async in Token.EqualTo(PythonToken.Async).OptionalOrDefault()
          from def in Token.EqualTo(PythonToken.Def)
          from name in Token.EqualTo(PythonToken.Identifier)

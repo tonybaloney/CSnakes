@@ -19,7 +19,7 @@ public static class MethodReflection
         ParameterSyntax? cancellationTokenParameterSyntax = null;
         const string cancellationTokenName = "cancellationToken";
 
-        var doesReturnValue = returnPythonType.Name is not "None";
+        var doesReturnValue = returnPythonType is not NoneType;
 
         TypeSyntax returnSyntax
             = doesReturnValue
@@ -36,20 +36,19 @@ public static class MethodReflection
             // If simple async type annotation, treat as Coroutine[T1, T2, T3] where T1 is the yield type, T2 is the send type and T3 is the return type
             if (returnPythonType.Name != "Coroutine")
             {
-                returnPythonType = new PythonTypeSpec("Coroutine",
-                    [
+                returnPythonType = new CoroutineType(
                         returnPythonType, // Yield type
                         PythonTypeSpec.None, // Send type
-                        PythonTypeSpec.None, // Return type, TODO: Swap with yield on #480
-                    ]);
+                        PythonTypeSpec.None // Return type, TODO: Swap with yield on #480
+                    );
             }
 
             returnSyntax = returnPythonType switch
             {
-                { Name: "Coroutine", Arguments: [{ Name: "None" }, _, _] } =>
+                CoroutineType { Yield: NoneType } =>
                     // Make it PyObject otherwise we need to annotate as Task instead of Task<T> and that adds a lot of complexity and little value
                     ParseTypeName("PyObject"),
-                { Name: "Coroutine", Arguments: [var tYield, _, _] } =>
+                CoroutineType { Yield: var tYield } =>
                     TypeReflection.AsPredefinedType(tYield, TypeReflection.ConversionDirection.FromPython).First(),
                 _ => throw new ArgumentException("Async function must return a Coroutine[T1, T2, T3]")
             };
@@ -75,7 +74,7 @@ public static class MethodReflection
         {
             returnNoneAsNull = true;
             // Assume `Optional[T]` and narrow to `T`
-            returnPythonType = returnPythonType.Arguments[0];
+            returnPythonType = ((OptionalType)returnPythonType).Of;
         }
 
         foreach (CSharpParameterList cSharpParameterList in cSharpParameterListPermutations)

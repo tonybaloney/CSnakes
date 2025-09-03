@@ -35,6 +35,7 @@
       System.Runtime.CompilerServices.IsExternalInit;
       System.Runtime.CompilerServices.RequiredMemberAttribute;
       System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute;
+      System.Runtime.CompilerServices.CollectionBuilderAttribute;
     </PolySharpIncludeGeneratedTypes>
   </PropertyGroup>
 

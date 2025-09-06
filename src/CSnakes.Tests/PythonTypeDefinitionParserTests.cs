@@ -26,33 +26,13 @@ public class PythonTypeDefinitionParserTests
         Assert.Equal(expectedErrorMessage, exception.Message);
     }
 
-    [Fact]
-    public void NoneTest() =>
-        _ = TestParse<NoneType>("None");
-
-    [Fact]
-    public void AnyTest() =>
-        _ = TestParse<AnyType>("Any");
-
-    [Fact]
-    public void IntTest() =>
-        _ = TestParse<IntType>("int");
-
-    [Fact]
-    public void StrTest() =>
-        _ = TestParse<StrType>("str");
-
-    [Fact]
-    public void BoolTest() =>
-        _ = TestParse<BoolType>("bool");
-
-    [Fact]
-    public void FloatTest() =>
-        _ = TestParse<FloatType>("float");
-
-    [Fact]
-    public void BytesTest() =>
-        _ = TestParse<BytesType>("bytes");
+    [Fact] public void NoneTest()  => _ = TestParse<NoneType>("None");
+    [Fact] public void AnyTest()   => _ = TestParse<AnyType>("Any");
+    [Fact] public void IntTest()   => _ = TestParse<IntType>("int");
+    [Fact] public void StrTest()   => _ = TestParse<StrType>("str");
+    [Fact] public void BoolTest()  => _ = TestParse<BoolType>("bool");
+    [Fact] public void FloatTest() => _ = TestParse<FloatType>("float");
+    [Fact] public void BytesTest() => _ = TestParse<BytesType>("bytes");
 
     [Theory]
     [InlineData("Buffer")]

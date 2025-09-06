@@ -25,33 +25,33 @@ public class PythonTypeDefinitionParserTests
 
     [Fact]
     public void NoneTest() =>
-        Assert.IsType<NoneType>(TestParse("None"));
+        _ = Assert.IsType<NoneType>(TestParse("None"));
 
     [Fact]
     public void AnyTest() =>
-        Assert.IsType<AnyType>(TestParse("Any"));
+        _ = Assert.IsType<AnyType>(TestParse("Any"));
 
     [Fact]
     public void IntTest() =>
-        Assert.IsType<IntType>(TestParse("int"));
+        _ = Assert.IsType<IntType>(TestParse("int"));
 
     [Fact]
     public void StrTest() =>
-        Assert.IsType<StrType>(TestParse("str"));
+        _ = Assert.IsType<StrType>(TestParse("str"));
 
     [Fact]
     public void BoolTest() =>
-        Assert.IsType<BoolType>(TestParse("bool"));
+        _ = Assert.IsType<BoolType>(TestParse("bool"));
 
     [Fact]
     public void FloatTest() =>
-        Assert.IsType<FloatType>(TestParse("float"));
+        _ = Assert.IsType<FloatType>(TestParse("float"));
 
     [Theory]
     [InlineData("Buffer")]
     [InlineData("collections.abc.Buffer")]
     public void BufferTest(string input) =>
-        Assert.IsType<BufferType>(TestParse(input));
+        _ = Assert.IsType<BufferType>(TestParse(input));
 
     [Theory]
     [InlineData("Optional[int]")]
@@ -153,7 +153,7 @@ public class PythonTypeDefinitionParserTests
 
     [Fact]
     public void BytesTest() =>
-        Assert.IsType<BytesType>(TestParse("bytes"));
+        _ = Assert.IsType<BytesType>(TestParse("bytes"));
 
     [Theory]
     [InlineData("list[int]")]
@@ -250,7 +250,7 @@ public class PythonTypeDefinitionParserTests
     public void LiteralIntTest(string input)
     {
         var type = Assert.IsType<LiteralType>(TestParse(input));
-        Assert.Single(type.Constants);
+        _ = Assert.Single(type.Constants);
         var constant = Assert.IsType<PythonConstant.Integer>(type.Constants[0]);
         Assert.Equal(1, constant.Value);
     }
@@ -261,7 +261,7 @@ public class PythonTypeDefinitionParserTests
     public void LiteralStringTest(string input)
     {
         var type = Assert.IsType<LiteralType>(TestParse(input));
-        Assert.Single(type.Constants);
+        _ = Assert.Single(type.Constants);
         var constant = Assert.IsType<PythonConstant.String>(type.Constants[0]);
         Assert.Equal("hello", constant.Value);
     }
@@ -327,7 +327,7 @@ public class PythonTypeDefinitionParserTests
     public void TupleSingleParameterTest(string input)
     {
         var type = Assert.IsType<TupleType>(TestParse(input));
-        Assert.Single(type.Parameters);
+        _ = Assert.Single(type.Parameters);
         _ = Assert.IsType<IntType>(type.Parameters[0]);
     }
 

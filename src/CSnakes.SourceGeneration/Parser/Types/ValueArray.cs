@@ -7,6 +7,7 @@ namespace CSnakes.Parser.Types;
 public static class ValueArray
 {
     public static ValueArray<T> Create<T>(ReadOnlySpan<T> entries) => new([..entries]);
+    public static ValueArray<T> Params<T>(params ReadOnlySpan<T> entries) => [..entries];
 }
 
 [CollectionBuilder(typeof(ValueArray), nameof(ValueArray.Create))]

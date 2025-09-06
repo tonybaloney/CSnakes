@@ -35,6 +35,16 @@ public class PythonTypeDefinitionParserTests
     [Fact] public void BytesTest() => _ = TestParse<BytesType>("bytes");
 
     [Theory]
+    [InlineData("tuple")]
+    [InlineData("Tuple")]
+    [InlineData("typing.Tuple")]
+    public void TupleWithoutTypeArgsTest(string input)
+    {
+        var type = TestParse<VariadicTupleType>(input);
+        _ = Assert.IsType<AnyType>(type.Of);
+    }
+
+    [Theory]
     [InlineData("Buffer")]
     [InlineData("collections.abc.Buffer")]
     public void BufferTest(string input) =>

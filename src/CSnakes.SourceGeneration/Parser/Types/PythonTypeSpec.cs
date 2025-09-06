@@ -12,6 +12,7 @@ public record PythonTypeSpec(string Name)
     public static readonly BoolType Bool = BoolType.Instance;
     public static readonly BytesType Bytes = BytesType.Instance;
     public static readonly BufferType Buffer = BufferType.Instance;
+    public static readonly VariadicTupleType Tuple = new(Any);
 
     public override string ToString() => Name;
 }

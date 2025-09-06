@@ -6,18 +6,18 @@ namespace CSnakes.Tests;
 
 public class PythonTypeDefinitionParserTests
 {
-    private static PythonTypeSpec TestParse(string pythonType)
+    private static PythonTypeSpec TestParse(string input)
     {
-        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var tokens = PythonTokenizer.Instance.Tokenize(input);
         var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
         Assert.True(result.Remainder.IsAtEnd);
         Assert.True(result.HasValue, result.ToString());
         return result.Value;
     }
 
-    private static void TestParseError(string pythonType, string expectedErrorMessage)
+    private static void TestParseError(string input, string expectedErrorMessage)
     {
-        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var tokens = PythonTokenizer.Instance.Tokenize(input);
         void Act() => _ = PythonParser.PythonTypeDefinitionParser.Parse(tokens);
         var exception = Assert.Throws<ParseException>(Act);
         Assert.Equal(expectedErrorMessage, exception.Message);
@@ -50,15 +50,15 @@ public class PythonTypeDefinitionParserTests
     [Theory]
     [InlineData("Buffer")]
     [InlineData("collections.abc.Buffer")]
-    public void BufferTest(string pythonType) =>
-        Assert.IsType<BufferType>(TestParse(pythonType));
+    public void BufferTest(string input) =>
+        Assert.IsType<BufferType>(TestParse(input));
 
     [Theory]
     [InlineData("Optional[int]")]
     [InlineData("typing.Optional[int]")]
-    public void OptionalTest(string pythonType)
+    public void OptionalTest(string input)
     {
-        var optional = Assert.IsType<OptionalType>(TestParse(pythonType));
+        var optional = Assert.IsType<OptionalType>(TestParse(input));
         _ = Assert.IsType<IntType>(optional.Of);
     }
 
@@ -67,8 +67,8 @@ public class PythonTypeDefinitionParserTests
     [InlineData("typing.Optional", "Syntax error: unexpected end of input, expected `[`.")]
     [InlineData("Optional[]", "Syntax error (line 1, column 10): unexpected `]`, expected Type Definition.")]
     [InlineData("Optional[int, int]", "Syntax error (line 1, column 13): unexpected `,`, expected `]`.")]
-    public void OptionalArgTest(string pythonType, string expectedErrorMessage) =>
-        TestParseError(pythonType, expectedErrorMessage);
+    public void OptionalArgTest(string input, string expectedErrorMessage) =>
+        TestParseError(input, expectedErrorMessage);
 
     [Theory]
     [InlineData("list", "Syntax error: unexpected end of input, expected `[`.")]
@@ -76,16 +76,16 @@ public class PythonTypeDefinitionParserTests
     [InlineData("typing.List", "Syntax error: unexpected end of input, expected `[`.")]
     [InlineData("list[]", "Syntax error (line 1, column 6): unexpected `]`, expected Type Definition.")]
     [InlineData("list[int, str]", "Syntax error (line 1, column 9): unexpected `,`, expected `]`.")]
-    public void ListArgTest(string pythonType, string expectedErrorMessage) =>
-        TestParseError(pythonType, expectedErrorMessage);
+    public void ListArgTest(string input, string expectedErrorMessage) =>
+        TestParseError(input, expectedErrorMessage);
 
     [Theory]
     [InlineData("Sequence", "Syntax error: unexpected end of input, expected `[`.")]
     [InlineData("typing.Sequence", "Syntax error: unexpected end of input, expected `[`.")]
     [InlineData("Sequence[]", "Syntax error (line 1, column 10): unexpected `]`, expected Type Definition.")]
     [InlineData("Sequence[int, str]", "Syntax error (line 1, column 13): unexpected `,`, expected `]`.")]
-    public void SequenceArgTest(string pythonType, string expectedErrorMessage) =>
-        TestParseError(pythonType, expectedErrorMessage);
+    public void SequenceArgTest(string input, string expectedErrorMessage) =>
+        TestParseError(input, expectedErrorMessage);
 
     [Theory]
     [InlineData("dict", "Syntax error: unexpected end of input, expected `[`.")]
@@ -94,8 +94,8 @@ public class PythonTypeDefinitionParserTests
     [InlineData("dict[]", "Syntax error (line 1, column 6): unexpected `]`, expected Type Definition.")]
     [InlineData("dict[int]", "Syntax error (line 1, column 9): unexpected `]`, expected `,`.")]
     [InlineData("dict[int, str, bool]", "Syntax error (line 1, column 14): unexpected `,`, expected `]`.")]
-    public void DictArgTest(string pythonType, string expectedErrorMessage) =>
-        TestParseError(pythonType, expectedErrorMessage);
+    public void DictArgTest(string input, string expectedErrorMessage) =>
+        TestParseError(input, expectedErrorMessage);
 
     [Theory]
     [InlineData("Mapping", "Syntax error: unexpected end of input, expected `[`.")]
@@ -103,8 +103,8 @@ public class PythonTypeDefinitionParserTests
     [InlineData("Mapping[]", "Syntax error (line 1, column 9): unexpected `]`, expected Type Definition.")]
     [InlineData("Mapping[int]", "Syntax error (line 1, column 12): unexpected `]`, expected `,`.")]
     [InlineData("Mapping[int, str, bool]", "Syntax error (line 1, column 17): unexpected `,`, expected `]`.")]
-    public void MappingArgTest(string pythonType, string expectedErrorMessage) =>
-        TestParseError(pythonType, expectedErrorMessage);
+    public void MappingArgTest(string input, string expectedErrorMessage) =>
+        TestParseError(input, expectedErrorMessage);
 
     [Theory]
     [InlineData("Generator", "Syntax error: unexpected end of input, expected `[`.")]
@@ -113,8 +113,8 @@ public class PythonTypeDefinitionParserTests
     [InlineData("Generator[int]", "Syntax error (line 1, column 14): unexpected `]`, expected `,`.")]
     [InlineData("Generator[int, str]", "Syntax error (line 1, column 19): unexpected `]`, expected `,`.")]
     [InlineData("Generator[int, str, bool, float]", "Syntax error (line 1, column 25): unexpected `,`, expected `]`.")]
-    public void GeneratorArgTest(string pythonType, string expectedErrorMessage) =>
-        TestParseError(pythonType, expectedErrorMessage);
+    public void GeneratorArgTest(string input, string expectedErrorMessage) =>
+        TestParseError(input, expectedErrorMessage);
 
     [Theory]
     [InlineData("Coroutine", "Syntax error: unexpected end of input, expected `[`.")]
@@ -124,8 +124,8 @@ public class PythonTypeDefinitionParserTests
     [InlineData("Coroutine[int]", "Syntax error (line 1, column 14): unexpected `]`, expected `,`.")]
     [InlineData("Coroutine[int, str]", "Syntax error (line 1, column 19): unexpected `]`, expected `,`.")]
     [InlineData("Coroutine[int, str, bool, float]", "Syntax error (line 1, column 25): unexpected `,`, expected `]`.")]
-    public void CoroutineArgTest(string pythonType, string expectedErrorMessage) =>
-        TestParseError(pythonType, expectedErrorMessage);
+    public void CoroutineArgTest(string input, string expectedErrorMessage) =>
+        TestParseError(input, expectedErrorMessage);
 
     [Theory]
     [InlineData("Callable", "Syntax error: unexpected end of input, expected `[`.")]
@@ -134,22 +134,22 @@ public class PythonTypeDefinitionParserTests
     [InlineData("Callable[]", "Syntax error (line 1, column 10): unexpected `]`, expected `[`.")]
     [InlineData("Callable[int]", "Syntax error (line 1, column 10): unexpected identifier `int`, expected `[`.")]
     [InlineData("Callable[[int]]", "Syntax error (line 1, column 15): unexpected `]`, expected `,`.")]
-    public void CallableArgTest(string pythonType, string expectedErrorMessage) =>
-        TestParseError(pythonType, expectedErrorMessage);
+    public void CallableArgTest(string input, string expectedErrorMessage) =>
+        TestParseError(input, expectedErrorMessage);
 
     [Theory]
     [InlineData("Literal", "Syntax error: unexpected end of input, expected `[`.")]
     [InlineData("typing.Literal", "Syntax error: unexpected end of input, expected `[`.")]
     [InlineData("Literal[]", "Syntax error (line 1, column 9): unexpected `]`, expected Constant.")]
-    public void LiteralArgTest(string pythonType, string expectedErrorMessage) =>
-        TestParseError(pythonType, expectedErrorMessage);
+    public void LiteralArgTest(string input, string expectedErrorMessage) =>
+        TestParseError(input, expectedErrorMessage);
 
     [Theory]
     [InlineData("Union", "Syntax error: unexpected end of input, expected `[`.")]
     [InlineData("typing.Union", "Syntax error: unexpected end of input, expected `[`.")]
     [InlineData("Union[]", "Syntax error (line 1, column 7): unexpected `]`, expected Type Definition.")]
-    public void UnionArgTest(string pythonType, string expectedErrorMessage) =>
-        TestParseError(pythonType, expectedErrorMessage);
+    public void UnionArgTest(string input, string expectedErrorMessage) =>
+        TestParseError(input, expectedErrorMessage);
 
     [Fact]
     public void BytesTest() =>
@@ -159,226 +159,226 @@ public class PythonTypeDefinitionParserTests
     [InlineData("list[int]")]
     [InlineData("List[int]")]
     [InlineData("typing.List[int]")]
-    public void ListTest(string pythonType)
+    public void ListTest(string input)
     {
-        var listType = Assert.IsType<ListType>(TestParse(pythonType));
-        _ = Assert.IsType<IntType>(listType.Of);
+        var type = Assert.IsType<ListType>(TestParse(input));
+        _ = Assert.IsType<IntType>(type.Of);
     }
 
     [Theory]
     [InlineData("Sequence[str]")]
     [InlineData("typing.Sequence[str]")]
     [InlineData("collections.abc.Sequence[str]")]
-    public void SequenceTest(string pythonType)
+    public void SequenceTest(string input)
     {
-        var sequenceType = Assert.IsType<SequenceType>(TestParse(pythonType));
-        _ = Assert.IsType<StrType>(sequenceType.Of);
+        var type = Assert.IsType<SequenceType>(TestParse(input));
+        _ = Assert.IsType<StrType>(type.Of);
     }
 
     [Theory]
     [InlineData("dict[str, int]")]
     [InlineData("Dict[str, int]")]
     [InlineData("typing.Dict[str, int]")]
-    public void DictTest(string pythonType)
+    public void DictTest(string input)
     {
-        var dictType = Assert.IsType<DictType>(TestParse(pythonType));
-        _ = Assert.IsType<StrType>(dictType.Key);
-        _ = Assert.IsType<IntType>(dictType.Value);
+        var type = Assert.IsType<DictType>(TestParse(input));
+        _ = Assert.IsType<StrType>(type.Key);
+        _ = Assert.IsType<IntType>(type.Value);
     }
 
     [Theory]
     [InlineData("Mapping[str, float]")]
     [InlineData("typing.Mapping[str, float]")]
     [InlineData("collections.abc.Mapping[str, float]")]
-    public void MappingTest(string pythonType)
+    public void MappingTest(string input)
     {
-        var mappingType = Assert.IsType<MappingType>(TestParse(pythonType));
-        _ = Assert.IsType<StrType>(mappingType.Key);
-        _ = Assert.IsType<FloatType>(mappingType.Value);
+        var type = Assert.IsType<MappingType>(TestParse(input));
+        _ = Assert.IsType<StrType>(type.Key);
+        _ = Assert.IsType<FloatType>(type.Value);
     }
 
     [Theory]
     [InlineData("Generator[int, str, bool]")]
     [InlineData("typing.Generator[int, str, bool]")]
     [InlineData("collections.abc.Generator[int, str, bool]")]
-    public void GeneratorTest(string pythonType)
+    public void GeneratorTest(string input)
     {
-        var generatorType = Assert.IsType<GeneratorType>(TestParse(pythonType));
-        _ = Assert.IsType<IntType>(generatorType.Yield);
-        _ = Assert.IsType<StrType>(generatorType.Send);
-        _ = Assert.IsType<BoolType>(generatorType.Return);
+        var type = Assert.IsType<GeneratorType>(TestParse(input));
+        _ = Assert.IsType<IntType>(type.Yield);
+        _ = Assert.IsType<StrType>(type.Send);
+        _ = Assert.IsType<BoolType>(type.Return);
     }
 
     [Theory]
     [InlineData("Coroutine[int, str, bool]")]
     [InlineData("typing.Coroutine[int, str, bool]")]
     [InlineData("collections.abc.Coroutine[int, str, bool]")]
-    public void CoroutineTest(string pythonType)
+    public void CoroutineTest(string input)
     {
-        var coroutineType = Assert.IsType<CoroutineType>(TestParse(pythonType));
-        _ = Assert.IsType<IntType>(coroutineType.Yield);
-        _ = Assert.IsType<StrType>(coroutineType.Send);
-        _ = Assert.IsType<BoolType>(coroutineType.Return);
+        var type = Assert.IsType<CoroutineType>(TestParse(input));
+        _ = Assert.IsType<IntType>(type.Yield);
+        _ = Assert.IsType<StrType>(type.Send);
+        _ = Assert.IsType<BoolType>(type.Return);
     }
 
     [Theory]
     [InlineData("Callable[[int, str], bool]")]
     [InlineData("typing.Callable[[int, str], bool]")]
     [InlineData("collections.abc.Callable[[int, str], bool]")]
-    public void CallableTest(string pythonType)
+    public void CallableTest(string input)
     {
-        var callableType = Assert.IsType<CallbackType>(TestParse(pythonType));
-        Assert.Equal(2, callableType.Parameters.Length);
-        _ = Assert.IsType<IntType>(callableType.Parameters[0]);
-        _ = Assert.IsType<StrType>(callableType.Parameters[1]);
-        _ = Assert.IsType<BoolType>(callableType.Return);
+        var type = Assert.IsType<CallbackType>(TestParse(input));
+        Assert.Equal(2, type.Parameters.Length);
+        _ = Assert.IsType<IntType>(type.Parameters[0]);
+        _ = Assert.IsType<StrType>(type.Parameters[1]);
+        _ = Assert.IsType<BoolType>(type.Return);
     }
 
     [Theory]
     [InlineData("Callable[[], None]")]
     [InlineData("typing.Callable[[], None]")]
-    public void CallableNoParametersTest(string pythonType)
+    public void CallableNoParametersTest(string input)
     {
-        var callableType = Assert.IsType<CallbackType>(TestParse(pythonType));
-        Assert.Empty(callableType.Parameters);
-        _ = Assert.IsType<NoneType>(callableType.Return);
+        var type = Assert.IsType<CallbackType>(TestParse(input));
+        Assert.Empty(type.Parameters);
+        _ = Assert.IsType<NoneType>(type.Return);
     }
 
     [Theory]
     [InlineData("Literal[1]")]
     [InlineData("typing.Literal[1]")]
-    public void LiteralIntTest(string pythonType)
+    public void LiteralIntTest(string input)
     {
-        var literalType = Assert.IsType<LiteralType>(TestParse(pythonType));
-        Assert.Single(literalType.Constants);
-        var constant = Assert.IsType<PythonConstant.Integer>(literalType.Constants[0]);
+        var type = Assert.IsType<LiteralType>(TestParse(input));
+        Assert.Single(type.Constants);
+        var constant = Assert.IsType<PythonConstant.Integer>(type.Constants[0]);
         Assert.Equal(1, constant.Value);
     }
 
     [Theory]
     [InlineData("Literal['hello']")]
     [InlineData("typing.Literal['hello']")]
-    public void LiteralStringTest(string pythonType)
+    public void LiteralStringTest(string input)
     {
-        var literalType = Assert.IsType<LiteralType>(TestParse(pythonType));
-        Assert.Single(literalType.Constants);
-        var constant = Assert.IsType<PythonConstant.String>(literalType.Constants[0]);
+        var type = Assert.IsType<LiteralType>(TestParse(input));
+        Assert.Single(type.Constants);
+        var constant = Assert.IsType<PythonConstant.String>(type.Constants[0]);
         Assert.Equal("hello", constant.Value);
     }
 
     [Theory]
     [InlineData("Literal[True, False]")]
     [InlineData("typing.Literal[True, False]")]
-    public void LiteralMultipleTest(string pythonType)
+    public void LiteralMultipleTest(string input)
     {
-        var literalType = Assert.IsType<LiteralType>(TestParse(pythonType));
-        Assert.Equal(2, literalType.Constants.Length);
-        var trueConstant = Assert.IsType<PythonConstant.Bool>(literalType.Constants[0]);
+        var type = Assert.IsType<LiteralType>(TestParse(input));
+        Assert.Equal(2, type.Constants.Length);
+        var trueConstant = Assert.IsType<PythonConstant.Bool>(type.Constants[0]);
         Assert.True(trueConstant.Value);
-        var falseConstant = Assert.IsType<PythonConstant.Bool>(literalType.Constants[1]);
+        var falseConstant = Assert.IsType<PythonConstant.Bool>(type.Constants[1]);
         Assert.False(falseConstant.Value);
     }
 
     [Theory]
     [InlineData("Union[int, str]")]
     [InlineData("typing.Union[int, str]")]
-    public void UnionTest(string pythonType)
+    public void UnionTest(string input)
     {
-        var unionType = Assert.IsType<UnionType>(TestParse(pythonType));
-        Assert.Equal(2, unionType.Choices.Length);
-        _ = Assert.IsType<IntType>(unionType.Choices[0]);
-        _ = Assert.IsType<StrType>(unionType.Choices[1]);
+        var type = Assert.IsType<UnionType>(TestParse(input));
+        Assert.Equal(2, type.Choices.Length);
+        _ = Assert.IsType<IntType>(type.Choices[0]);
+        _ = Assert.IsType<StrType>(type.Choices[1]);
     }
 
     [Theory]
     [InlineData("int | str")]
     [InlineData("str | int")]
-    public void UnionPipeTest(string pythonType)
+    public void UnionPipeTest(string input)
     {
-        var unionType = Assert.IsType<UnionType>(TestParse(pythonType));
-        Assert.Equal(2, unionType.Choices.Length);
+        var type = Assert.IsType<UnionType>(TestParse(input));
+        Assert.Equal(2, type.Choices.Length);
     }
 
     [Theory]
     [InlineData("Union[int, None]")]
     [InlineData("None | int")]
     [InlineData("int | None")]
-    public void UnionWithNoneBecomesOptionalTest(string pythonType)
+    public void UnionWithNoneBecomesOptionalTest(string input)
     {
-        var optionalType = Assert.IsType<OptionalType>(TestParse(pythonType));
-        _ = Assert.IsType<IntType>(optionalType.Of);
+        var type = Assert.IsType<OptionalType>(TestParse(input));
+        _ = Assert.IsType<IntType>(type.Of);
     }
 
     [Theory]
     [InlineData("tuple[int, str]")]
     [InlineData("Tuple[int, str]")]
     [InlineData("typing.Tuple[int, str]")]
-    public void TupleTest(string pythonType)
+    public void TupleTest(string input)
     {
-        var tupleType = Assert.IsType<TupleType>(TestParse(pythonType));
-        Assert.Equal(2, tupleType.Parameters.Length);
-        _ = Assert.IsType<IntType>(tupleType.Parameters[0]);
-        _ = Assert.IsType<StrType>(tupleType.Parameters[1]);
+        var type = Assert.IsType<TupleType>(TestParse(input));
+        Assert.Equal(2, type.Parameters.Length);
+        _ = Assert.IsType<IntType>(type.Parameters[0]);
+        _ = Assert.IsType<StrType>(type.Parameters[1]);
     }
 
     [Theory]
     [InlineData("tuple[int]")]
     [InlineData("Tuple[int]")]
-    public void TupleSingleParameterTest(string pythonType)
+    public void TupleSingleParameterTest(string input)
     {
-        var tupleType = Assert.IsType<TupleType>(TestParse(pythonType));
-        Assert.Single(tupleType.Parameters);
-        _ = Assert.IsType<IntType>(tupleType.Parameters[0]);
+        var type = Assert.IsType<TupleType>(TestParse(input));
+        Assert.Single(type.Parameters);
+        _ = Assert.IsType<IntType>(type.Parameters[0]);
     }
 
     [Theory]
     [InlineData("CustomType")]
     [InlineData("my_module.CustomType")]
     [InlineData("package.module.CustomType")]
-    public void ParsePythonTypeSpecTest(string pythonType)
+    public void ParsePythonTypeSpecTest(string input)
     {
-        var parsedType = Assert.IsType<ParsedPythonTypeSpec>(TestParse(pythonType));
-        Assert.Equal(pythonType, parsedType.Name);
-        Assert.Empty(parsedType.Arguments);
+        var type = Assert.IsType<ParsedPythonTypeSpec>(TestParse(input));
+        Assert.Equal(input, type.Name);
+        Assert.Empty(type.Arguments);
     }
 
     [Theory]
     [InlineData("CustomType[int]")]
     [InlineData("my_module.CustomType[str, bool]")]
-    public void ParsePythonTypeSpecWithArgumentsTest(string pythonType)
+    public void ParsePythonTypeSpecWithArgumentsTest(string input)
     {
-        var parsedType = Assert.IsType<ParsedPythonTypeSpec>(TestParse(pythonType));
-        Assert.True(parsedType.Arguments.Length > 0);
+        var type = Assert.IsType<ParsedPythonTypeSpec>(TestParse(input));
+        Assert.True(type.Arguments.Length > 0);
     }
 
     [Theory]
     [InlineData("MyGeneric[int, str]")]
-    public void GenericTypeWithMultipleArgumentsTest(string pythonType)
+    public void GenericTypeWithMultipleArgumentsTest(string input)
     {
-        var parsedType = Assert.IsType<ParsedPythonTypeSpec>(TestParse(pythonType));
-        Assert.Equal("MyGeneric", parsedType.Name);
-        Assert.Equal(2, parsedType.Arguments.Length);
-        _ = Assert.IsType<IntType>(parsedType.Arguments[0]);
-        _ = Assert.IsType<StrType>(parsedType.Arguments[1]);
+        var type = Assert.IsType<ParsedPythonTypeSpec>(TestParse(input));
+        Assert.Equal("MyGeneric", type.Name);
+        Assert.Equal(2, type.Arguments.Length);
+        _ = Assert.IsType<IntType>(type.Arguments[0]);
+        _ = Assert.IsType<StrType>(type.Arguments[1]);
     }
 
     [Theory]
     [InlineData("Union[int, str, float]")]
     [InlineData("int | str | float")]
-    public void UnionThreeTypesTest(string pythonType)
+    public void UnionThreeTypesTest(string input)
     {
-        var unionType = Assert.IsType<UnionType>(TestParse(pythonType));
-        Assert.Equal(3, unionType.Choices.Length);
-        _ = Assert.IsType<IntType>(unionType.Choices[0]);
-        _ = Assert.IsType<StrType>(unionType.Choices[1]);
-        _ = Assert.IsType<FloatType>(unionType.Choices[2]);
+        var type = Assert.IsType<UnionType>(TestParse(input));
+        Assert.Equal(3, type.Choices.Length);
+        _ = Assert.IsType<IntType>(type.Choices[0]);
+        _ = Assert.IsType<StrType>(type.Choices[1]);
+        _ = Assert.IsType<FloatType>(type.Choices[2]);
     }
 
     [Fact]
     public void NestedGenericsTest()
     {
-        var result = TestParse("list[dict[str, int]]");
-        var listType = Assert.IsType<ListType>(result);
+        var type = TestParse("list[dict[str, int]]");
+        var listType = Assert.IsType<ListType>(type);
         var dictType = Assert.IsType<DictType>(listType.Of);
         _ = Assert.IsType<StrType>(dictType.Key);
         _ = Assert.IsType<IntType>(dictType.Value);
@@ -387,8 +387,8 @@ public class PythonTypeDefinitionParserTests
     [Fact]
     public void ComplexNestedTypeTest()
     {
-        var result = TestParse("Optional[Union[list[str], dict[int, bool]]]");
-        var optionalType = Assert.IsType<OptionalType>(result);
+        var type = TestParse("Optional[Union[list[str], dict[int, bool]]]");
+        var optionalType = Assert.IsType<OptionalType>(type);
         var unionType = Assert.IsType<UnionType>(optionalType.Of);
         Assert.Equal(2, unionType.Choices.Length);
 

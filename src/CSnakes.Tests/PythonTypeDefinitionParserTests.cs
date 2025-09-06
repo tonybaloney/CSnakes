@@ -50,6 +50,10 @@ public class PythonTypeDefinitionParserTests
     public void FloatTest() =>
         _ = TestParse<FloatType>("float");
 
+    [Fact]
+    public void BytesTest() =>
+        _ = TestParse<BytesType>("bytes");
+
     [Theory]
     [InlineData("Buffer")]
     [InlineData("collections.abc.Buffer")]
@@ -153,10 +157,6 @@ public class PythonTypeDefinitionParserTests
     [InlineData("Union[]", "Syntax error (line 1, column 7): unexpected `]`, expected Type Definition.")]
     public void UnionArgTest(string input, string expectedErrorMessage) =>
         TestParseError(input, expectedErrorMessage);
-
-    [Fact]
-    public void BytesTest() =>
-        _ = TestParse<BytesType>("bytes");
 
     [Theory]
     [InlineData("list[int]")]

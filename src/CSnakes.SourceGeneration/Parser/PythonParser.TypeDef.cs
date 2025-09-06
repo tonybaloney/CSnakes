@@ -85,10 +85,15 @@ public static partial class PythonParser
                                             .Subscript()
                     select UnionType.Normalize(subscript),
                 "tuple" or "Tuple" or "typing.Tuple" =>
-                    from subscript in
-                        typeDefinitionParser.AtLeastOnceDelimitedBy(comma)
-                                            .Subscript()
-                    select (PythonTypeSpec)new TupleType([..subscript]),
+                    Parse.OneOf(
+                        from of in typeDefinitionParser.ThenIgnore(comma)
+                                                       .ThenIgnore(Token.EqualTo(PythonToken.Ellipsis))
+                                                       .Subscript()
+                                                       .Try()
+                        select (PythonTypeSpec)new VariadicTupleType(of),
+                        from subscript in typeDefinitionParser.AtLeastOnceDelimitedBy(comma)
+                                                              .Subscript()
+                        select (PythonTypeSpec)new TupleType([..subscript])),
                 var other =>
                     from subscript in
                         typeDefinitionParser.AtLeastOnceDelimitedBy(comma)

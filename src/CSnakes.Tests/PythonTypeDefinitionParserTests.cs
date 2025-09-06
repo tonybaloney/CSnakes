@@ -315,6 +315,40 @@ public class PythonTypeDefinitionParserTests
     }
 
     [Theory]
+    [InlineData("tuple[int, ...]")]
+    [InlineData("Tuple[int, ...]")]
+    [InlineData("typing.Tuple[int, ...]")]
+    public void VariadicTupleTest(string input)
+    {
+        var type = TestParse<VariadicTupleType>(input);
+        _ = Assert.IsType<IntType>(type.Of);
+    }
+
+    [Theory]
+    [InlineData("tuple[str, ...]", "str")]
+    [InlineData("tuple[float, ...]", "float")]
+    [InlineData("tuple[bool, ...]", "bool")]
+    [InlineData("tuple[list[int], ...]", "list[int]")]
+    [InlineData("tuple[dict[str, int], ...]", "dict[str, int]")]
+    [InlineData("tuple[Optional[str], ...]", "Optional[str]")]
+    [InlineData("tuple[str | None, ...]", "Optional[str]")]
+    [InlineData("tuple[Union[int, str], ...]", "Union[int, str]")]
+    [InlineData("tuple[int | str, ...]", "Union[int, str]")]
+    public void VariadicTupleWithDifferentTypesTest(string input, string expectedElementType)
+    {
+        var type = TestParse<VariadicTupleType>(input);
+        Assert.Equal(expectedElementType, type.Of.ToString());
+    }
+
+    [Theory]
+    [InlineData("tuple[...]", "Syntax error (line 1, column 7): unexpected `...`, expected Type Definition.")]
+    [InlineData("tuple[, ...]", "Syntax error (line 1, column 7): unexpected `,`, expected Type Definition.")]
+    [InlineData("tuple[int, str, ...]", "Syntax error (line 1, column 17): unexpected `...`, expected Type Definition.")]
+    [InlineData("tuple[int ...]", "Syntax error (line 1, column 11): unexpected `...`, expected `,` or `]`.")]
+    public void VariadicTupleArgTest(string input, string expectedErrorMessage) =>
+        TestParseError(input, expectedErrorMessage);
+
+    [Theory]
     [InlineData("CustomType")]
     [InlineData("my_module.CustomType")]
     [InlineData("package.module.CustomType")]

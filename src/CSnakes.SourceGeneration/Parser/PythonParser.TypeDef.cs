@@ -98,12 +98,13 @@ public static partial class PythonParser
             }
             select type;
 
-        return from ts in parser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Pipe))
-               select ts switch
-               {
-                   [var single] => single,
-                   var multiple => UnionType.Normalize([..multiple])
-               };
+        return Combinators.Named(name: "Type Definition", parser:
+                   from ts in parser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Pipe))
+                   select ts switch
+                   {
+                       [var single] => single,
+                       var multiple => UnionType.Normalize([..multiple])
+                   });
     }
 
     private static TokenListParser<PythonToken, T> Return<T>(T value) => Parse.Return<PythonToken, T>(value);

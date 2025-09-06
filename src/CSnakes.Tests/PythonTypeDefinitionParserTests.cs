@@ -6,13 +6,13 @@ namespace CSnakes.Tests;
 
 public class PythonTypeDefinitionParserTests
 {
-    private static PythonTypeSpec TestParse(string input)
+    private static T TestParse<T>(string input) where T : PythonTypeSpec
     {
         var tokens = PythonTokenizer.Instance.Tokenize(input);
         var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
         Assert.True(result.Remainder.IsAtEnd);
         Assert.True(result.HasValue, result.ToString());
-        return result.Value;
+        return Assert.IsType<T>(result.Value);
     }
 
     private static void TestParseError(string input, string expectedErrorMessage)
@@ -25,40 +25,40 @@ public class PythonTypeDefinitionParserTests
 
     [Fact]
     public void NoneTest() =>
-        _ = Assert.IsType<NoneType>(TestParse("None"));
+        _ = TestParse<NoneType>("None");
 
     [Fact]
     public void AnyTest() =>
-        _ = Assert.IsType<AnyType>(TestParse("Any"));
+        _ = TestParse<AnyType>("Any");
 
     [Fact]
     public void IntTest() =>
-        _ = Assert.IsType<IntType>(TestParse("int"));
+        _ = TestParse<IntType>("int");
 
     [Fact]
     public void StrTest() =>
-        _ = Assert.IsType<StrType>(TestParse("str"));
+        _ = TestParse<StrType>("str");
 
     [Fact]
     public void BoolTest() =>
-        _ = Assert.IsType<BoolType>(TestParse("bool"));
+        _ = TestParse<BoolType>("bool");
 
     [Fact]
     public void FloatTest() =>
-        _ = Assert.IsType<FloatType>(TestParse("float"));
+        _ = TestParse<FloatType>("float");
 
     [Theory]
     [InlineData("Buffer")]
     [InlineData("collections.abc.Buffer")]
     public void BufferTest(string input) =>
-        _ = Assert.IsType<BufferType>(TestParse(input));
+        _ = TestParse<BufferType>(input);
 
     [Theory]
     [InlineData("Optional[int]")]
     [InlineData("typing.Optional[int]")]
     public void OptionalTest(string input)
     {
-        var optional = Assert.IsType<OptionalType>(TestParse(input));
+        var optional = TestParse<OptionalType>(input);
         _ = Assert.IsType<IntType>(optional.Of);
     }
 
@@ -153,7 +153,7 @@ public class PythonTypeDefinitionParserTests
 
     [Fact]
     public void BytesTest() =>
-        _ = Assert.IsType<BytesType>(TestParse("bytes"));
+        _ = TestParse<BytesType>("bytes");
 
     [Theory]
     [InlineData("list[int]")]
@@ -161,7 +161,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("typing.List[int]")]
     public void ListTest(string input)
     {
-        var type = Assert.IsType<ListType>(TestParse(input));
+        var type = TestParse<ListType>(input);
         _ = Assert.IsType<IntType>(type.Of);
     }
 
@@ -171,7 +171,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("collections.abc.Sequence[str]")]
     public void SequenceTest(string input)
     {
-        var type = Assert.IsType<SequenceType>(TestParse(input));
+        var type = TestParse<SequenceType>(input);
         _ = Assert.IsType<StrType>(type.Of);
     }
 
@@ -181,7 +181,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("typing.Dict[str, int]")]
     public void DictTest(string input)
     {
-        var type = Assert.IsType<DictType>(TestParse(input));
+        var type = TestParse<DictType>(input);
         _ = Assert.IsType<StrType>(type.Key);
         _ = Assert.IsType<IntType>(type.Value);
     }
@@ -192,7 +192,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("collections.abc.Mapping[str, float]")]
     public void MappingTest(string input)
     {
-        var type = Assert.IsType<MappingType>(TestParse(input));
+        var type = TestParse<MappingType>(input);
         _ = Assert.IsType<StrType>(type.Key);
         _ = Assert.IsType<FloatType>(type.Value);
     }
@@ -203,7 +203,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("collections.abc.Generator[int, str, bool]")]
     public void GeneratorTest(string input)
     {
-        var type = Assert.IsType<GeneratorType>(TestParse(input));
+        var type = TestParse<GeneratorType>(input);
         _ = Assert.IsType<IntType>(type.Yield);
         _ = Assert.IsType<StrType>(type.Send);
         _ = Assert.IsType<BoolType>(type.Return);
@@ -215,7 +215,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("collections.abc.Coroutine[int, str, bool]")]
     public void CoroutineTest(string input)
     {
-        var type = Assert.IsType<CoroutineType>(TestParse(input));
+        var type = TestParse<CoroutineType>(input);
         _ = Assert.IsType<IntType>(type.Yield);
         _ = Assert.IsType<StrType>(type.Send);
         _ = Assert.IsType<BoolType>(type.Return);
@@ -227,7 +227,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("collections.abc.Callable[[int, str], bool]")]
     public void CallableTest(string input)
     {
-        var type = Assert.IsType<CallbackType>(TestParse(input));
+        var type = TestParse<CallbackType>(input);
         Assert.Equal(2, type.Parameters.Length);
         _ = Assert.IsType<IntType>(type.Parameters[0]);
         _ = Assert.IsType<StrType>(type.Parameters[1]);
@@ -239,7 +239,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("typing.Callable[[], None]")]
     public void CallableNoParametersTest(string input)
     {
-        var type = Assert.IsType<CallbackType>(TestParse(input));
+        var type = TestParse<CallbackType>(input);
         Assert.Empty(type.Parameters);
         _ = Assert.IsType<NoneType>(type.Return);
     }
@@ -249,7 +249,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("typing.Literal[1]")]
     public void LiteralIntTest(string input)
     {
-        var type = Assert.IsType<LiteralType>(TestParse(input));
+        var type = TestParse<LiteralType>(input);
         _ = Assert.Single(type.Constants);
         var constant = Assert.IsType<PythonConstant.Integer>(type.Constants[0]);
         Assert.Equal(1, constant.Value);
@@ -260,7 +260,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("typing.Literal['hello']")]
     public void LiteralStringTest(string input)
     {
-        var type = Assert.IsType<LiteralType>(TestParse(input));
+        var type = TestParse<LiteralType>(input);
         _ = Assert.Single(type.Constants);
         var constant = Assert.IsType<PythonConstant.String>(type.Constants[0]);
         Assert.Equal("hello", constant.Value);
@@ -271,7 +271,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("typing.Literal[True, False]")]
     public void LiteralMultipleTest(string input)
     {
-        var type = Assert.IsType<LiteralType>(TestParse(input));
+        var type = TestParse<LiteralType>(input);
         Assert.Equal(2, type.Constants.Length);
         var trueConstant = Assert.IsType<PythonConstant.Bool>(type.Constants[0]);
         Assert.True(trueConstant.Value);
@@ -284,7 +284,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("typing.Union[int, str]")]
     public void UnionTest(string input)
     {
-        var type = Assert.IsType<UnionType>(TestParse(input));
+        var type = TestParse<UnionType>(input);
         Assert.Equal(2, type.Choices.Length);
         _ = Assert.IsType<IntType>(type.Choices[0]);
         _ = Assert.IsType<StrType>(type.Choices[1]);
@@ -295,7 +295,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("str | int")]
     public void UnionPipeTest(string input)
     {
-        var type = Assert.IsType<UnionType>(TestParse(input));
+        var type = TestParse<UnionType>(input);
         Assert.Equal(2, type.Choices.Length);
     }
 
@@ -305,7 +305,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("int | None")]
     public void UnionWithNoneBecomesOptionalTest(string input)
     {
-        var type = Assert.IsType<OptionalType>(TestParse(input));
+        var type = TestParse<OptionalType>(input);
         _ = Assert.IsType<IntType>(type.Of);
     }
 
@@ -315,7 +315,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("typing.Tuple[int, str]")]
     public void TupleTest(string input)
     {
-        var type = Assert.IsType<TupleType>(TestParse(input));
+        var type = TestParse<TupleType>(input);
         Assert.Equal(2, type.Parameters.Length);
         _ = Assert.IsType<IntType>(type.Parameters[0]);
         _ = Assert.IsType<StrType>(type.Parameters[1]);
@@ -326,7 +326,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("Tuple[int]")]
     public void TupleSingleParameterTest(string input)
     {
-        var type = Assert.IsType<TupleType>(TestParse(input));
+        var type = TestParse<TupleType>(input);
         _ = Assert.Single(type.Parameters);
         _ = Assert.IsType<IntType>(type.Parameters[0]);
     }
@@ -337,7 +337,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("package.module.CustomType")]
     public void ParsePythonTypeSpecTest(string input)
     {
-        var type = Assert.IsType<ParsedPythonTypeSpec>(TestParse(input));
+        var type = TestParse<ParsedPythonTypeSpec>(input);
         Assert.Equal(input, type.Name);
         Assert.Empty(type.Arguments);
     }
@@ -347,7 +347,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("my_module.CustomType[str, bool]")]
     public void ParsePythonTypeSpecWithArgumentsTest(string input)
     {
-        var type = Assert.IsType<ParsedPythonTypeSpec>(TestParse(input));
+        var type = TestParse<ParsedPythonTypeSpec>(input);
         Assert.True(type.Arguments.Length > 0);
     }
 
@@ -355,7 +355,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("MyGeneric[int, str]")]
     public void GenericTypeWithMultipleArgumentsTest(string input)
     {
-        var type = Assert.IsType<ParsedPythonTypeSpec>(TestParse(input));
+        var type = TestParse<ParsedPythonTypeSpec>(input);
         Assert.Equal("MyGeneric", type.Name);
         Assert.Equal(2, type.Arguments.Length);
         _ = Assert.IsType<IntType>(type.Arguments[0]);
@@ -367,7 +367,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("int | str | float")]
     public void UnionThreeTypesTest(string input)
     {
-        var type = Assert.IsType<UnionType>(TestParse(input));
+        var type = TestParse<UnionType>(input);
         Assert.Equal(3, type.Choices.Length);
         _ = Assert.IsType<IntType>(type.Choices[0]);
         _ = Assert.IsType<StrType>(type.Choices[1]);
@@ -377,19 +377,17 @@ public class PythonTypeDefinitionParserTests
     [Fact]
     public void NestedGenericsTest()
     {
-        var type = TestParse("list[dict[str, int]]");
-        var listType = Assert.IsType<ListType>(type);
-        var dictType = Assert.IsType<DictType>(listType.Of);
-        _ = Assert.IsType<StrType>(dictType.Key);
-        _ = Assert.IsType<IntType>(dictType.Value);
+        var type = TestParse<ListType>("list[dict[str, int]]");
+        var innerType = Assert.IsType<DictType>(type.Of);
+        _ = Assert.IsType<StrType>(innerType.Key);
+        _ = Assert.IsType<IntType>(innerType.Value);
     }
 
     [Fact]
     public void ComplexNestedTypeTest()
     {
-        var type = TestParse("Optional[Union[list[str], dict[int, bool]]]");
-        var optionalType = Assert.IsType<OptionalType>(type);
-        var unionType = Assert.IsType<UnionType>(optionalType.Of);
+        var type = TestParse<OptionalType>("Optional[Union[list[str], dict[int, bool]]]");
+        var unionType = Assert.IsType<UnionType>(type.Of);
         Assert.Equal(2, unionType.Choices.Length);
 
         var listType = Assert.IsType<ListType>(unionType.Choices[0]);

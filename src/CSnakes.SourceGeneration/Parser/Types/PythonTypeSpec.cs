@@ -220,6 +220,12 @@ public sealed record UnionType(ValueArray<PythonTypeSpec> Choices) : ClosedGener
     }
 }
 
+/// <summary>
+/// Represents type with potentially generic type arguments, e.g. <c>MyType[int,
+/// str]</c> or <c>collections.abc.Sized</c>, that is not <em>intrinsically</em>
+/// recognised and treated in type reflection or for the purpose of code
+/// generation.
+/// </summary>
 public sealed record ParsedPythonTypeSpec(string Name, ValueArray<PythonTypeSpec> Arguments) : PythonTypeSpec(Name)
 {
     public override string ToString() =>

@@ -1,23 +1,26 @@
 using CSnakes.Parser;
 using CSnakes.Parser.Types;
 using Superpower;
+using Superpower.Model;
 
 namespace CSnakes.Tests;
 
 public class PythonTypeDefinitionParserTests
 {
+    private static TokenList<PythonToken> Tokenize(string input) => PythonTokenizer.Instance.Tokenize(input);
+
     private static T TestParse<T>(string input) where T : PythonTypeSpec
     {
-        var tokens = PythonTokenizer.Instance.Tokenize(input);
-        var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
+        var result = PythonParser.PythonTypeDefinitionParser.TryParse(Tokenize(input));
         Assert.True(result.Remainder.IsAtEnd);
         Assert.True(result.HasValue, result.ToString());
         return Assert.IsType<T>(result.Value);
     }
 
+
     private static void TestParseError(string input, string expectedErrorMessage)
     {
-        var tokens = PythonTokenizer.Instance.Tokenize(input);
+        var tokens = Tokenize(input);
         void Act() => _ = PythonParser.PythonTypeDefinitionParser.Parse(tokens);
         var exception = Assert.Throws<ParseException>(Act);
         Assert.Equal(expectedErrorMessage, exception.Message);

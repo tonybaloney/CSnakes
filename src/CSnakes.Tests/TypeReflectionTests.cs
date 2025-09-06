@@ -1,4 +1,5 @@
 using CSnakes.Parser;
+using CSnakes.Parser.Types;
 using CSnakes.Reflection;
 using Superpower;
 
@@ -156,11 +157,8 @@ public class TypeReflectionTests
         var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
         Assert.True(result.Remainder.IsAtEnd);
         Assert.True(result.HasValue, result.ToString());
-        Assert.NotNull(result.Value);
-        Assert.Equal("Optional",result.Value.Name);
-        var arg = Assert.Single(result.Value.Arguments);
-        Assert.Equal("int", arg.Name);
-        Assert.Empty(arg.Arguments);
+        var optional = Assert.IsType<OptionalType>(result.Value);
+        Assert.IsType<IntType>(optional.Of);
     }
 
     [Theory]
@@ -186,9 +184,9 @@ public class TypeReflectionTests
     [InlineData("Union[None, Optional[int]]", "Optional[int]")]
     [InlineData("Union[Optional[int], None]", "Optional[int]")]
     // Union with None and other non-None types (does not become Optional)
-    [InlineData("Union[None, int, str]", "Union[None, int, str]")]
+    [InlineData("Union[None, int, str]", "Union[NoneType, int, str]")]
     // Large Union with duplicates and None
-    [InlineData("Union[None, bool, int, float, str, object, bytes, bytearray, int, int]", "Union[None, bool, int, float, str, object, bytes, bytearray]")]
+    [InlineData("Union[None, bool, int, float, str, object, bytes, bytearray, int, int]", "Union[NoneType, bool, int, float, str, object, bytes, bytearray]")]
     // Pipe syntax...
     // Duplicates are deduplicated
     [InlineData("int | int", "int")]
@@ -209,9 +207,9 @@ public class TypeReflectionTests
     [InlineData("None | Optional[int]", "Optional[int]")]
     [InlineData("Optional[int] | None", "Optional[int]")]
     // None, type, and another type (does not become Optional)
-    [InlineData("None | int | str", "Union[None, int, str]")]
+    [InlineData("None | int | str", "Union[NoneType, int, str]")]
     // Large union with duplicates and None
-    [InlineData("None | bool | int | float | str | object | bytes | bytearray | int | int", "Union[None, bool, int, float, str, object, bytes, bytearray]")]
+    [InlineData("None | bool | int | float | str | object | bytes | bytearray | int | int", "Union[NoneType, bool, int, float, str, object, bytes, bytearray]")]
     // Union with pipe syntax inside is still a Union
     [InlineData("Union[int | str | bool]", "Union[int, str, bool]")]
     public void UnionNormalizationTest(string input, string expected)

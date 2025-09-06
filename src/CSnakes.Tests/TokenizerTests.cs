@@ -107,9 +107,9 @@ public class TokenizerTests
     [InlineData("nest: list[tuple[int, int]]", "nest", "list[tuple[int, int]]")]
     [InlineData("max_length: int", "max_length", "int")]
     [InlineData("max_length: int = 50", "max_length", "int")]
-    [InlineData("temp: Literal[10]", "temp", "Literal[Literal]")]
-    [InlineData("value: Literal[1, 2, 3]", "value", "Literal[Literal]")]
-    [InlineData("value: Literal[1, 'two', 3.0]", "value", "Literal[Literal]")]
+    [InlineData("temp: Literal[10]", "temp", "Literal[10]")]
+    [InlineData("value: Literal[1, 2, 3]", "value", "Literal[1, 2, 3]")]
+    [InlineData("value: Literal[1, 'two', 3.0]", "value", "Literal[1, 'two', 3.0]")]
     public void ParseFunctionParameter(string code, string expectedName, string expectedType)
     {
         var tokens = PythonTokenizer.Instance.Tokenize(code);
@@ -358,7 +358,7 @@ public class TokenizerTests
         Assert.True(result.HasValue);
         var a = result.Value.Enumerable().First();
         Assert.Equal("a", a.Name);
-        Assert.Equal("typing.List[int]", a.ImpliedTypeSpec.ToString());
+        Assert.Equal("list[int]", a.ImpliedTypeSpec.ToString());
     }
 
     [Fact]
@@ -445,7 +445,7 @@ public class TokenizerTests
         var b = parameters[1];
         Assert.Equal("b", b.Name);
         Assert.Equal("str", b.ImpliedTypeSpec.Name);
-        Assert.Equal("None", result.Value.ReturnType.Name);
+        Assert.IsType<NoneType>(result.Value.ReturnType);
     }
 
     [Theory]
@@ -513,7 +513,7 @@ if __name__ == '__main__':
         var b = parameters[1];
         Assert.Equal("b", b.Name);
         Assert.Equal("str", b.ImpliedTypeSpec.Name);
-        Assert.Equal("None", functions[0].ReturnType.Name);
+        Assert.IsType<NoneType>(functions[0].ReturnType);
 
         Assert.Equal("baz", functions[1].Name);
         parameters = functions[1].Parameters.Enumerable().ToArray();
@@ -523,7 +523,7 @@ if __name__ == '__main__':
         var d = parameters[1];
         Assert.Equal("d", d.Name);
         Assert.Equal("bool", d.ImpliedTypeSpec.Name);
-        Assert.Equal("None", functions[1].ReturnType.Name);
+        Assert.IsType<NoneType>(functions[1].ReturnType);
     }
 
     [Fact]
@@ -555,7 +555,7 @@ if __name__ == '__main__':
         var b = parameters[1];
         Assert.Equal("b", b.Name);
         Assert.Equal("str", b.ImpliedTypeSpec.Name);
-        Assert.Equal("None", function.ReturnType.Name);
+        Assert.IsType<NoneType>(function.ReturnType);
     }
 
     [Fact]
@@ -653,7 +653,7 @@ if __name__ == '__main__':
         var b = parameters[1];
         Assert.Equal("b", b.Name);
         Assert.Equal("str", b.ImpliedTypeSpec.Name);
-        Assert.Equal("None", function.ReturnType.Name);
+        Assert.IsType<NoneType>(function.ReturnType);
     }
 
     [Fact]

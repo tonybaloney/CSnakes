@@ -220,7 +220,7 @@ public sealed record UnionType(ValueArray<PythonTypeSpec> Choices) : ClosedGener
     }
 }
 
-public sealed record GenericPythonTypeSpec(string Name, ValueArray<PythonTypeSpec> Arguments) : ClosedGenericType(Name)
+public sealed record ParsedPythonTypeSpec(string Name, ValueArray<PythonTypeSpec> Arguments) : PythonTypeSpec(Name)
 {
     public override string ToString() =>
         this switch

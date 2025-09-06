@@ -335,31 +335,31 @@ public class PythonTypeDefinitionParserTests
     [InlineData("CustomType")]
     [InlineData("my_module.CustomType")]
     [InlineData("package.module.CustomType")]
-    public void GenericPythonTypeSpecTest(string pythonType)
+    public void ParsePythonTypeSpecTest(string pythonType)
     {
-        var genericType = Assert.IsType<GenericPythonTypeSpec>(TestParse(pythonType));
-        Assert.Equal(pythonType, genericType.Name);
-        Assert.Empty(genericType.Arguments);
+        var parsedType = Assert.IsType<ParsedPythonTypeSpec>(TestParse(pythonType));
+        Assert.Equal(pythonType, parsedType.Name);
+        Assert.Empty(parsedType.Arguments);
     }
 
     [Theory]
     [InlineData("CustomType[int]")]
     [InlineData("my_module.CustomType[str, bool]")]
-    public void GenericPythonTypeSpecWithArgumentsTest(string pythonType)
+    public void ParsePythonTypeSpecWithArgumentsTest(string pythonType)
     {
-        var genericType = Assert.IsType<GenericPythonTypeSpec>(TestParse(pythonType));
-        Assert.True(genericType.Arguments.Length > 0);
+        var parsedType = Assert.IsType<ParsedPythonTypeSpec>(TestParse(pythonType));
+        Assert.True(parsedType.Arguments.Length > 0);
     }
 
     [Theory]
     [InlineData("MyGeneric[int, str]")]
     public void GenericTypeWithMultipleArgumentsTest(string pythonType)
     {
-        var genericType = Assert.IsType<GenericPythonTypeSpec>(TestParse(pythonType));
-        Assert.Equal("MyGeneric", genericType.Name);
-        Assert.Equal(2, genericType.Arguments.Length);
-        _ = Assert.IsType<IntType>(genericType.Arguments[0]);
-        _ = Assert.IsType<StrType>(genericType.Arguments[1]);
+        var parsedType = Assert.IsType<ParsedPythonTypeSpec>(TestParse(pythonType));
+        Assert.Equal("MyGeneric", parsedType.Name);
+        Assert.Equal(2, parsedType.Arguments.Length);
+        _ = Assert.IsType<IntType>(parsedType.Arguments[0]);
+        _ = Assert.IsType<StrType>(parsedType.Arguments[1]);
     }
 
     [Theory]

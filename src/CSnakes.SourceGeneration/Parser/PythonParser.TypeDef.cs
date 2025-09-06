@@ -94,7 +94,7 @@ public static partial class PythonParser
                         typeDefinitionParser.AtLeastOnceDelimitedBy(comma)
                                             .Subscript()
                                             .OptionalOrDefault([])
-                    select (PythonTypeSpec)new GenericPythonTypeSpec(other, [..subscript]),
+                    select (PythonTypeSpec)new ParsedPythonTypeSpec(other, [..subscript]),
             }
             select type;
 

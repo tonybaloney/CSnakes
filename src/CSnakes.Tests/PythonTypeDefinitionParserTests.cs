@@ -168,6 +168,7 @@ public class PythonTypeDefinitionParserTests
     [Theory]
     [InlineData("Sequence[str]")]
     [InlineData("typing.Sequence[str]")]
+    [InlineData("collections.abc.Sequence[str]")]
     public void SequenceTest(string pythonType)
     {
         var sequenceType = Assert.IsType<SequenceType>(TestParse(pythonType));
@@ -188,6 +189,7 @@ public class PythonTypeDefinitionParserTests
     [Theory]
     [InlineData("Mapping[str, float]")]
     [InlineData("typing.Mapping[str, float]")]
+    [InlineData("collections.abc.Mapping[str, float]")]
     public void MappingTest(string pythonType)
     {
         var mappingType = Assert.IsType<MappingType>(TestParse(pythonType));
@@ -198,6 +200,7 @@ public class PythonTypeDefinitionParserTests
     [Theory]
     [InlineData("Generator[int, str, bool]")]
     [InlineData("typing.Generator[int, str, bool]")]
+    [InlineData("collections.abc.Generator[int, str, bool]")]
     public void GeneratorTest(string pythonType)
     {
         var generatorType = Assert.IsType<GeneratorType>(TestParse(pythonType));
@@ -208,8 +211,8 @@ public class PythonTypeDefinitionParserTests
 
     [Theory]
     [InlineData("Coroutine[int, str, bool]")]
-    [InlineData("collections.abc.Coroutine[int, str, bool]")]
     [InlineData("typing.Coroutine[int, str, bool]")]
+    [InlineData("collections.abc.Coroutine[int, str, bool]")]
     public void CoroutineTest(string pythonType)
     {
         var coroutineType = Assert.IsType<CoroutineType>(TestParse(pythonType));

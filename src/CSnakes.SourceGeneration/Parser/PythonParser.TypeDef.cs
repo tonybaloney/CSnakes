@@ -45,13 +45,13 @@ public static partial class PythonParser
                     typeDefinitionParser.Subscript(PythonTypeSpec (of) => new OptionalType(of)),
                 "list" or "List" or "typing.List" =>
                     typeDefinitionParser.Subscript(PythonTypeSpec (of) => new ListType(of)),
-                "Sequence" or "typing.Sequence" =>
+                "Sequence" or "collections.abc.Sequence" or "typing.Sequence" =>
                     typeDefinitionParser.Subscript(PythonTypeSpec (of) => new SequenceType(of)),
                 "dict" or "Dict" or "typing.Dict" =>
                     typeDefinitionParser.Subscript(PythonTypeSpec (k, v) => new DictType(k, v)),
-                "Mapping" or "typing.Mapping" =>
+                "Mapping" or "collections.abc.Mapping" or "typing.Mapping" =>
                     typeDefinitionParser.Subscript(PythonTypeSpec (k, v) => new MappingType(k, v)),
-                "Generator" or "typing.Generator" =>
+                "Generator" or "collections.abc.Generator" or "typing.Generator" =>
                     typeDefinitionParser.Subscript(PythonTypeSpec (y, s, r) => new GeneratorType(y, s, r)),
                 "Coroutine" or "collections.abc.Coroutine" or "typing.Coroutine" =>
                     typeDefinitionParser.Subscript(PythonTypeSpec (y, s, r) => new CoroutineType(y, s, r)),

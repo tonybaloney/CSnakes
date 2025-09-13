@@ -1,29 +1,15 @@
-using CSnakes.Runtime.Locators;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using CSnakes.Runtime;
 using CSnakes.Runtime.Python;
+using CSnakes.Tests;
 
 namespace StdLib.Tests;
 
-public class StdLibTests
+public class StdLibTests(ITestOutputHelper? testOutputHelper = null)
 {
-    private readonly IPythonEnvironment env;
-    public StdLibTests()
-    {
-        var builder = Host.CreateApplicationBuilder();
-        var pb = builder.Services.WithPython().FromRedistributable();
-
-        builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
-
-        builder.Logging.SetMinimumLevel(LogLevel.Debug);
-        builder.Logging.AddFilter(_ => true);
-
-        var app = builder.Build();
-
-        env = app.Services.GetRequiredService<IPythonEnvironment>();
-    }
+    private readonly IPythonEnvironment env =
+        PythonEnvironmentConfiguration.Default
+                                      .FromRedistributable()
+                                      .WithXUnitLogging(testOutputHelper)
+                                      .GetPythonEnvironment();
 
     [Fact]
     public void TestStatisticsMode()

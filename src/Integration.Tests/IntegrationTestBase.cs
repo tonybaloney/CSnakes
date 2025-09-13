@@ -1,10 +1,12 @@
 using CSnakes;
 using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
+using CSnakes.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace Integration.Tests;
 
@@ -39,13 +41,15 @@ public sealed class PythonEnvironmentFixture : IDisposable
             _ => throw new NotSupportedException($"Python version {pythonVersionToTest} is not supported.")
         };
 
-        (env, installer) = Python.GetEnvironment(
-                  pb => pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"))
-                          .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
-                          .WithVirtualEnvironment(venvPath)
-                          .WithPipInstaller(),
-                  lb => lb.AddXUnit(),
-                  sp => sp.GetRequiredService<IPythonPackageInstaller>());
+        var config = PythonEnvironmentConfiguration.Default
+                            .SetHome(Path.Join(Environment.CurrentDirectory, "python"))
+                            .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
+                            .SetVirtualEnvironment(venvPath)
+                            .WithXUnitLogging(null)
+                            .AddPipInstaller();
+
+        env = config.GetPythonEnvironment();
+        installer = config.PackageInstallers.Single();
     }
 
     public void Dispose()

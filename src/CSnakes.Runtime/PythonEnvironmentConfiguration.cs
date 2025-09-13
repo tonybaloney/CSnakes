@@ -39,6 +39,7 @@ public sealed class PythonEnvironmentConfiguration : IServiceProvider
     public ImmutableArray<IPythonPackageInstaller> PackageInstallers { get; init; }
     public PythonEnvironmentOptions Options { get; init; }
     public ILoggerFactory LoggerFactory { get; init; }
+    public bool IsLoggerFactoryDefault => LoggerFactory == NullLoggerFactory.Instance;
     public IEnvironmentManagement? EnvironmentManager { get; init; }
 
     public PythonEnvironmentConfiguration WithLocators(ImmutableArray<PythonLocator> value) =>

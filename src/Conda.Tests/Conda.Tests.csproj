@@ -8,6 +8,11 @@
     <DefaultPythonItems>true</DefaultPythonItems>
   </PropertyGroup>
 
+
+  <ItemGroup>
+    <Compile Include="..\CSnakes.Runtime.Tests\PythonEnvironmentConfigurationExtensions.cs" Link="PythonEnvironmentConfigurationExtensions.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />

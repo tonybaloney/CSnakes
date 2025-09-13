@@ -1,5 +1,5 @@
 using CSnakes.Runtime.Locators;
-using Microsoft.Extensions.Logging;
+using CSnakes.Tests;
 
 namespace CSnakes.Runtime.Tests;
 
@@ -7,7 +7,7 @@ public class RuntimeTestBase : IDisposable
 {
     protected readonly IPythonEnvironment env;
 
-    public RuntimeTestBase()
+    public RuntimeTestBase(ITestOutputHelper? testOutputHelper = null)
     {
         Version pythonVersionToTest = ServiceCollectionExtensions.ParsePythonVersion(Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9");
         bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "1";
@@ -24,10 +24,11 @@ public class RuntimeTestBase : IDisposable
             _ => throw new NotSupportedException($"Python version {pythonVersionToTest} is not supported.")
         };
 
-        env = CSnakes.Python.GetEnvironment(
-                  pb => pb.WithHome(Environment.CurrentDirectory)
-                          .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded),
-                  static lb => lb.AddXUnit());
+        env = PythonEnvironmentConfiguration.Default
+                                            .SetHome(Environment.CurrentDirectory)
+                                            .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
+                                            .WithXUnitLogging(testOutputHelper)
+                                            .GetPythonEnvironment();
     }
 
     public void Dispose()

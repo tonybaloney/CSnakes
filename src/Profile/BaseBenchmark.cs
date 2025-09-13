@@ -1,5 +1,4 @@
 using BenchmarkDotNet.Attributes;
-using CSnakes;
 using CSnakes.Runtime;
 
 namespace Profile;
@@ -11,7 +10,8 @@ public class BaseBenchmark
 
     public BaseBenchmark()
     {
-        Env = Python.GetEnvironment(pb => pb.WithHome(Path.Join(Environment.CurrentDirectory))
-                                            .FromRedistributable(Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12"));
+        Env = PythonEnvironmentConfiguration.Default.SetHome(Environment.CurrentDirectory)
+                                            .FromRedistributable(Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12")
+                                            .GetPythonEnvironment();
     }
 }

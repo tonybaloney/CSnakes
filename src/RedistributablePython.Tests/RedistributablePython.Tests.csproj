@@ -9,6 +9,11 @@
     <EmbedPythonSources>true</EmbedPythonSources>
   </PropertyGroup>
 
+
+  <ItemGroup>
+    <Compile Include="..\CSnakes.Runtime.Tests\PythonEnvironmentConfigurationExtensions.cs" Link="PythonEnvironmentConfigurationExtensions.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="MartinCostello.Logging.XUnit.v3" />

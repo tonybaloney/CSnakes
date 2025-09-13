@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 
 #pragma warning disable RS0016 // FIXME Add public types and members to the declared API
 #pragma warning disable RS0026 // FIXME Do not add multiple public overloads with optional parameters
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace CSnakes;
 
@@ -20,7 +21,7 @@ public static class Python
                                                     LogLevel logLevel = LogLevel.Warning) =>
         GetEnvironment(builder => builder.WithHome(home ?? AppContext.BaseDirectory)
                                          .FromRedistributable(version),
-                       logLevel is not LogLevel.None ? builder => builder.SetMinimumLevel(logLevel) : null);
+            logLevel is not LogLevel.None ? builder => builder.SetMinimumLevel(logLevel) : null);
 
     public static IPythonEnvironment GetEnvironment(Action<IPythonEnvironmentBuilder> configure,
                                                     Action<ILoggingBuilder>? configureLogging = null)

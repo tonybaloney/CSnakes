@@ -1,15 +1,12 @@
-using CSnakes;
 using CSnakes.Runtime.Locators;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using CSnakes.Tests;
 
 namespace RedistributablePython.Tests;
 public class RedistributablePythonTestBase : IDisposable
 {
     private readonly IPythonEnvironment env;
 
-    public RedistributablePythonTestBase()
+    public RedistributablePythonTestBase(ITestOutputHelper? testOutputHelper = null)
     {
         Version pythonVersionToTest = ServiceCollectionExtensions.ParsePythonVersion(Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9");
         bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "1";
@@ -27,15 +24,14 @@ public class RedistributablePythonTestBase : IDisposable
             _ => throw new NotSupportedException($"Python version {pythonVersionToTest} is not supported.")
         };
 
-        env = Python.GetEnvironment(
-                  pb => pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"))
-                          .DisableSignalHandlers()
-                          .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
-                          .WithUvInstaller()
-                          .WithVirtualEnvironment(venvPath),
-                  lb => lb.SetMinimumLevel(LogLevel.Debug)
-                          .AddFilter(_ => true)
-                          .AddXUnit());
+        env = PythonEnvironmentConfiguration.Default
+                                            .SetHome(Path.Join(Environment.CurrentDirectory, "python"))
+                                            .DisableSignalHandlers()
+                                            .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
+                                            .SetVirtualEnvironment(venvPath)
+                                            .AddUvInstaller()
+                                            .WithXUnitLogging(testOutputHelper)
+                                            .GetPythonEnvironment();
     }
 
     public void Dispose()

@@ -56,6 +56,9 @@ public sealed class PythonEnvironmentConfiguration : IServiceProvider
     public PythonEnvironmentConfiguration WithOptions(PythonEnvironmentOptions value) =>
         new(this) { Options = value };
 
+    public PythonEnvironmentConfiguration DisableSignalHandlers() =>
+        WithOptions(Options with { InstallSignalHandlers = false });
+
     public PythonEnvironmentConfiguration WithLogger(ILoggerFactory value) =>
         new(this) { LoggerFactory = value };
 

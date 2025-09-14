@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 
 #pragma warning disable RS0016 // FIXME Add public types and members to the declared API
 #pragma warning disable RS0026 // FIXME Do not add multiple public overloads with optional parameters
-#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace CSnakes;
 

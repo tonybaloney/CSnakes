@@ -3,8 +3,6 @@ using CSnakes.Runtime.PackageManagement;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-
 namespace CSnakes.Runtime.Tests;
 
 public class ServiceCollectionTests

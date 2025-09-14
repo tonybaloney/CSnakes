@@ -33,15 +33,12 @@ public static partial class ServiceCollectionExtensions
         return services;
     }
 
-    const string ObsoleteMessage = $"Use the \"{nameof(AddPython)}({nameof(IServiceCollection)},{nameof(PythonEnvironmentConfiguration)})\" extension instead.";
-
     /// <summary>
     /// Adds Python-related services to the service collection with the specified Python home directory.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
     /// <param name="home">The Python home directory.</param>
     /// <returns>The modified <see cref="IServiceCollection"/>.</returns>
-    [Obsolete(ObsoleteMessage)]
     public static IPythonEnvironmentBuilder WithPython(this IServiceCollection services)
     {
         var pythonBuilder = new PythonEnvironmentBuilder(services);
@@ -111,7 +108,6 @@ public static partial class ServiceCollectionExtensions
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
     /// <param name="version">The version of the NuGet package.</param>
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    [Obsolete(ObsoleteMessage)]
     public static IPythonEnvironmentBuilder FromNuGet(this IPythonEnvironmentBuilder builder, string version) =>
         FromNuGet(version, builder, static (builder, locator) =>
         {
@@ -125,7 +121,6 @@ public static partial class ServiceCollectionExtensions
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
     /// <param name="version">The version of the Windows Store package.</param>
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    [Obsolete(ObsoleteMessage)]
     public static IPythonEnvironmentBuilder FromWindowsStore(this IPythonEnvironmentBuilder builder, string version)
     {
         builder.Services.AddSingleton<PythonLocator>(new WindowsStoreLocator(ParsePythonVersion(version)));
@@ -138,7 +133,6 @@ public static partial class ServiceCollectionExtensions
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
     /// <param name="version">The version of the Windows Installer package.</param>
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    [Obsolete(ObsoleteMessage)]
     public static IPythonEnvironmentBuilder FromWindowsInstaller(this IPythonEnvironmentBuilder builder, string version)
     {
         builder.Services.AddSingleton<PythonLocator>(new WindowsInstallerLocator(ParsePythonVersion(version)));
@@ -151,14 +145,12 @@ public static partial class ServiceCollectionExtensions
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
     /// <param name="version">The version of the Windows Installer package.</param>
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    [Obsolete(ObsoleteMessage)]
     public static IPythonEnvironmentBuilder FromMacOSInstallerLocator(this IPythonEnvironmentBuilder builder, string version, bool freeThreaded = false)
     {
         builder.Services.AddSingleton<PythonLocator>(new MacOSInstallerLocator(ParsePythonVersion(version), freeThreaded));
         return builder;
     }
 
-    [Obsolete(ObsoleteMessage)]
     public static IPythonEnvironmentBuilder FromSource(this IPythonEnvironmentBuilder builder, string folder, string version, bool debug = true, bool freeThreaded = false)
     {
         builder.Services.AddSingleton<PythonLocator>(new SourceLocator(folder, ParsePythonVersion(version), debug, freeThreaded));
@@ -172,7 +164,6 @@ public static partial class ServiceCollectionExtensions
     /// <param name="environmentVariable">The name of the environment variable.</param>
     /// <param name="version">The version of the Python installation.</param>
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    [Obsolete(ObsoleteMessage)]
     public static IPythonEnvironmentBuilder FromEnvironmentVariable(this IPythonEnvironmentBuilder builder, string environmentVariable, string version)
     {
         builder.Services.AddSingleton<PythonLocator>(new EnvironmentVariableLocator(environmentVariable, ParsePythonVersion(version)));
@@ -186,7 +177,6 @@ public static partial class ServiceCollectionExtensions
     /// <param name="folder">The path to the folder.</param>
     /// <param name="version">The version of the Python installation.</param>
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    [Obsolete(ObsoleteMessage)]
     public static IPythonEnvironmentBuilder FromFolder(this IPythonEnvironmentBuilder builder, string folder, string version)
     {
         builder.Services.AddSingleton<PythonLocator>(new FolderLocator(folder, ParsePythonVersion(version)));
@@ -199,7 +189,6 @@ public static partial class ServiceCollectionExtensions
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
     /// <param name="condaBinaryPath">The path to the conda binary.</param>
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    [Obsolete(ObsoleteMessage)]
     public static IPythonEnvironmentBuilder FromConda(this IPythonEnvironmentBuilder builder, string condaBinaryPath)
     {
         builder.Services.AddSingleton<CondaLocator>(
@@ -227,7 +216,6 @@ public static partial class ServiceCollectionExtensions
     /// <param name="debug">Whether to use the debug version of Python.</param>
     /// <param name="timeout">Timeout in seconds for the download and installation process.</param>
     /// <returns></returns>
-    [Obsolete(ObsoleteMessage)]
     public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, bool debug = false, int timeout = 360)
     {
         builder.Services.AddSingleton<PythonLocator>(
@@ -250,7 +238,6 @@ public static partial class ServiceCollectionExtensions
     /// <param name="freeThreaded">Free Threaded Python (3.13+ only)</param>
     /// <param name="timeout">Timeout in seconds for the download and installation process.</param>
     /// <returns></returns>
-    [Obsolete(ObsoleteMessage)]
 #pragma warning disable RS0026 // TODO Do not add multiple public overloads with optional parameters
     public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, RedistributablePythonVersion version, bool debug = false, bool freeThreaded = false, int timeout = 360)
 #pragma warning restore RS0026
@@ -275,7 +262,6 @@ public static partial class ServiceCollectionExtensions
     /// <param name="freeThreaded">Free Threaded Python (3.13+ only)</param>
     /// <param name="timeout">Timeout in seconds for the download and installation process.</param>
     /// <returns></returns>
-    [Obsolete(ObsoleteMessage)]
     public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, string version, bool debug = false, bool freeThreaded = false, int timeout = 360)
     {
         RedistributablePythonVersion versionEnum = version switch
@@ -298,7 +284,6 @@ public static partial class ServiceCollectionExtensions
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the installer to.</param>
     /// <param name="requirementsPath">The path to the requirements file.</param>
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    [Obsolete(ObsoleteMessage)]
     public static IPythonEnvironmentBuilder WithPipInstaller(this IPythonEnvironmentBuilder builder, string requirementsPath = "requirements.txt")
     {
         builder.Services.AddSingleton<IPythonPackageInstaller>(
@@ -318,7 +303,6 @@ public static partial class ServiceCollectionExtensions
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the installer to.</param>
     /// <param name="requirementsPath">The path to the requirements file.</param>
     /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    [Obsolete(ObsoleteMessage)]
     public static IPythonEnvironmentBuilder WithUvInstaller(this IPythonEnvironmentBuilder builder, string requirementsPath = "requirements.txt")
     {
         builder.Services.AddSingleton<IPythonPackageInstaller>(

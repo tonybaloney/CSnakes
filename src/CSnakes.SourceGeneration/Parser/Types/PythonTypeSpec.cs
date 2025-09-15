@@ -139,7 +139,7 @@ public sealed record OptionalType(PythonTypeSpec Of) : ClosedGenericType("Option
 
 public sealed record CallableType(ValueArray<PythonTypeSpec> Parameters, PythonTypeSpec Return) : ClosedGenericType("Callback")
 {
-    public override string ToString() => $"{Name}[[{Parameters}], {Return}]";
+    public override string ToString() => $"{Name}[[{string.Join(", ", Parameters)}], {Return}]";
 }
 
 public sealed record TupleType(ValueArray<PythonTypeSpec> Parameters) : ClosedGenericType("tuple")

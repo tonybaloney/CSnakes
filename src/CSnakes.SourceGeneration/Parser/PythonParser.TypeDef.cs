@@ -46,12 +46,17 @@ public static partial class PythonParser
         public static readonly PythonTypeSpecParser Coroutine = TypeDefinitionParser.Subscript(PythonTypeSpec (y, s, r) => new CoroutineType(y, s, r));
 
         public static readonly PythonTypeSpecParser Callable =
+            //
             // > The subscription syntax must always be used with exactly two values: the argument list and the
             // > return type. The argument list must be a list of types, a `ParamSpec`, `Concatenate`, or an
             // > ellipsis. The return type must be a single type.
             //
             // Source: Annotating callable objects,
             // <https://docs.python.org/3/library/typing.html#annotating-callable-objects>
+            //
+            // NOTE: This parser only supports the form of `Callable` where the first value is a list of
+            // types, like `Callable[[int, str], bool]`.
+            //
             from callable in
                 TypeDefinitionParser.ManyDelimitedBy(Comma)
                                     .Subscript()

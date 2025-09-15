@@ -75,19 +75,19 @@ public static class PythonLogger
         switch (level)
         {
             // https://docs.python.org/3/library/logging.html#levels
-            case >= 50:
+            case >= 50 when logger.IsEnabled(LogLevel.Critical):
                 logger.LogCritical(message);
                 break;
-            case >= 40:
+            case >= 40 when logger.IsEnabled(LogLevel.Error):
                 logger.LogError(message);
                 break;
-            case >= 30:
+            case >= 30 when logger.IsEnabled(LogLevel.Warning):
                 logger.LogWarning(message);
                 break;
-            case >= 20:
+            case >= 20 when logger.IsEnabled(LogLevel.Information):
                 logger.LogInformation(message);
                 break;
-            case >= 10:
+            case >= 10 when logger.IsEnabled(LogLevel.Error):
                 logger.LogDebug(message);
                 break;
             default:

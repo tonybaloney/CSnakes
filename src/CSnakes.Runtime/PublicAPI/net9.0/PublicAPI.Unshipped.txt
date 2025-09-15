@@ -8,7 +8,7 @@ override CSnakes.Runtime.Locators.RedistributablePythonVersion.ToString() -> str
 static CSnakes.Runtime.Locators.RedistributablePythonVersion.operator !=(CSnakes.Runtime.Locators.RedistributablePythonVersion? left, CSnakes.Runtime.Locators.RedistributablePythonVersion? right) -> bool
 static CSnakes.Runtime.Locators.RedistributablePythonVersion.operator ==(CSnakes.Runtime.Locators.RedistributablePythonVersion? left, CSnakes.Runtime.Locators.RedistributablePythonVersion? right) -> bool
 static CSnakes.Runtime.Python.PyObject.From(System.ReadOnlySpan<byte> value) -> CSnakes.Runtime.Python.PyObject!
-static CSnakes.Runtime.PythonLogger.WithPythonLogging(this CSnakes.Runtime.IPythonEnvironment! env, Microsoft.Extensions.Logging.ILogger! logger) -> void
+static CSnakes.Runtime.PythonLogger.WithPythonLogging(this CSnakes.Runtime.IPythonEnvironment! env, Microsoft.Extensions.Logging.ILogger! logger) -> System.IDisposable!
 CSnakes.Runtime.Python.KeywordArg
 CSnakes.Runtime.Python.KeywordArg.Deconstruct(out string! Name, out CSnakes.Runtime.Python.PyObject! Value) -> void
 CSnakes.Runtime.Python.KeywordArg.Equals(CSnakes.Runtime.Python.KeywordArg other) -> bool

@@ -42,14 +42,15 @@ public class LoggingTests : IntegrationTestBase
     public void TestLogging_TestDebug()
     {
         var testModule = Env.TestLogging();
-        Env.WithPythonLogging(this.logger);
-
-        testModule.TestLogDebug();
-        var entry = TryTake();
-        Assert.NotNull(entry);
-        Assert.Equal(LogLevel.Debug, entry.Level);
-        Assert.Equal("Hello world", entry.Message);
-        Assert.Null(TryTake());
+        using (Env.WithPythonLogging(this.logger))
+        {
+            testModule.TestLogDebug();
+            var entry = TryTake();
+            Assert.NotNull(entry);
+            Assert.Equal(LogLevel.Debug, entry.Level);
+            Assert.Equal("Hello world", entry.Message);
+            Assert.Null(TryTake());
+        }
     }
 
     // TODO : Test lots of log messages

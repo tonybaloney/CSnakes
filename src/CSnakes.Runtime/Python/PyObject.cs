@@ -377,17 +377,76 @@ public partial class PyObject : SafeHandle, ICloneable
     /// </summary>
     /// <param name="args"></param>
     /// <returns>The resulting object, or NULL on error.</returns>
+    [Obsolete($"Use {nameof(Call)} overload that takes a read-only params span of arguments.")]
     public PyObject Call(params PyObject[] args)
     {
         return CallWithArgs(args);
     }
 
-    public PyObject CallWithArgs(PyObject[]? args = null)
+    [Obsolete($"Use {nameof(Call)} overload that takes a read-only params span of arguments.")]
+    public PyObject CallWithArgs(PyObject[]? args = null) => Call(args.AsSpan());
+
+    [Obsolete($"Use {nameof(Call)} overload that takes read-only spans of arguments and keyword arguments.")]
+    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null)
+    {
+        if (kwnames is null)
+            return CallWithArgs(args);
+        if (kwvalues is null || kwnames.Length != kwvalues.Length)
+            throw new ArgumentException("kwnames and kwvalues must be the same length.");
+
+        var kwargs =
+            from e in kwnames.Zip(kwvalues)
+            select new KeywordArg(e.First, e.Second);
+
+        return Call(args, kwargs.ToArray());
+    }
+
+    /// <summary>
+    /// Calls the object with the given positional arguments and returns the result.
+    /// </summary>
+    /// <param name="args">The positional arguments.</param>
+    /// <param name="argv">
+    /// The variadic positional arguments, otherwise known as the <c>*args</c>
+    /// argument in Python.</param>
+    /// <returns>
+    /// The result of the call.
+    /// </returns>
+    public PyObject Call(ReadOnlySpan<PyObject> args, params ReadOnlySpan<PyObject> argv)
+    {
+        switch (args.Length, argv.Length)
+        {
+            case (_, 0): return Call(args);
+            case (0, _): return Call(argv);
+            case var (a, b) when a + b is <= 16 and var length:
+            {
+                InlineArray16<PyObject> all = default;
+                var j = 0;
+                // args.CopyTo(all);
+                foreach (var arg in args)
+                    all[j++] = arg;
+                // argv.CopyTo(all[args.Length..]);
+                foreach (var arg in argv)
+                    all[j++] = arg;
+                return Call(all[..length]);
+            }
+            default:
+                return Call([..args, ..argv]);
+        }
+    }
+
+    /// <summary>
+    /// Calls the object with the given positional arguments and returns the result.
+    /// </summary>
+    /// <param name="args">The positional arguments.</param>
+    /// <returns>
+    /// The result of the call.
+    /// </returns>
+    public PyObject Call(params ReadOnlySpan<PyObject> args)
     {
         RaiseOnPythonNotInitialized();
 
         // Don't do any marshalling if there aren't any arguments.
-        if (args is null || args.Length == 0)
+        if (args.IsEmpty)
         {
             using (GIL.Acquire())
             {
@@ -395,7 +454,6 @@ public partial class PyObject : SafeHandle, ICloneable
             }
         }
 
-        args ??= [];
         var marshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
         var argHandles = args.Length < 16
             ? stackalloc IntPtr[args.Length]
@@ -424,23 +482,99 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
-    public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null)
+#if !NET10_0_OR_GREATER
+    [InlineArray(16)]
+    private struct InlineArray16<T>
     {
-        if (kwnames is null)
-            return CallWithArgs(args);
-        if (kwvalues is null || kwnames.Length != kwvalues.Length)
-            throw new ArgumentException("kwnames and kwvalues must be the same length.");
+        private T t;
+    }
+#endif
+
+    /// <summary>
+    /// Calls the object with the given arguments and returns the result.
+    /// </summary>
+    /// <param name="args">The positional arguments.</param>
+    /// <param name="argv">
+    /// The variadic positional arguments, otherwise known as the <c>*args</c>
+    /// argument in Python.</param>
+    /// <param name="kwargs">The keyword arguments.</param>
+    /// <param name="kwargv">
+    /// The variadic keyword arguments, otherwise known as the <c>**kwargs</c>
+    /// argument.</param>
+    /// <returns>
+    /// The result of the call.
+    /// </returns>
+    public PyObject Call(ReadOnlySpan<PyObject> args, ReadOnlySpan<PyObject> argv,
+                         ReadOnlySpan<KeywordArg> kwargs, ReadOnlySpan<KeywordArg> kwargv)
+    {
+        switch (args.Length, argv.Length, kwargs.Length, kwargv.Length)
+        {
+            //
+            // Fast paths for common cases without needing any array allocations for combining the
+            // arguments...
+            //
+            case (0  , 0  , 0  , 0  ): /* No arguments at all          */ return Call();
+            case (> 0, 0  , 0  , 0  ): /* Only positional args         */ return Call(args);
+            case (0  , > 0, 0  , 0  ): /* Only "*args"                 */ return Call(argv);
+            case (> 0, > 0, 0  , 0  ): /* Positional args & "*args"    */ return Call(args, argv);
+            case (0  , 0  , > 0, 0  ): /* Only keyword args            */ return Call([], kwargs);
+            case (0  , 0  , 0  , > 0): /* Only "**kwargs"              */ return Call([], kwargv);
+            case (> 0, 0  , 0  , > 0): /* Positional args & "**kwargs" */ return Call(args, kwargv);
+            case (0  , > 0, 0  , > 0): /* "*args" & "**kwargs"         */ return Call(argv, kwargv);
+            case (> 0, 0  , > 0, 0  ): /* Positional & keyword args    */ return Call(args, kwargs);
+            case (0  , > 0, > 0, 0  ): /* "*args" & keyword args       */ return Call(argv, kwargs);
+            //
+            // Combine keyword args & "**kwargs" without needing an array allocation when total
+            // count <= 16 and only either positional arguments or "*args" are present.
+            //
+            // Legend: c = count; v = variadic; p = positional; k = keyword
+            //
+            case var (pc, vpc, kc, vkc) when (pc == 0 || vpc == 0) && kc + vkc <= 16:
+            {
+                InlineArray16<KeywordArg> all = default;
+                var j = 0;
+                // kwargs.CopyTo(all);
+                foreach (var arg in kwargs)
+                    all[j++] = arg;
+                // kwargv.CopyTo(all[kwargs.Length..]);
+                foreach (var arg in kwargv)
+                    all[j++] = arg;
+                return Call(pc > 0 ? args : argv, all[..(kc + vkc)]);
+            }
+            default:
+            {
+                return Call([..args, ..argv], [..kwargs, ..kwargv]);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Calls the object with the given arguments and returns the result.
+    /// </summary>
+    /// <param name="args">The positional arguments.</param>
+    /// <param name="kwargs">The keyword arguments.</param>
+    /// <returns>
+    /// The result of the call.
+    /// </returns>
+    public PyObject Call(ReadOnlySpan<PyObject> args, ReadOnlySpan<KeywordArg> kwargs)
+    {
+        if (kwargs.IsEmpty)
+            return Call(args);
+
         RaiseOnPythonNotInitialized();
-        args ??= [];
 
         var argMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
-        var kwargMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[kwvalues.Length];
+        var kwargMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[kwargs.Length];
         var argHandles = args.Length < 16
             ? stackalloc IntPtr[args.Length]
             : new IntPtr[args.Length];
-        var kwargHandles = kwvalues.Length < 16
-            ? stackalloc IntPtr[kwvalues.Length]
-            : new IntPtr[kwvalues.Length];
+        var names = new InlineArray16<string>();
+        Span<string> kwargNames = kwargs.Length <= 16
+            ? names[..kwargs.Length]
+            : new string[kwargs.Length];
+        var kwargHandles = kwargs.Length < 16
+            ? stackalloc IntPtr[kwargs.Length]
+            : new IntPtr[kwargs.Length];
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -448,18 +582,19 @@ public partial class PyObject : SafeHandle, ICloneable
             m.FromManaged(args[i]);
             argHandles[i] = m.ToUnmanaged();
         }
-        for (int i = 0; i < kwvalues.Length; i++)
+        for (int i = 0; i < kwargs.Length; i++)
         {
             ref var m = ref kwargMarshallers[i];
-            m.FromManaged(kwvalues[i]);
+            m.FromManaged(kwargs[i].Value);
             kwargHandles[i] = m.ToUnmanaged();
+            kwargNames[i] = kwargs[i].Name;
         }
 
         try
         {
             using (GIL.Acquire())
             {
-                return Create(CPythonAPI.Call(this, argHandles, kwnames, kwargHandles));
+                return Create(CPythonAPI.Call(this, argHandles, kwargNames, kwargHandles));
             }
         }
         finally
@@ -475,6 +610,7 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
+    [Obsolete($"Use {nameof(Call)} overload that takes read-only spans of arguments and keyword arguments.")]
     public PyObject CallWithKeywordArguments(PyObject[]? args = null, string[]? kwnames = null, PyObject[]? kwvalues = null, IReadOnlyDictionary<string, PyObject>? kwargs = null)
     {
         // No keyword parameters supplied
@@ -709,8 +845,10 @@ public partial class PyObject : SafeHandle, ICloneable
         return new PyObject(handle);
     }
 
+    [Obsolete("Use Call overload that takes ReadOnlySpan<PyObject> and ReadOnlySpan<KeywordArg>")]
     private static void MergeKeywordArguments(string[] kwnames, PyObject[] kwvalues, IReadOnlyDictionary<string, PyObject>? kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues)
     {
+        // TODO: Remove when CallWithKeywordArguments is removed.
         if (kwnames.Length != kwvalues.Length)
             throw new ArgumentException("kwnames and kwvalues must be the same length.");
         if (kwargs is null)

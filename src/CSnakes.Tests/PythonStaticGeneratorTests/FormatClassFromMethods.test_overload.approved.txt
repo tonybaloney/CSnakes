@@ -149,7 +149,7 @@ public static class TestClassExtensions
                 using PyObject future_pyObject = PyObject.From(future)!;
                 using PyObject depth_pyObject = PyObject.From(depth)!;
                 using PyObject limit_pyObject = PyObject.From(limit)!;
-                _ = __underlyingPythonFunc.CallWithKeywordArguments([future_pyObject], ["depth", "limit"], [depth_pyObject, limit_pyObject], null);
+                _ = __underlyingPythonFunc.Call([future_pyObject], default, [new("depth", depth_pyObject), new("limit", limit_pyObject)], default);
                 return;
             }
         }

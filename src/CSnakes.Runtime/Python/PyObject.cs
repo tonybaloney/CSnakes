@@ -845,8 +845,10 @@ public partial class PyObject : SafeHandle, ICloneable
         return new PyObject(handle);
     }
 
+    [Obsolete("Use Call overload that takes ReadOnlySpan<PyObject> and ReadOnlySpan<KeywordArg>")]
     private static void MergeKeywordArguments(string[] kwnames, PyObject[] kwvalues, IReadOnlyDictionary<string, PyObject>? kwargs, out string[] combinedKwnames, out PyObject[] combinedKwvalues)
     {
+        // TODO: Remove when CallWithKeywordArguments is removed.
         if (kwnames.Length != kwvalues.Length)
             throw new ArgumentException("kwnames and kwvalues must be the same length.");
         if (kwargs is null)

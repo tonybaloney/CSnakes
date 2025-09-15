@@ -22,27 +22,33 @@ public static class PythonLogger
     {
         const string handlerPythonCode = """
             import logging
+            import queue
             import time
+
 
             class __csnakesMemoryHandler(logging.Handler):
                 def __init__(self):
                     logging.Handler.__init__(self)
-                    self.records = []
-                    self.closeRequest = False
+                    self.queue = queue.Queue()
 
                 def emit(self, record):
-                    self.records.append(record)
+                    try:
+                        self.queue.put(record)
+                    except queue.ShutDown:
+                        pass
 
                 def get_records(self):  # equivalent to flush()
-                    while not self.closeRequest:
-                        with self.lock:
-                            for record in self.records:
-                                yield record
-                            self.records.clear()
-                        time.sleep(0.01) # TODO: Find a better solution for the generator loop
+                    while True:
+                        try:
+                            record = self.queue.get()
+                        except queue.ShutDown:
+                            break
+                        else:
+                            self.queue.task_done()
+                            yield record
 
                 def close(self):
-                    self.closeRequest = True
+                    self.queue.shutdown()
                     logging.Handler.close(self)
 
             def installCSnakesHandler(handler, name = None):

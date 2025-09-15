@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace CSnakes.Parser.Types;
 
-public record PythonTypeSpec(string Name)
+public abstract record PythonTypeSpec(string Name)
 {
     public static readonly AnyType Any = AnyType.Instance;
     public static readonly NoneType None = NoneType.Instance;

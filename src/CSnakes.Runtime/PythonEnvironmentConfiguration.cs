@@ -196,7 +196,11 @@ public sealed class PythonEnvironmentConfiguration : IServiceProvider
         WithEnvironmentManager(new VenvEnvironmentManagement(LoggerFactory.CreateLogger<VenvEnvironmentManagement>(), path, ensureExists));
 
     public PythonEnvironmentConfiguration SetCondaEnvironment(string name, string? environmentSpecPath = null, bool ensureEnvironment = false, string? pythonVersion = null) =>
-        WithEnvironmentManager(new CondaEnvironmentManagement(LoggerFactory.CreateLogger<CondaEnvironmentManagement>(), name, ensureEnvironment, this.GetRequiredService<CondaLocator>(), environmentSpecPath, pythonVersion));
+        this.GetService<CondaLocator>() is { } condaLocator
+        ? WithEnvironmentManager(new CondaEnvironmentManagement(LoggerFactory.CreateLogger<CondaEnvironmentManagement>(),
+                                                                name, ensureEnvironment, condaLocator, environmentSpecPath,
+                                                                pythonVersion))
+        : throw new InvalidOperationException("Conda environments must be used with Conda locator.");
 
     public PythonEnvironmentConfiguration SetHome(string home) =>
         new(Locators, PackageInstallers, Options with { Home = home }, LoggerFactory, EnvironmentManager);

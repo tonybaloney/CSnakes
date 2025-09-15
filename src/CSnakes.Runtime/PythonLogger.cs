@@ -62,7 +62,8 @@ public static class PythonLogger
             using var __csnakesMemoryHandlerCls = module.GetAttr("__csnakesMemoryHandler");
             var handler = __csnakesMemoryHandlerCls.Call();
             using var __installCSnakesHandler = module.GetAttr("installCSnakesHandler");
-            __installCSnakesHandler.Call(handler, PyObject.From(loggerName));
+            using var loggerNameStr = PyObject.From(loggerName);
+            __installCSnakesHandler.Call(handler, loggerNameStr);
 
             return handler;
         }

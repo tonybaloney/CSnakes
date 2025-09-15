@@ -1,47 +1,181 @@
 using System.Collections.Immutable;
 
 namespace CSnakes.Parser.Types;
-public sealed class PythonTypeSpec(string name, ImmutableArray<PythonTypeSpec> arguments = default) :
-    IEquatable<PythonTypeSpec>
+
+public abstract record PythonTypeSpec(string Name)
 {
-    private int? cachedHashCode;
+    public static readonly AnyType Any = AnyType.Instance;
+    public static readonly NoneType None = NoneType.Instance;
+    public static readonly IntType Int = IntType.Instance;
+    public static readonly StrType Str = StrType.Instance;
+    public static readonly FloatType Float = FloatType.Instance;
+    public static readonly BoolType Bool = BoolType.Instance;
+    public static readonly BytesType Bytes = BytesType.Instance;
+    public static readonly BufferType Buffer = BufferType.Instance;
+    public static readonly VariadicTupleType Tuple = new(Any);
 
-    public string Name { get; } = name;
+    public override string ToString() => Name;
+}
 
-    public ImmutableArray<PythonTypeSpec> Arguments { get; } = !arguments.IsDefault ? arguments : [];
+public sealed record NoneType : PythonTypeSpec
+{
+    public static readonly NoneType Instance = new();
+    private NoneType() : base("NoneType") { }
+    public override string ToString() => Name;
+}
 
-    public override string ToString() =>
-        Arguments is { Length: > 0 } args ?
-            $"{Name}[{string.Join(", ", args.Select(a => a.ToString()))}]" :
-            Name;
+public sealed record AnyType : PythonTypeSpec
+{
+    public static readonly AnyType Instance = new();
+    private AnyType() : base("Any") { }
+    public override string ToString() => Name;
+}
 
-    public static readonly PythonTypeSpec Any = new("Any");
-    public static readonly PythonTypeSpec None = new("None");
+public sealed record IntType : PythonTypeSpec
+{
+    public static readonly IntType Instance = new();
+    private IntType() : base("int") { }
+    public override string ToString() => Name;
+}
 
-    public static PythonTypeSpec Optional(PythonTypeSpec type) => new("Optional", [type]);
-    public static PythonTypeSpec Literal(ImmutableArray<PythonConstant> values) =>
-        new("Literal") /* TODO: Capture literal values */;
+public sealed record StrType : PythonTypeSpec
+{
+    public static readonly StrType Instance = new();
+    private StrType() : base("str") { }
+    public override string ToString() => Name;
+}
 
-    public static PythonTypeSpec Union(ReadOnlySpan<PythonTypeSpec> arguments)
+public sealed record FloatType : PythonTypeSpec
+{
+    public static readonly FloatType Instance = new();
+    private FloatType() : base("float") { }
+    public override string ToString() => Name;
+}
+
+public sealed record BoolType : PythonTypeSpec
+{
+    public static readonly BoolType Instance = new();
+    private BoolType() : base("bool") { }
+    public override string ToString() => Name;
+}
+
+public sealed record BytesType : PythonTypeSpec
+{
+    public static readonly BytesType Instance = new();
+    private BytesType() : base("bytes") { }
+    public override string ToString() => Name;
+}
+
+public sealed record BufferType : PythonTypeSpec
+{
+    public static readonly BufferType Instance = new();
+    private BufferType() : base("Buffer") { }
+    public override string ToString() => Name;
+}
+
+public abstract record ClosedGenericType(string Name) : PythonTypeSpec(Name);
+
+public interface ISequenceType
+{
+    PythonTypeSpec Of { get; }
+}
+
+public sealed record SequenceType(PythonTypeSpec Of) : ClosedGenericType("Sequence"), ISequenceType
+{
+    public override string ToString() => $"{Name}[{Of}]";
+}
+
+public sealed record ListType(PythonTypeSpec Of) : ClosedGenericType("list"), ISequenceType
+{
+    public override string ToString() => $"{Name}[{Of}]";
+}
+
+public interface IMappingType
+{
+    PythonTypeSpec Key { get; }
+    PythonTypeSpec Value { get; }
+}
+
+public sealed record MappingType(PythonTypeSpec Key, PythonTypeSpec Value) : ClosedGenericType("Mapping"), IMappingType
+{
+    public override string ToString() => $"{Name}[{Key}, {Value}]";
+}
+
+public sealed record DictType(PythonTypeSpec Key, PythonTypeSpec Value) : ClosedGenericType("dict"), IMappingType
+{
+    public override string ToString() => $"{Name}[{Key}, {Value}]";
+}
+
+public sealed record CoroutineType(PythonTypeSpec Yield, PythonTypeSpec Send, PythonTypeSpec Return) : ClosedGenericType("Coroutine")
+{
+    public override string ToString() => $"{Name}[{Yield}, {Send}, {Return}]";
+}
+
+public sealed record GeneratorType(PythonTypeSpec Yield, PythonTypeSpec Send, PythonTypeSpec Return) : ClosedGenericType("Generator")
+{
+    public override string ToString() => $"{Name}[{Yield}, {Send}, {Return}]";
+}
+
+public sealed record LiteralType(ValueArray<PythonConstant> Constants) : PythonTypeSpec("Literal")
+{
+    public override string ToString()
     {
-        if (arguments.IsEmpty)
-            throw new ArgumentException("Union must have at least one type argument.", nameof(arguments));
+        var constants =
+            from c in Constants
+            select c switch
+            {
+                PythonConstant.Float { Value: var v } => FormattableString.Invariant($"{v:0.0}"),
+                PythonConstant.String { Value: var v } => $"'{v}'",
+                var other => other.ToString(),
+            };
+        return $"{Name}[{string.Join(", ", constants)}]";
+    }
+}
 
-        switch (arguments)
+public sealed record OptionalType(PythonTypeSpec Of) : ClosedGenericType("Optional")
+{
+    public override string ToString() => $"{Name}[{Of}]";
+}
+
+public sealed record CallableType(ValueArray<PythonTypeSpec> Parameters, PythonTypeSpec Return) : ClosedGenericType("Callback")
+{
+    public override string ToString() => $"{Name}[[{string.Join(", ", Parameters)}], {Return}]";
+}
+
+public sealed record TupleType(ValueArray<PythonTypeSpec> Parameters) : ClosedGenericType("tuple")
+{
+    public override string ToString() => $"{Name}[{string.Join(", ", Parameters)}]";
+}
+
+public sealed record VariadicTupleType(PythonTypeSpec Of) : PythonTypeSpec("tuple")
+{
+    public override string ToString() => $"{Name}[{Of}, ...]";
+}
+
+public sealed record UnionType(ValueArray<PythonTypeSpec> Choices) : ClosedGenericType("Union")
+{
+    public override string ToString() => $"{Name}[{string.Join(", ", Choices)}]";
+
+    public static PythonTypeSpec Normalize(ReadOnlySpan<PythonTypeSpec> choices)
+    {
+        if (choices.IsEmpty)
+            throw new ArgumentException("Union must have at least one type argument.", nameof(choices));
+
+        switch (choices)
         {
             // Union of a single type is just that type
-            case [{ Name: not "Union" } arg]: return arg;
+            case [not UnionType and var arg]: return arg;
             // Union of a single type with None is Optional of that type
-            case [{ Name: not "None" and not "Union" and not "Optional" } arg, { Name: "None" }]: return Optional(arg);
+            case [not NoneType and not UnionType and not OptionalType and var arg, NoneType]: return new OptionalType(arg);
             // Union of None with a single type is Optional of that type
-            case [{ Name: "None" }, { Name: not "None" and not "Union" and not "Optional" } arg]: return Optional(arg);
+            case [NoneType, not NoneType and not UnionType and not OptionalType and var arg]: return new OptionalType(arg);
             // Optimise for common cases of Union with two...
-            case [{ Name: not "Union" and not "Optional" } a, { Name: not "Union" and not "Optional" } b]
-                when a != b: return new("Union", [a, b]);
+            case [not UnionType and not OptionalType and var a, not UnionType and not OptionalType and var b]
+                when a != b: return new UnionType([a, b]);
             // ...or three different types
-            case [{ Name: not "Union" and not "Optional" } a, { Name: not "Union" and not "Optional" } b, { Name: not "Union" and not "Optional" } c]
+            case [not UnionType and not OptionalType and var a, not UnionType and not OptionalType and var b, not UnionType and not OptionalType and var c]
                 when a != b && a != c && b != c:
-                return new("Union", [a, b, c]);
+                return new UnionType([a, b, c]);
             default:
             {
                 var list = ImmutableArray.CreateBuilder<PythonTypeSpec>(); // unique in order of appearance
@@ -52,10 +186,10 @@ public sealed class PythonTypeSpec(string name, ImmutableArray<PythonTypeSpec> a
                 {
                     foreach (var t in args)
                     {
-                        switch (t.Name)
+                        switch (t)
                         {
-                            case "Union": Flatten(t.Arguments.AsSpan()); break;
-                            case "Optional": Flatten([t.Arguments[0], None]); break;
+                            case UnionType { Choices: var cs }: Flatten(cs); break;
+                            case OptionalType { Of: var of }: Flatten([of, NoneType.Instance]); break;
                             default:
                             {
                                 if (set?.Add(t) ?? !list.Contains(t))
@@ -70,46 +204,36 @@ public sealed class PythonTypeSpec(string name, ImmutableArray<PythonTypeSpec> a
                     }
                 }
 
-                Flatten(arguments);
+                Flatten(choices);
 
                 return list switch
                 {
                     // A type and None, is Optional of that type
-                    [{ Name: not "None" } arg, { Name: "None" }] => Optional(arg),
+                    [not NoneType and var arg, NoneType] => new OptionalType(arg),
                     // None and a type, is Optional of that type
-                    [{ Name: "None" }, { Name: not "None" } arg] => Optional(arg),
+                    [NoneType, not NoneType and var arg] => new OptionalType(arg),
                     // A single type, is just that type
                     [var arg] => arg,
-                    var args => new("Union", args.ToImmutable())
+                    var args => new UnionType(args.ToImmutable())
                 };
             }
         }
     }
+}
 
-    public bool Equals(PythonTypeSpec? other) =>
-        other is not null && (ReferenceEquals(this, other) || Name == other.Name && Arguments.SequenceEqual(other.Arguments));
-
-    public override bool Equals(object? obj) =>
-        Equals(obj as PythonTypeSpec);
-
-    public static bool operator ==(PythonTypeSpec? left, PythonTypeSpec? right) =>
-        left?.Equals(right) ?? right is null;
-
-    public static bool operator !=(PythonTypeSpec? left, PythonTypeSpec? right) =>
-        !(left == right);
-
-    public override int GetHashCode()
-    {
-        if (this.cachedHashCode is { } someHashCode)
-            return someHashCode;
-
-        unchecked
+/// <summary>
+/// Represents type with potentially generic type arguments, e.g. <c>MyType[int,
+/// str]</c> or <c>collections.abc.Sized</c>, that is not <em>intrinsically</em>
+/// recognised and treated in type reflection or for the purpose of code
+/// generation.
+/// </summary>
+public sealed record ParsedPythonTypeSpec(string Name, ValueArray<PythonTypeSpec> Arguments) : PythonTypeSpec(Name)
+{
+    public override string ToString() =>
+        this switch
         {
-            var hash = Name.GetHashCode() * 397;
-            foreach (var argument in Arguments)
-                hash ^= argument.GetHashCode();
-            this.cachedHashCode = hash;
-            return hash;
-        }
-    }
+            { Name: var name, Arguments: [] } => name,
+            { Name: var name, Arguments: [var arg] } => $"{name}[{arg}]",
+            { Name: var name, Arguments: var args } => $"{name}[{string.Join(", ", args)}]"
+        };
 }

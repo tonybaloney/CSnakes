@@ -137,7 +137,7 @@ public sealed record OptionalType(PythonTypeSpec Of) : ClosedGenericType("Option
     public override string ToString() => $"{Name}[{Of}]";
 }
 
-public sealed record CallbackType(ValueArray<PythonTypeSpec> Parameters, PythonTypeSpec Return) : ClosedGenericType("Callback")
+public sealed record CallableType(ValueArray<PythonTypeSpec> Parameters, PythonTypeSpec Return) : ClosedGenericType("Callback")
 {
     public override string ToString() => $"{Name}[[{Parameters}], {Return}]";
 }

@@ -64,7 +64,7 @@ public static partial class PythonParser
                                     .Then(ps => from r in TypeDefinitionParser
                                                 select (Parameters: ps, Return: r))
                                     .Subscript()
-            select (PythonTypeSpec)new CallbackType([..callable.Parameters], callable.Return);
+            select (PythonTypeSpec)new CallableType([..callable.Parameters], callable.Return);
 
         public static readonly PythonTypeSpecParser Literal =
             // Literal can contain any PythonConstant, or a list of them.

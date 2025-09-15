@@ -220,7 +220,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("collections.abc.Callable[[int, str], bool]")]
     public void CallableTest(string input)
     {
-        var type = TestParse<CallbackType>(input);
+        var type = TestParse<CallableType>(input);
         Assert.Equal(2, type.Parameters.Length);
         _ = Assert.IsType<IntType>(type.Parameters[0]);
         _ = Assert.IsType<StrType>(type.Parameters[1]);
@@ -232,7 +232,7 @@ public class PythonTypeDefinitionParserTests
     [InlineData("typing.Callable[[], None]")]
     public void CallableNoParametersTest(string input)
     {
-        var type = TestParse<CallbackType>(input);
+        var type = TestParse<CallableType>(input);
         Assert.Empty(type.Parameters);
         _ = Assert.IsType<NoneType>(type.Return);
     }

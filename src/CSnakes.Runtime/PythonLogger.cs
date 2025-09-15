@@ -20,35 +20,36 @@ public static class PythonLogger
 
     internal static PyObject CreateHandler(string? loggerName = null)
     {
-        string handlerPythonCode = @"
-import logging
-import time
+        const string handlerPythonCode = """
+            import logging
+            import time
 
-class __csnakesMemoryHandler(logging.Handler):
-    def __init__(self):
-        logging.Handler.__init__(self)
-        self.records = []
-        self.closeRequest = False
+            class __csnakesMemoryHandler(logging.Handler):
+                def __init__(self):
+                    logging.Handler.__init__(self)
+                    self.records = []
+                    self.closeRequest = False
 
-    def emit(self, record):
-        self.records.append(record)
+                def emit(self, record):
+                    self.records.append(record)
 
-    def get_records(self):  # equivalent to flush()
-        while not self.closeRequest:
-            with self.lock:
-                for record in self.records:
-                    yield record
-                self.records.clear()
-            time.sleep(0.01) # TODO: Find a better solution for the generator loop
+                def get_records(self):  # equivalent to flush()
+                    while not self.closeRequest:
+                        with self.lock:
+                            for record in self.records:
+                                yield record
+                            self.records.clear()
+                        time.sleep(0.01) # TODO: Find a better solution for the generator loop
 
-    def close(self):
-        self.closeRequest = True
-        logging.Handler.close(self)
+                def close(self):
+                    self.closeRequest = True
+                    logging.Handler.close(self)
 
-def installCSnakesHandler(handler, name = None):
-    logging.getLogger(name).addHandler(handler)
+            def installCSnakesHandler(handler, name = None):
+                logging.getLogger(name).addHandler(handler)
 
-";
+            """;
+
         using (GIL.Acquire())
         {
             using var module = Import.ImportModule("_csnakesLoggingBridge", handlerPythonCode, "_csnakesLoggingBridge.py");

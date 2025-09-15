@@ -45,7 +45,7 @@ public static class PythonLogger
                             break
                         else:
                             self.queue.task_done()
-                            yield record
+                            yield (record.levelno, record.msg)
 
                 def close(self):
                     self.queue.shutdown()
@@ -68,7 +68,7 @@ public static class PythonLogger
         }
     }
 
-    private static void HandleRecord(ILogger logger, int level, string message)
+    private static void HandleRecord(ILogger logger, long level, string message)
     {
         // TODO: Handle Attributes and other useful things.
         // Look at the LogRecord class for details.
@@ -98,32 +98,21 @@ public static class PythonLogger
 
     internal static void RecordListener(PyObject handler, ILogger logger)
     {
-        IGeneratorIterator<PyObject, PyObject, PyObject> generator;
+        IGeneratorIterator<(long, string), PyObject, PyObject> generator;
         using (GIL.Acquire())
         {
             using PyObject getRecordsMethod = handler.GetAttr("get_records");
             using PyObject __result_pyObject = getRecordsMethod.Call();
-            generator = __result_pyObject.BareImportAs<IGeneratorIterator<PyObject, PyObject, PyObject>, PyObjectImporters.Generator<PyObject, PyObject, PyObject, PyObjectImporters.Runtime<PyObject>, PyObjectImporters.Runtime<PyObject>>>();
+            generator = __result_pyObject.BareImportAs<IGeneratorIterator<(long, string), PyObject, PyObject>, PyObjectImporters.Generator<(long, string), PyObject, PyObject, PyObjectImporters.Tuple<long, string, PyObjectImporters.Int64, PyObjectImporters.String>, PyObjectImporters.Runtime<PyObject>>>();
         }
-
-        var callback = new Action<PyObject>(
-            // This is the callback that will be called from the generator
-            record => {
-                using (GIL.Acquire())
-                {
-                    using PyObject level = generator.Current.GetAttr("levelno");
-                    using PyObject message = generator.Current.GetAttr("msg");
-                    HandleRecord(logger, level.As<int>(), message.As<string>());
-                }
-            }
-        );
 
         // Wait for the generator to finish
         var task = Task.Run(() =>
         {
             while (generator.MoveNext())
             {
-                callback(generator.Current);
+                var (level, message) = generator.Current;
+                HandleRecord(logger, (int)level, message);
             }
         });
     }

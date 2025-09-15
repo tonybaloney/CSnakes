@@ -141,7 +141,7 @@ public sealed class PythonEnvironmentConfiguration : IServiceProvider
 
     /// <summary>
     /// Simplest option for getting started with CSnakes. Downloads and installs the redistributable
-    /// version of Python 3.12 from GitHub and stores it in <c>%APP_DATA%\csnakes</c>.
+    /// version of Python 3.12 from GitHub and stores it in <c>%APPDATA%\csnakes</c>.
     /// </summary>
     /// <param name="debug">Whether to use the debug version of Python.</param>
     /// <param name="timeout">Timeout in seconds for the download and installation process.</param>
@@ -152,7 +152,7 @@ public sealed class PythonEnvironmentConfiguration : IServiceProvider
     /// <summary>
     /// Simplest option for getting started with CSnakes.
     /// Downloads and installs the redistributable version of Python from GitHub and stores it in
-    /// <c>%APP_DATA%/csnakes</c>.
+    /// <c>%APPDATA%/csnakes</c>.
     /// </summary>
     /// <param name="version">The version of the redistributable Python to use, e.g. "3.13"</param>
     /// <param name="debug">Whether to use the debug version of Python.</param>
@@ -174,7 +174,7 @@ public sealed class PythonEnvironmentConfiguration : IServiceProvider
     /// <summary>
     /// Simplest option for getting started with CSnakes.
     /// Downloads and installs the redistributable version of Python from GitHub and stores it in
-    /// <c>%APP_DATA%/csnakes</c>.
+    /// <c>%APPDATA%/csnakes</c>.
     /// </summary>
     /// <param name="version">The version of the redistributable Python to use.</param>
     /// <param name="debug">Whether to use the debug version of Python.</param>

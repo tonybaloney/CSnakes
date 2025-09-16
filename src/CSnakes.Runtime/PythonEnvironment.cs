@@ -100,7 +100,7 @@ internal class PythonEnvironment : IPythonEnvironment
         if (options.CaptureLogs)
         {
             if (logger is null)
-                throw new ArgumentNullException($"{nameof(logger)} cannot be null when capturing Python logs. A logger is required");
+                throw new ArgumentNullException(nameof(logger), "Argument cannot be null when capturing Python logs.");
             pythonCaptureLogger = PythonLogger.EnableGlobalLogging(logger);
         }
     }

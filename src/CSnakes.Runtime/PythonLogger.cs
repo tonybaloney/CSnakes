@@ -64,6 +64,8 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
 
         """;
 
+    private bool disposed;
+
     internal static Bridge Create(ILogger logger, string? loggerName = null)
     {
         PyObject? handler = null;
@@ -164,6 +166,11 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
 
     public void Dispose()
     {
+        if (disposed)
+            return;
+
+        disposed = true;
+
         var uninstalled = false;
 
         try

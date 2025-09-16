@@ -91,7 +91,8 @@ public class LoggingTests : IntegrationTestBase
             Assert.NotNull(entry);
             Assert.NotNull(entry.Exception);
             Assert.Equal(LogLevel.Error, entry.Level);
-            Assert.Equal("division by zero", entry.Exception.InnerException!.Message);
+            var pyRuntimeException = Assert.IsType<PythonRuntimeException>(entry.Exception.InnerException);
+            Assert.Equal("division by zero", pyRuntimeException.Message);
             Assert.Equal("ZeroDivisionError", ((PythonInvocationException)entry.Exception).PythonExceptionType);
             Assert.Equal("An error message occurred", entry.Message);
             Assert.Null(TryTake());

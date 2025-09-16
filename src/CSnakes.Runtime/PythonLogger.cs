@@ -1,7 +1,7 @@
 using CSnakes.Runtime.Python;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using ExceptionTuple = (CSnakes.Runtime.Python.PyObject? exceptionType, CSnakes.Runtime.Python.PyObject? exception, CSnakes.Runtime.Python.PyObject? traceback);
+using ExceptionInfo = (CSnakes.Runtime.Python.PyObject ExceptionType, CSnakes.Runtime.Python.PyObject Exception, CSnakes.Runtime.Python.PyObject Traceback);
 
 namespace CSnakes.Runtime;
 
@@ -93,13 +93,13 @@ public static class PythonLogger
             return new(handler, uninstallCSnakesHandler);
         }
 
-        private static void HandleRecord(ILogger logger, int level, string message, ExceptionTuple? exceptionInfo)
+        private static void HandleRecord(ILogger logger, int level, string message, ExceptionInfo? exceptionInfo)
         {
             Exception? exception = null;
-            if (exceptionInfo != null)
+            if (exceptionInfo is { } info)
             {
-                using var name = exceptionInfo.Value.exceptionType?.GetAttr("__name__") ?? null;
-                exception = new PythonInvocationException(name?.ToString() ?? "Exception", exceptionInfo.Value.exception, exceptionInfo.Value.traceback, message);
+                using var name = info.ExceptionType.NoneToNull()?.GetAttr("__name__");
+                exception = new PythonInvocationException(name?.ToString() ?? "Exception", info.Exception.NoneToNull(), info.Traceback.NoneToNull(), message);
             }
 
             // https://docs.python.org/3/library/logging.html#levels
@@ -121,18 +121,18 @@ public static class PythonLogger
 
         internal static void RecordListener(PyObject handler, ILogger logger)
         {
-            IGeneratorIterator<(long, string, (PyObject, PyObject, PyObject)?), PyObject, PyObject> generator;
+            IGeneratorIterator<(long, string, ExceptionInfo?), PyObject, PyObject> generator;
             using (GIL.Acquire())
             {
                 using PyObject getRecordsMethod = handler.GetAttr("get_records");
                 using PyObject __result_pyObject = getRecordsMethod.Call();
                 generator =
-                    __result_pyObject.BareImportAs<IGeneratorIterator<(long, string, (PyObject, PyObject, PyObject)?), PyObject, PyObject>,
-                                                                      PyObjectImporters.Generator<(long, string, (PyObject, PyObject, PyObject)?), PyObject, PyObject,
-                                                                                                  PyObjectImporters.Tuple<long, string, (PyObject, PyObject, PyObject)?,
+                    __result_pyObject.BareImportAs<IGeneratorIterator<(long, string, ExceptionInfo?), PyObject, PyObject>,
+                                                                      PyObjectImporters.Generator<(long, string, ExceptionInfo?), PyObject, PyObject,
+                                                                                                  PyObjectImporters.Tuple<long, string, ExceptionInfo?,
                                                                                                                           PyObjectImporters.Int64,
                                                                                                                           PyObjectImporters.String,
-                                                                                                                          NoneValueImporter<(PyObject, PyObject, PyObject),
+                                                                                                                          NoneValueImporter<ExceptionInfo,
                                                                                                                                             PyObjectImporters.Tuple<PyObject, PyObject, PyObject,
                                                                                                                                                                     PyObjectImporters.Runtime<PyObject>,
                                                                                                                                                                     PyObjectImporters.Runtime<PyObject>,

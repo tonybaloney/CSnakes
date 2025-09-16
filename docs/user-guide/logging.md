@@ -89,14 +89,14 @@ logger.info("Only this logger will send back")
 
 Python and .NET have different logging levels. CSnakes maps them as follows:
 
-| Python Level | Python Value | .NET LogLevel |
-|--------------|--------------|---------------|
-| CRITICAL     | 50+          | Critical      |
-| ERROR        | 40-49        | Error         |
-| WARNING      | 30-39        | Warning       |
-| INFO         | 20-29        | Information   |
-| DEBUG        | 10-19        | Debug         |
-| NOTSET       | 0-9          | (ignored)     |
+| Python Level | Python Value | .NET `LogLevel` |
+| :----------: | :----------: | :-------------: |
+|  `CRITICAL`  |     50+      |   `Critical`    |
+|   `ERROR`    |    40-49     |     `Error`     |
+|  `WARNING`   |    30-39     |    `Warning`    |
+|    `INFO`    |    20-29     |  `Information`  |
+|   `DEBUG`    |    10-19     |     `Debug`     |
+|   `NOTSET`   |     0-9      |    (ignored)    |
 
 ## Logging raised exceptions
 

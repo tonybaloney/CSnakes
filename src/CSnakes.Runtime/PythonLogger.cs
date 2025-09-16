@@ -18,7 +18,7 @@ public static class PythonLogger
         Bridge.Create(logger);
 }
 
-file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Task task) : IDisposable
+file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Task listenerTask) : IDisposable
 {
     const string ModuleCode = """
         import logging
@@ -80,7 +80,7 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
                 using var loggerNameStr = PyObject.From(loggerName);
                 installCSnakesHandler.Call(handler, loggerNameStr).Dispose();
 
-                task = RecordListener(handler, logger);
+                task = StartRecordListener(handler, logger);
             }
         }
         catch
@@ -112,7 +112,7 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
         logger.Log(mappedLevel, exception, message);
     }
 
-    private static Task RecordListener(PyObject handler, ILogger logger)
+    private static Task StartRecordListener(PyObject handler, ILogger logger)
     {
         using PyObject getRecordsMethod = handler.GetAttr("get_records");
         using PyObject getRecordsResult = getRecordsMethod.Call();
@@ -166,7 +166,7 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
 
         if (uninstalled)
         {
-            if (Task.WaitAny([task], TimeSpan.FromSeconds(5)) < 0)
+            if (Task.WaitAny([listenerTask], TimeSpan.FromSeconds(5)) < 0)
             {
                 Debug.WriteLine("Timeout waiting for logging task to complete.");
             }
@@ -174,7 +174,7 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
             {
                 try
                 {
-                    task.GetAwaiter().GetResult();
+                    listenerTask.GetAwaiter().GetResult();
                 }
                 catch (Exception ex)
                 {

@@ -105,6 +105,7 @@ CSnakes.Runtime.Python.PyObject.ImportAs<T, TImporter>() -> T
 CSnakes.Runtime.Python.PyObject.NotEquals(object? obj) -> bool
 CSnakes.Runtime.Python.PyObject.PyObject(nint pyObject, bool ownsHandle = true) -> void
 CSnakes.Runtime.PythonEnvironmentOptions
+CSnakes.Runtime.PythonEnvironmentOptions.Deconstruct(out string! Home, out string![]! ExtraPaths, out bool InstallSignalHandlers) -> void
 CSnakes.Runtime.PythonEnvironmentOptions.ExtraPaths.get -> string![]!
 CSnakes.Runtime.PythonEnvironmentOptions.ExtraPaths.init -> void
 CSnakes.Runtime.PythonEnvironmentOptions.Home.get -> string!
@@ -112,6 +113,7 @@ CSnakes.Runtime.PythonEnvironmentOptions.Home.init -> void
 CSnakes.Runtime.PythonEnvironmentOptions.InstallSignalHandlers.get -> bool
 CSnakes.Runtime.PythonEnvironmentOptions.InstallSignalHandlers.init -> void
 CSnakes.Runtime.PythonEnvironmentOptions.PythonEnvironmentOptions(CSnakes.Runtime.PythonEnvironmentOptions! original) -> void
+CSnakes.Runtime.PythonEnvironmentOptions.PythonEnvironmentOptions(string! Home, string![]! ExtraPaths, bool InstallSignalHandlers = true) -> void
 CSnakes.Runtime.PythonInvocationException
 CSnakes.Runtime.PythonInvocationException.PythonExceptionType.get -> string!
 CSnakes.Runtime.PythonInvocationException.PythonInvocationException(string! exceptionType, CSnakes.Runtime.Python.PyObject? exception, CSnakes.Runtime.Python.PyObject? pythonStackTrace) -> void

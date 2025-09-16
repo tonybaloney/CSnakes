@@ -46,3 +46,5 @@ static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_9 
 *REMOVED*CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_14 = 5 -> CSnakes.Runtime.Locators.RedistributablePythonVersion
 *REMOVED*CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_9 = 0 -> CSnakes.Runtime.Locators.RedistributablePythonVersion
 *REMOVED*static CSnakes.Runtime.ServiceCollectionExtensions.FromRedistributable(this CSnakes.Runtime.IPythonEnvironmentBuilder! builder, CSnakes.Runtime.Locators.RedistributablePythonVersion version, bool debug = false, bool freeThreaded = false, int timeout = 360) -> CSnakes.Runtime.IPythonEnvironmentBuilder!
+*REMOVED*CSnakes.Runtime.PythonEnvironmentOptions.Deconstruct(out string! Home, out string![]! ExtraPaths, out bool InstallSignalHandlers) -> void
+*REMOVED*CSnakes.Runtime.PythonEnvironmentOptions.PythonEnvironmentOptions(string! Home, string![]! ExtraPaths, bool InstallSignalHandlers = true) -> void

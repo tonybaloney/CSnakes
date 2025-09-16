@@ -38,6 +38,7 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
                     except queue.Full:
                         try:
                             _ = self.queue.get_nowait()  # drop the oldest record
+                            self.queue.task_done()
                         except queue.Empty:
                             pass
 

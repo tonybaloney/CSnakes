@@ -31,16 +31,20 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
                 self.queue = queue.Queue(200)
 
             def emit(self, record):
-                for _ in range(10):  # attempts to enqueue the record
+                _ = self._put(record)
+
+            def _put(self, record, attempts = 10):
+                for _ in range(attempts):  # attempts to try enqueue the record
                     try:
                         self.queue.put_nowait(record)
-                        return  # successfully enqueued
+                        return True  # successfully enqueued
                     except queue.Full:
                         try:
                             _ = self.queue.get_nowait()  # drop the oldest record
                             self.queue.task_done()
                         except queue.Empty:
                             pass
+                return False  # all attempts to put failed
 
             def get_records(self):
                 while True:
@@ -51,7 +55,7 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
                     yield (record.levelno, record.getMessage(), record.exc_info)
 
             def close(self):
-                self.queue.put(None)
+                _ = self._put(None)
                 logging.Handler.close(self)
 
 

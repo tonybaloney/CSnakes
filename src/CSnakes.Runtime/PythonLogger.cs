@@ -104,7 +104,7 @@ public static class PythonLogger
                 2 => LogLevel.Information,
                 3 => LogLevel.Warning,
                 4 => LogLevel.Error,
-                5 => LogLevel.Critical,
+                >= 5 => LogLevel.Critical,
                 _ => LogLevel.None,
             };
 

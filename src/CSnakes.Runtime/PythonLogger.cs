@@ -2,6 +2,8 @@ using CSnakes.Runtime.Python;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
+using ExceptionTuple = (CSnakes.Runtime.Python.PyObject? exceptionType, CSnakes.Runtime.Python.PyObject? exception, CSnakes.Runtime.Python.PyObject? traceback)?;
+
 namespace CSnakes.Runtime;
 
 /// <summary>
@@ -41,7 +43,7 @@ public static class PythonLogger
                             self.queue.task_done()
                             if record is None:
                                 break
-                            yield (record.levelno, record.getMessage())
+                            yield (record.levelno, record.getMessage(), record.exc_info)
 
                     def close(self):
                         self.queue.put(None)
@@ -88,27 +90,47 @@ public static class PythonLogger
             return new(handler, uninstallCSnakesHandler);
         }
 
-        private static void HandleRecord(ILogger logger, long level, string message)
+        private static void HandleRecord(ILogger logger, int level, string message, ExceptionTuple exceptionInfo)
         {
-            // TODO: Handle Attributes and other useful things.
-            // Look at the LogRecord class for details.
+            Exception? exception = null;
+            if (exceptionInfo != null)
+            {
+                using var name = exceptionInfo.Value.exceptionType?.GetAttr("__name__") ?? null;
+                exception = new PythonInvocationException(name?.ToString() ?? "Exception", exceptionInfo.Value.exception, exceptionInfo.Value.traceback, message);
+            }
+
             switch (level)
             {
                 // https://docs.python.org/3/library/logging.html#levels
                 case >= 50 when logger.IsEnabled(LogLevel.Critical):
-                    logger.LogCritical(message);
+                    if (exception is null)
+                        logger.LogCritical(message);
+                    else
+                        logger.LogCritical(exception, message);
                     break;
                 case >= 40 when logger.IsEnabled(LogLevel.Error):
-                    logger.LogError(message);
+                    if (exception is null)
+                        logger.LogError(message);
+                    else
+                        logger.LogError(exception, message);
                     break;
                 case >= 30 when logger.IsEnabled(LogLevel.Warning):
-                    logger.LogWarning(message);
+                    if (exception is null)
+                        logger.LogWarning(message);
+                    else
+                        logger.LogWarning(exception, message);
                     break;
                 case >= 20 when logger.IsEnabled(LogLevel.Information):
-                    logger.LogInformation(message);
+                    if (exception is null)
+                        logger.LogInformation(message);
+                    else
+                        logger.LogInformation(exception, message);
                     break;
                 case >= 10 when logger.IsEnabled(LogLevel.Debug):
-                    logger.LogDebug(message);
+                    if (exception is null)
+                        logger.LogDebug(message);
+                    else
+                        logger.LogDebug(exception, message);
                     break;
                 default:
                     // NOTSET
@@ -118,12 +140,15 @@ public static class PythonLogger
 
         internal static void RecordListener(PyObject handler, ILogger logger)
         {
-            IGeneratorIterator<(long, string), PyObject, PyObject> generator;
+            IGeneratorIterator<(long, string, ExceptionTuple), PyObject, PyObject> generator;
             using (GIL.Acquire())
             {
                 using PyObject getRecordsMethod = handler.GetAttr("get_records");
                 using PyObject __result_pyObject = getRecordsMethod.Call();
-                generator = __result_pyObject.BareImportAs<IGeneratorIterator<(long, string), PyObject, PyObject>, PyObjectImporters.Generator<(long, string), PyObject, PyObject, PyObjectImporters.Tuple<long, string, PyObjectImporters.Int64, PyObjectImporters.String>, PyObjectImporters.Runtime<PyObject>>>();
+                generator = __result_pyObject.BareImportAs<
+                    IGeneratorIterator<(long, string, ExceptionTuple), PyObject, PyObject>,
+                    PyObjectImporters.Generator<(long, string, ExceptionTuple), PyObject, PyObject, PyObjectImporters.Tuple<long, string, ExceptionTuple, PyObjectImporters.Int64, PyObjectImporters.String, PyObjectImporters.Runtime<ExceptionTuple>>,
+                    PyObjectImporters.Runtime<PyObject>>>();
             }
 
             // Wait for the generator to finish
@@ -131,8 +156,8 @@ public static class PythonLogger
             {
                 while (generator.MoveNext())
                 {
-                    var (level, message) = generator.Current;
-                    HandleRecord(logger, (int)level, message);
+                    var (level, message, exception) = generator.Current;
+                    HandleRecord(logger, (int)level, message, exception);
                 }
             });
         }

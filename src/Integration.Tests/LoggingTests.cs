@@ -37,7 +37,7 @@ public class LoggingTests : IntegrationTestBase
     public void TestLogging_TestDebug()
     {
         var testModule = Env.TestLogging();
-        using (Env.WithPythonLogging(this.logger))
+        using (Env.WithPythonLogging(logger))
         {
             testModule.TestLogDebug();
             var entry = TryTake();
@@ -52,7 +52,7 @@ public class LoggingTests : IntegrationTestBase
     public void TestLogging_TestInfo()
     {
         var testModule = Env.TestLogging();
-        using (Env.WithPythonLogging(this.logger))
+        using (Env.WithPythonLogging(logger))
         {
             testModule.TestLogInfo();
             var entry = TryTake();
@@ -66,13 +66,29 @@ public class LoggingTests : IntegrationTestBase
     [Fact]
     public void TestLogging_TestParamsMessage() {
         var testModule = Env.TestLogging();
-        using (Env.WithPythonLogging(this.logger))
+        using (Env.WithPythonLogging(logger))
         {
             testModule.TestParamsMessage();
             var entry = TryTake();
             Assert.NotNull(entry);
             Assert.Equal(LogLevel.Warning, entry.Level);
             Assert.Equal("Hello this example 3", entry.Message);
+            Assert.Null(TryTake());
+        }
+    }
+
+    [Fact]
+    public void TestLogging_TestException()
+    {
+        var testModule = Env.TestLogging();
+        using (Env.WithPythonLogging(logger))
+        {
+            testModule.TestLogDebug();
+            var entry = TryTake();
+            Assert.NotNull(entry);
+            Assert.NotNull(entry.Exception);
+            Assert.Equal(LogLevel.Error, entry.Level);
+            Assert.Equal("An error message occurred", entry.Message);
             Assert.Null(TryTake());
         }
     }

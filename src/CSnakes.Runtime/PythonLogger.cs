@@ -73,7 +73,7 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
         using var handlerClass = module.GetAttr("__csnakesMemoryHandler");
         using var installCSnakesHandler = module.GetAttr("installCSnakesHandler");
 
-        Task task;
+        Task listenerTask;
 
         try
         {
@@ -85,7 +85,7 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
                 using var loggerNameStr = PyObject.From(loggerName);
                 installCSnakesHandler.Call(handler, loggerNameStr).Dispose();
 
-                task = StartRecordListener(handler, logger);
+                listenerTask = StartRecordListener(handler, logger);
             }
         }
         catch
@@ -95,13 +95,13 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
             throw;
         }
 
-        return new(handler, uninstallCSnakesHandler, task);
+        return new(handler, uninstallCSnakesHandler, listenerTask);
     }
 
     private static Task StartRecordListener(PyObject handler, ILogger logger)
     {
-        using PyObject getRecordsMethod = handler.GetAttr("get_records");
-        using PyObject getRecordsResult = getRecordsMethod.Call();
+        using PyObject getRecords = handler.GetAttr("get_records");
+        using PyObject getRecordsResult = getRecords.Call();
         IGeneratorIterator<(long, string, ExceptionInfo?), PyObject, PyObject> generator =
             getRecordsResult.ImportAs<IGeneratorIterator<(long, string, ExceptionInfo?), PyObject, PyObject>,
                                                          PyObjectImporters.Generator<(long, string, ExceptionInfo?), PyObject, PyObject,

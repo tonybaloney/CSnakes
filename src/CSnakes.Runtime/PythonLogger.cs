@@ -93,25 +93,6 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
         return new(handler, uninstallCSnakesHandler, task);
     }
 
-    private static void HandleRecord(ILogger logger, long level, string message, Exception? exception)
-    {
-        // https://docs.python.org/3/library/logging.html#levels
-        var mappedLevel = (level / 10) switch
-        {
-            1 => LogLevel.Debug,
-            2 => LogLevel.Information,
-            3 => LogLevel.Warning,
-            4 => LogLevel.Error,
-            >= 5 => LogLevel.Critical,
-            _ => LogLevel.None,
-        };
-
-        if (mappedLevel == LogLevel.None || !logger.IsEnabled(mappedLevel))
-            return;
-
-        logger.Log(mappedLevel, exception, message);
-    }
-
     private static Task StartRecordListener(PyObject handler, ILogger logger)
     {
         using PyObject getRecordsMethod = handler.GetAttr("get_records");
@@ -135,19 +116,45 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
             {
                 var (level, message, exceptionInfo) = generator.Current;
 
-                Exception? exception = null;
-                if (exceptionInfo is { } info)
+                try
                 {
-                    using var pyExceptionType = info.ExceptionType.NoneToNull();
-                    using var pyException = info.Exception.NoneToNull();
-                    using var traceback = info.Traceback.NoneToNull();
-                    using var name = pyExceptionType?.GetAttr("__name__");
-                    exception = new PythonInvocationException(name?.ToString() ?? "Exception", pyException, traceback, message);
+                    LogRecord(logger, level, message, exceptionInfo);
                 }
-
-                HandleRecord(logger, level, message, exception);
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error logging Python log record: {ex}");
+                }
             }
         });
+
+        static void LogRecord(ILogger logger, long level, string message, ExceptionInfo? exceptionInfo)
+        {
+            Exception? exception = null;
+            if (exceptionInfo is { } info)
+            {
+                using var pyExceptionType = info.ExceptionType.NoneToNull();
+                using var pyException = info.Exception.NoneToNull();
+                using var traceback = info.Traceback.NoneToNull();
+                using var name = pyExceptionType?.GetAttr("__name__");
+                exception = new PythonInvocationException(name?.ToString() ?? "Exception", pyException, traceback, message);
+            }
+
+            // https://docs.python.org/3/library/logging.html#levels
+            var mappedLevel = (level / 10) switch
+            {
+                1 => LogLevel.Debug,
+                2 => LogLevel.Information,
+                3 => LogLevel.Warning,
+                4 => LogLevel.Error,
+                >= 5 => LogLevel.Critical,
+                _ => LogLevel.None,
+            };
+
+            if (mappedLevel == LogLevel.None || !logger.IsEnabled(mappedLevel))
+                return;
+
+            logger.Log(mappedLevel, exception, message);
+        }
     }
 
     public void Dispose()

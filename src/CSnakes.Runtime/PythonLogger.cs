@@ -79,8 +79,9 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
 
                 using var loggerNameStr = PyObject.From(loggerName);
                 installCSnakesHandler.Call(handler, loggerNameStr).Dispose();
+
+                task = RecordListener(handler, logger);
             }
-            task = RecordListener(handler, logger);
         }
         catch
         {
@@ -113,24 +114,20 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
 
     private static Task RecordListener(PyObject handler, ILogger logger)
     {
-        IGeneratorIterator<(long, string, ExceptionInfo?), PyObject, PyObject> generator;
-        using (GIL.Acquire())
-        {
-            using PyObject getRecordsMethod = handler.GetAttr("get_records");
-            using PyObject getRecordsResult = getRecordsMethod.Call();
-            generator =
-                getRecordsResult.BareImportAs<IGeneratorIterator<(long, string, ExceptionInfo?), PyObject, PyObject>,
-                                                                 PyObjectImporters.Generator<(long, string, ExceptionInfo?), PyObject, PyObject,
-                                                                                             PyObjectImporters.Tuple<long, string, ExceptionInfo?,
-                                                                                                                     PyObjectImporters.Int64,
-                                                                                                                     PyObjectImporters.String,
-                                                                                                                     NoneValueImporter<ExceptionInfo,
-                                                                                                                                       PyObjectImporters.Tuple<PyObject, PyObject, PyObject,
-                                                                                                                                                               PyObjectImporters.Runtime<PyObject>,
-                                                                                                                                                               PyObjectImporters.Runtime<PyObject>,
-                                                                                                                                                               PyObjectImporters.Runtime<PyObject>>>>,
-                                                                                             PyObjectImporters.Runtime<PyObject>>>();
-        }
+        using PyObject getRecordsMethod = handler.GetAttr("get_records");
+        using PyObject getRecordsResult = getRecordsMethod.Call();
+        IGeneratorIterator<(long, string, ExceptionInfo?), PyObject, PyObject> generator =
+            getRecordsResult.ImportAs<IGeneratorIterator<(long, string, ExceptionInfo?), PyObject, PyObject>,
+                                                         PyObjectImporters.Generator<(long, string, ExceptionInfo?), PyObject, PyObject,
+                                                                                     PyObjectImporters.Tuple<long, string, ExceptionInfo?,
+                                                                                                             PyObjectImporters.Int64,
+                                                                                                             PyObjectImporters.String,
+                                                                                                             NoneValueImporter<ExceptionInfo,
+                                                                                                                               PyObjectImporters.Tuple<PyObject, PyObject, PyObject,
+                                                                                                                                                       PyObjectImporters.Runtime<PyObject>,
+                                                                                                                                                       PyObjectImporters.Runtime<PyObject>,
+                                                                                                                                                       PyObjectImporters.Runtime<PyObject>>>>,
+                                                                                     PyObjectImporters.Runtime<PyObject>>>();
 
         return Task.Run(() =>
         {

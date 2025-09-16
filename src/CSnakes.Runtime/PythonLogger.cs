@@ -93,15 +93,8 @@ public static class PythonLogger
             return new(handler, uninstallCSnakesHandler);
         }
 
-        private static void HandleRecord(ILogger logger, int level, string message, ExceptionInfo? exceptionInfo)
+        private static void HandleRecord(ILogger logger, int level, string message, Exception? exception)
         {
-            Exception? exception = null;
-            if (exceptionInfo is { } info)
-            {
-                using var name = info.ExceptionType.NoneToNull()?.GetAttr("__name__");
-                exception = new PythonInvocationException(name?.ToString() ?? "Exception", info.Exception.NoneToNull(), info.Traceback.NoneToNull(), message);
-            }
-
             // https://docs.python.org/3/library/logging.html#levels
             var mappedLevel = (level / 10) switch
             {
@@ -146,7 +139,18 @@ public static class PythonLogger
                 while (generator.MoveNext())
                 {
                     var (level, message, exceptionInfo) = generator.Current;
-                    HandleRecord(logger, (int)level, message, exceptionInfo);
+
+                    Exception? exception = null;
+                    if (exceptionInfo is { } info)
+                    {
+                        using var pyExceptionType = info.ExceptionType.NoneToNull();
+                        using var pyException = info.Exception.NoneToNull();
+                        using var traceback = info.Traceback.NoneToNull();
+                        using var name = pyExceptionType?.GetAttr("__name__");
+                        exception = new PythonInvocationException(name?.ToString() ?? "Exception", pyException, traceback, message);
+                    }
+
+                    HandleRecord(logger, (int)level, message, exception);
                 }
             });
         }

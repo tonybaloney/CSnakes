@@ -20,51 +20,51 @@ public static class PythonLogger
 
 file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Task task) : IDisposable
 {
+    const string ModuleCode = """
+        import logging
+        import queue
+
+
+        class __csnakesMemoryHandler(logging.Handler):
+            def __init__(self):
+                logging.Handler.__init__(self)
+                self.queue = queue.Queue()
+
+            def emit(self, record):
+                try:
+                    self.queue.put(record)
+                except queue.ShutDown:
+                    pass
+
+            def get_records(self):
+                while True:
+                    record = self.queue.get()
+                    self.queue.task_done()
+                    if record is None:
+                        break
+                    yield (record.levelno, record.getMessage(), record.exc_info)
+
+            def close(self):
+                self.queue.put(None)
+                logging.Handler.close(self)
+
+
+        def installCSnakesHandler(handler, name = None):
+            logging.getLogger(name).addHandler(handler)
+
+
+        def uninstallCSnakesHandler(handler, name = None):
+            handler.close()
+            logging.getLogger(name).removeHandler(handler)
+
+        """;
+
     internal static Bridge Create(ILogger logger, string? loggerName = null)
     {
-        const string handlerPythonCode = """
-            import logging
-            import queue
-
-
-            class __csnakesMemoryHandler(logging.Handler):
-                def __init__(self):
-                    logging.Handler.__init__(self)
-                    self.queue = queue.Queue()
-
-                def emit(self, record):
-                    try:
-                        self.queue.put(record)
-                    except queue.ShutDown:
-                        pass
-
-                def get_records(self):
-                    while True:
-                        record = self.queue.get()
-                        self.queue.task_done()
-                        if record is None:
-                            break
-                        yield (record.levelno, record.getMessage(), record.exc_info)
-
-                def close(self):
-                    self.queue.put(None)
-                    logging.Handler.close(self)
-
-
-            def installCSnakesHandler(handler, name = None):
-                logging.getLogger(name).addHandler(handler)
-
-
-            def uninstallCSnakesHandler(handler, name = None):
-                handler.close()
-                logging.getLogger(name).removeHandler(handler)
-
-            """;
-
         PyObject? handler = null;
         PyObject? uninstallCSnakesHandler = null;
 
-        using var module = Import.ImportModule("_csnakesLoggingBridge", handlerPythonCode, "_csnakesLoggingBridge.py");
+        using var module = Import.ImportModule("_csnakesLoggingBridge", ModuleCode, "_csnakesLoggingBridge.py");
         using var handlerClass = module.GetAttr("__csnakesMemoryHandler");
         using var installCSnakesHandler = module.GetAttr("installCSnakesHandler");
 

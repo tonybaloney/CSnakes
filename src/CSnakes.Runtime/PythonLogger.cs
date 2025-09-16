@@ -1,7 +1,6 @@
 using CSnakes.Runtime.Python;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-
 using ExceptionTuple = (CSnakes.Runtime.Python.PyObject? exceptionType, CSnakes.Runtime.Python.PyObject? exception, CSnakes.Runtime.Python.PyObject? traceback);
 
 namespace CSnakes.Runtime;
@@ -122,12 +121,23 @@ public static class PythonLogger
 
         internal static void RecordListener(PyObject handler, ILogger logger)
         {
-            IGeneratorIterator<(long, string, PyObject), PyObject, PyObject> generator;
+            IGeneratorIterator<(long, string, (PyObject, PyObject, PyObject)?), PyObject, PyObject> generator;
             using (GIL.Acquire())
             {
                 using PyObject getRecordsMethod = handler.GetAttr("get_records");
                 using PyObject __result_pyObject = getRecordsMethod.Call();
-                generator = __result_pyObject.BareImportAs<IGeneratorIterator<(long, string, PyObject), PyObject, PyObject>, PyObjectImporters.Generator<(long, string, PyObject), PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<long, string, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.String, PyObjectImporters.Runtime<PyObject>>, PyObjectImporters.Runtime<PyObject>>>();
+                generator =
+                    __result_pyObject.BareImportAs<IGeneratorIterator<(long, string, (PyObject, PyObject, PyObject)?), PyObject, PyObject>,
+                                                                      PyObjectImporters.Generator<(long, string, (PyObject, PyObject, PyObject)?), PyObject, PyObject,
+                                                                                                  PyObjectImporters.Tuple<long, string, (PyObject, PyObject, PyObject)?,
+                                                                                                                          PyObjectImporters.Int64,
+                                                                                                                          PyObjectImporters.String,
+                                                                                                                          NoneValueImporter<(PyObject, PyObject, PyObject),
+                                                                                                                                            PyObjectImporters.Tuple<PyObject, PyObject, PyObject,
+                                                                                                                                                                    PyObjectImporters.Runtime<PyObject>,
+                                                                                                                                                                    PyObjectImporters.Runtime<PyObject>,
+                                                                                                                                                                    PyObjectImporters.Runtime<PyObject>>>>,
+                                                                                                  PyObjectImporters.Runtime<PyObject>>>();
             }
 
             // Wait for the generator to finish
@@ -135,13 +145,8 @@ public static class PythonLogger
             {
                 while (generator.MoveNext())
                 {
-                    var (level, message, exception) = generator.Current;
-                    if (exception.IsNone())
-                    {
-                        HandleRecord(logger, (int)level, message, null);
-                    } else {
-                        HandleRecord(logger, (int)level, message, exception.As<ExceptionTuple>());
-                    }
+                    var (level, message, exceptionInfo) = generator.Current;
+                    HandleRecord(logger, (int)level, message, exceptionInfo);
                 }
             });
         }
@@ -159,6 +164,16 @@ public static class PythonLogger
 
             handler.Dispose();
             uninstallCSnakesHandler.Dispose();
+        }
+
+        private sealed class NoneValueImporter<T, TImporter> : IPyObjectImporter<T?>
+            where T : struct
+            where TImporter : IPyObjectImporter<T>
+        {
+            private NoneValueImporter() { }
+
+            static T? IPyObjectImporter<T?>.BareImport(PyObject obj) =>
+                !obj.IsNone() ? TImporter.BareImport(obj) : null;
         }
     }
 }

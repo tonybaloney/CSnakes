@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Integration.Tests;
 
@@ -41,10 +42,10 @@ public class LoggingTests : IntegrationTestBase
         select e.Value;
 
     [Fact]
-    public void TestLogging_TestDebug()
+    public async Task TestLogging_TestDebug()
     {
         var testModule = Env.TestLogging();
-        using (Env.WithPythonLogging(logger))
+        await using (Env.WithPythonLogging(logger))
             testModule.TestLogDebug();
 
         var entry = Assert.Single(Entries);
@@ -54,10 +55,10 @@ public class LoggingTests : IntegrationTestBase
     }
 
     [Fact]
-    public void TestLogging_TestInfo()
+    public async Task TestLogging_TestInfo()
     {
         var testModule = Env.TestLogging();
-        using (Env.WithPythonLogging(logger))
+        await using (Env.WithPythonLogging(logger))
             testModule.TestLogInfo();
 
         var entry = Assert.Single(Entries);
@@ -67,10 +68,10 @@ public class LoggingTests : IntegrationTestBase
     }
 
     [Fact]
-    public void TestLogging_TestParamsMessage()
+    public async Task TestLogging_TestParamsMessage()
     {
         var testModule = Env.TestLogging();
-        using (Env.WithPythonLogging(logger))
+        await using (Env.WithPythonLogging(logger))
             testModule.TestParamsMessage();
 
         var entry = Assert.Single(Entries);
@@ -80,10 +81,10 @@ public class LoggingTests : IntegrationTestBase
     }
 
     [Fact]
-    public void TestLogging_TestException()
+    public async Task TestLogging_TestException()
     {
         var testModule = Env.TestLogging();
-        using (Env.WithPythonLogging(logger))
+        await using (Env.WithPythonLogging(logger))
             testModule.TestLogException();
 
         var entry = Assert.Single(Entries);
@@ -96,10 +97,10 @@ public class LoggingTests : IntegrationTestBase
     }
 
     [Fact]
-    public void TestLogging_FiftyEntries()
+    public async Task TestLogging_FiftyEntries()
     {
         var testModule = Env.TestLogging();
-        using (Env.WithPythonLogging(logger))
+        await using (Env.WithPythonLogging(logger))
             testModule.TestFiftyEntries(); // Raises 50 log records
 
         Assert.All(Entries, (entry, i) =>
@@ -112,10 +113,10 @@ public class LoggingTests : IntegrationTestBase
     }
 
     [Fact]
-    public void TestLogging_NamedLogger()
+    public async Task TestLogging_NamedLogger()
     {
         var testModule = Env.TestLogging();
-        using (Env.WithPythonLogging(logger, "csnakes_logger"))
+        await using (Env.WithPythonLogging(logger, "csnakes_logger"))
             testModule.TestNamedLogger("csnakes_logger");
 
         Assert.NotEmpty(Entries);

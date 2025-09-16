@@ -19,7 +19,7 @@ internal class PythonEnvironment : IPythonEnvironment
 
     private readonly CPythonAPI api;
     private bool disposedValue;
-    private IDisposable? pythonCaptureLogger;
+    private IAsyncDisposable? pythonCaptureLogger;
 
     private static IPythonEnvironment? pythonEnvironment;
     private readonly static Lock locker = new();
@@ -126,7 +126,7 @@ internal class PythonEnvironment : IPythonEnvironment
         {
             if (disposing)
             {
-                pythonCaptureLogger?.Dispose();
+                pythonCaptureLogger?.DisposeAsync().GetAwaiter().GetResult();
                 api.Dispose();
                 if (pythonEnvironment is not null)
                 {

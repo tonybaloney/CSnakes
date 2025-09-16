@@ -11,14 +11,14 @@ namespace CSnakes.Runtime;
 /// </summary>
 public static class PythonLogger
 {
-    public static IDisposable WithPythonLogging(this IPythonEnvironment env, ILogger logger, string? loggerName = null) =>
+    public static IAsyncDisposable WithPythonLogging(this IPythonEnvironment env, ILogger logger, string? loggerName = null) =>
         Bridge.Create(logger, loggerName);
 
-    internal static IDisposable EnableGlobalLogging(ILogger logger) =>
+    internal static IAsyncDisposable EnableGlobalLogging(ILogger logger) =>
         Bridge.Create(logger);
 }
 
-file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Task listenerTask) : IDisposable
+file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Task listenerTask) : IAsyncDisposable
 {
     const string ModuleCode = """
         import logging
@@ -165,7 +165,7 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
         }
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         if (disposed)
             return;
@@ -186,15 +186,23 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
 
         if (uninstalled)
         {
-            if (Task.WaitAny([listenerTask], TimeSpan.FromSeconds(5)) < 0)
+            var completed = false;
+
+            try
+            {
+                await listenerTask.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+                completed = true;
+            }
+            catch (TimeoutException)
             {
                 Debug.WriteLine("Timeout waiting for logging task to complete.");
             }
-            else
+
+            if (completed)
             {
                 try
                 {
-                    listenerTask.GetAwaiter().GetResult();
+                    await listenerTask.ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

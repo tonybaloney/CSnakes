@@ -41,7 +41,7 @@ public static class PythonLogger
                             self.queue.task_done()
                             if record is None:
                                 break
-                            yield (record.levelno, record.msg)
+                            yield (record.levelno, record.getMessage())
 
                     def close(self):
                         self.queue.put(None)

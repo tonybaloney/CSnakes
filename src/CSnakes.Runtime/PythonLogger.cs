@@ -95,7 +95,7 @@ public static class PythonLogger
             return new(handler, uninstallCSnakesHandler, task);
         }
 
-        private static void HandleRecord(ILogger logger, int level, string message, Exception? exception)
+        private static void HandleRecord(ILogger logger, long level, string message, Exception? exception)
         {
             // https://docs.python.org/3/library/logging.html#levels
             var mappedLevel = (level / 10) switch
@@ -151,7 +151,7 @@ public static class PythonLogger
                         exception = new PythonInvocationException(name?.ToString() ?? "Exception", pyException, traceback, message);
                     }
 
-                    HandleRecord(logger, (int)level, message, exception);
+                    HandleRecord(logger, level, message, exception);
                 }
             });
         }

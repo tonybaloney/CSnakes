@@ -117,7 +117,7 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
 
         return Task.Run(() =>
         {
-            while (generator.MoveNext())
+            while (generator.MoveNext()) // TODO Restart log records reading loop on failure
             {
                 var (level, message, exceptionInfo) = generator.Current;
 

@@ -2,7 +2,7 @@ using CSnakes.Runtime.Python;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
-using ExceptionTuple = (CSnakes.Runtime.Python.PyObject? exceptionType, CSnakes.Runtime.Python.PyObject? exception, CSnakes.Runtime.Python.PyObject? traceback)?;
+using ExceptionTuple = (CSnakes.Runtime.Python.PyObject? exceptionType, CSnakes.Runtime.Python.PyObject? exception, CSnakes.Runtime.Python.PyObject? traceback);
 
 namespace CSnakes.Runtime;
 
@@ -90,7 +90,7 @@ public static class PythonLogger
             return new(handler, uninstallCSnakesHandler);
         }
 
-        private static void HandleRecord(ILogger logger, int level, string message, ExceptionTuple exceptionInfo)
+        private static void HandleRecord(ILogger logger, int level, string message, ExceptionTuple? exceptionInfo)
         {
             Exception? exception = null;
             if (exceptionInfo != null)
@@ -140,15 +140,12 @@ public static class PythonLogger
 
         internal static void RecordListener(PyObject handler, ILogger logger)
         {
-            IGeneratorIterator<(long, string, ExceptionTuple), PyObject, PyObject> generator;
+            IGeneratorIterator<(long, string, PyObject), PyObject, PyObject> generator;
             using (GIL.Acquire())
             {
                 using PyObject getRecordsMethod = handler.GetAttr("get_records");
                 using PyObject __result_pyObject = getRecordsMethod.Call();
-                generator = __result_pyObject.BareImportAs<
-                    IGeneratorIterator<(long, string, ExceptionTuple), PyObject, PyObject>,
-                    PyObjectImporters.Generator<(long, string, ExceptionTuple), PyObject, PyObject, PyObjectImporters.Tuple<long, string, ExceptionTuple, PyObjectImporters.Int64, PyObjectImporters.String, PyObjectImporters.Runtime<ExceptionTuple>>,
-                    PyObjectImporters.Runtime<PyObject>>>();
+                generator = __result_pyObject.BareImportAs<IGeneratorIterator<(long, string, PyObject), PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Generator<(long, string, PyObject), PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<long, string, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>>();
             }
 
             // Wait for the generator to finish
@@ -157,7 +154,13 @@ public static class PythonLogger
                 while (generator.MoveNext())
                 {
                     var (level, message, exception) = generator.Current;
-                    HandleRecord(logger, (int)level, message, exception);
+                    if (exception.IsNone())
+                    {
+                        HandleRecord(logger, (int)level, message, null);
+                    } else
+                    {
+                        HandleRecord(logger, (int)level, message, exception.As<ExceptionTuple>());
+                    }
                 }
             });
         }

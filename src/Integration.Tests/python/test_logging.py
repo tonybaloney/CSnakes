@@ -21,3 +21,12 @@ def test_log_exception() -> None:
     except Exception:
         logging.exception("An error message occurred")
 
+
+def test_fifty_entries() -> None:
+    for i in range(0, 50):
+        logger.warning("Error %d", i)
+
+
+def test_named_logger(name: str) -> None:
+    l = logging.getLogger(name)
+    l.debug("Specific log entry")

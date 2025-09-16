@@ -42,6 +42,7 @@ public class LoggingTests : IntegrationTestBase
             testModule.TestLogDebug();
             var entry = TryTake();
             Assert.NotNull(entry);
+            Assert.Null(entry.Exception);
             Assert.Equal(LogLevel.Debug, entry.Level);
             Assert.Equal("Hello world", entry.Message);
             Assert.Null(TryTake());
@@ -57,6 +58,7 @@ public class LoggingTests : IntegrationTestBase
             testModule.TestLogInfo();
             var entry = TryTake();
             Assert.NotNull(entry);
+            Assert.Null(entry.Exception);
             Assert.Equal(LogLevel.Information, entry.Level);
             Assert.Equal("Hello info world", entry.Message);
             Assert.Null(TryTake());
@@ -71,6 +73,7 @@ public class LoggingTests : IntegrationTestBase
             testModule.TestParamsMessage();
             var entry = TryTake();
             Assert.NotNull(entry);
+            Assert.Null(entry.Exception);
             Assert.Equal(LogLevel.Warning, entry.Level);
             Assert.Equal("Hello this example 3", entry.Message);
             Assert.Null(TryTake());
@@ -83,16 +86,43 @@ public class LoggingTests : IntegrationTestBase
         var testModule = Env.TestLogging();
         using (Env.WithPythonLogging(logger))
         {
-            testModule.TestLogDebug();
+            testModule.TestLogException();
             var entry = TryTake();
             Assert.NotNull(entry);
             Assert.NotNull(entry.Exception);
             Assert.Equal(LogLevel.Error, entry.Level);
+            Assert.Equal("division by zero", entry.Exception.InnerException!.Message);
+            Assert.Equal("ZeroDivisionError", ((PythonInvocationException)entry.Exception).PythonExceptionType);
             Assert.Equal("An error message occurred", entry.Message);
             Assert.Null(TryTake());
         }
     }
-    // TODO : Test lots of log messages
+
+    [Fact]
+    public void TestLogging_FiftyEntries()
+    {
+        var testModule = Env.TestLogging();
+        using (Env.WithPythonLogging(logger))
+        {
+            testModule.TestFiftyEntries(); // Raises 50 log records
+            for (int i = 0; i < 50; i++)
+            {
+                var entry = TryTake();
+                Assert.NotNull(entry);
+            }
+            Assert.Null(TryTake());
+        }
+    }
+
+    [Fact]
+    public void TestLogging_NamedLogger()
+    {
+        var testModule = Env.TestLogging();
+        using (Env.WithPythonLogging(logger, "csnakes_logger"))
+        {
+            testModule.TestNamedLogger("csnakes_logger");
+            Assert.NotNull(TryTake());
+        }
+    }
     // TODO : Test in and out of scope levels
-    // TODO : Test named loggers
 }

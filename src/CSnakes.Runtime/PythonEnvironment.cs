@@ -19,6 +19,7 @@ internal class PythonEnvironment : IPythonEnvironment
 
     private readonly CPythonAPI api;
     private bool disposedValue;
+    private IDisposable? pythonCaptureLogger;
 
     private static IPythonEnvironment? pythonEnvironment;
     private readonly static Lock locker = new();
@@ -95,6 +96,13 @@ internal class PythonEnvironment : IPythonEnvironment
             api.PythonPath = api.PythonPath + sep + string.Join(sep, extraPaths);
         }
         api.Initialize();
+
+        if (options.CaptureLogs)
+        {
+            if (logger is null)
+                throw new ArgumentNullException($"{nameof(logger)} cannot be null when capturing Python logs. A logger is required");
+            pythonCaptureLogger = PythonLogger.EnableGlobalLogging(logger);
+        }
     }
 
     private CPythonAPI SetupCPythonAPI(PythonLocationMetadata pythonLocationMetadata, PythonEnvironmentOptions options)
@@ -118,6 +126,7 @@ internal class PythonEnvironment : IPythonEnvironment
         {
             if (disposing)
             {
+                pythonCaptureLogger?.Dispose();
                 api.Dispose();
                 if (pythonEnvironment is not null)
                 {

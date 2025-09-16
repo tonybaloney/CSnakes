@@ -1,6 +1,11 @@
 #nullable enable
+CSnakes.Runtime.IPythonEnvironmentBuilder.CapturePythonLogs() -> CSnakes.Runtime.IPythonEnvironmentBuilder!
 CSnakes.Runtime.Locators.RedistributablePythonVersion.<Clone>$() -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
 CSnakes.Runtime.Locators.RedistributablePythonVersion.Equals(CSnakes.Runtime.Locators.RedistributablePythonVersion? other) -> bool
+CSnakes.Runtime.PythonEnvironmentOptions.CaptureLogs.get -> bool
+CSnakes.Runtime.PythonEnvironmentOptions.CaptureLogs.init -> void
+CSnakes.Runtime.PythonEnvironmentOptions.Deconstruct(out string! Home, out string![]! ExtraPaths, out bool InstallSignalHandlers, out bool CaptureLogs) -> void
+CSnakes.Runtime.PythonEnvironmentOptions.PythonEnvironmentOptions(string! Home, string![]! ExtraPaths, bool InstallSignalHandlers = true, bool CaptureLogs = false) -> void
 CSnakes.Runtime.PythonLogger
 override CSnakes.Runtime.Locators.RedistributablePythonVersion.Equals(object? obj) -> bool
 override CSnakes.Runtime.Locators.RedistributablePythonVersion.GetHashCode() -> int

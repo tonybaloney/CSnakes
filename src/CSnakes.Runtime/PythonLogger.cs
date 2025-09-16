@@ -17,6 +17,11 @@ public static class PythonLogger
         return Bridge.Create(logger, loggerName);
     }
 
+    internal static IDisposable EnableGlobalLogging(ILogger logger)
+    {
+        return Bridge.Create(logger);
+    }
+
     private sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler) : IDisposable
     {
         internal static Bridge Create(ILogger logger, string? loggerName = null)

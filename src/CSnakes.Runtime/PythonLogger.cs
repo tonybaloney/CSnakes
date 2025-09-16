@@ -21,7 +21,7 @@ public static class PythonLogger
         return Bridge.Create(logger);
     }
 
-    private sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler) : IDisposable
+    private sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Task task) : IDisposable
     {
         internal static Bridge Create(ILogger logger, string? loggerName = null)
         {
@@ -71,6 +71,8 @@ public static class PythonLogger
             using var __csnakesMemoryHandlerCls = module.GetAttr("__csnakesMemoryHandler");
             using var __installCSnakesHandler = module.GetAttr("installCSnakesHandler");
 
+            Task task;
+
             try
             {
                 using (GIL.Acquire())
@@ -81,7 +83,7 @@ public static class PythonLogger
                     using var loggerNameStr = PyObject.From(loggerName);
                     __installCSnakesHandler.Call(handler, loggerNameStr).Dispose();
                 }
-                RecordListener(handler, logger);
+                task = RecordListener(handler, logger);
             }
             catch
             {
@@ -90,7 +92,7 @@ public static class PythonLogger
                 throw;
             }
 
-            return new(handler, uninstallCSnakesHandler);
+            return new(handler, uninstallCSnakesHandler, task);
         }
 
         private static void HandleRecord(ILogger logger, int level, string message, Exception? exception)
@@ -112,7 +114,7 @@ public static class PythonLogger
             logger.Log(mappedLevel, exception, message);
         }
 
-        private static void RecordListener(PyObject handler, ILogger logger)
+        private static Task RecordListener(PyObject handler, ILogger logger)
         {
             IGeneratorIterator<(long, string, ExceptionInfo?), PyObject, PyObject> generator;
             using (GIL.Acquire())
@@ -133,8 +135,7 @@ public static class PythonLogger
                                                                                                   PyObjectImporters.Runtime<PyObject>>>();
             }
 
-            // Wait for the generator to finish
-            _ = Task.Run(() =>
+            return Task.Run(() =>
             {
                 while (generator.MoveNext())
                 {
@@ -157,13 +158,35 @@ public static class PythonLogger
 
         public void Dispose()
         {
+            var uninstalled = false;
+
             try
             {
                 uninstallCSnakesHandler.Call(handler).Dispose();
+                uninstalled = true;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error during uninstallation of handler: {ex}");
+            }
+
+            if (uninstalled)
+            {
+                if (Task.WaitAny([task], TimeSpan.FromSeconds(5)) < 0)
+                {
+                    Debug.WriteLine("Timeout waiting for logging task to complete.");
+                }
+                else
+                {
+                    try
+                    {
+                        task.GetAwaiter().GetResult();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error in logging task: {ex}");
+                    }
+                }
             }
 
             handler.Dispose();

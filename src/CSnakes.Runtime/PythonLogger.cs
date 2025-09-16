@@ -127,7 +127,7 @@ public static class PythonLogger
             {
                 using PyObject getRecordsMethod = handler.GetAttr("get_records");
                 using PyObject __result_pyObject = getRecordsMethod.Call();
-                generator = __result_pyObject.BareImportAs<IGeneratorIterator<(long, string, PyObject), PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Generator<(long, string, PyObject), PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<long, string, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>>();
+                generator = __result_pyObject.BareImportAs<IGeneratorIterator<(long, string, PyObject), PyObject, PyObject>, PyObjectImporters.Generator<(long, string, PyObject), PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<long, string, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.String, PyObjectImporters.Runtime<PyObject>>, PyObjectImporters.Runtime<PyObject>>>();
             }
 
             // Wait for the generator to finish

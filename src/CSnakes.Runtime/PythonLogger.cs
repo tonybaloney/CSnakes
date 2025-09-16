@@ -103,43 +103,21 @@ public static class PythonLogger
                 exception = new PythonInvocationException(name?.ToString() ?? "Exception", exceptionInfo.Value.exception, exceptionInfo.Value.traceback, message);
             }
 
-            switch (level)
+            // https://docs.python.org/3/library/logging.html#levels
+            var mappedLevel = (level / 10) switch
             {
-                // https://docs.python.org/3/library/logging.html#levels
-                case >= 50 when logger.IsEnabled(LogLevel.Critical):
-                    if (exception is null)
-                        logger.LogCritical(message);
-                    else
-                        logger.LogCritical(exception, message);
-                    break;
-                case >= 40 when logger.IsEnabled(LogLevel.Error):
-                    if (exception is null)
-                        logger.LogError(message);
-                    else
-                        logger.LogError(exception, message);
-                    break;
-                case >= 30 when logger.IsEnabled(LogLevel.Warning):
-                    if (exception is null)
-                        logger.LogWarning(message);
-                    else
-                        logger.LogWarning(exception, message);
-                    break;
-                case >= 20 when logger.IsEnabled(LogLevel.Information):
-                    if (exception is null)
-                        logger.LogInformation(message);
-                    else
-                        logger.LogInformation(exception, message);
-                    break;
-                case >= 10 when logger.IsEnabled(LogLevel.Debug):
-                    if (exception is null)
-                        logger.LogDebug(message);
-                    else
-                        logger.LogDebug(exception, message);
-                    break;
-                default:
-                    // NOTSET
-                    break;
-            }
+                1 => LogLevel.Debug,
+                2 => LogLevel.Information,
+                3 => LogLevel.Warning,
+                4 => LogLevel.Error,
+                5 => LogLevel.Critical,
+                _ => LogLevel.None,
+            };
+
+            if (mappedLevel == LogLevel.None || !logger.IsEnabled(mappedLevel))
+                return;
+
+            logger.Log(mappedLevel, exception, message);
         }
 
         internal static void RecordListener(PyObject handler, ILogger logger)

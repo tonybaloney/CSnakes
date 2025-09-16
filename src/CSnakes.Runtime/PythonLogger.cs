@@ -65,7 +65,6 @@ public static class PythonLogger
 
                 """;
 
-                
             PyObject? handler = null;
             PyObject? uninstallCSnakesHandler = null;
 

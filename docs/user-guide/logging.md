@@ -41,7 +41,7 @@ var env = app.Services.GetRequiredService<IPythonEnvironment>();
 Or, if you only want it for a specific task or function call, it is available on the `IPythonEnvironment` interface:
 
 ```csharp
-public void YourCode(IPythonEnvironment env, ILogger logger) 
+public void YourCode(IPythonEnvironment env, ILogger logger)
 {
     using (env.WithPythonLogging(logger)) // Enable logging for this scope
     {
@@ -65,7 +65,7 @@ The log entries will be emitted to the `ILogger` interface provided.
 If you want to be even more granular, the `WithPythonLogging()` method on `IPythonEnvironment` accepts the name of the logger. By default, the root logger in Python is used (when `loggerName` is `null`), but if you wanted to only capture a named logger:
 
 ```csharp
-public void YourCode(IPythonEnvironment env, ILogger logger) 
+public void YourCode(IPythonEnvironment env, ILogger logger)
 {
     using (env.WithPythonLogging(logger, "csnakes_logger")) // Enable logging for specific logger
     {

@@ -60,8 +60,8 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
 
 
         def uninstallCSnakesHandler(handler, name = None):
-            handler.close()
             logging.getLogger(name).removeHandler(handler)
+            handler.close()
 
         """;
 

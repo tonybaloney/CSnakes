@@ -31,10 +31,7 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
                 self.queue = queue.Queue()
 
             def emit(self, record):
-                try:
-                    self.queue.put(record)
-                except queue.ShutDown:
-                    pass
+                self.queue.put(record)
 
             def get_records(self):
                 while True:

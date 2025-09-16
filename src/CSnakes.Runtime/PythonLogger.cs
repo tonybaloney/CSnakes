@@ -28,10 +28,18 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
         class __csnakesMemoryHandler(logging.Handler):
             def __init__(self):
                 logging.Handler.__init__(self)
-                self.queue = queue.Queue()
+                self.queue = queue.Queue(200)
 
             def emit(self, record):
-                self.queue.put(record)
+                for _ in range(10):  # attempts to enqueue the record
+                    try:
+                        self.queue.put_nowait(record)
+                        return  # successfully enqueued
+                    except queue.Full:
+                        try:
+                            _ = self.queue.get_nowait()  # drop the oldest record
+                        except queue.Empty:
+                            pass
 
             def get_records(self):
                 while True:

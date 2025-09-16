@@ -162,8 +162,7 @@ public static class PythonLogger
                     if (exception.IsNone())
                     {
                         HandleRecord(logger, (int)level, message, null);
-                    } else
-                    {
+                    } else {
                         HandleRecord(logger, (int)level, message, exception.As<ExceptionTuple>());
                     }
                 }

@@ -1,11 +1,6 @@
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 
 namespace Integration.Tests;
 
@@ -53,6 +48,34 @@ public class LoggingTests : IntegrationTestBase
         }
     }
 
+    [Fact]
+    public void TestLogging_TestInfo()
+    {
+        var testModule = Env.TestLogging();
+        using (Env.WithPythonLogging(this.logger))
+        {
+            testModule.TestLogInfo();
+            var entry = TryTake();
+            Assert.NotNull(entry);
+            Assert.Equal(LogLevel.Information, entry.Level);
+            Assert.Equal("Hello info world", entry.Message);
+            Assert.Null(TryTake());
+        }
+    }
+
+    [Fact]
+    public void TestLogging_TestParamsMessage() {
+        var testModule = Env.TestLogging();
+        using (Env.WithPythonLogging(this.logger))
+        {
+            testModule.TestParamsMessage();
+            var entry = TryTake();
+            Assert.NotNull(entry);
+            Assert.Equal(LogLevel.Warning, entry.Level);
+            Assert.Equal("Hello this example 3", entry.Message);
+            Assert.Null(TryTake());
+        }
+    }
     // TODO : Test lots of log messages
     // TODO : Test in and out of scope levels
     // TODO : Test named loggers

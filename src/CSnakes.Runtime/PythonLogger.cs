@@ -10,9 +10,9 @@ namespace CSnakes.Runtime;
 /// </summary>
 public static class PythonLogger
 {
-    public static IDisposable WithPythonLogging(this IPythonEnvironment env, ILogger logger)
+    public static IDisposable WithPythonLogging(this IPythonEnvironment env, ILogger logger, string? loggerName = null)
     {
-        return Bridge.Create(logger);
+        return Bridge.Create(logger, loggerName);
     }
 
     private sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler) : IDisposable
@@ -22,7 +22,6 @@ public static class PythonLogger
             const string handlerPythonCode = """
                 import logging
                 import queue
-                import time
 
 
                 class __csnakesMemoryHandler(logging.Handler):
@@ -36,7 +35,7 @@ public static class PythonLogger
                         except queue.ShutDown:
                             pass
 
-                    def get_records(self):  # equivalent to flush()
+                    def get_records(self):
                         while True:
                             record = self.queue.get()
                             self.queue.task_done()
@@ -59,34 +58,34 @@ public static class PythonLogger
 
                 """;
 
-            using (GIL.Acquire())
-            {
-                using var module = Import.ImportModule("_csnakesLoggingBridge", handlerPythonCode, "_csnakesLoggingBridge.py");
-                using var __csnakesMemoryHandlerCls = module.GetAttr("__csnakesMemoryHandler");
-                using var __installCSnakesHandler = module.GetAttr("installCSnakesHandler");
-                PyObject? handler = null;
-                PyObject? uninstallCSnakesHandler = null;
-                Task task;
+                
+            PyObject? handler = null;
+            PyObject? uninstallCSnakesHandler = null;
 
-                try
+            using var module = Import.ImportModule("_csnakesLoggingBridge", handlerPythonCode, "_csnakesLoggingBridge.py");
+            using var __csnakesMemoryHandlerCls = module.GetAttr("__csnakesMemoryHandler");
+            using var __installCSnakesHandler = module.GetAttr("installCSnakesHandler");
+
+            try
+            {
+                using (GIL.Acquire())
                 {
                     handler = __csnakesMemoryHandlerCls.Call();
                     uninstallCSnakesHandler = module.GetAttr("uninstallCSnakesHandler");
 
                     using var loggerNameStr = PyObject.From(loggerName);
                     __installCSnakesHandler.Call(handler, loggerNameStr).Dispose();
-
-                    RecordListener(handler, logger);
                 }
-                catch
-                {
-                    handler?.Dispose();
-                    uninstallCSnakesHandler?.Dispose();
-                    throw;
-                }
-
-                return new(handler, uninstallCSnakesHandler);
+                RecordListener(handler, logger);
             }
+            catch
+            {
+                handler?.Dispose();
+                uninstallCSnakesHandler?.Dispose();
+                throw;
+            }
+
+            return new(handler, uninstallCSnakesHandler);
         }
 
         private static void HandleRecord(ILogger logger, long level, string message)
@@ -108,7 +107,7 @@ public static class PythonLogger
                 case >= 20 when logger.IsEnabled(LogLevel.Information):
                     logger.LogInformation(message);
                     break;
-                case >= 10 when logger.IsEnabled(LogLevel.Error):
+                case >= 10 when logger.IsEnabled(LogLevel.Debug):
                     logger.LogDebug(message);
                     break;
                 default:

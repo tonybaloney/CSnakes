@@ -8,7 +8,6 @@ override CSnakes.Runtime.Locators.RedistributablePythonVersion.ToString() -> str
 static CSnakes.Runtime.Locators.RedistributablePythonVersion.operator !=(CSnakes.Runtime.Locators.RedistributablePythonVersion? left, CSnakes.Runtime.Locators.RedistributablePythonVersion? right) -> bool
 static CSnakes.Runtime.Locators.RedistributablePythonVersion.operator ==(CSnakes.Runtime.Locators.RedistributablePythonVersion? left, CSnakes.Runtime.Locators.RedistributablePythonVersion? right) -> bool
 static CSnakes.Runtime.Python.PyObject.From(System.ReadOnlySpan<byte> value) -> CSnakes.Runtime.Python.PyObject!
-static CSnakes.Runtime.PythonLogger.WithPythonLogging(this CSnakes.Runtime.IPythonEnvironment! env, Microsoft.Extensions.Logging.ILogger! logger) -> System.IDisposable!
 CSnakes.Runtime.Python.KeywordArg
 CSnakes.Runtime.Python.KeywordArg.Deconstruct(out string! Name, out CSnakes.Runtime.Python.PyObject! Value) -> void
 CSnakes.Runtime.Python.KeywordArg.Equals(CSnakes.Runtime.Python.KeywordArg other) -> bool
@@ -25,6 +24,7 @@ CSnakes.Runtime.Python.PyObject.Call(System.ReadOnlySpan<CSnakes.Runtime.Python.
 override CSnakes.Runtime.Python.KeywordArg.GetHashCode() -> int
 static CSnakes.Runtime.Python.KeywordArg.operator !=(CSnakes.Runtime.Python.KeywordArg left, CSnakes.Runtime.Python.KeywordArg right) -> bool
 static CSnakes.Runtime.Python.KeywordArg.operator ==(CSnakes.Runtime.Python.KeywordArg left, CSnakes.Runtime.Python.KeywordArg right) -> bool
+static CSnakes.Runtime.PythonLogger.WithPythonLogging(this CSnakes.Runtime.IPythonEnvironment! env, Microsoft.Extensions.Logging.ILogger! logger, string? loggerName = null) -> System.IDisposable!
 ~override CSnakes.Runtime.Python.KeywordArg.Equals(object obj) -> bool
 ~override CSnakes.Runtime.Python.KeywordArg.ToString() -> string
 static CSnakes.Runtime.ServiceCollectionExtensions.FromRedistributable(this CSnakes.Runtime.IPythonEnvironmentBuilder! builder, CSnakes.Runtime.Locators.RedistributablePythonVersion! version, bool debug = false, bool freeThreaded = false, int timeout = 360) -> CSnakes.Runtime.IPythonEnvironmentBuilder!

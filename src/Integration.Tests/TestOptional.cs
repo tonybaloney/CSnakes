@@ -30,4 +30,15 @@ public class TestOptional(PythonEnvironmentFixture fixture) : IntegrationTestBas
         var mod = Env.TestOptional();
         Assert.Equal(input, mod.TestAny(input));
     }
+
+    [Fact]
+    public void Tuple()
+    {
+        var t = (10, "hello");
+        var mod = Env.TestOptional();
+        var result = mod.TestOptionalTuple(t);
+        Assert.NotNull(result);
+        Assert.Equal(t, result);
+        Assert.Null(mod.TestOptionalTuple(null));
+    }
 }

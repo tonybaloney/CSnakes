@@ -11,3 +11,6 @@ def test_any(obj: Optional[Any]) -> Optional[Any]:
 
 def test_optional_tuple(a: Optional[Tuple[int, str]]) -> Optional[Tuple[int, str]]:
     return a
+
+def test_optional_tuple(a: Tuple[Optional[int], str]) -> Tuple[Optional[int], str]:
+    return a

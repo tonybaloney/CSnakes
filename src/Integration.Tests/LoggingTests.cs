@@ -1,6 +1,9 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace Integration.Tests;
 
@@ -22,31 +25,32 @@ public class LoggingTests : IntegrationTestBase
     }
 
     private readonly ObservableLogger logger;
-    private readonly BlockingCollection<LogEntry> entries = new();
+    private readonly ConcurrentBag<KeyValuePair<int, LogEntry>> entriesBag = new();
 
     public LoggingTests(PythonEnvironmentFixture fixture) : base(fixture)
     {
         logger = new ObservableLogger();
-        logger.Logged += (_, entry) => entries.Add(entry);
+        var i = 0;
+        logger.Logged += (_, entry) =>
+            entriesBag.Add(KeyValuePair.Create(Interlocked.Increment(ref i), entry));
     }
 
-    private LogEntry? TryTake() =>
-        entries.TryTake(out var entry, millisecondsTimeout: 3_000, TestContext.Current.CancellationToken) ? entry : null;
+    private IEnumerable<LogEntry> Entries =>
+        from e in entriesBag.ToArray()
+        orderby e.Key
+        select e.Value;
 
     [Fact]
     public void TestLogging_TestDebug()
     {
         var testModule = Env.TestLogging();
         using (Env.WithPythonLogging(logger))
-        {
             testModule.TestLogDebug();
-            var entry = TryTake();
-            Assert.NotNull(entry);
-            Assert.Null(entry.Exception);
-            Assert.Equal(LogLevel.Debug, entry.Level);
-            Assert.Equal("Hello world", entry.Message);
-            Assert.Null(TryTake());
-        }
+
+        var entry = Assert.Single(Entries);
+        Assert.Null(entry.Exception);
+        Assert.Equal(LogLevel.Debug, entry.Level);
+        Assert.Equal("Hello world", entry.Message);
     }
 
     [Fact]
@@ -54,30 +58,25 @@ public class LoggingTests : IntegrationTestBase
     {
         var testModule = Env.TestLogging();
         using (Env.WithPythonLogging(logger))
-        {
             testModule.TestLogInfo();
-            var entry = TryTake();
-            Assert.NotNull(entry);
-            Assert.Null(entry.Exception);
-            Assert.Equal(LogLevel.Information, entry.Level);
-            Assert.Equal("Hello info world", entry.Message);
-            Assert.Null(TryTake());
-        }
+
+        var entry = Assert.Single(Entries);
+        Assert.Null(entry.Exception);
+        Assert.Equal(LogLevel.Information, entry.Level);
+        Assert.Equal("Hello info world", entry.Message);
     }
 
     [Fact]
-    public void TestLogging_TestParamsMessage() {
+    public void TestLogging_TestParamsMessage()
+    {
         var testModule = Env.TestLogging();
         using (Env.WithPythonLogging(logger))
-        {
             testModule.TestParamsMessage();
-            var entry = TryTake();
-            Assert.NotNull(entry);
-            Assert.Null(entry.Exception);
-            Assert.Equal(LogLevel.Warning, entry.Level);
-            Assert.Equal("Hello this example 3", entry.Message);
-            Assert.Null(TryTake());
-        }
+
+        var entry = Assert.Single(Entries);
+        Assert.Null(entry.Exception);
+        Assert.Equal(LogLevel.Warning, entry.Level);
+        Assert.Equal("Hello this example 3", entry.Message);
     }
 
     [Fact]
@@ -85,18 +84,15 @@ public class LoggingTests : IntegrationTestBase
     {
         var testModule = Env.TestLogging();
         using (Env.WithPythonLogging(logger))
-        {
             testModule.TestLogException();
-            var entry = TryTake();
-            Assert.NotNull(entry);
-            Assert.NotNull(entry.Exception);
-            Assert.Equal(LogLevel.Error, entry.Level);
-            var pyRuntimeException = Assert.IsType<PythonRuntimeException>(entry.Exception.InnerException);
-            Assert.Equal("division by zero", pyRuntimeException.Message);
-            Assert.Equal("ZeroDivisionError", ((PythonInvocationException)entry.Exception).PythonExceptionType);
-            Assert.Equal("An error message occurred", entry.Message);
-            Assert.Null(TryTake());
-        }
+
+        var entry = Assert.Single(Entries);
+        Assert.NotNull(entry.Exception);
+        Assert.Equal(LogLevel.Error, entry.Level);
+        var pyRuntimeException = Assert.IsType<PythonRuntimeException>(entry.Exception.InnerException);
+        Assert.Equal("division by zero", pyRuntimeException.Message);
+        Assert.Equal("ZeroDivisionError", ((PythonInvocationException)entry.Exception).PythonExceptionType);
+        Assert.Equal("An error message occurred", entry.Message);
     }
 
     [Fact]
@@ -104,15 +100,15 @@ public class LoggingTests : IntegrationTestBase
     {
         var testModule = Env.TestLogging();
         using (Env.WithPythonLogging(logger))
-        {
             testModule.TestFiftyEntries(); // Raises 50 log records
-            for (int i = 0; i < 50; i++)
-            {
-                var entry = TryTake();
-                Assert.NotNull(entry);
-            }
-            Assert.Null(TryTake());
-        }
+
+        Assert.All(Entries, (entry, i) =>
+        {
+            Assert.NotNull(entry);
+            Assert.Equal(LogLevel.Warning, entry.Level);
+            Assert.Equal(FormattableString.Invariant($"Error {i}"), entry.Message);
+            Assert.Null(entry.Exception);
+        });
     }
 
     [Fact]
@@ -120,10 +116,9 @@ public class LoggingTests : IntegrationTestBase
     {
         var testModule = Env.TestLogging();
         using (Env.WithPythonLogging(logger, "csnakes_logger"))
-        {
             testModule.TestNamedLogger("csnakes_logger");
-            Assert.NotNull(TryTake());
-        }
+
+        Assert.NotEmpty(Entries);
     }
     // TODO : Test in and out of scope levels
 }

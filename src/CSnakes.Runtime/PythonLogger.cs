@@ -112,7 +112,7 @@ public static class PythonLogger
             logger.Log(mappedLevel, exception, message);
         }
 
-        internal static void RecordListener(PyObject handler, ILogger logger)
+        private static void RecordListener(PyObject handler, ILogger logger)
         {
             IGeneratorIterator<(long, string, ExceptionInfo?), PyObject, PyObject> generator;
             using (GIL.Acquire())

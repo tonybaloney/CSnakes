@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "e63db1d9803b55e8ad7a47af9d353ff6"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "b7699d538dd2d76c105de4ac23c51b1a"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -102,9 +102,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_int;
                 using PyObject n_pyObject = PyObject.From(n)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(n_pyObject);
-                if (__result_pyObject.IsNone())
-                    return null;
-                var __return = __result_pyObject.BareImportAs<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>();
+                var __return = __result_pyObject.BareImportAs<long?, global::CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>();
                 return __return;
             }
         }
@@ -117,9 +115,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_str;
                 using PyObject s_pyObject = PyObject.From(s)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(s_pyObject);
-                if (__result_pyObject.IsNone())
-                    return null;
-                var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
+                var __return = __result_pyObject.BareImportAs<string?, global::CSnakes.Runtime.Python.PyObjectImporters.Optional<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>>();
                 return __return;
             }
         }
@@ -132,14 +128,12 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_any;
                 using PyObject obj_pyObject = PyObject.From(obj)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(obj_pyObject);
-                if (__result_pyObject.IsNone())
-                    return null;
-                var __return = __result_pyObject.BareImportAs<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>();
+                var __return = __result_pyObject.BareImportAs<PyObject?, global::CSnakes.Runtime.Python.PyObjectImporters.Optional<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>>();
                 return __return;
             }
         }
 
-        public (long? , string) TestOptionalTuple((long? , string) a)
+        public (long? , string? )? TestOptionalTuple((long? , string? )? a)
         {
             using (GIL.Acquire())
             {
@@ -147,7 +141,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_optional_tuple;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = __result_pyObject.BareImportAs<(long? , string), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<long?, string, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<long?>, global::CSnakes.Runtime.Python.PyObjectImporters.String>>();
+                var __return = __result_pyObject.BareImportAs<(long? , string? )?, global::CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<(long? , string? ), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<long?, string?, global::CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>, global::CSnakes.Runtime.Python.PyObjectImporters.Optional<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>>>>();
                 return __return;
             }
         }
@@ -186,10 +180,10 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>test_optional_tuple</c>:
     /// <code><![CDATA[
-    /// def test_optional_tuple(a: Tuple[Optional[int], str]) -> Tuple[Optional[int], str]: ...
+    /// def test_optional_tuple(a: Optional[Tuple[Optional[int], Optional[str]]]) -> Optional[Tuple[Optional[int], Optional[str]]]: ...
     /// ]]></code>
     /// </summary>
-    (long? , string) TestOptionalTuple((long? , string) a);
+    (long? , string? )? TestOptionalTuple((long? , string? )? a);
 }
 
 file static class ThisModule

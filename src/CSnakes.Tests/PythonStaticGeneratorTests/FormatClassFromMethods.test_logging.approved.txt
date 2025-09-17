@@ -24,7 +24,7 @@ public static class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "af72fbfe705de69613d284222513e091"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "23de8055a8d335ac4f27b8f0d169a839"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -50,7 +50,7 @@ public static class TestClassExtensions
         private PyObject __func_test_log_info;
         private PyObject __func_test_params_message;
         private PyObject __func_test_log_exception;
-        private PyObject __func_test_fifty_entries;
+        private PyObject __func_test_many_entries;
         private PyObject __func_test_named_logger;
 
         internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
@@ -64,7 +64,7 @@ public static class TestClassExtensions
                 this.__func_test_log_info = module.GetAttr("test_log_info");
                 this.__func_test_params_message = module.GetAttr("test_params_message");
                 this.__func_test_log_exception = module.GetAttr("test_log_exception");
-                this.__func_test_fifty_entries = module.GetAttr("test_fifty_entries");
+                this.__func_test_many_entries = module.GetAttr("test_many_entries");
                 this.__func_test_named_logger = module.GetAttr("test_named_logger");
             }
         }
@@ -80,14 +80,14 @@ public static class TestClassExtensions
                 this.__func_test_log_info.Dispose();
                 this.__func_test_params_message.Dispose();
                 this.__func_test_log_exception.Dispose();
-                this.__func_test_fifty_entries.Dispose();
+                this.__func_test_many_entries.Dispose();
                 this.__func_test_named_logger.Dispose();
                 // Bind to new functions
                 this.__func_test_log_debug = module.GetAttr("test_log_debug");
                 this.__func_test_log_info = module.GetAttr("test_log_info");
                 this.__func_test_params_message = module.GetAttr("test_params_message");
                 this.__func_test_log_exception = module.GetAttr("test_log_exception");
-                this.__func_test_fifty_entries = module.GetAttr("test_fifty_entries");
+                this.__func_test_many_entries = module.GetAttr("test_many_entries");
                 this.__func_test_named_logger = module.GetAttr("test_named_logger");
             }
         }
@@ -99,7 +99,7 @@ public static class TestClassExtensions
             this.__func_test_log_info.Dispose();
             this.__func_test_params_message.Dispose();
             this.__func_test_log_exception.Dispose();
-            this.__func_test_fifty_entries.Dispose();
+            this.__func_test_many_entries.Dispose();
             this.__func_test_named_logger.Dispose();
             module.Dispose();
         }
@@ -148,13 +148,14 @@ public static class TestClassExtensions
             }
         }
 
-        public void TestFiftyEntries()
+        public void TestManyEntries(long count)
         {
             using (GIL.Acquire())
             {
-                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_fifty_entries");
-                PyObject __underlyingPythonFunc = this.__func_test_fifty_entries;
-                _ = __underlyingPythonFunc.Call();
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_many_entries");
+                PyObject __underlyingPythonFunc = this.__func_test_many_entries;
+                using PyObject count_pyObject = PyObject.From(count)!;
+                _ = __underlyingPythonFunc.Call(count_pyObject);
                 return;
             }
         }
@@ -211,12 +212,12 @@ public interface ITestClass : IReloadableModuleImport
     void TestLogException();
 
     /// <summary>
-    /// Invokes the Python function <c>test_fifty_entries</c>:
+    /// Invokes the Python function <c>test_many_entries</c>:
     /// <code><![CDATA[
-    /// def test_fifty_entries() -> None: ...
+    /// def test_many_entries(count: int) -> None: ...
     /// ]]></code>
     /// </summary>
-    void TestFiftyEntries();
+    void TestManyEntries(long count);
 
     /// <summary>
     /// Invokes the Python function <c>test_named_logger</c>:

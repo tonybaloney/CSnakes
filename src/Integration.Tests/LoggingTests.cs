@@ -105,10 +105,9 @@ public class LoggingTests : IntegrationTestBase
 
         Assert.All(Entries, (entry, i) =>
         {
-            Assert.NotNull(entry);
+            Assert.Null(entry.Exception);
             Assert.Equal(LogLevel.Warning, entry.Level);
             Assert.Equal(FormattableString.Invariant($"Error {i}"), entry.Message);
-            Assert.Null(entry.Exception);
         });
     }
 

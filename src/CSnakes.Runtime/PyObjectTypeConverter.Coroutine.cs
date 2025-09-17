@@ -1,11 +1,13 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
+    [RequiresDynamicCode("Calls System.Type.MakeGenericType(params Type[])")]
     internal static object ConvertToCoroutine(PyObject pyObject, Type destinationType)
     {
         Debug.Assert(destinationType.IsGenericType);

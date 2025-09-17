@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime.Python;
 
+[RequiresDynamicCode("Calls System.Type.MakeGenericType(params Type[])")]
 internal class PyDictionary<TKey, TValue>(PyObject dictionary) :
     PyDictionary<TKey, TValue, PyObjectImporters.Runtime<TKey>, PyObjectImporters.Runtime<TValue>>(dictionary)
     where TKey : notnull;

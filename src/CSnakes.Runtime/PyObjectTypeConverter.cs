@@ -1,6 +1,7 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace CSnakes.Runtime;
@@ -8,7 +9,10 @@ internal partial class PyObjectTypeConverter
 {
     private static readonly ConcurrentDictionary<Type, DynamicTypeInfo> knownDynamicTypes = [];
 
-    public static object PyObjectToManagedType(PyObject pyObject, Type destinationType)
+    [RequiresDynamicCode("Calls System.Type.MakeGenericType(params Type[])")]
+    public static object PyObjectToManagedType(PyObject pyObject,
+                                               [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)]
+                                               Type destinationType)
     {
         if (CPythonAPI.IsPyDict(pyObject) && IsAssignableToGenericType(destinationType, dictionaryType))
         {

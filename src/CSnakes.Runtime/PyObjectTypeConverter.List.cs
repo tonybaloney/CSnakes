@@ -1,10 +1,12 @@
 using CSnakes.Runtime.Python;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
+    [RequiresDynamicCode("Calls System.Type.MakeGenericType(params Type[])")]
     private static object ConvertToList(PyObject pyObject, Type destinationType)
     {
         Type genericArgument = destinationType.GetGenericArguments()[0];

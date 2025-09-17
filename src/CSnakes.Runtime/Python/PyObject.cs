@@ -164,6 +164,7 @@ public partial class PyObject : SafeHandle, ICloneable
     /// This method does not check if the object is iterable until <see
     /// cref="IEnumerable{T}.GetEnumerator"/> is called on the result.
     /// </remarks>
+    [RequiresDynamicCode("Calls System.Type.MakeGenericType(params Type[])")]
     public IEnumerable<T> AsEnumerable<T>() =>
         AsEnumerable<T, PyObjectImporters.Runtime<T>>();
 
@@ -638,8 +639,10 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
+    [RequiresDynamicCode("Calls System.Type.MakeGenericType(params Type[])")]
     public T As<T>() => (T)As(typeof(T));
 
+    [RequiresDynamicCode("Calls System.Type.MakeGenericType(params Type[])")]
     internal object As(Type type)
     {
         using (GIL.Acquire())

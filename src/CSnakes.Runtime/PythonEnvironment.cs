@@ -13,23 +13,34 @@ using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;
 
+internal delegate object UserObjectFactory(IServiceProvider serviceProvider);
+
 internal class PythonEnvironment : IPythonEnvironment
 {
     public ILogger<IPythonEnvironment>? Logger { get; private set; }
+    public object? UserObject { get; }
 
     private readonly CPythonAPI api;
     private bool disposedValue;
 
-    private static IPythonEnvironment? pythonEnvironment;
+    private static PythonEnvironment? pythonEnvironment;
     private readonly static Lock locker = new();
 
-    public static IPythonEnvironment GetPythonEnvironment(IEnumerable<PythonLocator> locators, IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options, ILogger<IPythonEnvironment>? logger, IEnvironmentManagement? environmentManager = null)
+    public static PythonEnvironment? GetPythonEnvironment()
+    {
+        lock (locker)
+            return pythonEnvironment;
+    }
+
+    public static PythonEnvironment GetPythonEnvironment(IEnumerable<PythonLocator> locators,
+        IEnumerable<IPythonPackageInstaller> packageInstallers, PythonEnvironmentOptions options,
+        ILogger<IPythonEnvironment>? logger, IEnvironmentManagement? environmentManager = null, object? userObject = null)
     {
         if (pythonEnvironment is null)
         {
             lock (locker)
             {
-                pythonEnvironment ??= new PythonEnvironment(locators, packageInstallers, options, logger, environmentManager);
+                pythonEnvironment ??= new PythonEnvironment(locators, packageInstallers, options, logger, environmentManager, userObject);
             }
         }
         return pythonEnvironment;
@@ -40,9 +51,11 @@ internal class PythonEnvironment : IPythonEnvironment
         IEnumerable<IPythonPackageInstaller> packageInstallers,
         PythonEnvironmentOptions options,
         ILogger<IPythonEnvironment>? logger,
-        IEnvironmentManagement? environmentManager = null)
+        IEnvironmentManagement? environmentManager = null,
+        object? userObject = null)
     {
         Logger = logger;
+        UserObject = userObject;
 
         var location = locators
             .Where(locator => locator.IsSupported())

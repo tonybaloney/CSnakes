@@ -2,8 +2,11 @@ using CSnakes.Runtime.EnvironmentManagement;
 using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
+
+#pragma warning disable RS0016 // FIXME Add public types and members to the declared API
 
 namespace CSnakes.Runtime;
 /// <summary>
@@ -11,6 +14,25 @@ namespace CSnakes.Runtime;
 /// </summary>
 public static partial class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Adds the <see cref="IPythonEnvironment"/> service based on the provided configuration.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the
+    /// service to.</param>
+    /// <param name="configuration">The configuration.</param>
+    /// <returns>The modified <see cref="IServiceCollection"/>.</returns>
+    public static IServiceCollection AddPython(this IServiceCollection services, PythonEnvironmentConfiguration configuration)
+    {
+        services.TryAddSingleton(sp =>
+        {
+            if (configuration.IsLoggerFactoryDefault && sp.GetService<ILoggerFactory>() is { } loggerFactory)
+                configuration = configuration.WithLogger(loggerFactory);
+            return configuration.GetPythonEnvironment();
+        });
+
+        return services;
+    }
+
     /// <summary>
     /// Adds Python-related services to the service collection with the specified Python home directory.
     /// </summary>
@@ -29,10 +51,11 @@ public static partial class ServiceCollectionExtensions
             var installers = sp.GetServices<IPythonPackageInstaller>();
             var logger = sp.GetService<ILogger<IPythonEnvironment>>();
             var environmentManager = sp.GetService<IEnvironmentManagement>();
+            var userObject = sp.GetService<UserObjectFactory>()?.Invoke(sp);
 
             var options = envBuilder.GetOptions();
 
-            return PythonEnvironment.GetPythonEnvironment(locators, installers, options, logger, environmentManager);
+            return PythonEnvironment.GetPythonEnvironment(locators, installers, options, logger, environmentManager, userObject);
         });
 
         return pythonBuilder;
@@ -65,13 +88,7 @@ public static partial class ServiceCollectionExtensions
         return parsed;
     }
 
-    /// <summary>
-    /// Adds a Python locator using Python from a NuGet packages to the service collection with the specified version.
-    /// </summary>
-    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
-    /// <param name="version">The version of the NuGet package.</param>
-    /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
-    public static IPythonEnvironmentBuilder FromNuGet(this IPythonEnvironmentBuilder builder, string version)
+    internal static TResult FromNuGet<TArg, TResult>(string version, TArg arg, Func<TArg, NuGetLocator, TResult> resultor)
     {
         // See https://github.com/tonybaloney/CSnakes/issues/154#issuecomment-2352116849
         version = version.Replace("alpha.", "a").Replace("beta.", "b").Replace("rc.", "rc");
@@ -82,9 +99,21 @@ public static partial class ServiceCollectionExtensions
             version = $"{version}.0";
         }
 
-        builder.Services.AddSingleton<PythonLocator>(new NuGetLocator(version, ParsePythonVersion(version)));
-        return builder;
+        return resultor(arg, new NuGetLocator(version, ParsePythonVersion(version)));
     }
+
+    /// <summary>
+    /// Adds a Python locator using Python from a NuGet packages to the service collection with the specified version.
+    /// </summary>
+    /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
+    /// <param name="version">The version of the NuGet package.</param>
+    /// <returns>The modified <see cref="IPythonEnvironmentBuilder"/>.</returns>
+    public static IPythonEnvironmentBuilder FromNuGet(this IPythonEnvironmentBuilder builder, string version) =>
+        FromNuGet(version, builder, static (builder, locator) =>
+        {
+            builder.Services.AddSingleton<PythonLocator>(locator);
+            return builder;
+        });
 
     /// <summary>
     /// Adds a Python locator using Python from the Windows Store packages to the service collection with the specified version.

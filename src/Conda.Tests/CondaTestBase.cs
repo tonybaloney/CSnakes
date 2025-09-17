@@ -1,12 +1,9 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using CSnakes.Tests;
 
 namespace Conda.Tests;
 public class CondaTestBase : IDisposable
 {
     private readonly IPythonEnvironment env;
-    private readonly IHost app;
 
     public CondaTestBase()
     {
@@ -36,18 +33,12 @@ public class CondaTestBase : IDisposable
 
         var condaBinPath = OperatingSystem.IsWindows() ? Path.Join(condaEnv, "Scripts", "conda.exe") : Path.Join(condaEnv, "bin", "conda");
         var environmentSpecPath = Path.Join(Environment.CurrentDirectory, "python", "environment.yml");
-        var builder = Host.CreateApplicationBuilder();
-        var pb = builder.Services.WithPython();
-        pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
-
-        pb.FromConda(condaBinPath)
-          .WithCondaEnvironment("csnakes_test", environmentSpecPath, true, pythonVersion);
-
-        builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
-        
-        app = builder.Build();
-
-        env = app.Services.GetRequiredService<IPythonEnvironment>();
+        env = PythonEnvironmentConfiguration.Default
+                                            .SetHome(Path.Join(Environment.CurrentDirectory, "python"))
+                                            .FromConda(condaBinPath)
+                                            .SetCondaEnvironment("csnakes_test", environmentSpecPath, true, pythonVersion)
+                                            .WithXUnitLogging(null)
+                                            .GetPythonEnvironment();
     }
 
     public void Dispose()

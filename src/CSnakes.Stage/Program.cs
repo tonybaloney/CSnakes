@@ -106,58 +106,56 @@ internal class Program
 
         Console.WriteLine($"Staging CSnakes for Python {config.Version}...");
 
-        var builder = Host.CreateApplicationBuilder();
         var home = Path.Join(Environment.CurrentDirectory);
-        IPythonEnvironmentBuilder pythonEnvironmentBuilder = builder.Services
-            .WithPython()
-            .WithHome(home)
-            .FromRedistributable(version: config.Version, timeout: config.Timeout ?? DefaultTimeout);
+        var pyConfig =
+            PythonEnvironmentConfiguration.Default
+                                          .SetHome(home)
+                                          .FromRedistributable(version: config.Version,
+                                                               timeout: config.Timeout ?? DefaultTimeout);
 
         // Enable verbose logging if needed
         if (config.Verbose)
         {
-            pythonEnvironmentBuilder.Services.AddLogging(loggingBuilder =>
+            var services = new ServiceCollection();
+            services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.AddConsole();
                 loggingBuilder.SetMinimumLevel(LogLevel.Debug);
             });
+            pyConfig = pyConfig.WithLogger(services.BuildServiceProvider().GetRequiredService<ILoggerFactory>());
         }
 
         if (withVenv)
         {
-            pythonEnvironmentBuilder.WithVirtualEnvironment(config.VenvPath!, ensureEnvironment: true);
+            pyConfig = pyConfig.SetVirtualEnvironment(config.VenvPath!, ensureExists: true);
         }
 
         if (withPipRequirements)
         {
-            pythonEnvironmentBuilder.WithPipInstaller(config.PipRequirements!);
+            pyConfig = pyConfig.AddPipInstaller(config.PipRequirements!);
         }
 
         if (withUvRequirements)
         {
-            pythonEnvironmentBuilder.WithUvInstaller(config.UvRequirements!);
+            pyConfig = pyConfig.AddUvInstaller(config.UvRequirements!);
         }
 
-        var app = builder.Build();
-
-        var locator = app.Services.GetRequiredService<PythonLocator>();
+        var locator = pyConfig.Locators.Single();
         var location = locator.LocatePython();
-        
+
         Console.WriteLine($"Python {config.Version} downloaded and located at: {location.PythonBinaryPath}");
 
-        if (withVenv)
+        if (pyConfig.EnvironmentManager is { } environmentManager)
         {
             Console.WriteLine("Creating virtual environment...");
-            var environmentManager = app.Services.GetRequiredService<IEnvironmentManagement>();
             environmentManager.EnsureEnvironment(location);
             Console.WriteLine($"Virtual environment created at: {config.VenvPath}");
         }
 
-        if (withPipRequirements || withUvRequirements)
+        if (pyConfig.PackageInstallers.SingleOrDefault() is { } packageInstaller)
         {
             Console.WriteLine("Installing requirements...");
-            var pipInstaller = app.Services.GetRequiredService<IPythonPackageInstaller>();
-            pipInstaller.InstallPackagesFromRequirements(Environment.CurrentDirectory).GetAwaiter().GetResult();
+            packageInstaller.InstallPackagesFromRequirements(Environment.CurrentDirectory).GetAwaiter().GetResult();
             Console.WriteLine($"Python requirements installed from: {config.PipRequirements ?? config.UvRequirements}");
         }
 

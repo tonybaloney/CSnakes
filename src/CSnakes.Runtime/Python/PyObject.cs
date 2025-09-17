@@ -659,7 +659,7 @@ public partial class PyObject : SafeHandle, ICloneable
                 var t when t.IsAssignableTo(typeof(ITuple)) => PyObjectTypeConverter.ConvertToTuple(this, t),
                 var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => PyObjectTypeConverter.ConvertToGeneratorIterator(this, t),
                 var t when t.IsAssignableTo(typeof(ICoroutine)) => PyObjectTypeConverter.ConvertToCoroutine(this, t),
-                var t when Nullable.GetUnderlyingType(t) is { } vt => IsNone() ? null : As(vt)
+                var t when Nullable.GetUnderlyingType(t) is { } vt => IsNone() ? null : As(vt),
                 var t => PyObjectTypeConverter.PyObjectToManagedType(this, t),
             };
 #pragma warning restore CS8603 // Possible null reference return.

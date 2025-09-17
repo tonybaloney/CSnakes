@@ -22,7 +22,7 @@ public abstract class ConverterTestBase<T, TTestCases> : RuntimeTestBase
     }
 
     [Theory]
-    [MemberData(nameof(SubTestCases))]
+    [MemberData(nameof(SubTestCases), DisableDiscoveryEnumeration = true)]
     public void RoundtripViaAs(T input) =>
         TestRoundtrip(input, static obj => obj.As<T>());
 }
@@ -33,7 +33,7 @@ public abstract class ConverterTestBase<T, TImporter, TTestCases> :
     where TTestCases : IConverterTestCasesContainer<T>
 {
     [Theory]
-    [MemberData(nameof(SubTestCases))]
+    [MemberData(nameof(SubTestCases),DisableDiscoveryEnumeration = true)]
     public void RoundtripViaImport(T input) =>
         TestRoundtrip(input, static obj => obj.ImportAs<T, TImporter>());
 }

@@ -32,6 +32,14 @@ public static partial class PythonParser
     static bool IsFunctionSignature(string line) =>
         line.StartsWith("def ") || line.StartsWith("async def");
 
+    /// <summary>
+    /// Checks if the line contains a "# csharp: ignore" comment.
+    /// </summary>
+    /// <param name="line">Line to check</param>
+    /// <returns></returns>
+    static bool HasCSharpIgnoreComment(string line) =>
+        line.Contains("# csharp: ignore");
+
     public static bool TryParseFunctionDefinitions(SourceText source, out PythonFunctionDefinition[] pythonSignatures, out GeneratorError[] errors)
     {
         // Go line by line
@@ -45,6 +53,14 @@ public static partial class PythonParser
             string lineOfCode = line.ToString();
             if (!IsFunctionSignature(lineOfCode) && !unfinishedFunctionSpec)
             {
+                continue;
+            }
+
+            // Check for "# csharp: ignore" comment on the first line of function definition
+            if (IsFunctionSignature(lineOfCode) && HasCSharpIgnoreComment(lineOfCode))
+            {
+                currentBuffer = [];
+                unfinishedFunctionSpec = false;
                 continue;
             }
 

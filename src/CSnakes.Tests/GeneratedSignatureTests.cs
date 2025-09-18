@@ -63,6 +63,9 @@ public class GeneratedSignatureTests
     [InlineData("def hello(a: str, b: int = 4, *, kw: str) -> None:\n ...\n", "void Hello(string a, string kw, long b = 4)")]
     [InlineData("def hello() -> str | int: \n  ...\n", "PyObject Hello()")]
     [InlineData("def escape(s: str, quote: bool = True) -> str: ...\n", "string Escape(string s, bool quote = true)")]
+    [InlineData("# csharp: ignore\ndef foo(bar):\n    pass", "PyObject Foo(PyObject bar)")]  // Comment on line above
+    [InlineData("def foo(\n    bar  # csharp: ignore\n):\n    pass", "PyObject Foo(PyObject bar)")]  // Comment in parameter list
+    [InlineData("def foo(bar):\n    # csharp: ignore\n    pass", "PyObject Foo(PyObject bar)")]  // Comment inside function body
     public void TestGeneratedSignature(string code, string expected)
     {
         SourceText sourceText = SourceText.From(code);
@@ -225,5 +228,18 @@ public class GeneratedSignatureTests
         Assert.Empty(errors1);
         var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
         Assert.Single(module1);
+    }
+
+    [Theory]
+    [InlineData("def foo(  # csharp: ignore\r\n        bar,\r\n        baz,\r\n    ):\r\n    pass\r\n")]
+    [InlineData("def hello(): # csharp: ignore ...\n")]
+    [InlineData("def foo():  # type: ignore # csharp: ignore\r\n    pass\r\n\r\ndef bar ():  # csharp: ignore # type: ignore\r\n    pass")]
+    public void TestCSharpIgnoreCommentFunction(string code)
+    {
+        SourceText sourceText = SourceText.From(code);
+        Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors));
+        Assert.Empty(errors);
+        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
+        Assert.Empty(module);
     }
 }

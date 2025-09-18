@@ -23,12 +23,15 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
     const string ModuleCode = """
         import logging
         import queue
+        import threading
 
 
         class __csnakesMemoryHandler(logging.Handler):
             def __init__(self):
                 logging.Handler.__init__(self)
                 self.queue = queue.Queue(200)
+                self.stats_lock = threading.Lock()
+                self.drop_count = 0
 
             def emit(self, record):
                 _ = self._put(record)
@@ -42,6 +45,8 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
                         try:
                             _ = self.queue.get_nowait()  # drop the oldest record
                             self.queue.task_done()
+                            with self.stats_lock:
+                                self.drop_count += 1
                         except queue.Empty:
                             pass
                 return False  # all attempts to put failed
@@ -52,7 +57,10 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
                     self.queue.task_done()
                     if record is None:
                         break
-                    yield (record.levelno, record.getMessage(), record.exc_info)
+                    with self.stats_lock:
+                        drop_count = self.drop_count
+                        self.drop_count = 0
+                    yield (drop_count, record.levelno, record.getMessage(), record.exc_info)
 
             def close(self):
                 _ = self._put(None)
@@ -109,10 +117,11 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
     {
         using PyObject getRecords = handler.GetAttr("get_records");
         using PyObject getRecordsResult = getRecords.Call();
-        IGeneratorIterator<(long, string, ExceptionInfo?), PyObject, PyObject> generator =
-            getRecordsResult.ImportAs<IGeneratorIterator<(long, string, ExceptionInfo?), PyObject, PyObject>,
-                                                         PyObjectImporters.Generator<(long, string, ExceptionInfo?), PyObject, PyObject,
-                                                                                     PyObjectImporters.Tuple<long, string, ExceptionInfo?,
+        IGeneratorIterator<(long, long, string, ExceptionInfo?), PyObject, PyObject> generator =
+            getRecordsResult.ImportAs<IGeneratorIterator<(long, long, string, ExceptionInfo?), PyObject, PyObject>,
+                                                         PyObjectImporters.Generator<(long, long, string, ExceptionInfo?), PyObject, PyObject,
+                                                                                     PyObjectImporters.Tuple<long, long, string, ExceptionInfo?,
+                                                                                                             PyObjectImporters.Int64,
                                                                                                              PyObjectImporters.Int64,
                                                                                                              PyObjectImporters.String,
                                                                                                              PyObjectImporters.OptionalValue<ExceptionInfo,
@@ -126,7 +135,20 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
         {
             while (generator.MoveNext()) // TODO Restart log records reading loop on failure
             {
-                var (level, message, exceptionInfo) = generator.Current;
+                var (dropCount, level, message, exceptionInfo) = generator.Current;
+
+                if (dropCount > 0)
+                {
+                    // One could log a warning here:
+                    //
+                    //   logger.LogWarning("Dropped {DropCount} log messages due to buffer overflow.", dropCount);
+                    //
+                    // but the reason the messages are getting dropped in the first place is because
+                    // this loop isn't keeping up due to the logger being slow or blocking. Adding
+                    // to the misery wouldn't be helpful so issue a debug message instead.
+
+                    Debug.WriteLine($"Dropped {dropCount} log messages due to log buffer overflow.");
+                }
 
                 try
                 {

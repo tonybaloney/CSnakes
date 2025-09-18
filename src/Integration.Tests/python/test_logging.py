@@ -22,8 +22,8 @@ def test_log_exception() -> None:
         logging.exception("An error message occurred")
 
 
-def test_fifty_entries() -> None:
-    for i in range(0, 50):
+def test_many_entries(count: int) -> None:
+    for i in range(0, count):
         logger.warning("Error %d", i)
 
 

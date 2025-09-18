@@ -9,7 +9,7 @@ internal partial class PyObjectTypeConverter
 {
     private static readonly ConcurrentDictionary<Type, DynamicTypeInfo> knownDynamicTypes = [];
 
-    [RequiresDynamicCode("Calls System.Type.MakeGenericType(params Type[])")]
+    [RequiresDynamicCode(DynamicCodeMessages.CallsMakeGenericType)]
     public static object PyObjectToManagedType(PyObject pyObject,
                                                [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)]
                                                Type destinationType)
@@ -33,11 +33,6 @@ internal partial class PyObjectTypeConverter
         if (CPythonAPI.IsPySequence(pyObject) && IsAssignableToGenericType(destinationType, listType))
         {
             return ConvertToList(pyObject, destinationType);
-        }
-
-        if (CPythonAPI.IsBuffer(pyObject) && destinationType.IsAssignableTo(bufferType))
-        {
-            return new PyBuffer(pyObject);
         }
 
         throw new InvalidCastException($"Attempting to cast {destinationType} from {pyObject.GetPythonType()}");

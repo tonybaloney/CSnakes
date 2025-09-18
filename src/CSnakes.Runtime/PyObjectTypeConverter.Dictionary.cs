@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    [RequiresDynamicCode("Calls System.Type.MakeGenericType(params Type[])")]
+    [RequiresDynamicCode(DynamicCodeMessages.CallsMakeGenericType)]
     private static object ConvertToDictionary(PyObject pyObject, Type destinationType, bool useMappingProtocol = false)
     {
         Type keyType = destinationType.GetGenericArguments()[0];

@@ -19,7 +19,7 @@ internal partial class PyObjectTypeConverter
         return Pack.CreateTuple(pyObjects);
     }
 
-    [RequiresDynamicCode("Calls System.Type.MakeGenericType(params Type[])")]
+    [RequiresDynamicCode(DynamicCodeMessages.CallsMakeGenericType)]
     internal static ITuple ConvertToTuple(PyObject pyObj, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type destinationType)
     {
         if (!CPythonAPI.IsPyTuple(pyObj))

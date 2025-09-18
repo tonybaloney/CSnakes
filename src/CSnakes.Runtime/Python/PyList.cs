@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime.Python;
 
-[RequiresDynamicCode("Calls System.Type.MakeGenericType(params Type[])")]
+[RequiresDynamicCode(DynamicCodeMessages.CallsMakeGenericType)]
 internal sealed class PyList<T>(PyObject listObject) :
     PyList<T, PyObjectImporters.Runtime<T>>(listObject);
 

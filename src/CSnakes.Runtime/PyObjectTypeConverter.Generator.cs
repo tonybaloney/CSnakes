@@ -7,7 +7,7 @@ using System.Reflection;
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
-    [RequiresDynamicCode("Calls System.Type.MakeGenericType(params Type[])")]
+    [RequiresDynamicCode(DynamicCodeMessages.CallsMakeGenericType)]
     internal static object ConvertToGeneratorIterator(PyObject pyObject, Type destinationType)
     {
         Debug.Assert(destinationType.IsGenericType);

@@ -1,11 +1,12 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
     private static readonly ConcurrentDictionary<(Type, Type), bool> assignableGenericsMap = [];
 
-    public static bool IsAssignableToGenericType(Type givenType, Type genericType)
+    public static bool IsAssignableToGenericType([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type givenType, Type genericType)
     {
         if (assignableGenericsMap.TryGetValue((givenType, genericType), out bool result))
             return result;

@@ -1,7 +1,9 @@
 using CSnakes.Runtime.CPython;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime.Python;
 
+[RequiresDynamicCode(DynamicCodeMessages.CallsMakeGenericType)]
 public sealed class Coroutine<TYield, TSend, TReturn>(PyObject coroutine) :
     Coroutine<TYield, TSend, TReturn,
               PyObjectImporters.Runtime<TYield>,

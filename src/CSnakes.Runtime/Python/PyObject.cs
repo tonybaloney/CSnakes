@@ -164,6 +164,7 @@ public partial class PyObject : SafeHandle, ICloneable
     /// This method does not check if the object is iterable until <see
     /// cref="IEnumerable{T}.GetEnumerator"/> is called on the result.
     /// </remarks>
+    [RequiresDynamicCode(DynamicCodeMessages.MayCallMakeGenericType)]
     public IEnumerable<T> AsEnumerable<T>() =>
         AsEnumerable<T, PyObjectImporters.Runtime<T>>();
 
@@ -640,8 +641,10 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
+    [RequiresDynamicCode(DynamicCodeMessages.MayCallMakeGenericType)]
     public T As<T>() => (T)As(typeof(T));
 
+    [RequiresDynamicCode(DynamicCodeMessages.MayCallMakeGenericType)]
     internal object As(Type type)
     {
         using (GIL.Acquire())
@@ -661,6 +664,7 @@ public partial class PyObject : SafeHandle, ICloneable
                 var t when t.IsAssignableTo(typeof(ITuple)) => PyObjectTypeConverter.ConvertToTuple(this, t),
                 var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => PyObjectTypeConverter.ConvertToGeneratorIterator(this, t),
                 var t when t.IsAssignableTo(typeof(ICoroutine)) => PyObjectTypeConverter.ConvertToCoroutine(this, t),
+                var t when t.IsAssignableTo(typeof(IPyBuffer)) && CPythonAPI.IsBuffer(this) => new PyBuffer(this),
                 var t when Nullable.GetUnderlyingType(t) is { } vt => IsNone() ? null : As(vt),
                 var t => PyObjectTypeConverter.PyObjectToManagedType(this, t),
             };

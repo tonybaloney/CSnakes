@@ -33,6 +33,12 @@ public static partial class PyObjectImporters
         }
     }
 
+    /// <remarks>
+    /// This importer delegates to run-time conversion via <see cref="PyObject.As{T}"/>, which is
+    /// annotated with <see cref="RequiresDynamicCodeAttribute"/>. It should be avoided in code that
+    /// wishes to support Native AOT scenarios and publishing. Any explicit use of this should be
+    /// carefully reviewed and marked with <see cref="RequiresDynamicCodeAttribute"/>.
+    /// </remarks>
     public sealed class Runtime<T> : IPyObjectImporter<T>
     {
         private Runtime() { }
@@ -40,7 +46,9 @@ public static partial class PyObjectImporters
         static T IPyObjectImporter<T>.BareImport(PyObject obj)
         {
             GIL.Require();
+#pragma warning disable IL3050 // Avoid calling members annotated with 'RequiresDynamicCodeAttribute' when publishing as Native AOT
             return obj.As<T>();
+#pragma warning restore IL3050 // Avoid calling members annotated with 'RequiresDynamicCodeAttribute' when publishing as Native AOT
         }
     }
 

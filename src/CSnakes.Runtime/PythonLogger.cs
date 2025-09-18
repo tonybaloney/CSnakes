@@ -147,7 +147,7 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
                     // this loop isn't keeping up due to the logger being slow or blocking. Adding
                     // to the misery wouldn't be helpful so issue a debug message instead.
 
-                    Debug.WriteLine($"Dropped {dropCount} log messages due to buffer overflow.");
+                    Debug.WriteLine($"Dropped {dropCount} log messages due to log buffer overflow.");
                 }
 
                 try

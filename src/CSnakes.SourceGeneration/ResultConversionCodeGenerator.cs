@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using TupleType = CSnakes.Parser.Types.TupleType;
 
 namespace CSnakes.SourceGeneration;
 
@@ -48,6 +49,14 @@ internal static class ResultConversionCodeGenerator
             case BytesType: return ByteArray;
             case BufferType: return Buffer;
 
+            case OptionalType { Of: var t and (IntType or FloatType or BoolType or TupleType) }:
+            {
+                return OptionalConversionGenerator(t, "OptionalValue");
+            }
+            case OptionalType { Of: var t }:
+            {
+                return OptionalConversionGenerator(t);
+            }
             case ListType { Of: var t }:
             {
                 return ListConversionGenerator(t);
@@ -125,6 +134,13 @@ internal static class ResultConversionCodeGenerator
 
     public static IResultConversionCodeGenerator ScalarConversionGenerator(TypeSyntax syntax, string importerTypeName) =>
         new ConversionGenerator(syntax, IdentifierName(importerTypeName));
+
+    public static IResultConversionCodeGenerator OptionalConversionGenerator(PythonTypeSpec ofTypeSpec, string importerTypeName = "Optional")
+    {
+        var generator = Create(ofTypeSpec);
+        return new ConversionGenerator(NullableType(generator.TypeSyntax),
+                                       TypeReflection.CreateGenericType(importerTypeName, [generator.TypeSyntax, generator.ImporterTypeSyntax]));
+    }
 
     public static IResultConversionCodeGenerator ListConversionGenerator(PythonTypeSpec itemTypeSpec, string importerTypeName = "List")
     {

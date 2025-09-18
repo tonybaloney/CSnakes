@@ -67,16 +67,6 @@ public static class MethodReflection
                                         ArgumentReflection.ArgumentSyntax,
                                         p => ArgumentReflection.ArgumentSyntax(p, PythonFunctionParameterType.DoubleStar));
 
-        // Narrow Optional[T]
-        var returnNoneAsNull = false;
-
-        if (returnSyntax is NullableTypeSyntax)
-        {
-            returnNoneAsNull = true;
-            // Assume `Optional[T]` and narrow to `T`
-            returnPythonType = ((OptionalType)returnPythonType).Of;
-        }
-
         foreach (CSharpParameterList cSharpParameterList in cSharpParameterListPermutations)
         {
             var parameterGenericArgs =
@@ -150,21 +140,6 @@ public static class MethodReflection
                             ResultConversionCodeGenerator.GenerateCode(returnPythonType,
                                                                        "__result_pyObject", "__return",
                                                                        cancellationTokenName);
-
-                        if (returnNoneAsNull)
-                        {
-                            resultConversionStatements =
-                                resultConversionStatements.Prepend(
-                                    IfStatement(
-                                        InvocationExpression(
-                                            MemberAccessExpression(
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                IdentifierName("__result_pyObject"),
-                                                IdentifierName("IsNone"))),
-                                        ReturnStatement(
-                                            LiteralExpression(SyntaxKind.NullLiteralExpression))
-                                    ));
-                        }
 
                         returnExpression = ReturnStatement(IdentifierName("__return"));
                         break;

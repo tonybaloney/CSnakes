@@ -11,8 +11,8 @@ public sealed record RedistributablePythonVersion
     public static readonly RedistributablePythonVersion Python3_10 = new(new Version(3, 10, 18));
     public static readonly RedistributablePythonVersion Python3_11 = new(new Version(3, 11, 13));
     public static readonly RedistributablePythonVersion Python3_12 = new(new Version(3, 12, 11));
-    public static readonly RedistributablePythonVersion Python3_13 = new(new Version(3, 13, 6)) { SupportsFreeThreading = true };
-    public static readonly RedistributablePythonVersion Python3_14 = new(new Version(3, 14, 0), "rc1") { SupportsFreeThreading = true };
+    public static readonly RedistributablePythonVersion Python3_13 = new(new Version(3, 13, 7)) { SupportsFreeThreading = true };
+    public static readonly RedistributablePythonVersion Python3_14 = new(new Version(3, 14, 0), "rc2") { SupportsFreeThreading = true };
 
     private RedistributablePythonVersion(Version version, string? preRelease = null) =>
         (Version, PreRelease) = (version, preRelease);
@@ -26,7 +26,7 @@ public sealed record RedistributablePythonVersion
 
 internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, RedistributablePythonVersion version, int installerTimeout = 360, bool debug = false, bool freeThreaded = false) : PythonLocator
 {
-    private const string standaloneRelease = "20250808";
+    private const string standaloneRelease = "20250902";
     private const string MutexName = @"Global\CSnakesPythonInstall-1"; // run-time name includes Python version
 
     protected override Version Version => version.Version;

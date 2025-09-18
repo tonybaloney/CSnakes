@@ -32,7 +32,8 @@ public class RedistributablePythonTestBase : IDisposable
           .DisableSignalHandlers()
           .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
           .WithUvInstaller()
-          .WithVirtualEnvironment(venvPath);
+          .WithVirtualEnvironment(venvPath)
+          .CapturePythonLogs();
 
         builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
 

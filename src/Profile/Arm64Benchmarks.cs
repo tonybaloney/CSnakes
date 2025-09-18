@@ -9,8 +9,8 @@ using System.Runtime.InteropServices;
 namespace Profile;
 
 /// <summary>
-/// ARM64-specific performance benchmarks for Windows ARM64 Python interop.
-/// These benchmarks validate performance characteristics and compare ARM64 vs x64 behavior.
+/// Arm64-specific performance benchmarks for Windows Arm64 Python interop.
+/// These benchmarks validate performance characteristics and compare Arm64 vs x64 behavior.
 /// </summary>
 [MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net80)]
@@ -26,7 +26,7 @@ public class Arm64Benchmarks : BaseBenchmark
     }
 
     /// <summary>
-    /// Benchmark ARM64 architecture detection performance
+    /// Benchmark Arm64 architecture detection performance
     /// </summary>
     [Benchmark]
     public string DetectArchitecture()
@@ -35,7 +35,7 @@ public class Arm64Benchmarks : BaseBenchmark
     }
 
     /// <summary>
-    /// Benchmark platform information retrieval on ARM64
+    /// Benchmark platform information retrieval on Arm64
     /// </summary>
     [Benchmark]
     public string GetPlatformInfo()
@@ -44,7 +44,7 @@ public class Arm64Benchmarks : BaseBenchmark
     }
 
     /// <summary>
-    /// Test mathematical operations performance on ARM64
+    /// Test mathematical operations performance on Arm64
     /// </summary>
     [Benchmark]
     public double MathOperationsArm64()
@@ -53,7 +53,7 @@ public class Arm64Benchmarks : BaseBenchmark
     }
 
     /// <summary>
-    /// Benchmark large data marshalling on ARM64
+    /// Benchmark large data marshalling on Arm64
     /// </summary>
     [Benchmark]
     public int LargeDataMarshalling()
@@ -62,7 +62,7 @@ public class Arm64Benchmarks : BaseBenchmark
     }
 
     /// <summary>
-    /// Test string processing performance on ARM64
+    /// Test string processing performance on Arm64
     /// </summary>
     [Benchmark]
     public int StringProcessingArm64()
@@ -71,7 +71,7 @@ public class Arm64Benchmarks : BaseBenchmark
     }
 
     /// <summary>
-    /// Benchmark environment variable access on ARM64
+    /// Benchmark environment variable access on Arm64
     /// </summary>
     [Benchmark]
     public string EnvironmentAccess()
@@ -89,7 +89,7 @@ public class Arm64Benchmarks : BaseBenchmark
     }
 
     /// <summary>
-    /// Benchmark Python function call overhead on ARM64
+    /// Benchmark Python function call overhead on Arm64
     /// </summary>
     [Benchmark]
     public double FunctionCallOverhead()
@@ -98,7 +98,7 @@ public class Arm64Benchmarks : BaseBenchmark
     }
 
     /// <summary>
-    /// Test complex object creation and manipulation on ARM64
+    /// Test complex object creation and manipulation on Arm64
     /// </summary>
     [Benchmark]
     public int ComplexObjectManipulation()
@@ -120,7 +120,7 @@ public class Arm64Benchmarks : BaseBenchmark
     }
 
     /// <summary>
-    /// Test exception handling performance on ARM64
+    /// Test exception handling performance on Arm64
     /// </summary>
     [Benchmark]
     public int ExceptionHandlingPerformance()
@@ -129,7 +129,7 @@ public class Arm64Benchmarks : BaseBenchmark
     }
 
     /// <summary>
-    /// Test ARM64-specific optimizations and native performance
+    /// Test Arm64-specific optimizations and native performance
     /// </summary>
     [Benchmark]
     public string Arm64NativePerformance()
@@ -139,7 +139,7 @@ public class Arm64Benchmarks : BaseBenchmark
 }
 
 /// <summary>
-/// ARM64-specific configuration for benchmarks
+/// Arm64-specific configuration for benchmarks
 /// </summary>
 public class Arm64BenchmarkConfig : ManualConfig
 {
@@ -148,11 +148,11 @@ public class Arm64BenchmarkConfig : ManualConfig
         AddJob(Job.Default
             .WithRuntime(CoreRuntime.Core80)
             .WithPlatform(Platform.Arm64)
-            .WithId("NET8-ARM64"));
+            .WithId("NET8-Arm64"));
             
         AddJob(Job.Default
             .WithRuntime(CoreRuntime.Core90)
             .WithPlatform(Platform.Arm64)
-            .WithId("NET9-ARM64"));
+            .WithId("NET9-Arm64"));
     }
 }

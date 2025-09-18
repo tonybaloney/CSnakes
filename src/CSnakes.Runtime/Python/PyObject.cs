@@ -646,6 +646,7 @@ public partial class PyObject : SafeHandle, ICloneable
     {
         using (GIL.Acquire())
         {
+#pragma warning disable CS8603 // Possible null reference return intentional when T = Nullable<T> and this is NoneType.
             return type switch
             {
                 var t when t == typeof(PyObject) => Clone(),
@@ -660,8 +661,10 @@ public partial class PyObject : SafeHandle, ICloneable
                 var t when t.IsAssignableTo(typeof(ITuple)) => PyObjectTypeConverter.ConvertToTuple(this, t),
                 var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => PyObjectTypeConverter.ConvertToGeneratorIterator(this, t),
                 var t when t.IsAssignableTo(typeof(ICoroutine)) => PyObjectTypeConverter.ConvertToCoroutine(this, t),
+                var t when Nullable.GetUnderlyingType(t) is { } vt => IsNone() ? null : As(vt),
                 var t => PyObjectTypeConverter.PyObjectToManagedType(this, t),
             };
+#pragma warning restore CS8603 // Possible null reference return.
         }
     }
 

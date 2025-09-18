@@ -226,6 +226,26 @@ public static partial class PyObjectImporters
         }
     }
 
+    public sealed class Optional<T, TImporter> : IPyObjectImporter<T?>
+        where T : class
+        where TImporter : IPyObjectImporter<T>
+    {
+        private Optional() { }
+
+        static T? IPyObjectImporter<T?>.BareImport(PyObject obj) =>
+            !obj.IsNone() ? TImporter.BareImport(obj) : null;
+    }
+
+    public sealed class OptionalValue<T, TImporter> : IPyObjectImporter<T?>
+        where T : struct
+        where TImporter : IPyObjectImporter<T>
+    {
+        private OptionalValue() { }
+
+        static T? IPyObjectImporter<T?>.BareImport(PyObject obj) =>
+            !obj.IsNone() ? TImporter.BareImport(obj) : null;
+    }
+
     private static PyObject GetTupleItem(PyObject obj, int index) =>
         PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(obj, index));
 

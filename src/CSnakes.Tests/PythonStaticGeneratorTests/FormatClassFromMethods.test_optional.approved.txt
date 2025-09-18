@@ -128,7 +128,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_any;
                 using PyObject obj_pyObject = PyObject.From(obj)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(obj_pyObject);
-                var __return = __result_pyObject.BareImportAs<PyObject?, global::CSnakes.Runtime.Python.PyObjectImporters.Optional<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>>();
+                var __return = __result_pyObject.BareImportAs<PyObject?, global::CSnakes.Runtime.Python.PyObjectImporters.Optional<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Clone>>();
                 return __return;
             }
         }
@@ -141,7 +141,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_optional_tuple;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = __result_pyObject.BareImportAs<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Clone>();
+                var __return = __result_pyObject.BareImportAs<(long? , string? )?, global::CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<(long? , string? ), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<long?, string?, global::CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>, global::CSnakes.Runtime.Python.PyObjectImporters.Optional<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>>>>();
                 return __return;
             }
         }

@@ -20,6 +20,7 @@ CSnakes.Runtime.Python.PyObject.Call(params System.ReadOnlySpan<CSnakes.Runtime.
 CSnakes.Runtime.Python.PyObject.Call(System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> args, params System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> argv) -> CSnakes.Runtime.Python.PyObject!
 CSnakes.Runtime.Python.PyObject.Call(System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> args, System.ReadOnlySpan<CSnakes.Runtime.Python.KeywordArg> kwargs) -> CSnakes.Runtime.Python.PyObject!
 CSnakes.Runtime.Python.PyObject.Call(System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> args, System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> argv, System.ReadOnlySpan<CSnakes.Runtime.Python.KeywordArg> kwargs, System.ReadOnlySpan<CSnakes.Runtime.Python.KeywordArg> kwargv) -> CSnakes.Runtime.Python.PyObject!
+[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.None
 override CSnakes.Runtime.Python.KeywordArg.GetHashCode() -> int
 static CSnakes.Runtime.Python.KeywordArg.operator !=(CSnakes.Runtime.Python.KeywordArg left, CSnakes.Runtime.Python.KeywordArg right) -> bool
 static CSnakes.Runtime.Python.KeywordArg.operator ==(CSnakes.Runtime.Python.KeywordArg left, CSnakes.Runtime.Python.KeywordArg right) -> bool

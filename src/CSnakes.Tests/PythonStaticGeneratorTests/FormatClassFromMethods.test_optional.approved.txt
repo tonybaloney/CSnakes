@@ -129,7 +129,7 @@ public static class TestClassExtensions
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(obj_pyObject);
                 if (__result_pyObject.IsNone())
                     return null;
-                var __return = __result_pyObject.BareImportAs<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>();
+                var __return = __result_pyObject.BareImportAs<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Clone>();
                 return __return;
             }
         }

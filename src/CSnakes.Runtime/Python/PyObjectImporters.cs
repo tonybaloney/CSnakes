@@ -22,6 +22,17 @@ public static partial class PyObjectImporters
         }
     }
 
+    public sealed class None : IPyObjectImporter<PyObject>
+    {
+        private None() { }
+
+        static PyObject IPyObjectImporter<PyObject>.BareImport(PyObject obj)
+        {
+            GIL.Require();
+            return obj.IsNone() ? PyObject.None : throw InvalidCastException("None", obj);
+        }
+    }
+
     public sealed class Runtime<T> : IPyObjectImporter<T>
     {
         private Runtime() { }

@@ -508,18 +508,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#option-2-use-system-python" class="md-nav__link">
+  <a href="#option-2-use-conda" class="md-nav__link">
     <span class="md-ellipsis">
-      Option 2: Use System Python
+      Option 2: Use Conda
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#option-3-use-conda" class="md-nav__link">
+  <a href="#option-3-use-platform-specific-locators-for-system-python" class="md-nav__link">
     <span class="md-ellipsis">
-      Option 3: Use Conda
+      Option 3: Use Platform Specific Locators for System Python
     </span>
   </a>
   
@@ -853,6 +853,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../user-guide/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Logging
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../user-guide/buffers/" class="md-nav__link">
         
   
@@ -1116,6 +1139,29 @@
   
   <span class="md-ellipsis">
     Free-Threading
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/additional-locators/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Additional Python Locators
     
   </span>
   
@@ -1480,18 +1526,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#option-2-use-system-python" class="md-nav__link">
+  <a href="#option-2-use-conda" class="md-nav__link">
     <span class="md-ellipsis">
-      Option 2: Use System Python
+      Option 2: Use Conda
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#option-3-use-conda" class="md-nav__link">
+  <a href="#option-3-use-platform-specific-locators-for-system-python" class="md-nav__link">
     <span class="md-ellipsis">
-      Option 3: Use Conda
+      Option 3: Use Platform Specific Locators for System Python
     </span>
   </a>
   
@@ -1604,7 +1650,7 @@
 <li><a href="#configuring-a-c-project">Configure your C# project</a></li>
 </ul>
 <h2 id="installing-python">Installing Python</h2>
-<p>CSnakes supports Python 3.9-3.13 and works on Windows, macOS, and Linux.</p>
+<p>CSnakes supports Python 3.9-3.14 and works on Windows, macOS, and Linux.</p>
 <h3 id="option-1-let-csnakes-download-python-recommended">Option 1: Let CSnakes Download Python (Recommended)</h3>
 <p>The simplest option is to use the <code>FromRedistributable</code> method, which will automatically download Python 3.12 and store it locally. This is compatible with Windows, macOS, and Linux.</p>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">builder</span><span class="p">.</span><span class="n">Services</span>
@@ -1612,31 +1658,27 @@
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="p">.</span><span class="n">WithHome</span><span class="p">(</span><span class="n">home</span><span class="p">)</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="p">.</span><span class="n">FromRedistributable</span><span class="p">();</span><span class="w"> </span><span class="c1">// Downloads Python 3.12 automatically</span>
 </span></code></pre></div>
-<h3 id="option-2-use-system-python">Option 2: Use System Python</h3>
-<p>If you have Python installed on your system, you can use it directly:</p>
+<h3 id="option-2-use-conda">Option 2: Use Conda</h3>
+<p>If you're using Conda environments:</p>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">builder</span><span class="p">.</span><span class="n">Services</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="p">.</span><span class="n">WithPython</span><span class="p">()</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="p">.</span><span class="n">WithHome</span><span class="p">(</span><span class="n">home</span><span class="p">)</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="p">.</span><span class="n">FromEnvironmentVariable</span><span class="p">(</span><span class="s">&quot;PYTHONHOME&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;3.12&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// Uses system Python</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="p">.</span><span class="n">FromConda</span><span class="p">(</span><span class="n">condaBinPath</span><span class="p">);</span><span class="w"> </span><span class="c1">// Uses `conda` at specified path</span>
 </span></code></pre></div>
-<h3 id="option-3-use-conda">Option 3: Use Conda</h3>
-<p>If you're using Conda environments:</p>
-<div class="language-csharp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">builder</span><span class="p">.</span><span class="n">Services</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="p">.</span><span class="n">WithPython</span><span class="p">()</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="p">.</span><span class="n">WithHome</span><span class="p">(</span><span class="n">home</span><span class="p">)</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="p">.</span><span class="n">FromConda</span><span class="p">(</span><span class="n">condaBinPath</span><span class="p">);</span><span class="w"> </span><span class="c1">// Uses `conda` at specified path</span>
-</span></code></pre></div>
+<h3 id="option-3-use-platform-specific-locators-for-system-python">Option 3: Use Platform Specific Locators for System Python</h3>
+<p>If you have Python installed on your system, there are platform specific locators.
+See <a href="../../advanced/additional-locators/">Additional Locators</a> for reference.</p>
 <h2 id="installing-the-nuget-package">Installing the NuGet Package</h2>
 <p>CSnakes is bundled into a single NuGet package: <a href="https://www.nuget.org/packages/CSnakes.Runtime/"><code>CSnakes.Runtime</code></a>.</p>
 <h3 id="using-package-manager-console">Using Package Manager Console</h3>
-<div class="language-powershell highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">Install-Package</span> <span class="n">CSnakes</span><span class="p">.</span><span class="n">Runtime</span>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">Install-Package</span> <span class="n">CSnakes</span><span class="p">.</span><span class="n">Runtime</span>
 </span></code></pre></div>
 <h3 id="using-net-cli">Using .NET CLI</h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>CSnakes.Runtime
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>CSnakes.Runtime
 </span></code></pre></div>
 <h3 id="using-packagereference">Using PackageReference</h3>
 <p>Add this to your <code>.csproj</code> file:</p>
-<div class="language-xml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;CSnakes.Runtime&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;1.*-*&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;CSnakes.Runtime&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;2.*-*&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
 </span></code></pre></div>
 <p>This package includes both the source generator and runtime libraries.</p>
 <h2 id="configuring-a-c-project">Configuring a C# Project</h2>
@@ -1650,8 +1692,8 @@
 </ol>
 <h3 id="requirements">Requirements</h3>
 <ul>
-<li>.NET 8 or 9</li>
-<li>Python 3.9-3.13</li>
+<li>.NET 8, 9, or 10</li>
+<li>Python 3.9-3.14</li>
 <li>Windows, macOS, or Linux</li>
 </ul>
 <h2 id="next-steps">Next Steps</h2>

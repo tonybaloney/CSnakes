@@ -19,6 +19,8 @@ internal interface IResultConversionCodeGenerator
 
 internal static class ResultConversionCodeGenerator
 {
+    private static readonly IResultConversionCodeGenerator None = ScalarConversionGenerator(ParseTypeName("PyObject"), "None");
+    private static readonly IResultConversionCodeGenerator Any = ScalarConversionGenerator(ParseTypeName("PyObject"), "Clone");
     private static readonly IResultConversionCodeGenerator Long = ScalarConversionGenerator(SyntaxKind.LongKeyword, "Int64");
     private static readonly IResultConversionCodeGenerator String = ScalarConversionGenerator(SyntaxKind.StringKeyword, "String");
     private static readonly IResultConversionCodeGenerator Boolean = ScalarConversionGenerator(SyntaxKind.BoolKeyword, "Boolean");
@@ -38,6 +40,8 @@ internal static class ResultConversionCodeGenerator
     {
         switch (pythonTypeSpec)
         {
+            case NoneType: return None;
+            case AnyType: return Any;
             case IntType: return Long;
             case StrType: return String;
             case FloatType: return Double;

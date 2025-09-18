@@ -266,7 +266,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_bytes_async;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = __result_pyObject.BareImportAs<ICoroutine<byte[], PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<byte[], PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.ByteArray, global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<PyObject>>>().AsTask(cancellationToken);
+                var __return = __result_pyObject.BareImportAs<ICoroutine<byte[], PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<byte[], PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.ByteArray, global::CSnakes.Runtime.Python.PyObjectImporters.None>>().AsTask(cancellationToken);
                 return __return;
             }
         }

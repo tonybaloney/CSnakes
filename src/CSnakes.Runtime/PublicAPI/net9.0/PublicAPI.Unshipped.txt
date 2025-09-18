@@ -1,6 +1,12 @@
 #nullable enable
 CSnakes.Runtime.Locators.RedistributablePythonVersion.<Clone>$() -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
 CSnakes.Runtime.Locators.RedistributablePythonVersion.Equals(CSnakes.Runtime.Locators.RedistributablePythonVersion? other) -> bool
+CSnakes.Runtime.IPythonEnvironmentBuilder.CapturePythonLogs() -> CSnakes.Runtime.IPythonEnvironmentBuilder!
+CSnakes.Runtime.PythonLogger
+CSnakes.Runtime.PythonEnvironmentOptions.CaptureLogs.get -> bool
+CSnakes.Runtime.PythonEnvironmentOptions.CaptureLogs.init -> void
+CSnakes.Runtime.PythonEnvironmentOptions.Deconstruct(out string! Home, out string![]! ExtraPaths, out bool InstallSignalHandlers, out bool CaptureLogs) -> void
+CSnakes.Runtime.PythonEnvironmentOptions.PythonEnvironmentOptions(string! Home, string![]! ExtraPaths, bool InstallSignalHandlers = true, bool CaptureLogs = false) -> void
 override CSnakes.Runtime.Locators.RedistributablePythonVersion.Equals(object? obj) -> bool
 override CSnakes.Runtime.Locators.RedistributablePythonVersion.GetHashCode() -> int
 override CSnakes.Runtime.Locators.RedistributablePythonVersion.ToString() -> string!
@@ -9,6 +15,7 @@ static CSnakes.Runtime.Locators.RedistributablePythonVersion.operator ==(CSnakes
 static CSnakes.Runtime.Python.PyObject.From(System.ReadOnlySpan<byte> value) -> CSnakes.Runtime.Python.PyObject!
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Optional<T, TImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<T, TImporter>
+static CSnakes.Runtime.PythonLogger.WithPythonLogging(this CSnakes.Runtime.IPythonEnvironment! env, Microsoft.Extensions.Logging.ILogger! logger, string? loggerName = null) -> System.IAsyncDisposable!
 CSnakes.Runtime.Python.KeywordArg
 CSnakes.Runtime.Python.KeywordArg.Deconstruct(out string! Name, out CSnakes.Runtime.Python.PyObject! Value) -> void
 CSnakes.Runtime.Python.KeywordArg.Equals(CSnakes.Runtime.Python.KeywordArg other) -> bool
@@ -22,6 +29,7 @@ CSnakes.Runtime.Python.PyObject.Call(params System.ReadOnlySpan<CSnakes.Runtime.
 CSnakes.Runtime.Python.PyObject.Call(System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> args, params System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> argv) -> CSnakes.Runtime.Python.PyObject!
 CSnakes.Runtime.Python.PyObject.Call(System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> args, System.ReadOnlySpan<CSnakes.Runtime.Python.KeywordArg> kwargs) -> CSnakes.Runtime.Python.PyObject!
 CSnakes.Runtime.Python.PyObject.Call(System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> args, System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> argv, System.ReadOnlySpan<CSnakes.Runtime.Python.KeywordArg> kwargs, System.ReadOnlySpan<CSnakes.Runtime.Python.KeywordArg> kwargv) -> CSnakes.Runtime.Python.PyObject!
+[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.None
 override CSnakes.Runtime.Python.KeywordArg.GetHashCode() -> int
 static CSnakes.Runtime.Python.KeywordArg.operator !=(CSnakes.Runtime.Python.KeywordArg left, CSnakes.Runtime.Python.KeywordArg right) -> bool
 static CSnakes.Runtime.Python.KeywordArg.operator ==(CSnakes.Runtime.Python.KeywordArg left, CSnakes.Runtime.Python.KeywordArg right) -> bool
@@ -41,3 +49,5 @@ static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_9 
 *REMOVED*CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_14 = 5 -> CSnakes.Runtime.Locators.RedistributablePythonVersion
 *REMOVED*CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_9 = 0 -> CSnakes.Runtime.Locators.RedistributablePythonVersion
 *REMOVED*static CSnakes.Runtime.ServiceCollectionExtensions.FromRedistributable(this CSnakes.Runtime.IPythonEnvironmentBuilder! builder, CSnakes.Runtime.Locators.RedistributablePythonVersion version, bool debug = false, bool freeThreaded = false, int timeout = 360) -> CSnakes.Runtime.IPythonEnvironmentBuilder!
+*REMOVED*CSnakes.Runtime.PythonEnvironmentOptions.Deconstruct(out string! Home, out string![]! ExtraPaths, out bool InstallSignalHandlers) -> void
+*REMOVED*CSnakes.Runtime.PythonEnvironmentOptions.PythonEnvironmentOptions(string! Home, string![]! ExtraPaths, bool InstallSignalHandlers = true) -> void

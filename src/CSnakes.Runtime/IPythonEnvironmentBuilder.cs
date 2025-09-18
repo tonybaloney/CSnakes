@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;
 
@@ -40,6 +41,13 @@ public interface IPythonEnvironmentBuilder
     /// </summary>
     /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
     IPythonEnvironmentBuilder DisableSignalHandlers();
+
+
+    /// <summary>
+    /// Capture Python logs and emit them to the <see cref="ILogger"/> API used in the environment
+    /// </summary>
+    /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
+    IPythonEnvironmentBuilder CapturePythonLogs();
 
     /// <summary>
     /// Gets the options for the Python environment being built.

@@ -206,6 +206,8 @@ public partial class PyObject : SafeHandle, ICloneable
     /// <returns>true if None, else false</returns>
     public virtual bool IsNone() => CPythonAPI.IsNone(this);
 
+    internal PyObject? NoneToNull() => IsNone() ? null : this;
+
     /// <summary>
     /// Are the objects the same instance, equivalent to the `is` operator in Python
     /// </summary>

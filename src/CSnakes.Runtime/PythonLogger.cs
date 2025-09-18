@@ -115,11 +115,11 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
                                                                                      PyObjectImporters.Tuple<long, string, ExceptionInfo?,
                                                                                                              PyObjectImporters.Int64,
                                                                                                              PyObjectImporters.String,
-                                                                                                             NoneValueImporter<ExceptionInfo,
-                                                                                                                               PyObjectImporters.Tuple<PyObject, PyObject, PyObject,
-                                                                                                                                                       PyObjectImporters.Runtime<PyObject>,
-                                                                                                                                                       PyObjectImporters.Runtime<PyObject>,
-                                                                                                                                                       PyObjectImporters.Runtime<PyObject>>>>,
+                                                                                                             PyObjectImporters.OptionalValue<ExceptionInfo,
+                                                                                                                                             PyObjectImporters.Tuple<PyObject, PyObject, PyObject,
+                                                                                                                                                                     PyObjectImporters.Runtime<PyObject>,
+                                                                                                                                                                     PyObjectImporters.Runtime<PyObject>,
+                                                                                                                                                                     PyObjectImporters.Runtime<PyObject>>>>,
                                                                                      PyObjectImporters.Runtime<PyObject>>>();
 
         return Task.Run(() =>
@@ -218,14 +218,4 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
         handler.Dispose();
         uninstallCSnakesHandler.Dispose();
     }
-}
-
-file sealed class NoneValueImporter<T, TImporter> : IPyObjectImporter<T?>
-    where T : struct
-    where TImporter : IPyObjectImporter<T>
-{
-    private NoneValueImporter() { }
-
-    static T? IPyObjectImporter<T?>.BareImport(PyObject obj) =>
-        !obj.IsNone() ? TImporter.BareImport(obj) : null;
 }

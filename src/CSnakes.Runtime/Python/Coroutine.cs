@@ -33,7 +33,7 @@ public class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(
         try
         {
             using (GIL.Acquire())
-                return this.current = TYieldImporter.BareImport(result);
+                return current = TYieldImporter.BareImport(result);
         }
         catch (PythonInvocationException ex)
         {
@@ -42,9 +42,8 @@ public class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(
                 using var @return = stopIteration.TakeValue();
                 this.@return = @return.ImportAs<TReturn, TReturnImporter>();
 
-                // Coroutine has finished
-                // TODO: define behavior for this case
-                return default;
+                // Coroutine has been issued stop iteration, not the same as an async function returning a value.
+                throw stopIteration;
             }
 
             throw;

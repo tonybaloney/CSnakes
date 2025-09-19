@@ -174,6 +174,8 @@ internal unsafe partial class CPythonAPI : IDisposable
             NewEventLoopFactory = PyObject.Create(CPythonAPI.GetAttr(AsyncioModule, "new_event_loop"));
             if (pythonExecutablePath is not null)
                 SetSysExecutable(pythonExecutablePath);
+            if (PythonPath is not null)
+                SetSysPaths(PythonPath);
         }
 
         return tstate;
@@ -208,6 +210,17 @@ internal unsafe partial class CPythonAPI : IDisposable
         using var sysModule = Import("sys");
         using var sysPath = PyObject.Create(AsPyUnicodeObject(executablePath));
         SetAttr(sysModule, "executable", sysPath);
+    }
+
+    protected void SetSysPaths(string path)
+    {
+        using var sysModule = Import("sys");
+        using var sysPath = PyObject.Create(AsPyUnicodeObject(path));
+        SetAttr(sysModule, "exec_prefix", sysPath);
+        SetAttr(sysModule, "base_exec_prefix", sysPath);
+        SetAttr(sysModule, "prefix", sysPath);
+        SetAttr(sysModule, "base_prefix", sysPath);
+        // if site.py finds that a virtual environment is in use, the values of prefix and exec_prefix will be changed to point to the virtual environment
     }
 
     protected void FinalizeEmbeddedPython(nint initializationTState)

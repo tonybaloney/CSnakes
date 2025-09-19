@@ -9,7 +9,6 @@ namespace Integration.Tests;
 /// <summary>
 /// Tests specific to Windows Arm64 platform verification
 /// </summary>
-[Collection(PythonEnvironmentCollection.Name)]
 public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]

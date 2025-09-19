@@ -16,4 +16,7 @@
       <Analyzer Remove="@(_CSnakes_Runtime_Analyzer)" />
     </ItemGroup>
   </Target>
+
+  <Import Project="CSnakes.SourceGeneration.targets" />
+
 </Project>

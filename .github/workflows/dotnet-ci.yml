@@ -96,8 +96,14 @@ jobs:
     needs: unit-test
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest, ubuntu-24.04-arm]
+        os: [windows-latest, windows-11-arm, ubuntu-latest, macos-latest, ubuntu-24.04-arm]
         python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        exclude:
+          # WoA doesn't support Python 3.9 and 3.10 according to the redistributable locator
+          - os: windows-11-arm
+            python: "3.9"
+          - os: windows-11-arm
+            python: "3.10"
       fail-fast: false
     runs-on: "${{ matrix.os }}"
 
@@ -107,6 +113,7 @@ jobs:
           submodules: 'true'
       - uses: conda-incubator/setup-miniconda@v3.1.0
         id: setup-conda
+        if: matrix.os != 'windows-11-arm'
         with:
           auto-update-conda: true
           python-version: "${{ matrix.python }}"
@@ -114,8 +121,10 @@ jobs:
           activate-environment: csnakes_test
           environment-file: src/Conda.Tests/python/environment.yml
       - name: cleanup conda-incubator/setup-miniconda
+        if: matrix.os != 'windows-11-arm'
         run: conda clean --all --yes
       - name: check conda export
+        if: matrix.os != 'windows-11-arm'
         run: |
           conda env export --name csnakes_test
           conda info
@@ -147,14 +156,14 @@ jobs:
         working-directory: src
 
       - name: Integration Tests
-        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog Integration.Tests
+        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog Integration.Tests ${{ matrix.os != 'windows-11-arm' && '--filter "FullyQualifiedName!~WindowsArm64Tests"' || '' }}
         working-directory: src
         env:
           PYTHON_VERSION: ${{ matrix.python }}
           UV_NO_CACHE: 1
 
       - name: Integration Tests (Free Threaded)
-        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog Integration.Tests
+        run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog Integration.Tests ${{ matrix.os != 'windows-11-arm' && '--filter "FullyQualifiedName!~WindowsArm64Tests"' || '' }}
         if: startsWith(matrix.python, '3.13') || startsWith(matrix.python, '3.14')
         working-directory: src
         env:
@@ -163,6 +172,7 @@ jobs:
           PYTHON_FREETHREADED: 1
 
       - name: Test Conda
+        if: matrix.os != 'windows-11-arm'
         run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog Conda.Tests
         working-directory: src
         env:

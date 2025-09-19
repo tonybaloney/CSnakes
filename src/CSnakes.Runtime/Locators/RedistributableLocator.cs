@@ -64,10 +64,10 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
         {
             throw new NotSupportedException($"Debug builds are not supported on macOS for version {Version}.");
         }
-        // No ARM64 builds for Python 3.9 or 3.10 on Windows
+        // No Arm64 builds for Python 3.9 or 3.10 on Windows
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && RuntimeInformation.ProcessArchitecture == Architecture.Arm64 && (Version.Major == 3 && Version.Minor < 11))
         {
-            throw new NotSupportedException($"ARM64 builds are not supported on Windows for version {Version}.");
+            throw new NotSupportedException($"Arm64 builds are not supported on Windows for version {Version}.");
         }
 
         var appDataPath = Environment.GetEnvironmentVariable("CSNAKES_REDIST_CACHE");

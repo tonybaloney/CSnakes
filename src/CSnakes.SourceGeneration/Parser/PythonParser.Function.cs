@@ -36,7 +36,6 @@ public static partial class PythonParser
     /// Checks if the line contains a "# csharp: ignore" comment.
     /// </summary>
     /// <param name="line">Line to check</param>
-    /// <returns></returns>
     static bool HasCSharpIgnoreComment(string line) =>
         line.Contains("# csharp: ignore");
 

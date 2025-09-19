@@ -51,3 +51,23 @@ static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_9 
 *REMOVED*static CSnakes.Runtime.ServiceCollectionExtensions.FromRedistributable(this CSnakes.Runtime.IPythonEnvironmentBuilder! builder, CSnakes.Runtime.Locators.RedistributablePythonVersion version, bool debug = false, bool freeThreaded = false, int timeout = 360) -> CSnakes.Runtime.IPythonEnvironmentBuilder!
 *REMOVED*CSnakes.Runtime.PythonEnvironmentOptions.Deconstruct(out string! Home, out string![]! ExtraPaths, out bool InstallSignalHandlers) -> void
 *REMOVED*CSnakes.Runtime.PythonEnvironmentOptions.PythonEnvironmentOptions(string! Home, string![]! ExtraPaths, bool InstallSignalHandlers = true) -> void
+*REMOVED*CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>
+*REMOVED*CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.AsTask(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TYield>!
+*REMOVED*CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Coroutine(CSnakes.Runtime.Python.PyObject! coroutine) -> void
+*REMOVED*CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Current.get -> TYield
+*REMOVED*CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Return.get -> TReturn
+*REMOVED*CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn>
+*REMOVED*CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn>.Coroutine(CSnakes.Runtime.Python.PyObject! coroutine) -> void
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Current.get -> TYield
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Dispose() -> void
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.GeneratorIterator(CSnakes.Runtime.Python.PyObject! generator) -> void
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.GetEnumerator() -> System.Collections.Generic.IEnumerator<TYield>!
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.MoveNext() -> bool
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Reset() -> void
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Return.get -> TReturn
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Send(TSend value) -> bool
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn>
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn>.GeneratorIterator(CSnakes.Runtime.Python.PyObject! coroutine) -> void
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Dispose(bool disposing) -> void
+*REMOVED*virtual CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Dispose(bool disposing) -> void

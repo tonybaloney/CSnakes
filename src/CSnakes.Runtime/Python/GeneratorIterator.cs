@@ -4,12 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 namespace CSnakes.Runtime.Python;
 
 [RequiresDynamicCode(DynamicCodeMessages.CallsMakeGenericType)]
-public sealed class GeneratorIterator<TYield, TSend, TReturn>(PyObject coroutine) :
+internal sealed class GeneratorIterator<TYield, TSend, TReturn>(PyObject coroutine) :
     GeneratorIterator<TYield, TSend, TReturn,
                       PyObjectImporters.Runtime<TYield>,
                       PyObjectImporters.Runtime<TReturn>>(coroutine);
 
-public class GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(PyObject generator) :
+internal class GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(PyObject generator) :
     IGeneratorIterator<TYield, TSend, TReturn>
     where TYieldImporter : IPyObjectImporter<TYield>
     where TReturnImporter : IPyObjectImporter<TReturn>

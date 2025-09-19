@@ -16,8 +16,16 @@ public class SysTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fi
     {
         var mod = Env.TestSys();
 
-        string execPrefix = mod.TestSysPrefix();
+        string execPrefix = mod.TestSysExecPrefix();
         Assert.False(string.IsNullOrEmpty(execPrefix));
         Assert.Equal(mod.TestSysBasePrefix(), execPrefix);
+    }
+
+    [Fact]
+    public void Test_SysPrefix()
+    {
+        var mod = Env.TestSys();
+        string prefix = mod.TestSysPrefix();
+        Assert.False(string.IsNullOrEmpty(prefix));
     }
 }

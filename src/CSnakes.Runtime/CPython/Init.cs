@@ -9,6 +9,7 @@ internal unsafe partial class CPythonAPI : IDisposable
 {
     private const string PythonLibraryName = "csnakes_python";
     public string PythonPath { get; internal set; } = string.Empty;
+    public string PythonPrefix { get; internal set; } = string.Empty;
 
     private static string? pythonLibraryPath = null;
     private static Version PythonVersion = new("0.0.0");
@@ -174,8 +175,8 @@ internal unsafe partial class CPythonAPI : IDisposable
             NewEventLoopFactory = PyObject.Create(CPythonAPI.GetAttr(AsyncioModule, "new_event_loop"));
             if (pythonExecutablePath is not null)
                 SetSysExecutable(pythonExecutablePath);
-            if (PythonPath is not null)
-                SetSysPaths(PythonPath);
+            if (!string.IsNullOrEmpty(PythonPrefix))
+                SetSysPaths(PythonPrefix);
         }
 
         return tstate;

@@ -10,4 +10,14 @@ public class SysTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(fi
         var sysExecutable = mod.TestSysExecutable();
         Assert.Equal(Env.ExecutablePath, sysExecutable);
     }
+
+    [Fact]
+    public void Test_ExecPrefixes()
+    {
+        var mod = Env.TestSys();
+
+        string execPrefix = mod.TestSysPrefix();
+        Assert.False(string.IsNullOrEmpty(execPrefix));
+        Assert.Equal(mod.TestSysBasePrefix(), execPrefix);
+    }
 }

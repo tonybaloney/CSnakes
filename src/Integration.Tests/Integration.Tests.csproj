@@ -36,6 +36,6 @@
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <Import Project="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.targets" />
+  <Import Project="..\CSnakes.SourceGeneration\NuGet\buildTransitive\net8.0\CSnakes.SourceGeneration.targets" />
 
 </Project>

@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="../nuget.config" />
+  </Folder>
+  <Project Path="AOTConsoleApp/AOTConsoleApp.csproj" />
+  <Project Path="ExamplePythonDependency/ExamplePythonDependency.csproj" />
+  <Project Path="FSharpSample/FSharpSample.fsproj" />
+  <Project Path="QuickConsoleTest/QuickConsoleTest.csproj" />
+  <Project Path="WebApp/WebApp.csproj" />
+</Solution>

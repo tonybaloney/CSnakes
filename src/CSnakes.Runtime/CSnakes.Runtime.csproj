@@ -35,12 +35,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Hosting" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" />
       <PackageReference Include="Microsoft.SourceLink.GitHub">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Numerics.Tensors" Condition="'$(TargetFramework)' == 'net9.0'" />
+    <PackageReference Include="System.Numerics.Tensors" Condition="'$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net10.0'  OR '$(TargetFramework)' == 'netstandard2.0'" />
     <PackageReference Include="ZstdSharp.Port" />
   </ItemGroup>
 

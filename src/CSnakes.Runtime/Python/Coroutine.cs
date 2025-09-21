@@ -44,7 +44,10 @@ internal class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter
 
                 // Coroutine has finished
                 // TODO: define behavior for this case
+                // Adding pragma, because there is TODO comment
+#pragma warning disable CS8603               
                 return default;
+#pragma warning restore CS8603               
             }
 
             throw;

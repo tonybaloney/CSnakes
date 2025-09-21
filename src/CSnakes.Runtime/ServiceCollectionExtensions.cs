@@ -187,7 +187,10 @@ public static partial class ServiceCollectionExtensions
     /// <param name="debug">Whether to use the debug version of Python.</param>
     /// <param name="timeout">Timeout in seconds for the download and installation process.</param>
     /// <returns></returns>
+// see line 212
+#pragma warning disable RS0026 // TODO Do not add multiple public overloads with optional parameters
     public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, bool debug = false, int timeout = 360)
+#pragma warning restore RS0026
     {
         builder.Services.AddSingleton<PythonLocator>(
             sp =>
@@ -233,7 +236,10 @@ public static partial class ServiceCollectionExtensions
     /// <param name="freeThreaded">Free Threaded Python (3.13+ only)</param>
     /// <param name="timeout">Timeout in seconds for the download and installation process.</param>
     /// <returns></returns>
+// see line 212
+#pragma warning disable RS0026 // TODO Do not add multiple public overloads with optional parameters
     public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, string version, bool debug = false, bool freeThreaded = false, int timeout = 360)
+#pragma warning restore RS0026
     {
         RedistributablePythonVersion versionEnum = version switch
         {

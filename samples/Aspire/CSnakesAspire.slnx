@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="../nuget.config" />
+  </Folder>
+  <Project Path="CSnakesAspire.ApiService/CSnakesAspire.ApiService.csproj" />
+  <Project Path="CSnakesAspire.AppHost/CSnakesAspire.AppHost.csproj" />
+  <Project Path="CSnakesAspire.ServiceDefaults/CSnakesAspire.ServiceDefaults.csproj" />
+  <Project Path="CSnakesAspire.Web/CSnakesAspire.Web.csproj" />
+</Solution>

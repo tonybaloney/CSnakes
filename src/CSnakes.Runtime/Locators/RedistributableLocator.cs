@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using System.Formats.Tar;
 using System.Runtime.InteropServices;
+using System.Threading;
 using ZstdSharp;
 
 namespace CSnakes.Runtime.Locators;
@@ -27,7 +28,15 @@ public sealed record RedistributablePythonVersion
 internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, RedistributablePythonVersion version, int installerTimeout = 360, bool debug = false, bool freeThreaded = false) : PythonLocator
 {
     private const string standaloneRelease = "20250902";
-    private const string MutexName = @"Global\CSnakesPythonInstall-1"; // run-time name includes Python version
+    
+    /// <summary>
+    /// Name of the completion marker file that indicates a Python installation has been successfully completed.
+    /// This file is created only after the entire installation process (download, extraction, validation) is complete.
+    /// The presence of this file, along with the installation directory, indicates that the Python runtime
+    /// is ready for use and prevents race conditions between multiple processes attempting to use the runtime
+    /// before installation is complete.
+    /// </summary>
+    private const string CompletionMarkerFileName = "installation_complete.marker";
 
     protected override Version Version => version.Version;
     protected bool SupportsFreeThreading => version.SupportsFreeThreading;
@@ -75,36 +84,48 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
             appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
         var downloadPath = Path.Join(appDataPath, "CSnakes", $"python{dottedVersion}");
         var installPath = Path.Join(downloadPath, "python", "install");
+        var completionMarkerPath = Path.Combine(installPath, CompletionMarkerFileName);
+        var mutexName = $"CSnakes_Python_{dottedVersion}_Installation";
 
-        using var mutex = new Mutex(initiallyOwned: false, $"{MutexName}-{dottedVersion}");
-
-        try
+        // Wait for any existing installation to complete using mutex-based locking
+        if (!WaitForInstallationMutex(mutexName, installerTimeout))
         {
-            if (!mutex.WaitOne(TimeSpan.FromSeconds(installerTimeout)))
-                throw new TimeoutException("Python installation timed out.");
-
-            if (Directory.Exists(installPath))
-                return LocatePythonInternal(installPath, freeThreaded);
+            throw new TimeoutException($"Python installation timed out after {installerTimeout} seconds waiting for installation mutex.");
         }
-        catch (AbandonedMutexException)
-        {
-            // If the mutex was abandoned, it most probably means that the other process crashed
-            // and didn't even get the chance to run any clean-up. Since the state of the
-            // download and installation is now unreliable, start by clearing up directories and
-            // then proceed with the installation here.
 
+        // Check if installation exists and is valid (this will validate essential files)
+        if (Directory.Exists(installPath) && File.Exists(completionMarkerPath))
+        {
             try
             {
-                Directory.Delete(downloadPath, recursive: true);
+                return LocatePythonInternal(installPath, freeThreaded);
             }
             catch (DirectoryNotFoundException)
             {
-                // If the directory didn't exist, ignore it and proceed.
+                // Installation is corrupted, remove completion marker and reinstall
+                logger?.LogWarning("Python installation at {InstallPath} is corrupted, removing completion marker and reinstalling", installPath);
+                try
+                {
+                    File.Delete(completionMarkerPath);
+                    if (Directory.Exists(downloadPath))
+                        DeleteDirectoryRobust(downloadPath, logger);
+                }
+                catch (Exception cleanupEx)
+                {
+                    logger?.LogWarning(cleanupEx, "Failed to clean up corrupted installation at {DownloadPath}", downloadPath);
+                }
+                // Fall through to reinstall
             }
         }
 
-        // Create the folder; the install path is only created at the end.
+        // Acquire installation mutex to indicate installation in progress
         Directory.CreateDirectory(downloadPath);
+        using var installationMutex = AcquireInstallationMutex(mutexName);
+        if (installationMutex == null)
+        {
+            throw new InvalidOperationException("Failed to acquire installation mutex. Another installation may be in progress.");
+        }
+        logger?.LogDebug("Acquired installation mutex {MutexName}", mutexName);
 
         try
         {
@@ -126,22 +147,56 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
             // Delete the tarball and temp file
             File.Delete(tarFilePath);
             File.Delete(tempFilePath);
+
+            // Validate installation before creating completion marker
+            logger?.LogDebug("Validating Python installation at {InstallPath}", installPath);
+            if (!ValidatePythonInstallation(installPath, freeThreaded))
+            {
+                logger?.LogError("Python installation validation failed at {InstallPath}. Essential files or modules are missing. Attempting to clean up and retry.", installPath);
+                
+                // Clean up the failed installation
+                try
+                {
+                    DeleteDirectoryRobust(downloadPath, logger);
+                    logger?.LogDebug("Cleaned up failed Python installation at {DownloadPath}", downloadPath);
+                }
+                catch (Exception cleanupEx)
+                {
+                    logger?.LogWarning(cleanupEx, "Failed to clean up corrupted installation at {DownloadPath}", downloadPath);
+                }
+                
+                throw new InvalidOperationException($"Python installation validation failed at {installPath}. Essential files or modules are missing. The installation has been cleaned up and will be retried on next attempt.");
+            }
+            
+            // Perform full LocatePythonInternal validation as well
+            var validationResult = LocatePythonInternal(installPath, freeThreaded);
+            logger?.LogDebug("Python installation validation successful");
+
+            // Only create completion marker after successful validation
+            File.WriteAllText(completionMarkerPath, $"Python {dottedVersion} installation completed at {DateTime.UtcNow:O}");
+            logger?.LogDebug("Created installation completion marker at {CompletionMarkerPath}", completionMarkerPath);
+            
+            return validationResult;
         }
         catch (Exception ex)
         {
             logger?.LogError(ex, "Failed to download and extract Python");
             // If the install failed somewhere, delete the folder incase it's half downloaded
-            if (Directory.Exists(installPath))
+            if (Directory.Exists(downloadPath))
             {
-                Directory.Delete(installPath, true);
+                try
+                {
+                    DeleteDirectoryRobust(downloadPath, logger);
+                }
+                catch (Exception cleanupEx)
+                {
+                    logger?.LogWarning(cleanupEx, "Failed to clean up installation directory {DownloadPath}. This may leave temporary files.", downloadPath);
+                }
             }
 
             throw;
         }
-
-        mutex.ReleaseMutex(); // Everything supposedly went well so release mutex
-
-        return LocatePythonInternal(installPath, freeThreaded);
+        // Mutex is automatically released when disposed at end of using block
     }
 
     internal static string GetDownloadUrl(OSPlatform platform, Architecture architecture, bool freeThreaded, bool debug, RedistributablePythonVersion version)
@@ -287,6 +342,319 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
             {
                 // This is common in the packages
                 logger?.LogWarning(ex, "Failed to create symlink: {Path} -> {Link}", path, link);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Validates that a Python installation is complete and functional by checking essential files
+    /// </summary>
+    /// <param name="installPath">Path to the Python installation</param>
+    /// <param name="freeThreaded">Whether this is a free-threaded installation</param>
+    /// <returns>True if the installation appears complete and functional</returns>
+    private bool ValidatePythonInstallation(string installPath, bool freeThreaded)
+    {
+        try
+        {
+            // Check that essential executables exist
+            var pythonExecutablePath = GetPythonExecutablePath(installPath, freeThreaded);
+            if (!File.Exists(pythonExecutablePath))
+            {
+                logger?.LogDebug("Python executable missing at {PythonExecutablePath}", pythonExecutablePath);
+                return false;
+            }
+
+            // Check that essential library exists
+            var libPythonPath = GetLibPythonPath(installPath, freeThreaded);
+            if (!File.Exists(libPythonPath))
+            {
+                logger?.LogDebug("Python library missing at {LibPythonPath}", libPythonPath);
+                return false;
+            }
+
+            // Check that essential Python standard library modules exist
+            var libPath = Path.Combine(installPath, "lib", $"python{Version.Major}.{Version.Minor}{(freeThreaded ? "t" : "")}");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                libPath = Path.Combine(installPath, "Lib");
+            }
+
+            if (!Directory.Exists(libPath))
+            {
+                logger?.LogDebug("Python standard library directory missing at {LibPath}", libPath);
+                return false;
+            }
+
+            // Check for some essential standard library modules that should always be present as files
+            // Note: Built-in modules like 'sys', 'io' are compiled into the interpreter and won't exist as .py files
+            string[] essentialModules = ["collections", "os", "re", "json", "functools"];
+            var missingModules = new List<string>();
+            
+            foreach (var module in essentialModules)
+            {
+                var modulePath = Path.Combine(libPath, $"{module}.py");
+                var modulePackagePath = Path.Combine(libPath, module, "__init__.py");
+                
+                if (!File.Exists(modulePath) && !File.Exists(modulePackagePath))
+                {
+                    missingModules.Add(module);
+                }
+            }
+            
+            if (missingModules.Count > 0)
+            {
+                logger?.LogDebug("Essential Python modules missing from standard library at {LibPath}: {MissingModules}", libPath, string.Join(", ", missingModules));
+                return false;
+            }
+
+            logger?.LogDebug("Python installation validation passed for {InstallPath}", installPath);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger?.LogDebug(ex, "Exception during Python installation validation for {InstallPath}", installPath);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Waits for any existing installation mutex to be available, with timeout handling.
+    /// This method implements mutex-based locking to prevent concurrent installations.
+    /// </summary>
+    /// <param name="mutexName">Name of the installation mutex</param>
+    /// <param name="timeoutSeconds">Timeout in seconds to wait for the mutex</param>
+    /// <returns>True if mutex is available, false if timeout occurred</returns>
+    private bool WaitForInstallationMutex(string mutexName, int timeoutSeconds)
+    {
+        try
+        {
+            // Try to open existing mutex to check if installation is in progress
+            using var existingMutex = Mutex.OpenExisting(mutexName);
+            logger?.LogDebug("Installation mutex {MutexName} exists, waiting for it to be released", mutexName);
+            
+            // Wait for the mutex to be released
+            var timeoutMs = timeoutSeconds * 1000;
+            bool acquired = existingMutex.WaitOne(timeoutMs);
+            
+            if (acquired)
+            {
+                // Release immediately since we just wanted to wait for it
+                existingMutex.ReleaseMutex();
+                logger?.LogDebug("Installation mutex {MutexName} was released", mutexName);
+                return true;
+            }
+            else
+            {
+                logger?.LogError("Timed out waiting for installation mutex {MutexName} after {TimeoutSeconds} seconds", mutexName, timeoutSeconds);
+                return false;
+            }
+        }
+        catch (WaitHandleCannotBeOpenedException)
+        {
+            // Mutex doesn't exist, so no installation is in progress
+            logger?.LogDebug("No installation mutex {MutexName} found, proceeding with installation", mutexName);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger?.LogWarning(ex, "Error while checking installation mutex {MutexName}", mutexName);
+            return true; // Proceed if we can't determine the state
+        }
+    }
+
+    /// <summary>
+    /// Acquires an installation mutex to prevent concurrent installations.
+    /// </summary>
+    /// <param name="mutexName">Name of the installation mutex</param>
+    /// <returns>The acquired mutex, or null if it couldn't be acquired</returns>
+    private Mutex? AcquireInstallationMutex(string mutexName)
+    {
+        try
+        {
+            var mutex = new Mutex(true, mutexName, out bool createdNew);
+            
+            if (createdNew)
+            {
+                logger?.LogDebug("Created new installation mutex {MutexName}", mutexName);
+                return mutex;
+            }
+            else
+            {
+                // Another process created it first, but we might still be able to acquire it
+                bool acquired = mutex.WaitOne(0); // Don't wait, just try immediately
+                if (acquired)
+                {
+                    logger?.LogDebug("Acquired existing installation mutex {MutexName}", mutexName);
+                    return mutex;
+                }
+                else
+                {
+                    logger?.LogDebug("Could not acquire installation mutex {MutexName}, another installation is in progress", mutexName);
+                    mutex.Dispose();
+                    return null;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger?.LogWarning(ex, "Failed to acquire installation mutex {MutexName}", mutexName);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Validates that the Python installation is complete by checking for the presence of the completion marker file.
+    /// This override ensures that redistributable Python installations are not used until they are fully installed
+    /// and validated, preventing issues with partially completed or corrupted installations.
+    /// For legacy installations without a completion marker, validates the installation by checking for essential files.
+    /// </summary>
+    /// <param name="folder">The folder path to the Python installation</param>
+    /// <param name="freeThreaded">Whether to locate the free-threaded version</param>
+    /// <returns>Python location metadata if the installation is complete</returns>
+    /// <exception cref="DirectoryNotFoundException">Thrown when the installation is incomplete or corrupted</exception>
+    protected override PythonLocationMetadata LocatePythonInternal(string folder, bool freeThreaded = false)
+    {
+        var completionMarkerPath = Path.Combine(folder, CompletionMarkerFileName);
+        
+        if (!File.Exists(completionMarkerPath))
+        {
+            // For legacy installations without completion marker, validate by checking essential files
+            logger?.LogDebug("Completion marker not found at {CompletionMarkerPath}, validating legacy installation", completionMarkerPath);
+            
+            var pythonExecutablePath = GetPythonExecutablePath(folder, freeThreaded);
+            var libPythonPath = GetLibPythonPath(folder, freeThreaded);
+            
+            if (!File.Exists(pythonExecutablePath))
+            {
+                throw new DirectoryNotFoundException($"Python installation in '{folder}' is incomplete - Python executable not found at '{pythonExecutablePath}'. The installation may have been interrupted or corrupted.");
+            }
+            
+            if (!File.Exists(libPythonPath))
+            {
+                throw new DirectoryNotFoundException($"Python installation in '{folder}' is incomplete - Python library not found at '{libPythonPath}'. The installation may have been interrupted or corrupted.");
+            }
+            
+            // Legacy installation appears complete, create completion marker for future use
+            try
+            {
+                File.Create(completionMarkerPath).Dispose();
+                logger?.LogDebug("Created completion marker for legacy installation at {CompletionMarkerPath}", completionMarkerPath);
+            }
+            catch (Exception ex)
+            {
+                // Don't fail if we can't create the marker - the installation is still usable
+                logger?.LogWarning(ex, "Could not create completion marker for legacy installation at {CompletionMarkerPath}", completionMarkerPath);
+            }
+        }
+        else
+        {
+            // Even with completion marker, validate that installation is still complete and functional
+            logger?.LogDebug("Completion marker found at {CompletionMarkerPath}, validating installation integrity", completionMarkerPath);
+            
+            if (!ValidatePythonInstallation(folder, freeThreaded))
+            {
+                logger?.LogWarning("Python installation marked as complete but validation failed at {Folder}, removing marker and requiring reinstall", folder);
+                try
+                {
+                    File.Delete(completionMarkerPath);
+                }
+                catch (Exception ex)
+                {
+                    logger?.LogWarning(ex, "Failed to remove invalid completion marker at {CompletionMarkerPath}", completionMarkerPath);
+                }
+                throw new DirectoryNotFoundException($"Python installation in '{folder}' is incomplete or corrupted. Essential files or modules are missing. The installation will be reinstalled on next use.");
+            }
+        }
+
+        return base.LocatePythonInternal(folder, freeThreaded);
+    }
+
+    /// <summary>
+    /// Robustly deletes a directory and all its contents, including handling broken symlinks
+    /// that can cause standard Directory.Delete to fail.
+    /// </summary>
+    /// <param name="directoryPath">The directory path to delete</param>
+    /// <param name="logger">Optional logger for debug information</param>
+    private static void DeleteDirectoryRobust(string directoryPath, ILogger? logger)
+    {
+        if (!Directory.Exists(directoryPath))
+        {
+            return;
+        }
+
+        try
+        {
+            // First try the standard deletion
+            Directory.Delete(directoryPath, recursive: true);
+            return;
+        }
+        catch (Exception ex)
+        {
+            logger?.LogDebug(ex, "Standard directory deletion failed for {DirectoryPath}, attempting robust cleanup", directoryPath);
+        }
+
+        // If standard deletion fails, manually handle the cleanup
+        try
+        {
+            DeleteDirectoryContentsRobust(directoryPath, logger);
+            Directory.Delete(directoryPath, false);
+        }
+        catch (Exception ex)
+        {
+            logger?.LogWarning(ex, "Failed to robustly delete directory {DirectoryPath}", directoryPath);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Recursively deletes directory contents, handling broken symlinks and other edge cases.
+    /// </summary>
+    private static void DeleteDirectoryContentsRobust(string directoryPath, ILogger? logger)
+    {
+        var directoryInfo = new DirectoryInfo(directoryPath);
+        
+        foreach (var file in directoryInfo.GetFiles())
+        {
+            try
+            {
+                // Remove read-only attributes if present
+                file.Attributes = FileAttributes.Normal;
+                file.Delete();
+            }
+            catch (Exception ex)
+            {
+                logger?.LogDebug(ex, "Failed to delete file {FilePath}", file.FullName);
+                // For symlinks or other special files, try force deletion
+                try
+                {
+                    File.Delete(file.FullName);
+                }
+                catch (Exception innerEx)
+                {
+                    logger?.LogDebug(innerEx, "Failed to force delete file {FilePath}", file.FullName);
+                }
+            }
+        }
+
+        foreach (var subDir in directoryInfo.GetDirectories())
+        {
+            try
+            {
+                DeleteDirectoryContentsRobust(subDir.FullName, logger);
+                subDir.Delete(false);
+            }
+            catch (Exception ex)
+            {
+                logger?.LogDebug(ex, "Failed to delete subdirectory {SubDirPath}", subDir.FullName);
+                // Try to force delete empty directory
+                try
+                {
+                    Directory.Delete(subDir.FullName, false);
+                }
+                catch (Exception innerEx)
+                {
+                    logger?.LogDebug(innerEx, "Failed to force delete subdirectory {SubDirPath}", subDir.FullName);
+                }
             }
         }
     }

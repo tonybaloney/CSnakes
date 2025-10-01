@@ -63,6 +63,32 @@ public class GeneratedSignatureTests
     [InlineData("def hello(a: str, b: int = 4, *, kw: str) -> None:\n ...\n", "void Hello(string a, string kw, long b = 4)")]
     [InlineData("def hello() -> str | int: \n  ...\n", "PyObject Hello()")]
     [InlineData("def escape(s: str, quote: bool = True) -> str: ...\n", "string Escape(string s, bool quote = true)")]
+    [InlineData("""
+        
+        # csharp: ignore
+        def foo(bar):
+            pass
+        
+        """, "PyObject Foo(PyObject bar)",
+        Label = "C# ignore comment on line above")]
+    [InlineData("""
+        
+        def foo(
+            bar  # csharp: ignore
+        ):
+            pass
+        
+        """,
+        "PyObject Foo(PyObject bar)",
+        Label = "C# ignore comment in parameter list")]
+    [InlineData("""
+        
+        def foo(bar):
+            # csharp: ignore
+            pass
+        
+        """, "PyObject Foo(PyObject bar)",
+        Label = "C# ignore comment inside function body")]
     public void TestGeneratedSignature(string code, string expected)
     {
         SourceText sourceText = SourceText.From(code);
@@ -225,5 +251,44 @@ public class GeneratedSignatureTests
         Assert.Empty(errors1);
         var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
         Assert.Single(module1);
+    }
+
+    [Theory]
+    [InlineData("""
+        
+                def foo(  # csharp: ignore
+                        bar,
+                        baz,
+                    ):
+                    pass
+        
+        """,
+        Label = "C# ignore comment - Multi lined function definition")]
+    [InlineData("""
+        
+                def hello(): # csharp: ignore ...
+        
+        """,
+        Label = "C# ignore comment - Single line function definition")]
+    [InlineData("""
+        
+                def foo():  # type: ignore # csharp: ignore
+                    pass
+        
+        """,
+        Label = "C# ignore comment - Embedded within a comment after")]
+    [InlineData("""
+        
+                def bar():  # csharp: ignore # type: ignore
+                    pass
+        
+        """,
+        Label = "C# ignore comment - Embedded within a comment before")]
+    public void TestCSharpIgnoreCommentFunction(string code)
+    {
+        SourceText sourceText = SourceText.From(code);
+        Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors));
+        Assert.Empty(errors);
+        Assert.Empty(functions);
     }
 }

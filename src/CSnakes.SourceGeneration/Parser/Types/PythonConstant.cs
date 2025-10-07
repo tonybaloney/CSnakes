@@ -1,4 +1,5 @@
 using System.Globalization;
+using static CSnakes.Parser.Types.PythonConstant.String;
 
 namespace CSnakes.Parser.Types;
 
@@ -12,7 +13,7 @@ public abstract class PythonConstant
         public override string ToString() => Value.ToString();
     }
 
-    public sealed class HexidecimalInteger(long value) : Integer(value)
+    public sealed class HexadecimalInteger(long value) : Integer(value)
     {
         public override string ToString() => $"0x{Value:X}";
     }
@@ -31,6 +32,20 @@ public abstract class PythonConstant
     public sealed class String(string value) : PythonConstant
     {
         public string Value { get; } = value;
+        public override string ToString() => Value;
+    }
+
+    public sealed class ByteString : PythonConstant
+    {
+        private readonly string value;
+        public ByteString(string value)
+        {
+            // Check value doesn't contain any non-ASCII characters
+            if (value.Any(c => c > 127))
+                throw new ArgumentException("Byte strings must contain only ASCII characters.", nameof(value));
+            this.value = value;
+        }
+        public string Value => value;
         public override string ToString() => Value;
     }
 
@@ -53,5 +68,12 @@ public abstract class PythonConstant
         private None() { }
 
         public override string ToString() => "None";
+    }
+
+    public sealed class Ellipsis : PythonConstant
+    {
+        public static readonly Ellipsis Value = new();
+        private Ellipsis() { }
+        public override string ToString() => "...";
     }
 }

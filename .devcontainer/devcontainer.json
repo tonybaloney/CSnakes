@@ -3,7 +3,7 @@
 {
 	"name": "CSnakes",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0-bookworm",
+	"image": "mcr.microsoft.com/devcontainers/dotnet:1-9.0-bookworm",
 	"features": {
 		"ghcr.io/devcontainers/features/python:1": {
 			"installTools": true,
@@ -33,7 +33,7 @@
 	// }
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "cd src/ && dotnet restore",
+	"postCreateCommand": "git submodule update --init --recursive && cd src/ && dotnet restore",
 
 	// Configure tool-specific properties.
 	// "customizations": {},
@@ -41,6 +41,6 @@
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	"remoteUser": "root",
 	"remoteEnv": {
-		"Python3_ROOT_DIR": "/usr/local/python/current",
+		"Python3_ROOT_DIR": "/usr/local/python/current"
 	}
 }

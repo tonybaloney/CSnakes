@@ -12,15 +12,12 @@
 
   <ItemGroup>
     <None Include="NuGet\buildTransitive\**\*" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="buildTransitive\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="..\CSnakes.SourceGeneration\NuGet\buildTransitive\**\*" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="buildTransitive\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <Target Name="_PackSourceGeneratorOutputs" BeforeTargets="_GetPackageFiles">
     <!-- Find out the source generator and its dependencies locations -->
-    <MSBuild Projects="@(ProjectReference)"
-             Targets="GetTargetPath"
-             BuildInParallel="true"
-             Properties="TargetFramework=netstandard2.0"
-             Condition="$([System.String]::Copy('%(Identity)').Contains('CSnakes.SourceGeneration'))">
+    <MSBuild Projects="@(ProjectReference)" Targets="GetTargetPath" BuildInParallel="true" Properties="TargetFramework=netstandard2.0" Condition="$([System.String]::Copy('%(Identity)').Contains('CSnakes.SourceGeneration'))">
       <Output TaskParameter="TargetOutputs" ItemName="DependentAssemblies" />
     </MSBuild>
 

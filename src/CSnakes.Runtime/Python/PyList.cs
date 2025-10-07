@@ -1,8 +1,10 @@
 using CSnakes.Runtime.CPython;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime.Python;
 
+[RequiresDynamicCode(DynamicCodeMessages.CallsMakeGenericType)]
 internal sealed class PyList<T>(PyObject listObject) :
     PyList<T, PyObjectImporters.Runtime<T>>(listObject);
 

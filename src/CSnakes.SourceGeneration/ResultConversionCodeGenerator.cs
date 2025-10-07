@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using TupleType = CSnakes.Parser.Types.TupleType;
 
 namespace CSnakes.SourceGeneration;
 
@@ -18,6 +19,8 @@ internal interface IResultConversionCodeGenerator
 
 internal static class ResultConversionCodeGenerator
 {
+    private static readonly IResultConversionCodeGenerator None = ScalarConversionGenerator(ParseTypeName("PyObject"), "None");
+    private static readonly IResultConversionCodeGenerator Any = ScalarConversionGenerator(ParseTypeName("PyObject"), "Clone");
     private static readonly IResultConversionCodeGenerator Long = ScalarConversionGenerator(SyntaxKind.LongKeyword, "Int64");
     private static readonly IResultConversionCodeGenerator String = ScalarConversionGenerator(SyntaxKind.StringKeyword, "String");
     private static readonly IResultConversionCodeGenerator Boolean = ScalarConversionGenerator(SyntaxKind.BoolKeyword, "Boolean");
@@ -37,42 +40,52 @@ internal static class ResultConversionCodeGenerator
     {
         switch (pythonTypeSpec)
         {
-            case { Name: "int" }: return Long;
-            case { Name: "str" }: return String;
-            case { Name: "float" }: return Double;
-            case { Name: "bool" }: return Boolean;
-            case { Name: "bytes" }: return ByteArray;
-            case { Name: "Buffer" or "collections.abc.Buffer" }: return Buffer;
+            case NoneType: return None;
+            case AnyType: return Any;
+            case IntType: return Long;
+            case StrType: return String;
+            case FloatType: return Double;
+            case BoolType: return Boolean;
+            case BytesType: return ByteArray;
+            case BufferType: return Buffer;
 
-            case { Name: "list" or "typing.List" or "List", Arguments: [var t] }:
+            case OptionalType { Of: var t and (IntType or FloatType or BoolType or TupleType) }:
+            {
+                return OptionalConversionGenerator(t, "OptionalValue");
+            }
+            case OptionalType { Of: var t }:
+            {
+                return OptionalConversionGenerator(t);
+            }
+            case ListType { Of: var t }:
             {
                 return ListConversionGenerator(t);
             }
-            case { Name: "typing.Sequence" or "Sequence", Arguments: [var t] }:
+            case SequenceType { Of: var t }:
             {
                 return ListConversionGenerator(t, "Sequence");
             }
-            case { Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: [var t] }:
+            case TupleType { Parameters: [var t] }:
             {
                 var generator = Create(t);
                 return new ConversionGenerator(TypeReflection.CreateGenericType("ValueTuple", [generator.TypeSyntax]),
                                                TypeReflection.CreateGenericType("Tuple", [generator.TypeSyntax, generator.ImporterTypeSyntax]));
             }
-            case { Name: "tuple" or "typing.Tuple" or "Tuple", Arguments: { Length: > 1 and <= 10 } ts }:
+            case TupleType { Parameters: { Length: > 1 and <= 10 } ts }:
             {
                 var generators = ImmutableArray.CreateRange(from t in ts select Create(t));
                 return new ConversionGenerator(TupleType(SeparatedList(from item in generators select TupleElement(item.TypeSyntax))),
                                                TypeReflection.CreateGenericType("Tuple", [.. from item in generators select item.TypeSyntax, .. from item in generators select item.ImporterTypeSyntax]));
             }
-            case { Name: "dict" or "typing.Dict" or "Dict", Arguments: [var kt, var vt] }:
+            case DictType { Key: var kt, Value: var vt }:
             {
                 return DictionaryConversionGenerator(kt, vt, "Dictionary");
             }
-            case { Name: "typing.Mapping" or "Mapping", Arguments: [var kt, var vt] }:
+            case MappingType { Key: var kt, Value: var vt }:
             {
                 return DictionaryConversionGenerator(kt, vt, "Mapping");
             }
-            case { Name: "typing.Generator" or "Generator", Arguments: [var yt, var st, var rt] }:
+            case GeneratorType { Yield: var yt, Send: var st, Return: var rt }:
             {
                 var generator = (Yield: Create(yt), Send: Create(st), Return: Create(rt));
                 return new ConversionGenerator(TypeReflection.CreateGenericType("IGeneratorIterator",
@@ -90,13 +103,13 @@ internal static class ResultConversionCodeGenerator
                                                    generator.Return.ImporterTypeSyntax
                                                ]));
             }
-            case { Name: "typing.Coroutine" or "Coroutine", Arguments: [var yt, var st, var rt] }:
+            case CoroutineType { Yield: var yt, Send: var st, Return: var rt }:
             {
                 return new CoroutineConversionGenerator(yt, st, rt);
             }
             case var other:
             {
-                var typeSyntax = TypeReflection.AsPredefinedType(other, TypeReflection.ConversionDirection.FromPython);
+                var typeSyntax = TypeReflection.AsPredefinedType(other, TypeReflection.ConversionDirection.FromPython).First(); // TODO: Investigate union
                 return new ConversionGenerator(typeSyntax, TypeReflection.CreateGenericType("Runtime", [typeSyntax]));
             }
         }
@@ -121,6 +134,13 @@ internal static class ResultConversionCodeGenerator
 
     public static IResultConversionCodeGenerator ScalarConversionGenerator(TypeSyntax syntax, string importerTypeName) =>
         new ConversionGenerator(syntax, IdentifierName(importerTypeName));
+
+    public static IResultConversionCodeGenerator OptionalConversionGenerator(PythonTypeSpec ofTypeSpec, string importerTypeName = "Optional")
+    {
+        var generator = Create(ofTypeSpec);
+        return new ConversionGenerator(NullableType(generator.TypeSyntax),
+                                       TypeReflection.CreateGenericType(importerTypeName, [generator.TypeSyntax, generator.ImporterTypeSyntax]));
+    }
 
     public static IResultConversionCodeGenerator ListConversionGenerator(PythonTypeSpec itemTypeSpec, string importerTypeName = "List")
     {

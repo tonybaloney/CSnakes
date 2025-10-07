@@ -181,7 +181,7 @@ public static partial class ServiceCollectionExtensions
 
     /// <summary>
     /// Simplest option for getting started with CSnakes.
-    /// Downloads and installs the redistributable version of Python 3.12 from GitHub and stores it in %APP_DATA%/csnakes.
+    /// Downloads and installs the redistributable version of Python 3.12 from GitHub and stores it in %APPDATA%/csnakes.
     /// </summary>
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
     /// <param name="debug">Whether to use the debug version of Python.</param>
@@ -201,7 +201,7 @@ public static partial class ServiceCollectionExtensions
 
     /// <summary>
     /// Simplest option for getting started with CSnakes.
-    /// Downloads and installs the redistributable version of Python from GitHub and stores it in %APP_DATA%/csnakes.
+    /// Downloads and installs the redistributable version of Python from GitHub and stores it in %APPDATA%/csnakes.
     /// </summary>
     /// <param name="builder">The <see cref="IPythonEnvironmentBuilder"/> to add the locator to.</param>
     /// <param name="version">The version of the redistributable Python to use.</param>
@@ -209,7 +209,9 @@ public static partial class ServiceCollectionExtensions
     /// <param name="freeThreaded">Free Threaded Python (3.13+ only)</param>
     /// <param name="timeout">Timeout in seconds for the download and installation process.</param>
     /// <returns></returns>
+#pragma warning disable RS0026 // TODO Do not add multiple public overloads with optional parameters
     public static IPythonEnvironmentBuilder FromRedistributable(this IPythonEnvironmentBuilder builder, RedistributablePythonVersion version, bool debug = false, bool freeThreaded = false, int timeout = 360)
+#pragma warning restore RS0026
     {
         builder.Services.AddSingleton<PythonLocator>(
             sp =>

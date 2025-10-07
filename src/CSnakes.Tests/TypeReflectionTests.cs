@@ -89,8 +89,45 @@ public class TypeReflectionTests
         var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
         Assert.True(result.HasValue, result.ToString());
         Assert.NotNull(result.Value);
-        var reflectedType = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.FromPython);
+        var reflectedType = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.FromPython).First();
         Assert.Equal(expectedType, reflectedType.ToString());
+    }
+
+    [Theory]
+    [InlineData("int | str", "long", "string")]
+    [InlineData("int | str | bool", "long", "string", "bool")]
+    public void UnionParsingTest(string pythonType, params string[] expectedTypes)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
+        Assert.True(result.HasValue, result.ToString());
+        Assert.NotNull(result.Value);
+        Assert.Equal("Union", result.Value.Name);
+        var reflectedTypes = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.ToPython);
+
+        Assert.Equal(expectedTypes.Length, reflectedTypes.Count());
+        for (int i = 0; i < expectedTypes.Length; i++)
+        {
+            Assert.Equal(expectedTypes[i], reflectedTypes.ElementAt(i).ToString());
+        }
+    }
+
+    [Theory]
+    [InlineData("int")]
+    [InlineData("str | None")]
+    [InlineData("Foo | None")]
+    [InlineData("int | str | None")]
+    [InlineData("AnyStr")]
+    [InlineData("AnyStr | None")]
+    [InlineData("tuple[str] | None")]
+    public void UnionParsingTestFromPythonAlwaysSingle(string pythonType)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
+        Assert.True(result.HasValue, result.ToString());
+        Assert.NotNull(result.Value);
+        var reflectedTypes = TypeReflection.AsPredefinedType(result.Value, TypeReflection.ConversionDirection.FromPython);
+        Assert.Single(reflectedTypes);
     }
 
     [Theory]
@@ -120,23 +157,68 @@ public class TypeReflectionTests
         var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
         Assert.True(result.Remainder.IsAtEnd);
         Assert.True(result.HasValue, result.ToString());
-        Assert.NotNull(result.Value);
-        Assert.Equal("Optional",result.Value.Name);
-        var arg = Assert.Single(result.Value.Arguments);
-        Assert.Equal("int", arg.Name);
-        Assert.Empty(arg.Arguments);
+        var optional = Assert.IsType<OptionalType>(result.Value);
+        Assert.IsType<IntType>(optional.Of);
     }
 
     [Theory]
-    [InlineData("None | None")]
-    [InlineData("string | int | None")]
-    public void InvalidNoneUnionCombinationTest(string pythonType)
+    // Single type in Union collapses to the type itself
+    [InlineData("Union[int]", "int")]
+    // Duplicate types in Union are deduplicated
+    [InlineData("Union[int, int]", "int")]
+    // Two distinct types in Union
+    [InlineData("Union[int, str]", "Union[int, str]")]
+    // Three distinct types in Union
+    [InlineData("Union[int, str, bool]", "Union[int, str, bool]")]
+    // Nested Union is flattened
+    [InlineData("Union[Union[int, str], bool]", "Union[int, str, bool]")]
+    [InlineData("Union[int, Union[str, bool]]", "Union[int, str, bool]")]
+    [InlineData("Union[Union[int, str, bool]]", "Union[int, str, bool]")]
+    [InlineData("Union[Union[int, Union[str, bool]]]", "Union[int, str, bool]")]
+    [InlineData("Union[Union[int], Union[str], Union[bool]]", "Union[int, str, bool]")]
+    // Union with None becomes Optional
+    [InlineData("Union[None, int]", "Optional[int]")]
+    [InlineData("Union[int, None]", "Optional[int]")]
+    [InlineData("Union[None, int, int]", "Optional[int]")]
+    [InlineData("Union[None, int, None]", "Optional[int]")]
+    [InlineData("Union[None, Optional[int]]", "Optional[int]")]
+    [InlineData("Union[Optional[int], None]", "Optional[int]")]
+    // Union with None and other non-None types (does not become Optional)
+    [InlineData("Union[None, int, str]", "Union[NoneType, int, str]")]
+    // Large Union with duplicates and None
+    [InlineData("Union[None, bool, int, float, str, object, bytes, bytearray, int, int]", "Union[NoneType, bool, int, float, str, object, bytes, bytearray]")]
+    // Pipe syntax...
+    // Duplicates are deduplicated
+    [InlineData("int | int", "int")]
+    // Two distinct types
+    [InlineData("int | str", "Union[int, str]")]
+    // Three distinct types
+    [InlineData("int | str | bool", "Union[int, str, bool]")]
+    // Mixed with Union
+    [InlineData("Union[int, str] | bool", "Union[int, str, bool]")]
+    [InlineData("int | Union[str, bool]", "Union[int, str, bool]")]
+    // Multiple Unions get collapsed
+    [InlineData("Union[int] | Union[str] | Union[bool]", "Union[int, str, bool]")]
+    // None and type (expressed in various ways) becomes Optional
+    [InlineData("None | int", "Optional[int]")]
+    [InlineData("int | None", "Optional[int]")]
+    [InlineData("None | int | int", "Optional[int]")]
+    [InlineData("None | int | None", "Optional[int]")]
+    [InlineData("None | Optional[int]", "Optional[int]")]
+    [InlineData("Optional[int] | None", "Optional[int]")]
+    // None, type, and another type (does not become Optional)
+    [InlineData("None | int | str", "Union[NoneType, int, str]")]
+    // Large union with duplicates and None
+    [InlineData("None | bool | int | float | str | object | bytes | bytearray | int | int", "Union[NoneType, bool, int, float, str, object, bytes, bytearray]")]
+    // Union with pipe syntax inside is still a Union
+    [InlineData("Union[int | str | bool]", "Union[int, str, bool]")]
+    public void UnionNormalizationTest(string input, string expected)
     {
-        var tokens = PythonTokenizer.Instance.Tokenize(pythonType);
+        var tokens = PythonTokenizer.Instance.Tokenize(input);
         var result = PythonParser.PythonTypeDefinitionParser.TryParse(tokens);
-        // While the parsing will technically succeed, ...
+        Assert.True(result.Remainder.IsAtEnd);
         Assert.True(result.HasValue, result.ToString());
-        // ...it won't have consumed the whole input (and therefore will as part of larger grammar).
-        Assert.False(result.Remainder.IsAtEnd);
+        Assert.NotNull(result.Value);
+        Assert.Equal(expected, result.Value.ToString());
     }
 }

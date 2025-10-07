@@ -2,12 +2,13 @@
   <PropertyGroup>
     <Authors>Anthony Shaw, Aaron Powell, Atif Aziz</Authors>
     <PackageProjectUrl>https://github.com/tonybaloney/CSnakes</PackageProjectUrl>
-    <PackageIcon>logo.jpeg</PackageIcon>
+    <PackageIcon>icon_black.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/tonybaloney/CSnakes</RepositoryUrl>
-    <VersionPrefix>1.0.35</VersionPrefix>
+    <VersionPrefix>2.0.0</VersionPrefix>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-
+    <PackageTags>python interop</PackageTags>
+    <PackageDescription>Runtime for embedding Python code and libraries directly into .NET applications without REST, HTTP, or microservices. Supports Python 3.9-3.13, virtual environments, and cross-platform deployment.</PackageDescription>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <DebugType>embedded</DebugType>

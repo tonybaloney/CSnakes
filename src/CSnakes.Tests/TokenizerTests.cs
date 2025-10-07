@@ -56,7 +56,11 @@ public class TokenizerTests
     [InlineData("abc123", PythonToken.Identifier)]
     [InlineData("foo.bar", PythonToken.QualifiedIdentifier)]
     [InlineData("'hello'", PythonToken.SingleQuotedString)]
+    [InlineData("u'hello'", PythonToken.SingleQuotedString)]
+    [InlineData("b'hello'", PythonToken.SingleQuotedByteString)]
     [InlineData("\"hello\"", PythonToken.DoubleQuotedString)]
+    [InlineData("u\"hello\"", PythonToken.DoubleQuotedString)]
+    [InlineData("b\"hello\"", PythonToken.DoubleQuotedByteString)]
     [InlineData("True", PythonToken.True)]
     [InlineData("False", PythonToken.False)]
     [InlineData("None", PythonToken.None)]
@@ -103,9 +107,9 @@ public class TokenizerTests
     [InlineData("nest: list[tuple[int, int]]", "nest", "list[tuple[int, int]]")]
     [InlineData("max_length: int", "max_length", "int")]
     [InlineData("max_length: int = 50", "max_length", "int")]
-    [InlineData("temp: Literal[10]", "temp", "Literal[Literal]")]
-    [InlineData("value: Literal[1, 2, 3]", "value", "Literal[Literal]")]
-    [InlineData("value: Literal[1, 'two', 3.0]", "value", "Literal[Literal]")]
+    [InlineData("temp: Literal[10]", "temp", "Literal[10]")]
+    [InlineData("value: Literal[1, 2, 3]", "value", "Literal[1, 2, 3]")]
+    [InlineData("value: Literal[1, 'two', 3.0]", "value", "Literal[1, 'two', 3.0]")]
     public void ParseFunctionParameter(string code, string expectedName, string expectedType)
     {
         var tokens = PythonTokenizer.Instance.Tokenize(code);
@@ -164,31 +168,32 @@ public class TokenizerTests
         Assert.Null(param.TypeSpec);
     }
 
-    [Fact]
-    public void ParseFunctionParameterDefaultSingleQuotedString()
+    [Theory]
+    [InlineData("a = 'hello'")]
+    [InlineData("a = \"hello\"")]
+    [InlineData("a: str = u'hello'")]
+    [InlineData("a: str = u\"hello\"")]
+    public void ParseFunctionParameterDefaultString(string code)
     {
-        var tokens = PythonTokenizer.Instance.Tokenize($"a = 'hello'");
+        var tokens = PythonTokenizer.Instance.Tokenize(code);
         var result = PythonParser.OptionalPythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         var param = result.Value;
         var constant = Assert.IsType<PythonConstant.String>(param.DefaultValue);
         Assert.Equal("hello", constant.Value);
-        Assert.Same(PythonTypeSpec.Any, param.ImpliedTypeSpec);
-        Assert.Null(param.TypeSpec);
     }
 
     [Fact]
-    public void ParseFunctionParameterDefaultDoubleQuotedString()
+    public void ParseFunctionParameterDefaultSingleQuotedStringWithBytesPrefix()
     {
-        var tokens = PythonTokenizer.Instance.Tokenize($"a = \"hello\"");
+        var tokens = PythonTokenizer.Instance.Tokenize($"a: bytes = b'hello'");
         var result = PythonParser.OptionalPythonParameterParser.TryParse(tokens);
         Assert.True(result.HasValue);
         var param = result.Value;
         Assert.Equal("a", param.Name);
-        var constant = Assert.IsType<PythonConstant.String>(param.DefaultValue);
+        var constant = Assert.IsType<PythonConstant.ByteString>(param.DefaultValue);
         Assert.Equal("hello", constant.Value);
-        Assert.Same(PythonTypeSpec.Any, param.ImpliedTypeSpec);
-        Assert.Null(param.TypeSpec);
+        Assert.NotNull(param.TypeSpec);
     }
 
     [Fact]
@@ -353,7 +358,7 @@ public class TokenizerTests
         Assert.True(result.HasValue);
         var a = result.Value.Enumerable().First();
         Assert.Equal("a", a.Name);
-        Assert.Equal("typing.List[int]", a.ImpliedTypeSpec.ToString());
+        Assert.Equal("list[int]", a.ImpliedTypeSpec.ToString());
     }
 
     [Fact]
@@ -440,7 +445,7 @@ public class TokenizerTests
         var b = parameters[1];
         Assert.Equal("b", b.Name);
         Assert.Equal("str", b.ImpliedTypeSpec.Name);
-        Assert.Equal("None", result.Value.ReturnType.Name);
+        Assert.IsType<NoneType>(result.Value.ReturnType);
     }
 
     [Theory]
@@ -508,7 +513,7 @@ if __name__ == '__main__':
         var b = parameters[1];
         Assert.Equal("b", b.Name);
         Assert.Equal("str", b.ImpliedTypeSpec.Name);
-        Assert.Equal("None", functions[0].ReturnType.Name);
+        Assert.IsType<NoneType>(functions[0].ReturnType);
 
         Assert.Equal("baz", functions[1].Name);
         parameters = functions[1].Parameters.Enumerable().ToArray();
@@ -518,7 +523,7 @@ if __name__ == '__main__':
         var d = parameters[1];
         Assert.Equal("d", d.Name);
         Assert.Equal("bool", d.ImpliedTypeSpec.Name);
-        Assert.Equal("None", functions[1].ReturnType.Name);
+        Assert.IsType<NoneType>(functions[1].ReturnType);
     }
 
     [Fact]
@@ -550,7 +555,7 @@ if __name__ == '__main__':
         var b = parameters[1];
         Assert.Equal("b", b.Name);
         Assert.Equal("str", b.ImpliedTypeSpec.Name);
-        Assert.Equal("None", function.ReturnType.Name);
+        Assert.IsType<NoneType>(function.ReturnType);
     }
 
     [Fact]
@@ -565,6 +570,55 @@ if __name__ == '__main__':
         Assert.Single(functions);
         Assert.Equal("bar", functions[0].Name);
     }
+
+    [Fact]
+    public void ParseFunctionMultiLineWithComments()
+    {
+        const string code = """
+        def a(    # this is a comment
+            opener: str = 'foo' # type: ignore
+        ) -> Any:
+            pass
+        """;
+        SourceText sourceText = SourceText.From(code);
+        _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
+        Assert.Empty(errors);
+        Assert.NotNull(functions);
+        Assert.Single(functions);
+        Assert.Equal("a", functions[0].Name);
+        var parameters = functions[0].Parameters.Enumerable().ToArray();
+        var opener = parameters[0];
+        Assert.Equal("opener", opener.Name);
+        Assert.Equal("str", opener.ImpliedTypeSpec.Name);
+        Assert.NotNull(opener.DefaultValue);
+        Assert.Equal("foo", opener.DefaultValue.ToString());
+    }
+
+    [Fact]
+    public void ParseFunctionMultiLineTrailingCommaWithComments()
+    {
+        const string code = """
+        def a(    # this is a comment
+            opener: str = 'foo', # type: ignore
+            # a comment by itself
+            hash_in_literal: str = '#', 
+        ) -> Any:
+            pass
+        """;
+        SourceText sourceText = SourceText.From(code);
+        _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
+        Assert.Empty(errors);
+        Assert.NotNull(functions);
+        Assert.Single(functions);
+        Assert.Equal("a", functions[0].Name);
+        var parameters = functions[0].Parameters.Enumerable().ToArray();
+        var opener = parameters[0];
+        Assert.Equal("opener", opener.Name);
+        Assert.Equal("str", opener.ImpliedTypeSpec.Name);
+        Assert.NotNull(opener.DefaultValue);
+        Assert.Equal("foo", opener.DefaultValue.ToString());
+    }
+
 
     [Fact]
     public void ParseFunctionTrailingSpaceAfterColon()
@@ -599,7 +653,31 @@ if __name__ == '__main__':
         var b = parameters[1];
         Assert.Equal("b", b.Name);
         Assert.Equal("str", b.ImpliedTypeSpec.Name);
-        Assert.Equal("None", function.ReturnType.Name);
+        Assert.IsType<NoneType>(function.ReturnType);
+    }
+
+    [Fact]
+    public void ParseFunctionMultiLineTrailingComma()
+    {
+        // This is common in Black-formatted code and has come up as a parser issue
+        const string code = """
+        def a(    
+            opener: str = 'foo',
+        ) -> Any:
+            pass
+        """;
+        SourceText sourceText = SourceText.From(code);
+        _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
+        Assert.Empty(errors);
+        Assert.NotNull(functions);
+        Assert.Single(functions);
+        Assert.Equal("a", functions[0].Name);
+        var parameters = functions[0].Parameters.Enumerable().ToArray();
+        var opener = parameters[0];
+        Assert.Equal("opener", opener.Name);
+        Assert.Equal("str", opener.ImpliedTypeSpec.Name);
+        Assert.NotNull(opener.DefaultValue);
+        Assert.Equal("foo", opener.DefaultValue.ToString());
     }
 
     [Fact]
@@ -616,7 +694,7 @@ if __name__ == '__main__':
         _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var _, out var errors);
         Assert.NotEmpty(errors);
         Assert.Equal(3, errors[0].StartLine);
-        Assert.Equal(5, errors[0].EndLine);
+        Assert.Equal(3, errors[0].EndLine);
         Assert.Equal(19, errors[0].StartColumn);
         Assert.Equal(20, errors[0].EndColumn);
         Assert.Equal("unexpected `=`, expected Type Definition", errors[0].Message);
@@ -645,7 +723,7 @@ if __name__ == '__main__':
     {
         var tokens = PythonTokenizer.Instance.Tokenize(code);
         Assert.Single(tokens);
-        var result = PythonParser.ConstantValueTokenizer.TryParse(tokens);
+        var result = PythonParser.ConstantValueParser.TryParse(tokens);
 
         Assert.True(result.HasValue);
         Assert.NotNull(result.Value);

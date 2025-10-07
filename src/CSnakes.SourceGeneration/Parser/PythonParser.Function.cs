@@ -9,7 +9,9 @@ using ParsedTokens = Superpower.Model.TokenList<CSnakes.Parser.PythonToken>;
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
-    public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionParser { get; } =
+    public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionParser { get; }
+
+    static TokenListParser<PythonToken, PythonFunctionDefinition> CreatePythonFunctionDefinitionParser() =>
         (from async in Token.EqualTo(PythonToken.Async).OptionalOrDefault()
          from def in Token.EqualTo(PythonToken.Def)
          from name in Token.EqualTo(PythonToken.Identifier)
@@ -72,12 +74,40 @@ public static partial class PythonParser
             }).ToArray());
             currentBuffer.Add((line, repositionedTokens));
 
-            // If this is a function definition on one line..
-            if (repositionedTokens.Last().Kind == PythonToken.Colon)
+            // If the line ends Colon and Ellipsis, treat as a stub and strip the ellipsis.
+            // TODO: Handle single-line function definitions with the body on the same line.
+            if (repositionedTokens.Any() && repositionedTokens.Last().Kind == PythonToken.Ellipsis)
             {
-                ParsedTokens combinedTokens = new(currentBuffer.SelectMany(x => x.tokens).ToArray());
+                repositionedTokens = new([.. repositionedTokens.Take(repositionedTokens.Count() - 1)]);
+            }
 
-                functionLines.Add(([.. from x in currentBuffer select x.line], combinedTokens));
+            // If this is a function definition on one line..
+            if (repositionedTokens.Any() && repositionedTokens.Last().Kind == PythonToken.Colon)
+            {
+                // We re-tokenize the merged lines from the buffer because some of the tokens may have been split across lines
+                // Strip trailing comments to simplify parser
+                string mergedFunctionSpec = string.Join("\n", from x in currentBuffer select x.line.ToString()
+                        // Get the position of the end of the last token to strip trailing comments
+                        [.. (x.tokens.Any() ? x.tokens.Last().Position.Absolute + x.tokens.Last().Span.Length : 0)]
+                    );
+
+                Result<ParsedTokens> combinedResult = PythonTokenizer.Instance.TryTokenize(mergedFunctionSpec);
+                if (!combinedResult.HasValue)
+                {
+                    currentErrors.Add(new(
+                        line.LineNumber,
+                        line.LineNumber,
+                        combinedResult.ErrorPosition.Column,
+                        combinedResult.ErrorPosition.Column + combinedResult.Location.Length,
+                        combinedResult.FormatErrorMessageFragment())
+                    );
+                    
+                } else
+                {
+                    functionLines.Add(([.. from x in currentBuffer select x.line], combinedResult.Value));
+                }
+
+                // Reset buffer
                 currentBuffer = [];
                 unfinishedFunctionSpec = false;
                 continue;

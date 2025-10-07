@@ -37,11 +37,8 @@ Derived from: https://github.com/morelinq/MoreLINQ/blob/0c924d5704be01cf72967fd0
     <Exec Command="dotnet t4 $(TextTemplate) -o $(TextTemplateOutput)" />
   </Target>
 
-  <Target Name="TransformTextTemplates"
-          DependsOnTargets="_CollectTextTemplates">
-    <MSBuild Projects="$(MSBuildProjectFile)"
-             Targets="_TransformTextTemplate"
-             Properties="TextTemplate=%(TextTemplate.Identity);TextTemplateOutput=%(TextTemplate.LastGenOutput)"  />
+  <Target Name="TransformTextTemplates" DependsOnTargets="_CollectTextTemplates">
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="_TransformTextTemplate" Properties="TextTemplate=%(TextTemplate.Identity);TextTemplateOutput=%(TextTemplate.LastGenOutput)" />
   </Target>
 
 </Project>

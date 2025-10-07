@@ -17,13 +17,12 @@ internal class CondaLocator : PythonLocator
     {
         this.logger = logger;
         this.condaBinaryPath = condaBinaryPath;
-        var (process, result, errors) = ExecuteCondaCommand("info", "--json");
-        if (process.ExitCode != 0)
+        var (exitCode, result, errors) = ExecuteCondaCommand("info", "--json");
+        if (exitCode != 0)
         {
             logger?.LogError("Failed to determine Python version from Conda {Error}.", errors);
             throw new InvalidOperationException("Could not determine Python version from Conda.");
         }
-        process.Dispose();
         // Parse JSON output to get the version
         var json = JsonNode.Parse(result ?? "")!;
         var versionAttribute = json["python_version"]?.GetValue<string>() ?? string.Empty;
@@ -43,7 +42,7 @@ internal class CondaLocator : PythonLocator
         folder = basePrefix;
     }
 
-    internal (Process process, string? output, string? errors) ExecuteCondaCommand(params string[] arguments) => ProcessUtils.ExecuteCommand(logger, condaBinaryPath, arguments);
+    internal (int exitCode, string? output, string? errors) ExecuteCondaCommand(params string[] arguments) => ProcessUtils.ExecuteCommand(logger, condaBinaryPath, arguments);
 
     internal bool ExecuteCondaShellCommand(params string[] arguments) => ProcessUtils.ExecuteShellCommand(logger, condaBinaryPath, arguments);
 

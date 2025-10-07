@@ -7,6 +7,9 @@ using System.Globalization;
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
+    static readonly char[] pythonStringPrefixes = ['u', 'U'];
+    static readonly char[] pythonByteStringPrefixes = ['b', 'B'];
+
     public static TextParser<char> UnderScoreOrDigit { get; } =
         Character.Matching(char.IsDigit, "digit").Or(Character.EqualTo('_'));
 
@@ -22,7 +25,7 @@ public static partial class PythonParser
             from rest in UnderScoreOrDigit.Or(Character.In('.', 'e', 'E', '+', '-')).IgnoreMany()
             select Unit.Value;
 
-    public static TextParser<Unit> HexidecimalConstantToken { get; } =
+    public static TextParser<Unit> HexadecimalConstantToken { get; } =
         from prefix in Span.EqualTo("0x")
         from digits in Character.EqualTo('_').Or(Character.HexDigit).AtLeastOnce()
         select Unit.Value;
@@ -38,12 +41,28 @@ public static partial class PythonParser
         select Unit.Value;
 
     public static TextParser<Unit> DoubleQuotedStringConstantToken { get; } =
+        from prefix in Character.In(pythonStringPrefixes).OptionalOrDefault() // TODO: support raw literals
         from open in Character.EqualTo('"')
         from chars in Character.ExceptIn('"').Many()
         from close in Character.EqualTo('"')
         select Unit.Value;
 
     public static TextParser<Unit> SingleQuotedStringConstantToken { get; } =
+        from prefix in Character.In(pythonStringPrefixes).OptionalOrDefault()
+        from open in Character.EqualTo('\'')
+        from chars in Character.ExceptIn('\'').Many()
+        from close in Character.EqualTo('\'')
+        select Unit.Value;
+
+    public static TextParser<Unit> DoubleQuotedByteStringConstantToken { get; } =
+        from prefix in Character.In(pythonByteStringPrefixes) // TODO: support raw literals
+        from open in Character.EqualTo('"')
+        from chars in Character.ExceptIn('"').Many()
+        from close in Character.EqualTo('"')
+        select Unit.Value;
+
+    public static TextParser<Unit> SingleQuotedByteStringConstantToken { get; } =
+        from prefix in Character.In(pythonByteStringPrefixes)
         from open in Character.EqualTo('\'')
         from chars in Character.ExceptIn('\'').Many()
         from close in Character.EqualTo('\'')
@@ -52,14 +71,22 @@ public static partial class PythonParser
     public static TokenListParser<PythonToken, PythonConstant.String> DoubleQuotedStringConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.DoubleQuotedString)
         .Apply(ConstantParsers.DoubleQuotedString)
-        .Select(s => new PythonConstant.String(s))
         .Named("Double Quoted String Constant");
 
     public static TokenListParser<PythonToken, PythonConstant.String> SingleQuotedStringConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.SingleQuotedString)
         .Apply(ConstantParsers.SingleQuotedString)
-        .Select(s => new PythonConstant.String(s))
         .Named("Single Quoted String Constant");
+
+    public static TokenListParser<PythonToken, PythonConstant.ByteString> DoubleQuotedByteStringConstantTokenizer { get; } =
+        Token.EqualTo(PythonToken.DoubleQuotedByteString)
+        .Apply(ConstantParsers.DoubleQuotedByteString)
+        .Named("Double Quoted Byte String Constant");
+
+    public static TokenListParser<PythonToken, PythonConstant.ByteString> SingleQuotedByteStringConstantTokenizer { get; } =
+        Token.EqualTo(PythonToken.SingleQuotedByteString)
+        .Apply(ConstantParsers.SingleQuotedByteString)
+        .Named("Single Quoted Byte String Constant");
 
     public static TokenListParser<PythonToken, PythonConstant.Float> DecimalConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.Decimal)
@@ -71,14 +98,14 @@ public static partial class PythonParser
         .Select(d => new PythonConstant.Integer(long.Parse(d.ToStringValue().Replace("_", ""), NumberStyles.Integer)))
         .Named("Integer Constant");
 
-    public static TokenListParser<PythonToken, PythonConstant.HexidecimalInteger> HexidecimalIntegerConstantTokenizer { get; } =
-        Token.EqualTo(PythonToken.HexidecimalInteger)
-        .Select(d => new PythonConstant.HexidecimalInteger(long.Parse(d.ToStringValue().Substring(2).Replace("_", ""), NumberStyles.HexNumber)))
-        .Named("Hexidecimal Integer Constant");
+    public static TokenListParser<PythonToken, PythonConstant.HexadecimalInteger> HexadecimalIntegerConstantTokenizer { get; } =
+        Token.EqualTo(PythonToken.HexadecimalInteger)
+        .Select(d => new PythonConstant.HexadecimalInteger(long.Parse(d.ToStringValue().Substring(2).Replace("_", ""), NumberStyles.HexNumber)))
+        .Named("Hexadecimal Integer Constant");
 
-    public static TokenListParser<PythonToken, PythonConstant.HexidecimalInteger> OctalIntegerConstantTokenizer { get; } =
+    public static TokenListParser<PythonToken, PythonConstant.HexadecimalInteger> OctalIntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.OctalInteger)
-        .Select(d => new PythonConstant.HexidecimalInteger(PythonParserConstants.ParseOctal(d.ToStringValue().Substring(2))))
+        .Select(d => new PythonConstant.HexadecimalInteger(PythonParserConstants.ParseOctal(d.ToStringValue().Substring(2))))
         .Named("Octal Integer Constant");
 
     public static TokenListParser<PythonToken, PythonConstant.BinaryInteger> BinaryIntegerConstantTokenizer { get; } =
@@ -97,44 +124,78 @@ public static partial class PythonParser
         .Select(d => PythonConstant.None.Value)
         .Named("None Constant");
 
+    public static TokenListParser<PythonToken, PythonConstant.Ellipsis> EllipsisConstantTokenizer { get; } =
+        Token.EqualTo(PythonToken.Ellipsis)
+        .Select(d => PythonConstant.Ellipsis.Value)
+        .Named("Ellipsis (unspecified) Constant");
+
     // Any constant value
-    public static TokenListParser<PythonToken, PythonConstant> ConstantValueTokenizer { get; } =
+    public static TokenListParser<PythonToken, PythonConstant> ConstantValueParser { get; }
+
+    private static TokenListParser<PythonToken, PythonConstant> CreateConstantValueParser() =>
         DecimalConstantTokenizer.AsBase()
         .Or(IntegerConstantTokenizer.AsBase())
-        .Or(HexidecimalIntegerConstantTokenizer.AsBase())
+        .Or(HexadecimalIntegerConstantTokenizer.AsBase())
         .Or(BinaryIntegerConstantTokenizer.AsBase())
-        .Or(OctalIntegerConstantTokenizer.AsBase().AsNullable())
+        .Or(OctalIntegerConstantTokenizer.AsBase())
         .Or(BoolConstantTokenizer.AsBase())
         .Or(NoneConstantTokenizer.AsBase())
+        .Or(EllipsisConstantTokenizer.AsBase())
         .Or(DoubleQuotedStringConstantTokenizer.AsBase())
         .Or(SingleQuotedStringConstantTokenizer.AsBase())
+        .Or(DoubleQuotedByteStringConstantTokenizer.AsBase())
+        .Or(SingleQuotedByteStringConstantTokenizer.AsBase())
         .Named("Constant");
 
     static class ConstantParsers
     {
-        public static TextParser<string> DoubleQuotedString { get; } =
+        private static readonly TextParser<char> escapeString = Character.EqualTo('\\')
+                            .IgnoreThen(
+                                Character.EqualTo('\\')
+                                .Or(Character.EqualTo('"'))
+                                .Named("escape sequence"));
+
+        private static readonly TextParser<char> singleQuoteEscapeString = Character.EqualTo('\\')
+                            .IgnoreThen(
+                                Character.EqualTo('\\')
+                                .Or(Character.EqualTo('"'))
+                                .Named("escape sequence"));
+
+        public static TextParser<PythonConstant.String> DoubleQuotedString { get; } =
+            from prefix in Character.In(pythonStringPrefixes).Optional() // TODO : support raw literals
             from open in Character.EqualTo('"')
             from chars in Character.ExceptIn('"', '\\')
-                .Or(Character.EqualTo('\\')
-                    .IgnoreThen(
-                        Character.EqualTo('\\')
-                        .Or(Character.EqualTo('"'))
-                        .Named("escape sequence")))
+                .Or(escapeString)
                 .Many()
             from close in Character.EqualTo('"')
-            select new string(chars);
+            select new PythonConstant.String(new string(chars));
 
-        public static TextParser<string> SingleQuotedString { get; } =
+        public static TextParser<PythonConstant.ByteString> DoubleQuotedByteString { get; } =
+            from prefix in Character.In(pythonByteStringPrefixes) // TODO : support raw literals
+            from open in Character.EqualTo('"')
+            from chars in Character.ExceptIn('"', '\\')
+                .Or(escapeString)
+                .Many()
+            from close in Character.EqualTo('"')
+            select new PythonConstant.ByteString(new string(chars));
+
+        public static TextParser<PythonConstant.String> SingleQuotedString { get; } =
+            from prefix in Character.In(pythonStringPrefixes).Optional() // TODO : support raw literals
             from open in Character.EqualTo('\'')
             from chars in Character.ExceptIn('\'', '\\')
-                .Or(Character.EqualTo('\\')
-                    .IgnoreThen(
-                        Character.EqualTo('\\')
-                        .Or(Character.EqualTo('\''))
-                        .Named("escape sequence")))
+                .Or(singleQuoteEscapeString)
                 .Many()
             from close in Character.EqualTo('\'')
-            select new string(chars);
+            select new PythonConstant.String(new string(chars));
+
+        public static TextParser<PythonConstant.ByteString> SingleQuotedByteString { get; } =
+            from prefix in Character.In(pythonByteStringPrefixes) // TODO : support raw literals
+            from open in Character.EqualTo('\'')
+            from chars in Character.ExceptIn('\'', '\\')
+                .Or(singleQuoteEscapeString)
+                .Many()
+            from close in Character.EqualTo('\'')
+            select new PythonConstant.ByteString(new string(chars));
     }
 }
 

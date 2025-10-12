@@ -217,7 +217,7 @@ public class GeneratedSignatureTests
     [Fact]
     public void TestMultipleUnknownUnionOverloads()
     {
-        // Verify that multiple unknown types are reduced to a single PyObject. 
+        // Verify that multiple unknown types are reduced to a single PyObject.
         SourceText code = SourceText.From("def hello(a: Union[A, B, C]) -> Any:\n ...\n");
 
         // create a Python scope
@@ -289,6 +289,12 @@ public class GeneratedSignatureTests
         Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors));
         Assert.Empty(errors);
         Assert.Empty(functions);
+
+        // Verify that the source text is not indented. For more background on
+        // following assertions, see:
+        // - https://github.com/tonybaloney/CSnakes/pull/702#discussion_r2365595136
+        // - https://github.com/tonybaloney/CSnakes/pull/702#discussion_r2365597599
+
         var indentations =
             from line in sourceText.Lines
             select line.ToString()

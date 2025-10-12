@@ -257,33 +257,30 @@ public class GeneratedSignatureTests
 
     [Theory]
     [InlineData("""
-        
-                def foo(  # csharp: ignore
-                        bar,
-                        baz,
-                    ):
-                    pass
-        
+        def foo(  # csharp: ignore
+                bar,
+                baz,
+            ):
+            pass
+
         """,
         Label = "C# ignore comment - Multi lined function definition")]
     [InlineData("""
-        
-                def hello(): # csharp: ignore ...
-        
+        def hello(): # csharp: ignore ...
+            pass
+
         """,
         Label = "C# ignore comment - Single line function definition")]
     [InlineData("""
-        
-                def foo():  # type: ignore # csharp: ignore
-                    pass
-        
+        def foo():  # type: ignore # csharp: ignore
+            pass
+
         """,
         Label = "C# ignore comment - Embedded within a comment after")]
     [InlineData("""
-        
-                def bar():  # csharp: ignore # type: ignore
-                    pass
-        
+        def bar():  # csharp: ignore # type: ignore
+            pass
+
         """,
         Label = "C# ignore comment - Embedded within a comment before")]
     public void TestCSharpIgnoreCommentFunction(string code)

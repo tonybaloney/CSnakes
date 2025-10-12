@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Any, Sequence
 
 def _test_private() -> None:
     pass
@@ -39,3 +39,9 @@ def test_sequence(a: Sequence[int], start: int, end: int) -> Sequence[int]:
 
 def test_none_result() -> None:
     pass
+
+def test_var_tuple_result(ints: list[int], strs: list[str]) -> tuple[tuple[int, str], ...]:
+    return tuple(zip(ints, strs))
+
+def test_any_var_tuple_result(a: list[Any]) -> tuple:
+    return tuple(a)

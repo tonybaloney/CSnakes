@@ -69,7 +69,8 @@ public class GeneratedSignatureTests
         def foo(bar):
             pass
         
-        """, "PyObject Foo(PyObject bar)",
+        """,
+        "PyObject Foo(PyObject bar)",
         Label = "C# ignore comment on line above")]
     [InlineData("""
         
@@ -87,7 +88,8 @@ public class GeneratedSignatureTests
             # csharp: ignore
             pass
         
-        """, "PyObject Foo(PyObject bar)",
+        """,
+        "PyObject Foo(PyObject bar)",
         Label = "C# ignore comment inside function body")]
     public void TestGeneratedSignature(string code, string expected)
     {

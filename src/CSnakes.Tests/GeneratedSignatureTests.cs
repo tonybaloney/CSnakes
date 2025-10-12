@@ -289,5 +289,12 @@ public class GeneratedSignatureTests
         Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors));
         Assert.Empty(errors);
         Assert.Empty(functions);
+        var indentations =
+            from line in sourceText.Lines
+            select line.ToString()
+            into line
+            where line.Length > 0
+            select line.TakeWhile(ch => ch == ' ').Count();
+        Assert.Equal(0, indentations.Min());
     }
 }

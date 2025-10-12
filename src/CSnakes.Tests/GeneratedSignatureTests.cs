@@ -64,30 +64,30 @@ public class GeneratedSignatureTests
     [InlineData("def hello() -> str | int: \n  ...\n", "PyObject Hello()")]
     [InlineData("def escape(s: str, quote: bool = True) -> str: ...\n", "string Escape(string s, bool quote = true)")]
     [InlineData("""
-        
+
         # csharp: ignore
         def foo(bar):
             pass
-        
+
         """,
         "PyObject Foo(PyObject bar)",
         Label = "C# ignore comment on line above")]
     [InlineData("""
-        
+
         def foo(
             bar  # csharp: ignore
         ):
             pass
-        
+
         """,
         "PyObject Foo(PyObject bar)",
         Label = "C# ignore comment in parameter list")]
     [InlineData("""
-        
+
         def foo(bar):
             # csharp: ignore
             pass
-        
+
         """,
         "PyObject Foo(PyObject bar)",
         Label = "C# ignore comment inside function body")]

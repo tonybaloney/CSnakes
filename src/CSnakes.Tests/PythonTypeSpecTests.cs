@@ -677,8 +677,8 @@ public class PythonTypeSpecTests
     {
         private static class Constants
         {
-            public static readonly PythonConstant Integer1 = new PythonConstant.Integer(42);
-            public static readonly PythonConstant Integer2 = new PythonConstant.Integer(43);
+            public static readonly PythonConstant Integer1 = PythonConstant.Integer.Decimal(42);
+            public static readonly PythonConstant Integer2 = PythonConstant.Integer.Decimal(43);
             public static readonly PythonConstant String = new PythonConstant.String("hello");
             public static readonly PythonConstant Float = new PythonConstant.Float(3.14);
         }

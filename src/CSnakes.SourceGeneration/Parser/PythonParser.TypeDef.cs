@@ -105,7 +105,7 @@ public static partial class PythonParser
             from name in Parse.OneOf(Token.EqualTo(PythonToken.None),
                                      Token.EqualTo(PythonToken.Identifier),
                                      Token.EqualTo(PythonToken.QualifiedIdentifier))
-            from type in name.ToStringValue() switch
+            from type in name.CharSpan() switch
             {
                 "None"                                                           => TypeDefinitionSubParsers.None,
                 "Any"                                                            => TypeDefinitionSubParsers.Any,
@@ -127,18 +127,46 @@ public static partial class PythonParser
                 "Union" or "typing.Union"                                        => TypeDefinitionSubParsers.Union,
                 "tuple" or "Tuple" or "typing.Tuple"                             => TypeDefinitionSubParsers.Tuple,
 
-                var other => from subscript in TypeDefinitionSubParsers.Subscript
-                             select (PythonTypeSpec)new ParsedPythonTypeSpec(other, [..subscript]),
+                _ => from subscript in TypeDefinitionSubParsers.Subscript
+                     select (PythonTypeSpec)new ParsedPythonTypeSpec(name.ToStringValue(), [..subscript]),
             }
             select type;
 
-        return Combinators.Named(name: "Type Definition", parser:
-                   from ts in parser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Pipe))
-                   select ts switch
-                   {
-                       [var single] => single,
-                       var multiple => UnionType.Normalize([..multiple])
-                   });
+
+        var pipedParser =
+            //
+            // Parser for a single type or a union of types using PEP 604 syntax (`X | Y`).
+            //
+            from ts in parser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Pipe))
+            select ts switch
+            {
+                [var single] => single,
+                var multiple => UnionType.Normalize(multiple)
+            };
+
+        var annotatedParser =
+            //
+            // Parser for "Annotated" or "typing.Annotated".
+            //
+            from id in Parse.OneOf(Token.EqualTo(PythonToken.QualifiedIdentifier),
+                                   Token.EqualTo(PythonToken.Identifier))
+            where id.CharSpan() is "Annotated" or "typing.Annotated"
+            select id;
+
+        var annotatedSubscriptionParser =
+            //
+            // Parser for subscription part of an Annotated type, that is the
+            // `[X, ...]` in `Annotated[X, ...]`.
+            //
+            from t in pipedParser.ThenIgnore(Token.EqualTo(PythonToken.Comma))
+            from md in ConstantValueParser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Comma))
+            select t with { Metadata = [.. md] };
+
+        // Full parser for an Annotated type.
+
+        var annotatedTypeParser = annotatedParser.IgnoreThen(Subscript(annotatedSubscriptionParser));
+
+        return Parse.OneOf(annotatedTypeParser, pipedParser).Named("Type Definition");
     }
 
     private static TokenListParser<PythonToken, T> Return<T>(T value) => Parse.Return<PythonToken, T>(value);

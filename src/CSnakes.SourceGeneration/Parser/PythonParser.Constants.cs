@@ -95,23 +95,23 @@ public static partial class PythonParser
 
     public static TokenListParser<PythonToken, PythonConstant.Integer> IntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.Integer)
-        .Select(d => new PythonConstant.Integer(long.Parse(d.ToStringValue().Replace("_", ""), NumberStyles.Integer)))
+        .Select(d => PythonConstant.Integer.Decimal(long.Parse(d.ToStringValue().Replace("_", ""), NumberStyles.Integer)))
         .Named("Integer Constant");
 
-    public static TokenListParser<PythonToken, PythonConstant.HexadecimalInteger> HexadecimalIntegerConstantTokenizer { get; } =
+    public static TokenListParser<PythonToken, PythonConstant.Integer> HexadecimalIntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.HexadecimalInteger)
-        .Select(d => new PythonConstant.HexadecimalInteger(long.Parse(d.ToStringValue().Substring(2).Replace("_", ""), NumberStyles.HexNumber)))
+        .Select(d => PythonConstant.Integer.Hexadecimal(long.Parse(d.ToStringValue().Substring(2).Replace("_", ""), NumberStyles.HexNumber)))
         .Named("Hexadecimal Integer Constant");
 
-    public static TokenListParser<PythonToken, PythonConstant.HexadecimalInteger> OctalIntegerConstantTokenizer { get; } =
+    public static TokenListParser<PythonToken, PythonConstant.Integer> OctalIntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.OctalInteger)
-        .Select(d => new PythonConstant.HexadecimalInteger(PythonParserConstants.ParseOctal(d.ToStringValue().Substring(2))))
+        .Select(d => PythonConstant.Integer.Hexadecimal(PythonParserConstants.ParseOctal(d.ToStringValue().Substring(2))))
         .Named("Octal Integer Constant");
 
-    public static TokenListParser<PythonToken, PythonConstant.BinaryInteger> BinaryIntegerConstantTokenizer { get; } =
+    public static TokenListParser<PythonToken, PythonConstant.Integer> BinaryIntegerConstantTokenizer { get; } =
         Token.EqualTo(PythonToken.BinaryInteger)
         // TODO: Consider Binary Format specifier introduced in .NET 8 https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings#binary-format-specifier-b
-        .Select(d => new PythonConstant.BinaryInteger((long)Convert.ToUInt64(d.ToStringValue().Substring(2).Replace("_", ""), 2)))
+        .Select(d => PythonConstant.Integer.Binary((long)Convert.ToUInt64(d.ToStringValue().Substring(2).Replace("_", ""), 2)))
         .Named("Binary Integer Constant");
 
     public static TokenListParser<PythonToken, PythonConstant.Bool> BoolConstantTokenizer { get; } =

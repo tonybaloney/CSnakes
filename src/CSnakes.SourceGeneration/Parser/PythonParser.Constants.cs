@@ -149,53 +149,83 @@ public static partial class PythonParser
 
     static class ConstantParsers
     {
-        private static readonly TextParser<char> escapeString = Character.EqualTo('\\')
-                            .IgnoreThen(
-                                Character.EqualTo('\\')
-                                .Or(Character.EqualTo('"'))
-                                .Named("escape sequence"));
+        private static readonly TextParser<char>
+            escapeString = from slash in Character.EqualTo('\\')
+                           from c in Character.In(new[] { '\\', '\'', '"', 'n', 'r', 't', 'b', 'f', 'v' }) // add n, t, r, b, f, v
+                           select c switch
+                           {
+                               'n' => '\n',
+                               't' => '\t',
+                               'r' => '\r',
+                               'b' => '\b',
+                               'f' => '\f',
+                               'v' => '\v',
+                               '\\' => '\\',
+                               '"' => '"',
+                               '\'' => '\'',
+                               _ => c
+                           };
+
+        private static readonly TextParser<Unit> hexEscapeUnit =
+                from slash in Character.EqualTo('\\')
+                from x in Character.EqualTo('x')
+                from h1 in Character.HexDigit
+                from h2 in Character.HexDigit
+                select Unit.Value;
 
         private static readonly TextParser<char> singleQuoteEscapeString = Character.EqualTo('\\')
                             .IgnoreThen(
                                 Character.EqualTo('\\')
                                 .Or(Character.EqualTo('"'))
                                 .Named("escape sequence"));
-
         public static TextParser<PythonConstant.String> DoubleQuotedString { get; } =
             from prefix in Character.In(pythonStringPrefixes).Optional() // TODO : support raw literals
             from open in Character.EqualTo('"')
-            from chars in Character.ExceptIn('"', '\\')
-                .Or(escapeString)
-                .Many()
+            from content in Span.MatchedBy(
+                Character.ExceptIn('"', '\\').Value(Unit.Value)
+                    .Or(escapeString.Value(Unit.Value))
+                    .Or(hexEscapeUnit)
+                    .AtLeastOnce()
+                )
             from close in Character.EqualTo('"')
-            select new PythonConstant.String(new string(chars));
+            select new PythonConstant.String(content.ToString());
 
         public static TextParser<PythonConstant.ByteString> DoubleQuotedByteString { get; } =
-            from prefix in Character.In(pythonByteStringPrefixes) // TODO : support raw literals
-            from open in Character.EqualTo('"')
-            from chars in Character.ExceptIn('"', '\\')
-                .Or(escapeString)
-                .Many()
-            from close in Character.EqualTo('"')
-            select new PythonConstant.ByteString(new string(chars));
+             from prefix in Character.In(pythonByteStringPrefixes).Optional() // TODO : support raw literals
+             from open in Character.EqualTo('"')
+             from content in Span.MatchedBy(
+                 Character.ExceptIn('"', '\\').Value(Unit.Value)
+                     .Or(escapeString.Value(Unit.Value))
+                     .Or(hexEscapeUnit)
+                     .AtLeastOnce()
+             )
+             from close in Character.EqualTo('"')
+             select new PythonConstant.ByteString(content.ToString());
 
         public static TextParser<PythonConstant.String> SingleQuotedString { get; } =
             from prefix in Character.In(pythonStringPrefixes).Optional() // TODO : support raw literals
             from open in Character.EqualTo('\'')
-            from chars in Character.ExceptIn('\'', '\\')
-                .Or(singleQuoteEscapeString)
-                .Many()
+            from content in Span.MatchedBy(
+                Character.ExceptIn('\'', '\\').Value(Unit.Value)
+                    .Or(escapeString.Value(Unit.Value))
+                    .Or(hexEscapeUnit)
+                    .AtLeastOnce()
+            )
             from close in Character.EqualTo('\'')
-            select new PythonConstant.String(new string(chars));
+            select new PythonConstant.String(content.ToString());
+        
 
         public static TextParser<PythonConstant.ByteString> SingleQuotedByteString { get; } =
             from prefix in Character.In(pythonByteStringPrefixes) // TODO : support raw literals
             from open in Character.EqualTo('\'')
-            from chars in Character.ExceptIn('\'', '\\')
-                .Or(singleQuoteEscapeString)
-                .Many()
+            from content in Span.MatchedBy(
+                Character.ExceptIn('\'', '\\').Value(Unit.Value)
+                    .Or(escapeString.Value(Unit.Value))
+                    .Or(hexEscapeUnit)
+                    .AtLeastOnce()
+            )
             from close in Character.EqualTo('\'')
-            select new PythonConstant.ByteString(new string(chars));
+            select new PythonConstant.ByteString(content.ToString());
     }
 }
 

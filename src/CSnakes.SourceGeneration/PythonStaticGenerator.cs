@@ -219,7 +219,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
             namespace {{@namespace}};
 
-            partial static class {{pascalFileName}}Extensions
+            static partial class {{pascalFileName}}Extensions
             {
                 private static I{{pascalFileName}}? instance;
 

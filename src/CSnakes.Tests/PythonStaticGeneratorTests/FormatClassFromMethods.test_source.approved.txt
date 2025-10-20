@@ -20,7 +20,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Python.Generated.Tests;
 
-partial static class TestClassExtensions
+static partial class TestClassExtensions
 {
     private static ITestClass? instance;
 

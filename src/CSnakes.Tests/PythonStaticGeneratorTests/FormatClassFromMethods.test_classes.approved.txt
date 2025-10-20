@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Python.Generated.Tests;
 
-internal static class TestClassExtensions
+partial static class TestClassExtensions
 {
     private static ITestClass? instance;
 

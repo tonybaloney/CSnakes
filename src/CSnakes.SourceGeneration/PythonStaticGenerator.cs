@@ -207,6 +207,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
             using System;
             using System.Collections.Generic;
+            using System.Collections.Immutable;
             using System.Diagnostics;
             using System.Reflection.Metadata;
             using System.Text;

@@ -77,6 +77,12 @@ internal static class ResultConversionCodeGenerator
                 return new ConversionGenerator(TupleType(SeparatedList(from item in generators select TupleElement(item.TypeSyntax))),
                                                TypeReflection.CreateGenericType("Tuple", [.. from item in generators select item.TypeSyntax, .. from item in generators select item.ImporterTypeSyntax]));
             }
+            case VariadicTupleType { Of: var t }:
+            {
+                var generator = Create(t);
+                return new ConversionGenerator(TypeReflection.CreateGenericType(nameof(ImmutableArray<object>), [generator.TypeSyntax]),
+                                               TypeReflection.CreateGenericType("VarTuple", [generator.TypeSyntax, generator.ImporterTypeSyntax]));
+            }
             case DictType { Key: var kt, Value: var vt }:
             {
                 return DictionaryConversionGenerator(kt, vt, "Dictionary");

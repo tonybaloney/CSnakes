@@ -49,7 +49,7 @@ public class ArgumentReflection
                         (PythonConstant.BinaryInteger { Value: var v },
                          PredefinedTypeSyntax { Keyword.Value: "long" }) =>
                             SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
-                                                            SyntaxFactory.Literal($"0b{Convert.ToString(v, 2)}", v)),
+                                                            SyntaxFactory.Literal($"0b{v:B}", v)),
                         (PythonConstant.Integer { Value: var v and >= int.MinValue and <= int.MaxValue },
                          PredefinedTypeSyntax { Keyword.Value: "long" or "double" }) =>
                             // Downcast long to int if the value is small as the code is more readable without the L suffix

@@ -20,7 +20,7 @@ public abstract class PythonConstant
 
     public sealed class BinaryInteger(long value) : Integer(value)
     {
-        public override string ToString() => $"0b{Value:X}";
+        public override string ToString() => $"0b{Value:B}";
     }
 
     public sealed class Float(double value) : PythonConstant

@@ -812,6 +812,14 @@ public class PythonTypeSpecTests
         }
 
         [Fact]
+        public void ToString_WhenNullParameters_FormatsEllipsis()
+        {
+            var type = new CallableType(null, PythonTypeSpec.Bool);
+
+            Assert.Equal("Callback[..., bool]", type.ToString());
+        }
+
+        [Fact]
         public void ToString_NoParameters_ReturnsFullyFormattedName()
         {
             var type = new CallableType([], PythonTypeSpec.Bool);

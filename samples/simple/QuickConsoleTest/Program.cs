@@ -4,7 +4,6 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 
 var builder = Host.CreateApplicationBuilder(args);
 var home = Path.Join(Environment.CurrentDirectory, "..", "..", "..", "..", "ExamplePythonDependency");

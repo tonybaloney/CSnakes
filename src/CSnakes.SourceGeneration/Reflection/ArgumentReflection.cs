@@ -42,11 +42,11 @@ public class ArgumentReflection
                     from t in TypeReflection.AsPredefinedType(type, conversionDirection)
                     select (Type: t, LiteralExpression: (dv, t) switch
                     {
-                        (PythonConstant.HexadecimalInteger { Value: var v },
+                        (PythonConstant.Integer { Value: var v, NotationHint: PythonConstant.Integer.Notation.Hexadecimal },
                          PredefinedTypeSyntax { Keyword.Value: "long" }) =>
                             SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
                                                             SyntaxFactory.Literal($"0x{v:X}", v)),
-                        (PythonConstant.BinaryInteger { Value: var v },
+                        (PythonConstant.Integer { Value: var v, NotationHint: PythonConstant.Integer.Notation.Binary },
                          PredefinedTypeSyntax { Keyword.Value: "long" }) =>
                             SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
                                                             SyntaxFactory.Literal($"0b{v:B}", v)),

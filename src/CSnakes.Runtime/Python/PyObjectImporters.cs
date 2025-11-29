@@ -1,4 +1,5 @@
 using CSnakes.Runtime.CPython;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime.Python;
@@ -131,6 +132,26 @@ public static partial class PyObjectImporters
             CheckTuple(obj);
             using var item = GetTupleItem(obj, 0);
             return new(TImporter.BareImport(item));
+        }
+    }
+
+    public sealed class VarTuple<T, TImporter> : IPyObjectImporter<ImmutableArray<T>>
+        where TImporter : IPyObjectImporter<T>
+    {
+        private VarTuple() { }
+
+        static ImmutableArray<T> IPyObjectImporter<ImmutableArray<T>>.BareImport(PyObject obj)
+        {
+            GIL.Require();
+            CheckTuple(obj);
+            var length = CPythonAPI.PyTuple_Size(obj);
+            var builder = ImmutableArray.CreateBuilder<T>(checked((int)length));
+            for (int i = 0; i < length; i++)
+            {
+                using var item = GetTupleItem(obj, i);
+                builder.Add(TImporter.BareImport(item));
+            }
+            return builder.MoveToImmutable();
         }
     }
 

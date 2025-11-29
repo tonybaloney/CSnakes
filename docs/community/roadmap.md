@@ -17,7 +17,7 @@ Note that any constructs which are not available will be typed as `PyObject`. Th
 | [Generic](https://docs.python.org/3/library/typing.html#typing.Generic) | No | Relies on class reflection | Base class for generic types. |
 | [TypeVar](https://docs.python.org/3/library/typing.html#typing.TypeVar) |  |  | Defines a generic type variable. |
 | [Callable](https://docs.python.org/3/library/typing.html#typing.Callable) | No | Callables would have to by Python objects, not C# functions | Represents a callable object (e.g., function). |
-| [Tuple](https://docs.python.org/3/library/typing.html#typing.Tuple) | Yes |  | Fixed-length, ordered collection of types. |
+| [Tuple](https://docs.python.org/3/library/typing.html#typing.Tuple) | Yes |  | Fixed- or variable-length, ordered collection of types. |
 | [List](https://docs.python.org/3/library/typing.html#typing.List) | Yes |  | Variable-length, ordered collection of types. |
 | [Dict](https://docs.python.org/3/library/typing.html#typing.Dict) | Yes |  | Dictionary mapping keys to values. |
 | [Set](https://docs.python.org/3/library/typing.html#typing.Set) |  | Usage of sets is quite niche, if you would like this feature please request it. | Unordered collection of unique elements. |

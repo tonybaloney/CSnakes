@@ -28,7 +28,7 @@
     <TargetFrameworks>$(TargetFrameworks);net9.0</TargetFrameworks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$([MSBuild]::VersionGreaterThanOrEquals($(MSBuildVersion), '17.15.0.0'))">
+  <PropertyGroup Condition="$([MSBuild]::VersionGreaterThanOrEquals($(MSBuildVersion), '18.0.0.0'))">
     <TargetFrameworks>$(TargetFrameworks);net10.0</TargetFrameworks>
   </PropertyGroup>
 

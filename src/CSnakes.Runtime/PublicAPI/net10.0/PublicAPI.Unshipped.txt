@@ -122,6 +122,7 @@ CSnakes.Runtime.Python.PyObject
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<T, TImporter>
 CSnakes.Runtime.ServiceCollectionExtensions
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Tuple<T1, T2, T3, T4, T5, T6, T7, TImporter1, TImporter2, TImporter3, TImporter4, TImporter5, TImporter6, TImporter7>
+[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.VarTuple<T, TImporter>
 static CSnakes.Runtime.ServiceCollectionExtensions.FromMacOSInstallerLocator(this CSnakes.Runtime.IPythonEnvironmentBuilder! builder, string! version, bool freeThreaded = false) -> CSnakes.Runtime.IPythonEnvironmentBuilder!
 static CSnakes.Runtime.ServiceCollectionExtensions.FromSource(this CSnakes.Runtime.IPythonEnvironmentBuilder! builder, string! folder, string! version, bool debug = true, bool freeThreaded = false) -> CSnakes.Runtime.IPythonEnvironmentBuilder!
 static CSnakes.Runtime.ServiceCollectionExtensions.FromEnvironmentVariable(this CSnakes.Runtime.IPythonEnvironmentBuilder! builder, string! environmentVariable, string! version) -> CSnakes.Runtime.IPythonEnvironmentBuilder!

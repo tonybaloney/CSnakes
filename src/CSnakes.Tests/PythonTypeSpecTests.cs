@@ -677,8 +677,8 @@ public class PythonTypeSpecTests
     {
         private static class Constants
         {
-            public static readonly PythonConstant Integer1 = new PythonConstant.Integer(42);
-            public static readonly PythonConstant Integer2 = new PythonConstant.Integer(43);
+            public static readonly PythonConstant Integer1 = PythonConstant.Integer.Decimal(42);
+            public static readonly PythonConstant Integer2 = PythonConstant.Integer.Decimal(43);
             public static readonly PythonConstant String = new PythonConstant.String("hello");
             public static readonly PythonConstant Float = new PythonConstant.Float(3.14);
         }
@@ -809,6 +809,14 @@ public class PythonTypeSpecTests
             var type = new CallableType([PythonTypeSpec.Int, PythonTypeSpec.Str], PythonTypeSpec.Bool);
 
             Assert.Equal("Callback[[int, str], bool]", type.ToString());
+        }
+
+        [Fact]
+        public void ToString_WhenNullParameters_FormatsEllipsis()
+        {
+            var type = new CallableType(null, PythonTypeSpec.Bool);
+
+            Assert.Equal("Callback[..., bool]", type.ToString());
         }
 
         [Fact]

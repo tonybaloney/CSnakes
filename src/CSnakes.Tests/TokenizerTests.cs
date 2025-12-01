@@ -484,20 +484,21 @@ public class TokenizerTests
     [Fact]
     public void ParseFullCode()
     {
-        var code = @"""
-import foo
+        var code = """
+            import foo
 
-def bar(a: int, b: str) -> None:
-    pass
+            def bar(a: int, b: str) -> None:
+                pass
 
-def baz(c: float, d: bool) -> None:
-    ...
+            def baz(c: float, d: bool) -> None:
+                ...
 
-a = 1
+            a = 1
 
-if __name__ == '__main__':
-  xyz  = 1
-        """;
+            if __name__ == '__main__':
+              xyz  = 1
+
+            """;
 
         SourceText sourceText = SourceText.From(code);
 

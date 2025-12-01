@@ -207,6 +207,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
             using System;
             using System.Collections.Generic;
+            using System.Collections.Immutable;
             using System.Diagnostics;
             using System.Reflection.Metadata;
             using System.Text;
@@ -219,7 +220,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
             namespace {{@namespace}};
 
-            public static class {{pascalFileName}}Extensions
+            static partial class {{pascalFileName}}Extensions
             {
                 private static I{{pascalFileName}}? instance;
 

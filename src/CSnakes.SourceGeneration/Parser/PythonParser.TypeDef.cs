@@ -59,12 +59,14 @@ public static partial class PythonParser
             //
             from callable in
                 TypeDefinitionParser.ManyDelimitedBy(Comma)
+                                    .Select(ps => (PythonTypeSpec[]?)ps)
                                     .Subscript()
+                                    .Or(Token.EqualTo(PythonToken.Ellipsis).Value((PythonTypeSpec[]?)null))
                                     .ThenIgnore(Comma)
                                     .Then(ps => from r in TypeDefinitionParser
                                                 select (Parameters: ps, Return: r))
                                     .Subscript()
-            select (PythonTypeSpec)new CallableType([..callable.Parameters], callable.Return);
+            select (PythonTypeSpec)new CallableType(callable.Parameters is { } ps ? [..ps] : null, callable.Return);
 
         public static readonly PythonTypeSpecParser Literal =
             // Literal can contain any PythonConstant, or a list of them.

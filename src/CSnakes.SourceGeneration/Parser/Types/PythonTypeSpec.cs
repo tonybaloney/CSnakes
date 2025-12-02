@@ -148,9 +148,14 @@ public sealed record OptionalType(PythonTypeSpec Of) : ClosedGenericType("Option
     public override string ToString() => Format($"{Of}");
 }
 
-public sealed record CallableType(ValueArray<PythonTypeSpec> Parameters, PythonTypeSpec Return) : ClosedGenericType("Callback")
+public sealed record CallableType(ValueArray<PythonTypeSpec>? Parameters, PythonTypeSpec Return) : ClosedGenericType("Callback")
 {
-    public override string ToString() => Format($"[{string.Join(", ", Parameters)}], {Return}");
+    public override string ToString() => Parameters switch
+    {
+        null => $"{Name}[..., {Return}]",
+        [] => $"{Name}[[], {Return}]",
+        { } ps => $"{Name}[[{string.Join(", ", ps)}], {Return}]",
+    };
 }
 
 public sealed record TupleType(ValueArray<PythonTypeSpec> Parameters) : ClosedGenericType("tuple")

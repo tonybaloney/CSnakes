@@ -128,8 +128,8 @@ public class PythonTypeDefinitionParserTests
     [InlineData("Callable", "Syntax error: unexpected end of input, expected `[`.")]
     [InlineData("typing.Callable", "Syntax error: unexpected end of input, expected `[`.")]
     [InlineData("collections.abc.Callable", "Syntax error: unexpected end of input, expected `[`.")]
-    [InlineData("Callable[]", "Syntax error (line 1, column 10): unexpected `]`, expected `[`.")]
-    [InlineData("Callable[int]", "Syntax error (line 1, column 10): unexpected identifier `int`, expected `[`.")]
+    [InlineData("Callable[]", "Syntax error (line 1, column 10): unexpected `]`, expected `[` or `...`.")]
+    [InlineData("Callable[int]", "Syntax error (line 1, column 10): unexpected identifier `int`, expected `[` or `...`.")]
     [InlineData("Callable[[int]]", "Syntax error (line 1, column 15): unexpected `]`, expected `,`.")]
     public void CallableArgTest(string input, string expectedErrorMessage) =>
         TestParseError(input, expectedErrorMessage);
@@ -221,9 +221,9 @@ public class PythonTypeDefinitionParserTests
     public void CallableTest(string input)
     {
         var type = TestParse<CallableType>(input);
-        Assert.Equal(2, type.Parameters.Length);
-        _ = Assert.IsType<IntType>(type.Parameters[0]);
-        _ = Assert.IsType<StrType>(type.Parameters[1]);
+        var parameters = Assert.NotNull(type.Parameters);
+        _ = Assert.IsType<IntType>(parameters[0]);
+        _ = Assert.IsType<StrType>(parameters[1]);
         _ = Assert.IsType<BoolType>(type.Return);
     }
 
@@ -233,8 +233,18 @@ public class PythonTypeDefinitionParserTests
     public void CallableNoParametersTest(string input)
     {
         var type = TestParse<CallableType>(input);
-        Assert.Empty(type.Parameters);
+        var parameters = Assert.NotNull(type.Parameters);
+        Assert.Empty(parameters);
         _ = Assert.IsType<NoneType>(type.Return);
+    }
+
+    [Theory]
+    [InlineData("Callable[..., Any]")]
+    public void CallableEllipsisParametersTest(string input)
+    {
+        var type = TestParse<CallableType>(input);
+        Assert.Null(type.Parameters);
+        _ = Assert.IsType<AnyType>(type.Return);
     }
 
     [Theory]

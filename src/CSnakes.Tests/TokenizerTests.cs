@@ -630,7 +630,8 @@ if __name__ == '__main__':
         Assert.Equal("opener", opener.Name);
         Assert.Equal("str", opener.ImpliedTypeSpec.Name);
         Assert.NotNull(opener.DefaultValue);
-        Assert.Equal("foo", opener.DefaultValue.ToString());
+        var defaultValue = Assert.IsType<PythonConstant.String>(opener.DefaultValue);
+        Assert.Equal("foo", defaultValue.Value);
     }
 
     [Fact]
@@ -655,7 +656,8 @@ if __name__ == '__main__':
         Assert.Equal("opener", opener.Name);
         Assert.Equal("str", opener.ImpliedTypeSpec.Name);
         Assert.NotNull(opener.DefaultValue);
-        Assert.Equal("foo", opener.DefaultValue.ToString());
+        var defaultValue = Assert.IsType<PythonConstant.String>(opener.DefaultValue);
+        Assert.Equal("foo", defaultValue.Value);
     }
 
 
@@ -715,8 +717,8 @@ if __name__ == '__main__':
         var opener = parameters[0];
         Assert.Equal("opener", opener.Name);
         Assert.Equal("str", opener.ImpliedTypeSpec.Name);
-        Assert.NotNull(opener.DefaultValue);
-        Assert.Equal("foo", opener.DefaultValue.ToString());
+        var defaultValue = Assert.IsType<PythonConstant.String>(opener.DefaultValue);
+        Assert.Equal("foo", defaultValue.Value);
     }
 
     [Fact]

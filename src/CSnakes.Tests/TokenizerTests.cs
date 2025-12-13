@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using Superpower;
 using Superpower.Model;
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
 namespace CSnakes.Tests;
@@ -259,6 +260,43 @@ public class TokenizerTests
         var constant = Assert.IsType<PythonConstant.None>(param.DefaultValue);
         Assert.Same(PythonConstant.None.Value, constant);
         Assert.NotNull(param.TypeSpec);
+    }
+
+    [Theory]
+    [InlineData("Annotated")]
+    [InlineData("typing.Annotated")]
+    public void ParseFunctionParameterWithAnnotatedTypeSpec(string annotated)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize($"a: {annotated}[object, None, False, True, 42, 'foobar'] = None");
+        var param = PythonParser.OptionalPythonParameterParser.Parse(tokens);
+        Assert.Equal("a", param.Name);
+        var constant = Assert.IsType<PythonConstant.None>(param.DefaultValue);
+        Assert.Same(PythonConstant.None.Value, constant);
+        Assert.NotNull(param.TypeSpec);
+        Assert.Equal([PythonConstant.None.Value, false, true, 42, "foobar"], param.TypeSpec.Metadata);
+    }
+
+    [Fact]
+    public void ParseFunctionParameterWithComplexAnnotatedTypeSpec()
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize("a: Annotated[list[typing.Annotated[int, 'foo']], 'bar']");
+        var param = PythonParser.OptionalPythonParameterParser.Parse(tokens);
+        Assert.Equal("a", param.Name);
+        Assert.Null(param.DefaultValue);
+        Assert.NotNull(param.TypeSpec);
+        Assert.Equal(["bar"], param.TypeSpec.Metadata);
+        var typeArg = Assert.IsType<ListType>(param.TypeSpec).Of;
+        Assert.Equal("int", typeArg.Name);
+        Assert.Equal(["foo"], typeArg.Metadata);
+    }
+
+    [Fact]
+    public void ParseFunctionParameterDoesNotSupportNestedAnnotated()
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize("a: Annotated[Annotated[object, 42], 'foobar']");
+        void Act() => _ = PythonParser.OptionalPythonParameterParser.Parse(tokens);
+        var ex = Assert.Throws<ParseException>(Act);
+        Assert.Equal("Syntax error (line 1, column 32): unexpected integer `42`, expected Type Definition.", ex.Message);
     }
 
     [Theory]

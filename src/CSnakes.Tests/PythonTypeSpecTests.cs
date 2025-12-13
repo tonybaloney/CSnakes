@@ -51,6 +51,41 @@ public class PythonTypeSpecTests
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
         }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = PythonTypeSpec.None with { Metadata = [1] };
+            var b = PythonTypeSpec.None with { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = PythonTypeSpec.None with { Metadata = [1] };
+            var b = PythonTypeSpec.None with { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = PythonTypeSpec.None with { Metadata = [1] };
+            var b = PythonTypeSpec.None with { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
+        }
     }
 
     public class AnyTypeTests
@@ -85,6 +120,41 @@ public class PythonTypeSpecTests
             var b = PythonTypeSpec.Any;
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
+        }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = PythonTypeSpec.Any with { Metadata = [1] };
+            var b = PythonTypeSpec.Any with { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = PythonTypeSpec.Any with { Metadata = [1] };
+            var b = PythonTypeSpec.Any with { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = PythonTypeSpec.Any with { Metadata = [1] };
+            var b = PythonTypeSpec.Any with { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
         }
     }
 
@@ -121,6 +191,41 @@ public class PythonTypeSpecTests
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
         }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = PythonTypeSpec.Int with { Metadata = [1] };
+            var b = PythonTypeSpec.Int with { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = PythonTypeSpec.Int with { Metadata = [1] };
+            var b = PythonTypeSpec.Int with { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = PythonTypeSpec.Int with { Metadata = [1] };
+            var b = PythonTypeSpec.Int with { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
+        }
     }
 
     public class StrTypeTests
@@ -155,6 +260,41 @@ public class PythonTypeSpecTests
             var b = PythonTypeSpec.Str;
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
+        }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = PythonTypeSpec.Str with { Metadata = [1] };
+            var b = PythonTypeSpec.Str with { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = PythonTypeSpec.Str with { Metadata = [1] };
+            var b = PythonTypeSpec.Str with { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = PythonTypeSpec.Str with { Metadata = [1] };
+            var b = PythonTypeSpec.Str with { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
         }
     }
 
@@ -191,6 +331,41 @@ public class PythonTypeSpecTests
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
         }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = PythonTypeSpec.Float with { Metadata = [1] };
+            var b = PythonTypeSpec.Float with { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = PythonTypeSpec.Float with { Metadata = [1] };
+            var b = PythonTypeSpec.Float with { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = PythonTypeSpec.Float with { Metadata = [1] };
+            var b = PythonTypeSpec.Float with { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
+        }
     }
 
     public class BoolTypeTests
@@ -225,6 +400,41 @@ public class PythonTypeSpecTests
             var b = PythonTypeSpec.Bool;
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
+        }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = PythonTypeSpec.Bool with { Metadata = [1] };
+            var b = PythonTypeSpec.Bool with { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = PythonTypeSpec.Bool with { Metadata = [1] };
+            var b = PythonTypeSpec.Bool with { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = PythonTypeSpec.Bool with { Metadata = [1] };
+            var b = PythonTypeSpec.Bool with { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
         }
     }
 
@@ -261,6 +471,41 @@ public class PythonTypeSpecTests
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
         }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = PythonTypeSpec.Bytes with { Metadata = [1] };
+            var b = PythonTypeSpec.Bytes with { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = PythonTypeSpec.Bytes with { Metadata = [1] };
+            var b = PythonTypeSpec.Bytes with { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = PythonTypeSpec.Bytes with { Metadata = [1] };
+            var b = PythonTypeSpec.Bytes with { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
+        }
     }
 
     public class BufferTypeTests
@@ -295,6 +540,41 @@ public class PythonTypeSpecTests
             var b = PythonTypeSpec.Buffer;
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
+        }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = PythonTypeSpec.Buffer with { Metadata = [1] };
+            var b = PythonTypeSpec.Buffer with { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = PythonTypeSpec.Buffer with { Metadata = [1] };
+            var b = PythonTypeSpec.Buffer with { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = PythonTypeSpec.Buffer with { Metadata = [1] };
+            var b = PythonTypeSpec.Buffer with { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
         }
     }
 
@@ -357,6 +637,41 @@ public class PythonTypeSpecTests
 
             Assert.IsAssignableFrom<ISequenceType>(type);
         }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = new SequenceType(PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new SequenceType(PythonTypeSpec.Int) { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = new SequenceType(PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new SequenceType(PythonTypeSpec.Int) { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = new SequenceType(PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new SequenceType(PythonTypeSpec.Int) { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
+        }
     }
 
     public class ListTypeTests
@@ -414,6 +729,41 @@ public class PythonTypeSpecTests
         public void ImplementsISequenceType()
         {
             Assert.IsAssignableFrom<ISequenceType>(new ListType(PythonTypeSpec.Int));
+        }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = new ListType(PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new ListType(PythonTypeSpec.Int) { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = new ListType(PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new ListType(PythonTypeSpec.Int) { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = new ListType(PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new ListType(PythonTypeSpec.Int) { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
         }
     }
 
@@ -478,6 +828,41 @@ public class PythonTypeSpecTests
         public void ImplementsIMappingType()
         {
             Assert.IsAssignableFrom<IMappingType>(new MappingType(PythonTypeSpec.Str, PythonTypeSpec.Int));
+        }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = new MappingType(PythonTypeSpec.Str, PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new MappingType(PythonTypeSpec.Str, PythonTypeSpec.Int) { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = new MappingType(PythonTypeSpec.Str, PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new MappingType(PythonTypeSpec.Str, PythonTypeSpec.Int) { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = new MappingType(PythonTypeSpec.Str, PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new MappingType(PythonTypeSpec.Str, PythonTypeSpec.Int) { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
         }
     }
 
@@ -547,6 +932,41 @@ public class PythonTypeSpecTests
 
             Assert.IsAssignableFrom<IMappingType>(type);
         }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = new DictType(PythonTypeSpec.Str, PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new DictType(PythonTypeSpec.Str, PythonTypeSpec.Int) { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = new DictType(PythonTypeSpec.Str, PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new DictType(PythonTypeSpec.Str, PythonTypeSpec.Int) { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = new DictType(PythonTypeSpec.Str, PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new DictType(PythonTypeSpec.Str, PythonTypeSpec.Int) { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
+        }
     }
 
     public class CoroutineTypeTests
@@ -608,6 +1028,41 @@ public class PythonTypeSpecTests
             var b = new CoroutineType(yieldType, sendType, returnType);
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
+        }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = new CoroutineType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool) { Metadata = [1] };
+            var b = new CoroutineType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool) { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = new CoroutineType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool) { Metadata = [1] };
+            var b = new CoroutineType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool) { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = new CoroutineType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool) { Metadata = [1] };
+            var b = new CoroutineType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool) { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
         }
     }
 
@@ -671,6 +1126,41 @@ public class PythonTypeSpecTests
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
         }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = new GeneratorType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool) { Metadata = [1] };
+            var b = new GeneratorType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool) { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = new GeneratorType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool) { Metadata = [1] };
+            var b = new GeneratorType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool) { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = new GeneratorType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool) { Metadata = [1] };
+            var b = new GeneratorType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool) { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
+        }
     }
 
     public class LiteralTypeTests
@@ -733,6 +1223,41 @@ public class PythonTypeSpecTests
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
         }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = new LiteralType([Constants.Integer1]) { Metadata = [1] };
+            var b = new LiteralType([Constants.Integer1]) { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = new LiteralType([Constants.Integer1]) { Metadata = [1] };
+            var b = new LiteralType([Constants.Integer1]) { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = new LiteralType([Constants.Integer1]) { Metadata = [1] };
+            var b = new LiteralType([Constants.Integer1]) { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
+        }
     }
 
     public class OptionalTypeTests
@@ -786,6 +1311,41 @@ public class PythonTypeSpecTests
             var b = new OptionalType(ofType);
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
+        }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = new OptionalType(PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new OptionalType(PythonTypeSpec.Int) { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = new OptionalType(PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new OptionalType(PythonTypeSpec.Int) { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = new OptionalType(PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new OptionalType(PythonTypeSpec.Int) { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
         }
     }
 
@@ -861,6 +1421,41 @@ public class PythonTypeSpecTests
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
         }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = new CallableType([PythonTypeSpec.Int], PythonTypeSpec.Bool) { Metadata = [1] };
+            var b = new CallableType([PythonTypeSpec.Int], PythonTypeSpec.Bool) { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = new CallableType([PythonTypeSpec.Int], PythonTypeSpec.Bool) { Metadata = [1] };
+            var b = new CallableType([PythonTypeSpec.Int], PythonTypeSpec.Bool) { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = new CallableType([PythonTypeSpec.Int], PythonTypeSpec.Bool) { Metadata = [1] };
+            var b = new CallableType([PythonTypeSpec.Int], PythonTypeSpec.Bool) { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
+        }
     }
 
     public class TupleTypeTests
@@ -925,6 +1520,41 @@ public class PythonTypeSpecTests
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
         }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = new TupleType([PythonTypeSpec.Int, PythonTypeSpec.Str]) { Metadata = [1] };
+            var b = new TupleType([PythonTypeSpec.Int, PythonTypeSpec.Str]) { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = new TupleType([PythonTypeSpec.Int, PythonTypeSpec.Str]) { Metadata = [1] };
+            var b = new TupleType([PythonTypeSpec.Int, PythonTypeSpec.Str]) { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = new TupleType([PythonTypeSpec.Int, PythonTypeSpec.Str]) { Metadata = [1] };
+            var b = new TupleType([PythonTypeSpec.Int, PythonTypeSpec.Str]) { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
+        }
     }
 
     public class VariadicTupleTypeTests
@@ -950,9 +1580,8 @@ public class PythonTypeSpecTests
         [Fact]
         public void Equality_HasValueSemantics()
         {
-            var ofType = PythonTypeSpec.Int;
-            var a = new VariadicTupleType(ofType);
-            var b = new VariadicTupleType(ofType);
+            var a = new VariadicTupleType(PythonTypeSpec.Int);
+            var b = new VariadicTupleType(PythonTypeSpec.Int);
 
             Assert.Equal(a, b);
             Assert.True(a == b);
@@ -973,11 +1602,45 @@ public class PythonTypeSpecTests
         [Fact]
         public void GetHashCode_IsConsistent()
         {
-            var ofType = PythonTypeSpec.Int;
-            var a = new VariadicTupleType(ofType);
-            var b = new VariadicTupleType(ofType);
+            var a = new VariadicTupleType(PythonTypeSpec.Int);
+            var b = new VariadicTupleType(PythonTypeSpec.Int);
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
+        }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = new VariadicTupleType(PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new VariadicTupleType(PythonTypeSpec.Int) { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = new VariadicTupleType(PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new VariadicTupleType(PythonTypeSpec.Int) { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = new VariadicTupleType(PythonTypeSpec.Int) { Metadata = [1] };
+            var b = new VariadicTupleType(PythonTypeSpec.Int) { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
         }
     }
 
@@ -1123,6 +1786,41 @@ public class PythonTypeSpecTests
             var ex = Assert.Throws<ArgumentException>(Act);
             Assert.Equal("choices", ex.ParamName);
         }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Str]) { Metadata = [1] };
+            var b = new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Str]) { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Str]) { Metadata = [1] };
+            var b = new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Str]) { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Str]) { Metadata = [1] };
+            var b = new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Str]) { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
+        }
     }
 
     public class ParsedPythonTypeSpecTests
@@ -1209,6 +1907,41 @@ public class PythonTypeSpecTests
             var b = new ParsedPythonTypeSpec(name, arguments);
 
             Assert.Equal(a.GetHashCode(), b.GetHashCode());
+        }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = new ParsedPythonTypeSpec("MyType", [PythonTypeSpec.Int]) { Metadata = [1] };
+            var b = new ParsedPythonTypeSpec("MyType", [PythonTypeSpec.Int]) { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = new ParsedPythonTypeSpec("MyType", [PythonTypeSpec.Int]) { Metadata = [1] };
+            var b = new ParsedPythonTypeSpec("MyType", [PythonTypeSpec.Int]) { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = new ParsedPythonTypeSpec("MyType", [PythonTypeSpec.Int]) { Metadata = [1] };
+            var b = new ParsedPythonTypeSpec("MyType", [PythonTypeSpec.Int]) { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
         }
     }
 }

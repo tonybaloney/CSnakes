@@ -193,19 +193,10 @@ public class PythonTypeSpecTests
         [Fact]
         public void Constructor_SetsTypeArgument()
         {
-            var ofType = PythonTypeSpec.Int;
-            var type = new SequenceType(ofType);
+            var type = CreateInstance();
 
-            Assert.Equal("Sequence", type.Name);
-            Assert.Equal(ofType, type.Of);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new SequenceType(PythonTypeSpec.Str);
-
-            Assert.Equal("Sequence[str]", type.ToString());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Int, type.Of);
         }
 
         [Fact]
@@ -229,19 +220,10 @@ public class PythonTypeSpecTests
         [Fact]
         public void Constructor_SetsTypeArgument()
         {
-            var ofType = PythonTypeSpec.Int;
-            var type = new ListType(ofType);
+            var type = CreateInstance();
 
-            Assert.Equal("list", type.Name);
-            Assert.Equal(ofType, type.Of);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new ListType(PythonTypeSpec.Str);
-
-            Assert.Equal("list[str]", type.ToString());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Int, type.Of);
         }
 
         [Fact]
@@ -262,21 +244,11 @@ public class PythonTypeSpecTests
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            var keyType = PythonTypeSpec.Str;
-            var valueType = PythonTypeSpec.Int;
-            var type = new MappingType(keyType, valueType);
+            var type = CreateInstance();
 
-            Assert.Equal("Mapping", type.Name);
-            Assert.Equal(keyType, type.Key);
-            Assert.Equal(valueType, type.Value);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new MappingType(PythonTypeSpec.Str, PythonTypeSpec.Int);
-
-            Assert.Equal("Mapping[str, int]", type.ToString());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Str, type.Key);
+            Assert.Equal(PythonTypeSpec.Int, type.Value);
         }
 
         [Fact]
@@ -297,21 +269,11 @@ public class PythonTypeSpecTests
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            var keyType = PythonTypeSpec.Str;
-            var valueType = PythonTypeSpec.Int;
-            var type = new DictType(keyType, valueType);
+            var type = CreateInstance();
 
-            Assert.Equal("dict", type.Name);
-            Assert.Equal(keyType, type.Key);
-            Assert.Equal(valueType, type.Value);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new DictType(PythonTypeSpec.Str, PythonTypeSpec.Int);
-
-            Assert.Equal("dict[str, int]", type.ToString());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Str, type.Key);
+            Assert.Equal(PythonTypeSpec.Int, type.Value);
         }
 
         [Fact]
@@ -334,23 +296,12 @@ public class PythonTypeSpecTests
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            var yieldType = PythonTypeSpec.Int;
-            var sendType = PythonTypeSpec.Str;
-            var returnType = PythonTypeSpec.Bool;
-            var type = new CoroutineType(yieldType, sendType, returnType);
+            var type = CreateInstance();
 
-            Assert.Equal("Coroutine", type.Name);
-            Assert.Equal(yieldType, type.Yield);
-            Assert.Equal(sendType, type.Send);
-            Assert.Equal(returnType, type.Return);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new CoroutineType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
-
-            Assert.Equal("Coroutine[int, str, bool]", type.ToString());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Int, type.Yield);
+            Assert.Equal(PythonTypeSpec.Str, type.Send);
+            Assert.Equal(PythonTypeSpec.Bool, type.Return);
         }
     }
 
@@ -365,23 +316,12 @@ public class PythonTypeSpecTests
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            var yieldType = PythonTypeSpec.Int;
-            var sendType = PythonTypeSpec.Str;
-            var returnType = PythonTypeSpec.Bool;
-            var type = new GeneratorType(yieldType, sendType, returnType);
+            var type = CreateInstance();
 
-            Assert.Equal("Generator", type.Name);
-            Assert.Equal(yieldType, type.Yield);
-            Assert.Equal(sendType, type.Send);
-            Assert.Equal(returnType, type.Return);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new GeneratorType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
-
-            Assert.Equal("Generator[int, str, bool]", type.ToString());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Int, type.Yield);
+            Assert.Equal(PythonTypeSpec.Str, type.Send);
+            Assert.Equal(PythonTypeSpec.Bool, type.Return);
         }
     }
 
@@ -395,28 +335,19 @@ public class PythonTypeSpecTests
             public static readonly PythonConstant Float = new PythonConstant.Float(3.14);
         }
 
-        public static LiteralType CreateInstance() => new([Constants.Integer1]);
-        public static LiteralType CreateEquivalentInstance() => new([Constants.Integer1]);
-        public static PythonTypeSpec CreateDifferentInstance() => new LiteralType([Constants.Integer2]);
+        public static LiteralType CreateInstance() => new([Constants.Integer1, Constants.String, Constants.Float]);
+        public static LiteralType CreateEquivalentInstance() => new([Constants.Integer1, Constants.String, Constants.Float]);
+        public static PythonTypeSpec CreateDifferentInstance() => new LiteralType([Constants.Integer2, Constants.String, Constants.Float]);
         public static string ExpectedName => "Literal";
-        public static string ExpectedToString => "Literal[42]";
+        public static string ExpectedToString => "Literal[42, 'hello', 3.14]";
 
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            ValueArray<PythonConstant> constants = [Constants.Integer1, Constants.String];
-            var type = new LiteralType(constants);
+            var type = CreateInstance();
 
-            Assert.Equal("Literal", type.Name);
-            Assert.Equal(constants, type.Constants);
-        }
-
-        [Fact]
-        public void ToString_FormatsConstants()
-        {
-            var type = new LiteralType([Constants.Integer1, Constants.String, Constants.Float]);
-
-            Assert.Equal("Literal[42, 'hello', 3.14]", type.ToString());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal([Constants.Integer1, Constants.String, Constants.Float], type.Constants);
         }
     }
 
@@ -431,19 +362,10 @@ public class PythonTypeSpecTests
         [Fact]
         public void Constructor_SetsTypeArgument()
         {
-            var ofType = PythonTypeSpec.Int;
-            var type = new OptionalType(ofType);
+            var type = CreateInstance();
 
-            Assert.Equal("Optional", type.Name);
-            Assert.Equal(ofType, type.Of);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new OptionalType(PythonTypeSpec.Str);
-
-            Assert.Equal("Optional[str]", type.ToString());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Int, type.Of);
         }
     }
 
@@ -458,21 +380,11 @@ public class PythonTypeSpecTests
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            ValueArray<PythonTypeSpec> parameters = [PythonTypeSpec.Int, PythonTypeSpec.Str];
-            var returnType = PythonTypeSpec.Bool;
-            var type = new CallableType(parameters, returnType);
+            var type = CreateInstance();
 
-            Assert.Equal("Callback", type.Name);
-            Assert.Equal(parameters, type.Parameters);
-            Assert.Equal(returnType, type.Return);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new CallableType([PythonTypeSpec.Int, PythonTypeSpec.Str], PythonTypeSpec.Bool);
-
-            Assert.Equal("Callback[[int, str], bool]", type.ToString());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal([PythonTypeSpec.Int, PythonTypeSpec.Str], type.Parameters);
+            Assert.Equal(PythonTypeSpec.Bool, type.Return);
         }
 
         [Fact]
@@ -494,29 +406,19 @@ public class PythonTypeSpecTests
 
     public class TupleTypeTests : TestBase<TupleType, TupleTypeTests>, ITestData<TupleType>
     {
-        public static TupleType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str]);
-        public static TupleType CreateEquivalentInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str]);
-        public static PythonTypeSpec CreateDifferentInstance() => new TupleType([PythonTypeSpec.Int]);
+        public static TupleType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool]);
+        public static TupleType CreateEquivalentInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool]);
+        public static PythonTypeSpec CreateDifferentInstance() => new TupleType([PythonTypeSpec.Int, PythonTypeSpec.Str]);
         public static string ExpectedName => "tuple";
-        public static string ExpectedToString => "tuple[int, str]";
+        public static string ExpectedToString => "tuple[int, str, bool]";
 
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            ValueArray<PythonTypeSpec> parameters = [PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool];
-            var type = new TupleType(parameters);
+            var type = CreateInstance();
 
-            Assert.Equal("tuple", type.Name);
-            Assert.Equal(parameters, type.Parameters);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            ValueArray<PythonTypeSpec> parameters = [PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool];
-            var type = new TupleType(parameters);
-
-            Assert.Equal("tuple[int, str, bool]", type.ToString());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal([PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool], type.Parameters);
         }
 
         [Fact]
@@ -540,46 +442,27 @@ public class PythonTypeSpecTests
         [Fact]
         public void Constructor_SetsTypeArgument()
         {
-            var ofType = PythonTypeSpec.Int;
-            var type = new VariadicTupleType(ofType);
+            var type = CreateInstance();
 
-            Assert.Equal("tuple", type.Name);
-            Assert.Equal(ofType, type.Of);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new VariadicTupleType(PythonTypeSpec.Str);
-
-            Assert.Equal("tuple[str, ...]", type.ToString());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Int, type.Of);
         }
     }
 
     public class UnionTypeTests : TestBase<UnionType, UnionTypeTests>, ITestData<UnionType>
     {
-        public static UnionType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str]);
-        public static UnionType CreateEquivalentInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str]);
+        public static UnionType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool]);
+        public static UnionType CreateEquivalentInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool]);
         public static PythonTypeSpec CreateDifferentInstance() => new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Bool]);
         public static string ExpectedName => "Union";
-        public static string ExpectedToString => "Union[int, str]";
+        public static string ExpectedToString => "Union[int, str, bool]";
 
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            ValueArray<PythonTypeSpec> choices = [PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool];
-            var type = new UnionType(choices);
+            var type = CreateInstance();
 
-            Assert.Equal("Union", type.Name);
-            Assert.Equal(choices, type.Choices);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool]);
-
-            Assert.Equal("Union[int, str, bool]", type.ToString());
+            Assert.Equal([PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool], type.Choices);
         }
 
         [Fact]
@@ -684,12 +567,10 @@ public class PythonTypeSpecTests
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            const string name = "MyCustomType";
-            ValueArray<PythonTypeSpec> arguments = [PythonTypeSpec.Int, PythonTypeSpec.Str];
-            var type = new ParsedPythonTypeSpec(name, arguments);
+            var type = CreateInstance();
 
-            Assert.Equal(name, type.Name);
-            Assert.Equal(arguments, type.Arguments);
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal([PythonTypeSpec.Int, PythonTypeSpec.Str], type.Arguments);
         }
 
         [Fact]

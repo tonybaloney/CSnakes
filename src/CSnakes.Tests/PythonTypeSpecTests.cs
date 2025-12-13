@@ -8,7 +8,7 @@ public class PythonTypeSpecTests
     /// Defines static test data for PythonTypeSpec test classes.
     /// </summary>
     /// <typeparam name="T">The PythonTypeSpec type being tested.</typeparam>
-    public interface ITestData<T> where T : PythonTypeSpec
+    public interface ITestData<out T> where T : PythonTypeSpec
     {
         static abstract T CreateInstance();
         static abstract T CreateEquivalentInstance();

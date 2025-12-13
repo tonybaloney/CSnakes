@@ -151,6 +151,27 @@ public class PythonConstantTests
             var floatConstant = new PythonConstant.Float(value);
             Assert.Equal(expected, floatConstant.ToString());
         }
+
+        [Fact]
+        public void ToString_Formats_NaN()
+        {
+            var floatConstant = new PythonConstant.Float(double.NaN);
+            Assert.Equal("nan", floatConstant.ToString());
+        }
+
+        [Fact]
+        public void ToString_Formats_PositiveInfinity()
+        {
+            var floatConstant = new PythonConstant.Float(double.PositiveInfinity);
+            Assert.Equal("inf", floatConstant.ToString());
+        }
+
+        [Fact]
+        public void ToString_Formats_NegativeInfinity()
+        {
+            var floatConstant = new PythonConstant.Float(double.NegativeInfinity);
+            Assert.Equal("-inf", floatConstant.ToString());
+        }
     }
 
     public class StringTests
@@ -190,6 +211,61 @@ public class PythonConstantTests
         {
             var stringConstant = new PythonConstant.String("old") { Value = "new" };
             Assert.Equal("new", stringConstant.Value);
+        }
+
+        [Theory]
+        [InlineData("hello", "'hello'")]
+        [InlineData("", "''")]
+        [InlineData("it's working", @"'it\'s working'")]
+        [InlineData("path\\to\\file", @"'path\\to\\file'")]
+        [InlineData("line1\nline2", @"'line1\nline2'")]
+        [InlineData("tab\there", @"'tab\there'")]
+        [InlineData("carriage\rreturn", @"'carriage\rreturn'")]
+        [InlineData("back\bspace", @"'back\bspace'")]
+        [InlineData("form\ffeed", @"'form\ffeed'")]
+        [InlineData("null\0char", @"'null\0char'")]
+        [InlineData("café", "'café'")]
+        [InlineData("Hello 世界", "'Hello 世界'")]
+        public void ToString_Formats_As_Python_Literal(string value, string expected)
+        {
+            var stringConstant = new PythonConstant.String(value);
+            Assert.Equal(expected, stringConstant.ToString());
+        }
+
+        [Fact]
+        public void ToString_Handles_Multiple_Escape_Sequences()
+        {
+            var stringConstant = new PythonConstant.String("line1\nline2\ttab");
+            Assert.Equal(@"'line1\nline2\ttab'", stringConstant.ToString());
+        }
+
+        [Fact]
+        public void ToString_Handles_Mixed_Escapes()
+        {
+            var stringConstant = new PythonConstant.String("quote:' backslash:\\ newline:\n");
+            Assert.Equal(@"'quote:\' backslash:\\ newline:\n'", stringConstant.ToString());
+        }
+
+        [Fact]
+        public void ToString_Handles_Consecutive_Backslashes()
+        {
+            var stringConstant = new PythonConstant.String("\\\\\\");
+            Assert.Equal(@"'\\\\\\'", stringConstant.ToString());
+        }
+
+        [Theory]
+        [InlineData("\n", @"'\n'")]
+        [InlineData("\r", @"'\r'")]
+        [InlineData("\t", @"'\t'")]
+        [InlineData("\b", @"'\b'")]
+        [InlineData("\f", @"'\f'")]
+        [InlineData("\0", @"'\0'")]
+        [InlineData("\\", @"'\\'")]
+        [InlineData("'", @"'\''")]
+        public void ToString_Escapes_Special_Characters(string value, string expected)
+        {
+            var stringConstant = new PythonConstant.String(value);
+            Assert.Equal(expected, stringConstant.ToString());
         }
     }
 
@@ -297,7 +373,60 @@ public class PythonConstantTests
         public void ToString_Returns_Value()
         {
             var byteString = new PythonConstant.ByteString("test");
-            Assert.Equal("test", byteString.ToString());
+            Assert.Equal("b'test'", byteString.ToString());
+        }
+
+        [Theory]
+        [InlineData("hello", "b'hello'")]
+        [InlineData("", "b''")]
+        [InlineData("it's working", @"b'it\'s working'")]
+        [InlineData("path\\to\\file", @"b'path\\to\\file'")]
+        [InlineData("line1\nline2", @"b'line1\nline2'")]
+        [InlineData("tab\there", @"b'tab\there'")]
+        [InlineData("carriage\rreturn", @"b'carriage\rreturn'")]
+        [InlineData("back\bspace", @"b'back\bspace'")]
+        [InlineData("form\ffeed", @"b'form\ffeed'")]
+        [InlineData("null\0char", @"b'null\0char'")]
+        public void ToString_Formats_As_Python_Literal(string value, string expected)
+        {
+            var byteString = new PythonConstant.ByteString(value);
+            Assert.Equal(expected, byteString.ToString());
+        }
+
+        [Fact]
+        public void ToString_Handles_Multiple_Escape_Sequences()
+        {
+            var byteString = new PythonConstant.ByteString("line1\nline2\ttab");
+            Assert.Equal(@"b'line1\nline2\ttab'", byteString.ToString());
+        }
+
+        [Fact]
+        public void ToString_Handles_Mixed_Escapes()
+        {
+            var byteString = new PythonConstant.ByteString("quote:' backslash:\\ newline:\n");
+            Assert.Equal(@"b'quote:\' backslash:\\ newline:\n'", byteString.ToString());
+        }
+
+        [Fact]
+        public void ToString_Handles_Consecutive_Backslashes()
+        {
+            var byteString = new PythonConstant.ByteString("\\\\\\");
+            Assert.Equal(@"b'\\\\\\'", byteString.ToString());
+        }
+
+        [Theory]
+        [InlineData("\n", @"b'\n'")]
+        [InlineData("\r", @"b'\r'")]
+        [InlineData("\t", @"b'\t'")]
+        [InlineData("\b", @"b'\b'")]
+        [InlineData("\f", @"b'\f'")]
+        [InlineData("\0", @"b'\0'")]
+        [InlineData("\\", @"b'\\'")]
+        [InlineData("'", @"b'\''")]
+        public void ToString_Escapes_Special_Characters(string value, string expected)
+        {
+            var byteString = new PythonConstant.ByteString(value);
+            Assert.Equal(expected, byteString.ToString());
         }
     }
 

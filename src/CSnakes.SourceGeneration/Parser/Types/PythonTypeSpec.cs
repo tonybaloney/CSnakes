@@ -149,7 +149,11 @@ public sealed record CallableType(ValueArray<PythonTypeSpec>? Parameters, Python
 
 public sealed record TupleType(ValueArray<PythonTypeSpec> Parameters) : ClosedGenericType("tuple")
 {
-    public override string ToString() => $"{Name}[{string.Join(", ", Parameters)}]";
+    public override string ToString() => Parameters switch
+    {
+        [] => $"{Name}[()]",
+        var @params => $"{Name}[{string.Join(", ", @params)}]"
+    };
 }
 
 public sealed record VariadicTupleType(PythonTypeSpec Of) : PythonTypeSpec("tuple")

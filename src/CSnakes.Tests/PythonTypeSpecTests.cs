@@ -890,7 +890,7 @@ public class PythonTypeSpecTests
             ValueArray<PythonTypeSpec> parameters = [];
             var type = new TupleType(parameters);
 
-            Assert.Equal("tuple[]", type.ToString());
+            Assert.Equal("tuple[()]", type.ToString());
         }
 
         [Fact]

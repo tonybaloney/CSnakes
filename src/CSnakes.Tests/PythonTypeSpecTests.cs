@@ -114,112 +114,85 @@ public class PythonTypeSpecTests
         _ = Assert.IsType<AnyType>(Assert.IsType<VariadicTupleType>(PythonTypeSpec.Tuple).Of);
     }
 
-    public class NoneTypeTests : TestBase<NoneType, NoneTypeTests.TestData>
+    public class NoneTypeTests : TestBase<NoneType, NoneTypeTests>, ITestData<NoneType>
     {
-        public struct TestData : ITestData<NoneType>
-        {
-            public static NoneType CreateInstance() => PythonTypeSpec.None;
-            public static NoneType CreateEquivalentInstance() => PythonTypeSpec.None;
-            public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
-            public static string ExpectedName => "NoneType";
-            public static string ExpectedToString => "NoneType";
-        }
+        public static NoneType CreateInstance() => PythonTypeSpec.None;
+        public static NoneType CreateEquivalentInstance() => PythonTypeSpec.None;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "NoneType";
+        public static string ExpectedToString => "NoneType";
     }
 
-    public class AnyTypeTests : TestBase<AnyType, AnyTypeTests.TestData>
+    public class AnyTypeTests : TestBase<AnyType, AnyTypeTests>, ITestData<AnyType>
     {
-        public struct TestData : ITestData<AnyType>
-        {
-            public static AnyType CreateInstance() => PythonTypeSpec.Any;
-            public static AnyType CreateEquivalentInstance() => PythonTypeSpec.Any;
-            public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
-            public static string ExpectedName => "Any";
-            public static string ExpectedToString => "Any";
-        }
+        public static AnyType CreateInstance() => PythonTypeSpec.Any;
+        public static AnyType CreateEquivalentInstance() => PythonTypeSpec.Any;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "Any";
+        public static string ExpectedToString => "Any";
     }
 
-    public class IntTypeTests : TestBase<IntType, IntTypeTests.TestData>
+    public class IntTypeTests : TestBase<IntType, IntTypeTests>, ITestData<IntType>
     {
-        public struct TestData : ITestData<IntType>
-        {
-            public static IntType CreateInstance() => PythonTypeSpec.Int;
-            public static IntType CreateEquivalentInstance() => PythonTypeSpec.Int;
-            public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Str;
-            public static string ExpectedName => "int";
-            public static string ExpectedToString => "int";
-        }
+        public static IntType CreateInstance() => PythonTypeSpec.Int;
+        public static IntType CreateEquivalentInstance() => PythonTypeSpec.Int;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Str;
+        public static string ExpectedName => "int";
+        public static string ExpectedToString => "int";
     }
 
-    public class StrTypeTests : TestBase<StrType, StrTypeTests.TestData>
+    public class StrTypeTests : TestBase<StrType, StrTypeTests>, ITestData<StrType>
     {
-        public struct TestData : ITestData<StrType>
-        {
-            public static StrType CreateInstance() => PythonTypeSpec.Str;
-            public static StrType CreateEquivalentInstance() => PythonTypeSpec.Str;
-            public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
-            public static string ExpectedName => "str";
-            public static string ExpectedToString => "str";
-        }
+        public static StrType CreateInstance() => PythonTypeSpec.Str;
+        public static StrType CreateEquivalentInstance() => PythonTypeSpec.Str;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "str";
+        public static string ExpectedToString => "str";
     }
 
-    public class FloatTypeTests : TestBase<FloatType, FloatTypeTests.TestData>
+    public class FloatTypeTests : TestBase<FloatType, FloatTypeTests>, ITestData<FloatType>
     {
-        public struct TestData : ITestData<FloatType>
-        {
-            public static FloatType CreateInstance() => PythonTypeSpec.Float;
-            public static FloatType CreateEquivalentInstance() => PythonTypeSpec.Float;
-            public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
-            public static string ExpectedName => "float";
-            public static string ExpectedToString => "float";
-        }
+        public static FloatType CreateInstance() => PythonTypeSpec.Float;
+        public static FloatType CreateEquivalentInstance() => PythonTypeSpec.Float;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "float";
+        public static string ExpectedToString => "float";
     }
 
-    public class BoolTypeTests : TestBase<BoolType, BoolTypeTests.TestData>
+    public class BoolTypeTests : TestBase<BoolType, BoolTypeTests>, ITestData<BoolType>
     {
-        public struct TestData : ITestData<BoolType>
-        {
-            public static BoolType CreateInstance() => PythonTypeSpec.Bool;
-            public static BoolType CreateEquivalentInstance() => PythonTypeSpec.Bool;
-            public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
-            public static string ExpectedName => "bool";
-            public static string ExpectedToString => "bool";
-        }
+        public static BoolType CreateInstance() => PythonTypeSpec.Bool;
+        public static BoolType CreateEquivalentInstance() => PythonTypeSpec.Bool;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "bool";
+        public static string ExpectedToString => "bool";
     }
 
-    public class BytesTypeTests : TestBase<BytesType, BytesTypeTests.TestData>
+    public class BytesTypeTests : TestBase<BytesType, BytesTypeTests>, ITestData<BytesType>
     {
-        public struct TestData : ITestData<BytesType>
-        {
-            public static BytesType CreateInstance() => PythonTypeSpec.Bytes;
-            public static BytesType CreateEquivalentInstance() => PythonTypeSpec.Bytes;
-            public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
-            public static string ExpectedName => "bytes";
-            public static string ExpectedToString => "bytes";
-        }
+        public static BytesType CreateInstance() => PythonTypeSpec.Bytes;
+        public static BytesType CreateEquivalentInstance() => PythonTypeSpec.Bytes;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "bytes";
+        public static string ExpectedToString => "bytes";
     }
 
-    public class BufferTypeTests : TestBase<BufferType, BufferTypeTests.TestData>
+    public class BufferTypeTests : TestBase<BufferType, BufferTypeTests>, ITestData<BufferType>
     {
-        public struct TestData : ITestData<BufferType>
-        {
-            public static BufferType CreateInstance() => PythonTypeSpec.Buffer;
-            public static BufferType CreateEquivalentInstance() => PythonTypeSpec.Buffer;
-            public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
-            public static string ExpectedName => "Buffer";
-            public static string ExpectedToString => "Buffer";
-        }
+        public static BufferType CreateInstance() => PythonTypeSpec.Buffer;
+        public static BufferType CreateEquivalentInstance() => PythonTypeSpec.Buffer;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "Buffer";
+        public static string ExpectedToString => "Buffer";
     }
 
-    public class SequenceTypeTests : TestBase<SequenceType, SequenceTypeTests.TestData>
+    public class SequenceTypeTests : TestBase<SequenceType, SequenceTypeTests>, ITestData<SequenceType>
     {
-        public struct TestData : ITestData<SequenceType>
-        {
-            public static SequenceType CreateInstance() => new(PythonTypeSpec.Int);
-            public static SequenceType CreateEquivalentInstance() => new(PythonTypeSpec.Int);
-            public static PythonTypeSpec CreateDifferentInstance() => new SequenceType(PythonTypeSpec.Str);
-            public static string ExpectedName => "Sequence";
-            public static string ExpectedToString => "Sequence[int]";
-        }
+        public static SequenceType CreateInstance() => new(PythonTypeSpec.Int);
+        public static SequenceType CreateEquivalentInstance() => new(PythonTypeSpec.Int);
+        public static PythonTypeSpec CreateDifferentInstance() => new SequenceType(PythonTypeSpec.Str);
+        public static string ExpectedName => "Sequence";
+        public static string ExpectedToString => "Sequence[int]";
 
         [Fact]
         public void Constructor_SetsTypeArgument()
@@ -249,16 +222,13 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class ListTypeTests : TestBase<ListType, ListTypeTests.TestData>
+    public class ListTypeTests : TestBase<ListType, ListTypeTests>, ITestData<ListType>
     {
-        public struct TestData : ITestData<ListType>
-        {
-            public static ListType CreateInstance() => new(PythonTypeSpec.Int);
-            public static ListType CreateEquivalentInstance() => new(PythonTypeSpec.Int);
-            public static PythonTypeSpec CreateDifferentInstance() => new ListType(PythonTypeSpec.Str);
-            public static string ExpectedName => "list";
-            public static string ExpectedToString => "list[int]";
-        }
+        public static ListType CreateInstance() => new(PythonTypeSpec.Int);
+        public static ListType CreateEquivalentInstance() => new(PythonTypeSpec.Int);
+        public static PythonTypeSpec CreateDifferentInstance() => new ListType(PythonTypeSpec.Str);
+        public static string ExpectedName => "list";
+        public static string ExpectedToString => "list[int]";
 
         [Fact]
         public void Constructor_SetsTypeArgument()
@@ -285,16 +255,13 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class MappingTypeTests : TestBase<MappingType, MappingTypeTests.TestData>
+    public class MappingTypeTests : TestBase<MappingType, MappingTypeTests>, ITestData<MappingType>
     {
-        public struct TestData : ITestData<MappingType>
-        {
-            public static MappingType CreateInstance() => new(PythonTypeSpec.Str, PythonTypeSpec.Int);
-            public static MappingType CreateEquivalentInstance() => new(PythonTypeSpec.Str, PythonTypeSpec.Int);
-            public static PythonTypeSpec CreateDifferentInstance() => new MappingType(PythonTypeSpec.Int, PythonTypeSpec.Str);
-            public static string ExpectedName => "Mapping";
-            public static string ExpectedToString => "Mapping[str, int]";
-        }
+        public static MappingType CreateInstance() => new(PythonTypeSpec.Str, PythonTypeSpec.Int);
+        public static MappingType CreateEquivalentInstance() => new(PythonTypeSpec.Str, PythonTypeSpec.Int);
+        public static PythonTypeSpec CreateDifferentInstance() => new MappingType(PythonTypeSpec.Int, PythonTypeSpec.Str);
+        public static string ExpectedName => "Mapping";
+        public static string ExpectedToString => "Mapping[str, int]";
 
         [Fact]
         public void Constructor_SetsTypeArguments()
@@ -323,16 +290,13 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class DictTypeTests : TestBase<DictType, DictTypeTests.TestData>
+    public class DictTypeTests : TestBase<DictType, DictTypeTests>, ITestData<DictType>
     {
-        public struct TestData : ITestData<DictType>
-        {
-            public static DictType CreateInstance() => new(PythonTypeSpec.Str, PythonTypeSpec.Int);
-            public static DictType CreateEquivalentInstance() => new(PythonTypeSpec.Str, PythonTypeSpec.Int);
-            public static PythonTypeSpec CreateDifferentInstance() => new DictType(PythonTypeSpec.Int, PythonTypeSpec.Str);
-            public static string ExpectedName => "dict";
-            public static string ExpectedToString => "dict[str, int]";
-        }
+        public static DictType CreateInstance() => new(PythonTypeSpec.Str, PythonTypeSpec.Int);
+        public static DictType CreateEquivalentInstance() => new(PythonTypeSpec.Str, PythonTypeSpec.Int);
+        public static PythonTypeSpec CreateDifferentInstance() => new DictType(PythonTypeSpec.Int, PythonTypeSpec.Str);
+        public static string ExpectedName => "dict";
+        public static string ExpectedToString => "dict[str, int]";
 
         [Fact]
         public void Constructor_SetsTypeArguments()
@@ -363,16 +327,13 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class CoroutineTypeTests : TestBase<CoroutineType, CoroutineTypeTests.TestData>
+    public class CoroutineTypeTests : TestBase<CoroutineType, CoroutineTypeTests>, ITestData<CoroutineType>
     {
-        public struct TestData : ITestData<CoroutineType>
-        {
-            public static CoroutineType CreateInstance() => new(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
-            public static CoroutineType CreateEquivalentInstance() => new(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
-            public static PythonTypeSpec CreateDifferentInstance() => new CoroutineType(PythonTypeSpec.Str, PythonTypeSpec.Int, PythonTypeSpec.Bool);
-            public static string ExpectedName => "Coroutine";
-            public static string ExpectedToString => "Coroutine[int, str, bool]";
-        }
+        public static CoroutineType CreateInstance() => new(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
+        public static CoroutineType CreateEquivalentInstance() => new(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
+        public static PythonTypeSpec CreateDifferentInstance() => new CoroutineType(PythonTypeSpec.Str, PythonTypeSpec.Int, PythonTypeSpec.Bool);
+        public static string ExpectedName => "Coroutine";
+        public static string ExpectedToString => "Coroutine[int, str, bool]";
 
         [Fact]
         public void Constructor_SetsTypeArguments()
@@ -397,16 +358,13 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class GeneratorTypeTests : TestBase<GeneratorType, GeneratorTypeTests.TestData>
+    public class GeneratorTypeTests : TestBase<GeneratorType, GeneratorTypeTests>, ITestData<GeneratorType>
     {
-        public struct TestData : ITestData<GeneratorType>
-        {
-            public static GeneratorType CreateInstance() => new(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
-            public static GeneratorType CreateEquivalentInstance() => new(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
-            public static PythonTypeSpec CreateDifferentInstance() => new GeneratorType(PythonTypeSpec.Str, PythonTypeSpec.Int, PythonTypeSpec.Bool);
-            public static string ExpectedName => "Generator";
-            public static string ExpectedToString => "Generator[int, str, bool]";
-        }
+        public static GeneratorType CreateInstance() => new(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
+        public static GeneratorType CreateEquivalentInstance() => new(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
+        public static PythonTypeSpec CreateDifferentInstance() => new GeneratorType(PythonTypeSpec.Str, PythonTypeSpec.Int, PythonTypeSpec.Bool);
+        public static string ExpectedName => "Generator";
+        public static string ExpectedToString => "Generator[int, str, bool]";
 
         [Fact]
         public void Constructor_SetsTypeArguments()
@@ -431,7 +389,7 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class LiteralTypeTests : TestBase<LiteralType, LiteralTypeTests.TestData>
+    public class LiteralTypeTests : TestBase<LiteralType, LiteralTypeTests>, ITestData<LiteralType>
     {
         private static class Constants
         {
@@ -441,14 +399,11 @@ public class PythonTypeSpecTests
             public static readonly PythonConstant Float = new PythonConstant.Float(3.14);
         }
 
-        public struct TestData : ITestData<LiteralType>
-        {
-            public static LiteralType CreateInstance() => new([Constants.Integer1]);
-            public static LiteralType CreateEquivalentInstance() => new([Constants.Integer1]);
-            public static PythonTypeSpec CreateDifferentInstance() => new LiteralType([Constants.Integer2]);
-            public static string ExpectedName => "Literal";
-            public static string ExpectedToString => "Literal[42]";
-        }
+        public static LiteralType CreateInstance() => new([Constants.Integer1]);
+        public static LiteralType CreateEquivalentInstance() => new([Constants.Integer1]);
+        public static PythonTypeSpec CreateDifferentInstance() => new LiteralType([Constants.Integer2]);
+        public static string ExpectedName => "Literal";
+        public static string ExpectedToString => "Literal[42]";
 
         [Fact]
         public void Constructor_SetsTypeArguments()
@@ -469,16 +424,13 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class OptionalTypeTests : TestBase<OptionalType, OptionalTypeTests.TestData>
+    public class OptionalTypeTests : TestBase<OptionalType, OptionalTypeTests>, ITestData<OptionalType>
     {
-        public struct TestData : ITestData<OptionalType>
-        {
-            public static OptionalType CreateInstance() => new(PythonTypeSpec.Int);
-            public static OptionalType CreateEquivalentInstance() => new(PythonTypeSpec.Int);
-            public static PythonTypeSpec CreateDifferentInstance() => new OptionalType(PythonTypeSpec.Str);
-            public static string ExpectedName => "Optional";
-            public static string ExpectedToString => "Optional[int]";
-        }
+        public static OptionalType CreateInstance() => new(PythonTypeSpec.Int);
+        public static OptionalType CreateEquivalentInstance() => new(PythonTypeSpec.Int);
+        public static PythonTypeSpec CreateDifferentInstance() => new OptionalType(PythonTypeSpec.Str);
+        public static string ExpectedName => "Optional";
+        public static string ExpectedToString => "Optional[int]";
 
         [Fact]
         public void Constructor_SetsTypeArgument()
@@ -499,16 +451,13 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class CallableTypeTests : TestBase<CallableType, CallableTypeTests.TestData>
+    public class CallableTypeTests : TestBase<CallableType, CallableTypeTests>, ITestData<CallableType>
     {
-        public struct TestData : ITestData<CallableType>
-        {
-            public static CallableType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str], PythonTypeSpec.Bool);
-            public static CallableType CreateEquivalentInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str], PythonTypeSpec.Bool);
-            public static PythonTypeSpec CreateDifferentInstance() => new CallableType([PythonTypeSpec.Str], PythonTypeSpec.Bool);
-            public static string ExpectedName => "Callback";
-            public static string ExpectedToString => "Callback[[int, str], bool]";
-        }
+        public static CallableType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str], PythonTypeSpec.Bool);
+        public static CallableType CreateEquivalentInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str], PythonTypeSpec.Bool);
+        public static PythonTypeSpec CreateDifferentInstance() => new CallableType([PythonTypeSpec.Str], PythonTypeSpec.Bool);
+        public static string ExpectedName => "Callback";
+        public static string ExpectedToString => "Callback[[int, str], bool]";
 
         [Fact]
         public void Constructor_SetsTypeArguments()
@@ -547,16 +496,13 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class TupleTypeTests : TestBase<TupleType, TupleTypeTests.TestData>
+    public class TupleTypeTests : TestBase<TupleType, TupleTypeTests>, ITestData<TupleType>
     {
-        public struct TestData : ITestData<TupleType>
-        {
-            public static TupleType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str]);
-            public static TupleType CreateEquivalentInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str]);
-            public static PythonTypeSpec CreateDifferentInstance() => new TupleType([PythonTypeSpec.Int]);
-            public static string ExpectedName => "tuple";
-            public static string ExpectedToString => "tuple[int, str]";
-        }
+        public static TupleType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str]);
+        public static TupleType CreateEquivalentInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str]);
+        public static PythonTypeSpec CreateDifferentInstance() => new TupleType([PythonTypeSpec.Int]);
+        public static string ExpectedName => "tuple";
+        public static string ExpectedToString => "tuple[int, str]";
 
         [Fact]
         public void Constructor_SetsTypeArguments()
@@ -587,16 +533,13 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class VariadicTupleTypeTests : TestBase<VariadicTupleType, VariadicTupleTypeTests.TestData>
+    public class VariadicTupleTypeTests : TestBase<VariadicTupleType, VariadicTupleTypeTests>, ITestData<VariadicTupleType>
     {
-        public struct TestData : ITestData<VariadicTupleType>
-        {
-            public static VariadicTupleType CreateInstance() => new(PythonTypeSpec.Int);
-            public static VariadicTupleType CreateEquivalentInstance() => new(PythonTypeSpec.Int);
-            public static PythonTypeSpec CreateDifferentInstance() => new VariadicTupleType(PythonTypeSpec.Str);
-            public static string ExpectedName => "tuple";
-            public static string ExpectedToString => "tuple[int, ...]";
-        }
+        public static VariadicTupleType CreateInstance() => new(PythonTypeSpec.Int);
+        public static VariadicTupleType CreateEquivalentInstance() => new(PythonTypeSpec.Int);
+        public static PythonTypeSpec CreateDifferentInstance() => new VariadicTupleType(PythonTypeSpec.Str);
+        public static string ExpectedName => "tuple";
+        public static string ExpectedToString => "tuple[int, ...]";
 
         [Fact]
         public void Constructor_SetsTypeArgument()
@@ -617,16 +560,13 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class UnionTypeTests : TestBase<UnionType, UnionTypeTests.TestData>
+    public class UnionTypeTests : TestBase<UnionType, UnionTypeTests>, ITestData<UnionType>
     {
-        public struct TestData : ITestData<UnionType>
-        {
-            public static UnionType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str]);
-            public static UnionType CreateEquivalentInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str]);
-            public static PythonTypeSpec CreateDifferentInstance() => new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Bool]);
-            public static string ExpectedName => "Union";
-            public static string ExpectedToString => "Union[int, str]";
-        }
+        public static UnionType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str]);
+        public static UnionType CreateEquivalentInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str]);
+        public static PythonTypeSpec CreateDifferentInstance() => new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Bool]);
+        public static string ExpectedName => "Union";
+        public static string ExpectedToString => "Union[int, str]";
 
         [Fact]
         public void Constructor_SetsTypeArguments()
@@ -737,16 +677,13 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class ParsedPythonTypeSpecTests : TestBase<ParsedPythonTypeSpec, ParsedPythonTypeSpecTests.TestData>
+    public class ParsedPythonTypeSpecTests : TestBase<ParsedPythonTypeSpec, ParsedPythonTypeSpecTests>, ITestData<ParsedPythonTypeSpec>
     {
-        public struct TestData : ITestData<ParsedPythonTypeSpec>
-        {
-            public static ParsedPythonTypeSpec CreateInstance() => new("MyCustomType", [PythonTypeSpec.Int, PythonTypeSpec.Str]);
-            public static ParsedPythonTypeSpec CreateEquivalentInstance() => new("MyCustomType", [PythonTypeSpec.Int, PythonTypeSpec.Str]);
-            public static PythonTypeSpec CreateDifferentInstance() => new ParsedPythonTypeSpec("MyCustomType", [PythonTypeSpec.Int]);
-            public static string ExpectedName => "MyCustomType";
-            public static string ExpectedToString => "MyCustomType[int, str]";
-        }
+        public static ParsedPythonTypeSpec CreateInstance() => new("MyCustomType", [PythonTypeSpec.Int, PythonTypeSpec.Str]);
+        public static ParsedPythonTypeSpec CreateEquivalentInstance() => new("MyCustomType", [PythonTypeSpec.Int, PythonTypeSpec.Str]);
+        public static PythonTypeSpec CreateDifferentInstance() => new ParsedPythonTypeSpec("MyCustomType", [PythonTypeSpec.Int]);
+        public static string ExpectedName => "MyCustomType";
+        public static string ExpectedToString => "MyCustomType[int, str]";
 
         [Fact]
         public void Constructor_SetsTypeArguments()

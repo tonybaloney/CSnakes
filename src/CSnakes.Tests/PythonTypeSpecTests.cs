@@ -29,6 +29,13 @@ public class PythonTypeSpecTests
         }
 
         [Fact]
+        public void ToString_WithMetadata_IncludesAnnotated()
+        {
+            var type = TTest.CreateInstance() with { Metadata = ["foobar"] };
+            Assert.Equal($"Annotated[{TTest.ExpectedToString}, 'foobar']", type.ToString());
+        }
+
+        [Fact]
         public void Equality_HasValueSemantics()
         {
             var a = TTest.CreateInstance();

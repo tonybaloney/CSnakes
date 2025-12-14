@@ -143,9 +143,48 @@ public class PythonConstantTests
         }
 
         [Theory]
-        [InlineData(0.0, "0")]
+        [InlineData(0.0, "0.0")]
+        [InlineData(0.5, "0.5")]
         [InlineData(1.5, "1.5")]
+        [InlineData(3.141592653589793, "3.141592653589793")]
         [InlineData(-42.125, "-42.125")]
+        [InlineData(float.PositiveInfinity, "inf")]
+        [InlineData(float.NegativeInfinity, "-inf")]
+        [InlineData(float.NaN, "nan")]
+        //
+        // The following test cases are taken from CPython:
+        // https://github.com/python/cpython/blob/df793163d5821791d4e7caf88885a2c11a107986/Lib/test/test_float.py#L865-L897
+        //
+        // output always includes *either* a decimal point and at
+        // least one digit after that point, or an exponent.
+        [InlineData(1.0, "1.0")]
+        [InlineData(0.01, "0.01")]
+        [InlineData(0.02, "0.02")]
+        [InlineData(0.03, "0.03")]
+        [InlineData(0.04, "0.04")]
+        [InlineData(0.05, "0.05")]
+        [InlineData(1.23456789, "1.23456789")]
+        [InlineData(10.0, "10.0")]
+        [InlineData(100.0, "100.0")]
+        // values >= 1e16 get an exponent...
+        [InlineData(1000000000000000.0, "1000000000000000.0")]
+        [InlineData(9999999999999990.0, "9999999999999990.0")]
+        [InlineData(1e+16, "1e+16")]
+        [InlineData(1e+17, "1e+17")]
+        // ... and so do values < 1e-4
+        [InlineData(0.001, "0.001")]
+        [InlineData(0.001001, "0.001001")]
+        [InlineData(0.00010000000000001, "0.00010000000000001")]
+        [InlineData(0.0001, "0.0001")]
+        [InlineData(9.999999999999e-05, "9.999999999999e-05")]
+        [InlineData(1e-05, "1e-05")]
+        // values designed to provoke failure if the FPU rounding
+        // precision isn't set correctly
+        [InlineData(8.72293771110361e+25, "8.72293771110361e+25")]
+        [InlineData(7.47005307342313e+26, "7.47005307342313e+26")]
+        [InlineData(2.86438000439698e+28, "2.86438000439698e+28")]
+        [InlineData(8.89142905246179e+28, "8.89142905246179e+28")]
+        [InlineData(3.08578087079232e+35, "3.08578087079232e+35")]
         public void ToString_Formats_Correctly(double value, string expected)
         {
             var floatConstant = new PythonConstant.Float(value);

@@ -1188,7 +1188,7 @@ public class PythonTypeSpecTests
         {
             var type = new LiteralType([Constants.Integer1, Constants.String, Constants.Float]);
 
-            Assert.Equal("Literal[42, 'hello', 3.1]", type.ToString());
+            Assert.Equal("Literal[42, 'hello', 3.14]", type.ToString());
         }
 
         [Fact]

@@ -129,18 +129,7 @@ public sealed record GeneratorType(PythonTypeSpec Yield, PythonTypeSpec Send, Py
 
 public sealed record LiteralType(ValueArray<PythonConstant> Constants) : PythonTypeSpec("Literal")
 {
-    public override string ToString()
-    {
-        var constants =
-            from c in Constants
-            select c switch
-            {
-                PythonConstant.Float { Value: var v } => FormattableString.Invariant($"{v:0.0}"),
-                PythonConstant.String { Value: var v } => $"'{v}'",
-                var other => other.ToString(),
-            };
-        return Format($"{string.Join(", ", constants)}");
-    }
+    public override string ToString() => Format($"{string.Join(", ", Constants)}");
 }
 
 public sealed record OptionalType(PythonTypeSpec Of) : ClosedGenericType("Optional")

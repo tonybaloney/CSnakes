@@ -57,7 +57,13 @@ public abstract record PythonConstant
             => double.IsNaN(Value) ? "nan"
              : double.IsPositiveInfinity(Value) ? "inf"
              : double.IsNegativeInfinity(Value) ? "-inf"
-             : Value.ToString(CultureInfo.InvariantCulture);
+             : Value.ToString("r", CultureInfo.InvariantCulture) switch
+               {
+                   var f when f.IndexOfAny(DotExpChars) <0 => f + ".0",
+                   var f => f,
+               };
+
+        private static readonly char[] DotExpChars = ['.', 'e'];
 
         public static implicit operator Float(double value) => new(value);
     }

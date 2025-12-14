@@ -551,10 +551,10 @@ public class PythonTypeSpecTests
 
     public class ParsedPythonTypeSpecTests : TestBase<ParsedPythonTypeSpec, ParsedPythonTypeSpecTests>, ITest<ParsedPythonTypeSpecTests, ParsedPythonTypeSpec>
     {
-        public static ParsedPythonTypeSpec CreateInstance() => new("MyCustomType", [PythonTypeSpec.Int, PythonTypeSpec.Str]);
-        public static PythonTypeSpec CreateDifferentInstance() => new ParsedPythonTypeSpec("MyCustomType", [PythonTypeSpec.Int]);
+        public static ParsedPythonTypeSpec CreateInstance() => new(ExpectedName, [PythonTypeSpec.Int, PythonTypeSpec.Str]);
+        public static PythonTypeSpec CreateDifferentInstance() => new ParsedPythonTypeSpec(ExpectedName, [PythonTypeSpec.Int]);
         public static string ExpectedName => "MyCustomType";
-        public static string ExpectedToString => "MyCustomType[int, str]";
+        public static string ExpectedToString => $"{ExpectedName}[int, str]";
 
         [Fact]
         public void Constructor_SetsTypeArguments()

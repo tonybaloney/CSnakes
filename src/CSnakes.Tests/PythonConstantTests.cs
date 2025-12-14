@@ -169,7 +169,7 @@ public class PythonConstantTests
         // values >= 1e16 get an exponent...
         [InlineData(1000000000000000.0, "1000000000000000.0")]
         [InlineData(9999999999999990.0, "9999999999999990.0")]
-        // FIXME [InlineData(1e+16, "1e+16")]
+        [InlineData(1e+16, "1e+16")]
         [InlineData(1e+17, "1e+17")]
         // ... and so do values < 1e-4
         [InlineData(0.001, "0.001")]

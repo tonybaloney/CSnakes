@@ -54,16 +54,57 @@ public abstract record PythonConstant
         public double Value { get; init; }
 
         public override string ToString()
-            => double.IsNaN(Value) ? "nan"
-             : double.IsPositiveInfinity(Value) ? "inf"
-             : double.IsNegativeInfinity(Value) ? "-inf"
-             : Value.ToString("r", CultureInfo.InvariantCulture) switch
-               {
-                   var f when f.IndexOfAny(DotExpChars) <0 => f + ".0",
-                   var f => f,
-               };
+        {
+            if (double.IsNaN(Value))
+                return "nan";
 
-        private static readonly char[] DotExpChars = ['.', 'e'];
+            if (double.IsPositiveInfinity(Value))
+                return "inf";
+
+            if (double.IsNegativeInfinity(Value))
+                return "-inf";
+
+            // Use round-trip format to get full precision
+            var str = Value.ToString("r", CultureInfo.InvariantCulture);
+
+            var eIndex = str.IndexOf('e'); // Check if it has exponent notation
+            if (eIndex >= 0
+                // Python uses exponential notation for abs(value) >= 1e16 or abs(value) < 1e-4 (excluding 0)
+                || Math.Abs(Value) is >= 1e16 or < 1e-4 and not 0.0)
+            {
+                if (eIndex < 0) // If exponential is needed but don't have it, convert
+                {               // by re-formating in exponential notation.
+                    str = Value.ToString("e16", CultureInfo.InvariantCulture);
+                    eIndex = str.IndexOf('e');
+                }
+
+                // Has exponent - strip trailing zeros from mantissa
+
+                var mantissa = str[..eIndex];
+                var exponent = str[(eIndex + 1)..]; // Skip the 'e'
+
+                // Strip trailing zeros and unnecessary decimal point from mantissa
+                if (mantissa.IndexOf('.') >= 0)
+                {
+                    mantissa = mantissa.TrimEnd('0');
+                    if (mantissa.EndsWith("."))
+                        mantissa = mantissa[..^1]; // Remove trailing decimal point
+                }
+
+                return mantissa
+                     + "e"
+                     // Parse and re-format exponent to remove leading zeros
+                     + (int.TryParse(exponent, out var e)
+                        // Python uses at least 2 digits for negative exponents
+                        ? e switch { >= 0 => $"+{e}", > -10 => $"-0{-e}", _ => e.ToString() }
+                        : exponent);
+            }
+            else
+            {
+                // No exponent - ensure there's a decimal point
+                return str.IndexOf('.') < 0 ? str + ".0" : str;
+            }
+        }
 
         public static implicit operator Float(double value) => new(value);
     }

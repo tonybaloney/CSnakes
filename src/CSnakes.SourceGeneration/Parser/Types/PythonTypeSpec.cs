@@ -139,7 +139,7 @@ public sealed record LiteralType(ValueArray<PythonConstant> Constants) : PythonT
                 PythonConstant.String { Value: var v } => $"'{v}'",
                 var other => other.ToString(),
             };
-        return $"{Name}[{string.Join(", ", constants)}]";
+        return Format($"{string.Join(", ", constants)}");
     }
 }
 
@@ -152,9 +152,9 @@ public sealed record CallableType(ValueArray<PythonTypeSpec>? Parameters, Python
 {
     public override string ToString() => Parameters switch
     {
-        null => $"{Name}[..., {Return}]",
-        [] => $"{Name}[[], {Return}]",
-        { } ps => $"{Name}[[{string.Join(", ", ps)}], {Return}]",
+        null => Format($"..., {Return}"),
+        [] => Format($"[], {Return}"),
+        { } ps => Format($"[{string.Join(", ", ps)}], {Return}"),
     };
 }
 
@@ -250,10 +250,10 @@ public sealed record UnionType(ValueArray<PythonTypeSpec> Choices) : ClosedGener
 public sealed record ParsedPythonTypeSpec(string Name, ValueArray<PythonTypeSpec> Arguments) : PythonTypeSpec(Name)
 {
     public override string ToString() =>
-        this switch
+        Arguments switch
         {
-            { Name: var name, Arguments: [] } => name,
-            { Name: var name, Arguments: [var arg] } => $"{name}[{arg}]",
-            { Name: var name, Arguments: var args } => $"{name}[{string.Join(", ", args)}]"
+            [] => Format(),
+            [var arg] => Format($"{arg}"),
+            var args => Format($"{string.Join(", ", args)}")
         };
 }

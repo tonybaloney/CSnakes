@@ -4,7 +4,9 @@ namespace CSnakes.Tests;
 
 public class PythonTypeSpecTests
 {
-    public interface ITest<out T> where T : PythonTypeSpec
+    public interface ITest<TSelf, out T>
+        where TSelf : ITest<TSelf, T>
+        where T : PythonTypeSpec
     {
         static abstract T CreateInstance();
         static abstract PythonTypeSpec CreateDifferentInstance();
@@ -14,7 +16,7 @@ public class PythonTypeSpecTests
 
     public abstract class TestBase<T, TTest>
         where T : PythonTypeSpec
-        where TTest : ITest<T>
+        where TTest : ITest<TTest, T>
     {
         [Fact]
         public void Name_IsCorrect()
@@ -31,8 +33,8 @@ public class PythonTypeSpecTests
         [Fact]
         public void ToString_WithMetadata_IncludesAnnotated()
         {
-            var type = TTest.CreateInstance() with { Metadata = ["foobar"] };
-            Assert.Equal($"Annotated[{TTest.ExpectedToString}, 'foobar']", type.ToString());
+            var type = TTest.CreateInstance() with { Metadata = [42, "foo", 3.14] };
+            Assert.Equal($"Annotated[{TTest.ExpectedToString}, 42, 'foo', 3.14]", type.ToString());
         }
 
         [Fact]
@@ -116,7 +118,7 @@ public class PythonTypeSpecTests
         _ = Assert.IsType<AnyType>(Assert.IsType<VariadicTupleType>(PythonTypeSpec.Tuple).Of);
     }
 
-    public class NoneTypeTests : TestBase<NoneType, NoneTypeTests>, ITest<NoneType>
+    public class NoneTypeTests : TestBase<NoneType, NoneTypeTests>, ITest<NoneTypeTests, NoneType>
     {
         public static NoneType CreateInstance() => PythonTypeSpec.None;
         public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
@@ -124,7 +126,7 @@ public class PythonTypeSpecTests
         public static string ExpectedToString => "NoneType";
     }
 
-    public class AnyTypeTests : TestBase<AnyType, AnyTypeTests>, ITest<AnyType>
+    public class AnyTypeTests : TestBase<AnyType, AnyTypeTests>, ITest<AnyTypeTests, AnyType>
     {
         public static AnyType CreateInstance() => PythonTypeSpec.Any;
         public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
@@ -132,7 +134,7 @@ public class PythonTypeSpecTests
         public static string ExpectedToString => "Any";
     }
 
-    public class IntTypeTests : TestBase<IntType, IntTypeTests>, ITest<IntType>
+    public class IntTypeTests : TestBase<IntType, IntTypeTests>, ITest<IntTypeTests, IntType>
     {
         public static IntType CreateInstance() => PythonTypeSpec.Int;
         public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Str;
@@ -140,7 +142,7 @@ public class PythonTypeSpecTests
         public static string ExpectedToString => "int";
     }
 
-    public class StrTypeTests : TestBase<StrType, StrTypeTests>, ITest<StrType>
+    public class StrTypeTests : TestBase<StrType, StrTypeTests>, ITest<StrTypeTests, StrType>
     {
         public static StrType CreateInstance() => PythonTypeSpec.Str;
         public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
@@ -148,7 +150,7 @@ public class PythonTypeSpecTests
         public static string ExpectedToString => "str";
     }
 
-    public class FloatTypeTests : TestBase<FloatType, FloatTypeTests>, ITest<FloatType>
+    public class FloatTypeTests : TestBase<FloatType, FloatTypeTests>, ITest<FloatTypeTests, FloatType>
     {
         public static FloatType CreateInstance() => PythonTypeSpec.Float;
         public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
@@ -156,7 +158,7 @@ public class PythonTypeSpecTests
         public static string ExpectedToString => "float";
     }
 
-    public class BoolTypeTests : TestBase<BoolType, BoolTypeTests>, ITest<BoolType>
+    public class BoolTypeTests : TestBase<BoolType, BoolTypeTests>, ITest<BoolTypeTests, BoolType>
     {
         public static BoolType CreateInstance() => PythonTypeSpec.Bool;
         public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
@@ -164,7 +166,7 @@ public class PythonTypeSpecTests
         public static string ExpectedToString => "bool";
     }
 
-    public class BytesTypeTests : TestBase<BytesType, BytesTypeTests>, ITest<BytesType>
+    public class BytesTypeTests : TestBase<BytesType, BytesTypeTests>, ITest<BytesTypeTests, BytesType>
     {
         public static BytesType CreateInstance() => PythonTypeSpec.Bytes;
         public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
@@ -172,7 +174,7 @@ public class PythonTypeSpecTests
         public static string ExpectedToString => "bytes";
     }
 
-    public class BufferTypeTests : TestBase<BufferType, BufferTypeTests>, ITest<BufferType>
+    public class BufferTypeTests : TestBase<BufferType, BufferTypeTests>, ITest<BufferTypeTests, BufferType>
     {
         public static BufferType CreateInstance() => PythonTypeSpec.Buffer;
         public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
@@ -180,7 +182,7 @@ public class PythonTypeSpecTests
         public static string ExpectedToString => "Buffer";
     }
 
-    public class SequenceTypeTests : TestBase<SequenceType, SequenceTypeTests>, ITest<SequenceType>
+    public class SequenceTypeTests : TestBase<SequenceType, SequenceTypeTests>, ITest<SequenceTypeTests, SequenceType>
     {
         public static SequenceType CreateInstance() => new(PythonTypeSpec.Int);
         public static PythonTypeSpec CreateDifferentInstance() => new SequenceType(PythonTypeSpec.Str);
@@ -206,7 +208,7 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class ListTypeTests : TestBase<ListType, ListTypeTests>, ITest<ListType>
+    public class ListTypeTests : TestBase<ListType, ListTypeTests>, ITest<ListTypeTests, ListType>
     {
         public static ListType CreateInstance() => new(PythonTypeSpec.Int);
         public static PythonTypeSpec CreateDifferentInstance() => new ListType(PythonTypeSpec.Str);
@@ -229,7 +231,7 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class MappingTypeTests : TestBase<MappingType, MappingTypeTests>, ITest<MappingType>
+    public class MappingTypeTests : TestBase<MappingType, MappingTypeTests>, ITest<MappingTypeTests, MappingType>
     {
         public static MappingType CreateInstance() => new(PythonTypeSpec.Str, PythonTypeSpec.Int);
         public static PythonTypeSpec CreateDifferentInstance() => new MappingType(PythonTypeSpec.Int, PythonTypeSpec.Str);
@@ -253,7 +255,7 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class DictTypeTests : TestBase<DictType, DictTypeTests>, ITest<DictType>
+    public class DictTypeTests : TestBase<DictType, DictTypeTests>, ITest<DictTypeTests, DictType>
     {
         public static DictType CreateInstance() => new(PythonTypeSpec.Str, PythonTypeSpec.Int);
         public static PythonTypeSpec CreateDifferentInstance() => new DictType(PythonTypeSpec.Int, PythonTypeSpec.Str);
@@ -279,7 +281,7 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class CoroutineTypeTests : TestBase<CoroutineType, CoroutineTypeTests>, ITest<CoroutineType>
+    public class CoroutineTypeTests : TestBase<CoroutineType, CoroutineTypeTests>, ITest<CoroutineTypeTests, CoroutineType>
     {
         public static CoroutineType CreateInstance() => new(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
         public static PythonTypeSpec CreateDifferentInstance() => new CoroutineType(PythonTypeSpec.Str, PythonTypeSpec.Int, PythonTypeSpec.Bool);
@@ -298,7 +300,7 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class GeneratorTypeTests : TestBase<GeneratorType, GeneratorTypeTests>, ITest<GeneratorType>
+    public class GeneratorTypeTests : TestBase<GeneratorType, GeneratorTypeTests>, ITest<GeneratorTypeTests, GeneratorType>
     {
         public static GeneratorType CreateInstance() => new(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
         public static PythonTypeSpec CreateDifferentInstance() => new GeneratorType(PythonTypeSpec.Str, PythonTypeSpec.Int, PythonTypeSpec.Bool);
@@ -317,7 +319,7 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class LiteralTypeTests : TestBase<LiteralType, LiteralTypeTests>, ITest<LiteralType>
+    public class LiteralTypeTests : TestBase<LiteralType, LiteralTypeTests>, ITest<LiteralTypeTests, LiteralType>
     {
         private static class Constants
         {
@@ -342,7 +344,7 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class OptionalTypeTests : TestBase<OptionalType, OptionalTypeTests>, ITest<OptionalType>
+    public class OptionalTypeTests : TestBase<OptionalType, OptionalTypeTests>, ITest<OptionalTypeTests, OptionalType>
     {
         public static OptionalType CreateInstance() => new(PythonTypeSpec.Int);
         public static PythonTypeSpec CreateDifferentInstance() => new OptionalType(PythonTypeSpec.Str);
@@ -359,7 +361,7 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class CallableTypeTests : TestBase<CallableType, CallableTypeTests>, ITest<CallableType>
+    public class CallableTypeTests : TestBase<CallableType, CallableTypeTests>, ITest<CallableTypeTests, CallableType>
     {
         public static CallableType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str], PythonTypeSpec.Bool);
         public static PythonTypeSpec CreateDifferentInstance() => new CallableType([PythonTypeSpec.Str], PythonTypeSpec.Bool);
@@ -393,7 +395,7 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class TupleTypeTests : TestBase<TupleType, TupleTypeTests>, ITest<TupleType>
+    public class TupleTypeTests : TestBase<TupleType, TupleTypeTests>, ITest<TupleTypeTests, TupleType>
     {
         public static TupleType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool]);
         public static PythonTypeSpec CreateDifferentInstance() => new TupleType([PythonTypeSpec.Int, PythonTypeSpec.Str]);
@@ -419,7 +421,7 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class VariadicTupleTypeTests : TestBase<VariadicTupleType, VariadicTupleTypeTests>, ITest<VariadicTupleType>
+    public class VariadicTupleTypeTests : TestBase<VariadicTupleType, VariadicTupleTypeTests>, ITest<VariadicTupleTypeTests, VariadicTupleType>
     {
         public static VariadicTupleType CreateInstance() => new(PythonTypeSpec.Int);
         public static PythonTypeSpec CreateDifferentInstance() => new VariadicTupleType(PythonTypeSpec.Str);
@@ -436,7 +438,7 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class UnionTypeTests : TestBase<UnionType, UnionTypeTests>, ITest<UnionType>
+    public class UnionTypeTests : TestBase<UnionType, UnionTypeTests>, ITest<UnionTypeTests, UnionType>
     {
         public static UnionType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool]);
         public static PythonTypeSpec CreateDifferentInstance() => new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Bool]);
@@ -542,7 +544,7 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class ParsedPythonTypeSpecTests : TestBase<ParsedPythonTypeSpec, ParsedPythonTypeSpecTests>, ITest<ParsedPythonTypeSpec>
+    public class ParsedPythonTypeSpecTests : TestBase<ParsedPythonTypeSpec, ParsedPythonTypeSpecTests>, ITest<ParsedPythonTypeSpecTests, ParsedPythonTypeSpec>
     {
         public static ParsedPythonTypeSpec CreateInstance() => new("MyCustomType", [PythonTypeSpec.Int, PythonTypeSpec.Str]);
         public static PythonTypeSpec CreateDifferentInstance() => new ParsedPythonTypeSpec("MyCustomType", [PythonTypeSpec.Int]);

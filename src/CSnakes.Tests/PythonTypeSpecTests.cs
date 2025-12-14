@@ -382,16 +382,20 @@ public class PythonTypeSpecTests
         public void ToString_WhenNullParameters_FormatsEllipsis()
         {
             var type = new CallableType(null, PythonTypeSpec.Bool);
+            var annotatedType = type with { Metadata = [42] };
 
             Assert.Equal("Callback[..., bool]", type.ToString());
+            Assert.Equal("Annotated[Callback[..., bool], 42]", annotatedType.ToString());
         }
 
         [Fact]
         public void ToString_NoParameters_ReturnsFullyFormattedName()
         {
             var type = new CallableType([], PythonTypeSpec.Bool);
+            var annotatedType = type with { Metadata = [42] };
 
             Assert.Equal("Callback[[], bool]", type.ToString());
+            Assert.Equal("Annotated[Callback[[], bool], 42]", annotatedType.ToString());
         }
     }
 
@@ -414,10 +418,11 @@ public class PythonTypeSpecTests
         [Fact]
         public void ToString_EmptyTuple()
         {
-            ValueArray<PythonTypeSpec> parameters = [];
-            var type = new TupleType(parameters);
+            var type = new TupleType([]);
+            var annotatedType = type with { Metadata = [42] };
 
             Assert.Equal("tuple[()]", type.ToString());
+            Assert.Equal("Annotated[tuple[()], 42]", annotatedType.ToString());
         }
     }
 
@@ -563,26 +568,31 @@ public class PythonTypeSpecTests
         [Fact]
         public void ToString_NoTypeArguments_ReturnsName()
         {
-            const string name = "MyCustomType";
-            var type = new ParsedPythonTypeSpec(name, []);
+            var type = CreateInstance() with { Arguments = [] };
+            var annotatedType = type with { Metadata = [42] };
 
-            Assert.Equal(name, type.ToString());
+            Assert.Equal(ExpectedName, type.ToString());
+            Assert.Equal($"Annotated[{ExpectedName}, 42]", annotatedType.ToString());
         }
 
         [Fact]
         public void ToString_SingleArgument_ReturnsFullyFormattedName()
         {
-            var type = new ParsedPythonTypeSpec("MyCustomType", [PythonTypeSpec.Int]);
+            var type = CreateInstance() with { Arguments = [PythonTypeSpec.Int] };
+            var annotatedType = type with { Metadata = [42] };
 
-            Assert.Equal("MyCustomType[int]", type.ToString());
+            Assert.Equal($"{ExpectedName}[int]", type.ToString());
+            Assert.Equal($"Annotated[{ExpectedName}[int], 42]", annotatedType.ToString());
         }
 
         [Fact]
         public void ToString_MultipleTypeArguments_ReturnsFullyFormattedName()
         {
-            var type = new ParsedPythonTypeSpec("MyCustomType", [PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool]);
+            var type = CreateInstance() with { Arguments = [PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool] };
+            var annotatedType = type with { Metadata = [42] };
 
-            Assert.Equal("MyCustomType[int, str, bool]", type.ToString());
+            Assert.Equal($"{ExpectedName}[int, str, bool]", type.ToString());
+            Assert.Equal($"Annotated[{ExpectedName}[int, str, bool], 42]", annotatedType.ToString());
         }
 
         [Fact]

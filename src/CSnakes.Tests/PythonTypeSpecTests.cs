@@ -598,9 +598,8 @@ public class PythonTypeSpecTests
         [Fact]
         public void ValueEquality_DifferentNames_NotEqual()
         {
-            ValueArray<PythonTypeSpec> arguments = [PythonTypeSpec.Int];
-            var a = new ParsedPythonTypeSpec("Type1", arguments);
-            var b = new ParsedPythonTypeSpec("Type2", arguments);
+            var a = CreateInstance();
+            var b = a with { Name = $"{a.Name}{a.Name}" };
 
             Assert.NotEqual(a, b);
             Assert.False(a == b);

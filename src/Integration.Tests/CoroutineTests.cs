@@ -1,3 +1,4 @@
+using CSnakes.Runtime.Python;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,5 +75,14 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
     {
         var mod = Env.TestCoroutines();
         await mod.TestCoroutineReturnsNothing(cancellationToken: TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public void GeneratorBasedCoroutineIsNotSupported()
+    {
+        var mod = Env.TestCoroutines();
+        using var coro = mod.TestGeneratorBasedCoroutine();
+        void Act() => _ = coro.As<ICoroutine<PyObject, PyObject, PyObject>>();
+        Assert.Throws<InvalidCastException>(Act);
     }
 }

@@ -9,13 +9,15 @@ using ParsedTokens = Superpower.Model.TokenList<CSnakes.Parser.PythonToken>;
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
-    public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionParser { get; } =
+    public static TokenListParser<PythonToken, PythonFunctionDefinition> PythonFunctionDefinitionParser { get; }
+
+    static TokenListParser<PythonToken, PythonFunctionDefinition> CreatePythonFunctionDefinitionParser() =>
         (from async in Token.EqualTo(PythonToken.Async).OptionalOrDefault()
          from def in Token.EqualTo(PythonToken.Def)
          from name in Token.EqualTo(PythonToken.Identifier)
          from parameters in PythonParameterListParser
          from @return in Token.EqualTo(PythonToken.Arrow)
-                              .IgnoreThen(PythonReturnTypeDefinitionParser)
+                              .IgnoreThen(PythonTypeDefinitionParser)
                               .AsNullable()
                               .OptionalOrDefault()
                               .ThenIgnore(Token.EqualTo(PythonToken.Colon))
@@ -30,6 +32,13 @@ public static partial class PythonParser
     static bool IsFunctionSignature(string line) =>
         line.StartsWith("def ") || line.StartsWith("async def");
 
+    /// <summary>
+    /// Checks if the line contains a "# csharp: ignore" comment.
+    /// </summary>
+    /// <param name="line">Line to check</param>
+    static bool HasCSharpIgnoreComment(string line) =>
+        line.Contains("# csharp: ignore");
+
     public static bool TryParseFunctionDefinitions(SourceText source, out PythonFunctionDefinition[] pythonSignatures, out GeneratorError[] errors)
     {
         // Go line by line
@@ -43,6 +52,14 @@ public static partial class PythonParser
             string lineOfCode = line.ToString();
             if (!IsFunctionSignature(lineOfCode) && !unfinishedFunctionSpec)
             {
+                continue;
+            }
+
+            // Check for "# csharp: ignore" comment on the first line of function definition
+            if (IsFunctionSignature(lineOfCode) && HasCSharpIgnoreComment(lineOfCode))
+            {
+                currentBuffer = [];
+                unfinishedFunctionSpec = false;
                 continue;
             }
 
@@ -72,15 +89,21 @@ public static partial class PythonParser
             }).ToArray());
             currentBuffer.Add((line, repositionedTokens));
 
+            // If the line ends Colon and Ellipsis, treat as a stub and strip the ellipsis.
+            // TODO: Handle single-line function definitions with the body on the same line.
+            if (repositionedTokens.Any() && repositionedTokens.Last().Kind == PythonToken.Ellipsis)
+            {
+                repositionedTokens = new([.. repositionedTokens.Take(repositionedTokens.Count() - 1)]);
+            }
+
             // If this is a function definition on one line..
-            if (repositionedTokens.Last().Kind == PythonToken.Colon)
+            if (repositionedTokens.Any() && repositionedTokens.Last().Kind == PythonToken.Colon)
             {
                 // We re-tokenize the merged lines from the buffer because some of the tokens may have been split across lines
                 // Strip trailing comments to simplify parser
                 string mergedFunctionSpec = string.Join("\n", from x in currentBuffer select x.line.ToString()
-                    .Substring(0,
                         // Get the position of the end of the last token to strip trailing comments
-                        x.tokens.Last().Position.Absolute + x.tokens.Last().Span.Length)
+                        [.. (x.tokens.Any() ? x.tokens.Last().Position.Absolute + x.tokens.Last().Span.Length : 0)]
                     );
 
                 Result<ParsedTokens> combinedResult = PythonTokenizer.Instance.TryTokenize(mergedFunctionSpec);

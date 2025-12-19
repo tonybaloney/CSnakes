@@ -1,1 +1,74 @@
 #nullable enable
+CSnakes.Runtime.Locators.RedistributablePythonVersion.<Clone>$() -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
+CSnakes.Runtime.Locators.RedistributablePythonVersion.Equals(CSnakes.Runtime.Locators.RedistributablePythonVersion? other) -> bool
+CSnakes.Runtime.IPythonEnvironmentBuilder.CapturePythonLogs() -> CSnakes.Runtime.IPythonEnvironmentBuilder!
+CSnakes.Runtime.PythonLogger
+CSnakes.Runtime.PythonEnvironmentOptions.CaptureLogs.get -> bool
+CSnakes.Runtime.PythonEnvironmentOptions.CaptureLogs.init -> void
+CSnakes.Runtime.PythonEnvironmentOptions.Deconstruct(out string! Home, out string![]! ExtraPaths, out bool InstallSignalHandlers, out bool CaptureLogs) -> void
+CSnakes.Runtime.PythonEnvironmentOptions.PythonEnvironmentOptions(string! Home, string![]! ExtraPaths, bool InstallSignalHandlers = true, bool CaptureLogs = false) -> void
+override CSnakes.Runtime.Locators.RedistributablePythonVersion.Equals(object? obj) -> bool
+override CSnakes.Runtime.Locators.RedistributablePythonVersion.GetHashCode() -> int
+override CSnakes.Runtime.Locators.RedistributablePythonVersion.ToString() -> string!
+static CSnakes.Runtime.Locators.RedistributablePythonVersion.operator !=(CSnakes.Runtime.Locators.RedistributablePythonVersion? left, CSnakes.Runtime.Locators.RedistributablePythonVersion? right) -> bool
+static CSnakes.Runtime.Locators.RedistributablePythonVersion.operator ==(CSnakes.Runtime.Locators.RedistributablePythonVersion? left, CSnakes.Runtime.Locators.RedistributablePythonVersion? right) -> bool
+static CSnakes.Runtime.Python.PyObject.From(System.ReadOnlySpan<byte> value) -> CSnakes.Runtime.Python.PyObject!
+[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Optional<T, TImporter>
+[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<T, TImporter>
+static CSnakes.Runtime.PythonLogger.WithPythonLogging(this CSnakes.Runtime.IPythonEnvironment! env, Microsoft.Extensions.Logging.ILogger! logger, string? loggerName = null) -> System.IAsyncDisposable!
+CSnakes.Runtime.Python.KeywordArg
+CSnakes.Runtime.Python.KeywordArg.Deconstruct(out string! Name, out CSnakes.Runtime.Python.PyObject! Value) -> void
+CSnakes.Runtime.Python.KeywordArg.Equals(CSnakes.Runtime.Python.KeywordArg other) -> bool
+CSnakes.Runtime.Python.KeywordArg.KeywordArg() -> void
+CSnakes.Runtime.Python.KeywordArg.KeywordArg(string! Name, CSnakes.Runtime.Python.PyObject! Value) -> void
+CSnakes.Runtime.Python.KeywordArg.Name.get -> string!
+CSnakes.Runtime.Python.KeywordArg.Name.init -> void
+CSnakes.Runtime.Python.KeywordArg.Value.get -> CSnakes.Runtime.Python.PyObject!
+CSnakes.Runtime.Python.KeywordArg.Value.init -> void
+CSnakes.Runtime.Python.PyObject.Call(params System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> args) -> CSnakes.Runtime.Python.PyObject!
+CSnakes.Runtime.Python.PyObject.Call(System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> args, params System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> argv) -> CSnakes.Runtime.Python.PyObject!
+CSnakes.Runtime.Python.PyObject.Call(System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> args, System.ReadOnlySpan<CSnakes.Runtime.Python.KeywordArg> kwargs) -> CSnakes.Runtime.Python.PyObject!
+CSnakes.Runtime.Python.PyObject.Call(System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> args, System.ReadOnlySpan<CSnakes.Runtime.Python.PyObject!> argv, System.ReadOnlySpan<CSnakes.Runtime.Python.KeywordArg> kwargs, System.ReadOnlySpan<CSnakes.Runtime.Python.KeywordArg> kwargv) -> CSnakes.Runtime.Python.PyObject!
+[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.None
+[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.VarTuple<T, TImporter>
+override CSnakes.Runtime.Python.KeywordArg.GetHashCode() -> int
+static CSnakes.Runtime.Python.KeywordArg.operator !=(CSnakes.Runtime.Python.KeywordArg left, CSnakes.Runtime.Python.KeywordArg right) -> bool
+static CSnakes.Runtime.Python.KeywordArg.operator ==(CSnakes.Runtime.Python.KeywordArg left, CSnakes.Runtime.Python.KeywordArg right) -> bool
+~override CSnakes.Runtime.Python.KeywordArg.Equals(object obj) -> bool
+~override CSnakes.Runtime.Python.KeywordArg.ToString() -> string
+static CSnakes.Runtime.ServiceCollectionExtensions.FromRedistributable(this CSnakes.Runtime.IPythonEnvironmentBuilder! builder, CSnakes.Runtime.Locators.RedistributablePythonVersion! version, bool debug = false, bool freeThreaded = false, int timeout = 360) -> CSnakes.Runtime.IPythonEnvironmentBuilder!
+static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_10 -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
+static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_11 -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
+static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_12 -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
+static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_13 -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
+static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_14 -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
+static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_9 -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
+*REMOVED*CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_10 = 1 -> CSnakes.Runtime.Locators.RedistributablePythonVersion
+*REMOVED*CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_11 = 2 -> CSnakes.Runtime.Locators.RedistributablePythonVersion
+*REMOVED*CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_12 = 3 -> CSnakes.Runtime.Locators.RedistributablePythonVersion
+*REMOVED*CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_13 = 4 -> CSnakes.Runtime.Locators.RedistributablePythonVersion
+*REMOVED*CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_14 = 5 -> CSnakes.Runtime.Locators.RedistributablePythonVersion
+*REMOVED*CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_9 = 0 -> CSnakes.Runtime.Locators.RedistributablePythonVersion
+*REMOVED*static CSnakes.Runtime.ServiceCollectionExtensions.FromRedistributable(this CSnakes.Runtime.IPythonEnvironmentBuilder! builder, CSnakes.Runtime.Locators.RedistributablePythonVersion version, bool debug = false, bool freeThreaded = false, int timeout = 360) -> CSnakes.Runtime.IPythonEnvironmentBuilder!
+*REMOVED*CSnakes.Runtime.PythonEnvironmentOptions.Deconstruct(out string! Home, out string![]! ExtraPaths, out bool InstallSignalHandlers) -> void
+*REMOVED*CSnakes.Runtime.PythonEnvironmentOptions.PythonEnvironmentOptions(string! Home, string![]! ExtraPaths, bool InstallSignalHandlers = true) -> void
+*REMOVED*CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>
+*REMOVED*CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.AsTask(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TYield>!
+*REMOVED*CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Coroutine(CSnakes.Runtime.Python.PyObject! coroutine) -> void
+*REMOVED*CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Current.get -> TYield
+*REMOVED*CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Return.get -> TReturn
+*REMOVED*CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn>
+*REMOVED*CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn>.Coroutine(CSnakes.Runtime.Python.PyObject! coroutine) -> void
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Current.get -> TYield
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Dispose() -> void
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.GeneratorIterator(CSnakes.Runtime.Python.PyObject! generator) -> void
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.GetEnumerator() -> System.Collections.Generic.IEnumerator<TYield>!
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.MoveNext() -> bool
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Reset() -> void
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Return.get -> TReturn
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Send(TSend value) -> bool
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn>
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn>.GeneratorIterator(CSnakes.Runtime.Python.PyObject! coroutine) -> void
+*REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Dispose(bool disposing) -> void
+*REMOVED*virtual CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Dispose(bool disposing) -> void

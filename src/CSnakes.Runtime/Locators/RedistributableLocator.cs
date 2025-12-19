@@ -5,60 +5,32 @@ using ZstdSharp;
 
 namespace CSnakes.Runtime.Locators;
 
-internal class StaticVersionAttribute(string version, bool supportsFreeThreading) : Attribute
+public sealed record RedistributablePythonVersion
 {
-    public string Version => version;
-    public bool SupportsFreeThreading => supportsFreeThreading;
-}
+    public static readonly RedistributablePythonVersion Python3_9  = new(new Version(3, 9, 23));
+    public static readonly RedistributablePythonVersion Python3_10 = new(new Version(3, 10, 18));
+    public static readonly RedistributablePythonVersion Python3_11 = new(new Version(3, 11, 13));
+    public static readonly RedistributablePythonVersion Python3_12 = new(new Version(3, 12, 11));
+    public static readonly RedistributablePythonVersion Python3_13 = new(new Version(3, 13, 7)) { SupportsFreeThreading = true };
+    public static readonly RedistributablePythonVersion Python3_14 = new(new Version(3, 14, 0), "rc2") { SupportsFreeThreading = true };
 
-public enum RedistributablePythonVersion
-{
-    [StaticVersion("3.9.21", false)]
-    Python3_9,
+    private RedistributablePythonVersion(Version version, string? preRelease = null) =>
+        (Version, PreRelease) = (version, preRelease);
 
-    [StaticVersion("3.10.16", false)]
-    Python3_10,
+    internal Version Version { get; init; }
+    internal string? PreRelease { get; init; }
+    internal bool SupportsFreeThreading { get; init; }
 
-    [StaticVersion("3.11.11", false)]
-    Python3_11,
-
-    [StaticVersion("3.12.9", false)]
-    Python3_12,
-
-    [StaticVersion("3.13.2", true)]
-    Python3_13,
-
-    [StaticVersion("3.14.0a5", true)]
-    Python3_14,
+    internal string DottedString => $"{Version}{PreRelease}"; // e.g. 3.14.0rc1
 }
 
 internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, RedistributablePythonVersion version, int installerTimeout = 360, bool debug = false, bool freeThreaded = false) : PythonLocator
 {
-    private const string standaloneRelease = "20250212";
+    private const string standaloneRelease = "20250902";
     private const string MutexName = @"Global\CSnakesPythonInstall-1"; // run-time name includes Python version
-    protected override Version Version
-    {
-        get
-        {
-            // Get the version from the attribute
-            var versionAttribute = (StaticVersionAttribute)Attribute.GetCustomAttribute(
-                typeof(RedistributablePythonVersion).GetField(version.ToString())!,
-                typeof(StaticVersionAttribute))!;
-            return new Version(versionAttribute.Version);
-        }
-    }
 
-    protected bool SupportsFreeThreading
-    {
-        get
-        {
-            // Get the supportsFreeThreading from the attribute
-            var versionAttribute = (StaticVersionAttribute)Attribute.GetCustomAttribute(
-                typeof(RedistributablePythonVersion).GetField(version.ToString())!,
-                typeof(StaticVersionAttribute))!;
-            return versionAttribute.SupportsFreeThreading;
-        }
-    }
+    protected override Version Version => version.Version;
+    protected bool SupportsFreeThreading => version.SupportsFreeThreading;
 
     protected override string GetPythonExecutablePath(string folder, bool freeThreaded = false)
     {
@@ -73,7 +45,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
 
     public override PythonLocationMetadata LocatePython()
     {
-        string dottedVersion = $"{Version.Major}.{Version.Minor}.{Version.Build}";
+        string dottedVersion = version.DottedString;
         if (debug)
         {
             dottedVersion += "d";
@@ -92,8 +64,15 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
         {
             throw new NotSupportedException($"Debug builds are not supported on macOS for version {Version}.");
         }
+        // No Arm64 builds for Python 3.9 or 3.10 on Windows
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && RuntimeInformation.ProcessArchitecture == Architecture.Arm64 && (Version.Major == 3 && Version.Minor < 11))
+        {
+            throw new NotSupportedException($"Arm64 builds are not supported on Windows for version {Version}.");
+        }
 
-        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
+        var appDataPath = Environment.GetEnvironmentVariable("CSNAKES_REDIST_CACHE");
+        if (string.IsNullOrWhiteSpace(appDataPath))
+            appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
         var downloadPath = Path.Join(appDataPath, "CSnakes", $"python{dottedVersion}");
         var installPath = Path.Join(downloadPath, "python", "install");
 
@@ -129,63 +108,13 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
 
         try
         {
-            // Determine binary name, see https://gregoryszorc.com/docs/python-build-standalone/main/running.html#obtaining-distributions
-            // Windows doesn't have LTO builds
-            // Linux aarch64 doesn't have PGO, only LTO
-            // macOS has both PGO and LTO builds
-
-            string optFlags = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "pgo" : "pgo+lto";
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
-            {
-                optFlags = "lto";
-            }
-            string platform;
-            string build;
-            if (freeThreaded)
-            {
-                build = debug ? "freethreaded+debug" : $"freethreaded+{optFlags}";
-            }
-            else
-            {
-                build = debug ? "debug" : optFlags;
-            }
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                platform = RuntimeInformation.ProcessArchitecture switch
-                {
-                    Architecture.X86 => $"i686-pc-windows-msvc-shared-{build}-full",
-                    Architecture.X64 => $"x86_64-pc-windows-msvc-shared-{build}-full",
-                    _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
-                };
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                platform = RuntimeInformation.ProcessArchitecture switch
-                {
-                    // No such thing as i686 mac
-                    Architecture.X64 => $"x86_64-apple-darwin-{build}-full",
-                    Architecture.Arm64 => $"aarch64-apple-darwin-{build}-full",
-                    _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
-                };
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                platform = RuntimeInformation.ProcessArchitecture switch
-                {
-                    Architecture.X86 => $"i686-unknown-linux-gnu-{build}-full",
-                    Architecture.X64 => $"x86_64-unknown-linux-gnu-{build}-full",
-                    Architecture.Arm64 => $"aarch64-unknown-linux-gnu-{build}-full",
-                    // .NET doesn't run on armv7 anyway.. don't try that
-                    _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{RuntimeInformation.ProcessArchitecture}'.")
-                };
-            }
-            else
-            {
+            // TODO: Find a better way to determine the OS platform enum at runtime.
+            OSPlatform osPlatform = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? OSPlatform.Windows :
+                RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OSPlatform.OSX :
+                RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? OSPlatform.Linux :
                 throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
-            }
 
-            string downloadUrl = $"https://github.com/astral-sh/python-build-standalone/releases/download/{standaloneRelease}/cpython-{Version.Major}.{Version.Minor}.{Version.Build}+{standaloneRelease}-{platform}.tar.zst";
+            string downloadUrl = GetDownloadUrl(osPlatform, RuntimeInformation.ProcessArchitecture, freeThreaded, debug, version);
 
             // Download and extract the Zstd tarball
             logger?.LogDebug("Downloading Python from {DownloadUrl}", downloadUrl);
@@ -213,6 +142,59 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
         mutex.ReleaseMutex(); // Everything supposedly went well so release mutex
 
         return LocatePythonInternal(installPath, freeThreaded);
+    }
+
+    internal static string GetDownloadUrl(OSPlatform platform, Architecture architecture, bool freeThreaded, bool debug, RedistributablePythonVersion version)
+    {
+        string optFlags = platform == OSPlatform.Windows ? "pgo" : "pgo+lto";
+        string platformLabel;
+        string build;
+        if (freeThreaded)
+        {
+            build = debug ? "freethreaded+debug" : $"freethreaded+{optFlags}";
+        }
+        else
+        {
+            build = debug ? "debug" : optFlags;
+        }
+
+        if (platform == OSPlatform.Windows)
+        {
+            platformLabel = architecture switch
+            {
+                Architecture.X86 => $"i686-pc-windows-msvc-{build}-full",
+                Architecture.X64 => $"x86_64-pc-windows-msvc-{build}-full",
+                Architecture.Arm64 => $"aarch64-pc-windows-msvc-{build}-full",
+                _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{architecture}'.")
+            };
+        }
+        else if (platform == OSPlatform.OSX)
+        {
+            platformLabel = architecture switch
+            {
+                // No such thing as i686 mac
+                Architecture.X64 => $"x86_64-apple-darwin-{build}-full",
+                Architecture.Arm64 => $"aarch64-apple-darwin-{build}-full",
+                _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{architecture}'.")
+            };
+        }
+        else if (platform == OSPlatform.Linux)
+        {
+            platformLabel = architecture switch
+            {
+                Architecture.X86 => $"i686-unknown-linux-gnu-{build}-full",
+                Architecture.X64 => $"x86_64-unknown-linux-gnu-{build}-full",
+                Architecture.Arm64 => $"aarch64-unknown-linux-gnu-{build}-full",
+                // .NET doesn't run on armv7 anyway.. don't try that
+                _ => throw new PlatformNotSupportedException($"Unsupported architecture: '{architecture}'.")
+            };
+        }
+        else
+        {
+            throw new PlatformNotSupportedException($"Unsupported platform: '{platform}'.");
+        }
+
+        return $"https://github.com/astral-sh/python-build-standalone/releases/download/{standaloneRelease}/cpython-{version.DottedString}+{standaloneRelease}-{platformLabel}.tar.zst";
     }
 
     protected override string GetLibPythonPath(string folder, bool freeThreaded = false)
@@ -301,9 +283,10 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
             {
                 File.CreateSymbolicLink(path, link);
             }
-            catch (Exception ex)
+            catch (DirectoryNotFoundException ex)
             {
-                logger?.LogError(ex, "Failed to create symlink: {Path} -> {Link}", path, link);
+                // This is common in the packages
+                logger?.LogWarning(ex, "Failed to create symlink: {Path} -> {Link}", path, link);
             }
         }
     }

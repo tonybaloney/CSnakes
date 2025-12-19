@@ -1,3 +1,4 @@
+import types
 import asyncio
 
 
@@ -12,3 +13,8 @@ async def test_coroutine_raises_exception() -> int:
 
 async def test_coroutine_returns_nothing(seconds: float = 0.1) -> None:
     await asyncio.sleep(seconds)
+
+
+@types.coroutine
+def test_generator_based_coroutine(seconds: float = 0.1):
+    return (yield from test_coroutine(seconds))

@@ -2,7 +2,7 @@
 
 CSnakes has a command-line tool for installing Python, creating virtual environments, and installing dependencies.
 
-This tool is designed for pre-creating Python environments in Docker images for use in CSnakes projects, but can be used as a general-purpose tool for installing Python. 
+This tool is designed for pre-creating Python environments in Docker images for use in CSnakes projects, but can be used as a general-purpose tool for installing Python.
 
 ## Overview
 

@@ -93,7 +93,7 @@ Consider the following folder layout:
 
 In Python, this folder structure would be considered a namespaced project with modules and submodules.
 
-If the home were `python_src\`: 
+If the home were `python_src\`:
 
 - To import `library.py` you would `import library`
 - To import `utils\__init__.py` you would `import utils`

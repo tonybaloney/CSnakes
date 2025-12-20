@@ -12,16 +12,16 @@ Check out the [getting started](getting-started/quick-start.md) guide or check o
 
 - 🤖 Supports .NET 8, 9, and 10
 - 🐍 Supports Python 3.9-3.14
-- 📦 [Supports Virtual Environments and C-Extensions](user-guide/environments.md)  
-- 💻 Supports Windows, macOS, and Linux  
-- 🧮 [Tight integration between NumPy ndarrays and Spans, 2D Spans and TensorSpans (.NET 9)](user-guide/buffers.md)  
-- ⚡ Uses Python's C-API for fast invocation of Python code directly in the .NET process  
-- 🧠 Uses Python type hinting to generate function signatures with .NET native types  
-- 🧵 Supports [CPython 3.13+ "free-threading" mode](advanced/free-threading.md)  
-- 🧩 Supports nested sequence and mapping types (`tuple`, `dict`, `list`)  
-- 🏷️ Supports default values  
-- 🔥 Supports [Hot Reload](advanced/hot-reload.md) of Python code in Visual Studio and supported IDEs  
-- 🚀 Supports [UV](user-guide/environments.md#installing-dependencies-with-uv) for fast installation of Python packages and dependencies  
+- 📦 [Supports Virtual Environments and C-Extensions](user-guide/environments.md)
+- 💻 Supports Windows, macOS, and Linux
+- 🧮 [Tight integration between NumPy ndarrays and Spans, 2D Spans and TensorSpans (.NET 9)](user-guide/buffers.md)
+- ⚡ Uses Python's C-API for fast invocation of Python code directly in the .NET process
+- 🧠 Uses Python type hinting to generate function signatures with .NET native types
+- 🧵 Supports [CPython 3.13+ "free-threading" mode](advanced/free-threading.md)
+- 🧩 Supports nested sequence and mapping types (`tuple`, `dict`, `list`)
+- 🏷️ Supports default values
+- 🔥 Supports [Hot Reload](advanced/hot-reload.md) of Python code in Visual Studio and supported IDEs
+- 🚀 Supports [UV](user-guide/environments.md#installing-dependencies-with-uv) for fast installation of Python packages and dependencies
 
 ## Benefits
 

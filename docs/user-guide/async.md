@@ -1,6 +1,6 @@
 # Async support
 
-Python async functions will be generated into async C# methods. The generated C# method will return a `Task<T>` depending on the return type of the Python function. 
+Python async functions will be generated into async C# methods. The generated C# method will return a `Task<T>` depending on the return type of the Python function.
 
 ```python
 import asyncio

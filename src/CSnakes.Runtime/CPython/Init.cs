@@ -32,8 +32,8 @@ internal unsafe partial class CPythonAPI : IDisposable
         }
         catch (InvalidOperationException)
         {
-            // TODO: Work out how to call setdllimport resolver only once to avoid raising exceptions. 
-            // Already set. 
+            // TODO: Work out how to call setdllimport resolver only once to avoid raising exceptions.
+            // Already set.
         }
     }
 
@@ -83,17 +83,17 @@ internal unsafe partial class CPythonAPI : IDisposable
             return;
 
         /* Notes:
-         * 
+         *
          * The CPython initialization and finalization
          * methods should be called from the same thread.
-         * 
+         *
          * Without doing so, CPython can hang on finalization.
-         * Especially if the code imports the threading module, or 
+         * Especially if the code imports the threading module, or
          * uses asyncio.
-         * 
-         * Since we have no guarantee that the Dispose() of this 
+         *
+         * Since we have no guarantee that the Dispose() of this
          * class will be called from the same managed CLR thread
-         * as the one which called Init(), we create a Task with 
+         * as the one which called Init(), we create a Task with
          * a cancellation token and use that as a mechanism to wait
          * in the background for shutdown then call the finalization.
          */

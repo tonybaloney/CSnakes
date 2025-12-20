@@ -64,7 +64,7 @@ Equality can be checked using the `.Equals()` method or `==` operators:
 ```csharp
 PyObject obj1 = PyObject.From(3.0);
 PyObject obj2 = PyObject.From(3);
-if (obj1 == obj2) 
+if (obj1 == obj2)
     Console.WriteLine("Objects are equal!"); // Python considers 3.0 == 3
 
 // Collection equality
@@ -80,7 +80,7 @@ Inequality can be checked using the `.NotEquals()` method or `!=` operators:
 ```csharp
 PyObject obj1 = PyObject.From("Hello!");
 PyObject obj2 = PyObject.From("Hello?");
-if (obj1 != obj2) 
+if (obj1 != obj2)
     Console.WriteLine("Objects are not equal!");
 
 // Using NotEquals method
@@ -172,7 +172,7 @@ PyObject pyString = PyObject.From("hello");
 // str() representation
 Console.WriteLine(pyString.ToString()); // hello
 
-// repr() representation  
+// repr() representation
 Console.WriteLine(pyString.GetRepr()); // 'hello'
 ```
 

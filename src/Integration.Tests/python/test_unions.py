@@ -19,4 +19,3 @@ class B:
 
 def test_multiple_complex(a: Union[A, B]) -> None:
     pass
-

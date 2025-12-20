@@ -65,7 +65,7 @@ public void OptionalOldStyle(long? value = null);
 
 ## Unions
 
-Python has two ways of specifying type unions. 
+Python has two ways of specifying type unions.
 
 1. From Python 3.10, type unions can be written as `T1 | T2`
 1. Using the `typing.Union[T1, T2, ...]` syntax
@@ -299,7 +299,7 @@ def process_data(data: object) -> object:
 def get_analysis_results() -> dict[str, list[tuple[str, float]]]:
     """
     Returns analysis results.
-    
+
     Returns:
         Dictionary mapping category names to lists of (item_name, score) tuples.
     """

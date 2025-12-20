@@ -44,11 +44,11 @@ The `InvariantGlobalization` setting is typically required for AOT compatibility
 <PropertyGroup>
   <PublishAot>true</PublishAot>
   <InvariantGlobalization>true</InvariantGlobalization>
-  
+
   <!-- Optional: Optimize for size -->
   <PublishTrimmed>true</PublishTrimmed>
   <TrimMode>full</TrimMode>
-  
+
   <!-- Optional: Disable debugging symbols for smaller size -->
   <DebuggerSupport>false</DebuggerSupport>
   <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
@@ -135,30 +135,30 @@ RunQuickDemo(env);
 static void RunQuickDemo(IPythonEnvironment env)
 {
     var quickDemo = env.AotDemo();
-    
+
     Console.WriteLine("=== Cool Things Demo ===");
     foreach (var thing in quickDemo.CoolThings())
     {
         Console.WriteLine(thing + " is cool!");
     }
-    
+
     Console.WriteLine("\n=== Fibonacci Demo ===");
     for (int i = 0; i < 10; i++)
     {
         var fib = quickDemo.CalculateFibonacci(i);
         Console.WriteLine($"Fibonacci({i}) = {fib}");
     }
-    
+
     Console.WriteLine("\n=== Data Processing Demo ===");
     var testData = new List<int> { 1, 2, 3, 4, 5, 10, 15, 20 };
     var stats = quickDemo.ProcessData(testData);
-    
+
     Console.WriteLine($"Data: [{string.Join(", ", testData)}]");
     foreach (var kvp in stats)
     {
         Console.WriteLine($"{kvp.Key}: {kvp.Value}");
     }
-    
+
     Console.WriteLine();
 }
 ```
@@ -357,12 +357,12 @@ public class AOTFriendlyDesign
 {
     // Use source generator bindings
     private readonly IAotDemoGenerated _demo;
-    
+
     public AOTFriendlyDesign(IPythonEnvironment env)
     {
         _demo = env.AotDemo(); // Generated binding
     }
-    
+
     // Avoid reflection-based patterns
     public void ProcessData()
     {
@@ -389,7 +389,7 @@ public class AOTBenchmark
     {
         // Benchmark JIT version
     }
-    
+
     [Benchmark]
     public void AOTBuild()
     {

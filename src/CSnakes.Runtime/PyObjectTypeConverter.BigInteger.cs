@@ -6,7 +6,7 @@ namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
     internal static BigInteger ConvertToBigInteger(PyObject pyObject, Type destinationType) =>
-        // There is no practical API for this in CPython. Use str() instead. 
+        // There is no practical API for this in CPython. Use str() instead.
         BigInteger.Parse(pyObject.ToString());
 
     internal static PyObject ConvertFromBigInteger(BigInteger integer)

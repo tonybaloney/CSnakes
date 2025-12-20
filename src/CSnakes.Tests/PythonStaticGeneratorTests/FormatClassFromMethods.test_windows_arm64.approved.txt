@@ -25,7 +25,7 @@ static partial class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "9bf111d88c2a5c3a1a4009b1b6beb99e"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "9920f8241a33922da80cab1a15af28ac"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {

@@ -40,9 +40,9 @@ internal unsafe partial class CPythonAPI
     }
 
     /// <summary>
-    /// When o is non-NULL, returns a type object corresponding to the object type of object o. 
-    /// On failure, raises SystemError and returns NULL. 
-    /// This is equivalent to the Python expression type(o). 
+    /// When o is non-NULL, returns a type object corresponding to the object type of object o.
+    /// On failure, raises SystemError and returns NULL.
+    /// This is equivalent to the Python expression type(o).
     /// This function creates a new strong reference to the return value.
     /// </summary>
     /// <param name="ob">The python object</param>
@@ -61,9 +61,9 @@ internal unsafe partial class CPythonAPI
     }
 
     /// <summary>
-    /// When o is non-NULL, returns a type object corresponding to the object type of object o. 
-    /// On failure, raises SystemError and returns NULL. 
-    /// This is equivalent to the Python expression type(o). 
+    /// When o is non-NULL, returns a type object corresponding to the object type of object o.
+    /// On failure, raises SystemError and returns NULL.
+    /// This is equivalent to the Python expression type(o).
     /// This function creates a new strong reference to the return value.
     /// </summary>
     /// <param name="ob">The python object</param>
@@ -82,7 +82,7 @@ internal unsafe partial class CPythonAPI
     }
 
     /// <summary>
-    /// Return 1 if inst is an instance of the class cls or a subclass of cls, or 0 if not. 
+    /// Return 1 if inst is an instance of the class cls or a subclass of cls, or 0 if not.
     /// On error, returns -1 and sets an exception.
     /// </summary>
     /// <param name="ob">The Python object</param>

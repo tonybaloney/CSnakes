@@ -142,7 +142,7 @@ internal class Program
 
         var locator = app.Services.GetRequiredService<PythonLocator>();
         var location = locator.LocatePython();
-        
+
         Console.WriteLine($"Python {config.Version} downloaded and located at: {location.PythonBinaryPath}");
 
         if (withVenv)

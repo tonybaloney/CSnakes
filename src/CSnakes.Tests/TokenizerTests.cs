@@ -641,7 +641,7 @@ if __name__ == '__main__':
         def a(    # this is a comment
             opener: str = 'foo', # type: ignore
             # a comment by itself
-            hash_in_literal: str = '#', 
+            hash_in_literal: str = '#',
         ) -> Any:
             pass
         """;
@@ -702,7 +702,7 @@ if __name__ == '__main__':
     {
         // This is common in Black-formatted code and has come up as a parser issue
         const string code = """
-        def a(    
+        def a(
             opener: str = 'foo',
         ) -> Any:
             pass

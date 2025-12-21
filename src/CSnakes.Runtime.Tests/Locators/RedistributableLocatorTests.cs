@@ -33,7 +33,10 @@ public class RedistributableLocatorTests
         }
     }
 
-    [Theory]
+    public static bool IsContinuousIntegrationEnvironment =>
+        Environment.GetEnvironmentVariable("CI")?.ToLowerInvariant() is { } and not "0" and not "false";
+
+    [Theory(Skip = "Environment is not CI", SkipUnless = nameof(IsContinuousIntegrationEnvironment))]
     [MemberData(nameof(AllTestCases))]
     public void ValidateDownloadUrl(DownloadUrlCase c)
         => VerifyDownloadUrl(c.Platform, c.Architecture, c.FreeThreaded, c.Debug, c.Version);

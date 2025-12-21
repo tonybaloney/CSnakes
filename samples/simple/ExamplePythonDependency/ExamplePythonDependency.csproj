@@ -1,36 +1,26 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <ProductName>Example Python Dependency</ProductName>
-        <TargetFramework>net8.0</TargetFramework>
-        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    </PropertyGroup>
+  <PropertyGroup>
+    <ProductName>Example Python Dependency</ProductName>
+    <TargetFramework>net9.0</TargetFramework>
+    <AnalysisLevel>latest-Recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>9999</WarningLevel>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <None Remove="quick_demo.py" />
-        <None Remove="type_demos.py" />
-    </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="python/**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AdditionalFiles>
+  </ItemGroup>
 
-    <ItemGroup>
-        <AdditionalFiles Include="hello_world.py">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </AdditionalFiles>
-        <AdditionalFiles Include="quick_demo.py">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </AdditionalFiles>
-        <AdditionalFiles Include="type_demos.py">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </AdditionalFiles>
-        <AdditionalFiles Include="phi3_demo.py">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </AdditionalFiles>
-        <AdditionalFiles Include="kmeans_example.py">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </AdditionalFiles>
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CSnakes.Runtime" Version="1.*" />
+  </ItemGroup>
 
 </Project>

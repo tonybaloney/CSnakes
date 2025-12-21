@@ -16,11 +16,11 @@ static CSnakes.Runtime.Python.PyObject.From(System.ReadOnlySpan<byte> value) -> 
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Optional<T, TImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<T, TImporter>
 CSnakes.Runtime.Python.KeywordArg
-CSnakes.Runtime.Python.KeywordArg.Deconstruct(out string! Name, out CSnakes.Runtime.Python.PyObject! Value) -> void
+CSnakes.Runtime.Python.KeywordArg.Deconstruct(out CSnakes.Runtime.Python.PyObject! Name, out CSnakes.Runtime.Python.PyObject! Value) -> void
 CSnakes.Runtime.Python.KeywordArg.Equals(CSnakes.Runtime.Python.KeywordArg other) -> bool
 CSnakes.Runtime.Python.KeywordArg.KeywordArg() -> void
-CSnakes.Runtime.Python.KeywordArg.KeywordArg(string! Name, CSnakes.Runtime.Python.PyObject! Value) -> void
-CSnakes.Runtime.Python.KeywordArg.Name.get -> string!
+CSnakes.Runtime.Python.KeywordArg.KeywordArg(CSnakes.Runtime.Python.PyObject! Name, CSnakes.Runtime.Python.PyObject! Value) -> void
+CSnakes.Runtime.Python.KeywordArg.Name.get -> CSnakes.Runtime.Python.PyObject!
 CSnakes.Runtime.Python.KeywordArg.Name.init -> void
 CSnakes.Runtime.Python.KeywordArg.Value.get -> CSnakes.Runtime.Python.PyObject!
 CSnakes.Runtime.Python.KeywordArg.Value.init -> void

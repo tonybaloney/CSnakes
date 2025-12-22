@@ -21,7 +21,7 @@ public static class TypeReflection
             (IMappingType      { Key: var kt, Value: var vt }, _, _) => CreateDictionaryType(kt, vt, direction),
             (OptionalType      { Of: var t }, _, _) => AsPredefinedType(t, direction).Select(SyntaxFactory.NullableType),
             (GeneratorType     { Yield: var yt, Send: var st, Return: var rt }, _, _) => CreateGeneratorType(yt, st, rt, direction),
-            (CoroutineType     { Yield: var yt, Send: var st, Return: var rt }, _, _) => CreateCoroutineType(yt, st, rt, direction),
+            (CoroutineType     { Yield: NoneType, Send: NoneType, Return: var rt }, _, _) => CreateCoroutineType(rt, direction),
             (UnionType         { Choices: var ts }, ConversionDirection.ToPython, _) => [.. ts.SelectMany(t => AsPredefinedType(t, direction))],
             (VariadicTupleType { Of: var t }, ConversionDirection.FromPython, _) => from listType in AsPredefinedType(t, direction)
                                                                                     select CreateGenericType("ImmutableArray", [listType]),
@@ -50,12 +50,10 @@ public static class TypeReflection
                select CreateGenericType("IGeneratorIterator", [yieldTypeI, sendTypeI, returnTypeI]);
     }
 
-    private static IEnumerable<TypeSyntax> CreateCoroutineType(PythonTypeSpec yieldType, PythonTypeSpec sendType, PythonTypeSpec returnType, ConversionDirection direction)
+    private static IEnumerable<TypeSyntax> CreateCoroutineType(PythonTypeSpec returnType, ConversionDirection direction)
     {
-        return from yieldTypeI in AsPredefinedType(yieldType, direction)
-               from sendTypeI in AsPredefinedType(sendType, direction)
-               from returnTypeI in AsPredefinedType(returnType, direction)
-               select CreateGenericType("ICoroutine", [yieldTypeI, sendTypeI, returnTypeI]);
+        return from returnTypeI in AsPredefinedType(returnType, direction)
+               select CreateGenericType("ICoroutine", [returnTypeI]);
     }
 
     private static IEnumerable<TypeSyntax> CreateTupleType(ImmutableArray<PythonTypeSpec> tupleTypes, ConversionDirection direction)

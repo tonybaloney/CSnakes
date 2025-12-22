@@ -39,7 +39,13 @@ public class TypeReflectionTests
         ("str | None", "string?"),
         ("int | None", "long?"),
         ("list[int | None]", "IReadOnlyList<long?>"),
-        ("None | list[int | None]", "IReadOnlyList<long?>?"));
+        ("None | list[int | None]", "IReadOnlyList<long?>?"),
+        ("Coroutine[None, None, int]", "ICoroutine<long>"),
+        ("Coroutine[None, None, None]", "ICoroutine<PyObject>"),
+        // A "Coroutine" where send or yield types are not "None" becomes "PyObject"
+        ("Coroutine[bool, int, str]", "PyObject"),
+        ("Coroutine[None, int, str]", "PyObject"),
+        ("Coroutine[bool, None, str]", "PyObject"));
 
     [Theory]
     [MemberData(nameof(AsPredefinedTypeData))]

@@ -12,7 +12,10 @@ override CSnakes.Runtime.Locators.RedistributablePythonVersion.GetHashCode() -> 
 override CSnakes.Runtime.Locators.RedistributablePythonVersion.ToString() -> string!
 static CSnakes.Runtime.Locators.RedistributablePythonVersion.operator !=(CSnakes.Runtime.Locators.RedistributablePythonVersion? left, CSnakes.Runtime.Locators.RedistributablePythonVersion? right) -> bool
 static CSnakes.Runtime.Locators.RedistributablePythonVersion.operator ==(CSnakes.Runtime.Locators.RedistributablePythonVersion? left, CSnakes.Runtime.Locators.RedistributablePythonVersion? right) -> bool
+CSnakes.Runtime.Python.ICoroutine<T>
+CSnakes.Runtime.Python.ICoroutine<T>.AsTask(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T>!
 static CSnakes.Runtime.Python.PyObject.From(System.ReadOnlySpan<byte> value) -> CSnakes.Runtime.Python.PyObject!
+[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Coroutine<T, TImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Optional<T, TImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<T, TImporter>
 CSnakes.Runtime.Python.KeywordArg
@@ -71,3 +74,7 @@ static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_9 
 *REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn>
 *REMOVED*CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn>.GeneratorIterator(CSnakes.Runtime.Python.PyObject! coroutine) -> void
 *REMOVED*virtual CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Dispose(bool disposing) -> void
+*REMOVED*CSnakes.Runtime.Python.ICoroutine<TYield, TSend, TReturn>.AsTask(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TYield>!
+*REMOVED*[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>
+*REMOVED*CSnakes.Runtime.Python.ICoroutine<TYield, TSend, TReturn>
+*REMOVED*CSnakes.Runtime.Python.ICoroutine<TYield, TSend, TReturn>.AsTask(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TYield>!

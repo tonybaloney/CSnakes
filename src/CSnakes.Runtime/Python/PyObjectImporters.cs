@@ -239,18 +239,17 @@ public static partial class PyObjectImporters
         }
     }
 
-    public sealed class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter> :
-        IPyObjectImporter<ICoroutine<TYield, TSend, TReturn>>
-        where TYieldImporter : IPyObjectImporter<TYield>
-        where TReturnImporter : IPyObjectImporter<TReturn>
+    public sealed class Coroutine<T, TImporter> :
+        IPyObjectImporter<ICoroutine<T>>
+        where TImporter : IPyObjectImporter<T>
     {
         private Coroutine() { }
 
-        static ICoroutine<TYield, TSend, TReturn> IPyObjectImporter<ICoroutine<TYield, TSend, TReturn>>.BareImport(PyObject obj)
+        static ICoroutine<T> IPyObjectImporter<ICoroutine<T>>.BareImport(PyObject obj)
         {
             GIL.Require();
             return CPythonAPI.IsPyCoroutine(obj)
-                ? new Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(obj.Clone())
+                ? new Python.Coroutine<T, TImporter>(obj.Clone())
                 : throw InvalidCastException("coroutine", obj);
         }
     }

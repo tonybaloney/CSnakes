@@ -50,6 +50,10 @@ static partial class TestClassExtensions
         private PyObject __func_test_keyword_only;
         private PyObject __func_test_named_keyword_only;
 
+        private PyObject? __kwfld_b;
+
+        private PyObject __kw_b => this.__kwfld_b ??= PyObject.From("b");
+
         internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
             this.logger = logger;
@@ -79,6 +83,7 @@ static partial class TestClassExtensions
 
         public void Dispose()
         {
+            this.__kwfld_b?.Dispose();
             logger?.LogDebug("Disposing module {ModuleName}", "test");
             this.__func_test_keyword_only.Dispose();
             this.__func_test_named_keyword_only.Dispose();
@@ -93,7 +98,7 @@ static partial class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_keyword_only;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
-                _ = __underlyingPythonFunc.Call([a_pyObject], default, [new("b", b_pyObject)], default);
+                _ = __underlyingPythonFunc.Call([a_pyObject], default, [new(this.__kw_b, b_pyObject)], default);
                 return;
             }
         }
@@ -106,7 +111,7 @@ static partial class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_named_keyword_only;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
-                _ = __underlyingPythonFunc.Call([a_pyObject], args, [new("b", b_pyObject)], default);
+                _ = __underlyingPythonFunc.Call([a_pyObject], args, [new(this.__kw_b, b_pyObject)], default);
                 return;
             }
         }

@@ -30,15 +30,17 @@ public class CallBenchmarks : BaseBenchmark
     [Benchmark]
     public void CollectStarStarKwargs()
     {
+        using PyObject kw = PyObject.From("c");
         using PyObject arg = PyObject.From(3L);
-        mod.CollectStarStarKwargs(1, 2, [new("c", arg)]);
+        mod.CollectStarStarKwargs(1, 2, [new(kw, arg)]);
     }
 
     [Benchmark]
     public void PositionalAndKwargs()
     {
+        using PyObject kw = PyObject.From("d");
         using PyObject arg = PyObject.From(3L);
-        mod.PositionalAndKwargs(a: 1, b: 2, c: 3, kwargs: [new("d", arg)]);
+        mod.PositionalAndKwargs(a: 1, b: 2, c: 3, kwargs: [new(kw, arg)]);
     }
 
     [Benchmark]

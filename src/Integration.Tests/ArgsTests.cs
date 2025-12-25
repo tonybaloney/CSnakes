@@ -31,9 +31,10 @@ public class ArgsTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(f
 
         using (GIL.Acquire())
         {
+            using PyObject kw1 = PyObject.From("c");
             using PyObject arg1 = PyObject.From(3L);
 
-            Assert.Equal(6, mod.CollectStarStarKwargs(1, 2, [new("c", arg1)]));
+            Assert.Equal(6, mod.CollectStarStarKwargs(1, 2, [new(kw1, arg1)]));
 
         }
     }
@@ -45,9 +46,10 @@ public class ArgsTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(f
 
         using (GIL.Acquire())
         {
+            using PyObject kw1 = PyObject.From("d");
             using PyObject arg1 = PyObject.From(3L);
 
-            Assert.Equal(9, mod.PositionalAndKwargs(a: 1, b: 2, c: 3, kwargs: [new("d", arg1)]));
+            Assert.Equal(9, mod.PositionalAndKwargs(a: 1, b: 2, c: 3, kwargs: [new(kw1, arg1)]));
         }
     }
 

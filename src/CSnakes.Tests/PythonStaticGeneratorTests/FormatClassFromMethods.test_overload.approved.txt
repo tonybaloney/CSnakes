@@ -51,6 +51,12 @@ static partial class TestClassExtensions
         private PyObject __func_test_overload_unsupported_type;
         private PyObject __func_test_same_types_but_different_defaults;
 
+        private PyObject? __kwfld_depth;
+        private PyObject? __kwfld_limit;
+
+        private PyObject __kw_depth => this.__kwfld_depth ??= PyObject.From("depth");
+        private PyObject __kw_limit => this.__kwfld_limit ??= PyObject.From("limit");
+
         internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
             this.logger = logger;
@@ -83,6 +89,8 @@ static partial class TestClassExtensions
 
         public void Dispose()
         {
+            this.__kwfld_depth?.Dispose();
+            this.__kwfld_limit?.Dispose();
             logger?.LogDebug("Disposing module {ModuleName}", "test");
             this.__func_test_overload_supported_type.Dispose();
             this.__func_test_overload_unsupported_type.Dispose();
@@ -150,7 +158,7 @@ static partial class TestClassExtensions
                 using PyObject future_pyObject = PyObject.From(future)!;
                 using PyObject depth_pyObject = PyObject.From(depth)!;
                 using PyObject limit_pyObject = PyObject.From(limit)!;
-                _ = __underlyingPythonFunc.Call([future_pyObject], default, [new("depth", depth_pyObject), new("limit", limit_pyObject)], default);
+                _ = __underlyingPythonFunc.Call([future_pyObject], default, [new(this.__kw_depth, depth_pyObject), new(this.__kw_limit, limit_pyObject)], default);
                 return;
             }
         }

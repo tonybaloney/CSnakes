@@ -4,7 +4,7 @@
 
 [![NuGet Version](https://img.shields.io/nuget/v/CSnakes.Runtime?label=CSnakes.Runtime)](https://www.nuget.org/packages/CSnakes.Runtime)
 
-<img src="docs/res/logo.jpeg" alt="drawing" width="200"/> 
+<img src="docs/res/logo.jpeg" alt="drawing" width="200"/>
 
 CSnakes is a .NET Source Generator and Runtime that you can use to embed **Python** code and libraries into your **C#.NET Solution** at a performant, low-level without the need for REST, HTTP, or Microservices.
 
@@ -12,18 +12,18 @@ Check out the [getting started](https://tonybaloney.github.io/CSnakes/latest/get
 
 ## Features
 
-- 🤖 Supports .NET 8 and 9  
-- 🐍 Supports Python 3.9-3.13  
-- 📦 [Supports Virtual Environments and C-Extensions](https://tonybaloney.github.io/CSnakes/latest/user-guide/environments/)  
-- 💻 Supports Windows, macOS, and Linux  
-- 🧮 [Tight integration between NumPy ndarrays and Spans, 2D Spans and TensorSpans (.NET 9)](https://tonybaloney.github.io/CSnakes/latest/user-guide/buffers/)  
-- ⚡ Uses Python's C-API for fast invocation of Python code directly in the .NET process  
-- 🧠 Uses Python type hinting to generate function signatures with .NET native types  
-- 🧵 Supports [CPython 3.13 "free-threading" mode](https://tonybaloney.github.io/CSnakes/latest/advanced/free-threading/)  
-- 🧩 Supports nested sequence and mapping types (`tuple`, `dict`, `list`)  
-- 🏷️ Supports default values  
-- 🔥 Supports [Hot Reload](https://tonybaloney.github.io/CSnakes/latest/advanced/hot-reload/) of Python code in Visual Studio and supported IDEs  
-- 🚀 Supports [UV](https://tonybaloney.github.io/CSnakes/latest/user-guide/environments/#installing-dependencies-with-uv) for fast installation of Python packages and dependencies  
+- 🤖 Supports .NET 8 and 9
+- 🐍 Supports Python 3.9-3.13
+- 📦 [Supports Virtual Environments and C-Extensions](https://tonybaloney.github.io/CSnakes/latest/user-guide/environments/)
+- 💻 Supports Windows, macOS, and Linux
+- 🧮 [Tight integration between NumPy ndarrays and Spans, 2D Spans and TensorSpans (.NET 9)](https://tonybaloney.github.io/CSnakes/latest/user-guide/buffers/)
+- ⚡ Uses Python's C-API for fast invocation of Python code directly in the .NET process
+- 🧠 Uses Python type hinting to generate function signatures with .NET native types
+- 🧵 Supports [CPython 3.13 "free-threading" mode](https://tonybaloney.github.io/CSnakes/latest/advanced/free-threading/)
+- 🧩 Supports nested sequence and mapping types (`tuple`, `dict`, `list`)
+- 🏷️ Supports default values
+- 🔥 Supports [Hot Reload](https://tonybaloney.github.io/CSnakes/latest/advanced/hot-reload/) of Python code in Visual Studio and supported IDEs
+- 🚀 Supports [UV](https://tonybaloney.github.io/CSnakes/latest/user-guide/environments/#installing-dependencies-with-uv) for fast installation of Python packages and dependencies
 
 ## Benefits
 

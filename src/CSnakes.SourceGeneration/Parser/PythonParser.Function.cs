@@ -116,7 +116,7 @@ public static partial class PythonParser
                         combinedResult.ErrorPosition.Column + combinedResult.Location.Length,
                         combinedResult.FormatErrorMessageFragment())
                     );
-                    
+
                 } else
                 {
                     functionLines.Add(([.. from x in currentBuffer select x.line], combinedResult.Value));

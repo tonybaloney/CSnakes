@@ -13,7 +13,7 @@ This section provides links and descriptions of complete sample projects that de
 **Features**:
 
 - Basic string manipulation functions
-- Mathematical operations  
+- Mathematical operations
 - Type conversion examples
 - Error handling demonstration
 

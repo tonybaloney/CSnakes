@@ -4,6 +4,106 @@ namespace CSnakes.Tests;
 
 public class PythonTypeSpecTests
 {
+    public interface ITest<TSelf, out T>
+        where TSelf : ITest<TSelf, T>
+        where T : PythonTypeSpec
+    {
+        static abstract T CreateInstance();
+        static abstract PythonTypeSpec CreateDifferentInstance();
+        static abstract string ExpectedName { get; }
+        static abstract string ExpectedToString { get; }
+    }
+
+    public abstract class TestBase<T, TTest>
+        where T : PythonTypeSpec
+        where TTest : ITest<TTest, T>
+    {
+        [Fact]
+        public void Name_IsCorrect()
+        {
+            Assert.Equal(TTest.ExpectedName, TTest.CreateInstance().Name);
+        }
+
+        [Fact]
+        public void ToString_ReturnsExpectedValue()
+        {
+            Assert.Equal(TTest.ExpectedToString, TTest.CreateInstance().ToString());
+        }
+
+        [Fact]
+        public void ToString_WithMetadata_IncludesAnnotated()
+        {
+            var type = TTest.CreateInstance() with { Metadata = [42, "foo", 3.14] };
+            Assert.Equal($"Annotated[{TTest.ExpectedToString}, 42, 'foo', 3.14]", type.ToString());
+        }
+
+        [Fact]
+        public void Equality_HasValueSemantics()
+        {
+            var a = TTest.CreateInstance();
+            var b = TTest.CreateInstance();
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void GetHashCode_IsConsistent()
+        {
+            var a = TTest.CreateInstance();
+            var b = TTest.CreateInstance();
+
+            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+        }
+
+        [Fact]
+        public void Equality_SameMetadata_Equal()
+        {
+            var a = TTest.CreateInstance() with { Metadata = [1] };
+            var b = TTest.CreateInstance() with { Metadata = [1] };
+
+            Assert.Equal(a, b);
+            Assert.True(a == b);
+            Assert.False(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_NotEqual()
+        {
+            var a = TTest.CreateInstance() with { Metadata = [1] };
+            var b = TTest.CreateInstance() with { Metadata = [2] };
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void Equality_DifferentMetadata_EqualWithoutMetadata()
+        {
+            var a = TTest.CreateInstance() with { Metadata = [1] };
+            var b = TTest.CreateInstance() with { Metadata = [2] };
+            var at = a with { Metadata = default };
+            var bt = b with { Metadata = default };
+
+            Assert.Equal(at, bt);
+            Assert.True(at == bt);
+            Assert.False(at != bt);
+        }
+
+        [Fact]
+        public void ValueEquality_DifferentInstances_NotEqual()
+        {
+            var a = TTest.CreateInstance();
+            var b = TTest.CreateDifferentInstance();
+
+            Assert.NotEqual(a, b);
+            Assert.False(a == b);
+            Assert.True(a != b);
+        }
+    }
+
     [Fact]
     public void Singletons_AreExpectedTypes()
     {
@@ -18,335 +118,84 @@ public class PythonTypeSpecTests
         _ = Assert.IsType<AnyType>(Assert.IsType<VariadicTupleType>(PythonTypeSpec.Tuple).Of);
     }
 
-    public class NoneTypeTests
+    public class NoneTypeTests : TestBase<NoneType, NoneTypeTests>, ITest<NoneTypeTests, NoneType>
     {
-        [Fact]
-        public void Name_IsCorrect()
-        {
-            Assert.Equal("NoneType", PythonTypeSpec.None.Name);
-        }
-
-        [Fact]
-        public void ToString_ReturnsName()
-        {
-            Assert.Equal("NoneType", PythonTypeSpec.None.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var a = PythonTypeSpec.None;
-            var b = PythonTypeSpec.None;
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var a = PythonTypeSpec.None;
-            var b = PythonTypeSpec.None;
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
-        }
+        public static NoneType CreateInstance() => PythonTypeSpec.None;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "NoneType";
+        public static string ExpectedToString => "NoneType";
     }
 
-    public class AnyTypeTests
+    public class AnyTypeTests : TestBase<AnyType, AnyTypeTests>, ITest<AnyTypeTests, AnyType>
     {
-        [Fact]
-        public void Name_IsCorrect()
-        {
-            Assert.Equal("Any", PythonTypeSpec.Any.Name);
-        }
-
-        [Fact]
-        public void ToString_ReturnsName()
-        {
-            Assert.Equal("Any", PythonTypeSpec.Any.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var a = PythonTypeSpec.Any;
-            var b = PythonTypeSpec.Any;
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var a = PythonTypeSpec.Any;
-            var b = PythonTypeSpec.Any;
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
-        }
+        public static AnyType CreateInstance() => PythonTypeSpec.Any;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "Any";
+        public static string ExpectedToString => "Any";
     }
 
-    public class IntTypeTests
+    public class IntTypeTests : TestBase<IntType, IntTypeTests>, ITest<IntTypeTests, IntType>
     {
-        [Fact]
-        public void Name_IsCorrect()
-        {
-            Assert.Equal("int", PythonTypeSpec.Int.Name);
-        }
-
-        [Fact]
-        public void ToString_ReturnsName()
-        {
-            Assert.Equal("int", PythonTypeSpec.Int.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var a = PythonTypeSpec.Int;
-            var b = PythonTypeSpec.Int;
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var a = PythonTypeSpec.Int;
-            var b = PythonTypeSpec.Int;
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
-        }
+        public static IntType CreateInstance() => PythonTypeSpec.Int;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Str;
+        public static string ExpectedName => "int";
+        public static string ExpectedToString => "int";
     }
 
-    public class StrTypeTests
+    public class StrTypeTests : TestBase<StrType, StrTypeTests>, ITest<StrTypeTests, StrType>
     {
-        [Fact]
-        public void Name_IsCorrect()
-        {
-            Assert.Equal("str", PythonTypeSpec.Str.Name);
-        }
-
-        [Fact]
-        public void ToString_ReturnsName()
-        {
-            Assert.Equal("str", PythonTypeSpec.Str.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var a = PythonTypeSpec.Str;
-            var b = PythonTypeSpec.Str;
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var a = PythonTypeSpec.Str;
-            var b = PythonTypeSpec.Str;
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
-        }
+        public static StrType CreateInstance() => PythonTypeSpec.Str;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "str";
+        public static string ExpectedToString => "str";
     }
 
-    public class FloatTypeTests
+    public class FloatTypeTests : TestBase<FloatType, FloatTypeTests>, ITest<FloatTypeTests, FloatType>
     {
-        [Fact]
-        public void Name_IsCorrect()
-        {
-            Assert.Equal("float", PythonTypeSpec.Float.Name);
-        }
-
-        [Fact]
-        public void ToString_ReturnsName()
-        {
-            Assert.Equal("float", PythonTypeSpec.Float.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var a = PythonTypeSpec.Float;
-            var b = PythonTypeSpec.Float;
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var a = PythonTypeSpec.Float;
-            var b = PythonTypeSpec.Float;
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
-        }
+        public static FloatType CreateInstance() => PythonTypeSpec.Float;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "float";
+        public static string ExpectedToString => "float";
     }
 
-    public class BoolTypeTests
+    public class BoolTypeTests : TestBase<BoolType, BoolTypeTests>, ITest<BoolTypeTests, BoolType>
     {
-        [Fact]
-        public void Name_IsCorrect()
-        {
-            Assert.Equal("bool", PythonTypeSpec.Bool.Name);
-        }
-
-        [Fact]
-        public void ToString_ReturnsName()
-        {
-            Assert.Equal("bool", PythonTypeSpec.Bool.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var a = PythonTypeSpec.Bool;
-            var b = PythonTypeSpec.Bool;
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var a = PythonTypeSpec.Bool;
-            var b = PythonTypeSpec.Bool;
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
-        }
+        public static BoolType CreateInstance() => PythonTypeSpec.Bool;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "bool";
+        public static string ExpectedToString => "bool";
     }
 
-    public class BytesTypeTests
+    public class BytesTypeTests : TestBase<BytesType, BytesTypeTests>, ITest<BytesTypeTests, BytesType>
     {
-        [Fact]
-        public void Name_IsCorrect()
-        {
-            Assert.Equal("bytes", PythonTypeSpec.Bytes.Name);
-        }
-
-        [Fact]
-        public void ToString_ReturnsName()
-        {
-            Assert.Equal("bytes", PythonTypeSpec.Bytes.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var a = PythonTypeSpec.Bytes;
-            var b = PythonTypeSpec.Bytes;
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var a = PythonTypeSpec.Bytes;
-            var b = PythonTypeSpec.Bytes;
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
-        }
+        public static BytesType CreateInstance() => PythonTypeSpec.Bytes;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "bytes";
+        public static string ExpectedToString => "bytes";
     }
 
-    public class BufferTypeTests
+    public class BufferTypeTests : TestBase<BufferType, BufferTypeTests>, ITest<BufferTypeTests, BufferType>
     {
-        [Fact]
-        public void Name_IsCorrect()
-        {
-            Assert.Equal("Buffer", PythonTypeSpec.Buffer.Name);
-        }
-
-        [Fact]
-        public void ToString_ReturnsName()
-        {
-            Assert.Equal("Buffer", PythonTypeSpec.Buffer.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var a = PythonTypeSpec.Buffer;
-            var b = PythonTypeSpec.Buffer;
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var a = PythonTypeSpec.Buffer;
-            var b = PythonTypeSpec.Buffer;
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
-        }
+        public static BufferType CreateInstance() => PythonTypeSpec.Buffer;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "Buffer";
+        public static string ExpectedToString => "Buffer";
     }
 
-    public class SequenceTypeTests
+    public class SequenceTypeTests : TestBase<SequenceType, SequenceTypeTests>, ITest<SequenceTypeTests, SequenceType>
     {
+        public static SequenceType CreateInstance() => new(PythonTypeSpec.Int);
+        public static PythonTypeSpec CreateDifferentInstance() => new SequenceType(PythonTypeSpec.Str);
+        public static string ExpectedName => "Sequence";
+        public static string ExpectedToString => "Sequence[int]";
+
         [Fact]
         public void Constructor_SetsTypeArgument()
         {
-            var ofType = PythonTypeSpec.Int;
-            var type = new SequenceType(ofType);
+            var type = CreateInstance();
 
-            Assert.Equal("Sequence", type.Name);
-            Assert.Equal(ofType, type.Of);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new SequenceType(PythonTypeSpec.Str);
-
-            Assert.Equal("Sequence[str]", type.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var a = new SequenceType(PythonTypeSpec.Int);
-            var b = new SequenceType(PythonTypeSpec.Int);
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void ValueEquality_DifferentElementTypes_NotEqual()
-        {
-            var a = new SequenceType(PythonTypeSpec.Int);
-            var b = new SequenceType(PythonTypeSpec.Str);
-
-            Assert.NotEqual(a, b);
-            Assert.False(a == b);
-            Assert.True(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var a = new SequenceType(PythonTypeSpec.Int);
-            var b = new SequenceType(PythonTypeSpec.Int);
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Int, type.Of);
         }
 
         [Fact]
@@ -359,55 +208,20 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class ListTypeTests
+    public class ListTypeTests : TestBase<ListType, ListTypeTests>, ITest<ListTypeTests, ListType>
     {
+        public static ListType CreateInstance() => new(PythonTypeSpec.Int);
+        public static PythonTypeSpec CreateDifferentInstance() => new ListType(PythonTypeSpec.Str);
+        public static string ExpectedName => "list";
+        public static string ExpectedToString => "list[int]";
+
         [Fact]
         public void Constructor_SetsTypeArgument()
         {
-            var ofType = PythonTypeSpec.Int;
-            var type = new ListType(ofType);
+            var type = CreateInstance();
 
-            Assert.Equal("list", type.Name);
-            Assert.Equal(ofType, type.Of);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new ListType(PythonTypeSpec.Str);
-
-            Assert.Equal("list[str]", type.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var a = new ListType(PythonTypeSpec.Int);
-            var b = new ListType(PythonTypeSpec.Int);
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void ValueEquality_DifferentElementTypes_NotEqual()
-        {
-            var a = new ListType(PythonTypeSpec.Int);
-            var b = new ListType(PythonTypeSpec.Str);
-
-            Assert.NotEqual(a, b);
-            Assert.False(a == b);
-            Assert.True(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var a = new ListType(PythonTypeSpec.Int);
-            var b = new ListType(PythonTypeSpec.Int);
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Int, type.Of);
         }
 
         [Fact]
@@ -417,61 +231,21 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class MappingTypeTests
+    public class MappingTypeTests : TestBase<MappingType, MappingTypeTests>, ITest<MappingTypeTests, MappingType>
     {
+        public static MappingType CreateInstance() => new(PythonTypeSpec.Str, PythonTypeSpec.Int);
+        public static PythonTypeSpec CreateDifferentInstance() => new MappingType(PythonTypeSpec.Int, PythonTypeSpec.Str);
+        public static string ExpectedName => "Mapping";
+        public static string ExpectedToString => "Mapping[str, int]";
+
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            var keyType = PythonTypeSpec.Str;
-            var valueType = PythonTypeSpec.Int;
-            var type = new MappingType(keyType, valueType);
+            var type = CreateInstance();
 
-            Assert.Equal("Mapping", type.Name);
-            Assert.Equal(keyType, type.Key);
-            Assert.Equal(valueType, type.Value);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new MappingType(PythonTypeSpec.Str, PythonTypeSpec.Int);
-
-            Assert.Equal("Mapping[str, int]", type.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var keyType = PythonTypeSpec.Str;
-            var valueType = PythonTypeSpec.Int;
-            var a = new MappingType(keyType, valueType);
-            var b = new MappingType(keyType, valueType);
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void ValueEquality_DifferentTypes_NotEqual()
-        {
-            var a = new MappingType(PythonTypeSpec.Str, PythonTypeSpec.Int);
-            var b = new MappingType(PythonTypeSpec.Int, PythonTypeSpec.Str);
-
-            Assert.NotEqual(a, b);
-            Assert.False(a == b);
-            Assert.True(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var keyType = PythonTypeSpec.Str;
-            var valueType = PythonTypeSpec.Int;
-            var a = new MappingType(keyType, valueType);
-            var b = new MappingType(keyType, valueType);
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Str, type.Key);
+            Assert.Equal(PythonTypeSpec.Int, type.Value);
         }
 
         [Fact]
@@ -481,199 +255,71 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class DictTypeTests
+    public class DictTypeTests : TestBase<DictType, DictTypeTests>, ITest<DictTypeTests, DictType>
     {
+        public static DictType CreateInstance() => new(PythonTypeSpec.Str, PythonTypeSpec.Int);
+        public static PythonTypeSpec CreateDifferentInstance() => new DictType(PythonTypeSpec.Int, PythonTypeSpec.Str);
+        public static string ExpectedName => "dict";
+        public static string ExpectedToString => "dict[str, int]";
+
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            var keyType = PythonTypeSpec.Str;
-            var valueType = PythonTypeSpec.Int;
-            var type = new DictType(keyType, valueType);
+            var type = CreateInstance();
 
-            Assert.Equal("dict", type.Name);
-            Assert.Equal(keyType, type.Key);
-            Assert.Equal(valueType, type.Value);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new DictType(PythonTypeSpec.Str, PythonTypeSpec.Int);
-
-            Assert.Equal("dict[str, int]", type.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var keyType = PythonTypeSpec.Str;
-            var valueType = PythonTypeSpec.Int;
-            var a = new DictType(keyType, valueType);
-            var b = new DictType(keyType, valueType);
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void ValueEquality_DifferentTypes_NotEqual()
-        {
-            var a = new DictType(PythonTypeSpec.Str, PythonTypeSpec.Int);
-            var b = new DictType(PythonTypeSpec.Int, PythonTypeSpec.Str);
-
-            Assert.NotEqual(a, b);
-            Assert.False(a == b);
-            Assert.True(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var keyType = PythonTypeSpec.Str;
-            var valueType = PythonTypeSpec.Int;
-            var a = new DictType(keyType, valueType);
-            var b = new DictType(keyType, valueType);
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Str, type.Key);
+            Assert.Equal(PythonTypeSpec.Int, type.Value);
         }
 
         [Fact]
         public void ImplementsIMappingType()
         {
-            var keyType = PythonTypeSpec.Str;
-            var valueType = PythonTypeSpec.Int;
-            var type = new DictType(keyType, valueType);
+            var type = new DictType(PythonTypeSpec.Str, PythonTypeSpec.Int);
 
             Assert.IsAssignableFrom<IMappingType>(type);
         }
     }
 
-    public class CoroutineTypeTests
+    public class CoroutineTypeTests : TestBase<CoroutineType, CoroutineTypeTests>, ITest<CoroutineTypeTests, CoroutineType>
     {
+        public static CoroutineType CreateInstance() => new(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
+        public static PythonTypeSpec CreateDifferentInstance() => new CoroutineType(PythonTypeSpec.Str, PythonTypeSpec.Int, PythonTypeSpec.Bool);
+        public static string ExpectedName => "Coroutine";
+        public static string ExpectedToString => "Coroutine[int, str, bool]";
+
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            var yieldType = PythonTypeSpec.Int;
-            var sendType = PythonTypeSpec.Str;
-            var returnType = PythonTypeSpec.Bool;
-            var type = new CoroutineType(yieldType, sendType, returnType);
+            var type = CreateInstance();
 
-            Assert.Equal("Coroutine", type.Name);
-            Assert.Equal(yieldType, type.Yield);
-            Assert.Equal(sendType, type.Send);
-            Assert.Equal(returnType, type.Return);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new CoroutineType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
-
-            Assert.Equal("Coroutine[int, str, bool]", type.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var yieldType = PythonTypeSpec.Int;
-            var sendType = PythonTypeSpec.Str;
-            var returnType = PythonTypeSpec.Bool;
-            var a = new CoroutineType(yieldType, sendType, returnType);
-            var b = new CoroutineType(yieldType, sendType, returnType);
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void ValueEquality_DifferentTypes_NotEqual()
-        {
-            var a = new CoroutineType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
-            var b = new CoroutineType(PythonTypeSpec.Str, PythonTypeSpec.Int, PythonTypeSpec.Bool);
-
-            Assert.NotEqual(a, b);
-            Assert.False(a == b);
-            Assert.True(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var yieldType = PythonTypeSpec.Int;
-            var sendType = PythonTypeSpec.Str;
-            var returnType = PythonTypeSpec.Bool;
-            var a = new CoroutineType(yieldType, sendType, returnType);
-            var b = new CoroutineType(yieldType, sendType, returnType);
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Int, type.Yield);
+            Assert.Equal(PythonTypeSpec.Str, type.Send);
+            Assert.Equal(PythonTypeSpec.Bool, type.Return);
         }
     }
 
-    public class GeneratorTypeTests
+    public class GeneratorTypeTests : TestBase<GeneratorType, GeneratorTypeTests>, ITest<GeneratorTypeTests, GeneratorType>
     {
+        public static GeneratorType CreateInstance() => new(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
+        public static PythonTypeSpec CreateDifferentInstance() => new GeneratorType(PythonTypeSpec.Str, PythonTypeSpec.Int, PythonTypeSpec.Bool);
+        public static string ExpectedName => "Generator";
+        public static string ExpectedToString => "Generator[int, str, bool]";
+
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            var yieldType = PythonTypeSpec.Int;
-            var sendType = PythonTypeSpec.Str;
-            var returnType = PythonTypeSpec.Bool;
-            var type = new GeneratorType(yieldType, sendType, returnType);
+            var type = CreateInstance();
 
-            Assert.Equal("Generator", type.Name);
-            Assert.Equal(yieldType, type.Yield);
-            Assert.Equal(sendType, type.Send);
-            Assert.Equal(returnType, type.Return);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new GeneratorType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
-
-            Assert.Equal("Generator[int, str, bool]", type.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var yieldType = PythonTypeSpec.Int;
-            var sendType = PythonTypeSpec.Str;
-            var returnType = PythonTypeSpec.Bool;
-            var a = new GeneratorType(yieldType, sendType, returnType);
-            var b = new GeneratorType(yieldType, sendType, returnType);
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void ValueEquality_DifferentTypes_NotEqual()
-        {
-            var a = new GeneratorType(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);
-            var b = new GeneratorType(PythonTypeSpec.Str, PythonTypeSpec.Int, PythonTypeSpec.Bool);
-
-            Assert.NotEqual(a, b);
-            Assert.False(a == b);
-            Assert.True(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var yieldType = PythonTypeSpec.Int;
-            var sendType = PythonTypeSpec.Str;
-            var returnType = PythonTypeSpec.Bool;
-            var a = new GeneratorType(yieldType, sendType, returnType);
-            var b = new GeneratorType(yieldType, sendType, returnType);
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Int, type.Yield);
+            Assert.Equal(PythonTypeSpec.Str, type.Send);
+            Assert.Equal(PythonTypeSpec.Bool, type.Return);
         }
     }
 
-    public class LiteralTypeTests
+    public class LiteralTypeTests : TestBase<LiteralType, LiteralTypeTests>, ITest<LiteralTypeTests, LiteralType>
     {
         private static class Constants
         {
@@ -683,355 +329,133 @@ public class PythonTypeSpecTests
             public static readonly PythonConstant Float = new PythonConstant.Float(3.14);
         }
 
+        public static LiteralType CreateInstance() => new([Constants.Integer1, Constants.String, Constants.Float]);
+        public static PythonTypeSpec CreateDifferentInstance() => new LiteralType([Constants.Integer2, Constants.String, Constants.Float]);
+        public static string ExpectedName => "Literal";
+        public static string ExpectedToString => "Literal[42, 'hello', 3.14]";
+
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            ValueArray<PythonConstant> constants = [Constants.Integer1, Constants.String];
-            var type = new LiteralType(constants);
+            var type = CreateInstance();
 
-            Assert.Equal("Literal", type.Name);
-            Assert.Equal(constants, type.Constants);
-        }
-
-        [Fact]
-        public void ToString_FormatsConstants()
-        {
-            var type = new LiteralType([Constants.Integer1, Constants.String, Constants.Float]);
-
-            Assert.Equal("Literal[42, 'hello', 3.1]", type.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            ValueArray<PythonConstant> constants = [Constants.Integer1];
-            var a = new LiteralType(constants);
-            var b = new LiteralType(constants);
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void ValueEquality_DifferentConstants_NotEqual()
-        {
-            var a = new LiteralType([Constants.Integer1]);
-            var b = new LiteralType([Constants.Integer2]);
-
-            Assert.NotEqual(a, b);
-            Assert.False(a == b);
-            Assert.True(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            ValueArray<PythonConstant> constants = [Constants.Integer1];
-            var a = new LiteralType(constants);
-            var b = new LiteralType(constants);
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal([Constants.Integer1, Constants.String, Constants.Float], type.Constants);
         }
     }
 
-    public class OptionalTypeTests
+    public class OptionalTypeTests : TestBase<OptionalType, OptionalTypeTests>, ITest<OptionalTypeTests, OptionalType>
     {
+        public static OptionalType CreateInstance() => new(PythonTypeSpec.Int);
+        public static PythonTypeSpec CreateDifferentInstance() => new OptionalType(PythonTypeSpec.Str);
+        public static string ExpectedName => "Optional";
+        public static string ExpectedToString => "Optional[int]";
+
         [Fact]
         public void Constructor_SetsTypeArgument()
         {
-            var ofType = PythonTypeSpec.Int;
-            var type = new OptionalType(ofType);
+            var type = CreateInstance();
 
-            Assert.Equal("Optional", type.Name);
-            Assert.Equal(ofType, type.Of);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new OptionalType(PythonTypeSpec.Str);
-
-            Assert.Equal("Optional[str]", type.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var ofType = PythonTypeSpec.Int;
-            var a = new OptionalType(ofType);
-            var b = new OptionalType(ofType);
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void ValueEquality_DifferentElementTypes_NotEqual()
-        {
-            var a = new OptionalType(PythonTypeSpec.Int);
-            var b = new OptionalType(PythonTypeSpec.Str);
-
-            Assert.NotEqual(a, b);
-            Assert.False(a == b);
-            Assert.True(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var ofType = PythonTypeSpec.Int;
-            var a = new OptionalType(ofType);
-            var b = new OptionalType(ofType);
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Int, type.Of);
         }
     }
 
-    public class CallableTypeTests
+    public class CallableTypeTests : TestBase<CallableType, CallableTypeTests>, ITest<CallableTypeTests, CallableType>
     {
+        public static CallableType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str], PythonTypeSpec.Bool);
+        public static PythonTypeSpec CreateDifferentInstance() => new CallableType([PythonTypeSpec.Str], PythonTypeSpec.Bool);
+        public static string ExpectedName => "Callback";
+        public static string ExpectedToString => "Callback[[int, str], bool]";
+
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            ValueArray<PythonTypeSpec> parameters = [PythonTypeSpec.Int, PythonTypeSpec.Str];
-            var returnType = PythonTypeSpec.Bool;
-            var type = new CallableType(parameters, returnType);
+            var type = CreateInstance();
 
-            Assert.Equal("Callback", type.Name);
-            Assert.Equal(parameters, type.Parameters);
-            Assert.Equal(returnType, type.Return);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new CallableType([PythonTypeSpec.Int, PythonTypeSpec.Str], PythonTypeSpec.Bool);
-
-            Assert.Equal("Callback[[int, str], bool]", type.ToString());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal([PythonTypeSpec.Int, PythonTypeSpec.Str], type.Parameters);
+            Assert.Equal(PythonTypeSpec.Bool, type.Return);
         }
 
         [Fact]
         public void ToString_WhenNullParameters_FormatsEllipsis()
         {
             var type = new CallableType(null, PythonTypeSpec.Bool);
+            var annotatedType = type with { Metadata = [42] };
 
             Assert.Equal("Callback[..., bool]", type.ToString());
+            Assert.Equal("Annotated[Callback[..., bool], 42]", annotatedType.ToString());
         }
 
         [Fact]
         public void ToString_NoParameters_ReturnsFullyFormattedName()
         {
             var type = new CallableType([], PythonTypeSpec.Bool);
+            var annotatedType = type with { Metadata = [42] };
 
             Assert.Equal("Callback[[], bool]", type.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            ValueArray<PythonTypeSpec> parameters = [PythonTypeSpec.Int, PythonTypeSpec.Str];
-            var returnType = PythonTypeSpec.Bool;
-            var a = new CallableType(parameters, returnType);
-            var b = new CallableType(parameters, returnType);
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void ValueEquality_DifferentTypes_NotEqual()
-        {
-            var a = new CallableType([PythonTypeSpec.Int], PythonTypeSpec.Bool);
-            var b = new CallableType([PythonTypeSpec.Str], PythonTypeSpec.Bool);
-
-            Assert.NotEqual(a, b);
-            Assert.False(a == b);
-            Assert.True(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            ValueArray<PythonTypeSpec> parameters = [PythonTypeSpec.Int, PythonTypeSpec.Str];
-            var returnType = PythonTypeSpec.Bool;
-            var a = new CallableType(parameters, returnType);
-            var b = new CallableType(parameters, returnType);
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal("Annotated[Callback[[], bool], 42]", annotatedType.ToString());
         }
     }
 
-    public class TupleTypeTests
+    public class TupleTypeTests : TestBase<TupleType, TupleTypeTests>, ITest<TupleTypeTests, TupleType>
     {
+        public static TupleType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool]);
+        public static PythonTypeSpec CreateDifferentInstance() => new TupleType([PythonTypeSpec.Int, PythonTypeSpec.Str]);
+        public static string ExpectedName => "tuple";
+        public static string ExpectedToString => "tuple[int, str, bool]";
+
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            ValueArray<PythonTypeSpec> parameters = [PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool];
-            var type = new TupleType(parameters);
+            var type = CreateInstance();
 
-            Assert.Equal("tuple", type.Name);
-            Assert.Equal(parameters, type.Parameters);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            ValueArray<PythonTypeSpec> parameters = [PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool];
-            var type = new TupleType(parameters);
-
-            Assert.Equal("tuple[int, str, bool]", type.ToString());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal([PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool], type.Parameters);
         }
 
         [Fact]
         public void ToString_EmptyTuple()
         {
-            ValueArray<PythonTypeSpec> parameters = [];
-            var type = new TupleType(parameters);
+            var type = new TupleType([]);
+            var annotatedType = type with { Metadata = [42] };
 
-            Assert.Equal("tuple[]", type.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            ValueArray<PythonTypeSpec> parameters = [PythonTypeSpec.Int, PythonTypeSpec.Str];
-            var a = new TupleType(parameters);
-            var b = new TupleType(parameters);
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void ValueEquality_DifferentParameters_NotEqual()
-        {
-            var a = new TupleType([PythonTypeSpec.Int]);
-            var b = new TupleType([PythonTypeSpec.Str]);
-
-            Assert.NotEqual(a, b);
-            Assert.False(a == b);
-            Assert.True(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            ValueArray<PythonTypeSpec> parameters = [PythonTypeSpec.Int, PythonTypeSpec.Str];
-            var a = new TupleType(parameters);
-            var b = new TupleType(parameters);
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal("tuple[()]", type.ToString());
+            Assert.Equal("Annotated[tuple[()], 42]", annotatedType.ToString());
         }
     }
 
-    public class VariadicTupleTypeTests
+    public class VariadicTupleTypeTests : TestBase<VariadicTupleType, VariadicTupleTypeTests>, ITest<VariadicTupleTypeTests, VariadicTupleType>
     {
+        public static VariadicTupleType CreateInstance() => new(PythonTypeSpec.Int);
+        public static PythonTypeSpec CreateDifferentInstance() => new VariadicTupleType(PythonTypeSpec.Str);
+        public static string ExpectedName => "tuple";
+        public static string ExpectedToString => "tuple[int, ...]";
+
         [Fact]
         public void Constructor_SetsTypeArgument()
         {
-            var ofType = PythonTypeSpec.Int;
-            var type = new VariadicTupleType(ofType);
+            var type = CreateInstance();
 
-            Assert.Equal("tuple", type.Name);
-            Assert.Equal(ofType, type.Of);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new VariadicTupleType(PythonTypeSpec.Str);
-
-            Assert.Equal("tuple[str, ...]", type.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            var ofType = PythonTypeSpec.Int;
-            var a = new VariadicTupleType(ofType);
-            var b = new VariadicTupleType(ofType);
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void ValueEquality_DifferentElementTypes_NotEqual()
-        {
-            var a = new VariadicTupleType(PythonTypeSpec.Int);
-            var b = new VariadicTupleType(PythonTypeSpec.Str);
-
-            Assert.NotEqual(a, b);
-            Assert.False(a == b);
-            Assert.True(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var ofType = PythonTypeSpec.Int;
-            var a = new VariadicTupleType(ofType);
-            var b = new VariadicTupleType(ofType);
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Int, type.Of);
         }
     }
 
-    public class UnionTypeTests
+    public class UnionTypeTests : TestBase<UnionType, UnionTypeTests>, ITest<UnionTypeTests, UnionType>
     {
+        public static UnionType CreateInstance() => new([PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool]);
+        public static PythonTypeSpec CreateDifferentInstance() => new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Bool]);
+        public static string ExpectedName => "Union";
+        public static string ExpectedToString => "Union[int, str, bool]";
+
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            ValueArray<PythonTypeSpec> choices = [PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool];
-            var type = new UnionType(choices);
+            var type = CreateInstance();
 
-            Assert.Equal("Union", type.Name);
-            Assert.Equal(choices, type.Choices);
-        }
-
-        [Fact]
-        public void ToString_ReturnsFullyFormattedName()
-        {
-            var type = new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool]);
-
-            Assert.Equal("Union[int, str, bool]", type.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            ValueArray<PythonTypeSpec> choices = [PythonTypeSpec.Int, PythonTypeSpec.Str];
-            var a = new UnionType(choices);
-            var b = new UnionType(choices);
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
-        }
-
-        [Fact]
-        public void ValueEquality_DifferentChoices_NotEqual()
-        {
-            var a = new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Str]);
-            var b = new UnionType([PythonTypeSpec.Int, PythonTypeSpec.Bool]);
-
-            Assert.NotEqual(a, b);
-            Assert.False(a == b);
-            Assert.True(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            ValueArray<PythonTypeSpec> choices = [PythonTypeSpec.Int, PythonTypeSpec.Str];
-            var a = new UnionType(choices);
-            var b = new UnionType(choices);
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal([PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool], type.Choices);
         }
 
         [Fact]
@@ -1125,90 +549,61 @@ public class PythonTypeSpecTests
         }
     }
 
-    public class ParsedPythonTypeSpecTests
+    public class ParsedPythonTypeSpecTests : TestBase<ParsedPythonTypeSpec, ParsedPythonTypeSpecTests>, ITest<ParsedPythonTypeSpecTests, ParsedPythonTypeSpec>
     {
+        public static ParsedPythonTypeSpec CreateInstance() => new(ExpectedName, [PythonTypeSpec.Int, PythonTypeSpec.Str]);
+        public static PythonTypeSpec CreateDifferentInstance() => new ParsedPythonTypeSpec(ExpectedName, [PythonTypeSpec.Int]);
+        public static string ExpectedName => "MyCustomType";
+        public static string ExpectedToString => $"{ExpectedName}[int, str]";
+
         [Fact]
         public void Constructor_SetsTypeArguments()
         {
-            const string name = "MyCustomType";
-            ValueArray<PythonTypeSpec> arguments = [PythonTypeSpec.Int, PythonTypeSpec.Str];
-            var type = new ParsedPythonTypeSpec(name, arguments);
+            var type = CreateInstance();
 
-            Assert.Equal(name, type.Name);
-            Assert.Equal(arguments, type.Arguments);
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal([PythonTypeSpec.Int, PythonTypeSpec.Str], type.Arguments);
         }
 
         [Fact]
         public void ToString_NoTypeArguments_ReturnsName()
         {
-            const string name = "MyCustomType";
-            var type = new ParsedPythonTypeSpec(name, []);
+            var type = CreateInstance() with { Arguments = [] };
+            var annotatedType = type with { Metadata = [42] };
 
-            Assert.Equal(name, type.ToString());
+            Assert.Equal(ExpectedName, type.ToString());
+            Assert.Equal($"Annotated[{ExpectedName}, 42]", annotatedType.ToString());
         }
 
         [Fact]
         public void ToString_SingleArgument_ReturnsFullyFormattedName()
         {
-            var type = new ParsedPythonTypeSpec("MyCustomType", [PythonTypeSpec.Int]);
+            var type = CreateInstance() with { Arguments = [PythonTypeSpec.Int] };
+            var annotatedType = type with { Metadata = [42] };
 
-            Assert.Equal("MyCustomType[int]", type.ToString());
+            Assert.Equal($"{ExpectedName}[int]", type.ToString());
+            Assert.Equal($"Annotated[{ExpectedName}[int], 42]", annotatedType.ToString());
         }
 
         [Fact]
         public void ToString_MultipleTypeArguments_ReturnsFullyFormattedName()
         {
-            var type = new ParsedPythonTypeSpec("MyCustomType", [PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool]);
+            var type = CreateInstance() with { Arguments = [PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool] };
+            var annotatedType = type with { Metadata = [42] };
 
-            Assert.Equal("MyCustomType[int, str, bool]", type.ToString());
-        }
-
-        [Fact]
-        public void Equality_HasValueSemantics()
-        {
-            const string name = "MyCustomType";
-            ValueArray<PythonTypeSpec> arguments = [PythonTypeSpec.Int, PythonTypeSpec.Str];
-            var a = new ParsedPythonTypeSpec(name, arguments);
-            var b = new ParsedPythonTypeSpec(name, arguments);
-
-            Assert.Equal(a, b);
-            Assert.True(a == b);
-            Assert.False(a != b);
+            Assert.Equal($"{ExpectedName}[int, str, bool]", type.ToString());
+            Assert.Equal($"Annotated[{ExpectedName}[int, str, bool], 42]", annotatedType.ToString());
         }
 
         [Fact]
         public void ValueEquality_DifferentNames_NotEqual()
         {
-            ValueArray<PythonTypeSpec> arguments = [PythonTypeSpec.Int];
-            var a = new ParsedPythonTypeSpec("Type1", arguments);
-            var b = new ParsedPythonTypeSpec("Type2", arguments);
+            var a = CreateInstance();
+            var b = a with { Name = $"{a.Name}{a.Name}" };
 
             Assert.NotEqual(a, b);
             Assert.False(a == b);
             Assert.True(a != b);
-        }
-
-        [Fact]
-        public void ValueEquality_DifferentArguments_NotEqual()
-        {
-            var name = "MyCustomType";
-            var a = new ParsedPythonTypeSpec(name, [PythonTypeSpec.Int]);
-            var b = new ParsedPythonTypeSpec(name, [PythonTypeSpec.Str]);
-
-            Assert.NotEqual(a, b);
-            Assert.False(a == b);
-            Assert.True(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_IsConsistent()
-        {
-            var name = "MyCustomType";
-            ValueArray<PythonTypeSpec> arguments = [PythonTypeSpec.Int, PythonTypeSpec.Str];
-            var a = new ParsedPythonTypeSpec(name, arguments);
-            var b = new ParsedPythonTypeSpec(name, arguments);
-
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
         }
     }
 }

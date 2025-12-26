@@ -4,24 +4,13 @@ using System.Diagnostics.CodeAnalysis;
 namespace CSnakes.Runtime.Python;
 
 [RequiresDynamicCode(DynamicCodeMessages.CallsMakeGenericType)]
-internal sealed class Coroutine<TYield, TSend, TReturn>(PyObject coroutine) :
-    Coroutine<TYield, TSend, TReturn,
-              PyObjectImporters.Runtime<TYield>,
-              PyObjectImporters.Runtime<TReturn>>(coroutine);
+internal sealed class Coroutine<T>(PyObject coroutine) :
+    Coroutine<T, PyObjectImporters.Runtime<T>>(coroutine);
 
-internal class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(PyObject coroutine) :
-    ICoroutine<TYield, TSend, TReturn>
-    where TYieldImporter : IPyObjectImporter<TYield>
-    where TReturnImporter : IPyObjectImporter<TReturn>
+internal class Coroutine<T, TImporter>(PyObject coroutine) : ICoroutine<T>
+    where TImporter : IPyObjectImporter<T>
 {
-    private TYield current = default!;
-    private TReturn @return = default!;
-
-    public TYield Current => current;
-    public TReturn Return => @return;
-
-
-    public async Task<TYield> AsTask(CancellationToken cancellationToken = default)
+    public async Task<T> AsTask(CancellationToken cancellationToken = default)
     {
         Task<PyObject> task;
 
@@ -30,27 +19,7 @@ internal class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter
 
         var result = await task.ConfigureAwait(false);
 
-        try
-        {
-            using (GIL.Acquire())
-                return this.current = TYieldImporter.BareImport(result);
-        }
-        catch (PythonInvocationException ex)
-        {
-            if (ex.InnerException is PythonStopIterationException stopIteration)
-            {
-                using var @return = stopIteration.TakeValue();
-                this.@return = @return.ImportAs<TReturn, TReturnImporter>();
-
-                // Coroutine has finished
-                // TODO: define behavior for this case
-                // Adding pragma, because there is TODO comment
-#pragma warning disable CS8603               
-                return default;
-#pragma warning restore CS8603               
-            }
-
-            throw;
-        }
+        using (GIL.Acquire())
+            return TImporter.BareImport(result);
     }
 }

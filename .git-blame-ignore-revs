@@ -1,3 +1,5 @@
 # .git-blame-ignore-revs
 # Changed line endings and BOM
 07e4e2171d88deac63cf3974e7bef19721e5a915
+# Initial pre-commit hook fixes
+a0895d907c49a42bfe6e1b082c675af869304245

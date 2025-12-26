@@ -6,7 +6,7 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="_CSnakes_Runtime_RemoveAnalyzers" 
+  <Target Name="_CSnakes_Runtime_RemoveAnalyzers"
           Condition="'$(DisableCSnakesRuntimeSourceGenerator)' == 'true'"
           AfterTargets="ResolvePackageDependenciesForBuild;ResolveNuGetPackageAssets"
           DependsOnTargets="_CSnakes_Runtime_GatherAnalyzers">

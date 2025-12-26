@@ -77,7 +77,7 @@ def set_random(arr: np.ndarray) -> None:
 
 Unlike .NET which has value types and reference types, Python has only names
 which are references to objects (everything is a pointer to `PyObject`). If you're a C# developer, just think of Python
-as having only reference types. 
+as having only reference types.
 
 To marshall value types from .NET to Python, CSnakes has to convert the value
 type into a reference type. This is done by creating a new object in Python and

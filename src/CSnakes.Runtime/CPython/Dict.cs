@@ -44,7 +44,7 @@ internal unsafe partial class CPythonAPI
     internal static partial nint PyDict_Size(PyObject dict);
 
     /// <summary>
-    /// Return the object from dictionary p which has a key `key`. 
+    /// Return the object from dictionary p which has a key `key`.
     /// </summary>
     /// <param name="dict">Dictionary Object</param>
     /// <param name="key">Key Object</param>
@@ -78,7 +78,7 @@ internal unsafe partial class CPythonAPI
     }
 
     /// <summary>
-    /// Return the object from dictionary p which has a key `key`. 
+    /// Return the object from dictionary p which has a key `key`.
     /// Return NULL if the key key is not present, but without setting an exception.
     /// </summary>
     /// <param name="dict">Dictionary Object</param>
@@ -88,8 +88,8 @@ internal unsafe partial class CPythonAPI
     private static partial nint PyDict_GetItem_(PyObject dict, PyObject key);
 
     /// <summary>
-    /// Insert val into the dictionary p with a key of key. 
-    /// key must be hashable; if it isn’t, TypeError will be raised.  
+    /// Insert val into the dictionary p with a key of key.
+    /// key must be hashable; if it isn’t, TypeError will be raised.
     /// This function adds a new reference to key and value if successful.
     /// </summary>
     /// <param name="dict">PyDict object</param>

@@ -10,9 +10,9 @@ C# does not have a notion of `Tuple<T...>`, so the type annotation using `Tuple[
 
 ## Classes
 
-CSnakes does not support source generation for custom types, this includes dataclasses and named tuple instances. 
+CSnakes does not support source generation for custom types, this includes dataclasses and named tuple instances.
 
-Functions which return class instances will return a `PyObject` in C#.NET which you can use to pass into other functions. This type is a reference to the return value. 
+Functions which return class instances will return a `PyObject` in C#.NET which you can use to pass into other functions. This type is a reference to the return value.
 
 ```python
 def create_person(name: str, age: int) -> Person:
@@ -26,7 +26,7 @@ public PyObject CreatePerson(string name, long age);
 ```
 
 There are some public methods on the `PyObject` class that you can use to interact with the object, such as `GetAttr` and `Call`.
-Any PyObject has a `ToString()` method that will return the string representation of the object, but you cannot convert the instance to a specific CLR type. 
+Any PyObject has a `ToString()` method that will return the string representation of the object, but you cannot convert the instance to a specific CLR type.
 
 ```csharp
 var person = module.CreatePerson("Alice", 42);

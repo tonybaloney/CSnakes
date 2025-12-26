@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace CSnakes.Parser.Types;
 
-public abstract record PythonTypeSpec(string Name)
+public abstract record PythonTypeSpec(string Name, ValueArray<PythonConstant> Metadata = default)
 {
     public static readonly AnyType Any = AnyType.Instance;
     public static readonly NoneType None = NoneType.Instance;
@@ -14,63 +14,74 @@ public abstract record PythonTypeSpec(string Name)
     public static readonly BufferType Buffer = BufferType.Instance;
     public static readonly VariadicTupleType Tuple = new(Any);
 
-    public override string ToString() => Name;
+    protected string Format(string? subscript = null)
+    {
+        return (Metadata, subscript) switch
+        {
+            ([], null) => $"{Name}",
+            ([], var sub) => $"{Name}[{sub}]",
+            (var md, null) => $"Annotated[{Name}, {string.Join(", ", md)}]",
+            var (md, sub) => $"Annotated[{Name}[{sub}], {string.Join(", ", md)}]",
+        };
+    }
+
+    public override string ToString() => Format();
 }
 
 public sealed record NoneType : PythonTypeSpec
 {
     public static readonly NoneType Instance = new();
     private NoneType() : base("NoneType") { }
-    public override string ToString() => Name;
+    public override string ToString() => Format();
 }
 
 public sealed record AnyType : PythonTypeSpec
 {
     public static readonly AnyType Instance = new();
     private AnyType() : base("Any") { }
-    public override string ToString() => Name;
+    public override string ToString() => Format();
 }
 
 public sealed record IntType : PythonTypeSpec
 {
     public static readonly IntType Instance = new();
     private IntType() : base("int") { }
-    public override string ToString() => Name;
+    public override string ToString() => Format();
 }
 
 public sealed record StrType : PythonTypeSpec
 {
     public static readonly StrType Instance = new();
     private StrType() : base("str") { }
-    public override string ToString() => Name;
+    public override string ToString() => Format();
 }
 
 public sealed record FloatType : PythonTypeSpec
 {
     public static readonly FloatType Instance = new();
     private FloatType() : base("float") { }
-    public override string ToString() => Name;
+    public override string ToString() => Format();
 }
 
 public sealed record BoolType : PythonTypeSpec
 {
     public static readonly BoolType Instance = new();
     private BoolType() : base("bool") { }
-    public override string ToString() => Name;
+    public override string ToString() => Format();
 }
 
 public sealed record BytesType : PythonTypeSpec
 {
     public static readonly BytesType Instance = new();
     private BytesType() : base("bytes") { }
-    public override string ToString() => Name;
+    public override string ToString() => Format();
 }
 
 public sealed record BufferType : PythonTypeSpec
 {
     public static readonly BufferType Instance = new();
     private BufferType() : base("Buffer") { }
-    public override string ToString() => Name;
+    public override string ToString() => Format();
 }
 
 public abstract record ClosedGenericType(string Name) : PythonTypeSpec(Name);
@@ -82,12 +93,12 @@ public interface ISequenceType
 
 public sealed record SequenceType(PythonTypeSpec Of) : ClosedGenericType("Sequence"), ISequenceType
 {
-    public override string ToString() => $"{Name}[{Of}]";
+    public override string ToString() => Format($"{Of}");
 }
 
 public sealed record ListType(PythonTypeSpec Of) : ClosedGenericType("list"), ISequenceType
 {
-    public override string ToString() => $"{Name}[{Of}]";
+    public override string ToString() => Format($"{Of}");
 }
 
 public interface IMappingType
@@ -98,68 +109,63 @@ public interface IMappingType
 
 public sealed record MappingType(PythonTypeSpec Key, PythonTypeSpec Value) : ClosedGenericType("Mapping"), IMappingType
 {
-    public override string ToString() => $"{Name}[{Key}, {Value}]";
+    public override string ToString() => Format($"{Key}, {Value}");
 }
 
 public sealed record DictType(PythonTypeSpec Key, PythonTypeSpec Value) : ClosedGenericType("dict"), IMappingType
 {
-    public override string ToString() => $"{Name}[{Key}, {Value}]";
+    public override string ToString() => Format($"{Key}, {Value}");
 }
 
 public sealed record CoroutineType(PythonTypeSpec Yield, PythonTypeSpec Send, PythonTypeSpec Return) : ClosedGenericType("Coroutine")
 {
-    public override string ToString() => $"{Name}[{Yield}, {Send}, {Return}]";
+    public CoroutineType(PythonTypeSpec returnType) : this(None, None, returnType) { }
+
+    public override string ToString() => Format($"{Yield}, {Send}, {Return}");
 }
 
 public sealed record GeneratorType(PythonTypeSpec Yield, PythonTypeSpec Send, PythonTypeSpec Return) : ClosedGenericType("Generator")
 {
-    public override string ToString() => $"{Name}[{Yield}, {Send}, {Return}]";
+    public override string ToString() => Format($"{Yield}, {Send}, {Return}");
 }
 
 public sealed record LiteralType(ValueArray<PythonConstant> Constants) : PythonTypeSpec("Literal")
 {
-    public override string ToString()
-    {
-        var constants =
-            from c in Constants
-            select c switch
-            {
-                PythonConstant.Float { Value: var v } => FormattableString.Invariant($"{v:0.0}"),
-                PythonConstant.String { Value: var v } => $"'{v}'",
-                var other => other.ToString(),
-            };
-        return $"{Name}[{string.Join(", ", constants)}]";
-    }
+    public override string ToString() => Format($"{string.Join(", ", Constants)}");
 }
 
 public sealed record OptionalType(PythonTypeSpec Of) : ClosedGenericType("Optional")
 {
-    public override string ToString() => $"{Name}[{Of}]";
+    public override string ToString() => Format($"{Of}");
 }
 
 public sealed record CallableType(ValueArray<PythonTypeSpec>? Parameters, PythonTypeSpec Return) : ClosedGenericType("Callback")
 {
     public override string ToString() => Parameters switch
     {
-        null => $"{Name}[..., {Return}]",
-        [] => $"{Name}[[], {Return}]",
-        { } ps => $"{Name}[[{string.Join(", ", ps)}], {Return}]",
+        null => Format($"..., {Return}"),
+        [] => Format($"[], {Return}"),
+        { } ps => Format($"[{string.Join(", ", ps)}], {Return}"),
     };
 }
 
 public sealed record TupleType(ValueArray<PythonTypeSpec> Parameters) : ClosedGenericType("tuple")
 {
-    public override string ToString() => $"{Name}[{string.Join(", ", Parameters)}]";
+    public override string ToString() => Parameters switch
+    {
+        [] => Format("()"),
+        var @params => Format($"{string.Join(", ", @params)}")
+    };
 }
 
 public sealed record VariadicTupleType(PythonTypeSpec Of) : PythonTypeSpec("tuple")
 {
-    public override string ToString() => $"{Name}[{Of}, ...]";
+    public override string ToString() => Format($"{Of}, ...");
 }
 
 public sealed record UnionType(ValueArray<PythonTypeSpec> Choices) : ClosedGenericType("Union")
 {
-    public override string ToString() => $"{Name}[{string.Join(", ", Choices)}]";
+    public override string ToString() => Format($"{string.Join(", ", Choices)}");
 
     public static PythonTypeSpec Normalize(ReadOnlySpan<PythonTypeSpec> choices)
     {
@@ -235,10 +241,10 @@ public sealed record UnionType(ValueArray<PythonTypeSpec> Choices) : ClosedGener
 public sealed record ParsedPythonTypeSpec(string Name, ValueArray<PythonTypeSpec> Arguments) : PythonTypeSpec(Name)
 {
     public override string ToString() =>
-        this switch
+        Arguments switch
         {
-            { Name: var name, Arguments: [] } => name,
-            { Name: var name, Arguments: [var arg] } => $"{name}[{arg}]",
-            { Name: var name, Arguments: var args } => $"{name}[{string.Join(", ", args)}]"
+            [] => Format(),
+            [var arg] => Format($"{arg}"),
+            var args => Format($"{string.Join(", ", args)}")
         };
 }

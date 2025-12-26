@@ -39,7 +39,7 @@ public class RedistributablePythonTestBase : IDisposable
 
         builder.Logging.SetMinimumLevel(LogLevel.Debug);
         builder.Logging.AddFilter(_ => true);
-        
+
         app = builder.Build();
 
         env = app.Services.GetRequiredService<IPythonEnvironment>();

@@ -143,13 +143,73 @@ public class PythonConstantTests
         }
 
         [Theory]
-        [InlineData(0.0, "0")]
+        [InlineData(0.0, "0.0")]
+        [InlineData(0.5, "0.5")]
         [InlineData(1.5, "1.5")]
+        [InlineData(3.141592653589793, "3.141592653589793")]
         [InlineData(-42.125, "-42.125")]
+        [InlineData(float.PositiveInfinity, "inf")]
+        [InlineData(float.NegativeInfinity, "-inf")]
+        [InlineData(float.NaN, "nan")]
+        //
+        // The following test cases are taken from CPython:
+        // https://github.com/python/cpython/blob/df793163d5821791d4e7caf88885a2c11a107986/Lib/test/test_float.py#L865-L897
+        //
+        // output always includes *either* a decimal point and at
+        // least one digit after that point, or an exponent.
+        [InlineData(1.0, "1.0")]
+        [InlineData(0.01, "0.01")]
+        [InlineData(0.02, "0.02")]
+        [InlineData(0.03, "0.03")]
+        [InlineData(0.04, "0.04")]
+        [InlineData(0.05, "0.05")]
+        [InlineData(1.23456789, "1.23456789")]
+        [InlineData(10.0, "10.0")]
+        [InlineData(100.0, "100.0")]
+        // values >= 1e16 get an exponent...
+        [InlineData(1000000000000000.0, "1000000000000000.0")]
+        [InlineData(9999999999999990.0, "9999999999999990.0")]
+        [InlineData(1e+16, "1e+16")]
+        [InlineData(1e+17, "1e+17")]
+        // ... and so do values < 1e-4
+        [InlineData(0.001, "0.001")]
+        [InlineData(0.001001, "0.001001")]
+        [InlineData(0.00010000000000001, "0.00010000000000001")]
+        [InlineData(0.0001, "0.0001")]
+        [InlineData(9.999999999999e-05, "9.999999999999e-05")]
+        [InlineData(1e-05, "1e-05")]
+        // values designed to provoke failure if the FPU rounding
+        // precision isn't set correctly
+        [InlineData(8.72293771110361e+25, "8.72293771110361e+25")]
+        [InlineData(7.47005307342313e+26, "7.47005307342313e+26")]
+        [InlineData(2.86438000439698e+28, "2.86438000439698e+28")]
+        [InlineData(8.89142905246179e+28, "8.89142905246179e+28")]
+        [InlineData(3.08578087079232e+35, "3.08578087079232e+35")]
         public void ToString_Formats_Correctly(double value, string expected)
         {
             var floatConstant = new PythonConstant.Float(value);
             Assert.Equal(expected, floatConstant.ToString());
+        }
+
+        [Fact]
+        public void ToString_Formats_NaN()
+        {
+            var floatConstant = new PythonConstant.Float(double.NaN);
+            Assert.Equal("nan", floatConstant.ToString());
+        }
+
+        [Fact]
+        public void ToString_Formats_PositiveInfinity()
+        {
+            var floatConstant = new PythonConstant.Float(double.PositiveInfinity);
+            Assert.Equal("inf", floatConstant.ToString());
+        }
+
+        [Fact]
+        public void ToString_Formats_NegativeInfinity()
+        {
+            var floatConstant = new PythonConstant.Float(double.NegativeInfinity);
+            Assert.Equal("-inf", floatConstant.ToString());
         }
     }
 
@@ -190,6 +250,61 @@ public class PythonConstantTests
         {
             var stringConstant = new PythonConstant.String("old") { Value = "new" };
             Assert.Equal("new", stringConstant.Value);
+        }
+
+        [Theory]
+        [InlineData("hello", "'hello'")]
+        [InlineData("", "''")]
+        [InlineData("it's working", @"'it\'s working'")]
+        [InlineData("path\\to\\file", @"'path\\to\\file'")]
+        [InlineData("line1\nline2", @"'line1\nline2'")]
+        [InlineData("tab\there", @"'tab\there'")]
+        [InlineData("carriage\rreturn", @"'carriage\rreturn'")]
+        [InlineData("back\bspace", @"'back\bspace'")]
+        [InlineData("form\ffeed", @"'form\ffeed'")]
+        [InlineData("null\0char", @"'null\0char'")]
+        [InlineData("café", "'café'")]
+        [InlineData("Hello 世界", "'Hello 世界'")]
+        public void ToString_Formats_As_Python_Literal(string value, string expected)
+        {
+            var stringConstant = new PythonConstant.String(value);
+            Assert.Equal(expected, stringConstant.ToString());
+        }
+
+        [Fact]
+        public void ToString_Handles_Multiple_Escape_Sequences()
+        {
+            var stringConstant = new PythonConstant.String("line1\nline2\ttab");
+            Assert.Equal(@"'line1\nline2\ttab'", stringConstant.ToString());
+        }
+
+        [Fact]
+        public void ToString_Handles_Mixed_Escapes()
+        {
+            var stringConstant = new PythonConstant.String("quote:' backslash:\\ newline:\n");
+            Assert.Equal(@"'quote:\' backslash:\\ newline:\n'", stringConstant.ToString());
+        }
+
+        [Fact]
+        public void ToString_Handles_Consecutive_Backslashes()
+        {
+            var stringConstant = new PythonConstant.String("\\\\\\");
+            Assert.Equal(@"'\\\\\\'", stringConstant.ToString());
+        }
+
+        [Theory]
+        [InlineData("\n", @"'\n'")]
+        [InlineData("\r", @"'\r'")]
+        [InlineData("\t", @"'\t'")]
+        [InlineData("\b", @"'\b'")]
+        [InlineData("\f", @"'\f'")]
+        [InlineData("\0", @"'\0'")]
+        [InlineData("\\", @"'\\'")]
+        [InlineData("'", @"'\''")]
+        public void ToString_Escapes_Special_Characters(string value, string expected)
+        {
+            var stringConstant = new PythonConstant.String(value);
+            Assert.Equal(expected, stringConstant.ToString());
         }
     }
 
@@ -297,7 +412,60 @@ public class PythonConstantTests
         public void ToString_Returns_Value()
         {
             var byteString = new PythonConstant.ByteString("test");
-            Assert.Equal("test", byteString.ToString());
+            Assert.Equal("b'test'", byteString.ToString());
+        }
+
+        [Theory]
+        [InlineData("hello", "b'hello'")]
+        [InlineData("", "b''")]
+        [InlineData("it's working", @"b'it\'s working'")]
+        [InlineData("path\\to\\file", @"b'path\\to\\file'")]
+        [InlineData("line1\nline2", @"b'line1\nline2'")]
+        [InlineData("tab\there", @"b'tab\there'")]
+        [InlineData("carriage\rreturn", @"b'carriage\rreturn'")]
+        [InlineData("back\bspace", @"b'back\bspace'")]
+        [InlineData("form\ffeed", @"b'form\ffeed'")]
+        [InlineData("null\0char", @"b'null\0char'")]
+        public void ToString_Formats_As_Python_Literal(string value, string expected)
+        {
+            var byteString = new PythonConstant.ByteString(value);
+            Assert.Equal(expected, byteString.ToString());
+        }
+
+        [Fact]
+        public void ToString_Handles_Multiple_Escape_Sequences()
+        {
+            var byteString = new PythonConstant.ByteString("line1\nline2\ttab");
+            Assert.Equal(@"b'line1\nline2\ttab'", byteString.ToString());
+        }
+
+        [Fact]
+        public void ToString_Handles_Mixed_Escapes()
+        {
+            var byteString = new PythonConstant.ByteString("quote:' backslash:\\ newline:\n");
+            Assert.Equal(@"b'quote:\' backslash:\\ newline:\n'", byteString.ToString());
+        }
+
+        [Fact]
+        public void ToString_Handles_Consecutive_Backslashes()
+        {
+            var byteString = new PythonConstant.ByteString("\\\\\\");
+            Assert.Equal(@"b'\\\\\\'", byteString.ToString());
+        }
+
+        [Theory]
+        [InlineData("\n", @"b'\n'")]
+        [InlineData("\r", @"b'\r'")]
+        [InlineData("\t", @"b'\t'")]
+        [InlineData("\b", @"b'\b'")]
+        [InlineData("\f", @"b'\f'")]
+        [InlineData("\0", @"b'\0'")]
+        [InlineData("\\", @"b'\\'")]
+        [InlineData("'", @"b'\''")]
+        public void ToString_Escapes_Special_Characters(string value, string expected)
+        {
+            var byteString = new PythonConstant.ByteString(value);
+            Assert.Equal(expected, byteString.ToString());
         }
     }
 

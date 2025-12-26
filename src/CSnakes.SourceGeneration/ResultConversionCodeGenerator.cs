@@ -109,9 +109,9 @@ internal static class ResultConversionCodeGenerator
                                                    generator.Return.ImporterTypeSyntax
                                                ]));
             }
-            case CoroutineType { Yield: var yt, Send: var st, Return: var rt }:
+            case CoroutineType { Yield: NoneType, Send: NoneType, Return: var rt }:
             {
-                return new CoroutineConversionGenerator(yt, st, rt);
+                return new CoroutineConversionGenerator(rt);
             }
             case var other:
             {
@@ -166,16 +166,11 @@ internal static class ResultConversionCodeGenerator
 
     sealed class CoroutineConversionGenerator : IResultConversionCodeGenerator
     {
-        public CoroutineConversionGenerator(PythonTypeSpec yieldTypeSpec,
-                                            PythonTypeSpec sendTypeSpec,
-                                            PythonTypeSpec returnTypeSpec)
+        public CoroutineConversionGenerator(PythonTypeSpec returnTypeSpec)
         {
-            var generator = (Yield: Create(yieldTypeSpec),
-                             Send: Create(sendTypeSpec),
-                             Return: Create(returnTypeSpec));
-
-            TypeSyntax = TypeReflection.CreateGenericType("ICoroutine", [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax]);
-            ImporterTypeSyntax = QualifiedName(ImportersQualifiedName, TypeReflection.CreateGenericType("Coroutine", [generator.Yield.TypeSyntax, generator.Send.TypeSyntax, generator.Return.TypeSyntax, generator.Yield.ImporterTypeSyntax, generator.Return.ImporterTypeSyntax]));
+            var generator = Create(returnTypeSpec);
+            TypeSyntax = TypeReflection.CreateGenericType("ICoroutine", [generator.TypeSyntax]);
+            ImporterTypeSyntax = QualifiedName(ImportersQualifiedName, TypeReflection.CreateGenericType("Coroutine", [generator.TypeSyntax, generator.ImporterTypeSyntax]));
         }
 
         public TypeSyntax TypeSyntax { get; }

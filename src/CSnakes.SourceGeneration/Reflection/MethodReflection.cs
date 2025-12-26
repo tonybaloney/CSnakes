@@ -26,31 +26,27 @@ public static class MethodReflection
             ? TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython).First()
             : PredefinedType(Token(SyntaxKind.VoidKeyword));
 
-        if (function.IsAsync)
+        if (function.IsAsync || returnPythonType is CoroutineType { Yield: NoneType, Send: NoneType })
         {
             cancellationTokenParameterSyntax =
                 Parameter(Identifier(cancellationTokenName))
                     .WithType(IdentifierName("CancellationToken"))
                     .WithDefault(EqualsValueClause(LiteralExpression(SyntaxKind.DefaultLiteralExpression)));
 
-            // If simple async type annotation, treat as Coroutine[T1, T2, T3] where T1 is the yield type, T2 is the send type and T3 is the return type
+            // If simple async type annotation, treat as Coroutine[None, None, T] where T is the return type
             if (returnPythonType.Name != "Coroutine")
             {
-                returnPythonType = new CoroutineType(
-                        returnPythonType, // Yield type
-                        PythonTypeSpec.None, // Send type
-                        PythonTypeSpec.None // Return type, TODO: Swap with yield on #480
-                    );
+                returnPythonType = new CoroutineType(returnPythonType);
             }
 
             returnSyntax = returnPythonType switch
             {
-                CoroutineType { Yield: NoneType } =>
+                CoroutineType { Return: NoneType } =>
                     // Make it PyObject otherwise we need to annotate as Task instead of Task<T> and that adds a lot of complexity and little value
                     ParseTypeName("PyObject"),
-                CoroutineType { Yield: var tYield } =>
-                    TypeReflection.AsPredefinedType(tYield, TypeReflection.ConversionDirection.FromPython).First(),
-                _ => throw new ArgumentException("Async function must return a Coroutine[T1, T2, T3]")
+                CoroutineType { Return: var rt } =>
+                    TypeReflection.AsPredefinedType(rt, TypeReflection.ConversionDirection.FromPython).First(),
+                _ => throw new ArgumentException("Async function must return a Coroutine[None, None, T]")
             };
             // return is a Task of <T> or Task when void
             returnSyntax

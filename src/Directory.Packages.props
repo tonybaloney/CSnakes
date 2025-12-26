@@ -9,7 +9,7 @@
     Runtime dependencies
    -->
   <ItemGroup>
-    <PackageVersion Include="Basic.Reference.Assemblies" Version="1.8.3" />
+    <PackageVersion Include="Basic.Reference.Assemblies" Version="1.8.4" />
     <PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
     <PackageVersion Include="Meziantou.Extensions.Logging.Xunit" Version="1.0.11" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0" />
@@ -20,11 +20,11 @@
     <PackageVersion Include="SharpCompress" Version="0.38.0" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="Superpower" Version="3.1.0" />
-    <PackageVersion Include="System.CommandLine" Version="2.0.0" />
+    <PackageVersion Include="System.CommandLine" Version="2.0.1" />
     <PackageVersion Include="ZstdSharp.Port" Version="0.8.6" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
-    <PackageVersion Include="Basic.Reference.Assemblies.Net90" Version="1.8.3" />
+    <PackageVersion Include="Basic.Reference.Assemblies.Net90" Version="1.8.4" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
     <PackageVersion Include="System.Numerics.Tensors" Version="9.0.11" />
   </ItemGroup>
@@ -37,7 +37,7 @@
     Test-only dependencies
    -->
   <ItemGroup>
-    <PackageVersion Include="BenchmarkDotNet" Version="0.15.6" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="MartinCostello.Logging.XUnit.v3" Version="0.7.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />

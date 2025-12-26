@@ -14,7 +14,7 @@ Consider manual integration when:
 - Debugging complex interop scenarios
 - Building custom abstractions over the CSnakes runtime
 
-Importantly: 
+Importantly:
 
 - Dynamic conversion will not be supported in Native AOT
 - In most scenarios, manual integration will be slower

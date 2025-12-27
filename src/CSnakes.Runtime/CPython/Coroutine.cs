@@ -3,7 +3,7 @@ using CSnakes.Runtime.Python;
 namespace CSnakes.Runtime.CPython;
 internal unsafe partial class CPythonAPI
 {
-    internal static bool IsPyCoroutine(PyObject p)
+    internal static bool IsPyAwaitable(PyObject p)
     {
         return HasAttr(p, "__await__");
     }
@@ -12,6 +12,7 @@ internal unsafe partial class CPythonAPI
     private static EventLoop? defaultEventLoop = null;
     private static PyObject? AsyncioModule = null;
     private static PyObject? NewEventLoopFactory = null;
+    private static PyObject? EnsureFutureFunction;
 
     internal static EventLoop GetDefaultEventLoop()
     {
@@ -37,6 +38,13 @@ internal unsafe partial class CPythonAPI
         if (defaultEventLoop is { } someDefaultEventLoop)
             someDefaultEventLoop.Dispose();
     }
+
+    internal static PyObject EnsureFuture(PyObject obj, PyObject loop) =>
+        EnsureFutureFunction switch
+        {
+            null => throw new InvalidOperationException($"{nameof(EnsureFutureFunction)} not initialized."),
+            var some => some.Call([obj], [new KeywordArg("loop", loop)]),
+        };
 
     internal static PyObject NewEventLoop() =>
         NewEventLoopFactory switch

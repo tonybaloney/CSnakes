@@ -10,7 +10,7 @@ internal sealed class EventLoop : IDisposable
     private Methods methods;
     private Task runForeverTask;
     private readonly ConcurrentQueue<Request> requestQueue = new();
-    private readonly PyObject taskLoopStopFunction;
+    private readonly PyObject futureLoopStopFunction;
 
     private abstract class Request : IDisposable
     {
@@ -19,36 +19,36 @@ internal sealed class EventLoop : IDisposable
 
     private sealed class ScheduleRequest : Request
     {
-        public static ScheduleRequest Create(PyObject coroutine, CancellationToken cancellationToken)
+        public static ScheduleRequest Create(PyObject awaitable, CancellationToken cancellationToken)
         {
-            var clone = coroutine.Clone();
+            var clone = awaitable.Clone();
             try
             {
                 return new ScheduleRequest(clone, cancellationToken);
             }
             catch
             {
-                coroutine.Dispose();
+                awaitable.Dispose();
                 throw;
             }
         }
 
-        private ScheduleRequest(PyObject coroutine, CancellationToken cancellationToken)
+        private ScheduleRequest(PyObject awaitable, CancellationToken cancellationToken)
         {
-            Coroutine = coroutine;
+            Awaitable = awaitable;
             CancellationToken = cancellationToken;
         }
 
-        public PyObject Coroutine { get; }
+        public PyObject Awaitable { get; }
         public CancellationToken CancellationToken { get; }
         public TaskCompletionSource<TaskCompletionSource<PyObject>> CompletionSource { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        public override void Dispose() => Coroutine.Dispose();
+        public override void Dispose() => Awaitable.Dispose();
     }
 
-    private sealed class CancelRequest(CoroutineTask coroTask, CancellationToken cancellationToken) : Request
+    private sealed class CancelRequest(Future future, CancellationToken cancellationToken) : Request
     {
-        public CoroutineTask Task { get; } = coroTask;
+        public Future Future { get; } = future;
         public CancellationToken CancellationToken { get; } = cancellationToken;
     }
 
@@ -59,9 +59,9 @@ internal sealed class EventLoop : IDisposable
         private StopRequest() { }
     }
 
-    private sealed class CoroutineTask(PyObject pyTask) : IDisposable
+    private sealed class Future(PyObject pyFuture) : IDisposable
     {
-        private readonly PyObject pyTask = pyTask;
+        private readonly PyObject pyFuture = pyFuture;
         private PyObject? doneMethod;
         private CancellationToken cancellationToken;
 
@@ -72,17 +72,17 @@ internal sealed class EventLoop : IDisposable
         /// method object to avoid the overhead of calling <see
         /// cref="PyObject.GetAttr"/> each time.
         /// </remarks>
-        private PyObject DoneMethod => this.doneMethod ??= pyTask.GetAttr("done");
+        private PyObject DoneMethod => this.doneMethod ??= pyFuture.GetAttr("done");
 
         public void Dispose()
         {
             this.doneMethod?.Dispose();
-            this.pyTask.Dispose();
+            this.pyFuture.Dispose();
         }
 
         public void Cancel(CancellationToken cancellationToken = default)
         {
-            using var cancelMethod = pyTask.GetAttr("cancel");
+            using var cancelMethod = pyFuture.GetAttr("cancel");
             cancelMethod.Call().Dispose();
             this.cancellationToken = cancellationToken;
         }
@@ -98,17 +98,17 @@ internal sealed class EventLoop : IDisposable
 
         private TaskStatus ProcessConclusion()
         {
-            if (this.pyTask.IsClosed)
+            if (this.pyFuture.IsClosed)
                 return CompletionSource.Task.Status;
 
-            // If the task is not done yet, return without doing anything.
+            // If the future is not done yet, return without doing anything.
 
             if (!DoneMethod.Call())
                 return TaskStatus.Running;
 
-            // If the Python task is cancelled, set the corresponding .NET task to cancelled.
+            // If the Python future is cancelled, set the corresponding .NET task to cancelled.
 
-            using (var cancelledMethod = this.pyTask.GetAttr("cancelled"))
+            using (var cancelledMethod = this.pyFuture.GetAttr("cancelled"))
             {
                 if (cancelledMethod.Call())
                 {
@@ -117,9 +117,9 @@ internal sealed class EventLoop : IDisposable
                 }
             }
 
-            // If the Python task raised an exception, set the corresponding .NET task to faulted.
+            // If the Python future raised an exception, set the corresponding .NET task to faulted.
 
-            using (var exceptionMethod = this.pyTask.GetAttr("exception"))
+            using (var exceptionMethod = this.pyFuture.GetAttr("exception"))
             {
                 PyObject? exception = exceptionMethod.Call();
                 try
@@ -141,9 +141,9 @@ internal sealed class EventLoop : IDisposable
                 }
             }
 
-            // If the Python task is finished, set the result in the corresponding .NET task.
+            // If the Python future is finished, set the result in the corresponding .NET task.
 
-            using var resultFunction = this.pyTask.GetAttr("result");
+            using var resultFunction = this.pyFuture.GetAttr("result");
             PyObject? result = resultFunction.Call();
             try
             {
@@ -164,7 +164,7 @@ internal sealed class EventLoop : IDisposable
     {
         this.methods = new Methods(this.loop);
         using var vars = PyObject.Create(CPythonAPI.PyDict_New());
-        this.taskLoopStopFunction = CPythonAPI.PyRun_String("lambda task: task.get_loop().stop()", CPythonAPI.InputType.Py_eval_input, vars, vars);
+        this.futureLoopStopFunction = CPythonAPI.PyRun_String("lambda fut: fut.get_loop().stop()", CPythonAPI.InputType.Py_eval_input, vars, vars);
         this.runForeverTask = Task.Run(RunForever);
     }
 
@@ -186,13 +186,13 @@ internal sealed class EventLoop : IDisposable
 
         this.methods.Dispose();
         this.loop.Dispose();
-        this.taskLoopStopFunction.Dispose();
+        this.futureLoopStopFunction.Dispose();
         this.disposed = true;
     }
 
-    public async Task<PyObject> RunCoroutineAsync(PyObject coroutine, CancellationToken cancellationToken)
+    public async Task<PyObject> RunAsync(PyObject awaitable, CancellationToken cancellationToken)
     {
-        using var request = ScheduleRequest.Create(coroutine, cancellationToken);
+        using var request = ScheduleRequest.Create(awaitable, cancellationToken);
         Enqueue(request);
         var taskCompletionSource = await request.CompletionSource.Task.ConfigureAwait(false);
         return await taskCompletionSource.Task.ConfigureAwait(false);
@@ -213,7 +213,7 @@ internal sealed class EventLoop : IDisposable
     private void RunForever()
     {
         var state = RunState.Running;
-        var coroTasks = new List<CoroutineTask>();
+        var futures = new List<Future>();
 
         do
         {
@@ -221,8 +221,8 @@ internal sealed class EventLoop : IDisposable
             // either of the following happens:
             //
             // - The cancellation token for the run is triggered.
-            // - A request to schedule a new coroutine as a task is received.
-            // - A running task is done.
+            // - A request to schedule a new awaitable as a future is received.
+            // - A future is done.
 
             _ = this.methods.RunForever.Call();
 
@@ -234,7 +234,7 @@ internal sealed class EventLoop : IDisposable
                     {
                         case (ScheduleRequest request, RunState.Stopping):
                         {
-                            // Cancel any request to schedule a coroutine if the event loop is
+                            // Cancel any request to schedule an awaitable if the event loop is
                             // stopping.
 
                             request.CompletionSource.SetCanceled();
@@ -242,7 +242,7 @@ internal sealed class EventLoop : IDisposable
                         }
                         case (ScheduleRequest { CancellationToken.IsCancellationRequested: true } request, _):
                         {
-                            // Cancel any request to schedule a coroutine if the task cancellation
+                            // Cancel any request to schedule an awaitable if the task cancellation
                             // token is triggered.
 
                             request.CompletionSource.SetCanceled(request.CancellationToken);
@@ -250,39 +250,52 @@ internal sealed class EventLoop : IDisposable
                         }
                         case (ScheduleRequest request, RunState.Running):
                         {
-                            // Create a task and add a done callback to it that will stop
-                            // the event loop when the task is done.
+                            // Normalize an awaitable to a future and add a done callback to it that
+                            // will stop the event loop when the future is done.
 
-                            var pyTask = this.methods.CreateTask.Call(request.Coroutine);
-                            IDisposable? disposable = pyTask;
+                            PyObject pyFuture;
+                            try
+                            {
+                                pyFuture = CPythonAPI.EnsureFuture(request.Awaitable, this.loop);
+                            }
+                            catch (Exception ex)
+                            {
+                                // If the future could not even be created, set the exception.
+                                // This should almost never happen unless there is an in our logic!
+
+                                request.CompletionSource.SetException(ex);
+                                break;
+                            }
+
+                            IDisposable? disposable = pyFuture;
 
                             try
                             {
-                                var coroTask = new CoroutineTask(pyTask);
-                                disposable = coroTask; // yield ownership
+                                var future = new Future(pyFuture);
+                                disposable = future; // yield ownership
 
-                                using (var addDoneCallbackMethod = pyTask.GetAttr("add_done_callback"))
-                                    _ = addDoneCallbackMethod.Call(this.taskLoopStopFunction);
+                                using (var addDoneCallbackMethod = pyFuture.GetAttr("add_done_callback"))
+                                    _ = addDoneCallbackMethod.Call(this.futureLoopStopFunction);
 
                                 if (request.CancellationToken is { CanBeCanceled: true } cancellationToken)
                                 {
                                     _ = cancellationToken.Register(() =>
-                                        Enqueue(new CancelRequest(coroTask, cancellationToken)));
+                                        Enqueue(new CancelRequest(future, cancellationToken)));
                                 }
 
-                                // Create a "TaskCompletionSource" to represent the task on the
-                                // .NET side and add it to the list of tasks.
+                                // Create a "TaskCompletionSource" to represent the future on the
+                                // .NET side and add it to the list of futures.
 
-                                coroTasks.Add(coroTask);
+                                futures.Add(future);
                                 disposable = null; // yield ownership
 
-                                // Signal that the task was successfully scheduled.
+                                // Signal that the future was successfully scheduled.
 
-                                request.CompletionSource.SetResult(coroTask.CompletionSource);
+                                request.CompletionSource.SetResult(future.CompletionSource);
                             }
                             catch (Exception ex)
                             {
-                                // If the task could not be scheduled, set the exception.
+                                // If the future could not be setup, set the exception.
 
                                 request.CompletionSource.SetException(ex);
                             }
@@ -294,34 +307,32 @@ internal sealed class EventLoop : IDisposable
                         }
                         case (CancelRequest request, _):
                         {
-                            request.Task.Cancel(request.CancellationToken);
+                            request.Future.Cancel(request.CancellationToken);
                             break;
                         }
                         case (StopRequest, RunState.Running):
                         {
                             state = RunState.Stopping;
-                            foreach (var task in coroTasks)
-                                task.Cancel();
+                            foreach (var future in futures)
+                                future.Cancel();
                             break;
                         }
                     }
                 }
             }
 
-            _ = coroTasks.RemoveAll(t => t.Conclude());
+            _ = futures.RemoveAll(t => t.Conclude());
         }
-        while (state is RunState.Running || coroTasks.Count > 0);
+        while (state is RunState.Running || futures.Count > 0);
     }
 
     private struct Methods(PyObject loop) : IDisposable
     {
-        private PyObject? createTask;
         private PyObject? callSoonThreadSafe;
         private PyObject? runForever;
         private PyObject? stop;
         private PyObject? close;
 
-        public PyObject CreateTask => this.createTask ??= loop.GetAttr("create_task");
         public PyObject CallSoonThreadSafe => this.callSoonThreadSafe ??= loop.GetAttr("call_soon_threadsafe");
         public PyObject RunForever => this.runForever ??= loop.GetAttr("run_forever");
         public PyObject Stop => this.stop ??= loop.GetAttr("stop");
@@ -329,8 +340,6 @@ internal sealed class EventLoop : IDisposable
 
         public void Dispose()
         {
-            this.createTask?.Dispose();
-            this.createTask = null;
             this.callSoonThreadSafe?.Dispose();
             this.callSoonThreadSafe = null;
             this.runForever?.Dispose();

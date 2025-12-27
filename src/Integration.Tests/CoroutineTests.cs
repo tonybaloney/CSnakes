@@ -90,7 +90,7 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
     {
         var mod = Env.TestCoroutines();
         using var coro = mod.TestGeneratorBasedCoroutine();
-        void Act() => _ = coro.As<ICoroutine<PyObject>>();
+        void Act() => _ = coro.As<IAwaitable<PyObject>>();
         Assert.Throws<InvalidCastException>(Act);
     }
 }

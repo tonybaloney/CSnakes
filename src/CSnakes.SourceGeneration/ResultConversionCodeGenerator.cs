@@ -169,8 +169,8 @@ internal static class ResultConversionCodeGenerator
         public CoroutineConversionGenerator(PythonTypeSpec returnTypeSpec)
         {
             var generator = Create(returnTypeSpec);
-            TypeSyntax = TypeReflection.CreateGenericType("ICoroutine", [generator.TypeSyntax]);
-            ImporterTypeSyntax = QualifiedName(ImportersQualifiedName, TypeReflection.CreateGenericType("Coroutine", [generator.TypeSyntax, generator.ImporterTypeSyntax]));
+            TypeSyntax = TypeReflection.CreateGenericType("IAwaitable", [generator.TypeSyntax]);
+            ImporterTypeSyntax = QualifiedName(ImportersQualifiedName, TypeReflection.CreateGenericType("Awaitable", [generator.TypeSyntax, generator.ImporterTypeSyntax]));
         }
 
         public TypeSyntax TypeSyntax { get; }
@@ -178,6 +178,6 @@ internal static class ResultConversionCodeGenerator
 
         public IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName,
                                                          string cancellationTokenName) =>
-            [ParseStatement($"var {outputName} = {inputName}.BareImportAs<{TypeSyntax}, {ImporterTypeSyntax}>().AsTask({cancellationTokenName});")];
+            [ParseStatement($"var {outputName} = {inputName}.BareImportAs<{TypeSyntax}, {ImporterTypeSyntax}>().WaitAsync(dispose: true, {cancellationTokenName});")];
     }
 }

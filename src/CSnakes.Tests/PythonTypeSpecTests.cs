@@ -281,6 +281,23 @@ public class PythonTypeSpecTests
         }
     }
 
+    public class AwaitableTypeTests : TestBase<AwaitableType, AwaitableTypeTests>, ITest<AwaitableTypeTests, AwaitableType>
+    {
+        public static AwaitableType CreateInstance() => new(PythonTypeSpec.Int);
+        public static PythonTypeSpec CreateDifferentInstance() => new AwaitableType(PythonTypeSpec.Str);
+        public static string ExpectedName => "Awaitable";
+        public static string ExpectedToString => "Awaitable[int]";
+
+        [Fact]
+        public void Constructor_SetsTypeArgument()
+        {
+            var type = CreateInstance();
+
+            Assert.Equal(ExpectedName, type.Name);
+            Assert.Equal(PythonTypeSpec.Int, type.Of);
+        }
+    }
+
     public class CoroutineTypeTests : TestBase<CoroutineType, CoroutineTypeTests>, ITest<CoroutineTypeTests, CoroutineType>
     {
         public static CoroutineType CreateInstance() => new(PythonTypeSpec.Int, PythonTypeSpec.Str, PythonTypeSpec.Bool);

@@ -239,18 +239,18 @@ public static partial class PyObjectImporters
         }
     }
 
-    public sealed class Coroutine<T, TImporter> :
-        IPyObjectImporter<ICoroutine<T>>
+    public sealed class Awaitable<T, TImporter> :
+        IPyObjectImporter<IAwaitable<T>>
         where TImporter : IPyObjectImporter<T>
     {
-        private Coroutine() { }
+        private Awaitable() { }
 
-        static ICoroutine<T> IPyObjectImporter<ICoroutine<T>>.BareImport(PyObject obj)
+        static IAwaitable<T> IPyObjectImporter<IAwaitable<T>>.BareImport(PyObject obj)
         {
             GIL.Require();
-            return CPythonAPI.IsPyCoroutine(obj)
-                ? new Python.Coroutine<T, TImporter>(obj.Clone())
-                : throw InvalidCastException("coroutine", obj);
+            return CPythonAPI.IsPyAwaitable(obj)
+                ? new Python.Awaitable<T, TImporter>(obj.Clone())
+                : throw InvalidCastException("awaitable", obj);
         }
     }
 

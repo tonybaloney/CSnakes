@@ -33,6 +33,7 @@ CSnakes supports the following typed scenarios:
 | `typing.Generator[TYield, TSend, TReturn]` | `IGeneratorIterator<TYield, TSend, TReturn>` |
 | `typing.Buffer`        | `IPyBuffer` [2](buffers.md) |
 | `typing.Coroutine[None, None, T]` | `Task<T>` [3](async.md) |
+| `typing.Awaitable[T]` | `IAwaitable<T>` |
 | `typing.Union[T1, T2, ...] | [C# Overloads](#unions) |
 | `None` (Return)        | `void`            |
 

@@ -2,6 +2,11 @@
 CSnakes.Runtime.Locators.RedistributablePythonVersion.<Clone>$() -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
 CSnakes.Runtime.Locators.RedistributablePythonVersion.Equals(CSnakes.Runtime.Locators.RedistributablePythonVersion? other) -> bool
 CSnakes.Runtime.IPythonEnvironmentBuilder.CapturePythonLogs() -> CSnakes.Runtime.IPythonEnvironmentBuilder!
+CSnakes.Runtime.Python.IAwaitable.WaitAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<CSnakes.Runtime.Python.PyObject!>!
+CSnakes.Runtime.Python.IAwaitable<T>.WaitAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T>!
+CSnakes.Runtime.Python.IPyObjectProxy
+CSnakes.Runtime.Python.IPyObjectProxy.DangerousInternalReference.get -> CSnakes.Runtime.Python.PyObject!
+CSnakes.Runtime.Python.PyObjectProxyExtensions
 CSnakes.Runtime.PythonLogger
 CSnakes.Runtime.PythonEnvironmentOptions.CaptureLogs.get -> bool
 CSnakes.Runtime.PythonEnvironmentOptions.CaptureLogs.init -> void
@@ -12,10 +17,14 @@ override CSnakes.Runtime.Locators.RedistributablePythonVersion.GetHashCode() -> 
 override CSnakes.Runtime.Locators.RedistributablePythonVersion.ToString() -> string!
 static CSnakes.Runtime.Locators.RedistributablePythonVersion.operator !=(CSnakes.Runtime.Locators.RedistributablePythonVersion? left, CSnakes.Runtime.Locators.RedistributablePythonVersion? right) -> bool
 static CSnakes.Runtime.Locators.RedistributablePythonVersion.operator ==(CSnakes.Runtime.Locators.RedistributablePythonVersion? left, CSnakes.Runtime.Locators.RedistributablePythonVersion? right) -> bool
-CSnakes.Runtime.Python.ICoroutine<T>
-CSnakes.Runtime.Python.ICoroutine<T>.AsTask(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T>!
+CSnakes.Runtime.Python.Awaitable
+CSnakes.Runtime.Python.IAwaitable
+CSnakes.Runtime.Python.IAwaitable<T>
+static CSnakes.Runtime.Python.Awaitable.WaitAsync(CSnakes.Runtime.Python.PyObject! obj, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<CSnakes.Runtime.Python.PyObject!>!
+static CSnakes.Runtime.Python.Awaitable.WaitAsync<T>(this CSnakes.Runtime.Python.IAwaitable<T>! awaitable, bool dispose, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T>!
 static CSnakes.Runtime.Python.PyObject.From(System.ReadOnlySpan<byte> value) -> CSnakes.Runtime.Python.PyObject!
-[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Coroutine<T, TImporter>
+static CSnakes.Runtime.Python.PyObjectProxyExtensions.GetPyObject(this CSnakes.Runtime.Python.IPyObjectProxy! proxy) -> CSnakes.Runtime.Python.PyObject!
+[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Awaitable<T, TImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Optional<T, TImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<T, TImporter>
 static CSnakes.Runtime.PythonLogger.WithPythonLogging(this CSnakes.Runtime.IPythonEnvironment! env, Microsoft.Extensions.Logging.ILogger! logger, string? loggerName = null) -> System.IAsyncDisposable!
@@ -77,5 +86,6 @@ static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_9 
 *REMOVED*virtual CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Dispose(bool disposing) -> void
 *REMOVED*CSnakes.Runtime.Python.ICoroutine<TYield, TSend, TReturn>.AsTask(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TYield>!
 *REMOVED*[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>
+*REMOVED*CSnakes.Runtime.Python.ICoroutine
 *REMOVED*CSnakes.Runtime.Python.ICoroutine<TYield, TSend, TReturn>
 *REMOVED*CSnakes.Runtime.Python.ICoroutine<TYield, TSend, TReturn>.AsTask(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TYield>!

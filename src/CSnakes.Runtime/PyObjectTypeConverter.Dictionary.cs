@@ -1,10 +1,12 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime;
 internal partial class PyObjectTypeConverter
 {
+    [RequiresDynamicCode(DynamicCodeMessages.CallsMakeGenericType)]
     private static object ConvertToDictionary(PyObject pyObject, Type destinationType, bool useMappingProtocol = false)
     {
         Type keyType = destinationType.GetGenericArguments()[0];

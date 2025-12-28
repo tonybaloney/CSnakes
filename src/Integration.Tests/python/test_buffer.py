@@ -34,6 +34,9 @@ def test_uint32_buffer() -> Buffer:
 def test_uint64_buffer() -> Buffer:
     return np.array([1, 2, 3, 4, 5], dtype=np.uint64)
 
+def test_float16_buffer() -> Buffer:
+    return np.array([1.1, 2.2, 3.3, 4.4, 5.5], dtype=np.float16)
+
 def test_float32_buffer() -> Buffer:
     return np.array([1.1, 2.2, 3.3, 4.4, 5.5], dtype=np.float32)
 
@@ -68,6 +71,9 @@ def test_int64_2d_buffer() -> Buffer:
 def test_uint64_2d_buffer() -> Buffer:
     return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.uint64)
 
+def test_float16_2d_buffer() -> Buffer:
+    return np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float16)
+
 def test_float32_2d_buffer() -> Buffer:
     return np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float32)
 
@@ -99,6 +105,10 @@ def test_ndim_3d_buffer() -> Buffer:
     arr[0, 0, 0] = 1
     arr[0, 0, 1] = 2
     arr[1, 2, 3] = 3
+    return arr
+
+def test_ndim_3d_float32_buffer() -> Buffer:
+    arr = np.ones((3, 4, 5), dtype=np.float32)
     return arr
 
 def test_ndim_4d_buffer() -> Buffer:

@@ -1,32 +1,61 @@
 site_name: CSnakes
 nav:
   - Home: index.md
-  - Getting Started: getting-started.md
-  - Reference: reference.md
-  - Environment and Package Management: environments.md
-  - Asynchronous Functions: async_support.md
-  - Performance Considerations: performance.md
-  - Buffer Protocol and NumPy Arrays: buffers.md
-  - Advanced Usage: advanced.md
-  - Limitations: limitations.md
-  - FAQ: faq.md
-  - Examples: examples.md
+  - Getting Started:
+    - Quick Start: getting-started/quick-start.md
+    - Installation: getting-started/installation.md
+    - First Example: getting-started/first-example.md
+    - Templates: getting-started/templates.md
+  - User Guide:
+    - Basic Usage: user-guide/basic-usage.md
+    - Configuration: user-guide/configuration.md
+    - Type System: user-guide/type-system.md
+    - Working with PyObject: user-guide/pyobject.md
+    - Environment Management: user-guide/environments.md
+    - Exception Handling: user-guide/errors.md
+    - Logging: user-guide/logging.md
+    - Buffers & NumPy: user-guide/buffers.md
+    - Async Functions: user-guide/async.md
+    - Deployment in Containers: user-guide/deployment.md
+  - Examples & Showcase:
+    - Sample Projects: examples/sample-projects.md
+    - Projects Using CSnakes: examples/projects-using-csnakes.md
+  - Advanced Topics:
+    - Overview: advanced/advanced-usage.md
+    - Large Integers: advanced/big-integers.md
+    - Free-Threading: advanced/free-threading.md
+    - Additional Python Locators: advanced/additional-locators.md
+    - Generators: advanced/generators.md
+    - Manual Integration: advanced/manual-integration.md
+    - Hot Reload: advanced/hot-reload.md
+    - Signal Handlers: advanced/signal-handlers.md
+    - Native AOT: advanced/native-aot.md
+    - Performance Optimization: advanced/performance.md
+    - Troubleshooting: advanced/troubleshooting.md
+  - Community:
+    - FAQ: community/faq.md
+    - Limitations: community/limitations.md
+    - Roadmap: community/roadmap.md
+    - Contributing: community/contributing.md
 
 theme:
   name: material
-  logo: res/logo.jpeg
+  logo: res/icon_white.png
+  favicon: res/icon_black.png
   features:
     - content.code.copy
+    - navigation.tabs
+    - navigation.tabs.sticky
   palette:
     - scheme: default  # Light Mode
-      primary: black
+      primary: indigo
       accent: pink
       toggle:
         icon: material/brightness-2
         name: Switch to dark mode
     - scheme: slate # Dark Mode
-      primary: amber
-      accent: cyan
+      primary: deep purple
+      accent: amber
       toggle:
         icon: material/brightness-7
         name: Switch to light mode
@@ -42,3 +71,8 @@ markdown_extensions:
   - attr_list
   - admonition
   - pymdownx.details
+plugins:
+  - mike
+extra:
+  version:
+    provider: mike

@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Any, Sequence
 
 def _test_private() -> None:
     pass
@@ -30,9 +30,18 @@ def test_two_dicts(a: dict[str, int], b: dict[str, int]) -> dict[str, int]:
 def test_bytes(a: bytes) -> bytes:
     return bytes(reversed(a))
 
+async def test_bytes_async(a: bytes) -> bytes:
+    return bytes(reversed(a))
+
 def test_sequence(a: Sequence[int], start: int, end: int) -> Sequence[int]:
     assert a == [1, 2, 3]
     return range(start, end)
 
 def test_none_result() -> None:
     pass
+
+def test_var_tuple_result(ints: list[int], strs: list[str]) -> tuple[tuple[int, str], ...]:
+    return tuple(zip(ints, strs))
+
+def test_any_var_tuple_result(a: list[Any]) -> tuple:
+    return tuple(a)

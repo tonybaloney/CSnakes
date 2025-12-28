@@ -7,8 +7,9 @@ using Superpower.Parsers;
 namespace CSnakes.Parser;
 public static partial class PythonParser
 {
-    private static TokenListParser<PythonToken, PythonFunctionParameter>
-        PythonParameterParser { get; } =
+    private static TokenListParser<PythonToken, PythonFunctionParameter> PythonParameterParser { get; }
+
+    private static TokenListParser<PythonToken, PythonFunctionParameter> CreatePythonParameterParser() =>
             (from name in Token.EqualTo(PythonToken.Identifier)
              from type in Token.EqualTo(PythonToken.Colon)
                                .IgnoreThen(PythonTypeDefinitionParser.AsNullable())
@@ -16,17 +17,17 @@ public static partial class PythonParser
              select new PythonFunctionParameter(name.ToStringValue(), type, null))
            .Named("Parameter");
 
-    public static TokenListParser<PythonToken, PythonFunctionParameter>
-        OptionalPythonParameterParser { get; } =
+    public static TokenListParser<PythonToken, PythonFunctionParameter> OptionalPythonParameterParser { get; }
+
+    static TokenListParser<PythonToken, PythonFunctionParameter> CreateOptionalPythonParameterParser() =>
             (from param in PythonParameterParser
              from defaultValue in Token.EqualTo(PythonToken.Equal)
-                                       .IgnoreThen(ConstantValueTokenizer.AsNullable())
+                                       .IgnoreThen(ConstantValueParser.AsNullable())
                                        .OptionalOrDefault()
              select param.WithDefaultValue(defaultValue))
             .Named("Parameter");
 
-    public static TokenListParser<PythonToken, PythonFunctionParameterList> PythonParameterListParser { get; } =
-        CreatePythonParameterListParser();
+    public static TokenListParser<PythonToken, PythonFunctionParameterList> PythonParameterListParser { get; }
 
     private static TokenListParser<PythonToken, PythonFunctionParameterList> CreatePythonParameterListParser()
     {

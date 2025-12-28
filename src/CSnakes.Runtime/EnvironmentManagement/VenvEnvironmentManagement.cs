@@ -20,18 +20,14 @@ internal class VenvEnvironmentManagement(ILogger? logger, string path, bool ensu
         if (!Directory.Exists(path))
         {
             logger?.LogDebug("Creating virtual environment at {VirtualEnvPath} using {PythonBinaryPath}", fullPath, pythonLocation.PythonBinaryPath);
-            var (process1, _, _) = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, "-VV");
-            var (process2, _, error) = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, "-m", "venv",  fullPath);
+            var (exitCode1, _, _) = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, "-VV");
+            var (exitCode2, _, error) = ProcessUtils.ExecutePythonCommand(logger, pythonLocation, "-m", "venv",  fullPath);
 
-            if (process1.ExitCode != 0 || process2.ExitCode != 0)
+            if (exitCode1 != 0 || exitCode2 != 0)
             {
                 logger?.LogError("Failed to create virtual environment.");
-                process1.Dispose();
-                process2.Dispose();
                 throw new InvalidOperationException($"Could not create virtual environment. {error}");
             }
-            process1.Dispose();
-            process2.Dispose();
         }
         else
         {

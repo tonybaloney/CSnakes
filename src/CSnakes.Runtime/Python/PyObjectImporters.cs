@@ -1,4 +1,5 @@
 using CSnakes.Runtime.CPython;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime.Python;
@@ -22,6 +23,23 @@ public static partial class PyObjectImporters
         }
     }
 
+    public sealed class None : IPyObjectImporter<PyObject>
+    {
+        private None() { }
+
+        static PyObject IPyObjectImporter<PyObject>.BareImport(PyObject obj)
+        {
+            GIL.Require();
+            return obj.IsNone() ? PyObject.None : throw InvalidCastException("None", obj);
+        }
+    }
+
+    /// <remarks>
+    /// This importer delegates to run-time conversion via <see cref="PyObject.As{T}"/>, which is
+    /// annotated with <see cref="RequiresDynamicCodeAttribute"/>. It should be avoided in code that
+    /// wishes to support Native AOT scenarios and publishing. Any explicit use of this should be
+    /// carefully reviewed and marked with <see cref="RequiresDynamicCodeAttribute"/>.
+    /// </remarks>
     public sealed class Runtime<T> : IPyObjectImporter<T>
     {
         private Runtime() { }
@@ -29,7 +47,9 @@ public static partial class PyObjectImporters
         static T IPyObjectImporter<T>.BareImport(PyObject obj)
         {
             GIL.Require();
+#pragma warning disable IL3050 // Avoid calling members annotated with 'RequiresDynamicCodeAttribute' when publishing as Native AOT
             return obj.As<T>();
+#pragma warning restore IL3050 // Avoid calling members annotated with 'RequiresDynamicCodeAttribute' when publishing as Native AOT
         }
     }
 
@@ -112,6 +132,26 @@ public static partial class PyObjectImporters
             CheckTuple(obj);
             using var item = GetTupleItem(obj, 0);
             return new(TImporter.BareImport(item));
+        }
+    }
+
+    public sealed class VarTuple<T, TImporter> : IPyObjectImporter<ImmutableArray<T>>
+        where TImporter : IPyObjectImporter<T>
+    {
+        private VarTuple() { }
+
+        static ImmutableArray<T> IPyObjectImporter<ImmutableArray<T>>.BareImport(PyObject obj)
+        {
+            GIL.Require();
+            CheckTuple(obj);
+            var length = CPythonAPI.PyTuple_Size(obj);
+            var builder = ImmutableArray.CreateBuilder<T>(checked((int)length));
+            for (int i = 0; i < length; i++)
+            {
+                using var item = GetTupleItem(obj, i);
+                builder.Add(TImporter.BareImport(item));
+            }
+            return builder.MoveToImmutable();
         }
     }
 
@@ -199,20 +239,39 @@ public static partial class PyObjectImporters
         }
     }
 
-    public sealed class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter> :
-        IPyObjectImporter<ICoroutine<TYield, TSend, TReturn>>
-        where TYieldImporter : IPyObjectImporter<TYield>
-        where TReturnImporter : IPyObjectImporter<TReturn>
+    public sealed class Coroutine<T, TImporter> :
+        IPyObjectImporter<ICoroutine<T>>
+        where TImporter : IPyObjectImporter<T>
     {
         private Coroutine() { }
 
-        static ICoroutine<TYield, TSend, TReturn> IPyObjectImporter<ICoroutine<TYield, TSend, TReturn>>.BareImport(PyObject obj)
+        static ICoroutine<T> IPyObjectImporter<ICoroutine<T>>.BareImport(PyObject obj)
         {
             GIL.Require();
             return CPythonAPI.IsPyCoroutine(obj)
-                ? new Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(obj.Clone())
+                ? new Python.Coroutine<T, TImporter>(obj.Clone())
                 : throw InvalidCastException("coroutine", obj);
         }
+    }
+
+    public sealed class Optional<T, TImporter> : IPyObjectImporter<T?>
+        where T : class
+        where TImporter : IPyObjectImporter<T>
+    {
+        private Optional() { }
+
+        static T? IPyObjectImporter<T?>.BareImport(PyObject obj) =>
+            !obj.IsNone() ? TImporter.BareImport(obj) : null;
+    }
+
+    public sealed class OptionalValue<T, TImporter> : IPyObjectImporter<T?>
+        where T : struct
+        where TImporter : IPyObjectImporter<T>
+    {
+        private OptionalValue() { }
+
+        static T? IPyObjectImporter<T?>.BareImport(PyObject obj) =>
+            !obj.IsNone() ? TImporter.BareImport(obj) : null;
     }
 
     private static PyObject GetTupleItem(PyObject obj, int index) =>

@@ -7,7 +7,7 @@ namespace CSnakes.Runtime;
 
 internal static class ProcessUtils
 {
-    internal static (Process proc, string? result, string? errors) ExecutePythonCommand(ILogger? logger, PythonLocationMetadata pythonLocation, params string[] arguments)
+    internal static (int exitCode, string? result, string? errors) ExecutePythonCommand(ILogger? logger, PythonLocationMetadata pythonLocation, params string[] arguments)
     {
 
         ProcessStartInfo startInfo = new(pythonLocation.PythonBinaryPath, arguments)
@@ -20,7 +20,7 @@ internal static class ProcessUtils
         return ExecuteCommand(logger, startInfo);
     }
 
-    internal static (Process proc, string? result, string? errors) ExecuteCommand(ILogger? logger, string fileName, params string[] arguments)
+    internal static (int exitCode, string? result, string? errors) ExecuteCommand(ILogger? logger, string fileName, params string[] arguments)
     {
         ProcessStartInfo startInfo = new(fileName, arguments)
         {
@@ -40,16 +40,16 @@ internal static class ProcessUtils
             CreateNoWindow = true,
             WindowStyle = ProcessWindowStyle.Hidden,
         };
-        Process process = new() { StartInfo = startInfo };
+        using Process process = new() { StartInfo = startInfo };
         process.Start();
         process.WaitForExit();
         return process.ExitCode == 0;
     }
 
 
-    private static (Process proc, string? result, string? errors) ExecuteCommand(ILogger? logger, ProcessStartInfo startInfo)
+    private static (int exitCode, string? result, string? errors) ExecuteCommand(ILogger? logger, ProcessStartInfo startInfo)
     {
-        Process process = new() { StartInfo = startInfo };
+        using Process process = new() { StartInfo = startInfo };
         string? result = null;
         string? errors = null;
         process.OutputDataReceived += (sender, e) =>
@@ -74,7 +74,7 @@ internal static class ProcessUtils
         process.BeginErrorReadLine();
         process.BeginOutputReadLine();
         process.WaitForExit();
-        return (process, result, errors);
+        return (process.ExitCode, result, errors);
     }
 
     internal static void ExecuteProcess(string fileName, IEnumerable<string> arguments, string workingDirectory, string path, ILogger? logger, IReadOnlyDictionary<string, string?>? extraEnv = null)

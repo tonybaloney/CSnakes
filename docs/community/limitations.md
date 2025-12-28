@@ -1,0 +1,43 @@
+# Limitations
+
+This is a list of known limitations. If you really want to see any of these, or other features please [raise an issue](https://github.com/tonybaloney/CSnakes/issues/new) and describe your use case.
+
+## Type Hinting
+
+### Variadic Generics
+
+C# does not have a notion of `Tuple<T...>`, so the type annotation using `Tuple[*T]` in Python cannot be statically converted into a C#.NET type. See [PEP646](https://peps.python.org/pep-0646/) for more details and [25](https://github.com/tonybaloney/CSnakes/issues/25).
+
+## Classes
+
+CSnakes does not support source generation for custom types, this includes dataclasses and named tuple instances.
+
+Functions which return class instances will return a `PyObject` in C#.NET which you can use to pass into other functions. This type is a reference to the return value.
+
+```python
+def create_person(name: str, age: int) -> Person:
+    return Person(name, age)
+```
+
+CSnakes will create a method signature like this:
+
+```csharp
+public PyObject CreatePerson(string name, long age);
+```
+
+There are some public methods on the `PyObject` class that you can use to interact with the object, such as `GetAttr` and `Call`.
+Any PyObject has a `ToString()` method that will return the string representation of the object, but you cannot convert the instance to a specific CLR type.
+
+```csharp
+var person = module.CreatePerson("Alice", 42);
+var name = person.GetAttr("name");
+var age = person.GetAttr("age");
+```
+
+## Native AOT
+
+When using Native AOT compilation, only the source generated bindings approach is supported. The manual Python binding method described in [Manual Integration](../advanced/manual-integration.md) is not compatible with Native AOT.
+
+This limitation exists because casting Python objects to .NET containers like `Tuple`, `Dictionary`, `List`, or `Coroutine` requires reflection when done dynamically, which is not supported in Native AOT compilation. The source generator solves this by generating compiled bindings and reflection code at build time without using `System.Reflection`, making the generated code AOT-ready.
+
+See the [Native AOT Support](../advanced/native-aot.md) section for complete details on requirements and configuration.

@@ -12,6 +12,7 @@ CSnakes.Runtime.IPythonEnvironment.IsDisposed() -> bool
 CSnakes.Runtime.IPythonEnvironment.Logger.get -> Microsoft.Extensions.Logging.ILogger<CSnakes.Runtime.IPythonEnvironment!>?
 CSnakes.Runtime.IPythonEnvironment.Version.get -> string!
 CSnakes.Runtime.IPythonEnvironmentBuilder
+CSnakes.Runtime.IPythonEnvironmentBuilder.DisableSignalHandlers() -> CSnakes.Runtime.IPythonEnvironmentBuilder!
 CSnakes.Runtime.IPythonEnvironmentBuilder.GetOptions() -> CSnakes.Runtime.PythonEnvironmentOptions!
 CSnakes.Runtime.IPythonEnvironmentBuilder.Services.get -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
 CSnakes.Runtime.IPythonEnvironmentBuilder.WithCondaEnvironment(string! name, string? environmentSpecPath = null, bool ensureEnvironment = false, string? pythonVersion = null) -> CSnakes.Runtime.IPythonEnvironmentBuilder!
@@ -48,7 +49,10 @@ CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_13 = 4 -> CSnakes.
 CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_14 = 5 -> CSnakes.Runtime.Locators.RedistributablePythonVersion
 CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_9 = 0 -> CSnakes.Runtime.Locators.RedistributablePythonVersion
 CSnakes.Runtime.PackageManagement.IPythonPackageInstaller
-CSnakes.Runtime.PackageManagement.IPythonPackageInstaller.InstallPackages(string! home, CSnakes.Runtime.EnvironmentManagement.IEnvironmentManagement? environmentManager) -> System.Threading.Tasks.Task!
+CSnakes.Runtime.PackageManagement.IPythonPackageInstaller.InstallPackage(string! package) -> System.Threading.Tasks.Task!
+CSnakes.Runtime.PackageManagement.IPythonPackageInstaller.InstallPackages(string![]! packages) -> System.Threading.Tasks.Task!
+CSnakes.Runtime.PackageManagement.IPythonPackageInstaller.InstallPackagesFromRequirements(string! home) -> System.Threading.Tasks.Task!
+CSnakes.Runtime.PackageManagement.IPythonPackageInstaller.InstallPackagesFromRequirements(string! home, string! file) -> System.Threading.Tasks.Task!
 CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>
 CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.AsTask(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TYield>!
 CSnakes.Runtime.Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Coroutine(CSnakes.Runtime.Python.PyObject! coroutine) -> void
@@ -103,13 +107,15 @@ CSnakes.Runtime.Python.PyObject.ImportAs<T, TImporter>() -> T
 CSnakes.Runtime.Python.PyObject.NotEquals(object? obj) -> bool
 CSnakes.Runtime.Python.PyObject.PyObject(nint pyObject, bool ownsHandle = true) -> void
 CSnakes.Runtime.PythonEnvironmentOptions
-CSnakes.Runtime.PythonEnvironmentOptions.Deconstruct(out string! Home, out string![]! ExtraPaths) -> void
+CSnakes.Runtime.PythonEnvironmentOptions.Deconstruct(out string! Home, out string![]! ExtraPaths, out bool InstallSignalHandlers) -> void
 CSnakes.Runtime.PythonEnvironmentOptions.ExtraPaths.get -> string![]!
 CSnakes.Runtime.PythonEnvironmentOptions.ExtraPaths.init -> void
 CSnakes.Runtime.PythonEnvironmentOptions.Home.get -> string!
 CSnakes.Runtime.PythonEnvironmentOptions.Home.init -> void
+CSnakes.Runtime.PythonEnvironmentOptions.InstallSignalHandlers.get -> bool
+CSnakes.Runtime.PythonEnvironmentOptions.InstallSignalHandlers.init -> void
 CSnakes.Runtime.PythonEnvironmentOptions.PythonEnvironmentOptions(CSnakes.Runtime.PythonEnvironmentOptions! original) -> void
-CSnakes.Runtime.PythonEnvironmentOptions.PythonEnvironmentOptions(string! Home, string![]! ExtraPaths) -> void
+CSnakes.Runtime.PythonEnvironmentOptions.PythonEnvironmentOptions(string! Home, string![]! ExtraPaths, bool InstallSignalHandlers = true) -> void
 CSnakes.Runtime.PythonInvocationException
 CSnakes.Runtime.PythonInvocationException.PythonExceptionType.get -> string!
 CSnakes.Runtime.PythonInvocationException.PythonInvocationException(string! exceptionType, CSnakes.Runtime.Python.PyObject? exception, CSnakes.Runtime.Python.PyObject? pythonStackTrace) -> void
@@ -160,6 +166,12 @@ static CSnakes.Runtime.Python.PyBufferExtensions.AsDoubleReadOnlyTensorSpan(this
 static CSnakes.Runtime.Python.PyBufferExtensions.AsDoubleSpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.Span<double>
 static CSnakes.Runtime.Python.PyBufferExtensions.AsDoubleSpan2D(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> CommunityToolkit.HighPerformance.Span2D<double>
 static CSnakes.Runtime.Python.PyBufferExtensions.AsDoubleTensorSpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.Numerics.Tensors.TensorSpan<double>
+static CSnakes.Runtime.Python.PyBufferExtensions.AsHalfReadOnlySpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.ReadOnlySpan<System.Half>
+static CSnakes.Runtime.Python.PyBufferExtensions.AsHalfReadOnlySpan2D(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> CommunityToolkit.HighPerformance.ReadOnlySpan2D<System.Half>
+static CSnakes.Runtime.Python.PyBufferExtensions.AsHalfSpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.Span<System.Half>
+static CSnakes.Runtime.Python.PyBufferExtensions.AsHalfSpan2D(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> CommunityToolkit.HighPerformance.Span2D<System.Half>
+static CSnakes.Runtime.Python.PyBufferExtensions.AsHalfReadOnlyTensorSpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.Numerics.Tensors.ReadOnlyTensorSpan<System.Half>
+static CSnakes.Runtime.Python.PyBufferExtensions.AsHalfTensorSpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.Numerics.Tensors.TensorSpan<System.Half>
 static CSnakes.Runtime.Python.PyBufferExtensions.AsFloatReadOnlySpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.ReadOnlySpan<float>
 static CSnakes.Runtime.Python.PyBufferExtensions.AsFloatReadOnlySpan2D(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> CommunityToolkit.HighPerformance.ReadOnlySpan2D<float>
 static CSnakes.Runtime.Python.PyBufferExtensions.AsFloatReadOnlyTensorSpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.Numerics.Tensors.ReadOnlyTensorSpan<float>

@@ -1,5 +1,6 @@
 using CSnakes.Runtime.CPython;
 using CSnakes.Runtime.Python;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -18,7 +19,8 @@ internal partial class PyObjectTypeConverter
         return Pack.CreateTuple(pyObjects);
     }
 
-    internal static ITuple ConvertToTuple(PyObject pyObj, Type destinationType)
+    [RequiresDynamicCode(DynamicCodeMessages.CallsMakeGenericType)]
+    internal static ITuple ConvertToTuple(PyObject pyObj, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type destinationType)
     {
         if (!CPythonAPI.IsPyTuple(pyObj))
         {

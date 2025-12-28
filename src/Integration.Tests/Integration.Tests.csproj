@@ -5,6 +5,8 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <IsTestProject>true</IsTestProject>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <DefaultPythonItems>true</DefaultPythonItems>
+    <PythonRoot>python</PythonRoot>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +16,6 @@
     <PackageReference Include="System.Text.RegularExpressions" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio" />
-    <PackageReference Include="python" />
     <PackageReference Include="MartinCostello.Logging.XUnit.v3" />
   </ItemGroup>
 
@@ -29,12 +30,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="python\*.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
     <Content Include="python\requirements.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <Import Project="..\CSnakes.SourceGeneration\NuGet\buildTransitive\net8.0\CSnakes.SourceGeneration.targets" />
+
 </Project>

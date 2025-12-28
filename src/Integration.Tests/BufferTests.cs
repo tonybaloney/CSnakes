@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+#if NET9_0_OR_GREATER
+using System.Numerics.Tensors;
+#endif
 using CSnakes.Runtime.Python;
-using Xunit;
 
 namespace Integration.Tests;
 
@@ -171,11 +173,26 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     }
 
     [Fact]
+    public void TestFloat16Buffer()
+    {
+        var testModule = Env.TestBuffer();
+        using var bufferObject = testModule.TestFloat16Buffer();
+        Assert.Equal(10, bufferObject.Length); // 5 * sizeof(o)
+        Assert.True(bufferObject.IsScalar);
+
+        // Check the buffer contents
+        Span<Half> result = bufferObject.AsHalfSpan();
+        Assert.Equal(typeof(Half), bufferObject.GetItemType());
+        Assert.Equal(1.1f, (float)result[0], 0.01);
+        Assert.Equal(5.5f, (float)result[4], 0.01);
+    }
+
+    [Fact]
     public void TestFloat32Buffer()
     {
         var testModule = Env.TestBuffer();
         using var bufferObject = testModule.TestFloat32Buffer();
-        Assert.Equal(20, bufferObject.Length); // 5 * sizeof(int)
+        Assert.Equal(20, bufferObject.Length); // 5 * sizeof(o)
         Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
@@ -319,6 +336,19 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     }
 
     [Fact]
+    public void TestFloat16MatrixBuffer()
+    {
+        var testModule = Env.TestBuffer();
+        using var bufferObject = testModule.TestFloat162dBuffer();
+        Assert.Equal(2 * 2 * 3, bufferObject.Length);
+        Assert.Equal(2, bufferObject.Dimensions);
+        var matrix = bufferObject.AsHalfSpan2D();
+        Assert.Equal(typeof(Half), bufferObject.GetItemType());
+        Assert.Equal(1.1f, (float)matrix[0, 0], 0.01);
+        Assert.Equal(6.6f, (float)matrix[1, 2], 0.01);
+    }
+
+    [Fact]
     public void TestFloat32MatrixBuffer()
     {
         var testModule = Env.TestBuffer();
@@ -453,6 +483,21 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
         Assert.Equal(typeof(int), bufferObject.ItemType);
         Assert.Equal(1, tensor[0, 0, 0]);
         Assert.Equal(3, tensor[1, 2, 3]);
+    }
+
+    [Fact]
+    public void TestNDim3Float32TensorProductPrimitive()
+    {
+        var testModule = Env.TestBuffer();
+        using var bufferObject = testModule.TestNdim3dFloat32Buffer();
+        var tensor = bufferObject.AsTensorSpan<float>();
+        Assert.Equal(sizeof(int) * 3 * 4 * 5, bufferObject.Length);
+#pragma warning disable SYSLIB5001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        var tmpTensor = Tensor.Create<float>(tensor.Lengths);
+        var shapeProduct = (long)TensorPrimitives.Product(tensor.Lengths);
+        Assert.Equal(shapeProduct, tensor.FlattenedLength);
+        var result = Tensor.Multiply(tensor, 255.0f, tmpTensor);
+#pragma warning restore SYSLIB5001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
     }
 
     [Fact]

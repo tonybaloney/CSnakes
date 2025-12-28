@@ -14,12 +14,7 @@ public class RedistributablePythonTestBase : IDisposable
         Version pythonVersionToTest = ServiceCollectionExtensions.ParsePythonVersion(Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9");
         bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "1";
         bool debugPython = Environment.GetEnvironmentVariable("PYTHON_DEBUG") == "1";
-        string venvPath = Path.Join(Environment.CurrentDirectory, "python", ".venv");
-        // If .venv exists, delete it
-        if (Directory.Exists(venvPath))
-        {
-            Directory.Delete(venvPath, true);
-        }
+        string venvPath = Path.Join(Environment.CurrentDirectory, "python", $".venv-{pythonVersionToTest}{(freeThreaded ? "t" : "")}{(debugPython ? "d" : "")}");
 
         RedistributablePythonVersion redistributableVersion = pythonVersionToTest.Minor switch
         {
@@ -37,13 +32,14 @@ public class RedistributablePythonTestBase : IDisposable
           .DisableSignalHandlers()
           .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
           .WithUvInstaller()
-          .WithVirtualEnvironment(venvPath);
+          .WithVirtualEnvironment(venvPath)
+          .CapturePythonLogs();
 
         builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
 
         builder.Logging.SetMinimumLevel(LogLevel.Debug);
         builder.Logging.AddFilter(_ => true);
-        
+
         app = builder.Build();
 
         env = app.Services.GetRequiredService<IPythonEnvironment>();

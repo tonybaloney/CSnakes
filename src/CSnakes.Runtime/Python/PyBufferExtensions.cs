@@ -26,6 +26,7 @@ public static class PyBufferExtensions
 
     [Obsolete] public static Span<ulong> AsUInt64Span(this IPyBuffer buffer) => buffer.AsSpan<ulong>();
 
+    [Obsolete] public static Span<Half> AsHalfSpan(this IPyBuffer buffer) => buffer.AsSpan<Half>();
     [Obsolete] public static Span<float> AsFloatSpan(this IPyBuffer buffer) => buffer.AsSpan<float>();
 
     [Obsolete] public static Span<double> AsDoubleSpan(this IPyBuffer buffer) => buffer.AsSpan<double>();
@@ -43,6 +44,7 @@ public static class PyBufferExtensions
     [Obsolete] public static ReadOnlySpan<uint> AsUInt32ReadOnlySpan(this IPyBuffer buffer) => buffer.AsReadOnlySpan<uint>();
     [Obsolete] public static ReadOnlySpan<long> AsInt64ReadOnlySpan(this IPyBuffer buffer) => buffer.AsReadOnlySpan<long>();
     [Obsolete] public static ReadOnlySpan<ulong> AsUInt64ReadOnlySpan(this IPyBuffer buffer) => buffer.AsReadOnlySpan<ulong>();
+    [Obsolete] public static ReadOnlySpan<Half> AsHalfReadOnlySpan(this IPyBuffer buffer) => buffer.AsReadOnlySpan<Half>();
     [Obsolete] public static ReadOnlySpan<float> AsFloatReadOnlySpan(this IPyBuffer buffer) => buffer.AsReadOnlySpan<float>();
     [Obsolete] public static ReadOnlySpan<double> AsDoubleReadOnlySpan(this IPyBuffer buffer) => buffer.AsReadOnlySpan<double>();
     [Obsolete] public static ReadOnlySpan<nint> AsIntPtrReadOnlySpan(this IPyBuffer buffer) => buffer.AsReadOnlySpan<nint>();
@@ -59,6 +61,7 @@ public static class PyBufferExtensions
     [Obsolete] public static Span2D<uint> AsUInt32Span2D(this IPyBuffer buffer) => buffer.AsSpan2D<uint>();
     [Obsolete] public static Span2D<long> AsInt64Span2D(this IPyBuffer buffer) => buffer.AsSpan2D<long>();
     [Obsolete] public static Span2D<ulong> AsUInt64Span2D(this IPyBuffer buffer) => buffer.AsSpan2D<ulong>();
+    [Obsolete] public static Span2D<Half> AsHalfSpan2D(this IPyBuffer buffer) => buffer.AsSpan2D<Half>();
     [Obsolete] public static Span2D<float> AsFloatSpan2D(this IPyBuffer buffer) => buffer.AsSpan2D<float>();
     [Obsolete] public static Span2D<double> AsDoubleSpan2D(this IPyBuffer buffer) => buffer.AsSpan2D<double>();
     [Obsolete] public static Span2D<nint> AsIntPtrSpan2D(this IPyBuffer buffer) => buffer.AsSpan2D<nint>();
@@ -75,6 +78,7 @@ public static class PyBufferExtensions
     [Obsolete] public static ReadOnlySpan2D<uint> AsUInt32ReadOnlySpan2D(this IPyBuffer buffer) => buffer.AsReadOnlySpan2D<uint>();
     [Obsolete] public static ReadOnlySpan2D<long> AsInt64ReadOnlySpan2D(this IPyBuffer buffer) => buffer.AsReadOnlySpan2D<long>();
     [Obsolete] public static ReadOnlySpan2D<ulong> AsUInt64ReadOnlySpan2D(this IPyBuffer buffer) => buffer.AsReadOnlySpan2D<ulong>();
+    [Obsolete] public static ReadOnlySpan2D<Half> AsHalfReadOnlySpan2D(this IPyBuffer buffer) => buffer.AsReadOnlySpan2D<Half>();
     [Obsolete] public static ReadOnlySpan2D<float> AsFloatReadOnlySpan2D(this IPyBuffer buffer) => buffer.AsReadOnlySpan2D<float>();
     [Obsolete] public static ReadOnlySpan2D<double> AsDoubleReadOnlySpan2D(this IPyBuffer buffer) => buffer.AsReadOnlySpan2D<double>();
     [Obsolete] public static ReadOnlySpan2D<nint> AsIntPtrReadOnlySpan2D(this IPyBuffer buffer) => buffer.AsReadOnlySpan2D<nint>();
@@ -92,6 +96,7 @@ public static class PyBufferExtensions
     [Obsolete] public static TensorSpan<uint> AsUInt32TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<uint>();
     [Obsolete] public static TensorSpan<long> AsInt64TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<long>();
     [Obsolete] public static TensorSpan<ulong> AsUInt64TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<ulong>();
+    [Obsolete] public static TensorSpan<Half> AsHalfTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<Half>();
     [Obsolete] public static TensorSpan<float> AsFloatTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<float>();
     [Obsolete] public static TensorSpan<double> AsDoubleTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<double>();
     [Obsolete] public static TensorSpan<nint> AsIntPtrTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<nint>();
@@ -106,6 +111,7 @@ public static class PyBufferExtensions
     [Obsolete] public static ReadOnlyTensorSpan<uint> AsUInt32ReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<uint>();
     [Obsolete] public static ReadOnlyTensorSpan<long> AsInt64ReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<long>();
     [Obsolete] public static ReadOnlyTensorSpan<ulong> AsUInt64ReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<ulong>();
+    [Obsolete] public static ReadOnlyTensorSpan<Half> AsHalfReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<Half>();
     [Obsolete] public static ReadOnlyTensorSpan<float> AsFloatReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<float>();
     [Obsolete] public static ReadOnlyTensorSpan<double> AsDoubleReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<double>();
     [Obsolete] public static ReadOnlyTensorSpan<nint> AsIntPtrReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<nint>();

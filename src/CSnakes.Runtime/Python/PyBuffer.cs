@@ -321,7 +321,7 @@ internal sealed class PyTensorBuffer<T> :
     unsafe TensorSpan<T> IPyTensorBuffer<T>.AsTensorSpan()
     {
         ref readonly var buffer = ref Buffer;
-        return new((T*)buffer.buf, buffer.len, Shape, this.strides);
+        return new((T*)buffer.buf, ItemCount, Shape, this.strides);
     }
 }
 
@@ -367,6 +367,7 @@ internal static class PyBuffer
             { ndim: 0 or 1 } => // Treat scalar (ndim: 0) as a 1D array for simplicity
                 GetFormat(format) switch
                 {
+                    Format.Half => new PyArrayBuffer<Half>(buffer),
                     Format.Float => new PyArrayBuffer<float>(buffer),
                     Format.Double => new PyArrayBuffer<double>(buffer),
                     Format.Char => new PyArrayBuffer<sbyte>(buffer),
@@ -389,6 +390,7 @@ internal static class PyBuffer
             { ndim: 2, HasShape: true, HasStrides: true } =>
                 GetFormat(format) switch
                 {
+                    Format.Half => new PyArray2DBuffer<Half>(buffer),
                     Format.Float => new PyArray2DBuffer<float>(buffer),
                     Format.Double => new PyArray2DBuffer<double>(buffer),
                     Format.Char => new PyArray2DBuffer<sbyte>(buffer),
@@ -412,6 +414,7 @@ internal static class PyBuffer
             { ndim: > 2, HasShape: true, HasStrides: true } =>
                 GetFormat(format) switch
                 {
+                    Format.Half => new PyTensorBuffer<Half>(buffer),
                     Format.Float => new PyTensorBuffer<float>(buffer),
                     Format.Double => new PyTensorBuffer<double>(buffer),
                     Format.Char => new PyTensorBuffer<sbyte>(buffer),
@@ -462,6 +465,7 @@ internal static class PyBuffer
         ULong = 'L', // C unsigned long
         LongLong = 'q', // C long long
         ULongLong = 'Q', // C unsigned long long
+        Half = 'e',  // float16
         Float = 'f', // C float
         Double = 'd', // C double
         SizeT = 'n', // C size_t

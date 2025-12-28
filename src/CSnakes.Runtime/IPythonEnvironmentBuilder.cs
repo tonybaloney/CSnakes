@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace CSnakes.Runtime;
 
@@ -20,7 +21,7 @@ public interface IPythonEnvironmentBuilder
 
     /// <summary>
     /// Sets the virtual environment path for the Python environment to a named conda environment.
-    /// This requires Python to be installed via Conda and usage of the <see cref="ServiceCollectionExtensions.FromConda(IPythonEnvironmentBuilder, string)"/> locator. 
+    /// This requires Python to be installed via Conda and usage of the <see cref="ServiceCollectionExtensions.FromConda(IPythonEnvironmentBuilder, string)"/> locator.
     /// </summary>
     /// <param name="name">The name of the conda environment to use.</param>
     /// <param name="environmentSpecPath">The path to the conda environment specification file (environment.yml), used if ensureEnvironment = true.</param>
@@ -40,6 +41,13 @@ public interface IPythonEnvironmentBuilder
     /// </summary>
     /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
     IPythonEnvironmentBuilder DisableSignalHandlers();
+
+
+    /// <summary>
+    /// Capture Python logs and emit them to the <see cref="ILogger"/> API used in the environment
+    /// </summary>
+    /// <returns>The current instance of the <see cref="IPythonEnvironmentBuilder"/>.</returns>
+    IPythonEnvironmentBuilder CapturePythonLogs();
 
     /// <summary>
     /// Gets the options for the Python environment being built.

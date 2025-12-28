@@ -60,4 +60,22 @@ b = c + a
         using var result = env.Execute(c, locals, globals);
         Assert.Equal("None", result.ToString());
     }
+
+    [Fact]
+    public void TestExecuteWithLocalsUpdatesDict()
+    {
+        var code = """c = a * 2; b += 1""";
+        var locals = new Dictionary<string, PyObject>
+        {
+            ["a"] = PyObject.From(101)
+        };
+        var globals = new Dictionary<string, PyObject>
+        {
+            ["b"] = PyObject.From(100)
+        };
+        using var result = env.Execute(code, locals, globals);
+        Assert.Equal("None", result.ToString());
+        Assert.Equal(202, locals["c"].As<long>());
+        Assert.Equal(101, locals["b"].As<long>());
+    }
 }

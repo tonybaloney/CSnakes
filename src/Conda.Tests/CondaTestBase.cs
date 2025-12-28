@@ -44,7 +44,7 @@ public class CondaTestBase : IDisposable
           .WithCondaEnvironment("csnakes_test", environmentSpecPath, true, pythonVersion);
 
         builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
-        
+
         app = builder.Build();
 
         env = app.Services.GetRequiredService<IPythonEnvironment>();

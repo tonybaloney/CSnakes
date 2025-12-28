@@ -17,13 +17,33 @@ internal sealed class EventLoop : IDisposable
         public virtual void Dispose() { }
     }
 
-    private sealed class ScheduleRequest(PyObject coroutine, CancellationToken cancellationToken) : Request
+    private sealed class ScheduleRequest : Request
     {
-        public PyObject Coroutine { get; } = coroutine.Clone();
-        public CancellationToken CancellationToken { get; } = cancellationToken;
+        public static ScheduleRequest Create(PyObject coroutine, CancellationToken cancellationToken)
+        {
+            var clone = coroutine.Clone();
+            try
+            {
+                return new ScheduleRequest(clone, cancellationToken);
+            }
+            catch
+            {
+                coroutine.Dispose();
+                throw;
+            }
+        }
+
+        private ScheduleRequest(PyObject coroutine, CancellationToken cancellationToken)
+        {
+            Coroutine = coroutine;
+            CancellationToken = cancellationToken;
+        }
+
+        public PyObject Coroutine { get; }
+        public CancellationToken CancellationToken { get; }
         public TaskCompletionSource<TaskCompletionSource<PyObject>> CompletionSource { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        public override void Dispose() => coroutine.Dispose();
+        public override void Dispose() => Coroutine.Dispose();
     }
 
     private sealed class CancelRequest(CoroutineTask coroTask, CancellationToken cancellationToken) : Request
@@ -172,7 +192,7 @@ internal sealed class EventLoop : IDisposable
 
     public async Task<PyObject> RunCoroutineAsync(PyObject coroutine, CancellationToken cancellationToken)
     {
-        using var request = new ScheduleRequest(coroutine, cancellationToken);
+        using var request = ScheduleRequest.Create(coroutine, cancellationToken);
         Enqueue(request);
         var taskCompletionSource = await request.CompletionSource.Task.ConfigureAwait(false);
         return await taskCompletionSource.Task.ConfigureAwait(false);

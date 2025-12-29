@@ -181,8 +181,8 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
         Assert.True(bufferObject.IsScalar);
 
         // Check the buffer contents
-        Span<Half> result = bufferObject.AsHalfSpan();
-        Assert.Equal(typeof(Half), bufferObject.GetItemType());
+        var result = (PyArrayBuffer<Half>)bufferObject;
+        Assert.Equal(typeof(Half), bufferObject.ItemType);
         Assert.Equal(1.1f, (float)result[0], 0.01);
         Assert.Equal(5.5f, (float)result[4], 0.01);
     }
@@ -342,8 +342,8 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
         using var bufferObject = testModule.TestFloat162dBuffer();
         Assert.Equal(2 * 2 * 3, bufferObject.Length);
         Assert.Equal(2, bufferObject.Dimensions);
-        var matrix = bufferObject.AsHalfSpan2D();
-        Assert.Equal(typeof(Half), bufferObject.GetItemType());
+        var matrix = (PyArray2DBuffer<Half>)bufferObject;
+        Assert.Equal(typeof(Half), bufferObject.ItemType);
         Assert.Equal(1.1f, (float)matrix[0, 0], 0.01);
         Assert.Equal(6.6f, (float)matrix[1, 2], 0.01);
     }

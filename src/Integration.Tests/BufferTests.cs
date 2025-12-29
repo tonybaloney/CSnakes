@@ -490,13 +490,13 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     {
         var testModule = Env.TestBuffer();
         using var bufferObject = testModule.TestNdim3dFloat32Buffer();
-        var tensor = bufferObject.AsTensorSpan<float>();
+        var tensor = (PyTensorBuffer<float>)bufferObject;
         Assert.Equal(sizeof(int) * 3 * 4 * 5, bufferObject.Length);
 #pragma warning disable SYSLIB5001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         var tmpTensor = Tensor.Create<float>(tensor.Lengths);
         var shapeProduct = (long)TensorPrimitives.Product(tensor.Lengths);
-        Assert.Equal(shapeProduct, tensor.FlattenedLength);
-        var result = Tensor.Multiply(tensor, 255.0f, tmpTensor);
+        Assert.Equal(shapeProduct, tensor.UnsafeAsTensorSpan().FlattenedLength);
+        var result = Tensor.Multiply(tensor.UnsafeAsTensorSpan(), 255.0f, tmpTensor);
 #pragma warning restore SYSLIB5001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
     }
 

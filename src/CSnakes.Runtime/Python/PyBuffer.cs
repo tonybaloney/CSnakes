@@ -320,7 +320,13 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
     }
 
     // TODO Mark `PyTensorBuffer<T>.AsTensorSpan` private when `IPyBuffer<T>.AsTensorSpan<T>` is removed
-    internal unsafe TensorSpan<T> AsTensorSpan()
+    internal unsafe TensorSpan<T> AsTensorSpan() => UnsafeAsTensorSpan();
+
+    /// <summary>
+    /// Returns a span <em>directly</em> over the tensor buffer.
+    /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
+    /// </summary>
+    public unsafe TensorSpan<T> UnsafeAsTensorSpan()
     {
         ref readonly var buffer = ref Buffer;
         return new((T*)buffer.buf, ItemCount, Shape, this.strides);

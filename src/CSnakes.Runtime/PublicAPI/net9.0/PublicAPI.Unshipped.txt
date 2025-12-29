@@ -31,6 +31,7 @@ CSnakes.Runtime.Python.PyTensorBuffer<T>
 CSnakes.Runtime.Python.PyTensorBuffer<T>.Lengths.get -> System.ReadOnlySpan<nint>
 CSnakes.Runtime.Python.PyTensorBuffer<T>.this[params System.ReadOnlySpan<nint> indices].get -> T
 CSnakes.Runtime.Python.PyTensorBuffer<T>.this[params System.ReadOnlySpan<nint> indices].set -> void
+CSnakes.Runtime.Python.PyTensorBuffer<T>.UnsafeAsTensorSpan() -> System.Numerics.Tensors.TensorSpan<T>
 CSnakes.Runtime.Python.SpanFunc<T, TArg, TResult>
 CSnakes.Runtime.Python.SpanFunc<T, TResult>
 CSnakes.Runtime.PythonLogger

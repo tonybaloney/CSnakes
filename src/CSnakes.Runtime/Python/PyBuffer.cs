@@ -128,13 +128,13 @@ public interface IPyArrayBuffer<T> : IPyBuffer<T>, IMemoryOwner<T> where T : unm
         set => AsSpan()[index] = value;
     }
 
-    public TResult Map<TResult>(SpanFunc<T, TResult> function) =>
+    TResult Map<TResult>(SpanFunc<T, TResult> function) =>
         function(AsSpan());
 
-    public TResult Map<TArg, TResult>(TArg arg, SpanFunc<T, TArg, TResult> function) =>
+    TResult Map<TArg, TResult>(TArg arg, SpanFunc<T, TArg, TResult> function) =>
         function(AsSpan(), arg);
 
-    public void Do<TArg>(TArg arg, SpanAction<T, TArg> action) =>
+    void Do<TArg>(TArg arg, SpanAction<T, TArg> action) =>
         action(AsSpan(), arg);
 
     void CopyFrom(scoped ReadOnlySpan<T> source)

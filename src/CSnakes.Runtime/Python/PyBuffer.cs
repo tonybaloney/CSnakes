@@ -268,6 +268,7 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
 public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
 {
     private readonly nint[] strides;
+    private nint[]? cachedLengths;
 
     internal PyTensorBuffer(in CPythonAPI.Py_buffer buffer) : base(Validate(buffer))
     {
@@ -300,6 +301,22 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
     {
         get => AsTensorSpan()[indices];
         set => AsTensorSpan()[indices] = value;
+    }
+
+    public ReadOnlySpan<nint> Lengths
+    {
+        get
+        {
+            if (cachedLengths is null)
+            {
+                var shape = Shape;
+                var lengths = new nint[shape.Length];
+                shape.CopyTo(lengths);
+                cachedLengths = lengths;
+            }
+
+            return cachedLengths;
+        }
     }
 
     // TODO Mark `PyTensorBuffer<T>.AsTensorSpan` private when `IPyBuffer<T>.AsTensorSpan<T>` is removed

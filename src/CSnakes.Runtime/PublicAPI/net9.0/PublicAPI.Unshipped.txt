@@ -28,6 +28,7 @@ CSnakes.Runtime.Python.PyBuffer<T>.IsScalar.get -> bool
 CSnakes.Runtime.Python.PyBuffer<T>.ItemType.get -> System.Type!
 CSnakes.Runtime.Python.PyBuffer<T>.Length.get -> long
 CSnakes.Runtime.Python.PyTensorBuffer<T>
+CSnakes.Runtime.Python.PyTensorBuffer<T>.Lengths.get -> System.ReadOnlySpan<nint>
 CSnakes.Runtime.Python.PyTensorBuffer<T>.this[params System.ReadOnlySpan<nint> indices].get -> T
 CSnakes.Runtime.Python.PyTensorBuffer<T>.this[params System.ReadOnlySpan<nint> indices].set -> void
 CSnakes.Runtime.Python.SpanFunc<T, TArg, TResult>

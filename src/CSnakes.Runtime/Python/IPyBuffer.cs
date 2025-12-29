@@ -24,7 +24,7 @@ public interface IPyBuffer : IDisposable
     /// <summary>
     /// Gets the item type of the values in the buffer.
     /// </summary>
-    [Obsolete]
+    [Obsolete($"Use {nameof(IPyBuffer)}.{nameof(ItemType)} instead.")]
     Type GetItemType() => ItemType;
 
     /// <summary>

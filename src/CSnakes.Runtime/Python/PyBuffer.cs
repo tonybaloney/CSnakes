@@ -13,13 +13,19 @@ namespace CSnakes.Runtime.Python;
 
 public interface IPyBuffer<T> : IPyBuffer where T : unmanaged;
 
-internal class PyBuffer<T>(in CPythonAPI.Py_buffer buffer) : IPyBuffer<T> where T : unmanaged
+public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
 {
-    protected static readonly int ItemSize = Unsafe.SizeOf<T>();
+    private protected static readonly int ItemSize = Unsafe.SizeOf<T>();
 
-    protected readonly int ItemCount = (int)(buffer.len / ItemSize);
+    private protected readonly int ItemCount;
 
-    private CPythonAPI.Py_buffer _buffer = buffer;
+    private CPythonAPI.Py_buffer _buffer;
+
+    internal PyBuffer(in CPythonAPI.Py_buffer buffer)
+    {
+        ItemCount = (int)(buffer.len / ItemSize);
+        _buffer = buffer;
+    }
 
     ~PyBuffer()
     {
@@ -61,7 +67,7 @@ internal class PyBuffer<T>(in CPythonAPI.Py_buffer buffer) : IPyBuffer<T> where 
         _buffer = default;
     }
 
-    protected ref readonly CPythonAPI.Py_buffer Buffer
+    private protected ref readonly CPythonAPI.Py_buffer Buffer
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
@@ -81,7 +87,7 @@ internal class PyBuffer<T>(in CPythonAPI.Py_buffer buffer) : IPyBuffer<T> where 
 
     public Type ItemType => typeof(T);
 
-    protected unsafe ReadOnlySpan<nint> Shape =>
+    private protected unsafe ReadOnlySpan<nint> Shape =>
         _buffer switch
         {
             { shape: not null and var shape, strides: not null, ndim: var ndim } => new ReadOnlySpan<nint>(shape, ndim),
@@ -91,7 +97,7 @@ internal class PyBuffer<T>(in CPythonAPI.Py_buffer buffer) : IPyBuffer<T> where 
     Span<TItemType> IPyBuffer.AsSpan<TItemType>() =>
         typeof(TItemType) != typeof(T)
             ? throw new InvalidOperationException($"Cannot cast buffer of type {typeof(T)} to {typeof(TItemType)}.")
-            : ((IPyArrayBuffer<TItemType>)this).AsSpan();
+            : ((PyArrayBuffer<TItemType>)(IPyBuffer)this).AsSpan();
 
     ReadOnlySpan<TItemType> IPyBuffer.AsReadOnlySpan<TItemType>() =>
         ((IPyBuffer)this).AsSpan<TItemType>();
@@ -99,7 +105,7 @@ internal class PyBuffer<T>(in CPythonAPI.Py_buffer buffer) : IPyBuffer<T> where 
     Span2D<TItemType> IPyBuffer.AsSpan2D<TItemType>() =>
         typeof(TItemType) != typeof(T)
             ? throw new InvalidOperationException($"Cannot cast buffer of type {typeof(T)} to {typeof(TItemType)}.")
-            : ((IPyArray2DBuffer<TItemType>)this).AsSpan2D();
+            : ((PyArray2DBuffer<TItemType>)(IPyBuffer)this).AsSpan2D();
 
     ReadOnlySpan2D<TItemType> IPyBuffer.AsReadOnlySpan2D<TItemType>() =>
         ((IPyBuffer)this).AsSpan2D<TItemType>();
@@ -108,7 +114,7 @@ internal class PyBuffer<T>(in CPythonAPI.Py_buffer buffer) : IPyBuffer<T> where 
     TensorSpan<TItemType> IPyBuffer.AsTensorSpan<TItemType>() =>
         typeof(TItemType) != typeof(T)
             ? throw new InvalidOperationException($"Cannot cast buffer of type {typeof(T)} to {typeof(TItemType)}.")
-            : ((IPyTensorBuffer<TItemType>)this).AsTensorSpan();
+            : ((PyTensorBuffer<TItemType>)(IPyBuffer)this).AsTensorSpan();
 
     ReadOnlyTensorSpan<TItemType> IPyBuffer.AsReadOnlyTensorSpan<TItemType>() =>
         ((IPyBuffer)this).AsTensorSpan<TItemType>();
@@ -118,53 +124,11 @@ internal class PyBuffer<T>(in CPythonAPI.Py_buffer buffer) : IPyBuffer<T> where 
 public delegate TResult SpanFunc<T, out TResult>(ReadOnlySpan<T> span) where T : unmanaged;
 public delegate TResult SpanFunc<T, in TArg, out TResult>(ReadOnlySpan<T> span, TArg arg) where T : unmanaged;
 
-public interface IPyArrayBuffer<T> : IPyBuffer<T>, IMemoryOwner<T> where T : unmanaged
-{
-    internal Span<T> AsSpan();
-
-    T this[int index]
-    {
-        get => AsSpan()[index];
-        set => AsSpan()[index] = value;
-    }
-
-    TResult Map<TResult>(SpanFunc<T, TResult> function) =>
-        function(AsSpan());
-
-    TResult Map<TArg, TResult>(TArg arg, SpanFunc<T, TArg, TResult> function) =>
-        function(AsSpan(), arg);
-
-    void Do<TArg>(TArg arg, SpanAction<T, TArg> action) =>
-        action(AsSpan(), arg);
-
-    void CopyFrom(scoped ReadOnlySpan<T> source)
-    {
-        if (IsReadOnly)
-            throw new InvalidOperationException("Buffer is read-only.");
-
-        source.CopyTo(AsSpan());
-    }
-
-    void CopyTo(scoped Span<T> destination) => AsSpan().CopyTo(destination);
-
-    /// <summary>
-    /// Gets the memory directly underlying the buffer, which is tied to the lifetime of the buffer.
-    /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
-    /// </summary>
-    /// <remarks>
-    /// See <see
-    /// href="https://learn.microsoft.com/en-us/dotnet/standard/memory-and-spans/memory-t-usage-guidelines"><see
-    /// cref="Memory{T}"/> and <see cref="Span{T}"/> usage guidelines</see> for more information.
-    /// </remarks>
-    Memory<T> UnsafeMemory { get; }
-}
-
-internal sealed class PyArrayBuffer<T>(in CPythonAPI.Py_buffer buffer) :
-    PyBuffer<T>(Validate(buffer)),
-    IPyArrayBuffer<T>
-    where T : unmanaged
+public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : unmanaged
 {
     private UnmanagedMemoryManager? _memoryManager;
+
+    internal PyArrayBuffer(in CPythonAPI.Py_buffer buffer) : base(Validate(buffer)) { }
 
     internal static ref readonly CPythonAPI.Py_buffer Validate(in CPythonAPI.Py_buffer buffer)
     {
@@ -177,10 +141,43 @@ internal sealed class PyArrayBuffer<T>(in CPythonAPI.Py_buffer buffer) :
         return ref buffer;
     }
 
-    unsafe Span<T> AsSpan() => new((void*)Buffer.buf, ItemCount);
+    public T this[int index]
+    {
+        get => AsSpan()[index];
+        set => AsSpan()[index] = value;
+    }
 
-    Span<T> IPyArrayBuffer<T>.AsSpan() => AsSpan();
+    public TResult Map<TResult>(SpanFunc<T, TResult> function) =>
+        function(AsSpan());
 
+    public TResult Map<TArg, TResult>(TArg arg, SpanFunc<T, TArg, TResult> function) =>
+        function(AsSpan(), arg);
+
+    public void Do<TArg>(TArg arg, SpanAction<T, TArg> action) =>
+        action(AsSpan(), arg);
+
+    public void CopyFrom(scoped ReadOnlySpan<T> source)
+    {
+        if (IsReadOnly)
+            throw new InvalidOperationException("Buffer is read-only.");
+
+        source.CopyTo(AsSpan());
+    }
+
+    public void CopyTo(scoped Span<T> destination) => AsSpan().CopyTo(destination);
+
+    // TODO Mark `PyArrayBuffer<T>.AsSpan` private when `IPyBuffer<T>.AsSpan<T>` is removed
+    internal unsafe Span<T> AsSpan() => new((void*)Buffer.buf, ItemCount);
+
+    /// <summary>
+    /// Gets the memory directly underlying the buffer, which is tied to the lifetime of the buffer.
+    /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
+    /// </summary>
+    /// <remarks>
+    /// See <see
+    /// href="https://learn.microsoft.com/en-us/dotnet/standard/memory-and-spans/memory-t-usage-guidelines"><see
+    /// cref="Memory{T}"/> and <see cref="Span{T}"/> usage guidelines</see> for more information.
+    /// </remarks>
     public Memory<T> UnsafeMemory => (_memoryManager ??= new UnmanagedMemoryManager(this)).Memory;
 
     Memory<T> IMemoryOwner<T>.Memory => UnsafeMemory;
@@ -215,33 +212,10 @@ internal sealed class PyArrayBuffer<T>(in CPythonAPI.Py_buffer buffer) :
     }
 }
 
-public interface IPyArray2DBuffer<T> : IPyBuffer<T> where T : unmanaged
+public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
 {
-    internal Span2D<T> AsSpan2D();
+    internal PyArray2DBuffer(in CPythonAPI.Py_buffer buffer) : base(Validate(buffer)) { }
 
-    T this[int row, int column]
-    {
-        get => AsSpan2D()[row, column];
-        set => AsSpan2D()[row, column] = value;
-    }
-
-    void CopyFrom(scoped ReadOnlySpan2D<T> source)
-    {
-        if (IsReadOnly)
-            throw new InvalidOperationException("Buffer is read-only.");
-
-        source.CopyTo(AsSpan2D());
-    }
-
-    void CopyTo(scoped Span<T> destination) => AsSpan2D().CopyTo(destination);
-    void CopyTo(scoped Span2D<T> destination) => AsSpan2D().CopyTo(destination);
-}
-
-internal sealed class PyArray2DBuffer<T>(in CPythonAPI.Py_buffer buffer) :
-    PyBuffer<T>(Validate(buffer)),
-    IPyArray2DBuffer<T>
-    where T : unmanaged
-{
     private static ref readonly CPythonAPI.Py_buffer Validate(in CPythonAPI.Py_buffer buffer)
     {
         _ = PyArrayBuffer<T>.Validate(buffer);
@@ -261,7 +235,25 @@ internal sealed class PyArray2DBuffer<T>(in CPythonAPI.Py_buffer buffer) :
         return ref buffer;
     }
 
-    unsafe Span2D<T> IPyArray2DBuffer<T>.AsSpan2D()
+    public T this[int row, int column]
+    {
+        get => AsSpan2D()[row, column];
+        set => AsSpan2D()[row, column] = value;
+    }
+
+    public void CopyFrom(scoped ReadOnlySpan2D<T> source)
+    {
+        if (IsReadOnly)
+            throw new InvalidOperationException("Buffer is read-only.");
+
+        source.CopyTo(AsSpan2D());
+    }
+
+    public void CopyTo(scoped Span<T> destination) => AsSpan2D().CopyTo(destination);
+    public void CopyTo(scoped Span2D<T> destination) => AsSpan2D().CopyTo(destination);
+
+    // TODO Mark `PyArray2DBuffer<T>.AsSpan` private when `IPyBuffer<T>.AsSpan2D<T>` is removed
+    internal unsafe Span2D<T> AsSpan2D()
     {
         ref readonly var buffer = ref Buffer;
         return new((void*)buffer.buf,
@@ -273,25 +265,11 @@ internal sealed class PyArray2DBuffer<T>(in CPythonAPI.Py_buffer buffer) :
 
 #if NET9_0_OR_GREATER
 
-public interface IPyTensorBuffer<T> : IPyBuffer<T> where T : unmanaged
-{
-    internal TensorSpan<T> AsTensorSpan();
-
-    T this[params scoped ReadOnlySpan<nint> indices]
-    {
-        get => AsTensorSpan()[indices];
-        set => AsTensorSpan()[indices] = value;
-    }
-}
-
-internal sealed class PyTensorBuffer<T> :
-    PyBuffer<T>,
-    IPyTensorBuffer<T>
-    where T : unmanaged
+public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
 {
     private readonly nint[] strides;
 
-    public PyTensorBuffer(in CPythonAPI.Py_buffer buffer) : base(Validate(buffer))
+    internal PyTensorBuffer(in CPythonAPI.Py_buffer buffer) : base(Validate(buffer))
     {
         this.strides = new nint[buffer.ndim];
         for (var i = 0; i < buffer.ndim; i++)
@@ -318,7 +296,14 @@ internal sealed class PyTensorBuffer<T> :
         return ref buffer;
     }
 
-    unsafe TensorSpan<T> IPyTensorBuffer<T>.AsTensorSpan()
+    public T this[params scoped ReadOnlySpan<nint> indices]
+    {
+        get => AsTensorSpan()[indices];
+        set => AsTensorSpan()[indices] = value;
+    }
+
+    // TODO Mark `PyTensorBuffer<T>.AsTensorSpan` private when `IPyBuffer<T>.AsTensorSpan<T>` is removed
+    internal unsafe TensorSpan<T> AsTensorSpan()
     {
         ref readonly var buffer = ref Buffer;
         return new((T*)buffer.buf, ItemCount, Shape, this.strides);

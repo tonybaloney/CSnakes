@@ -2,27 +2,34 @@
 CSnakes.Runtime.Locators.RedistributablePythonVersion.<Clone>$() -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
 CSnakes.Runtime.Locators.RedistributablePythonVersion.Equals(CSnakes.Runtime.Locators.RedistributablePythonVersion? other) -> bool
 CSnakes.Runtime.IPythonEnvironmentBuilder.CapturePythonLogs() -> CSnakes.Runtime.IPythonEnvironmentBuilder!
-CSnakes.Runtime.Python.IPyArray2DBuffer<T>
-CSnakes.Runtime.Python.IPyArray2DBuffer<T>.CopyFrom(scoped CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> source) -> void
-CSnakes.Runtime.Python.IPyArray2DBuffer<T>.CopyTo(scoped CommunityToolkit.HighPerformance.Span2D<T> destination) -> void
-CSnakes.Runtime.Python.IPyArray2DBuffer<T>.CopyTo(scoped System.Span<T> destination) -> void
-CSnakes.Runtime.Python.IPyArray2DBuffer<T>.this[int row, int column].get -> T
-CSnakes.Runtime.Python.IPyArray2DBuffer<T>.this[int row, int column].set -> void
-CSnakes.Runtime.Python.IPyArrayBuffer<T>
-CSnakes.Runtime.Python.IPyArrayBuffer<T>.CopyFrom(scoped System.ReadOnlySpan<T> source) -> void
-CSnakes.Runtime.Python.IPyArrayBuffer<T>.CopyTo(scoped System.Span<T> destination) -> void
-CSnakes.Runtime.Python.IPyArrayBuffer<T>.Do<TArg>(TArg arg, System.Buffers.SpanAction<T, TArg>! action) -> void
-CSnakes.Runtime.Python.IPyArrayBuffer<T>.Map<TArg, TResult>(TArg arg, CSnakes.Runtime.Python.SpanFunc<T, TArg, TResult>! function) -> TResult
-CSnakes.Runtime.Python.IPyArrayBuffer<T>.Map<TResult>(CSnakes.Runtime.Python.SpanFunc<T, TResult>! function) -> TResult
-CSnakes.Runtime.Python.IPyArrayBuffer<T>.this[int index].get -> T
-CSnakes.Runtime.Python.IPyArrayBuffer<T>.this[int index].set -> void
-CSnakes.Runtime.Python.IPyArrayBuffer<T>.UnsafeMemory.get -> System.Memory<T>
+CSnakes.Runtime.Python.PyArray2DBuffer<T>
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyFrom(scoped CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> source) -> void
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyTo(scoped CommunityToolkit.HighPerformance.Span2D<T> destination) -> void
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyTo(scoped System.Span<T> destination) -> void
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.this[int row, int column].get -> T
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.this[int row, int column].set -> void
+CSnakes.Runtime.Python.PyArrayBuffer<T>
+CSnakes.Runtime.Python.PyArrayBuffer<T>.CopyFrom(scoped System.ReadOnlySpan<T> source) -> void
+CSnakes.Runtime.Python.PyArrayBuffer<T>.CopyTo(scoped System.Span<T> destination) -> void
+CSnakes.Runtime.Python.PyArrayBuffer<T>.Do<TArg>(TArg arg, System.Buffers.SpanAction<T, TArg>! action) -> void
+CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TArg, TResult>(TArg arg, CSnakes.Runtime.Python.SpanFunc<T, TArg, TResult>! function) -> TResult
+CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TResult>(CSnakes.Runtime.Python.SpanFunc<T, TResult>! function) -> TResult
+CSnakes.Runtime.Python.PyArrayBuffer<T>.this[int index].get -> T
+CSnakes.Runtime.Python.PyArrayBuffer<T>.this[int index].set -> void
+CSnakes.Runtime.Python.PyArrayBuffer<T>.UnsafeMemory.get -> System.Memory<T>
 CSnakes.Runtime.Python.IPyBuffer.IsReadOnly.get -> bool
 CSnakes.Runtime.Python.IPyBuffer.ItemType.get -> System.Type!
 CSnakes.Runtime.Python.IPyBuffer<T>
-CSnakes.Runtime.Python.IPyTensorBuffer<T>
-CSnakes.Runtime.Python.IPyTensorBuffer<T>.this[params System.ReadOnlySpan<nint> indices].get -> T
-CSnakes.Runtime.Python.IPyTensorBuffer<T>.this[params System.ReadOnlySpan<nint> indices].set -> void
+CSnakes.Runtime.Python.PyBuffer<T>
+CSnakes.Runtime.Python.PyBuffer<T>.Dimensions.get -> int
+CSnakes.Runtime.Python.PyBuffer<T>.Dispose() -> void
+CSnakes.Runtime.Python.PyBuffer<T>.IsReadOnly.get -> bool
+CSnakes.Runtime.Python.PyBuffer<T>.IsScalar.get -> bool
+CSnakes.Runtime.Python.PyBuffer<T>.ItemType.get -> System.Type!
+CSnakes.Runtime.Python.PyBuffer<T>.Length.get -> long
+CSnakes.Runtime.Python.PyTensorBuffer<T>
+CSnakes.Runtime.Python.PyTensorBuffer<T>.this[params System.ReadOnlySpan<nint> indices].get -> T
+CSnakes.Runtime.Python.PyTensorBuffer<T>.this[params System.ReadOnlySpan<nint> indices].set -> void
 CSnakes.Runtime.Python.SpanFunc<T, TArg, TResult>
 CSnakes.Runtime.Python.SpanFunc<T, TResult>
 CSnakes.Runtime.PythonLogger

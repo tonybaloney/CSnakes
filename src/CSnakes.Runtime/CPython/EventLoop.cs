@@ -274,6 +274,9 @@ internal sealed class EventLoop : IDisposable
                                 var coroTask = new CoroutineTask(pyTask);
                                 disposable = coroTask; // yield ownership
 
+                                using (var addDoneCallbackMethod = pyTask.GetAttr("add_done_callback"))
+                                    _ = addDoneCallbackMethod.Call(this.taskLoopStopFunction);
+
                                 if (request.CancellationToken is { CanBeCanceled: true } cancellationToken)
                                 {
                                     cancellationRegistration = cancellationToken.Register(
@@ -282,9 +285,6 @@ internal sealed class EventLoop : IDisposable
 
                                     coroTask.SetCancellationRegistration(cancellationRegistration);
                                 }
-
-                                using (var addDoneCallbackMethod = pyTask.GetAttr("add_done_callback"))
-                                    _ = addDoneCallbackMethod.Call(this.taskLoopStopFunction);
 
                                 // Create a "TaskCompletionSource" to represent the task on the
                                 // .NET side and add it to the list of tasks.

@@ -22,7 +22,9 @@ def test_coroutine_bare(seconds: float = 0.1) -> Coroutine[None, None, int]:
 
 
 async def test_coroutine_self_canceling():
-    _ = asyncio.current_task().cancel()
+    task = asyncio.current_task()
+    assert task
+    _ = task.cancel()
     return 42
 
 

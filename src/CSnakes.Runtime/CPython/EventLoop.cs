@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace CSnakes.Runtime.CPython;
+
 internal sealed class EventLoop : IDisposable
 {
     private bool disposed;
@@ -64,6 +65,7 @@ internal sealed class EventLoop : IDisposable
         private readonly PyObject pyTask = pyTask;
         private PyObject? doneMethod;
         private CancellationToken cancellationToken;
+        private CancellationTokenRegistration cancellationRegistration;
 
         public TaskCompletionSource<PyObject> CompletionSource { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -76,15 +78,27 @@ internal sealed class EventLoop : IDisposable
 
         public void Dispose()
         {
+            this.cancellationRegistration.Dispose();
             this.doneMethod?.Dispose();
             this.pyTask.Dispose();
         }
 
         public void Cancel(CancellationToken cancellationToken = default)
         {
+            this.cancellationRegistration.Dispose();
+
+            if (this.pyTask.IsClosed)
+                // Handles a race condition where the task is already done but the cancellation for it was scheduled.
+                return;
+
             using var cancelMethod = pyTask.GetAttr("cancel");
             cancelMethod.Call().Dispose();
             this.cancellationToken = cancellationToken;
+        }
+
+        public void SetCancellationRegistration(CancellationTokenRegistration registration)
+        {
+            this.cancellationRegistration = registration;
         }
 
         public bool Conclude()
@@ -233,77 +247,79 @@ internal sealed class EventLoop : IDisposable
                     switch (poppedRequest, state)
                     {
                         case (ScheduleRequest request, RunState.Stopping):
-                        {
-                            // Cancel any request to schedule a coroutine if the event loop is
-                            // stopping.
+                            {
+                                // Cancel any request to schedule a coroutine if the event loop is
+                                // stopping.
 
-                            request.CompletionSource.SetCanceled();
-                            break;
-                        }
+                                request.CompletionSource.SetCanceled();
+                                break;
+                            }
                         case (ScheduleRequest { CancellationToken.IsCancellationRequested: true } request, _):
-                        {
-                            // Cancel any request to schedule a coroutine if the task cancellation
-                            // token is triggered.
+                            {
+                                // Cancel any request to schedule a coroutine if the task cancellation
+                                // token is triggered.
 
-                            request.CompletionSource.SetCanceled(request.CancellationToken);
-                            break;
-                        }
+                                request.CompletionSource.SetCanceled(request.CancellationToken);
+                                break;
+                            }
                         case (ScheduleRequest request, RunState.Running):
-                        {
-                            // Create a task and add a done callback to it that will stop
-                            // the event loop when the task is done.
-
-                            var pyTask = this.methods.CreateTask.Call(request.Coroutine);
-                            IDisposable? disposable = pyTask;
-
-                            try
                             {
-                                var coroTask = new CoroutineTask(pyTask);
-                                disposable = coroTask; // yield ownership
+                                // Create a task and add a done callback to it that will stop
+                                // the event loop when the task is done.
 
-                                using (var addDoneCallbackMethod = pyTask.GetAttr("add_done_callback"))
-                                    _ = addDoneCallbackMethod.Call(this.taskLoopStopFunction);
+                                var pyTask = this.methods.CreateTask.Call(request.Coroutine);
+                                IDisposable? disposable = pyTask;
+                                CancellationTokenRegistration cancellationRegistration = default;
 
-                                if (request.CancellationToken is { CanBeCanceled: true } cancellationToken)
+                                try
                                 {
-                                    _ = cancellationToken.Register(() =>
-                                        Enqueue(new CancelRequest(coroTask, cancellationToken)));
+                                    var coroTask = new CoroutineTask(pyTask);
+                                    disposable = coroTask; // yield ownership
+
+                                    if (request.CancellationToken is { CanBeCanceled: true } cancellationToken)
+                                    {
+                                        cancellationRegistration = cancellationToken.Register(
+                                            () => Enqueue(new CancelRequest(coroTask, cancellationToken)),
+                                            useSynchronizationContext: false);
+
+                                        coroTask.SetCancellationRegistration(cancellationRegistration);
+                                    }
+
+                                    using (var addDoneCallbackMethod = pyTask.GetAttr("add_done_callback"))
+                                        _ = addDoneCallbackMethod.Call(this.taskLoopStopFunction);
+
+                                    // Create a "TaskCompletionSource" to represent the task on the
+                                    // .NET side and add it to the list of tasks.
+
+                                    coroTasks.Add(coroTask);
+
+                                    // Signal that the task was successfully scheduled.
+
+                                    request.CompletionSource.SetResult(coroTask.CompletionSource);
                                 }
+                                catch (Exception ex)
+                                {
+                                    // If the task could not be scheduled, set the exception.
 
-                                // Create a "TaskCompletionSource" to represent the task on the
-                                // .NET side and add it to the list of tasks.
+                                    request.CompletionSource.SetException(ex);
 
-                                coroTasks.Add(coroTask);
-                                disposable = null; // yield ownership
-
-                                // Signal that the task was successfully scheduled.
-
-                                request.CompletionSource.SetResult(coroTask.CompletionSource);
+                                    cancellationRegistration.Dispose();
+                                    disposable?.Dispose();
+                                }
+                                break;
                             }
-                            catch (Exception ex)
-                            {
-                                // If the task could not be scheduled, set the exception.
-
-                                request.CompletionSource.SetException(ex);
-                            }
-                            finally
-                            {
-                                disposable?.Dispose();
-                            }
-                            break;
-                        }
                         case (CancelRequest request, _):
-                        {
-                            request.Task.Cancel(request.CancellationToken);
-                            break;
-                        }
+                            {
+                                request.Task.Cancel(request.CancellationToken);
+                                break;
+                            }
                         case (StopRequest, RunState.Running):
-                        {
-                            state = RunState.Stopping;
-                            foreach (var task in coroTasks)
-                                task.Cancel();
-                            break;
-                        }
+                            {
+                                state = RunState.Stopping;
+                                foreach (var task in coroTasks)
+                                    task.Cancel();
+                                break;
+                            }
                     }
                 }
             }

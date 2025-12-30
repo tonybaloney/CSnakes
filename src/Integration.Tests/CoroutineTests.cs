@@ -30,6 +30,47 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
     }
 
     [Fact]
+    public async Task SequentialCoroutinesWithCompletedCancellation()
+    {
+        var mod = Env.TestCoroutines();
+
+        using CancellationTokenSource cts = new();
+
+        // First call should complete successfully
+        _ = await mod.TestCoroutine(seconds: 0, cancellationToken: cts.Token);
+
+        cts.Cancel();
+
+        // Second call should be cancelled immediately (implicitly tests that the event loop is still functional)
+        _ = await Assert.ThrowsAsync<TaskCanceledException>(() => mod.TestCoroutine(cancellationToken: cts.Token));
+    }
+
+    [Fact]
+    public async Task SequentialCoroutinesWithErrorCancellation()
+    {
+        var mod = Env.TestCoroutines();
+
+        using CancellationTokenSource cts = new();
+
+        // First call should error
+        _ = await Assert.ThrowsAsync<PythonInvocationException>(() => mod.TestCoroutineRaisesException(cancellationToken: cts.Token));
+
+        cts.Cancel();
+
+        // Second call should be cancelled immediately (implicitly tests that the event loop is still functional)
+        _ = await Assert.ThrowsAsync<TaskCanceledException>(() => mod.TestCoroutineRaisesException(cancellationToken: cts.Token));
+    }
+
+    [Fact]
+    public async Task CoroutineThatSelfCancels()
+    {
+        var mod = Env.TestCoroutines();
+        var task = mod.TestCoroutineSelfCanceling(cancellationToken: TestContext.Current.CancellationToken);
+        _ = await Assert.ThrowsAsync<TaskCanceledException>(async () => await task);
+        Assert.Equal(TaskStatus.Canceled, task.Status);
+    }
+
+    [Fact]
     public async Task MultipleCoroutineCallsIsParallel()
     {
         var mod = Env.TestCoroutines();

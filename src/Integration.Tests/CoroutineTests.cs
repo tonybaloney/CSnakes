@@ -36,13 +36,22 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
 
         using CancellationTokenSource cts = new();
 
-        // First call should complete successfully
-        _ = await mod.TestCoroutine(seconds: 0, cancellationToken: cts.Token);
+        async Task RunAsync()
+        {
+            _ = await mod.TestCoroutine(seconds: 0, cancellationToken: cts.Token)
+                         .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+        }
+
+        // First call should complete successfully.
+
+        await RunAsync();
 
         cts.Cancel();
 
-        // Second call should be cancelled immediately (implicitly tests that the event loop is still functional)
-        _ = await Assert.ThrowsAsync<TaskCanceledException>(() => mod.TestCoroutine(cancellationToken: cts.Token));
+        // Second call should be cancelled immediately (implicitly tests that
+        // the event loop is still functional).
+
+        await Assert.ThrowsAsync<TaskCanceledException>(() => RunAsync());
     }
 
     [Fact]
@@ -52,21 +61,30 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
 
         using CancellationTokenSource cts = new();
 
-        // First call should error
-        _ = await Assert.ThrowsAsync<PythonInvocationException>(() => mod.TestCoroutineRaisesException(cancellationToken: cts.Token));
+        async Task RunAsync()
+        {
+            _ = await mod.TestCoroutineRaisesException(cancellationToken: cts.Token)
+                         .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+        }
+
+        // First call should throw an error.
+
+        await Assert.ThrowsAsync<PythonInvocationException>(() => RunAsync());
 
         cts.Cancel();
 
-        // Second call should be cancelled immediately (implicitly tests that the event loop is still functional)
-        _ = await Assert.ThrowsAsync<TaskCanceledException>(() => mod.TestCoroutineRaisesException(cancellationToken: cts.Token));
+        // Second call should be cancelled immediately (implicitly tests that
+        // the event loop is still functional).
+
+        await Assert.ThrowsAsync<TaskCanceledException>(() => RunAsync());
     }
 
     [Fact]
     public async Task CoroutineThatSelfCancels()
     {
         var mod = Env.TestCoroutines();
-        var task = mod.TestCoroutineSelfCanceling(cancellationToken: TestContext.Current.CancellationToken);
-        _ = await Assert.ThrowsAsync<TaskCanceledException>(async () => await task);
+        var task = mod.TestCoroutineSelfCanceling(TestContext.Current.CancellationToken);
+        await Assert.ThrowsAsync<TaskCanceledException>(() => task);
         Assert.Equal(TaskStatus.Canceled, task.Status);
     }
 

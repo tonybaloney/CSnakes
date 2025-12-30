@@ -88,7 +88,8 @@ internal sealed class EventLoop : IDisposable
             this.cancellationRegistration.Dispose();
 
             if (this.pyTask.IsClosed)
-                // Handles a race condition where the task is already done but the cancellation for it was scheduled.
+                // Handles a race condition where the task is already done but the
+                // cancellation for it was scheduled.
                 return;
 
             using var cancelMethod = pyTask.GetAttr("cancel");
@@ -96,10 +97,8 @@ internal sealed class EventLoop : IDisposable
             this.cancellationToken = cancellationToken;
         }
 
-        public void SetCancellationRegistration(CancellationTokenRegistration registration)
-        {
+        public void SetCancellationRegistration(CancellationTokenRegistration registration) =>
             this.cancellationRegistration = registration;
-        }
 
         public bool Conclude()
         {
@@ -302,6 +301,8 @@ internal sealed class EventLoop : IDisposable
                                     // If the task could not be scheduled, set the exception.
 
                                     request.CompletionSource.SetException(ex);
+
+                                    // Clean up any resources allocated for the task.
 
                                     cancellationRegistration.Dispose();
                                     disposable?.Dispose();

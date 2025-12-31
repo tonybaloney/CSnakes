@@ -52,32 +52,6 @@ internal sealed class EventLoop : IDisposable
         public CancellationToken CancellationToken { get; } = cancellationToken;
     }
 
-    private sealed class ScheduledTask(CoroutineTask task, CancellationTokenRegistration cancellationRegistration) : IDisposable
-    {
-        public CoroutineTask Task { get; } = task;
-
-        public void Cancel(CancellationToken cancellationToken)
-        {
-            cancellationRegistration.Dispose();
-            Task.Cancel(cancellationToken);
-        }
-
-        public bool Conclude()
-        {
-            if (!Task.Conclude())
-                return false;
-
-            Dispose();
-            return true;
-        }
-
-        public void Dispose()
-        {
-            cancellationRegistration.Dispose();
-            Task.Dispose();
-        }
-    }
-
     private sealed class StopRequest : Request
     {
         public static readonly StopRequest Instance = new();
@@ -90,6 +64,8 @@ internal sealed class EventLoop : IDisposable
         private readonly PyObject pyTask = pyTask;
         private PyObject? doneMethod;
         private CancellationToken cancellationToken;
+
+        public event Action<CoroutineTask>? Completed;
 
         public TaskCompletionSource<PyObject> CompletionSource { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -118,6 +94,7 @@ internal sealed class EventLoop : IDisposable
             if (ProcessConclusion() == TaskStatus.Running)
                 return false;
 
+            this.Completed?.Invoke(this);
             Dispose();
             return true;
         }
@@ -239,7 +216,7 @@ internal sealed class EventLoop : IDisposable
     private void RunForever()
     {
         var state = RunState.Running;
-        var scheduledTasks = new List<ScheduledTask>();
+        var coroTasks = new List<CoroutineTask>();
 
         do
         {
@@ -298,13 +275,18 @@ internal sealed class EventLoop : IDisposable
                                         useSynchronizationContext: false);
                                 }
 
-                                var scheduledTask = new ScheduledTask(coroTask, cancellationRegistration);
-                                disposable = scheduledTask; // yield ownership
+                                void OnTaskCompleted(CoroutineTask task)
+                                {
+                                    task.Completed -= OnTaskCompleted;
+                                    cancellationRegistration.Dispose();
+                                }
+
+                                coroTask.Completed += OnTaskCompleted;
 
                                 // Create a "TaskCompletionSource" to represent the task on the
                                 // .NET side and add it to the list of tasks.
 
-                                scheduledTasks.Add(scheduledTask);
+                                coroTasks.Add(coroTask);
 
                                 // Signal that the task was successfully scheduled.
 
@@ -325,14 +307,13 @@ internal sealed class EventLoop : IDisposable
                         }
                         case (CancelRequest request, _):
                         {
-                            var scheduled = scheduledTasks.Find(t => ReferenceEquals(t.Task, request.Task));
-                            scheduled?.Cancel(request.CancellationToken);
+                            coroTasks.Find(t => ReferenceEquals(t, request.Task))?.Cancel(request.CancellationToken);
                             break;
                         }
                         case (StopRequest, RunState.Running):
                         {
                             state = RunState.Stopping;
-                            foreach (var task in scheduledTasks)
+                            foreach (var task in coroTasks)
                                 task.Cancel(CancellationToken.None);
                             break;
                         }
@@ -340,9 +321,9 @@ internal sealed class EventLoop : IDisposable
                 }
             }
 
-            _ = scheduledTasks.RemoveAll(t => t.Conclude());
+            _ = coroTasks.RemoveAll(t => t.Conclude());
         }
-        while (state is RunState.Running || scheduledTasks.Count > 0);
+        while (state is RunState.Running || coroTasks.Count > 0);
     }
 
     private struct Methods(PyObject loop) : IDisposable

@@ -61,7 +61,7 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
 
         Task RunAsync() => mod.TestCoroutineRaisesException(cancellationToken: cts.Token)
                               .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
-    
+
         // First call should throw an error.
 
         await Assert.ThrowsAsync<PythonInvocationException>(() => RunAsync());

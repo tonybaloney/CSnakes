@@ -65,7 +65,8 @@ internal sealed class EventLoop : IDisposable
         private PyObject? doneMethod;
         private CancellationToken cancellationToken;
 
-        public event Action<CoroutineTask>? Completed;
+        public enum LifecycleEvent { CancellationRequested, Completed }
+        public event Action<CoroutineTask, LifecycleEvent>? LifecycleChanged;
 
         public TaskCompletionSource<PyObject> CompletionSource { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -76,6 +77,8 @@ internal sealed class EventLoop : IDisposable
         /// </remarks>
         private PyObject DoneMethod => this.doneMethod ??= pyTask.GetAttr("done");
 
+        private bool HasCompleted => this.pyTask.IsClosed;
+
         public void Dispose()
         {
             this.doneMethod?.Dispose();
@@ -84,6 +87,11 @@ internal sealed class EventLoop : IDisposable
 
         public void Cancel(CancellationToken cancellationToken = default)
         {
+            if (HasCompleted)
+                return;
+
+            LifecycleChanged?.Invoke(this, LifecycleEvent.CancellationRequested);
+
             using var cancelMethod = pyTask.GetAttr("cancel");
             cancelMethod.Call().Dispose();
             this.cancellationToken = cancellationToken;
@@ -94,14 +102,15 @@ internal sealed class EventLoop : IDisposable
             if (ProcessConclusion() == TaskStatus.Running)
                 return false;
 
-            this.Completed?.Invoke(this);
+            LifecycleChanged?.Invoke(this, LifecycleEvent.Completed);
+
             Dispose();
             return true;
         }
 
         private TaskStatus ProcessConclusion()
         {
-            if (this.pyTask.IsClosed)
+            if (HasCompleted)
                 return CompletionSource.Task.Status;
 
             // If the task is not done yet, return without doing anything.
@@ -273,15 +282,13 @@ internal sealed class EventLoop : IDisposable
                                     cancellationRegistration = cancellationToken.Register(
                                         () => Enqueue(new CancelRequest(coroTask, cancellationToken)),
                                         useSynchronizationContext: false);
-                                }
 
-                                void OnTaskCompleted(CoroutineTask task)
-                                {
-                                    task.Completed -= OnTaskCompleted;
-                                    cancellationRegistration.Dispose();
+                                    coroTask.LifecycleChanged += (_, state) =>
+                                    {
+                                        if (state == CoroutineTask.LifecycleEvent.CancellationRequested || state == CoroutineTask.LifecycleEvent.Completed)
+                                            cancellationRegistration.Dispose();
+                                    };
                                 }
-
-                                coroTask.Completed += OnTaskCompleted;
 
                                 // Create a "TaskCompletionSource" to represent the task on the
                                 // .NET side and add it to the list of tasks.
@@ -307,7 +314,7 @@ internal sealed class EventLoop : IDisposable
                         }
                         case (CancelRequest request, _):
                         {
-                            coroTasks.Find(t => ReferenceEquals(t, request.Task))?.Cancel(request.CancellationToken);
+                            request.Task.Cancel(request.CancellationToken);
                             break;
                         }
                         case (StopRequest, RunState.Running):

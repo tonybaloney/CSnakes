@@ -222,6 +222,7 @@ internal unsafe partial class CPythonAPI : IDisposable
         // Clean-up interns
         NewEventLoopFactory?.Dispose();
         EnsureFutureFunction?.Dispose();
+        LoopKeyword?.Dispose();
         AsyncioModule?.Dispose();
         // TODO: Add more cleanup code here
 

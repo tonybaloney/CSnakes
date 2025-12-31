@@ -13,6 +13,7 @@ internal unsafe partial class CPythonAPI
     private static PyObject? AsyncioModule = null;
     private static PyObject? NewEventLoopFactory = null;
     private static PyObject? EnsureFutureFunction;
+    private static PyObject? LoopKeyword;
 
     internal static EventLoop GetDefaultEventLoop()
     {
@@ -43,7 +44,7 @@ internal unsafe partial class CPythonAPI
         EnsureFutureFunction switch
         {
             null => throw new InvalidOperationException($"{nameof(EnsureFutureFunction)} not initialized."),
-            var some => some.Call([obj], [new KeywordArg("loop", loop)]),
+            var some => some.Call([obj], [new KeywordArg(LoopKeyword ??= PyObject.From("loop"), loop)])
         };
 
     internal static PyObject NewEventLoop() =>

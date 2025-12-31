@@ -399,7 +399,7 @@ public partial class PyObject : SafeHandle, ICloneable
 
         var kwargs =
             from e in kwnames.Zip(kwvalues)
-            select new KeywordArg(e.First, e.Second);
+            select new KeywordArg(From(e.First), e.Second);
 
         return Call(args, kwargs.ToArray());
     }
@@ -567,14 +567,14 @@ public partial class PyObject : SafeHandle, ICloneable
         RaiseOnPythonNotInitialized();
 
         var argMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
+        var keywordMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[kwargs.Length];
         var kwargMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[kwargs.Length];
         var argHandles = args.Length < 16
             ? stackalloc IntPtr[args.Length]
             : new IntPtr[args.Length];
-        var names = new InlineArray16<string>();
-        Span<string> kwargNames = kwargs.Length <= 16
-            ? names[..kwargs.Length]
-            : new string[kwargs.Length];
+        var kwargNames = kwargs.Length <= 16
+            ? stackalloc IntPtr[kwargs.Length]
+            : new IntPtr[kwargs.Length];
         var kwargHandles = kwargs.Length < 16
             ? stackalloc IntPtr[kwargs.Length]
             : new IntPtr[kwargs.Length];
@@ -587,10 +587,13 @@ public partial class PyObject : SafeHandle, ICloneable
         }
         for (int i = 0; i < kwargs.Length; i++)
         {
+            ref var k = ref keywordMarshallers[i];
+            k.FromManaged(kwargs[i].Name);
+            kwargNames[i] = k.ToUnmanaged();
+
             ref var m = ref kwargMarshallers[i];
             m.FromManaged(kwargs[i].Value);
             kwargHandles[i] = m.ToUnmanaged();
-            kwargNames[i] = kwargs[i].Name;
         }
 
         try
@@ -603,6 +606,10 @@ public partial class PyObject : SafeHandle, ICloneable
         finally
         {
             foreach (var m in argMarshallers)
+            {
+                m.Free();
+            }
+            foreach (var m in keywordMarshallers)
             {
                 m.Free();
             }

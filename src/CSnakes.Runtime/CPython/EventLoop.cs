@@ -65,6 +65,9 @@ internal sealed class EventLoop : IDisposable
         private PyObject? doneMethod;
         private CancellationToken cancellationToken;
 
+        public enum LifecycleChangeKind { Canceling, Completed }
+        public event Action<Future, LifecycleChangeKind>? LifecycleChange;
+
         public TaskCompletionSource<PyObject> CompletionSource { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         /// <remarks>
@@ -74,6 +77,8 @@ internal sealed class EventLoop : IDisposable
         /// </remarks>
         private PyObject DoneMethod => this.doneMethod ??= pyFuture.GetAttr("done");
 
+        private bool HasCompleted => this.pyFuture.IsClosed;
+
         public void Dispose()
         {
             this.doneMethod?.Dispose();
@@ -82,6 +87,11 @@ internal sealed class EventLoop : IDisposable
 
         public void Cancel(CancellationToken cancellationToken = default)
         {
+            if (HasCompleted)
+                return;
+
+            LifecycleChange?.Invoke(this, LifecycleChangeKind.Canceling);
+
             using var cancelMethod = pyFuture.GetAttr("cancel");
             cancelMethod.Call().Dispose();
             this.cancellationToken = cancellationToken;
@@ -92,13 +102,15 @@ internal sealed class EventLoop : IDisposable
             if (ProcessConclusion() == TaskStatus.Running)
                 return false;
 
+            LifecycleChange?.Invoke(this, LifecycleChangeKind.Completed);
+
             Dispose();
             return true;
         }
 
         private TaskStatus ProcessConclusion()
         {
-            if (this.pyFuture.IsClosed)
+            if (HasCompleted)
                 return CompletionSource.Task.Status;
 
             // If the future is not done yet, return without doing anything.
@@ -267,7 +279,8 @@ internal sealed class EventLoop : IDisposable
                                 break;
                             }
 
-                            IDisposable? disposable = pyFuture;
+                            IDisposable disposable = pyFuture;
+                            CancellationTokenRegistration cancellationRegistration = default;
 
                             try
                             {
@@ -279,15 +292,21 @@ internal sealed class EventLoop : IDisposable
 
                                 if (request.CancellationToken is { CanBeCanceled: true } cancellationToken)
                                 {
-                                    _ = cancellationToken.Register(() =>
-                                        Enqueue(new CancelRequest(future, cancellationToken)));
+                                    cancellationRegistration =
+                                        cancellationToken.Register(() => Enqueue(new CancelRequest(future, cancellationToken)),
+                                                                   useSynchronizationContext: false);
+
+                                    future.LifecycleChange += (_, kind) =>
+                                    {
+                                        if (kind is Future.LifecycleChangeKind.Canceling or Future.LifecycleChangeKind.Completed)
+                                            cancellationRegistration.Dispose();
+                                    };
                                 }
 
                                 // Create a "TaskCompletionSource" to represent the future on the
                                 // .NET side and add it to the list of futures.
 
                                 futures.Add(future);
-                                disposable = null; // yield ownership
 
                                 // Signal that the future was successfully scheduled.
 
@@ -298,10 +317,11 @@ internal sealed class EventLoop : IDisposable
                                 // If the future could not be setup, set the exception.
 
                                 request.CompletionSource.SetException(ex);
-                            }
-                            finally
-                            {
-                                disposable?.Dispose();
+
+                                // Clean up any resources allocated for the future.
+
+                                cancellationRegistration.Dispose();
+                                disposable.Dispose();
                             }
                             break;
                         }
@@ -314,7 +334,7 @@ internal sealed class EventLoop : IDisposable
                         {
                             state = RunState.Stopping;
                             foreach (var future in futures)
-                                future.Cancel();
+                                future.Cancel(CancellationToken.None);
                             break;
                         }
                     }

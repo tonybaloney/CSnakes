@@ -235,7 +235,7 @@ internal sealed class EventLoop : IDisposable
     private void RunForever()
     {
         var state = RunState.Running;
-        var scheduledTasks = new List<ScheduledTask>();
+        var scheduledTasksByCoroutineTasks = new Dictionary<CoroutineTask, ScheduledTask>();
 
         do
         {
@@ -300,7 +300,7 @@ internal sealed class EventLoop : IDisposable
                                 // Create a "TaskCompletionSource" to represent the task on the
                                 // .NET side and add it to the list of tasks.
 
-                                scheduledTasks.Add(scheduledTask);
+                                scheduledTasksByCoroutineTasks[coroTask] = scheduledTask;
 
                                 // Signal that the task was successfully scheduled.
 
@@ -321,24 +321,32 @@ internal sealed class EventLoop : IDisposable
                         }
                         case (CancelRequest request, _):
                         {
-                            var scheduled = scheduledTasks.Find(t => ReferenceEquals(t.Task, request.Task));
-                            scheduled?.Cancel(request.CancellationToken);
+                            if (scheduledTasksByCoroutineTasks.TryGetValue(request.Task, out var scheduled))
+                                scheduled.Cancel(request.CancellationToken);
                             break;
                         }
                         case (StopRequest, RunState.Running):
                         {
                             state = RunState.Stopping;
-                            foreach (var task in scheduledTasks)
-                                task.Cancel(default);
+                            foreach (var scheduledTask in scheduledTasksByCoroutineTasks.Values)
+                                scheduledTask.Cancel(default);
                             break;
                         }
                     }
                 }
             }
 
-            scheduledTasks.RemoveAll(t => t.Conclude());
+            var toRemove = new List<CoroutineTask>();
+            foreach (var (coroutineTask, scheduledTask) in scheduledTasksByCoroutineTasks)
+            {
+                if (scheduledTask.Conclude())
+                    toRemove.Add(coroutineTask);
+            }
+
+            foreach (var key in toRemove)
+                scheduledTasksByCoroutineTasks.Remove(key);
         }
-        while (state is RunState.Running || scheduledTasks.Count > 0);
+        while (state is RunState.Running || scheduledTasksByCoroutineTasks.Count > 0);
     }
 
     private struct Methods(PyObject loop) : IDisposable

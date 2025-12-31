@@ -52,6 +52,28 @@ internal sealed class EventLoop : IDisposable
         public CancellationToken CancellationToken { get; } = cancellationToken;
     }
 
+    private sealed class ScheduledTask(CoroutineTask task, CancellationTokenRegistration cancellationRegistration) : IDisposable
+    {
+        public CoroutineTask Task { get; } = task;
+
+        public void Cancel(CancellationToken cancellationToken) => Task.Cancel(cancellationToken);
+
+        public bool Conclude()
+        {
+            if (!Task.Conclude())
+                return false;
+
+            Dispose();
+            return true;
+        }
+
+        public void Dispose()
+        {
+            cancellationRegistration.Dispose();
+            Task.Dispose();
+        }
+    }
+
     private sealed class StopRequest : Request
     {
         public static readonly StopRequest Instance = new();
@@ -64,7 +86,6 @@ internal sealed class EventLoop : IDisposable
         private readonly PyObject pyTask = pyTask;
         private PyObject? doneMethod;
         private CancellationToken cancellationToken;
-        private CancellationTokenRegistration cancellationRegistration;
 
         public TaskCompletionSource<PyObject> CompletionSource { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -77,27 +98,16 @@ internal sealed class EventLoop : IDisposable
 
         public void Dispose()
         {
-            this.cancellationRegistration.Dispose();
             this.doneMethod?.Dispose();
             this.pyTask.Dispose();
         }
 
         public void Cancel(CancellationToken cancellationToken = default)
         {
-            this.cancellationRegistration.Dispose();
-
-            if (this.pyTask.IsClosed)
-                // Handles a race condition where the task is already done but the
-                // cancellation for it was scheduled.
-                return;
-
             using var cancelMethod = pyTask.GetAttr("cancel");
             cancelMethod.Call().Dispose();
             this.cancellationToken = cancellationToken;
         }
-
-        public void SetCancellationRegistration(CancellationTokenRegistration registration) =>
-            this.cancellationRegistration = registration;
 
         public bool Conclude()
         {
@@ -225,7 +235,7 @@ internal sealed class EventLoop : IDisposable
     private void RunForever()
     {
         var state = RunState.Running;
-        var coroTasks = new List<CoroutineTask>();
+        var scheduledTasks = new List<ScheduledTask>();
 
         do
         {
@@ -266,7 +276,7 @@ internal sealed class EventLoop : IDisposable
                             // the event loop when the task is done.
 
                             var pyTask = this.methods.CreateTask.Call(request.Coroutine);
-                            IDisposable? disposable = pyTask;
+                            IDisposable disposable = pyTask;
                             CancellationTokenRegistration cancellationRegistration = default;
 
                             try
@@ -282,14 +292,15 @@ internal sealed class EventLoop : IDisposable
                                     cancellationRegistration = cancellationToken.Register(
                                         () => Enqueue(new CancelRequest(coroTask, cancellationToken)),
                                         useSynchronizationContext: false);
-
-                                    coroTask.SetCancellationRegistration(cancellationRegistration);
                                 }
+
+                                var scheduledTask = new ScheduledTask(coroTask, cancellationRegistration);
+                                disposable = scheduledTask; // yield ownership
 
                                 // Create a "TaskCompletionSource" to represent the task on the
                                 // .NET side and add it to the list of tasks.
 
-                                coroTasks.Add(coroTask);
+                                scheduledTasks.Add(scheduledTask);
 
                                 // Signal that the task was successfully scheduled.
 
@@ -310,23 +321,24 @@ internal sealed class EventLoop : IDisposable
                         }
                         case (CancelRequest request, _):
                         {
-                            request.Task.Cancel(request.CancellationToken);
+                            var scheduled = scheduledTasks.Find(t => ReferenceEquals(t.Task, request.Task));
+                            scheduled?.Cancel(request.CancellationToken);
                             break;
                         }
                         case (StopRequest, RunState.Running):
                         {
                             state = RunState.Stopping;
-                            foreach (var task in coroTasks)
-                                task.Cancel();
+                            foreach (var task in scheduledTasks)
+                                task.Cancel(default);
                             break;
                         }
                     }
                 }
             }
 
-            _ = coroTasks.RemoveAll(t => t.Conclude());
+            scheduledTasks.RemoveAll(t => t.Conclude());
         }
-        while (state is RunState.Running || coroTasks.Count > 0);
+        while (state is RunState.Running || scheduledTasks.Count > 0);
     }
 
     private struct Methods(PyObject loop) : IDisposable

@@ -65,8 +65,8 @@ internal sealed class EventLoop : IDisposable
         private PyObject? doneMethod;
         private CancellationToken cancellationToken;
 
-        public enum LifecycleEvent { CancellationRequested, Completed }
-        public event Action<CoroutineTask, LifecycleEvent>? LifecycleChanged;
+        public enum LifecycleChangeKind { Canceling, Completed }
+        public event Action<CoroutineTask, LifecycleChangeKind>? LifecycleChange;
 
         public TaskCompletionSource<PyObject> CompletionSource { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -90,7 +90,7 @@ internal sealed class EventLoop : IDisposable
             if (HasCompleted)
                 return;
 
-            LifecycleChanged?.Invoke(this, LifecycleEvent.CancellationRequested);
+            LifecycleChange?.Invoke(this, LifecycleChangeKind.Canceling);
 
             using var cancelMethod = pyTask.GetAttr("cancel");
             cancelMethod.Call().Dispose();
@@ -102,7 +102,7 @@ internal sealed class EventLoop : IDisposable
             if (ProcessConclusion() == TaskStatus.Running)
                 return false;
 
-            LifecycleChanged?.Invoke(this, LifecycleEvent.Completed);
+            LifecycleChange?.Invoke(this, LifecycleChangeKind.Completed);
 
             Dispose();
             return true;
@@ -283,9 +283,9 @@ internal sealed class EventLoop : IDisposable
                                         () => Enqueue(new CancelRequest(coroTask, cancellationToken)),
                                         useSynchronizationContext: false);
 
-                                    coroTask.LifecycleChanged += (_, state) =>
+                                    coroTask.LifecycleChange += (_, kind) =>
                                     {
-                                        if (state == CoroutineTask.LifecycleEvent.CancellationRequested || state == CoroutineTask.LifecycleEvent.Completed)
+                                        if (kind is CoroutineTask.LifecycleChangeKind.Canceling or CoroutineTask.LifecycleChangeKind.Completed)
                                             cancellationRegistration.Dispose();
                                     };
                                 }

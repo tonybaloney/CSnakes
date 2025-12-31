@@ -216,7 +216,7 @@ internal sealed class EventLoop : IDisposable
     private void RunForever()
     {
         var state = RunState.Running;
-        var coroTasks = new HashSet<CoroutineTask>();
+        var coroTasks = new List<CoroutineTask>();
 
         do
         {
@@ -307,8 +307,7 @@ internal sealed class EventLoop : IDisposable
                         }
                         case (CancelRequest request, _):
                         {
-                            if (coroTasks.TryGetValue(request.Task, out var task))
-                                task.Cancel(request.CancellationToken);
+                            coroTasks.Find(t => ReferenceEquals(t, request.Task))?.Cancel(request.CancellationToken);
                             break;
                         }
                         case (StopRequest, RunState.Running):
@@ -322,7 +321,7 @@ internal sealed class EventLoop : IDisposable
                 }
             }
 
-            _ = coroTasks.RemoveWhere(t => t.Conclude());
+            _ = coroTasks.RemoveAll(t => t.Conclude());
         }
         while (state is RunState.Running || coroTasks.Count > 0);
     }

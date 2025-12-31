@@ -83,8 +83,9 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
     public async Task CoroutineThatSelfCancels()
     {
         var mod = Env.TestCoroutines();
-        var task = mod.TestCoroutineSelfCanceling(TestContext.Current.CancellationToken);
-        await Assert.ThrowsAsync<TaskCanceledException>(() => task);
+        Task Act() => mod.TestCoroutineSelfCanceling(TestContext.Current.CancellationToken);
+        var ex = await Assert.ThrowsAsync<TaskCanceledException>(Act);
+        Assert.Equal(CancellationToken.None, ex.CancellationToken);
         Assert.Equal(TaskStatus.Canceled, task.Status);
     }
 

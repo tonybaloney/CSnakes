@@ -336,7 +336,7 @@ internal sealed class EventLoop : IDisposable
                 }
             }
 
-            scheduledTasks.RemoveAll(t => t.Conclude());
+            _ = scheduledTasks.RemoveAll(t => t.Conclude());
         }
         while (state is RunState.Running || scheduledTasks.Count > 0);
     }

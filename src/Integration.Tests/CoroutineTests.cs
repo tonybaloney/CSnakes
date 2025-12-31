@@ -36,11 +36,8 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
 
         using CancellationTokenSource cts = new();
 
-        async Task RunAsync()
-        {
-            _ = await mod.TestCoroutine(seconds: 0, cancellationToken: cts.Token)
-                         .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
-        }
+        Task RunAsync() => mod.TestCoroutine(seconds: 0, cancellationToken: cts.Token)
+                              .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
 
         // First call should complete successfully.
 
@@ -51,7 +48,8 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
         // Second call should be cancelled immediately (implicitly tests that
         // the event loop is still functional).
 
-        await Assert.ThrowsAsync<TaskCanceledException>(() => RunAsync());
+        var ex = await Assert.ThrowsAsync<TaskCanceledException>(() => RunAsync());
+        Assert.Equal(cts.Token, ex.CancellationToken);
     }
 
     [Fact]
@@ -61,12 +59,9 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
 
         using CancellationTokenSource cts = new();
 
-        async Task RunAsync()
-        {
-            _ = await mod.TestCoroutineRaisesException(cancellationToken: cts.Token)
-                         .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
-        }
-
+        Task RunAsync() => mod.TestCoroutineRaisesException(cancellationToken: cts.Token)
+                              .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+    
         // First call should throw an error.
 
         await Assert.ThrowsAsync<PythonInvocationException>(() => RunAsync());
@@ -76,15 +71,16 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
         // Second call should be cancelled immediately (implicitly tests that
         // the event loop is still functional).
 
-        await Assert.ThrowsAsync<TaskCanceledException>(() => RunAsync());
+        var ex = await Assert.ThrowsAsync<TaskCanceledException>(() => RunAsync());
+        Assert.Equal(cts.Token, ex.CancellationToken);
     }
 
     [Fact]
     public async Task CoroutineThatSelfCancels()
     {
         var mod = Env.TestCoroutines();
-        Task Act() => mod.TestCoroutineSelfCanceling(TestContext.Current.CancellationToken);
-        var ex = await Assert.ThrowsAsync<TaskCanceledException>(Act);
+        var task = mod.TestCoroutineSelfCanceling(TestContext.Current.CancellationToken);
+        var ex = await Assert.ThrowsAsync<TaskCanceledException>(() => task);
         Assert.Equal(CancellationToken.None, ex.CancellationToken);
         Assert.Equal(TaskStatus.Canceled, task.Status);
     }

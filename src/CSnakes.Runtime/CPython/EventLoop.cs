@@ -56,7 +56,11 @@ internal sealed class EventLoop : IDisposable
     {
         public CoroutineTask Task { get; } = task;
 
-        public void Cancel(CancellationToken cancellationToken) => Task.Cancel(cancellationToken);
+        public void Cancel(CancellationToken cancellationToken)
+        {
+            cancellationRegistration.Dispose();
+            Task.Cancel(cancellationToken);
+        }
 
         public bool Conclude()
         {
@@ -315,7 +319,7 @@ internal sealed class EventLoop : IDisposable
                                 // Clean up any resources allocated for the task.
 
                                 cancellationRegistration.Dispose();
-                                disposable?.Dispose();
+                                disposable.Dispose();
                             }
                             break;
                         }
@@ -329,7 +333,7 @@ internal sealed class EventLoop : IDisposable
                         {
                             state = RunState.Stopping;
                             foreach (var task in scheduledTasks)
-                                task.Cancel(default);
+                                task.Cancel(CancellationToken.None);
                             break;
                         }
                     }

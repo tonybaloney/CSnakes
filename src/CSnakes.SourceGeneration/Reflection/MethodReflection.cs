@@ -282,7 +282,9 @@ public static class MethodReflection
 
         IEnumerable<CollectionElementSyntax> kwargs =
             from a in parameters.Keyword.Zip(reflectedParameters.Keyword, (pp, rp) => (pp.Name, rp.Identifier))
-            select ArgumentList(SeparatedList([Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(a.Name))),
+            select ArgumentList(SeparatedList([Argument(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                                                                               ThisExpression(),
+                                                                               IdentifierName($"__kw_{a.Name}"))),
                                                Argument(IdentifierName($"{a.Identifier}_pyObject"))]))
             into a
             select ExpressionElement(ImplicitObjectCreationExpression(a, null));

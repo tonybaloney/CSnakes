@@ -399,7 +399,7 @@ public partial class PyObject : SafeHandle, ICloneable
 
         var kwargs =
             from e in kwnames.Zip(kwvalues)
-            select new KeywordArg(e.First, e.Second);
+            select new KeywordArg(From(e.First), e.Second);
 
         return Call(args, kwargs.ToArray());
     }
@@ -457,10 +457,8 @@ public partial class PyObject : SafeHandle, ICloneable
             }
         }
 
-        var marshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
-        var argHandles = args.Length < 16
-            ? stackalloc IntPtr[args.Length]
-            : new IntPtr[args.Length];
+        var marshallers = CallArrayPool<SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn>.Get(args.Length);
+        var argHandles = CallArrayPool<nint>.Get(args.Length);
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -551,6 +549,30 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
+    private static class CallArrayPool<T>
+    {
+        private const int SlotsPerArg = 3;       // Expected slots per argument
+        private const int MinArgsThreshold = 16; // Minimum number of arguments to pool for
+        private const int MaxArgsThreshold = 32; // Maximum number of arguments to pool for
+
+        private const int MinLength          = MinArgsThreshold * SlotsPerArg; // Minimum pooled array length
+        private const int MaxLengthThreshold = MaxArgsThreshold * SlotsPerArg; // New array returned above this
+
+        [ThreadStatic]
+        private static T[]? array;
+
+        public static Span<T> Get(int length)
+        {
+            if (length > MaxLengthThreshold)
+                return new T[length];
+
+            if (array is not { Length: var pooledLength } || pooledLength < length)
+                array = new T[Math.Max(MinLength, length)];
+
+            return array.AsSpan(0, length);
+        }
+    }
+
     /// <summary>
     /// Calls the object with the given arguments and returns the result.
     /// </summary>
@@ -566,18 +588,34 @@ public partial class PyObject : SafeHandle, ICloneable
 
         RaiseOnPythonNotInitialized();
 
-        var argMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[args.Length];
-        var kwargMarshallers = new SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn[kwargs.Length];
-        var argHandles = args.Length < 16
-            ? stackalloc IntPtr[args.Length]
-            : new IntPtr[args.Length];
-        var names = new InlineArray16<string>();
-        Span<string> kwargNames = kwargs.Length <= 16
-            ? names[..kwargs.Length]
-            : new string[kwargs.Length];
-        var kwargHandles = kwargs.Length < 16
-            ? stackalloc IntPtr[kwargs.Length]
-            : new IntPtr[kwargs.Length];
+        // Use one array for marshallers and another for handles, then segment them such that
+        // arguments are laid out as shown below...
+
+        //
+        // Given: args.Length = 3, kwargs.Length = 2
+        // Total length = args.Length + kwargs.Length * 2 = 3 + 2 * 2 = 7
+        //
+        // index:       0          1          2          3          4          5          6
+        //              +----------+----------+----------+----------+----------+----------+----------+
+        // marshallers/ |   arg1   |   arg2   |   arg3   |   key1   |   key2   |   val1   |   val2   |
+        //     handles: +----------+----------+----------+----------+----------+----------+----------+
+        //              |<---------- argRange ---------->|<-- keywordRange --->|<--- kwargRange ---->|
+        //                          (..3)                     (^4..^2)               (^2..)
+
+        var length = args.Length + kwargs.Length * 2;
+        var argRange = ..args.Length;
+        var keywordRange = ^(kwargs.Length * 2)..^kwargs.Length;
+        var kwargRange = ^kwargs.Length..;
+
+        var marshallers = CallArrayPool<SafeHandleMarshaller<PyObject>.ManagedToUnmanagedIn>.Get(length);
+        var argMarshallers = marshallers[argRange];
+        var keywordMarshallers = marshallers[keywordRange];
+        var kwargMarshallers = marshallers[kwargRange];
+
+        var handles = CallArrayPool<nint>.Get(length);
+        var argHandles = handles[argRange];
+        var keywordHandles = handles[keywordRange];
+        var kwargHandles = handles[kwargRange];
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -587,22 +625,29 @@ public partial class PyObject : SafeHandle, ICloneable
         }
         for (int i = 0; i < kwargs.Length; i++)
         {
+            ref var k = ref keywordMarshallers[i];
+            k.FromManaged(kwargs[i].Name);
+            keywordHandles[i] = k.ToUnmanaged();
+
             ref var m = ref kwargMarshallers[i];
             m.FromManaged(kwargs[i].Value);
             kwargHandles[i] = m.ToUnmanaged();
-            kwargNames[i] = kwargs[i].Name;
         }
 
         try
         {
             using (GIL.Acquire())
             {
-                return Create(CPythonAPI.Call(this, argHandles, kwargNames, kwargHandles));
+                return Create(CPythonAPI.Call(this, argHandles, keywordHandles, kwargHandles));
             }
         }
         finally
         {
             foreach (var m in argMarshallers)
+            {
+                m.Free();
+            }
+            foreach (var m in keywordMarshallers)
             {
                 m.Free();
             }

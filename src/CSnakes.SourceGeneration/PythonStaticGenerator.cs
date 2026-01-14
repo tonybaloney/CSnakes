@@ -191,6 +191,11 @@ public class PythonStaticGenerator : IIncrementalGenerator
     public static string FormatClassFromMethods(string @namespace, string pascalFileName, ImmutableArray<MethodDefinition> methods, string moduleAbsoluteName, PythonFunctionDefinition[] functions, SourceText sourceText, bool embedSourceText = false)
     {
         var functionNames = functions.Select(f => (Attr: f.Name, Field: $"__func_{f.Name}")).Distinct().ToImmutableArray();
+        var allKeywords =
+            from f in functions
+            from k in f.Parameters.Keyword
+            select (Attr: k.Name, Field: $"__kwfld_{k.Name}", Property: $"__kw_{k.Name}");
+        var keywords = allKeywords.Distinct().ToImmutableArray();
 
 #pragma warning disable format
 
@@ -245,10 +250,14 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 {
                     private PyObject module;
                     private readonly ILogger<IPythonEnvironment>? logger;
-
             {{      Lines(IndentationLevel.Two,
-                          from f in functionNames
-                          select $"private PyObject {f.Field};") }}
+                          Sections(
+                              from f in functionNames
+                              select $"private PyObject {f.Field};",
+                              from k in keywords
+                              select $"private PyObject? {k.Field};",
+                              from k in keywords
+                              select $"private PyObject {k.Property} => this.{k.Field} ??= PyObject.From(\"{k.Attr}\");")) }}
 
                     internal {{pascalFileName}}Internal(ILogger<IPythonEnvironment>? logger)
                     {
@@ -281,7 +290,10 @@ public class PythonStaticGenerator : IIncrementalGenerator
                     }
 
                     public void Dispose()
-                    {
+                    {{{
+                        Lines(IndentationLevel.Three,
+                              Sections(from k in keywords
+                                       select $"this.{k.Field}?.Dispose();")) }}
                         logger?.LogDebug("Disposing module {ModuleName}", "{{moduleAbsoluteName}}");
             {{          Lines(IndentationLevel.Three,
                               from f in functionNames
@@ -387,6 +399,19 @@ public class PythonStaticGenerator : IIncrementalGenerator
         return new string(chars);
     }
 
+    private static IEnumerable<string> Sections(params IEnumerable<string>[] sections)
+    {
+        foreach (var lines in sections)
+        {
+            foreach (var (first, line) in lines.Select((s, i) => (i is 0, s)))
+            {
+                if (first)
+                    yield return string.Empty;
+                yield return line;
+            }
+        }
+    }
+
     const string Space = " ";
     const string Indent = $"{Space}{Space}{Space}{Space}";
 
@@ -416,6 +441,9 @@ public class PythonStaticGenerator : IIncrementalGenerator
                                           string? emptyPrefix = null) :
         IFormattable
     {
+        public FormattableLines AddLeadingBlank() =>
+            new(lines.Length > 0 ? [string.Empty, ..lines] : lines, prefix, emptyPrefix);
+
         string IFormattable.ToString(string? format, IFormatProvider? formatProvider)
         {
             if (lines.Length == 0)

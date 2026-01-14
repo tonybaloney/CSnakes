@@ -19,18 +19,16 @@ internal unsafe partial class CPythonAPI
         return PyObject_IsInstance(p, PyDictType);
     }
 
-    internal static nint PackDict(ReadOnlySpan<string> kwnames, ReadOnlySpan<IntPtr> kwvalues)
+    internal static nint PackDict(ReadOnlySpan<IntPtr> kwnames, ReadOnlySpan<IntPtr> kwvalues)
     {
         var dict = PyDict_New();
         for (int i = 0; i < kwnames.Length; i++)
         {
-            var keyObj = AsPyUnicodeObject(kwnames[i]);
-            int result = PyDict_SetItemRaw(dict, keyObj, kwvalues[i]);
+            int result = PyDict_SetItemRaw(dict, kwnames[i], kwvalues[i]);
             if (result == -1)
             {
                 throw PyObject.ThrowPythonExceptionAsClrException();
             }
-            Py_DecRefRaw(keyObj);
         }
         return dict;
     }

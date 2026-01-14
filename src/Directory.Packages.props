@@ -21,7 +21,7 @@
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="Superpower" Version="3.1.0" />
     <PackageVersion Include="System.CommandLine" Version="2.0.1" />
-    <PackageVersion Include="ZstdSharp.Port" Version="0.8.6" />
+    <PackageVersion Include="ZstdSharp.Port" Version="0.8.7" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <PackageVersion Include="Basic.Reference.Assemblies.Net90" Version="1.8.4" />
@@ -46,7 +46,7 @@
     <PackageVersion Include="python" Version="$(PythonVersion)" />
     <PackageVersion Include="System.Net.Http" Version="4.3.4" />
     <PackageVersion Include="System.Text.RegularExpressions" Version="4.3.1" />
-    <PackageVersion Include="xunit.v3" Version="3.1.0" />
+    <PackageVersion Include="xunit.v3" Version="3.2.1" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
     <PackageVersion Include="xunit.v3.extensibility.core" Version="2.0.3" />
     <PackageVersion Include="xunit.v3.common" Version="2.0.3" />

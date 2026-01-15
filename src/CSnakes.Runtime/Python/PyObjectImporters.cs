@@ -1,3 +1,4 @@
+using CSnakes.Linq;
 using CSnakes.Runtime.CPython;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -272,6 +273,18 @@ public static partial class PyObjectImporters
 
         static T? IPyObjectImporter<T?>.BareImport(PyObject obj) =>
             !obj.IsNone() ? TImporter.BareImport(obj) : null;
+    }
+
+#pragma warning disable RS0016 // FIXME
+    public sealed class Extern<T> : IPyObjectImporter<T>
+#pragma warning restore RS0016
+        where T : IPyObjectReadable<T>
+    {
+        static T IPyObjectImporter<T>.BareImport(PyObject obj)
+        {
+            GIL.Require();
+            return T.Reader.Read(obj);
+        }
     }
 
     private static PyObject GetTupleItem(PyObject obj, int index) =>

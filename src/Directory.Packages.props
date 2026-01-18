@@ -30,7 +30,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <PackageVersion Include="Basic.Reference.Assemblies.Net90" Version="1.8.4" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
-    <PackageVersion Include="System.Numerics.Tensors" Version="9.0.9" />
+    <PackageVersion Include="System.Numerics.Tensors" Version="10.0.2" />
   </ItemGroup>
   <!--
     Test-only dependencies

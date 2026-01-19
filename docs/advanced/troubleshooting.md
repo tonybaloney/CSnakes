@@ -487,7 +487,26 @@ public class DiagnosticsService
     }
 }
 ```
-
+### Logging Configuration Example
+To see detailed logs, for pip installation, configure logging as follows in appsettings.json:
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Debug"
+    }
+  },
+  "AllowedHosts": "*"
+}
+```
+You may also need to set it in your .csproj:
+```xml
+  <ItemGroup>
+    <Content Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+```
+You can set also have configuration for different deployment environments like Development, Staging, Production, etc. Additionally, you can set logging levels for specific namespaces, e.g., "Microsoft.AspNetCore": "Warning".
+For further example, see [Aspire Sample Project](https://github.com/tonybaloney/CSnakes/tree/main/samples/Aspire).
 ## Getting Help
 
 ### Check Logs First

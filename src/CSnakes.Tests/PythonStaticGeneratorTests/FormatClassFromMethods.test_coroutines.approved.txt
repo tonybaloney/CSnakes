@@ -113,8 +113,7 @@ static partial class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine;
                 using PyObject seconds_pyObject = PyObject.From(seconds)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);
-                using var __result_pyObject_Awaitable = __result_pyObject.BareImportAs<IAwaitable<long>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>();
-                var __return = __result_pyObject_Awaitable.WaitAsync(dispose: true, cancellationToken);
+                var __return = __result_pyObject.BareImportAs<IAwaitable<long>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>().WaitAsync(dispose: true, cancellationToken);
                 return __return;
             }
         }
@@ -126,8 +125,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_raises_exception");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_raises_exception;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                using var __result_pyObject_Awaitable = __result_pyObject.BareImportAs<IAwaitable<long>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>();
-                var __return = __result_pyObject_Awaitable.WaitAsync(dispose: true, cancellationToken);
+                var __return = __result_pyObject.BareImportAs<IAwaitable<long>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>().WaitAsync(dispose: true, cancellationToken);
                 return __return;
             }
         }
@@ -140,8 +138,7 @@ static partial class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_returns_nothing;
                 using PyObject seconds_pyObject = PyObject.From(seconds)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);
-                using var __result_pyObject_Awaitable = __result_pyObject.BareImportAs<IAwaitable<PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.None>>();
-                var __return = __result_pyObject_Awaitable.WaitAsync(dispose: true, cancellationToken);
+                var __return = __result_pyObject.BareImportAs<IAwaitable<PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.None>>().WaitAsync(dispose: true, cancellationToken);
                 return __return;
             }
         }
@@ -154,8 +151,7 @@ static partial class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_bare;
                 using PyObject seconds_pyObject = PyObject.From(seconds)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);
-                using var __result_pyObject_Awaitable = __result_pyObject.BareImportAs<IAwaitable<long>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>();
-                var __return = __result_pyObject_Awaitable.WaitAsync(dispose: true, cancellationToken);
+                var __return = __result_pyObject.BareImportAs<IAwaitable<long>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>().WaitAsync(dispose: true, cancellationToken);
                 return __return;
             }
         }
@@ -167,8 +163,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_self_canceling");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_self_canceling;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                using var __result_pyObject_Awaitable = __result_pyObject.BareImportAs<IAwaitable<PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Clone>>();
-                var __return = __result_pyObject_Awaitable.WaitAsync(dispose: true, cancellationToken);
+                var __return = __result_pyObject.BareImportAs<IAwaitable<PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Clone>>().WaitAsync(dispose: true, cancellationToken);
                 return __return;
             }
         }

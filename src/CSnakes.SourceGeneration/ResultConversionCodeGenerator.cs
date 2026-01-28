@@ -184,7 +184,6 @@ internal static class ResultConversionCodeGenerator
 
         public IEnumerable<StatementSyntax> GenerateCode(string inputName, string outputName,
                                                          string cancellationTokenName) =>
-            [ParseStatement($"using var {inputName}_Awaitable = {inputName}.BareImportAs<{TypeSyntax}, {ImporterTypeSyntax}>();"),
-             ParseStatement($"var {outputName} = {inputName}_Awaitable.WaitAsync(dispose: true, {cancellationTokenName});")];
+            [ParseStatement($"var {outputName} = {inputName}.BareImportAs<{TypeSyntax}, {ImporterTypeSyntax}>().WaitAsync(dispose: true, {cancellationTokenName});")];
     }
 }

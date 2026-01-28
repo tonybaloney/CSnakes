@@ -113,6 +113,12 @@ internal static class ResultConversionCodeGenerator
             {
                 return new CoroutineConversionGenerator(rt);
             }
+            case AwaitableType { Of: var t }:
+            {
+                var generator = Create(t);
+                return new ConversionGenerator(TypeReflection.CreateGenericType("IAwaitable", [generator.TypeSyntax]),
+                                               TypeReflection.CreateGenericType("Awaitable", [generator.TypeSyntax, generator.ImporterTypeSyntax]));
+            }
             case var other:
             {
                 var typeSyntax = TypeReflection.AsPredefinedType(other, TypeReflection.ConversionDirection.FromPython).First(); // TODO: Investigate union

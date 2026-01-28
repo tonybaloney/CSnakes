@@ -28,7 +28,7 @@ internal sealed class EventLoop : IDisposable
             }
             catch
             {
-                awaitable.Dispose();
+                clone.Dispose();
                 throw;
             }
         }

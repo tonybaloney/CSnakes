@@ -117,6 +117,11 @@ public sealed record DictType(PythonTypeSpec Key, PythonTypeSpec Value) : Closed
     public override string ToString() => Format($"{Key}, {Value}");
 }
 
+public sealed record AwaitableType(PythonTypeSpec Of) : ClosedGenericType("Awaitable")
+{
+    public override string ToString() => Format($"{Of}");
+}
+
 public sealed record CoroutineType(PythonTypeSpec Yield, PythonTypeSpec Send, PythonTypeSpec Return) : ClosedGenericType("Coroutine")
 {
     public CoroutineType(PythonTypeSpec returnType) : this(None, None, returnType) { }

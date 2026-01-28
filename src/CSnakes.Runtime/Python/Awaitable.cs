@@ -48,7 +48,7 @@ public static class Awaitable
         using (GIL.Acquire())
         {
             if (!CPythonAPI.IsPyAwaitable(obj))
-                throw new ArgumentException($"Expected an awaitable (collection.abc.Awaitable), but got {obj.GetPythonType()}", nameof(obj));
+                throw new ArgumentException($"Expected an awaitable (collections.abc.Awaitable), but got {obj.GetPythonType()}", nameof(obj));
         }
 
         return InternalWaitAsync(obj, cancellationToken);

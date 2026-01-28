@@ -273,7 +273,7 @@ internal sealed class EventLoop : IDisposable
                             catch (Exception ex)
                             {
                                 // If the future could not even be created, set the exception.
-                                // This should almost never happen unless there is an in our logic!
+                                // This should almost never happen unless there is an error in our logic!
 
                                 request.CompletionSource.SetException(ex);
                                 break;

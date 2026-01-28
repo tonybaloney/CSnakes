@@ -1,8 +1,6 @@
-import types
 import asyncio
 
 from collections.abc import Awaitable
-from typing import Coroutine
 
 
 class MyAwaitable:

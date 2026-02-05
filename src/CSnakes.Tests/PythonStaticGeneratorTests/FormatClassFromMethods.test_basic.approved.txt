@@ -277,7 +277,7 @@ static partial class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_bytes_async;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
-                var __return = __result_pyObject.BareImportAs<ICoroutine<byte[]>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<byte[], global::CSnakes.Runtime.Python.PyObjectImporters.ByteArray>>().AsTask(cancellationToken);
+                var __return = __result_pyObject.BareImportAs<IAwaitable<byte[]>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<byte[], global::CSnakes.Runtime.Python.PyObjectImporters.ByteArray>>().WaitAsync(dispose: true, cancellationToken);
                 return __return;
             }
         }

@@ -40,6 +40,7 @@ public static partial class PythonParser
         public static readonly PythonTypeSpecParser Optional = TypeDefinitionParser.Subscript(PythonTypeSpec (of) => new OptionalType(of));
         public static readonly PythonTypeSpecParser List = TypeDefinitionParser.Subscript(PythonTypeSpec (of) => new ListType(of));
         public static readonly PythonTypeSpecParser Sequence = TypeDefinitionParser.Subscript(PythonTypeSpec (of) => new SequenceType(of));
+        public static readonly PythonTypeSpecParser Awaitable = TypeDefinitionParser.Subscript(PythonTypeSpec (of) => new AwaitableType(of));
         public static readonly PythonTypeSpecParser Dict = TypeDefinitionParser.Subscript(PythonTypeSpec (k, v) => new DictType(k, v));
         public static readonly PythonTypeSpecParser Mapping = TypeDefinitionParser.Subscript(PythonTypeSpec (k, v) => new MappingType(k, v));
         public static readonly PythonTypeSpecParser Generator = TypeDefinitionParser.Subscript(PythonTypeSpec (y, s, r) => new GeneratorType(y, s, r));
@@ -120,6 +121,7 @@ public static partial class PythonParser
                 "Optional" or "typing.Optional"                                  => TypeDefinitionSubParsers.Optional,
                 "list" or "List" or "typing.List"                                => TypeDefinitionSubParsers.List,
                 "Sequence" or "collections.abc.Sequence" or "typing.Sequence"    => TypeDefinitionSubParsers.Sequence,
+                "Awaitable" or "collections.abc.Awaitable" or "typing.Awaitable" => TypeDefinitionSubParsers.Awaitable,
                 "dict" or "Dict" or "typing.Dict"                                => TypeDefinitionSubParsers.Dict,
                 "Mapping" or "collections.abc.Mapping" or "typing.Mapping"       => TypeDefinitionSubParsers.Mapping,
                 "Generator" or "collections.abc.Generator" or "typing.Generator" => TypeDefinitionSubParsers.Generator,

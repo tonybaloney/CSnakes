@@ -4,19 +4,19 @@
 
 There are two options for configuring how CSnakes discovers Python files in your .NET project to build the C# bindings:
 
-1. [Automatic, using `DefaultPythonItems`](#automatic-example) (default)
+1. [Automatic, using `EnableDefaultPythonItems`](#automatic-example) (default)
 2. [Manually, using `AdditionalFiles`](#manual-example)
 
 ### Automatic Example
 
-By default, CSnakes automatically finds any `.py` and `.pyi` files in your project and generates .NET classes. This is controlled by the `DefaultPythonItems` setting, which is `true` by default:
+By default, CSnakes automatically finds any `.py` and `.pyi` files in your project and generates .NET classes. This is controlled by the `EnableDefaultPythonItems` setting, which is `true` by default:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <!-- DefaultPythonItems is true by default, no need to set it -->
+    <!-- EnableDefaultPythonItems is true by default, no need to set it -->
   </PropertyGroup>
 </Project>
 ```
@@ -33,7 +33,7 @@ If you want full control over which files in your project are source generated, 
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <!-- Disable automatic detection -->
-    <DefaultPythonItems>false</DefaultPythonItems>
+    <EnableDefaultPythonItems>false</EnableDefaultPythonItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -98,7 +98,7 @@ CSnakes will automatically generate these namespaces and import directives once 
 
 ```xml
   <PropertyGroup>
-    <DefaultPythonItems>true</DefaultPythonItems>
+    <EnableDefaultPythonItems>true</EnableDefaultPythonItems>
     <PythonRoot>python_src</PythonRoot>
   </PropertyGroup>
 ```

@@ -4,18 +4,36 @@
 
 There are two options for configuring how CSnakes discovers Python files in your .NET project to build the C# bindings:
 
-1. [Manually, using `AdditionalFiles`](#manual-example)
-2. [Automatic using `DefaultPythonItems`](#automatic-example)
+1. [Automatic, using `DefaultPythonItems`](#automatic-example) (default)
+2. [Manually, using `AdditionalFiles`](#manual-example)
 
-### Manual Example
+### Automatic Example
 
-If you want full control over which files in your project are source generated, use the `AdditionalFiles` group with `SourceItemType="Python"`.
+By default, CSnakes automatically finds any `.py` and `.pyi` files in your project and generates .NET classes. This is controlled by the `DefaultPythonItems` setting, which is `true` by default:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
+    <!-- DefaultPythonItems is true by default, no need to set it -->
+  </PropertyGroup>
+</Project>
+```
+
+This works recursively, if you have nested modules in your project you may also need to configure the root directory for namespacing Python imports.
+
+### Manual Example
+
+If you want full control over which files in your project are source generated, you can disable the automatic detection and use the `AdditionalFiles` group with `SourceItemType="Python"`:
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <!-- Disable automatic detection -->
+    <DefaultPythonItems>false</DefaultPythonItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,30 +48,7 @@ If you want full control over which files in your project are source generated, 
 </Project>
 ```
 
-The file path supports expressions (glob), like `*.py` or `**/*.py` (recursive).
-
-```xml
-    <AdditionalFiles Include="python/*.py" SourceItemType="Python">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-```
-
-### Automatic Example
-
-CSnakes can automatically find any `.py` and `.pyi` files in your project and generated .NET classes using the `DefaultPythonItems` setting:
-
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <!-- use automatic detection -->
-    <DefaultPythonItems>true</DefaultPythonItems>
-  </PropertyGroup>
-</Project>
-```
-
-This works recursively, if you have nested modules in your project you may also need to configure the root directory for namespacing Python imports.
+Take care to not forget the `SourceItemType="Python"` bit.
 
 ## Embedding Sources (Optional)
 

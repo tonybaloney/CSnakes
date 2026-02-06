@@ -3,7 +3,7 @@
   <Target Name="_InjectCSnakesAdditionalFiles" BeforeTargets="PrepareForBuild;CompileDesignTime;GenerateMSBuildEditorConfigFileShouldRun">
     <ItemGroup>
       <AdditionalFiles Include="@(None)"
-                       Condition="'$(DefaultPythonItems)' == 'true' And ($([System.Text.RegularExpressions.Regex]::IsMatch('%(Extension)', '.py$')) Or $([System.Text.RegularExpressions.Regex]::IsMatch('%(Extension)', '.pyi$')))"
+                       Condition="('$(DefaultPythonItems)' == 'true' Or '$(DefaultPythonItems)' == '') And ($([System.Text.RegularExpressions.Regex]::IsMatch('%(Extension)', '.py$')) Or $([System.Text.RegularExpressions.Regex]::IsMatch('%(Extension)', '.pyi$')))"
                        SourceItemType="Python">
         <CopyToOutputDirectory Condition="'$(EmbedPythonSources)' != 'true'">Always</CopyToOutputDirectory>
       </AdditionalFiles>

@@ -4,8 +4,6 @@
         <ProductName>Example Python Dependency</ProductName>
         <TargetFramework>net8.0</TargetFramework>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-        <!-- Test the manual AdditionalFiles path (non-default) -->
-        <DefaultPythonItems>false</DefaultPythonItems>
     </PropertyGroup>
 
     <ItemGroup>
@@ -14,19 +12,19 @@
     </ItemGroup>
 
     <ItemGroup>
-        <AdditionalFiles Include="hello_world.py" SourceItemType="Python">
+        <AdditionalFiles Include="hello_world.py">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
-        <AdditionalFiles Include="quick_demo.py" SourceItemType="Python">
+        <AdditionalFiles Include="quick_demo.py">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
-        <AdditionalFiles Include="type_demos.py" SourceItemType="Python">
+        <AdditionalFiles Include="type_demos.py">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
-        <AdditionalFiles Include="phi3_demo.py" SourceItemType="Python">
+        <AdditionalFiles Include="phi3_demo.py">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
-        <AdditionalFiles Include="kmeans_example.py" SourceItemType="Python">
+        <AdditionalFiles Include="kmeans_example.py">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </AdditionalFiles>
     </ItemGroup>

@@ -21,9 +21,15 @@ def calculate_average(numbers: list[float]) -> float:
 
 ## Step 2: Configure the Project File
 
-Mark the Python file as an "Additional File" in your `.csproj` file:
+By default, CSnakes automatically discovers all `.py` and `.pyi` files in your project. No configuration is needed!
+
+If you want to manually control which files are included, you can mark specific Python files as "Additional Files" in your `.csproj` file:
 
 ```xml
+<PropertyGroup>
+    <DefaultPythonItems>false</DefaultPythonItems>
+</PropertyGroup>
+
 <ItemGroup>
     <AdditionalFiles Include="demo.py" SourceItemType="Python">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -32,34 +38,6 @@ Mark the Python file as an "Additional File" in your `.csproj` file:
 ```
 
 Take care to not forget the `SourceItemType="Python"` bit.
-
-MSBuild supports globbing, so you can also mark all Python files in a directory
-as additional files:
-
-```xml
-<ItemGroup>
-    <AdditionalFiles Include="*.py" SourceItemType="Python">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-</ItemGroup>
-```
-
-Alternatively, you can configure CSnakes to parse all `*.py` files by default.
-This is the default behavior, so no configuration is needed:
-
-```xml
-<PropertyGroup>
-    <!-- DefaultPythonItems is true by default -->
-</PropertyGroup>
-```
-
-If you need to disable this and use manual configuration instead, set `DefaultPythonItems` to `false`:
-
-```xml
-<PropertyGroup>
-    <DefaultPythonItems>false</DefaultPythonItems>
-</PropertyGroup>
-```
 
 ## Step 3: Write the C# Code
 

@@ -4,7 +4,7 @@
 
 There are two options for configuring how CSnakes discovers Python files in your .NET project to build the C# bindings:
 
-1. [Automatic using `DefaultPythonItems`](#automatic-example) (default)
+1. [Automatic, using `DefaultPythonItems`](#automatic-example) (default)
 2. [Manually, using `AdditionalFiles`](#manual-example)
 
 ### Automatic Example
@@ -47,6 +47,8 @@ If you want full control over which files in your project are source generated, 
   </ItemGroup>
 </Project>
 ```
+
+Take care to not forget the `SourceItemType="Python"` bit.
 
 ## Embedding Sources (Optional)
 

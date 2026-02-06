@@ -63,6 +63,7 @@ public class GeneratedSignatureTests
     [InlineData("def hello(n: Foo = ...) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
     [InlineData("def hello(a: str, b: int = 4, *, kw: str) -> None:\n ...\n", "void Hello(string a, string kw, long b = 4)")]
     [InlineData("def hello() -> str | int: \n  ...\n", "PyObject Hello()")]
+    [InlineData("def hello() -> Annotated[object, 'c#:FooBar']:\n ...\n", "FooBar Hello()")]
     [InlineData("def escape(s: str, quote: bool = True) -> str: ...\n", "string Escape(string s, bool quote = true)")]
     [InlineData("""
 
@@ -129,7 +130,16 @@ public class GeneratedSignatureTests
 #endif
             .AddReferences(MetadataReference.CreateFromFile(typeof(IPythonEnvironmentBuilder).Assembly.Location))
             .AddReferences(MetadataReference.CreateFromFile(typeof(ILogger<>).Assembly.Location))
-            .AddSyntaxTrees(tree);
+            .AddSyntaxTrees(tree,
+                            CSharpSyntaxTree.ParseText(path: "FooBar.cs", cancellationToken: TestContext.Current.CancellationToken, text: """
+                                using System;
+                                using CSnakes.Linq;
+
+                                public class FooBar : IPyObjectReadable<FooBar>
+                                {
+                                    public static IPyObjectReader<FooBar> Reader => throw new NotImplementedException();
+                                }
+                                """));
         var result = compilation.Emit(Stream.Null, cancellationToken: TestContext.Current.CancellationToken);
         // TODO : Log compiler warnings.
         result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList().ForEach(d => Assert.Fail(d.ToString()));

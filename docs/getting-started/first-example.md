@@ -19,27 +19,7 @@ def calculate_average(numbers: list[float]) -> float:
     return sum(numbers) / len(numbers)
 ```
 
-## Step 2: Configure the Project File
-
-By default, CSnakes automatically discovers all `.py` and `.pyi` files in your project. No configuration is needed!
-
-If you want to manually control which files are included, you can mark specific Python files as "Additional Files" in your `.csproj` file:
-
-```xml
-<PropertyGroup>
-    <DefaultPythonItems>false</DefaultPythonItems>
-</PropertyGroup>
-
-<ItemGroup>
-    <AdditionalFiles Include="demo.py" SourceItemType="Python">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-</ItemGroup>
-```
-
-Take care to not forget the `SourceItemType="Python"` bit.
-
-## Step 3: Write the C# Code
+## Step 2: Write the C# Code
 
 ```csharp
 using CSnakes.Runtime;
@@ -72,7 +52,7 @@ var average = module.CalculateAverage(numbers);
 Console.WriteLine($"Average: {average}"); // Output: Average: 2.75
 ```
 
-## Step 4: Build and Run
+## Step 3: Build and Run
 
 Build your project:
 

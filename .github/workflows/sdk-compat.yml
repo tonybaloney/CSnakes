@@ -27,6 +27,8 @@ jobs:
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
 
       - name: Pack NuGet packages
         run: dotnet pack --tl:off -c Release -p:VersionSuffix='alpha.${{ github.run_number }}' -bl:pack.binlog src

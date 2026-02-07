@@ -62,6 +62,7 @@ jobs:
 
       - name: Setup .NET ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v4
+        id: setup-dotnet
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
@@ -70,6 +71,10 @@ jobs:
         with:
           name: packages
           path: .github/workflows/sdk-compat/packages
+
+      - name: Pin .NET SDK version
+        run: |
+          echo '{"sdk":{"version": "${{ steps.setup-dotnet.outputs.dotnet-version }}"}}' > global.json
 
       - name: Build
         run: dotnet build --tl:off -bl:${{ github.workspace }}/build.binlog

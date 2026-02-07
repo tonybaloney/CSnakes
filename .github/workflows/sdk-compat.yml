@@ -1,0 +1,81 @@
+name: .NET SDK Compatibility
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/sdk-compat.yml"
+      - ".github/workflows/sdk-compat/**"
+      - "src/**"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/sdk-compat.yml"
+      - ".github/workflows/sdk-compat/**"
+      - "src/**"
+
+permissions:
+  contents: read
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+
+      - name: Pack NuGet packages
+        run: dotnet pack --tl:off -c Release -p:VersionSuffix='alpha.${{ github.run_number }}' -bl:pack.binlog src
+
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pack.binlog
+          path: "*.binlog"
+
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: nuget
+
+  test:
+    needs: pack
+    strategy:
+      matrix:
+        dotnet-version:
+        - "8.0.x"
+        - "9.0.x"
+        - "10.0.x"
+      fail-fast: false
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Download NuGet packages
+        uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: .github/workflows/sdk-compat/packages
+
+      - name: Build
+        run: dotnet build --tl:off -bl:${{ github.workspace }}/build.binlog
+        working-directory: .github/workflows/sdk-compat
+
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-${{ matrix.dotnet-version }}.binlog
+          path: ${{ github.workspace }}/*.binlog

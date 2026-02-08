@@ -39,10 +39,15 @@ public class PythonStaticGenerator : IIncrementalGenerator
                 ? rootDir
                 : string.Empty); // Default to empty string
 
-        context.RegisterSourceOutput(pythonFilesPipeline.Combine(embedPythonSource).Combine(rootDirectory), static (sourceContext, opts) =>
+        // Extract the C# language version from the compilation so that generated code
+        // can adapt to the features available in the consuming project's language version.
+        var languageVersion =
+            context.CompilationProvider.Select(static (compilation, _) =>
+                compilation is CSharpCompilation { LanguageVersion: var v } ? v : (LanguageVersion?)null);
+
+        context.RegisterSourceOutput(pythonFilesPipeline.Combine(embedPythonSource).Combine(rootDirectory).Combine(languageVersion), static (sourceContext, opts) =>
         {
-            var ((file, _), embedSourceSwitch) = opts.Left;
-            var rootDir = opts.Right;
+            var ((((file, _), embedSourceSwitch), rootDir), languageVersion) = opts;
 
             if (Path.GetExtension(file.Path) == ".pyi")
             {
@@ -101,7 +106,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
                 if (result)
                 {
-                    var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
+                    var methods = ModuleReflection.MethodsFromFunctionDefinitions(functions, languageVersion?.Features ?? LanguageFeatures.None).ToImmutableArray();
                     string source = FormatClassFromMethods(@namespace, pascalFileName, methods, moduleAbsoluteName, functions, code, embedSourceSwitch);
                     sourceContext.AddSource(generatedFileName, source);
                     sourceContext.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("PSG002", "PythonStaticGenerator", $"Generated {generatedFileName} from {file.Path}", "PythonStaticGenerator", DiagnosticSeverity.Info, true), Location.None));

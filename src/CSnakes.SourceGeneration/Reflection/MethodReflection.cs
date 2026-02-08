@@ -262,13 +262,14 @@ public static class MethodReflection
 
         if (parameters is { Keyword.IsEmpty: true, VariadicPositional: null, VariadicKeyword: null })
         {
-            return languageFeatures.Has(LanguageFeatures.ParamsCollections)
-                   // C# 13+: params spans are supported, so a simple argument list works.
-                   // Call(params ReadOnlySpan<PyObject> args)
-                 ? ArgumentList(SeparatedList(from a in argsIdentifiers select Argument(a)))
-                   // C# 12 and below: wrap in a collection expression to avoid binding to the
-                   // obsolete Call(params PyObject[]) overload.
-                 : ArgumentList(SingletonSeparatedList(Argument(CollectionExpression(SeparatedList(argsIdentifiers.Select(CollectionElementSyntax (a) => ExpressionElement(a)))))));
+            return ArgumentList(
+                       languageFeatures.Has(LanguageFeatures.ParamsCollections)
+                         // C# 13+: params spans are supported, so a simple argument list works.
+                         // Call(params ReadOnlySpan<PyObject> args)
+                       ? SeparatedList(from a in argsIdentifiers select Argument(a))
+                         // Otherwise wrap in a collection expression to avoid binding to the
+                         // obsolete Call(params PyObject[]) overload.
+                       : SingletonSeparatedList(Argument(CollectionExpression(SeparatedList(argsIdentifiers.Select(CollectionElementSyntax (a) => ExpressionElement(a)))))));
         }
 
         var args = Argument(CollectionExpression(SeparatedList(argsIdentifiers.Select(CollectionElementSyntax (a) => ExpressionElement(a)))));

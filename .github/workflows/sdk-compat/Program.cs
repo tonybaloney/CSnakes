@@ -13,7 +13,7 @@ _ = builder.Services
 using var app = builder.Build();
 var env = app.Services.GetRequiredService<IPythonEnvironment>();
 
-var module = env.Demo();
+using var module = env.Demo();
 
 var greeting = module.HelloWorld("World");
 Console.WriteLine(greeting);

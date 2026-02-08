@@ -167,7 +167,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_1");
                 PyObject __underlyingPythonFunc = this.__func_tuple_1;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<ValueTuple<string>, global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>>();
                 return __return;
             }
@@ -180,7 +180,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_2");
                 PyObject __underlyingPythonFunc = this.__func_tuple_2;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<string, string, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String>>();
                 return __return;
             }
@@ -193,7 +193,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_3");
                 PyObject __underlyingPythonFunc = this.__func_tuple_3;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<string, string, string, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String>>();
                 return __return;
             }
@@ -206,7 +206,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_4");
                 PyObject __underlyingPythonFunc = this.__func_tuple_4;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<string, string, string, string, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String>>();
                 return __return;
             }
@@ -219,7 +219,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_5");
                 PyObject __underlyingPythonFunc = this.__func_tuple_5;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<string, string, string, string, string, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String>>();
                 return __return;
             }
@@ -232,7 +232,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_6");
                 PyObject __underlyingPythonFunc = this.__func_tuple_6;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<string, string, string, string, string, string, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String>>();
                 return __return;
             }
@@ -245,7 +245,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_7");
                 PyObject __underlyingPythonFunc = this.__func_tuple_7;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String>>();
                 return __return;
             }
@@ -258,7 +258,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_8");
                 PyObject __underlyingPythonFunc = this.__func_tuple_8;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String>>();
                 return __return;
             }
@@ -271,7 +271,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_9");
                 PyObject __underlyingPythonFunc = this.__func_tuple_9;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<string, string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String>>();
                 return __return;
             }
@@ -284,7 +284,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_10");
                 PyObject __underlyingPythonFunc = this.__func_tuple_10;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string, string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<string, string, string, string, string, string, string, string, string, string, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String, global::CSnakes.Runtime.Python.PyObjectImporters.String>>();
                 return __return;
             }
@@ -297,7 +297,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_11");
                 PyObject __underlyingPythonFunc = this.__func_tuple_11;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string, string, string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<(string, string, string, string, string, string, string, string, string, string, string)>>();
                 return __return;
             }
@@ -310,7 +310,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_12");
                 PyObject __underlyingPythonFunc = this.__func_tuple_12;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string, string, string, string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string)>>();
                 return __return;
             }
@@ -323,7 +323,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_13");
                 PyObject __underlyingPythonFunc = this.__func_tuple_13;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string, string, string, string, string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string)>>();
                 return __return;
             }
@@ -336,7 +336,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_14");
                 PyObject __underlyingPythonFunc = this.__func_tuple_14;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string, string, string, string, string, string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string, string)>>();
                 return __return;
             }
@@ -349,7 +349,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_15");
                 PyObject __underlyingPythonFunc = this.__func_tuple_15;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)>>();
                 return __return;
             }
@@ -362,7 +362,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_16");
                 PyObject __underlyingPythonFunc = this.__func_tuple_16;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)>>();
                 return __return;
             }
@@ -375,7 +375,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "tuple_17");
                 PyObject __underlyingPythonFunc = this.__func_tuple_17;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([a_pyObject]);
                 var __return = __result_pyObject.BareImportAs<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string), global::CSnakes.Runtime.Python.PyObjectImporters.Runtime<(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)>>();
                 return __return;
             }

@@ -111,7 +111,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_log_debug");
                 PyObject __underlyingPythonFunc = this.__func_test_log_debug;
-                _ = __underlyingPythonFunc.Call();
+                _ = __underlyingPythonFunc.Call([]);
                 return;
             }
         }
@@ -122,7 +122,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_log_info");
                 PyObject __underlyingPythonFunc = this.__func_test_log_info;
-                _ = __underlyingPythonFunc.Call();
+                _ = __underlyingPythonFunc.Call([]);
                 return;
             }
         }
@@ -133,7 +133,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_params_message");
                 PyObject __underlyingPythonFunc = this.__func_test_params_message;
-                _ = __underlyingPythonFunc.Call();
+                _ = __underlyingPythonFunc.Call([]);
                 return;
             }
         }
@@ -144,7 +144,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_log_exception");
                 PyObject __underlyingPythonFunc = this.__func_test_log_exception;
-                _ = __underlyingPythonFunc.Call();
+                _ = __underlyingPythonFunc.Call([]);
                 return;
             }
         }
@@ -156,7 +156,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_many_entries");
                 PyObject __underlyingPythonFunc = this.__func_test_many_entries;
                 using PyObject count_pyObject = PyObject.From(count)!;
-                _ = __underlyingPythonFunc.Call(count_pyObject);
+                _ = __underlyingPythonFunc.Call([count_pyObject]);
                 return;
             }
         }
@@ -168,7 +168,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_named_logger");
                 PyObject __underlyingPythonFunc = this.__func_test_named_logger;
                 using PyObject name_pyObject = PyObject.From(name)!;
-                _ = __underlyingPythonFunc.Call(name_pyObject);
+                _ = __underlyingPythonFunc.Call([name_pyObject]);
                 return;
             }
         }

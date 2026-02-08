@@ -261,8 +261,14 @@ public static class MethodReflection
 
         if (parameters is { Keyword.IsEmpty: true, VariadicPositional: null, VariadicKeyword: null })
         {
+            // Use a collection expression to force the compiler to use
+            // `Call(ReadOnlySpan<PyObject>)` instead of `Call(params PyObject[])` which is obsolete
+            // and allocates an array. This is required for C# 12 (.NET 8 SDK) compatibility where
+            // params spans are not supported.
+            return ArgumentList(SingletonSeparatedList(Argument(CollectionExpression(SeparatedList(argsIdentifiers.Select(CollectionElementSyntax (a) => ExpressionElement(a)))))));
+            // TODO: Revert to simple call when .NET 8 SDK support is dropped
             // Call(params ReadOnlySpan<PyObject> args)
-            return ArgumentList(SeparatedList(from a in argsIdentifiers select Argument(a)));
+            // return ArgumentList(SeparatedList(from a in argsIdentifiers select Argument(a)));
         }
 
         var args = Argument(CollectionExpression(SeparatedList(argsIdentifiers.Select(CollectionElementSyntax (a) => ExpressionElement(a)))));

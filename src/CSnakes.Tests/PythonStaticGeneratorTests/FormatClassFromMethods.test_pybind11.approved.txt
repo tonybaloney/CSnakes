@@ -86,7 +86,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_pybind11_function");
                 PyObject __underlyingPythonFunc = this.__func_test_pybind11_function;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
                 var __return = __result_pyObject.BareImportAs<bool, global::CSnakes.Runtime.Python.PyObjectImporters.Boolean>();
                 return __return;
             }

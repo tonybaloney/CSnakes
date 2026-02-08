@@ -91,7 +91,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_raise_python_exception");
                 PyObject __underlyingPythonFunc = this.__func_test_raise_python_exception;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
                 var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
                 return __return;
             }
@@ -103,7 +103,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_nested_python_exception");
                 PyObject __underlyingPythonFunc = this.__func_test_nested_python_exception;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
                 var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
                 return __return;
             }

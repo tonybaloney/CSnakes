@@ -105,7 +105,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_supported_type");
                 PyObject __underlyingPythonFunc = this.__func_test_overload_supported_type;
                 using PyObject x_pyObject = PyObject.From(x)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(x_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([x_pyObject]);
                 var __return = __result_pyObject.BareImportAs<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>();
                 return __return;
             }
@@ -118,7 +118,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_supported_type");
                 PyObject __underlyingPythonFunc = this.__func_test_overload_supported_type;
                 using PyObject x_pyObject = PyObject.From(x)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(x_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([x_pyObject]);
                 var __return = __result_pyObject.BareImportAs<double, global::CSnakes.Runtime.Python.PyObjectImporters.Double>();
                 return __return;
             }
@@ -131,7 +131,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_supported_type");
                 PyObject __underlyingPythonFunc = this.__func_test_overload_supported_type;
                 using PyObject x_pyObject = PyObject.From(x)!;
-                PyObject __result_pyObject = __underlyingPythonFunc.Call(x_pyObject);
+                PyObject __result_pyObject = __underlyingPythonFunc.Call([x_pyObject]);
                 return __result_pyObject;
             }
         }
@@ -143,7 +143,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_overload_unsupported_type");
                 PyObject __underlyingPythonFunc = this.__func_test_overload_unsupported_type;
                 using PyObject x_pyObject = PyObject.From(x)!;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call(x_pyObject);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call([x_pyObject]);
                 var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
                 return __return;
             }

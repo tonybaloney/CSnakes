@@ -41,8 +41,9 @@ public class PythonStaticGenerator : IIncrementalGenerator
 
         // Extract the C# language version from the compilation so that generated code
         // can adapt to the features available in the consuming project's language version.
-        var languageVersion = context.CompilationProvider.Select(static (c, _) =>
-            c is CSharpCompilation comp ? comp.LanguageVersion : (LanguageVersion?)null);
+        var languageVersion =
+            context.CompilationProvider.Select(static (compilation, _) =>
+                compilation is CSharpCompilation { LanguageVersion: var v } ? v : (LanguageVersion?)null);
 
         context.RegisterSourceOutput(pythonFilesPipeline.Combine(embedPythonSource).Combine(rootDirectory).Combine(languageVersion), static (sourceContext, opts) =>
         {

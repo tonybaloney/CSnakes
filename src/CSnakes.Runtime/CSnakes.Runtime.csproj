@@ -29,13 +29,6 @@
     <IsTrimmable>True</IsTrimmable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net8.0'">
-    <PolySharpIncludeGeneratedTypes>
-      System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute;
-    </PolySharpIncludeGeneratedTypes>
-  </PropertyGroup>
-
-
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" />
     <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers">
@@ -46,10 +39,6 @@
       <PackageReference Include="Microsoft.SourceLink.GitHub">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="PolySharp" Condition="'$(TargetFramework)'=='net8.0'">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.Numerics.Tensors" Condition="'$(TargetFramework)' == 'net9.0'" />
     <PackageReference Include="ZstdSharp.Port" />

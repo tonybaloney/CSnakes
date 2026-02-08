@@ -444,7 +444,6 @@ public partial class PyObject : SafeHandle, ICloneable
     /// <returns>
     /// The result of the call.
     /// </returns>
-    [OverloadResolutionPriority(1)]
     public PyObject Call(params ReadOnlySpan<PyObject> args)
     {
         RaiseOnPythonNotInitialized();

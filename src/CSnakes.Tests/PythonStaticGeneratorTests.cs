@@ -1,6 +1,5 @@
 using CSnakes.Parser;
 using CSnakes.Reflection;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using Shouldly;
 using System.Collections.Immutable;
@@ -20,20 +19,7 @@ public class PythonStaticGeneratorTests
 
     [Theory]
     [MemberData(nameof(ResourceNames))]
-    public void FormatClassFromMethods(string resourceName) =>
-        TestFormatClassFromMethods(resourceName, (LanguageVersion)1300);
-
-    public static readonly TheoryData<string> FormatClassFromMethodsWhenCSharp12Data =
-        new(from data in ResourceNames
-            where data.Data.EndsWith(".test_args.py")
-            select data.Data);
-
-    [Theory]
-    [MemberData(nameof(FormatClassFromMethodsWhenCSharp12Data))]
-    public void FormatClassFromMethodsWhenCSharp12(string resourceName) =>
-        TestFormatClassFromMethods(resourceName, LanguageVersion.CSharp12);
-
-    private void TestFormatClassFromMethods(string resourceName, LanguageVersion languageVersion)
+    public void FormatClassFromMethods(string resourceName)
     {
         SourceText sourceText;
 
@@ -48,7 +34,7 @@ public class PythonStaticGeneratorTests
         _ = PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors);
         Assert.Empty(errors);
 
-        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions, languageVersion.Features).ToImmutableArray();
+        var module = ModuleReflection.MethodsFromFunctionDefinitions(functions).ToImmutableArray();
 
         // Just keep last part of the dotted name, e.g.:
         // "CSnakes.Tests.python.test_args.py" -> "test_args"
@@ -58,8 +44,7 @@ public class PythonStaticGeneratorTests
                                                                            embedSourceText: nameDiscriminator.Equals("test_source", StringComparison.OrdinalIgnoreCase));
 
         compiledCode.ShouldMatchApproved(options =>
-            options.LocateTestMethodUsingAttribute<TheoryAttribute>()
-                   .WithDiscriminator(nameDiscriminator)
+            options.WithDiscriminator(nameDiscriminator)
                    .SubFolder(GetType().Name)
                    .WithFilenameGenerator((info, d, type, ext) => $"{info.MethodName}{d}.{type}.{ext}")
                    .NoDiff());

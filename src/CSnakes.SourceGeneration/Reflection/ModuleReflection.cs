@@ -7,10 +7,9 @@ namespace CSnakes.Reflection;
 
 public static class ModuleReflection
 {
-    public static IEnumerable<MethodDefinition> MethodsFromFunctionDefinitions(IEnumerable<PythonFunctionDefinition> functions,
-                                                                               LanguageFeatures languageFeatures = LanguageFeatures.None)
+    public static IEnumerable<MethodDefinition> MethodsFromFunctionDefinitions(IEnumerable<PythonFunctionDefinition> functions)
     {
-        return functions.SelectMany(function => MethodReflection.FromMethod(function, languageFeatures))
+        return functions.SelectMany(function => MethodReflection.FromMethod(function))
                         .Distinct(new MethodDefinitionComparator());
     }
 

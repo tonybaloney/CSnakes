@@ -86,7 +86,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "get_mad_string");
                 PyObject __underlyingPythonFunc = this.__func_get_mad_string;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
                 return __return;
             }

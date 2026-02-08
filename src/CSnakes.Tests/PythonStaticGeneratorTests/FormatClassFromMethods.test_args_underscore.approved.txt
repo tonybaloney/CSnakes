@@ -88,7 +88,7 @@ static partial class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_with_underscore;
                 using PyObject testx_pyObject = PyObject.From(testx)!;
                 using PyObject testy_pyObject = PyObject.From(testy)!;
-                _ = __underlyingPythonFunc.Call([testx_pyObject, testy_pyObject]);
+                _ = __underlyingPythonFunc.Call(testx_pyObject, testy_pyObject);
                 return;
             }
         }

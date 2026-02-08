@@ -102,7 +102,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_union_basic");
                 PyObject __underlyingPythonFunc = this.__func_test_union_basic;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                _ = __underlyingPythonFunc.Call([a_pyObject]);
+                _ = __underlyingPythonFunc.Call(a_pyObject);
                 return;
             }
         }
@@ -114,7 +114,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_union_basic");
                 PyObject __underlyingPythonFunc = this.__func_test_union_basic;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                _ = __underlyingPythonFunc.Call([a_pyObject]);
+                _ = __underlyingPythonFunc.Call(a_pyObject);
                 return;
             }
         }
@@ -126,7 +126,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_union_basic");
                 PyObject __underlyingPythonFunc = this.__func_test_union_basic;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                _ = __underlyingPythonFunc.Call([a_pyObject]);
+                _ = __underlyingPythonFunc.Call(a_pyObject);
                 return;
             }
         }
@@ -137,7 +137,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_union_return");
                 PyObject __underlyingPythonFunc = this.__func_test_union_return;
-                PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
+                PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 return __result_pyObject;
             }
         }
@@ -150,7 +150,7 @@ static partial class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_multiple_unions;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
-                _ = __underlyingPythonFunc.Call([a_pyObject, b_pyObject]);
+                _ = __underlyingPythonFunc.Call(a_pyObject, b_pyObject);
                 return;
             }
         }
@@ -163,7 +163,7 @@ static partial class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_multiple_unions;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
-                _ = __underlyingPythonFunc.Call([a_pyObject, b_pyObject]);
+                _ = __underlyingPythonFunc.Call(a_pyObject, b_pyObject);
                 return;
             }
         }
@@ -176,7 +176,7 @@ static partial class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_multiple_unions;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
-                _ = __underlyingPythonFunc.Call([a_pyObject, b_pyObject]);
+                _ = __underlyingPythonFunc.Call(a_pyObject, b_pyObject);
                 return;
             }
         }
@@ -189,7 +189,7 @@ static partial class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_multiple_unions;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
-                _ = __underlyingPythonFunc.Call([a_pyObject, b_pyObject]);
+                _ = __underlyingPythonFunc.Call(a_pyObject, b_pyObject);
                 return;
             }
         }
@@ -201,7 +201,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_multiple_complex");
                 PyObject __underlyingPythonFunc = this.__func_test_multiple_complex;
                 using PyObject a_pyObject = PyObject.From(a)!;
-                _ = __underlyingPythonFunc.Call([a_pyObject]);
+                _ = __underlyingPythonFunc.Call(a_pyObject);
                 return;
             }
         }

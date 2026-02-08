@@ -141,7 +141,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_str_actually_returns_int");
                 PyObject __underlyingPythonFunc = this.__func_test_str_actually_returns_int;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
                 return __return;
             }
@@ -153,7 +153,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_str_actually_returns_float");
                 PyObject __underlyingPythonFunc = this.__func_test_str_actually_returns_float;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
                 return __return;
             }
@@ -165,7 +165,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_str_actually_returns_list");
                 PyObject __underlyingPythonFunc = this.__func_test_str_actually_returns_list;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
                 return __return;
             }
@@ -177,7 +177,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_str_actually_returns_tuple");
                 PyObject __underlyingPythonFunc = this.__func_test_str_actually_returns_tuple;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<string, global::CSnakes.Runtime.Python.PyObjectImporters.String>();
                 return __return;
             }
@@ -189,7 +189,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_tuple_actually_returns_int");
                 PyObject __underlyingPythonFunc = this.__func_test_tuple_actually_returns_int;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<(long, long), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<long, long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>();
                 return __return;
             }
@@ -201,7 +201,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_tuple_actually_returns_float");
                 PyObject __underlyingPythonFunc = this.__func_test_tuple_actually_returns_float;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<(double, double), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<double, double, global::CSnakes.Runtime.Python.PyObjectImporters.Double, global::CSnakes.Runtime.Python.PyObjectImporters.Double>>();
                 return __return;
             }
@@ -213,7 +213,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_tuple_actually_returns_list");
                 PyObject __underlyingPythonFunc = this.__func_test_tuple_actually_returns_list;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<(IReadOnlyList<long>, IReadOnlyList<long>), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<IReadOnlyList<long>, IReadOnlyList<long>, global::CSnakes.Runtime.Python.PyObjectImporters.List<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>, global::CSnakes.Runtime.Python.PyObjectImporters.List<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>>();
                 return __return;
             }
@@ -225,7 +225,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float_returns_int");
                 PyObject __underlyingPythonFunc = this.__func_test_float_returns_int;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<double, global::CSnakes.Runtime.Python.PyObjectImporters.Double>();
                 return __return;
             }
@@ -237,7 +237,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float_returns_str");
                 PyObject __underlyingPythonFunc = this.__func_test_float_returns_str;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<double, global::CSnakes.Runtime.Python.PyObjectImporters.Double>();
                 return __return;
             }
@@ -249,7 +249,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int_returns_float");
                 PyObject __underlyingPythonFunc = this.__func_test_int_returns_float;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>();
                 return __return;
             }
@@ -261,7 +261,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int_returns_str");
                 PyObject __underlyingPythonFunc = this.__func_test_int_returns_str;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>();
                 return __return;
             }
@@ -273,7 +273,7 @@ static partial class TestClassExtensions
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_int_overflows");
                 PyObject __underlyingPythonFunc = this.__func_test_int_overflows;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call([]);
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
                 var __return = __result_pyObject.BareImportAs<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>();
                 return __return;
             }

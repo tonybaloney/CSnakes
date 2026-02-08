@@ -11,7 +11,7 @@ namespace CSnakes.Reflection;
 
 public static class MethodReflection
 {
-    public static IEnumerable<MethodDefinition> FromMethod(PythonFunctionDefinition function)
+    public static IEnumerable<MethodDefinition> FromMethod(PythonFunctionDefinition function, LanguageFeatures languageFeatures)
     {
         // Step 1: Determine the return type of the method
         PythonTypeSpec returnPythonType = function.ReturnType;
@@ -163,7 +163,7 @@ public static class MethodReflection
                         SyntaxKind.SimpleMemberAccessExpression,
                         IdentifierName("__underlyingPythonFunc"),
                         IdentifierName("Call")),
-                    GenerateCallArgs(function.Parameters, cSharpParameterList));
+                    GenerateCallArgs(function.Parameters, cSharpParameterList, languageFeatures));
 
             StatementSyntax callStatement
                 = returnExpression.Expression is not null
@@ -253,7 +253,8 @@ public static class MethodReflection
     }
 
     private static ArgumentListSyntax GenerateCallArgs(PythonFunctionParameterList parameters,
-                                                       CSharpParameterList reflectedParameters)
+                                                       CSharpParameterList reflectedParameters,
+                                                       LanguageFeatures languageFeatures)
     {
         var argsIdentifiers =
             from a in reflectedParameters.Positional.Concat(reflectedParameters.Regular)
@@ -261,14 +262,13 @@ public static class MethodReflection
 
         if (parameters is { Keyword.IsEmpty: true, VariadicPositional: null, VariadicKeyword: null })
         {
-            // Use a collection expression to force the compiler to use
-            // `Call(ReadOnlySpan<PyObject>)` instead of `Call(params PyObject[])` which is obsolete
-            // and allocates an array. This is required for C# 12 (.NET 8 SDK) compatibility where
-            // params spans are not supported.
-            return ArgumentList(SingletonSeparatedList(Argument(CollectionExpression(SeparatedList(argsIdentifiers.Select(CollectionElementSyntax (a) => ExpressionElement(a)))))));
-            // TODO: Revert to simple call when .NET 8 SDK support is dropped
-            // Call(params ReadOnlySpan<PyObject> args)
-            // return ArgumentList(SeparatedList(from a in argsIdentifiers select Argument(a)));
+            return languageFeatures.Has(LanguageFeatures.ParamsCollections)
+                   // C# 13+: params spans are supported, so a simple argument list works.
+                   // Call(params ReadOnlySpan<PyObject> args)
+                 ? ArgumentList(SeparatedList(from a in argsIdentifiers select Argument(a)))
+                   // C# 12 and below: wrap in a collection expression to avoid binding to the
+                   // obsolete Call(params PyObject[]) overload.
+                 : ArgumentList(SingletonSeparatedList(Argument(CollectionExpression(SeparatedList(argsIdentifiers.Select(CollectionElementSyntax (a) => ExpressionElement(a)))))));
         }
 
         var args = Argument(CollectionExpression(SeparatedList(argsIdentifiers.Select(CollectionElementSyntax (a) => ExpressionElement(a)))));

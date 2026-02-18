@@ -7,22 +7,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
-using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 const int defaultTimeout = 500; // Default timeout in seconds
 
-var versionString = Assembly.GetEntryAssembly()?
-                            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-                            .InformationalVersion ?? "0.0";
-
 return await ProgramArguments.CreateParser()
-                             .WithVersion(versionString)
+                             .WithVersion(ThisAssembly.Info.InformationalVersion)
                              .Parse(args)
                              .Match(Main,
-                                    result => Print(Console.Out, result.Help),
+                                    result => Print(Console.Out, RenderTemplate(result.Help)),
                                     result => Print(Console.Out, result.Version),
-                                    result => Print(Console.Error, result.Usage, exitCode: 1));
+                                    result => Print(Console.Error, RenderTemplate(result.Usage), exitCode: 1));
 
 static async Task<int> Main(ProgramArguments args)
 {
@@ -111,4 +107,20 @@ static Task<int> Print(TextWriter writer, string message, int exitCode = 0)
 {
     writer.WriteLine(message);
     return Task.FromResult(exitCode);
+}
+
+static string RenderTemplate(string input) =>
+    TokenRegex().Replace(input, m => m.Value.AsSpan()[2..^1] switch
+    {
+        [.."version"] => ThisAssembly.Info.InformationalVersion,
+        [.."bin"] => ThisAssembly.Constants.ToolCommandName,
+        _ => m.Value,
+    });
+
+partial class Program
+{
+    // Pattern for "${...}" where the content starts and ends with a lowercase letter and
+    // may contain lowercase letters and hyphens in the middle.
+    [GeneratedRegex(@"\${[a-z]([a-z-]*[a-z])?}")]
+    private static partial Regex TokenRegex();
 }

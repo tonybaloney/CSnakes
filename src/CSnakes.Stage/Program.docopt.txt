@@ -1,14 +1,16 @@
+${bin} ${version}
+
 Tool to install Python environments and versions.
 
 Usage:
-  setup-python
+  ${bin}
       [--verbose]
       [--timeout=SECONDS]
       [--venv=PATH]
       [--pip-requirements=FILE | --uv-requirements=FILE]
       --python=VERSION
-  setup-python -h | --help | -?
-  setup-python --version
+  ${bin} -h | --help | -?
+  ${bin} --version
 
 Options:
   -?, -h, --help           Show help and usage information

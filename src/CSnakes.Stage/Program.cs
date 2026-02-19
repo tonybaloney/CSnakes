@@ -20,9 +20,9 @@ return await ProgramArguments.CreateParser()
                              .WithVersion(versionString)
                              .Parse(args)
                              .Match(Main,
-                                    result => Print(Console.Out, result.Help),
+                                    result => Print(Console.Out, result.Help.ReplaceLineEndings()),
                                     result => Print(Console.Out, result.Version),
-                                    result => Print(Console.Error, result.Usage, exitCode: 1));
+                                    result => Print(Console.Error, result.Usage.ReplaceLineEndings(), exitCode: 1));
 
 static async Task<int> Main(ProgramArguments args)
 {

@@ -25,7 +25,7 @@ static partial class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "08afa2080196c6ea4204b0a0576ebec8"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "e78a0d299f575a24a5051e9c287db412"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -50,6 +50,9 @@ static partial class TestClassExtensions
         private PyObject __func_test_coroutine;
         private PyObject __func_test_coroutine_raises_exception;
         private PyObject __func_test_coroutine_returns_nothing;
+        private PyObject __func_test_coroutine_bare;
+        private PyObject __func_test_coroutine_self_canceling;
+        private PyObject __func_test_generator_based_coroutine;
 
         internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
@@ -61,6 +64,9 @@ static partial class TestClassExtensions
                 this.__func_test_coroutine = module.GetAttr("test_coroutine");
                 this.__func_test_coroutine_raises_exception = module.GetAttr("test_coroutine_raises_exception");
                 this.__func_test_coroutine_returns_nothing = module.GetAttr("test_coroutine_returns_nothing");
+                this.__func_test_coroutine_bare = module.GetAttr("test_coroutine_bare");
+                this.__func_test_coroutine_self_canceling = module.GetAttr("test_coroutine_self_canceling");
+                this.__func_test_generator_based_coroutine = module.GetAttr("test_generator_based_coroutine");
             }
         }
 
@@ -74,10 +80,16 @@ static partial class TestClassExtensions
                 this.__func_test_coroutine.Dispose();
                 this.__func_test_coroutine_raises_exception.Dispose();
                 this.__func_test_coroutine_returns_nothing.Dispose();
+                this.__func_test_coroutine_bare.Dispose();
+                this.__func_test_coroutine_self_canceling.Dispose();
+                this.__func_test_generator_based_coroutine.Dispose();
                 // Bind to new functions
                 this.__func_test_coroutine = module.GetAttr("test_coroutine");
                 this.__func_test_coroutine_raises_exception = module.GetAttr("test_coroutine_raises_exception");
                 this.__func_test_coroutine_returns_nothing = module.GetAttr("test_coroutine_returns_nothing");
+                this.__func_test_coroutine_bare = module.GetAttr("test_coroutine_bare");
+                this.__func_test_coroutine_self_canceling = module.GetAttr("test_coroutine_self_canceling");
+                this.__func_test_generator_based_coroutine = module.GetAttr("test_generator_based_coroutine");
             }
         }
 
@@ -87,6 +99,9 @@ static partial class TestClassExtensions
             this.__func_test_coroutine.Dispose();
             this.__func_test_coroutine_raises_exception.Dispose();
             this.__func_test_coroutine_returns_nothing.Dispose();
+            this.__func_test_coroutine_bare.Dispose();
+            this.__func_test_coroutine_self_canceling.Dispose();
+            this.__func_test_generator_based_coroutine.Dispose();
             module.Dispose();
         }
 
@@ -98,7 +113,7 @@ static partial class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine;
                 using PyObject seconds_pyObject = PyObject.From(seconds)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);
-                var __return = __result_pyObject.BareImportAs<ICoroutine<long, PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.None>>().AsTask(cancellationToken);
+                var __return = __result_pyObject.BareImportAs<IAwaitable<long>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>().WaitAsync(dispose: true, cancellationToken);
                 return __return;
             }
         }
@@ -110,7 +125,7 @@ static partial class TestClassExtensions
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_raises_exception");
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_raises_exception;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call();
-                var __return = __result_pyObject.BareImportAs<ICoroutine<long, PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<long, PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.None>>().AsTask(cancellationToken);
+                var __return = __result_pyObject.BareImportAs<IAwaitable<long>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>().WaitAsync(dispose: true, cancellationToken);
                 return __return;
             }
         }
@@ -123,8 +138,45 @@ static partial class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_coroutine_returns_nothing;
                 using PyObject seconds_pyObject = PyObject.From(seconds)!;
                 using PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);
-                var __return = __result_pyObject.BareImportAs<ICoroutine<PyObject, PyObject, PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Coroutine<PyObject, PyObject, PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.None, global::CSnakes.Runtime.Python.PyObjectImporters.None>>().AsTask(cancellationToken);
+                var __return = __result_pyObject.BareImportAs<IAwaitable<PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.None>>().WaitAsync(dispose: true, cancellationToken);
                 return __return;
+            }
+        }
+
+        public Task<long> TestCoroutineBare(double seconds = 0.1, CancellationToken cancellationToken = default)
+        {
+            using (GIL.Acquire())
+            {
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_bare");
+                PyObject __underlyingPythonFunc = this.__func_test_coroutine_bare;
+                using PyObject seconds_pyObject = PyObject.From(seconds)!;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);
+                var __return = __result_pyObject.BareImportAs<IAwaitable<long>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>().WaitAsync(dispose: true, cancellationToken);
+                return __return;
+            }
+        }
+
+        public Task<PyObject> TestCoroutineSelfCanceling(CancellationToken cancellationToken = default)
+        {
+            using (GIL.Acquire())
+            {
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_coroutine_self_canceling");
+                PyObject __underlyingPythonFunc = this.__func_test_coroutine_self_canceling;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                var __return = __result_pyObject.BareImportAs<IAwaitable<PyObject>, global::CSnakes.Runtime.Python.PyObjectImporters.Awaitable<PyObject, global::CSnakes.Runtime.Python.PyObjectImporters.Clone>>().WaitAsync(dispose: true, cancellationToken);
+                return __return;
+            }
+        }
+
+        public PyObject TestGeneratorBasedCoroutine(double seconds = 0.1)
+        {
+            using (GIL.Acquire())
+            {
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_generator_based_coroutine");
+                PyObject __underlyingPythonFunc = this.__func_test_generator_based_coroutine;
+                using PyObject seconds_pyObject = PyObject.From(seconds)!;
+                PyObject __result_pyObject = __underlyingPythonFunc.Call(seconds_pyObject);
+                return __result_pyObject;
             }
         }
     }
@@ -158,6 +210,30 @@ public interface ITestClass : IReloadableModuleImport
     /// ]]></code>
     /// </summary>
     Task TestCoroutineReturnsNothing(double seconds = 0.1, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_coroutine_bare</c>:
+    /// <code><![CDATA[
+    /// def test_coroutine_bare(seconds: float = 0.1) -> Coroutine[None, None, int]: ...
+    /// ]]></code>
+    /// </summary>
+    Task<long> TestCoroutineBare(double seconds = 0.1, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_coroutine_self_canceling</c>:
+    /// <code><![CDATA[
+    /// async def test_coroutine_self_canceling(): ...
+    /// ]]></code>
+    /// </summary>
+    Task<PyObject> TestCoroutineSelfCanceling(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_generator_based_coroutine</c>:
+    /// <code><![CDATA[
+    /// def test_generator_based_coroutine(seconds: float = 0.1): ...
+    /// ]]></code>
+    /// </summary>
+    PyObject TestGeneratorBasedCoroutine(double seconds = 0.1);
 }
 
 file static class ThisModule

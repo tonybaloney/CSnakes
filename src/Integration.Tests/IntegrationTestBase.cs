@@ -49,7 +49,7 @@ public sealed class PythonEnvironmentFixture : IDisposable
           .WithPipInstaller();
 
         builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
-        
+
         app = builder.Build();
 
         env = app.Services.GetRequiredService<IPythonEnvironment>();

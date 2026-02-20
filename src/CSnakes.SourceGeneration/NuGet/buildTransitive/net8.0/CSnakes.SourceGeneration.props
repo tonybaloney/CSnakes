@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <DefaultPythonItems>false</DefaultPythonItems>
+    <EnableDefaultPythonItems Condition="'$(EnableDefaultPythonItems)' == ''">true</EnableDefaultPythonItems>
   </PropertyGroup>
 
 </Project>

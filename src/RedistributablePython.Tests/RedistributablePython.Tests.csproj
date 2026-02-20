@@ -5,7 +5,6 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <DefaultPythonItems>true</DefaultPythonItems>
     <EmbedPythonSources>true</EmbedPythonSources>
   </PropertyGroup>
 

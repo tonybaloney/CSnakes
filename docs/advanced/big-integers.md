@@ -51,7 +51,7 @@ def fibonacci_large(n: int) -> int:
     """Calculate the nth Fibonacci number"""
     if n <= 1:
         return n
-    
+
     a, b = 0, 1
     for _ in range(2, n + 1):
         a, b = b, a + b
@@ -90,7 +90,7 @@ public static class SafeIntegerConversion
     public static long ToLongOrBigInteger(PyObject pyObj, out BigInteger? bigInteger)
     {
         bigInteger = null;
-        
+
         try
         {
             // Try to convert to long first (more efficient)

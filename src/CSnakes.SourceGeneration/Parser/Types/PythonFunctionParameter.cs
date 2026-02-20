@@ -115,13 +115,13 @@ public sealed class PythonFunctionParameterList<T>(ImmutableArray<T> positional 
         where TResult : class
     {
         /* Each parameter group will be a list of parameters with a list of potential types.
-         * 
+         *
          * | Positional        | Regular         | VariadicPositional | Keyword        | VariadicKeyword  |
          * |-------------------|-----------------|--------------------|----------------|------------------|
          * | 0: [type1, type2] | [type3]         | ...                | [type5, type6] | [type7]          |
          * | 1: [type8]        |                 |                    | [type12]       |                  |
-         * 
-         * etc. 
+         *
+         * etc.
          */
         // Skip all this malarky if there are no parameters at all
         if (Count is 0)

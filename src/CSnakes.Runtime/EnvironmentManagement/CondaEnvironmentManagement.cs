@@ -21,7 +21,7 @@ internal class CondaEnvironmentManagement(ILogger? logger, string name, bool ens
 
             throw new InvalidOperationException($"Cannot find conda environment at {fullPath}.");
 
-            // TODO: Automate the creation of the conda environments. 
+            // TODO: Automate the creation of the conda environments.
             //var result = conda.ExecuteCondaShellCommand($"env create -n {name} -f {environmentSpecPath}");
             //if (!result)
             //{
@@ -38,7 +38,7 @@ internal class CondaEnvironmentManagement(ILogger? logger, string name, bool ens
 
     public string GetPath()
     {
-        // TODO: Conda environments are not always in the same location. Resolve the path correctly. 
+        // TODO: Conda environments are not always in the same location. Resolve the path correctly.
         return Path.Combine(conda.CondaHome, "envs", name);
     }
 

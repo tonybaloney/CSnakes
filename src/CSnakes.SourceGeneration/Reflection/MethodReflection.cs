@@ -11,7 +11,7 @@ namespace CSnakes.Reflection;
 
 public static class MethodReflection
 {
-    public static IEnumerable<MethodDefinition> FromMethod(PythonFunctionDefinition function)
+    public static IEnumerable<MethodDefinition> FromMethod(PythonFunctionDefinition function, LanguageFeatures languageFeatures)
     {
         // Step 1: Determine the return type of the method
         PythonTypeSpec returnPythonType = function.ReturnType;
@@ -26,31 +26,27 @@ public static class MethodReflection
             ? TypeReflection.AsPredefinedType(returnPythonType, TypeReflection.ConversionDirection.FromPython).First()
             : PredefinedType(Token(SyntaxKind.VoidKeyword));
 
-        if (function.IsAsync)
+        if (function.IsAsync || returnPythonType is CoroutineType { Yield: NoneType, Send: NoneType })
         {
             cancellationTokenParameterSyntax =
                 Parameter(Identifier(cancellationTokenName))
                     .WithType(IdentifierName("CancellationToken"))
                     .WithDefault(EqualsValueClause(LiteralExpression(SyntaxKind.DefaultLiteralExpression)));
 
-            // If simple async type annotation, treat as Coroutine[T1, T2, T3] where T1 is the yield type, T2 is the send type and T3 is the return type
+            // If simple async type annotation, treat as Coroutine[None, None, T] where T is the return type
             if (returnPythonType.Name != "Coroutine")
             {
-                returnPythonType = new CoroutineType(
-                        returnPythonType, // Yield type
-                        PythonTypeSpec.None, // Send type
-                        PythonTypeSpec.None // Return type, TODO: Swap with yield on #480
-                    );
+                returnPythonType = new CoroutineType(returnPythonType);
             }
 
             returnSyntax = returnPythonType switch
             {
-                CoroutineType { Yield: NoneType } =>
+                CoroutineType { Return: NoneType } =>
                     // Make it PyObject otherwise we need to annotate as Task instead of Task<T> and that adds a lot of complexity and little value
                     ParseTypeName("PyObject"),
-                CoroutineType { Yield: var tYield } =>
-                    TypeReflection.AsPredefinedType(tYield, TypeReflection.ConversionDirection.FromPython).First(),
-                _ => throw new ArgumentException("Async function must return a Coroutine[T1, T2, T3]")
+                CoroutineType { Return: var rt } =>
+                    TypeReflection.AsPredefinedType(rt, TypeReflection.ConversionDirection.FromPython).First(),
+                _ => throw new ArgumentException("Async function must return a Coroutine[None, None, T]")
             };
             // return is a Task of <T> or Task when void
             returnSyntax
@@ -167,7 +163,7 @@ public static class MethodReflection
                         SyntaxKind.SimpleMemberAccessExpression,
                         IdentifierName("__underlyingPythonFunc"),
                         IdentifierName("Call")),
-                    GenerateCallArgs(function.Parameters, cSharpParameterList));
+                    GenerateCallArgs(function.Parameters, cSharpParameterList, languageFeatures));
 
             StatementSyntax callStatement
                 = returnExpression.Expression is not null
@@ -257,7 +253,8 @@ public static class MethodReflection
     }
 
     private static ArgumentListSyntax GenerateCallArgs(PythonFunctionParameterList parameters,
-                                                       CSharpParameterList reflectedParameters)
+                                                       CSharpParameterList reflectedParameters,
+                                                       LanguageFeatures languageFeatures)
     {
         var argsIdentifiers =
             from a in reflectedParameters.Positional.Concat(reflectedParameters.Regular)
@@ -265,8 +262,14 @@ public static class MethodReflection
 
         if (parameters is { Keyword.IsEmpty: true, VariadicPositional: null, VariadicKeyword: null })
         {
-            // Call(params ReadOnlySpan<PyObject> args)
-            return ArgumentList(SeparatedList(from a in argsIdentifiers select Argument(a)));
+            return ArgumentList(
+                       languageFeatures.Has(LanguageFeatures.ParamsCollections)
+                         // C# 13+: params spans are supported, so a simple argument list works.
+                         // Call(params ReadOnlySpan<PyObject> args)
+                       ? SeparatedList(from a in argsIdentifiers select Argument(a))
+                         // Otherwise wrap in a collection expression to avoid binding to the
+                         // obsolete Call(params PyObject[]) overload.
+                       : SingletonSeparatedList(Argument(CollectionExpression(SeparatedList(argsIdentifiers.Select(CollectionElementSyntax (a) => ExpressionElement(a)))))));
         }
 
         var args = Argument(CollectionExpression(SeparatedList(argsIdentifiers.Select(CollectionElementSyntax (a) => ExpressionElement(a)))));
@@ -286,7 +289,9 @@ public static class MethodReflection
 
         IEnumerable<CollectionElementSyntax> kwargs =
             from a in parameters.Keyword.Zip(reflectedParameters.Keyword, (pp, rp) => (pp.Name, rp.Identifier))
-            select ArgumentList(SeparatedList([Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(a.Name))),
+            select ArgumentList(SeparatedList([Argument(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                                                                               ThisExpression(),
+                                                                               IdentifierName($"__kw_{a.Name}"))),
                                                Argument(IdentifierName($"{a.Identifier}_pyObject"))]))
             into a
             select ExpressionElement(ImplicitObjectCreationExpression(a, null));

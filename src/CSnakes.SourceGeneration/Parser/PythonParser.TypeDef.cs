@@ -40,6 +40,7 @@ public static partial class PythonParser
         public static readonly PythonTypeSpecParser Optional = TypeDefinitionParser.Subscript(PythonTypeSpec (of) => new OptionalType(of));
         public static readonly PythonTypeSpecParser List = TypeDefinitionParser.Subscript(PythonTypeSpec (of) => new ListType(of));
         public static readonly PythonTypeSpecParser Sequence = TypeDefinitionParser.Subscript(PythonTypeSpec (of) => new SequenceType(of));
+        public static readonly PythonTypeSpecParser Awaitable = TypeDefinitionParser.Subscript(PythonTypeSpec (of) => new AwaitableType(of));
         public static readonly PythonTypeSpecParser Dict = TypeDefinitionParser.Subscript(PythonTypeSpec (k, v) => new DictType(k, v));
         public static readonly PythonTypeSpecParser Mapping = TypeDefinitionParser.Subscript(PythonTypeSpec (k, v) => new MappingType(k, v));
         public static readonly PythonTypeSpecParser Generator = TypeDefinitionParser.Subscript(PythonTypeSpec (y, s, r) => new GeneratorType(y, s, r));
@@ -107,7 +108,7 @@ public static partial class PythonParser
             from name in Parse.OneOf(Token.EqualTo(PythonToken.None),
                                      Token.EqualTo(PythonToken.Identifier),
                                      Token.EqualTo(PythonToken.QualifiedIdentifier))
-            from type in name.ToStringValue() switch
+            from type in name.CharSpan() switch
             {
                 "None"                                                           => TypeDefinitionSubParsers.None,
                 "Any"                                                            => TypeDefinitionSubParsers.Any,
@@ -120,6 +121,7 @@ public static partial class PythonParser
                 "Optional" or "typing.Optional"                                  => TypeDefinitionSubParsers.Optional,
                 "list" or "List" or "typing.List"                                => TypeDefinitionSubParsers.List,
                 "Sequence" or "collections.abc.Sequence" or "typing.Sequence"    => TypeDefinitionSubParsers.Sequence,
+                "Awaitable" or "collections.abc.Awaitable" or "typing.Awaitable" => TypeDefinitionSubParsers.Awaitable,
                 "dict" or "Dict" or "typing.Dict"                                => TypeDefinitionSubParsers.Dict,
                 "Mapping" or "collections.abc.Mapping" or "typing.Mapping"       => TypeDefinitionSubParsers.Mapping,
                 "Generator" or "collections.abc.Generator" or "typing.Generator" => TypeDefinitionSubParsers.Generator,
@@ -129,18 +131,46 @@ public static partial class PythonParser
                 "Union" or "typing.Union"                                        => TypeDefinitionSubParsers.Union,
                 "tuple" or "Tuple" or "typing.Tuple"                             => TypeDefinitionSubParsers.Tuple,
 
-                var other => from subscript in TypeDefinitionSubParsers.Subscript
-                             select (PythonTypeSpec)new ParsedPythonTypeSpec(other, [..subscript]),
+                _ => from subscript in TypeDefinitionSubParsers.Subscript
+                     select (PythonTypeSpec)new ParsedPythonTypeSpec(name.ToStringValue(), [..subscript]),
             }
             select type;
 
-        return Combinators.Named(name: "Type Definition", parser:
-                   from ts in parser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Pipe))
-                   select ts switch
-                   {
-                       [var single] => single,
-                       var multiple => UnionType.Normalize([..multiple])
-                   });
+
+        var pipedParser =
+            //
+            // Parser for a single type or a union of types using PEP 604 syntax (`X | Y`).
+            //
+            from ts in parser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Pipe))
+            select ts switch
+            {
+                [var single] => single,
+                var multiple => UnionType.Normalize(multiple)
+            };
+
+        var annotatedParser =
+            //
+            // Parser for "Annotated" or "typing.Annotated".
+            //
+            from id in Parse.OneOf(Token.EqualTo(PythonToken.QualifiedIdentifier),
+                                   Token.EqualTo(PythonToken.Identifier))
+            where id.CharSpan() is "Annotated" or "typing.Annotated"
+            select id;
+
+        var annotatedSubscriptionParser =
+            //
+            // Parser for subscription part of an Annotated type, that is the
+            // `[X, ...]` in `Annotated[X, ...]`.
+            //
+            from t in pipedParser.ThenIgnore(Token.EqualTo(PythonToken.Comma))
+            from md in ConstantValueParser.AtLeastOnceDelimitedBy(Token.EqualTo(PythonToken.Comma))
+            select t with { Metadata = [.. md] };
+
+        // Full parser for an Annotated type.
+
+        var annotatedTypeParser = annotatedParser.IgnoreThen(Subscript(annotatedSubscriptionParser));
+
+        return Parse.OneOf(annotatedTypeParser, pipedParser).Named("Type Definition");
     }
 
     private static TokenListParser<PythonToken, T> Return<T>(T value) => Parse.Return<PythonToken, T>(value);

@@ -33,7 +33,7 @@ public class RuntimeTestBase : IDisposable
           .FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded);
 
         builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
-        
+
         app = builder.Build();
 
         env = app.Services.GetRequiredService<IPythonEnvironment>();

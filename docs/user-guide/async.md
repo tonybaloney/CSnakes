@@ -1,6 +1,6 @@
 # Async support
 
-Python async functions will be generated into async C# methods. The generated C# method will return a `Task<T>` depending on the return type of the Python function. 
+Python async functions will be generated into async C# methods. The generated C# method will return a `Task<T>` depending on the return type of the Python function.
 
 ```python
 import asyncio
@@ -27,10 +27,7 @@ The [C# Async model](https://learn.microsoft.com/en-us/dotnet/standard/parallel-
 - Python event loops belong to the thread that created them. C# tasks can be scheduled on any thread.
 - Python async functions are coroutines that are scheduled on the event loop. C# async functions are tasks that are scheduled on the task pool.
 
-To converge these two models, CSnakes creates a Python event-loop for each C# thread that calls into Python. This event loop is created when the first Python function is called and is destroyed when the thread is disposed. This event loop is used to schedule the Python async functions.
-Because C# reuses threads in the Task pool, the event loop is reused and kept as a thread-local variable.
-
-The behavior is abstracted away from the user, but it is important to understand that the Python event loop is created and destroyed for each C# thread that calls into Python. This is important to understand when debugging or profiling your application.
+To converge these two models, CSnakes creates a Python event-loop that is serviced by a .NET thread and which is in turn used to schedule the Python async functions.
 
 ## Parallelism considerations
 

@@ -28,7 +28,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    ```bash
    # Windows
    set PYTHONHOME=C:\Python312
-   
+
    # Linux/macOS
    export PYTHONHOME=/usr/local/python3.12
    ```
@@ -114,7 +114,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    # Ensure proper type annotations
    def my_function(param: str) -> str:  # ✅ Good
        return f"Hello {param}"
-   
+
    def bad_function(param):  # ❌ Bad - no type hints
        return f"Hello {param}"
    ```
@@ -151,7 +151,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
        mapping: dict[str, int]
    ) -> tuple[str, int]:
        return text, number
-   
+
    # ❌ Unsupported complex types
    def bad_function(custom_object: MyCustomClass) -> MyCustomClass:
        return custom_object
@@ -195,13 +195,13 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    catch (PythonInvocationException ex)
    {
        _logger.LogError(ex, "Python function failed with input: {Input}", input);
-       
+
        // Check specific Python exception type
        if (ex.PythonExceptionType == "ValueError")
        {
            return HandleValueError(ex);
        }
-       
+
        throw; // Re-throw if can't handle
    }
    ```
@@ -213,10 +213,10 @@ This guide helps you diagnose and resolve common issues when working with CSnake
        try:
            if value < 0:
                return False, 0, "Value must be non-negative"
-           
+
            result = expensive_operation(value)
            return True, result, ""
-           
+
        except Exception as e:
            return False, 0, str(e)
    ```
@@ -230,12 +230,12 @@ This guide helps you diagnose and resolve common issues when working with CSnake
        {
            return ProcessingResult.Failure("No data provided");
        }
-       
+
        if (data.Items.Count > MaxItemCount)
        {
            return ProcessingResult.Failure($"Too many items: {data.Items.Count}");
        }
-       
+
        try
        {
            var result = module.ProcessItems(data.Items);
@@ -265,12 +265,12 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    public class StartupService : IHostedService
    {
        private readonly IPythonEnvironment _python;
-       
+
        public StartupService(IPythonEnvironment python)
        {
            _python = python;
        }
-       
+
        public async Task StartAsync(CancellationToken cancellationToken)
        {
            // Warm up Python environment
@@ -281,7 +281,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
                module.WarmupFunction();
            }, cancellationToken);
        }
-       
+
        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
    }
    ```
@@ -292,7 +292,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    # ✅ Import only what you need
    from sklearn.cluster import KMeans  # Specific import
    import numpy as np
-   
+
    # ❌ Avoid importing everything
    from sklearn import *  # Imports everything, slows startup
    import pandas  # Large library, import only if needed
@@ -305,7 +305,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
        """Import heavy libraries only when needed."""
        import tensorflow as tf  # Import inside function
        import torch
-       
+
        # Processing logic
        return processed_data
    ```
@@ -327,13 +327,13 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    {
        private readonly IPythonEnvironment _python;
        private readonly SemaphoreSlim _semaphore;
-       
+
        public ResourceManagedService(IPythonEnvironment python)
        {
            _python = python;
            _semaphore = new SemaphoreSlim(Environment.ProcessorCount);
        }
-       
+
        public async Task<T> ExecuteAsync<T>(Func<T> operation)
        {
            await _semaphore.WaitAsync();
@@ -344,7 +344,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
            finally
            {
                _semaphore.Release();
-               
+
                // Force garbage collection if needed
                if (GC.GetTotalMemory(false) > 500_000_000) // 500MB threshold
                {
@@ -362,15 +362,15 @@ This guide helps you diagnose and resolve common issues when working with CSnake
        """Process data in chunks to manage memory."""
        chunk_size = 1000
        results = []
-       
+
        for i in range(0, len(large_data), chunk_size):
            chunk = large_data[i:i + chunk_size]
            processed_chunk = process_chunk(chunk)
            results.extend(processed_chunk)
-           
+
            # Clear intermediate variables
            del chunk, processed_chunk
-       
+
        return results
    ```
 
@@ -391,7 +391,7 @@ This guide helps you diagnose and resolve common issues when working with CSnake
    // ✅ Good for AOT
    var module = env.MyModule();
    var result = module.MyFunction(input);
-   
+
    // ❌ Bad for AOT - runtime binding not supported
    // env.GetModule("my_module").InvokeFunction("my_function", input);
    ```
@@ -446,7 +446,7 @@ def debug_function(input_data: list[int]) -> list[int]:
     logger.debug(f"Input received: {input_data}")
     logger.debug(f"Python version: {sys.version}")
     logger.debug(f"Python path: {sys.path}")
-    
+
     try:
         result = process_data(input_data)
         logger.debug(f"Processing result: {result}")
@@ -462,7 +462,7 @@ def debug_function(input_data: list[int]) -> list[int]:
 public class DiagnosticsService
 {
     private readonly IPythonEnvironment _python;
-    
+
     public DiagnosticsInfo GetDiagnostics()
     {
         try

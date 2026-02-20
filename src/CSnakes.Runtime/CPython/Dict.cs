@@ -19,18 +19,16 @@ internal unsafe partial class CPythonAPI
         return PyObject_IsInstance(p, PyDictType);
     }
 
-    internal static nint PackDict(ReadOnlySpan<string> kwnames, ReadOnlySpan<IntPtr> kwvalues)
+    internal static nint PackDict(ReadOnlySpan<IntPtr> kwnames, ReadOnlySpan<IntPtr> kwvalues)
     {
         var dict = PyDict_New();
         for (int i = 0; i < kwnames.Length; i++)
         {
-            var keyObj = AsPyUnicodeObject(kwnames[i]);
-            int result = PyDict_SetItemRaw(dict, keyObj, kwvalues[i]);
+            int result = PyDict_SetItemRaw(dict, kwnames[i], kwvalues[i]);
             if (result == -1)
             {
                 throw PyObject.ThrowPythonExceptionAsClrException();
             }
-            Py_DecRefRaw(keyObj);
         }
         return dict;
     }
@@ -44,7 +42,7 @@ internal unsafe partial class CPythonAPI
     internal static partial nint PyDict_Size(PyObject dict);
 
     /// <summary>
-    /// Return the object from dictionary p which has a key `key`. 
+    /// Return the object from dictionary p which has a key `key`.
     /// </summary>
     /// <param name="dict">Dictionary Object</param>
     /// <param name="key">Key Object</param>
@@ -78,7 +76,7 @@ internal unsafe partial class CPythonAPI
     }
 
     /// <summary>
-    /// Return the object from dictionary p which has a key `key`. 
+    /// Return the object from dictionary p which has a key `key`.
     /// Return NULL if the key key is not present, but without setting an exception.
     /// </summary>
     /// <param name="dict">Dictionary Object</param>
@@ -88,8 +86,8 @@ internal unsafe partial class CPythonAPI
     private static partial nint PyDict_GetItem_(PyObject dict, PyObject key);
 
     /// <summary>
-    /// Insert val into the dictionary p with a key of key. 
-    /// key must be hashable; if it isn’t, TypeError will be raised.  
+    /// Insert val into the dictionary p with a key of key.
+    /// key must be hashable; if it isn’t, TypeError will be raised.
     /// This function adds a new reference to key and value if successful.
     /// </summary>
     /// <param name="dict">PyDict object</param>

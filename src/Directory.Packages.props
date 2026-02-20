@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageVersion Include="Basic.Reference.Assemblies" Version="1.8.4" />
     <PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
+    <PackageVersion Include="docopt.net" Version="0.8.3" />
     <PackageVersion Include="Meziantou.Extensions.Logging.Xunit" Version="1.0.11" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
@@ -20,7 +21,6 @@
     <PackageVersion Include="SharpCompress" Version="0.38.0" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="Superpower" Version="3.1.0" />
-    <PackageVersion Include="System.CommandLine" Version="2.0.1" />
     <PackageVersion Include="ZstdSharp.Port" Version="0.8.7" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">

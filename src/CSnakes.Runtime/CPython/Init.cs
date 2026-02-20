@@ -172,6 +172,7 @@ internal unsafe partial class CPythonAPI : IDisposable
             PyNone = GetBuiltin("None");
             AsyncioModule = Import("asyncio"); // Will fetch GIL
             NewEventLoopFactory = PyObject.Create(CPythonAPI.GetAttr(AsyncioModule, "new_event_loop"));
+            EnsureFutureFunction = PyObject.Create(CPythonAPI.GetAttr(AsyncioModule, "ensure_future"));
             if (pythonExecutablePath is not null)
                 SetSysExecutable(pythonExecutablePath);
         }
@@ -220,6 +221,8 @@ internal unsafe partial class CPythonAPI : IDisposable
 
         // Clean-up interns
         NewEventLoopFactory?.Dispose();
+        EnsureFutureFunction?.Dispose();
+        LoopKeyword?.Dispose();
         AsyncioModule?.Dispose();
         // TODO: Add more cleanup code here
 

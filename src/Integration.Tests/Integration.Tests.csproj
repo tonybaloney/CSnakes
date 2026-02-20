@@ -5,7 +5,6 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <IsTestProject>true</IsTestProject>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <DefaultPythonItems>true</DefaultPythonItems>
     <PythonRoot>python</PythonRoot>
   </PropertyGroup>
 

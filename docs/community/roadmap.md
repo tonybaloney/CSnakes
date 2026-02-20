@@ -59,7 +59,7 @@ Note that any constructs which are not available will be typed as `PyObject`. Th
 | [Set (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Set) |  |  | Unordered collection of unique elements. |
 | [Sized (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized) |  |  | Has a length. |
 | [ValuesView (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.ValuesView) |  |  | View on dictionary's values. |
-| [Awaitable (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable) | No | Unlikely to be useful | Can be used in an await expression. |
+| [Awaitable (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable) | Yes | Rare in practice | Can be used in an await expression. |
 | [Coroutine (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Coroutine) | Yes | See [Async Support](../user-guide/async.md) | Awaitable object with send(), throw(), and close(). |
 | [AsyncIterable (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.AsyncIterable) | No | [Issue](https://github.com/tonybaloney/CSnakes/issues/440) | Object capable of async iteration. |
 | [AsyncIterator (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.AsyncIterator) | No | [Issue](https://github.com/tonybaloney/CSnakes/issues/440) | Async iterator object. |

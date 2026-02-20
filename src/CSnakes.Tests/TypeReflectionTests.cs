@@ -40,8 +40,8 @@ public class TypeReflectionTests
         ("int | None", "long?"),
         ("list[int | None]", "IReadOnlyList<long?>"),
         ("None | list[int | None]", "IReadOnlyList<long?>?"),
-        ("Coroutine[None, None, int]", "ICoroutine<long>"),
-        ("Coroutine[None, None, None]", "ICoroutine<PyObject>"),
+        ("Coroutine[None, None, int]", "IAwaitable<long>"),
+        ("Coroutine[None, None, None]", "IAwaitable<PyObject>"),
         // A "Coroutine" where send or yield types are not "None" becomes "PyObject"
         ("Coroutine[bool, int, str]", "PyObject"),
         ("Coroutine[None, int, str]", "PyObject"),

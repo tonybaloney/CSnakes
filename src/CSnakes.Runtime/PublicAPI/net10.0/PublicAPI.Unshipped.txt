@@ -71,24 +71,26 @@ CSnakes.Runtime.PythonRuntimeException
 CSnakes.Runtime.Python.GIL
 CSnakes.Runtime.Python.GIL.Lock
 CSnakes.Runtime.Python.GIL.Lock.Lock() -> void
-CSnakes.Runtime.Python.ICoroutine
-CSnakes.Runtime.Python.ICoroutine<TYield, TSend, TReturn>
+CSnakes.Runtime.Python.IAwaitable
+CSnakes.Runtime.Python.IAwaitable<T>
+CSnakes.Runtime.Python.Awaitable
 CSnakes.Runtime.Python.IGeneratorIterator
 CSnakes.Runtime.Python.Import
 CSnakes.Runtime.Python.IPyBuffer
+CSnakes.Runtime.Python.IPyObjectProxy
 [PRTEXP001]CSnakes.Runtime.Python.IPyObjectImporter<T>
 CSnakes.Runtime.Python.KeywordArg
 CSnakes.Runtime.Python.KeywordArg.KeywordArg() -> void
 ~override CSnakes.Runtime.Python.KeywordArg.ToString() -> string
 static CSnakes.Runtime.Python.KeywordArg.operator !=(CSnakes.Runtime.Python.KeywordArg left, CSnakes.Runtime.Python.KeywordArg right) -> bool
-CSnakes.Runtime.Python.KeywordArg.Name.get -> string!
+CSnakes.Runtime.Python.KeywordArg.Name.get -> CSnakes.Runtime.Python.PyObject!
 static CSnakes.Runtime.Python.KeywordArg.operator ==(CSnakes.Runtime.Python.KeywordArg left, CSnakes.Runtime.Python.KeywordArg right) -> bool
 CSnakes.Runtime.Python.KeywordArg.Name.init -> void
 override CSnakes.Runtime.Python.KeywordArg.GetHashCode() -> int
 ~override CSnakes.Runtime.Python.KeywordArg.Equals(object obj) -> bool
 CSnakes.Runtime.Python.KeywordArg.Equals(CSnakes.Runtime.Python.KeywordArg other) -> bool
 CSnakes.Runtime.Python.KeywordArg.Value.get -> CSnakes.Runtime.Python.PyObject!
-CSnakes.Runtime.Python.KeywordArg.Deconstruct(out string! Name, out CSnakes.Runtime.Python.PyObject! Value) -> void
+CSnakes.Runtime.Python.KeywordArg.Deconstruct(out CSnakes.Runtime.Python.PyObject! Name, out CSnakes.Runtime.Python.PyObject! Value) -> void
 CSnakes.Runtime.Python.KeywordArg.Value.init -> void
 CSnakes.Runtime.Python.IGeneratorIterator<TYield, TSend, TReturn>
 CSnakes.Runtime.Python.PyBufferExtensions
@@ -117,7 +119,7 @@ CSnakes.Runtime.Python.PyObject
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Dictionary<TKey, TValue, TKeyImporter, TValueImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Mapping<TKey, TValue, TKeyImporter, TValueImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Generator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>
-[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>
+[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Awaitable<T, TImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Optional<T, TImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<T, TImporter>
 CSnakes.Runtime.ServiceCollectionExtensions
@@ -181,7 +183,13 @@ CSnakes.Runtime.PythonStopIterationException.TakeValue() -> CSnakes.Runtime.Pyth
 static CSnakes.Runtime.Python.GIL.Acquire() -> CSnakes.Runtime.Python.GIL.Lock
 static CSnakes.Runtime.Python.GIL.IsAcquired.get -> bool
 CSnakes.Runtime.Python.GIL.Lock.Dispose() -> void
-CSnakes.Runtime.Python.ICoroutine<TYield, TSend, TReturn>.AsTask(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TYield>!
+static CSnakes.Runtime.Python.Awaitable.WaitAsync<T>(this CSnakes.Runtime.Python.IAwaitable<T>! awaitable, bool dispose, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T>!
+static CSnakes.Runtime.Python.Awaitable.WaitAsync(CSnakes.Runtime.Python.PyObject! obj, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<CSnakes.Runtime.Python.PyObject!>!
+CSnakes.Runtime.Python.IAwaitable.WaitAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<CSnakes.Runtime.Python.PyObject!>!
+CSnakes.Runtime.Python.IAwaitable<T>.WaitAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T>!
+CSnakes.Runtime.Python.PyObjectProxyExtensions
+static CSnakes.Runtime.Python.PyObjectProxyExtensions.GetPyObject(this CSnakes.Runtime.Python.IPyObjectProxy! proxy) -> CSnakes.Runtime.Python.PyObject!
+CSnakes.Runtime.Python.IPyObjectProxy.DangerousInternalReference.get -> CSnakes.Runtime.Python.PyObject!
 CSnakes.Runtime.Python.IGeneratorIterator<TYield, TSend, TReturn>.Send(TSend value) -> bool
 CSnakes.Runtime.Python.IGeneratorIterator<TYield, TSend, TReturn>.Return.get -> TReturn
 override CSnakes.Runtime.Python.PyObject.IsInvalid.get -> bool
@@ -220,7 +228,7 @@ CSnakes.Runtime.Python.IPyBuffer.AsSpan2D<T>() -> CommunityToolkit.HighPerforman
 CSnakes.Runtime.Python.IPyBuffer.AsTensorSpan<T>() -> System.Numerics.Tensors.TensorSpan<T>
 CSnakes.Runtime.Python.IPyBuffer.AsReadOnlyTensorSpan<T>() -> System.Numerics.Tensors.ReadOnlyTensorSpan<T>
 CSnakes.Runtime.Python.IPyBuffer.Length.get -> long
-CSnakes.Runtime.Python.KeywordArg.KeywordArg(string! Name, CSnakes.Runtime.Python.PyObject! Value) -> void
+CSnakes.Runtime.Python.KeywordArg.KeywordArg(CSnakes.Runtime.Python.PyObject! Name, CSnakes.Runtime.Python.PyObject! Value) -> void
 CSnakes.Runtime.Python.PyObject.CallWithArgs(CSnakes.Runtime.Python.PyObject![]? args = null) -> CSnakes.Runtime.Python.PyObject!
 static CSnakes.Runtime.Python.PyBufferExtensions.AsInt16Span(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.Span<short>
 static CSnakes.Runtime.Python.PyBufferExtensions.AsUInt16Span(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.Span<ushort>

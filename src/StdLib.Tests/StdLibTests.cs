@@ -25,13 +25,13 @@ public class StdLibTests
         env = app.Services.GetRequiredService<IPythonEnvironment>();
     }
 
-    [Fact(Skip = "Requires typeshed files for source generation - not yet configured")]
+    [Fact]
     public void TestStatisticsMode()
     {
-        // using var mod = env.Statistics();
-        // Assert.NotNull(mod);
-        // using var mode = mod.Mode(PyObject.From(new[] { 1, 2, 2, 3, 4 }));
-        // Assert.NotNull(mode);
-        // Assert.Equal(2, mode.As<long>());
+        using var mod = env.Statistics();
+        Assert.NotNull(mod);
+        using var mode = mod.Mode(PyObject.From(new[] { 1, 2, 2, 3, 4 }));
+        Assert.NotNull(mode);
+        Assert.Equal(2, mode.As<long>());
     }
 }

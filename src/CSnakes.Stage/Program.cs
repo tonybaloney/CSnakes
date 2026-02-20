@@ -2,165 +2,113 @@ using CSnakes.Runtime;
 using CSnakes.Runtime.EnvironmentManagement;
 using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
+using CSnakes.Stage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.CommandLine;
+using System.Globalization;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
-namespace CSnakes.Stage;
+const int defaultTimeout = 500; // Default timeout in seconds
 
-internal class Program
+var versionString = Assembly.GetEntryAssembly()?
+                            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+                            .InformationalVersion ?? "0.0";
+
+return await ProgramArguments.CreateParser()
+                             .WithVersion(versionString)
+                             .Parse(args)
+                             .Match(Main,
+                                    result => Print(Console.Out, result.Help.ReplaceLineEndings()),
+                                    result => Print(Console.Out, result.Version),
+                                    result => Print(Console.Error, result.Usage.ReplaceLineEndings(), exitCode: 1));
+
+static async Task<int> Main(ProgramArguments args)
 {
-    const int DefaultTimeout = 500; // Default timeout in seconds
-    static int Main(string[] args)
+    switch (args)
     {
-        var versionString = Assembly.GetEntryAssembly()?
-                                    .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-                                    .InformationalVersion
-                                    .ToString();
+        case { OptQuestion: true }:
+        {
+            Console.Out.WriteLine(ProgramArguments.Help);
+            return 0;
+        }
+        case { OptPython: { } pythonVersion }:
+        {
+            Console.WriteLine($"Staging CSnakes for Python {pythonVersion}...");
 
-        Option<string> versionOption = new("--python")
-        {
-            Description = "The Python version to use (e.g., 3.12)",
-            Required = true
-        };
-        Option<int> timeout = new("--timeout")
-        {
-            Description = $"The timeout in seconds for downloading Python (default is {DefaultTimeout} seconds)",
-            Required = false
-        };
-        Option<string> venvPath = new("--venv")
-        {
-            Description = "The path to the virtual environment to create if required.",
-            Required = false
-        };
-        Option<string> pipRequirements = new("--pip-requirements")
-        {
-            Description = "Path to a pip requirements file to install packages in the virtual environment.",
-            Required = false
-        };
-        Option<string> uvRequirements = new("--uv-requirements")
-        {
-            Description = "Path to a pyproject.toml or requirements.txt to install packages in the virtual environment with uv.",
-            Required = false
-        };
+            var builder = Host.CreateApplicationBuilder();
+            var home = Path.Join(Environment.CurrentDirectory);
+            var pythonEnvironmentBuilder =
+                builder.Services
+                       .WithPython()
+                       .WithHome(home)
+                       .FromRedistributable(version: pythonVersion,
+                                            timeout: args.OptTimeout is { } timeout
+                                                     ? int.Parse(timeout, NumberStyles.None, CultureInfo.InvariantCulture)
+                                                     : defaultTimeout);
 
-        Option<bool> verbose = new("--verbose")
-        {
-            Description = "Enable verbose output.",
-            Required = false
-        };
-
-        var rootCommand = new RootCommand
-        {
-            versionOption,
-            timeout,
-            venvPath,
-            pipRequirements,
-            uvRequirements,
-            verbose
-        };
-
-        rootCommand.Description = $"setup-python v{versionString} - A tool to install Python environments and versions.";
-
-        rootCommand.SetAction((version) =>
-        {
-            var config = new StageConfig
+            if (args.OptVerbose) // Enable verbose logging if needed
             {
-                Version = version.GetRequiredValue(versionOption),
-                Timeout = version.GetValue(timeout),
-                VenvPath = version.GetValue(venvPath),
-                PipRequirements = version.GetValue(pipRequirements),
-                UvRequirements = version.GetValue(uvRequirements),
-                Verbose = version.GetValue(verbose)
-            };
-            Stage(config);
-        });
+                pythonEnvironmentBuilder.Services.AddLogging(loggingBuilder =>
+                {
+                    loggingBuilder.AddConsole();
+                    loggingBuilder.SetMinimumLevel(LogLevel.Debug);
+                });
+            }
 
-        ParseResult parseResult = rootCommand.Parse(args);
-        return parseResult.Invoke();
-    }
-
-    private class StageConfig
-    {
-        public required string Version { get; set; }
-        public int? Timeout { get; set; }
-        public string? VenvPath { get; set; }
-        public string? PipRequirements { get; set; }
-        public string? UvRequirements { get; set; }
-        public bool Verbose { get; set; }
-    }
-
-    private static void Stage(StageConfig config)
-    {
-        bool withVenv = !string.IsNullOrEmpty(config.VenvPath);
-        bool withPipRequirements = !string.IsNullOrEmpty(config.PipRequirements);
-        bool withUvRequirements = !string.IsNullOrEmpty(config.UvRequirements);
-
-        if (withPipRequirements && withUvRequirements)
-        {
-            Console.WriteLine("Error: Both --pip-requirements and --uv-requirements are specified. Use only one.");
-            throw new ArgumentException("Cannot specify both --pip-requirements and --uv-requirements.");
-        }
-
-        Console.WriteLine($"Staging CSnakes for Python {config.Version}...");
-
-        var builder = Host.CreateApplicationBuilder();
-        var home = Path.Join(Environment.CurrentDirectory);
-        IPythonEnvironmentBuilder pythonEnvironmentBuilder = builder.Services
-            .WithPython()
-            .WithHome(home)
-            .FromRedistributable(version: config.Version, timeout: config.Timeout ?? DefaultTimeout);
-
-        // Enable verbose logging if needed
-        if (config.Verbose)
-        {
-            pythonEnvironmentBuilder.Services.AddLogging(loggingBuilder =>
+            if (args.OptVenv is { } venvPath)
             {
-                loggingBuilder.AddConsole();
-                loggingBuilder.SetMinimumLevel(LogLevel.Debug);
-            });
-        }
+                pythonEnvironmentBuilder.WithVirtualEnvironment(venvPath, ensureEnvironment: true);
+            }
 
-        if (withVenv)
+            string? requirementsFilePath = null;
+
+            if (args.OptPipRequirements is { Length: > 0 } pipRequirementsFilePath)
+            {
+                pythonEnvironmentBuilder.WithPipInstaller(pipRequirementsFilePath);
+                requirementsFilePath = pipRequirementsFilePath;
+            }
+            else if (args.OptUvRequirements is { Length: > 0 } uvRequirementsFilePath)
+            {
+                pythonEnvironmentBuilder.WithUvInstaller(uvRequirementsFilePath);
+                requirementsFilePath = uvRequirementsFilePath;
+            }
+
+            var app = builder.Build();
+
+            var locator = app.Services.GetRequiredService<PythonLocator>();
+            var location = locator.LocatePython();
+
+            Console.WriteLine($"Python {pythonVersion} downloaded and located at: {location.PythonBinaryPath}");
+
+            if (app.Services.GetService<IEnvironmentManagement>() is { } environmentManager)
+            {
+                Console.WriteLine("Creating virtual environment...");
+                environmentManager.EnsureEnvironment(location);
+                Console.WriteLine($"Virtual environment created at: {args.OptVenv}");
+            }
+
+            if (requirementsFilePath is { } someRequirementsFilePath
+                && app.Services.GetService<IPythonPackageInstaller>() is { } packageInstaller)
+            {
+                Console.WriteLine("Installing requirements...");
+                await packageInstaller.InstallPackagesFromRequirements(Environment.CurrentDirectory);
+                Console.WriteLine($"Python requirements installed from: {someRequirementsFilePath}");
+            }
+
+            Console.WriteLine("CSnakes staging completed successfully.");
+            return 0;
+        }
+        default:
         {
-            pythonEnvironmentBuilder.WithVirtualEnvironment(config.VenvPath!, ensureEnvironment: true);
+            throw new SwitchExpressionException();
         }
-
-        if (withPipRequirements)
-        {
-            pythonEnvironmentBuilder.WithPipInstaller(config.PipRequirements!);
-        }
-
-        if (withUvRequirements)
-        {
-            pythonEnvironmentBuilder.WithUvInstaller(config.UvRequirements!);
-        }
-
-        var app = builder.Build();
-
-        var locator = app.Services.GetRequiredService<PythonLocator>();
-        var location = locator.LocatePython();
-
-        Console.WriteLine($"Python {config.Version} downloaded and located at: {location.PythonBinaryPath}");
-
-        if (withVenv)
-        {
-            Console.WriteLine("Creating virtual environment...");
-            var environmentManager = app.Services.GetRequiredService<IEnvironmentManagement>();
-            environmentManager.EnsureEnvironment(location);
-            Console.WriteLine($"Virtual environment created at: {config.VenvPath}");
-        }
-
-        if (withPipRequirements || withUvRequirements)
-        {
-            Console.WriteLine("Installing requirements...");
-            var pipInstaller = app.Services.GetRequiredService<IPythonPackageInstaller>();
-            pipInstaller.InstallPackagesFromRequirements(Environment.CurrentDirectory).GetAwaiter().GetResult();
-            Console.WriteLine($"Python requirements installed from: {config.PipRequirements ?? config.UvRequirements}");
-        }
-
-        Console.WriteLine("CSnakes staging completed successfully.");
     }
+}
+
+static Task<int> Print(TextWriter writer, string message, int exitCode = 0)
+{
+    writer.WriteLine(message);
+    return Task.FromResult(exitCode);
 }

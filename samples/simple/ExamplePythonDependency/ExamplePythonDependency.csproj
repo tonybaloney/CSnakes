@@ -30,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
+        <PackageReference Include="CSnakes.Runtime" Version="2.*-*" />
     </ItemGroup>
 
 </Project>

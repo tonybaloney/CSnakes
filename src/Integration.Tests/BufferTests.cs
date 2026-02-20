@@ -533,26 +533,12 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
         var tensor = bufferObject.AsTensorSpan<float>();
         Assert.Equal(sizeof(int) * 3 * 4 * 5, bufferObject.Length);
 #pragma warning disable SYSLIB5001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-        // Convert tensor.Lengths (ReadOnlySpan<nint>) to appropriate array for Tensor API
 #if NET10_0_OR_GREATER
-        var lengthsArray = tensor.Lengths.ToArray();
-        var tmpTensor = Tensor.CreateFromShape<float>(lengthsArray);
+        var tmpTensor = Tensor.CreateFromShape<float>(tensor.Lengths);
 #else
-        // For .NET 8/9, convert to float[] for Tensor.Create
-        var lengthsArray = new float[tensor.Lengths.Length];
-        for (int i = 0; i < tensor.Lengths.Length; i++)
-        {
-            lengthsArray[i] = (float)tensor.Lengths[i];
-        }
-        var tmpTensor = Tensor.Create<float>(lengthsArray);
+        var tmpTensor = Tensor.Create<float>(tensor.Lengths);
 #endif
-        // Convert to float[] for TensorPrimitives.Product
-        var lengthsFloat = new float[tensor.Lengths.Length];
-        for (int i = 0; i < tensor.Lengths.Length; i++)
-        {
-            lengthsFloat[i] = (float)tensor.Lengths[i];
-        }
-        var shapeProduct = (long)TensorPrimitives.Product(lengthsFloat);
+        var shapeProduct = (long)TensorPrimitives.Product(tensor.Lengths);
         Assert.Equal(shapeProduct, tensor.FlattenedLength);
         var result = Tensor.Multiply(tensor, 255.0f, tmpTensor);
 #pragma warning restore SYSLIB5001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.

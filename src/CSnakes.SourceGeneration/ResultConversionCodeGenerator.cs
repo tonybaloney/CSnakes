@@ -119,6 +119,10 @@ internal static class ResultConversionCodeGenerator
                 return new ConversionGenerator(TypeReflection.CreateGenericType("IAwaitable", [generator.TypeSyntax]),
                                                TypeReflection.CreateGenericType("Awaitable", [generator.TypeSyntax, generator.ImporterTypeSyntax]));
             }
+            case var other when other.FindAnnotatedTypeSyntax() is { } typeSyntax:
+            {
+                return new ConversionGenerator(typeSyntax, TypeReflection.CreateGenericType("Extern", [typeSyntax]));
+            }
             case var other:
             {
                 var typeSyntax = TypeReflection.AsPredefinedType(other, TypeReflection.ConversionDirection.FromPython).First(); // TODO: Investigate union

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <ProductName>Example Python Dependency</ProductName>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     </PropertyGroup>
 

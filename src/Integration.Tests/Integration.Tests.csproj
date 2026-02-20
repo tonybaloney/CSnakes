@@ -35,6 +35,14 @@
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="System.Numerics.Tensors" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="System.Numerics.Tensors" />
+  </ItemGroup>
+
   <Import Project="..\CSnakes.SourceGeneration\NuGet\buildTransitive\net8.0\CSnakes.SourceGeneration.targets" />
 
 </Project>

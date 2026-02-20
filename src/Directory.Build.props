@@ -1,9 +1,10 @@
 <Project>
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
+    <NoWarn>NU1202</NoWarn>
     <WarningsAsErrors>
       <!-- https://github.com/dotnet/roslyn/blob/a8287cc3de7fcb65645413c5d6a089d2a2db4061/src/RoslynAnalyzers/PublicApiAnalyzers/Microsoft.CodeAnalysis.PublicApiAnalyzers.md -->
       RS0016; <!-- Add public types and members to the declared API -->
@@ -28,7 +29,11 @@
     <TargetFrameworks>$(TargetFrameworks);net9.0</TargetFrameworks>
   </PropertyGroup>
 
-  <PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::VersionGreaterThanOrEquals($(MSBuildVersion), '17.15.0.0'))">
+    <TargetFrameworks>$(TargetFrameworks);net10.0</TargetFrameworks>
+  </PropertyGroup>
+
+    <PropertyGroup>
     <ContinuousIntegrationBuild>false</ContinuousIntegrationBuild>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 

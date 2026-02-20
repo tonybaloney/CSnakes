@@ -71,3 +71,11 @@ When called, `HelloWorld()` will invoke the Python function from `example.py` us
 ## FAQ
 
 See the [FAQ](https://tonybaloney.github.io/CSnakes/latest/community/faq/) for more information.
+
+## Development / Contributing
+
+For local development clone repo with:
+
+```shell
+git clone --recurse-submodules https://github.com/tonybaloney/CSnakes.git
+```

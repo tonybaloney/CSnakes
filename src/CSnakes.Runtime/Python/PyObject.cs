@@ -705,6 +705,7 @@ public partial class PyObject : SafeHandle, ICloneable
                 var t when t == typeof(float) => (float)CPythonAPI.PyFloat_AsDouble(this),
                 var t when t == typeof(string) => CPythonAPI.PyUnicode_AsUTF8(this),
                 var t when t == typeof(BigInteger) => PyObjectTypeConverter.ConvertToBigInteger(this, t),
+                var t when t == typeof(DateOnly) => PyObjectTypeConverter.ConvertToDateOnly(this),
                 var t when t == typeof(byte[]) => CPythonAPI.PyBytes_AsByteArray(this),
                 var t when t.IsAssignableTo(typeof(ITuple)) => PyObjectTypeConverter.ConvertToTuple(this, t),
                 var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => PyObjectTypeConverter.ConvertToGeneratorIterator(this, t),
@@ -784,6 +785,15 @@ public partial class PyObject : SafeHandle, ICloneable
                 using (GIL.Acquire())
                     return PyObjectTypeConverter.ConvertFromBigInteger(n);
         }
+    }
+
+    public static PyObject From(DateOnly? value) =>
+        value switch { null => None, { } some => From(some) };
+
+    public static PyObject From(DateOnly value)
+    {
+        using (GIL.Acquire())
+            return PyObjectTypeConverter.ConvertFromDateOnly(value);
     }
 
     public static PyObject From(string? value)
@@ -881,6 +891,7 @@ public partial class PyObject : SafeHandle, ICloneable
             case int n: long l = n; return From(l);
             case long n: return From(n);
             case BigInteger n: return From(n);
+            case DateOnly dt: return From(dt);
             case float n: double d = n; return From(d);
             case double n: return From(n);
             case string s: return From(s);

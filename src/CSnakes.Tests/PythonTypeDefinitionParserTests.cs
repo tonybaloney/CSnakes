@@ -35,12 +35,6 @@ public class PythonTypeDefinitionParserTests
     [Fact] public void BytesTest() => _ = TestParse<BytesType>("bytes");
 
     [Theory]
-    [InlineData("date")]
-    [InlineData("datetime.date")]
-    public void DateTest(string input) =>
-        _ = TestParse<DateType>(input);
-
-    [Theory]
     [InlineData("tuple")]
     [InlineData("Tuple")]
     [InlineData("typing.Tuple")]

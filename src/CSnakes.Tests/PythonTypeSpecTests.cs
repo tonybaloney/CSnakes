@@ -191,7 +191,7 @@ public class PythonTypeSpecTests
         public static string ExpectedToString => "UUID";
     }
 
-    public class SequenceTypeTests
+    public class SequenceTypeTests : TestBase<SequenceType, SequenceTypeTests>, ITest<SequenceTypeTests, SequenceType>
     {
         public static SequenceType CreateInstance() => new(PythonTypeSpec.Int);
         public static PythonTypeSpec CreateDifferentInstance() => new SequenceType(PythonTypeSpec.Str);

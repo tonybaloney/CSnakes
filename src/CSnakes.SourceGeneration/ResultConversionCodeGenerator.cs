@@ -51,7 +51,7 @@ internal static class ResultConversionCodeGenerator
             case BufferType: return Buffer;
             case UuidType: return Uuid;
 
-            case OptionalType { Of: var t and (IntType or FloatType or BoolType or TupleType) }:
+            case OptionalType { Of: var t and (IntType or FloatType or BoolType or TupleType or UuidType) }:
             {
                 return OptionalConversionGenerator(t, "OptionalValue");
             }

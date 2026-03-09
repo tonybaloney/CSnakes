@@ -8,9 +8,14 @@ internal partial class PyObjectTypeConverter
     {
         using PyObject uuidModule = CPythonAPI.Import("uuid");
         using PyObject uuidClass = uuidModule.GetAttr("UUID");
-        using PyObject guidStr = PyObject.Create(CPythonAPI.AsPyUnicodeObject(guid.ToString()));
-        return uuidClass.Call(guidStr);
+        using PyObject bytesKeyword = PyObject.Create(CPythonAPI.AsPyUnicodeObject("bytes"));
+        using PyObject bytesValue = PyObject.Create(CPythonAPI.PyBytes_FromByteSpan(guid.ToByteArray(true)));
+        return uuidClass.Call([], [new KeywordArg(bytesKeyword, bytesValue)]);
     }
 
-    internal static Guid ConvertToGuid(PyObject pyObject) => Guid.Parse(pyObject.ToString());
+    internal static Guid ConvertToGuid(PyObject pyObject)
+    {
+        using PyObject bytesAttr = pyObject.GetAttr("bytes");
+        return new Guid(CPythonAPI.PyBytes_AsByteArray(bytesAttr), true);
+    }
 }

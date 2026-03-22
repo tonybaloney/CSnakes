@@ -76,72 +76,107 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
         var downloadPath = Path.Join(appDataPath, "CSnakes", $"python{dottedVersion}");
         var installPath = Path.Join(downloadPath, "python", "install");
 
-        using var mutex = new Mutex(initiallyOwned: false, $"{MutexName}-{dottedVersion}");
+        var installCompletionSource = new TaskCompletionSource<PythonLocationMetadata>();
 
-        try
-        {
-            if (!mutex.WaitOne(TimeSpan.FromSeconds(installerTimeout)))
-                throw new TimeoutException("Python installation timed out.");
+        // The installation is synchronised among processes via a named mutex. Within each process,
+        // the installer thread (below) that acquires the mutex first does the actual installation
+        // while the others wait. When the installation completes, the mutex is released. All other
+        // processes/threads waiting on the mutex will then wake up in turn, find the installation
+        // is already there, release the mutex and proceed to use the installation. This way, only
+        // one process will perform the installation while all others will wait and then use the
+        // same installation once it's complete.
+        //
+        // If the process with the installer thread crashes or an exception occurs during the
+        // installation process, the mutex is not released! This is by-design. The installation
+        // occurs under a dedicated thread such that if the mutex is not released explicitly when it
+        // ends, the next waiting thread will wake up, see the mutex was abandoned by the owning
+        // thread, clean up the presumably half-done installation and attempt the installation
+        // themselves.
 
-            if (Directory.Exists(installPath))
-                return LocatePythonInternal(installPath, freeThreaded);
-        }
-        catch (AbandonedMutexException)
+        var installerThread = new Thread(() =>
         {
-            // If the mutex was abandoned, it most probably means that the other process crashed
-            // and didn't even get the chance to run any clean-up. Since the state of the
-            // download and installation is now unreliable, start by clearing up directories and
-            // then proceed with the installation here.
+            using var mutex = new Mutex(initiallyOwned: false, $"{MutexName}-{dottedVersion}");
 
             try
             {
-                Directory.Delete(downloadPath, recursive: true);
+                var result = Install(mutex);
+                mutex.ReleaseMutex(); // Everything supposedly went well so release mutex
+                installCompletionSource.SetResult(result);
             }
-            catch (DirectoryNotFoundException)
+            catch (Exception ex)
             {
-                // If the directory didn't exist, ignore it and proceed.
+                installCompletionSource.SetException(ex);
             }
-        }
+        });
 
-        // Create the folder; the install path is only created at the end.
-        Directory.CreateDirectory(downloadPath);
+        installerThread.Start();
+        return installCompletionSource.Task.GetAwaiter().GetResult();
 
-        try
+        PythonLocationMetadata Install(Mutex mutex)
         {
-            // TODO: Find a better way to determine the OS platform enum at runtime.
-            OSPlatform osPlatform = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? OSPlatform.Windows :
-                RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OSPlatform.OSX :
-                RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? OSPlatform.Linux :
-                throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
-
-            string downloadUrl = GetDownloadUrl(osPlatform, RuntimeInformation.ProcessArchitecture, freeThreaded, debug, version);
-
-            // Download and extract the Zstd tarball
-            logger?.LogDebug("Downloading Python from {DownloadUrl}", downloadUrl);
-            string tempFilePath = DownloadFileToTempDirectoryAsync(downloadUrl).GetAwaiter().GetResult();
-            string tarFilePath = DecompressZstFile(tempFilePath);
-            ExtractTar(tarFilePath, downloadPath, logger);
-            logger?.LogDebug("Extracted Python to {downloadPath}", downloadPath);
-
-            // Delete the tarball and temp file
-            File.Delete(tarFilePath);
-            File.Delete(tempFilePath);
-        }
-        catch (Exception ex)
-        {
-            logger?.LogError(ex, "Failed to download and extract Python");
-            // If the install failed somewhere, delete the folder incase it's half downloaded
-            if (Directory.Exists(installPath))
+            try
             {
-                Directory.Delete(installPath, true);
+                if (!mutex.WaitOne(TimeSpan.FromSeconds(installerTimeout)))
+                    throw new TimeoutException("Python installation timed out.");
+
+                if (Directory.Exists(installPath))
+                    return LocatePythonInternal(installPath, freeThreaded);
+            }
+            catch (AbandonedMutexException)
+            {
+                // If the mutex was abandoned, it most probably means that the other process crashed
+                // and didn't even get the chance to run any clean-up. Since the state of the
+                // download and installation is now unreliable, start by clearing up directories and
+                // then proceed with the installation here.
+
+                try
+                {
+                    Directory.Delete(downloadPath, recursive: true);
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    // If the directory didn't exist, ignore it and proceed.
+                }
             }
 
-            throw;
+            // Create the folder; the install path is only created at the end.
+            Directory.CreateDirectory(downloadPath);
+
+            try
+            {
+                // TODO: Find a better way to determine the OS platform enum at runtime.
+                OSPlatform osPlatform = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? OSPlatform.Windows :
+                    RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OSPlatform.OSX :
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? OSPlatform.Linux :
+                    throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
+
+                string downloadUrl = GetDownloadUrl(osPlatform, RuntimeInformation.ProcessArchitecture, freeThreaded, debug, version);
+
+                // Download and extract the Zstd tarball
+                logger?.LogDebug("Downloading Python from {DownloadUrl}", downloadUrl);
+                string tempFilePath = DownloadFileToTempDirectoryAsync(downloadUrl).GetAwaiter().GetResult();
+                string tarFilePath = DecompressZstFile(tempFilePath);
+                ExtractTar(tarFilePath, downloadPath, logger);
+                logger?.LogDebug("Extracted Python to {downloadPath}", downloadPath);
+
+                // Delete the tarball and temp file
+                File.Delete(tarFilePath);
+                File.Delete(tempFilePath);
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError(ex, "Failed to download and extract Python");
+                // If the install failed somewhere, delete the folder incase it's half downloaded
+                if (Directory.Exists(installPath))
+                {
+                    Directory.Delete(installPath, true);
+                }
+
+                throw;
+            }
+
+            return LocatePythonInternal(installPath, freeThreaded);
         }
-
-        mutex.ReleaseMutex(); // Everything supposedly went well so release mutex
-
-        return LocatePythonInternal(installPath, freeThreaded);
     }
 
     internal static string GetDownloadUrl(OSPlatform platform, Architecture architecture, bool freeThreaded, bool debug, RedistributablePythonVersion version)

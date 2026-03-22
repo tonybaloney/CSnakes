@@ -107,7 +107,11 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
             {
                 installCompletionSource.SetException(ex);
             }
-        });
+        })
+        {
+            IsBackground = true,
+            Name = $"CSnakes Python {dottedVersion} Installer"
+        };
 
         installerThread.Start();
         return installCompletionSource.Task.GetAwaiter().GetResult();

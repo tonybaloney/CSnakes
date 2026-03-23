@@ -124,6 +124,8 @@ public class GeneratedSignatureTests
             .WithReferenceAssemblies(ReferenceAssemblyKind.Net80)
 #elif NET9_0
             .WithReferences(Net90.References.All)
+#elif NET10_0
+            .WithReferences(Net100.References.All)
 #else
 #error Unsupported .NET tareget
 #endif

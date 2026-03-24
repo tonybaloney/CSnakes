@@ -31,7 +31,7 @@ def get_info() -> dict[str, str]:
 
 ### 2. Configure Project File
 
-Add the Python file to your `.csproj`:
+Add the `CSnakes.Runtime` package reference to your `.csproj`:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -43,14 +43,10 @@ Add the Python file to your `.csproj`:
   <ItemGroup>
     <PackageReference Include="CSnakes.Runtime" Version="2.*-*" />
   </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="math_utils.py" SourceItemType="Python">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-  </ItemGroup>
 </Project>
 ```
+
+By default, CSnakes automatically discovers all `.py` and `.pyi` files in your project — no additional configuration is needed. See [Discovering Python files for Source Generation](configuration.md) if you need manual control over which files are included.
 
 ### 3. Initialize Python Environment
 

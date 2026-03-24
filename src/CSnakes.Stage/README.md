@@ -21,7 +21,7 @@ dotnet tool install -g CSnakes.Stage
 ### Basic Syntax
 
 ```bash
-CSnakes.Stage --python <version> [options]
+setup-python --python <version> [options]
 ```
 
 ### Required Parameters
@@ -40,7 +40,7 @@ CSnakes.Stage --python <version> [options]
 ### Download Python 3.12
 
 ```bash
-CSnakes.Stage --python 3.12
+setup-python --python 3.12
 ```
 
 The path to Python will be printed to the console. This is the same path as used in `.FromRedistributable()` in CSnakes applications. (`%APPDATA%\CSnakes\pythonXX`)
@@ -49,13 +49,13 @@ The path to Python will be printed to the console. This is the same path as used
 ### Download Python and Create Virtual Environment
 
 ```bash
-CSnakes.Stage --python 3.12 --venv /app/my-venv
+setup-python --python 3.12 --venv /app/my-venv
 ```
 
 ### Download Python, Create Virtual Environment, and Install Dependencies
 
 ```bash
-CSnakes.Stage --python 3.12 --venv /app/my-venv --pip-requirements /src/requirements.txt
+setup-python --python 3.12 --venv /app/my-venv --pip-requirements /src/requirements.txt
 ```
 
 ## Example Dockerfile

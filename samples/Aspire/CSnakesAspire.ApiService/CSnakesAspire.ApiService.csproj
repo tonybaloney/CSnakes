@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <AdditionalFiles Include="..\python\weather.py" Link="python\weather.py" />
+      <AdditionalFiles Include="..\python\weather.py" Link="python\weather.py" SourceItemType="Python" />
       <None Include="..\python\requirements.txt" Link="python\requirements.txt" />
     </ItemGroup>
 
@@ -26,8 +26,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.1.2" />
-        <PackageReference Include="CSnakes.Runtime" Version="1.*" />
+        <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.2.0" />
+        <PackageReference Include="CSnakes.Runtime" Version="2.*-*" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.5">
           <PrivateAssets>all</PrivateAssets>

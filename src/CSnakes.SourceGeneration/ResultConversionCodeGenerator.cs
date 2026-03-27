@@ -27,6 +27,7 @@ internal static class ResultConversionCodeGenerator
     private static readonly IResultConversionCodeGenerator Double = ScalarConversionGenerator(SyntaxKind.DoubleKeyword, "Double");
     private static readonly IResultConversionCodeGenerator ByteArray = ScalarConversionGenerator(ParseTypeName("byte[]"), "ByteArray");
     private static readonly IResultConversionCodeGenerator Buffer = ScalarConversionGenerator(ParseTypeName("IPyBuffer"), "Buffer");
+    private static readonly IResultConversionCodeGenerator Date = ScalarConversionGenerator(ParseTypeName("DateOnly"), "Date");
 
     public static IEnumerable<StatementSyntax> GenerateCode(PythonTypeSpec pythonTypeSpec,
                                                             string inputName, string outputName,
@@ -48,8 +49,9 @@ internal static class ResultConversionCodeGenerator
             case BoolType: return Boolean;
             case BytesType: return ByteArray;
             case BufferType: return Buffer;
+            case DateType: return Date;
 
-            case OptionalType { Of: var t and (IntType or FloatType or BoolType or TupleType) }:
+            case OptionalType { Of: var t and (IntType or FloatType or BoolType or TupleType or DateType) }:
             {
                 return OptionalConversionGenerator(t, "OptionalValue");
             }

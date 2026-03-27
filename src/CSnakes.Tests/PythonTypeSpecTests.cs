@@ -115,6 +115,7 @@ public class PythonTypeSpecTests
         _ = Assert.IsType<BoolType>(PythonTypeSpec.Bool);
         _ = Assert.IsType<BytesType>(PythonTypeSpec.Bytes);
         _ = Assert.IsType<BufferType>(PythonTypeSpec.Buffer);
+        _ = Assert.IsType<UuidType>(PythonTypeSpec.Uuid);
         _ = Assert.IsType<AnyType>(Assert.IsType<VariadicTupleType>(PythonTypeSpec.Tuple).Of);
     }
 
@@ -180,6 +181,14 @@ public class PythonTypeSpecTests
         public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
         public static string ExpectedName => "Buffer";
         public static string ExpectedToString => "Buffer";
+    }
+
+    public class UuidTypeTests : TestBase<UuidType, UuidTypeTests>, ITest<UuidTypeTests, UuidType>
+    {
+        public static UuidType CreateInstance() => PythonTypeSpec.Uuid;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "UUID";
+        public static string ExpectedToString => "UUID";
     }
 
     public class SequenceTypeTests : TestBase<SequenceType, SequenceTypeTests>, ITest<SequenceTypeTests, SequenceType>

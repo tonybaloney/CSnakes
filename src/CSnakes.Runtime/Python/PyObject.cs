@@ -710,7 +710,7 @@ public partial class PyObject : SafeHandle, ICloneable
                 var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => PyObjectTypeConverter.ConvertToGeneratorIterator(this, t),
                 { IsGenericType: true, IsGenericTypeDefinition: false } t when t.IsAssignableTo(typeof(IAwaitable)) => PyObjectTypeConverter.ConvertToAwaitable(this, t),
                 var t when t.IsAssignableTo(typeof(IAwaitable)) => new Awaitable<PyObject, PyObjectImporters.Clone>(Clone()),
-                var t when t.IsAssignableTo(typeof(IPyBuffer)) && CPythonAPI.IsBuffer(this) => new PyBuffer(this),
+                var t when t.IsAssignableTo(typeof(IPyBuffer)) && CPythonAPI.IsBuffer(this) => PyBuffer.Create(this),
                 var t when Nullable.GetUnderlyingType(t) is { } vt => IsNone() ? null : As(vt),
                 var t => PyObjectTypeConverter.PyObjectToManagedType(this, t),
             };

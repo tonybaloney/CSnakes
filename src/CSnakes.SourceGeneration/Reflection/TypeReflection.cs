@@ -21,7 +21,8 @@ public static class TypeReflection
             (IMappingType      { Key: var kt, Value: var vt }, _, _) => CreateDictionaryType(kt, vt, direction),
             (OptionalType      { Of: var t }, _, _) => AsPredefinedType(t, direction).Select(SyntaxFactory.NullableType),
             (GeneratorType     { Yield: var yt, Send: var st, Return: var rt }, _, _) => CreateGeneratorType(yt, st, rt, direction),
-            (CoroutineType     { Yield: NoneType, Send: NoneType, Return: var rt }, _, _) => CreateCoroutineType(rt, direction),
+            (AwaitableType     { Of: var t }, _, _) => CreateAwaitableType(t, direction),
+            (CoroutineType     { Yield: NoneType, Send: NoneType, Return: var rt }, _, _) => CreateAwaitableType(rt, direction),
             (UnionType         { Choices: var ts }, ConversionDirection.ToPython, _) => [.. ts.SelectMany(t => AsPredefinedType(t, direction))],
             (VariadicTupleType { Of: var t }, ConversionDirection.FromPython, _) => from listType in AsPredefinedType(t, direction)
                                                                                     select CreateGenericType("ImmutableArray", [listType]),
@@ -50,10 +51,10 @@ public static class TypeReflection
                select CreateGenericType("IGeneratorIterator", [yieldTypeI, sendTypeI, returnTypeI]);
     }
 
-    private static IEnumerable<TypeSyntax> CreateCoroutineType(PythonTypeSpec returnType, ConversionDirection direction)
+    private static IEnumerable<TypeSyntax> CreateAwaitableType(PythonTypeSpec resultType, ConversionDirection direction)
     {
-        return from returnTypeI in AsPredefinedType(returnType, direction)
-               select CreateGenericType("ICoroutine", [returnTypeI]);
+        return from returnTypeI in AsPredefinedType(resultType, direction)
+               select CreateGenericType("IAwaitable", [returnTypeI]);
     }
 
     private static IEnumerable<TypeSyntax> CreateTupleType(ImmutableArray<PythonTypeSpec> tupleTypes, ConversionDirection direction)

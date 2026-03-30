@@ -3,7 +3,12 @@ namespace CSnakes.Runtime.Python;
 /// <summary>
 /// Represents a keyword argument to be passed to a Python callable.
 /// </summary>
-/// <param name="Name">The argument keyword/name.</param>
+/// <param name="Name">
+/// The argument keyword/name that must be a Python string, e.g.
+/// one created using <see cref="PyObject.From(string)"/>. Otherwise, a
+/// <see cref="PythonInvocationException" /> will be thrown when a call is made
+/// via, e.g. <see cref="PyObject.Call(ReadOnlySpan{PyObject},ReadOnlySpan{KeywordArg})"/>.
+/// </param>
 /// <param name="Value">The argument value.</param>
 /// <remarks>
 /// An instance of this struct does not own a reference to the <see
@@ -15,4 +20,4 @@ namespace CSnakes.Runtime.Python;
 /// other overloads accepting keyword arguments. General usage otherwise is
 /// discouraged to avoid ownership and lifetime bugs.
 /// </remarks>
-public readonly record struct KeywordArg(string Name, PyObject Value);
+public readonly record struct KeywordArg(PyObject Name, PyObject Value);

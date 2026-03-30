@@ -493,7 +493,11 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
         var tensor = (PyTensorBuffer<float>)bufferObject;
         Assert.Equal(sizeof(int) * 3 * 4 * 5, bufferObject.Length);
 #pragma warning disable SYSLIB5001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+#if NET10_0_OR_GREATER
+        var tmpTensor = Tensor.CreateFromShape<float>(tensor.Lengths);
+#else
         var tmpTensor = Tensor.Create<float>(tensor.Lengths);
+#endif
         var shapeProduct = (long)TensorPrimitives.Product(tensor.Lengths);
         Assert.Equal(shapeProduct, tensor.UnsafeAsTensorSpan().FlattenedLength);
         var result = Tensor.Multiply(tensor.UnsafeAsTensorSpan(), 255.0f, tmpTensor);

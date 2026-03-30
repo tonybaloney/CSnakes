@@ -2,6 +2,11 @@
 CSnakes.Runtime.IPythonEnvironmentBuilder.CapturePythonLogs() -> CSnakes.Runtime.IPythonEnvironmentBuilder!
 CSnakes.Runtime.Locators.RedistributablePythonVersion.<Clone>$() -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
 CSnakes.Runtime.Locators.RedistributablePythonVersion.Equals(CSnakes.Runtime.Locators.RedistributablePythonVersion? other) -> bool
+CSnakes.Runtime.Python.IAwaitable.WaitAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<CSnakes.Runtime.Python.PyObject!>!
+CSnakes.Runtime.Python.IAwaitable<T>.WaitAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T>!
+CSnakes.Runtime.Python.IPyObjectProxy
+CSnakes.Runtime.Python.IPyObjectProxy.DangerousInternalReference.get -> CSnakes.Runtime.Python.PyObject!
+CSnakes.Runtime.Python.PyObjectProxyExtensions
 CSnakes.Runtime.Python.PyArray2DBuffer<T>
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyFrom(scoped CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> source) -> void
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyTo(scoped CommunityToolkit.HighPerformance.Span2D<T> destination) -> void
@@ -39,20 +44,24 @@ override CSnakes.Runtime.Locators.RedistributablePythonVersion.GetHashCode() -> 
 override CSnakes.Runtime.Locators.RedistributablePythonVersion.ToString() -> string!
 static CSnakes.Runtime.Locators.RedistributablePythonVersion.operator !=(CSnakes.Runtime.Locators.RedistributablePythonVersion? left, CSnakes.Runtime.Locators.RedistributablePythonVersion? right) -> bool
 static CSnakes.Runtime.Locators.RedistributablePythonVersion.operator ==(CSnakes.Runtime.Locators.RedistributablePythonVersion? left, CSnakes.Runtime.Locators.RedistributablePythonVersion? right) -> bool
-CSnakes.Runtime.Python.ICoroutine<T>
-CSnakes.Runtime.Python.ICoroutine<T>.AsTask(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T>!
+CSnakes.Runtime.Python.Awaitable
+CSnakes.Runtime.Python.IAwaitable
+CSnakes.Runtime.Python.IAwaitable<T>
+static CSnakes.Runtime.Python.Awaitable.WaitAsync(CSnakes.Runtime.Python.PyObject! obj, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<CSnakes.Runtime.Python.PyObject!>!
+static CSnakes.Runtime.Python.Awaitable.WaitAsync<T>(this CSnakes.Runtime.Python.IAwaitable<T>! awaitable, bool dispose, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T>!
 static CSnakes.Runtime.Python.PyObject.From(System.ReadOnlySpan<byte> value) -> CSnakes.Runtime.Python.PyObject!
+static CSnakes.Runtime.Python.PyObjectProxyExtensions.GetPyObject(this CSnakes.Runtime.Python.IPyObjectProxy! proxy) -> CSnakes.Runtime.Python.PyObject!
 virtual CSnakes.Runtime.Python.SpanFunc<T, TArg, TResult>.Invoke(System.ReadOnlySpan<T> span, TArg arg) -> TResult
 virtual CSnakes.Runtime.Python.SpanFunc<T, TResult>.Invoke(System.ReadOnlySpan<T> span) -> TResult
-[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Coroutine<T, TImporter>
+[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Awaitable<T, TImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Optional<T, TImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<T, TImporter>
 CSnakes.Runtime.Python.KeywordArg
-CSnakes.Runtime.Python.KeywordArg.Deconstruct(out string! Name, out CSnakes.Runtime.Python.PyObject! Value) -> void
+CSnakes.Runtime.Python.KeywordArg.Deconstruct(out CSnakes.Runtime.Python.PyObject! Name, out CSnakes.Runtime.Python.PyObject! Value) -> void
 CSnakes.Runtime.Python.KeywordArg.Equals(CSnakes.Runtime.Python.KeywordArg other) -> bool
 CSnakes.Runtime.Python.KeywordArg.KeywordArg() -> void
-CSnakes.Runtime.Python.KeywordArg.KeywordArg(string! Name, CSnakes.Runtime.Python.PyObject! Value) -> void
-CSnakes.Runtime.Python.KeywordArg.Name.get -> string!
+CSnakes.Runtime.Python.KeywordArg.KeywordArg(CSnakes.Runtime.Python.PyObject! Name, CSnakes.Runtime.Python.PyObject! Value) -> void
+CSnakes.Runtime.Python.KeywordArg.Name.get -> CSnakes.Runtime.Python.PyObject!
 CSnakes.Runtime.Python.KeywordArg.Name.init -> void
 CSnakes.Runtime.Python.KeywordArg.Value.get -> CSnakes.Runtime.Python.PyObject!
 CSnakes.Runtime.Python.KeywordArg.Value.init -> void
@@ -105,5 +114,6 @@ static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_9 
 *REMOVED*virtual CSnakes.Runtime.Python.GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>.Dispose(bool disposing) -> void
 *REMOVED*CSnakes.Runtime.Python.ICoroutine<TYield, TSend, TReturn>.AsTask(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TYield>!
 *REMOVED*[PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>
+*REMOVED*CSnakes.Runtime.Python.ICoroutine
 *REMOVED*CSnakes.Runtime.Python.ICoroutine<TYield, TSend, TReturn>
 *REMOVED*CSnakes.Runtime.Python.ICoroutine<TYield, TSend, TReturn>.AsTask(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TYield>!

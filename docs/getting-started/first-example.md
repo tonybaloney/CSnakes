@@ -19,41 +19,7 @@ def calculate_average(numbers: list[float]) -> float:
     return sum(numbers) / len(numbers)
 ```
 
-## Step 2: Configure the Project File
-
-Mark the Python file as an "Additional File" in your `.csproj` file:
-
-```xml
-<ItemGroup>
-    <AdditionalFiles Include="demo.py" SourceItemType="Python">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-</ItemGroup>
-```
-
-Take care to not forget the `SourceItemType="Python"` bit.
-
-MSBuild supports globbing, so you can also mark all Python files in a directory
-as additional files:
-
-```xml
-<ItemGroup>
-    <AdditionalFiles Include="*.py" SourceItemType="Python">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-</ItemGroup>
-```
-
-Alternatively, you can configure CSnakes to parse all `*.py` files by default,
-by setting the `DefaultPythonItems` property to `true` in the project file:
-
-```xml
-<PropertyGroup>
-    <DefaultPythonItems>true</DefaultPythonItems>
-</PropertyGroup>
-```
-
-## Step 3: Write the C# Code
+## Step 2: Write the C# Code
 
 ```csharp
 using CSnakes.Runtime;
@@ -86,7 +52,7 @@ var average = module.CalculateAverage(numbers);
 Console.WriteLine($"Average: {average}"); // Output: Average: 2.75
 ```
 
-## Step 4: Build and Run
+## Step 3: Build and Run
 
 Build your project:
 

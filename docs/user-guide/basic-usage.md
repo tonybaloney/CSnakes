@@ -31,7 +31,7 @@ def get_info() -> dict[str, str]:
 
 ### 2. Configure Project File
 
-Add the Python file to your `.csproj`:
+Add the `CSnakes.Runtime` package reference to your `.csproj`:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -43,14 +43,10 @@ Add the Python file to your `.csproj`:
   <ItemGroup>
     <PackageReference Include="CSnakes.Runtime" Version="2.*-*" />
   </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="math_utils.py" SourceItemType="Python">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-  </ItemGroup>
 </Project>
 ```
+
+By default, CSnakes automatically discovers all `.py` and `.pyi` files in your project — no additional configuration is needed. See [Discovering Python files for Source Generation](configuration.md) if you need manual control over which files are included.
 
 ### 3. Initialize Python Environment
 
@@ -106,6 +102,47 @@ Function argument names are converted to C# conventions in lower case:
 |--------|-----|
 | `my_argument` | `myArgument` |
 | `arg1` | `arg1` |
+
+## Ignoring Functions
+
+By default, CSnakes generates C# methods for all public Python functions defined in a module. Functions whose names start with an underscore (`_`) are automatically excluded from code generation.
+
+If you want to exclude a public function from code generation without renaming it, add the `# csharp: ignore` directive comment on the same line as the `def` keyword:
+
+```python
+def hello(name: str) -> str:
+    return f"Hello, {name}!"
+
+def my_decorator(func):  # csharp: ignore
+    ...
+```
+
+In the example above, `hello` will have a C# method generated, but `my_decorator` will be skipped entirely.
+
+This also works with multi-line function definitions, as long as the comment is on the first line (the `def` line):
+
+```python
+def foo(  # csharp: ignore
+        bar,
+        baz,
+    ):
+    pass
+```
+
+The `# csharp: ignore` directive can be combined with other comments like `# type: ignore`:
+
+```python
+def bar():  # type: ignore # csharp: ignore
+    pass
+```
+
+!!! note
+    The `# csharp: ignore` comment must appear on the same line as the `def` keyword. Placing it on a line above the function, inside the parameter list (on a different line), or in the function body will **not** have the desired effect.
+
+This is useful when:
+
+- You don't want to rename a function with an underscore prefix just to exclude it from generation.
+- The function has a signature that the source generator does not support, and you want to suppress warnings.
 
 ## Module Access
 

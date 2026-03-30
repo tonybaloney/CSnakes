@@ -203,6 +203,16 @@ public class PythonTypeDefinitionParserTests
     }
 
     [Theory]
+    [InlineData("Awaitable[int]")]
+    [InlineData("typing.Awaitable[int]")]
+    [InlineData("collections.abc.Awaitable[int]")]
+    public void AwaitableTest(string input)
+    {
+        var type = TestParse<AwaitableType>(input);
+        _ = Assert.IsType<IntType>(type.Of);
+    }
+
+    [Theory]
     [InlineData("Coroutine[int, str, bool]")]
     [InlineData("typing.Coroutine[int, str, bool]")]
     [InlineData("collections.abc.Coroutine[int, str, bool]")]

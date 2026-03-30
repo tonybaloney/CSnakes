@@ -3,7 +3,7 @@
 {
 	"name": "CSnakes",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/dotnet:1-9.0-bookworm",
+	"image": "mcr.microsoft.com/dotnet/sdk:10.0.103-noble",
 	"features": {
 		"ghcr.io/devcontainers/features/python:1": {
 			"installTools": true,

@@ -13,6 +13,20 @@ public static class TypeReflection
         FromPython
     }
 
+    public static TypeSyntax? FindAnnotatedTypeSyntax(this PythonTypeSpec typeSpec)
+    {
+        foreach (var md in typeSpec.Metadata)
+        {
+            if (md is PythonConstant.String { Value: ['c', '#', ':', .. var name] }
+                && SyntaxFactory.ParseTypeName(name) is { ContainsDiagnostics: false } typeSyntax)
+            {
+                return typeSyntax;
+            }
+        }
+
+        return null;
+    }
+
     public static IEnumerable<TypeSyntax> AsPredefinedType(PythonTypeSpec pythonType, ConversionDirection direction, RefSafetyContext refSafetyContext = RefSafetyContext.Safe) =>
         (pythonType, direction, refSafetyContext) switch
         {
@@ -34,6 +48,7 @@ public static class TypeReflection
             (BytesType         , ConversionDirection.ToPython, RefSafetyContext.RefSafe) => [SyntaxFactory.ParseTypeName("ReadOnlySpan<byte>")],
             (BytesType         , _, _) => [SyntaxFactory.ParseTypeName("byte[]")],
             (BufferType        , ConversionDirection.FromPython, _) => [SyntaxFactory.ParseTypeName("IPyBuffer")],
+            (var other, ConversionDirection.FromPython, _) when other.FindAnnotatedTypeSyntax() is { } typeSyntax => [typeSyntax],
             _ => [SyntaxFactory.ParseTypeName("PyObject")],
         };
 

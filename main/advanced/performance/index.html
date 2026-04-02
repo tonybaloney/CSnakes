@@ -1703,7 +1703,7 @@ the values in the array at once:</p>
 <h3 id="2-marshalling-return-values-unnecessarily">2. Marshalling return values unnecessarily</h3>
 <p>Unlike .NET which has value types and reference types, Python has only names
 which are references to objects (everything is a pointer to <code>PyObject</code>). If you're a C# developer, just think of Python
-as having only reference types. </p>
+as having only reference types.</p>
 <p>To marshall value types from .NET to Python, CSnakes has to convert the value
 type into a reference type. This is done by creating a new object in Python and
 copying the value into it. This is a relatively expensive operation and should

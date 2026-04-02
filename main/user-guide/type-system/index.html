@@ -1819,8 +1819,12 @@
 <td><code>IPyBuffer</code> <a href="../buffers/">2</a></td>
 </tr>
 <tr>
-<td><code>typing.Coroutine[TYield, TSend, TReturn]</code></td>
-<td><code>Task&lt;TYield&gt;</code> <a href="../async/">3</a></td>
+<td><code>typing.Coroutine[None, None, T]</code></td>
+<td><code>Task&lt;T&gt;</code> <a href="../async/">3</a></td>
+</tr>
+<tr>
+<td><code>typing.Awaitable[T]</code></td>
+<td><code>IAwaitable&lt;T&gt;</code></td>
 </tr>
 <tr>
 <td>`typing.Union[T1, T2, ...]</td>
@@ -1832,6 +1836,7 @@
 </tr>
 </tbody>
 </table>
+<p>Note that only coroutines where the yield and send types are <code>None</code> are supported.</p>
 <h2 id="optional-types">Optional Types</h2>
 <p>CSnakes supports Python's optional type annotations from both <a href="https://docs.python.org/3/library/typing.html#typing.Optional"><code>Optional[T]</code></a> and <code>T | None</code> (Python 3.10+):</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">find_user</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -1853,7 +1858,7 @@
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OptionalOldStyle</span><span class="p">(</span><span class="kt">long?</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">);</span>
 </span></code></pre></div>
 <h2 id="unions">Unions</h2>
-<p>Python has two ways of specifying type unions. </p>
+<p>Python has two ways of specifying type unions.</p>
 <ol>
 <li>From Python 3.10, type unions can be written as <code>T1 | T2</code></li>
 <li>Using the <code>typing.Union[T1, T2, ...]</code> syntax</li>

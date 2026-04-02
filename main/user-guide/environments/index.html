@@ -1531,7 +1531,7 @@
 <h1 id="environment-and-package-management">Environment and Package Management</h1>
 <p>CSnakes comes with support for executing Python within a virtual environment and the specification of dependencies.</p>
 <p>There are two main package management solutions for Python, <code>pip</code> and <code>conda</code>. <code>pip</code> is the default package manager for Python and is included with the Python installation. <code>conda</code> is a package manager that is included with the Anaconda distribution of Python. Both package managers can be used to install packages and manage dependencies.</p>
-<p>There are various ways to create "virtual" environments in Python, where the dependencies are isolated from the system Python installation. The most common way is to use the <code>venv</code> module that is included with Python. The <code>venv</code> module is used to create virtual environments and manage dependencies. </p>
+<p>There are various ways to create "virtual" environments in Python, where the dependencies are isolated from the system Python installation. The most common way is to use the <code>venv</code> module that is included with Python. The <code>venv</code> module is used to create virtual environments and manage dependencies.</p>
 <p>Virtual Environment creation and package management are separate concerns in Python, but some tools (like conda) combine them into a single workflow. CSnakes separates these concerns to give you more flexibility in managing your Python environments.</p>
 <h2 id="virtual-environments-with-venv">Virtual Environments with <code>venv</code></h2>
 <p>Use the <code>.WithVirtualEnvironment(path)</code> method to specify the path to the virtual environment.</p>
@@ -1547,7 +1547,7 @@
 <h2 id="virtual-environments-with-conda">Virtual Environments with <code>conda</code></h2>
 <p>To use the <code>conda</code> package manager, you need to specify the path to the <code>conda</code> executable and the name of the environment you want to use:</p>
 <ol>
-<li>Add the <code>FromConda()</code> extension method the host builder. </li>
+<li>Add the <code>FromConda()</code> extension method the host builder.</li>
 <li>Use the <code>.WithCondaEnvironment(name)</code> method to specify the name of the environment you want to use.</li>
 </ol>
 <div class="language-csharp highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">...</span>

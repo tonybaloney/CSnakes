@@ -1709,7 +1709,7 @@ We recommend using the read-only methods when you don't need to modify the buffe
 </tr>
 </tbody>
 </table>
-<p>The <code>GetItemType()</code> method can be used to get the C# type of the buffer contents. </p>
+<p>The <code>GetItemType()</code> method can be used to get the C# type of the buffer contents.</p>
 <p>You can also use generic methods such as <code>AsSpan&lt;T&gt;</code> and <code>AsReadOnlySpan&lt;T&gt;</code> to get a Span of the buffer contents with the specified type. If the requested type does not match the buffer contents, an exception will be thrown.</p>
 <h2 id="bytes-objects-as-buffers">Bytes objects as buffers</h2>
 <p>In addition to NumPy arrays, you can also use <code>bytes</code> and <code>bytearray</code> objects as buffers. The <code>Buffer</code> type hint can be used to indicate that a function returns a <code>bytes</code> or <code>bytearray</code> object that supports the Buffer Protocol.</p>

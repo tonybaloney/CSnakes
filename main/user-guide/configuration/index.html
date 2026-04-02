@@ -639,18 +639,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#manual-example" class="md-nav__link">
+  <a href="#automatic-example" class="md-nav__link">
     <span class="md-ellipsis">
-      Manual Example
+      Automatic Example
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#automatic-example" class="md-nav__link">
+  <a href="#manual-example" class="md-nav__link">
     <span class="md-ellipsis">
-      Automatic Example
+      Manual Example
     </span>
   </a>
   
@@ -1451,18 +1451,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#manual-example" class="md-nav__link">
+  <a href="#automatic-example" class="md-nav__link">
     <span class="md-ellipsis">
-      Manual Example
+      Automatic Example
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#automatic-example" class="md-nav__link">
+  <a href="#manual-example" class="md-nav__link">
     <span class="md-ellipsis">
-      Automatic Example
+      Manual Example
     </span>
   </a>
   
@@ -1514,87 +1514,84 @@
 <h2 id="discovering-python-files-for-source-generation">Discovering Python files for Source Generation</h2>
 <p>There are two options for configuring how CSnakes discovers Python files in your .NET project to build the C# bindings:</p>
 <ol>
+<li><a href="#automatic-example">Automatic, using <code>EnableDefaultPythonItems</code></a> (default)</li>
 <li><a href="#manual-example">Manually, using <code>AdditionalFiles</code></a></li>
-<li><a href="#automatic-example">Automatic using <code>DefaultPythonItems</code></a></li>
 </ol>
-<h3 id="manual-example">Manual Example</h3>
-<p>If you want full control over which files in your project are source generated, use the <code>AdditionalFiles</code> group with <code>SourceItemType="Python"</code>.</p>
+<h3 id="automatic-example">Automatic Example</h3>
+<p>By default, CSnakes automatically finds any <code>.py</code> and <code>.pyi</code> files in your project and generates .NET classes. This is controlled by the <code>EnableDefaultPythonItems</code> setting, which is <code>true</code> by default:</p>
 <div class="language-xml highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">&lt;Project</span><span class="w"> </span><span class="na">Sdk=</span><span class="s">&quot;Microsoft.NET.Sdk&quot;</span><span class="nt">&gt;</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&lt;PropertyGroup&gt;</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">&lt;OutputType&gt;</span>Exe<span class="nt">&lt;/OutputType&gt;</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">&lt;TargetFramework&gt;</span>net8.0<span class="nt">&lt;/TargetFramework&gt;</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">&lt;/PropertyGroup&gt;</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nt">&lt;ItemGroup&gt;</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;CSnakes.Runtime&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;2.*-*&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nt">&lt;ItemGroup&gt;</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="nt">&lt;AdditionalFiles</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;math_utils.py&quot;</span><span class="w"> </span><span class="na">SourceItemType=</span><span class="s">&quot;Python&quot;</span><span class="nt">&gt;</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">      </span><span class="nt">&lt;CopyToOutputDirectory&gt;</span>Always<span class="nt">&lt;/CopyToOutputDirectory&gt;</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="nt">&lt;/AdditionalFiles&gt;</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="nt">&lt;/Project&gt;</span>
-</span></code></pre></div>
-<p>The file path supports expressions (glob), like <code>*.py</code> or <code>**/*.py</code> (recursive).</p>
-<div class="language-xml highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="w">    </span><span class="nt">&lt;AdditionalFiles</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;python/*.py&quot;</span><span class="w"> </span><span class="na">SourceItemType=</span><span class="s">&quot;Python&quot;</span><span class="nt">&gt;</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">      </span><span class="nt">&lt;CopyToOutputDirectory&gt;</span>Always<span class="nt">&lt;/CopyToOutputDirectory&gt;</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">&lt;/AdditionalFiles&gt;</span>
-</span></code></pre></div>
-<h3 id="automatic-example">Automatic Example</h3>
-<p>CSnakes can automatically find any <code>.py</code> and <code>.pyi</code> files in your project and generated .NET classes using the <code>DefaultPythonItems</code> setting:</p>
-<div class="language-xml highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">&lt;Project</span><span class="w"> </span><span class="na">Sdk=</span><span class="s">&quot;Microsoft.NET.Sdk&quot;</span><span class="nt">&gt;</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&lt;PropertyGroup&gt;</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">&lt;OutputType&gt;</span>Exe<span class="nt">&lt;/OutputType&gt;</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">&lt;TargetFramework&gt;</span>net8.0<span class="nt">&lt;/TargetFramework&gt;</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="cm">&lt;!-- use automatic detection --&gt;</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">&lt;DefaultPythonItems&gt;</span>true<span class="nt">&lt;/DefaultPythonItems&gt;</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="nt">&lt;/PropertyGroup&gt;</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="nt">&lt;/Project&gt;</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="cm">&lt;!-- EnableDefaultPythonItems is true by default, no need to set it --&gt;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">&lt;/PropertyGroup&gt;</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nt">&lt;/Project&gt;</span>
 </span></code></pre></div>
 <p>This works recursively, if you have nested modules in your project you may also need to configure the root directory for namespacing Python imports.</p>
+<h3 id="manual-example">Manual Example</h3>
+<p>If you want full control over which files in your project are source generated, you can disable the automatic detection and use the <code>AdditionalFiles</code> group with <code>SourceItemType="Python"</code>:</p>
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">&lt;Project</span><span class="w"> </span><span class="na">Sdk=</span><span class="s">&quot;Microsoft.NET.Sdk&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&lt;PropertyGroup&gt;</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">&lt;OutputType&gt;</span>Exe<span class="nt">&lt;/OutputType&gt;</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nt">&lt;TargetFramework&gt;</span>net8.0<span class="nt">&lt;/TargetFramework&gt;</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="cm">&lt;!-- Disable automatic detection --&gt;</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nt">&lt;EnableDefaultPythonItems&gt;</span>false<span class="nt">&lt;/EnableDefaultPythonItems&gt;</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="nt">&lt;/PropertyGroup&gt;</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="nt">&lt;ItemGroup&gt;</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;CSnakes.Runtime&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;2.*-*&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span><span class="nt">&lt;ItemGroup&gt;</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="nt">&lt;AdditionalFiles</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;math_utils.py&quot;</span><span class="w"> </span><span class="na">SourceItemType=</span><span class="s">&quot;Python&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">      </span><span class="nt">&lt;CopyToOutputDirectory&gt;</span>Always<span class="nt">&lt;/CopyToOutputDirectory&gt;</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="nt">&lt;/AdditionalFiles&gt;</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="nt">&lt;/Project&gt;</span>
+</span></code></pre></div>
+<p>Take care to not forget the <code>SourceItemType="Python"</code> bit.</p>
 <h2 id="embedding-sources-optional">Embedding Sources (Optional)</h2>
 <p>Sometimes, you might wish to bundle the Python files into the generated .NET assemblies. This makes it easier to distribute packages, as Python doesn't need to read
 from a particular folder. Set the <code>EmbedPythonSources</code> property to <code>true</code> (default <code>false</code>) to enable this option.</p>
 <p>For this option, the source of the Python file is embedded into the generated class by CSnakes and the <code>.WithHome</code> extension method for the Python environment doesn't need
 to contain the Python file.</p>
-<div class="language-xml highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">&lt;Project</span><span class="w"> </span><span class="na">Sdk=</span><span class="s">&quot;Microsoft.NET.Sdk&quot;</span><span class="nt">&gt;</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&lt;PropertyGroup&gt;</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">&lt;OutputType&gt;</span>Exe<span class="nt">&lt;/OutputType&gt;</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">&lt;TargetFramework&gt;</span>net8.0<span class="nt">&lt;/TargetFramework&gt;</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="cm">&lt;!-- use embedded sources --&gt;</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nt">&lt;EmbedPythonSources&gt;</span>true<span class="nt">&lt;/EmbedPythonSources&gt;</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="nt">&lt;/PropertyGroup&gt;</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="nt">&lt;/Project&gt;</span>
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">&lt;Project</span><span class="w"> </span><span class="na">Sdk=</span><span class="s">&quot;Microsoft.NET.Sdk&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&lt;PropertyGroup&gt;</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">&lt;OutputType&gt;</span>Exe<span class="nt">&lt;/OutputType&gt;</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">&lt;TargetFramework&gt;</span>net8.0<span class="nt">&lt;/TargetFramework&gt;</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="cm">&lt;!-- use embedded sources --&gt;</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">&lt;EmbedPythonSources&gt;</span>true<span class="nt">&lt;/EmbedPythonSources&gt;</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="nt">&lt;/PropertyGroup&gt;</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="nt">&lt;/Project&gt;</span>
 </span></code></pre></div>
 <p>This will only operate on Python source files (<code>.py</code>) and not typestubs (<code>.pyi</code>). The source embedded in the class is automatically updated when you update the Python source and save the file (Visual Studio), or on build for CLI.</p>
 <h2 id="namespaces-and-roots-optional">Namespaces and Roots (Optional)</h2>
 <p>Consider the following folder layout:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>- `project.csproj`
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>- `src\`
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  - `MyClass.cs`
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>- `python_src\`
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>  - `library.py`
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>  - `utils\`
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    - `__init__.py`
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    - `parser.py`
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>- `project.csproj`
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>- `src\`
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  - `MyClass.cs`
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>- `python_src\`
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>  - `library.py`
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>  - `utils\`
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    - `__init__.py`
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    - `parser.py`
 </span></code></pre></div>
 <p>In Python, this folder structure would be considered a namespaced project with modules and submodules.</p>
-<p>If the home were <code>python_src\</code>: </p>
+<p>If the home were <code>python_src\</code>:</p>
 <ul>
 <li>To import <code>library.py</code> you would <code>import library</code></li>
 <li>To import <code>utils\__init__.py</code> you would <code>import utils</code></li>
 <li>To import <code>utils\parser.py</code> you would <code>import utils.parser</code></li>
 </ul>
 <p>CSnakes will automatically generate these namespaces and import directives once you configure the root of the project using the <code>PythonRoot</code> property in your <code>.csproj</code>.</p>
-<div class="language-xml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="w">  </span><span class="nt">&lt;PropertyGroup&gt;</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nt">&lt;DefaultPythonItems&gt;</span>true<span class="nt">&lt;/DefaultPythonItems&gt;</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">&lt;PythonRoot&gt;</span>python_src<span class="nt">&lt;/PythonRoot&gt;</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">&lt;/PropertyGroup&gt;</span>
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="w">  </span><span class="nt">&lt;PropertyGroup&gt;</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nt">&lt;EnableDefaultPythonItems&gt;</span>true<span class="nt">&lt;/EnableDefaultPythonItems&gt;</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">&lt;PythonRoot&gt;</span>python_src<span class="nt">&lt;/PythonRoot&gt;</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">&lt;/PropertyGroup&gt;</span>
 </span></code></pre></div>
 <p>This directive sets the root namespace for Python to be the relative path of <code>python_src</code>.</p>
 <p>You can also provide sub-directories in the path:</p>
-<div class="language-xml highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="w">    </span><span class="nt">&lt;PythonRoot&gt;</span>src/python/bindings<span class="nt">&lt;/PythonRoot&gt;</span>
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="w">    </span><span class="nt">&lt;PythonRoot&gt;</span>src/python/bindings<span class="nt">&lt;/PythonRoot&gt;</span>
 </span></code></pre></div>
 <p>To be platform agnostic, the path should use Unix path formatting (<code>/</code> not <code>\</code>).</p>
 <p>If CSnakes detects any Python sources which are not in this namespace, they will be ignored and a message is outputted to the build logs.</p>

@@ -1,5 +1,5 @@
 {
-    "dotnet.defaultSolution": "src/CSnakes.sln",
+    "dotnet.defaultSolution": "src/CSnakes.slnx",
     "github.copilot.enable": {
         "*": false,
         "plaintext": true,

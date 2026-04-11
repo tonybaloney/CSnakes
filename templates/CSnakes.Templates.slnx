@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="approve.ps1" />
+    <File Path="README.md" />
+    <File Path="test.ps1" />
+  </Folder>
+  <Project Path="src/ConsoleApp/ConsoleApp.1.csproj" />
+  <Project Path="src/CSnakes.Templates.csproj" />
+</Solution>

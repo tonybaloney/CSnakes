@@ -14,9 +14,9 @@ return await ProgramArguments.CreateParser()
                              .WithVersion(BuildConstants.InformationalVersion)
                              .Parse(args)
                              .Match(Main,
-                                    result => Print(Console.Out, result.Help.ReplaceLineEndings()),
-                                    result => Print(Console.Out, result.Version),
-                                    result => Print(Console.Error, result.Usage.ReplaceLineEndings(), exitCode: 1));
+                                    result => Print(result.Help),
+                                    result => Print(result.Version),
+                                    result => Print(result.Usage, exitCode: 1));
 
 static async Task<int> Main(ProgramArguments args)
 {
@@ -24,8 +24,7 @@ static async Task<int> Main(ProgramArguments args)
     {
         case { OptQuestion: true }:
         {
-            Console.Out.WriteLine(ProgramArguments.Help);
-            return 0;
+            return await Print(ProgramArguments.Help);
         }
         case { OptPython: { } pythonVersion }:
         {
@@ -101,9 +100,10 @@ static async Task<int> Main(ProgramArguments args)
     }
 }
 
-static Task<int> Print(TextWriter writer, string message, int exitCode = 0)
+static Task<int> Print(string message, TextWriter? writer = null, int exitCode = 0)
 {
-    writer.WriteLine(message);
+    writer ??= exitCode is 0 ? Console.Out : Console.Error;
+    writer.WriteLine(message.ReplaceLineEndings().AsSpan().TrimEnd(['\r', '\n']));
     return Task.FromResult(exitCode);
 }
 

@@ -121,8 +121,12 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
 #endif // NET9_0_OR_GREATER
 }
 
-public delegate TResult SpanFunc<T, out TResult>(ReadOnlySpan<T> span) where T : unmanaged;
-public delegate TResult SpanFunc<T, in TArg, out TResult>(ReadOnlySpan<T> span, TArg arg) where T : unmanaged;
+public delegate TResult ReadOnlySpanFunc<T, out TResult>(ReadOnlySpan<T> span);
+public delegate TResult ReadOnlySpanFunc<T, in TArg, out TResult>(ReadOnlySpan<T> span, TArg arg)
+#if NET9_0_OR_GREATER
+    where TArg : allows ref struct
+#endif
+    ;
 
 public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : unmanaged
 {
@@ -147,14 +151,20 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
         set => AsSpan()[index] = value;
     }
 
-    public TResult Map<TResult>(SpanFunc<T, TResult> function) =>
+    public TResult Map<TResult>(ReadOnlySpanFunc<T, TResult> function) =>
         function(AsSpan());
 
-    public TResult Map<TArg, TResult>(TArg arg, SpanFunc<T, TArg, TResult> function) =>
-        function(AsSpan(), arg);
+    public TResult Map<TArg, TResult>(TArg arg, ReadOnlySpanFunc<T, TArg, TResult> function)
+#if NET9_0_OR_GREATER
+        where TArg : allows ref struct
+#endif
+        => function(AsSpan(), arg);
 
-    public void Do<TArg>(TArg arg, SpanAction<T, TArg> action) =>
-        action(AsSpan(), arg);
+    public void Do<TArg>(TArg arg, SpanAction<T, TArg> action)
+#if NET9_0_OR_GREATER
+        where TArg : allows ref struct
+#endif
+        => action(AsSpan(), arg);
 
     public void CopyFrom(scoped ReadOnlySpan<T> source)
     {

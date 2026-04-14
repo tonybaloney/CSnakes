@@ -35,6 +35,7 @@ static CSnakes.Runtime.Locators.RedistributablePythonVersion.operator ==(CSnakes
 override CSnakes.Runtime.Locators.RedistributablePythonVersion.GetHashCode() -> int
 override CSnakes.Runtime.Locators.RedistributablePythonVersion.Equals(object? obj) -> bool
 CSnakes.Runtime.Locators.RedistributablePythonVersion.Equals(CSnakes.Runtime.Locators.RedistributablePythonVersion? other) -> bool
+CSnakes.Runtime.Locators.RedistributablePythonVersion.<Clone>$() -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
 static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_9 -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
 static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_10 -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
 static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_11 -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
@@ -348,7 +349,6 @@ static CSnakes.Runtime.Python.PyBufferExtensions.AsBoolSpan(this CSnakes.Runtime
 static CSnakes.Runtime.Python.PyBufferExtensions.AsByteSpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.Span<byte>
 CSnakes.Runtime.Python.PyObject.Call(params CSnakes.Runtime.Python.PyObject![]! args) -> CSnakes.Runtime.Python.PyObject!
 CSnakes.Runtime.IReloadableModuleImport.ReloadModule() -> void
-CSnakes.Runtime.Locators.RedistributablePythonVersion.<Clone>$() -> CSnakes.Runtime.Locators.RedistributablePythonVersion!
 CSnakes.Runtime.Python.PyArray2DBuffer<T>
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyFrom(scoped CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> source) -> void
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyTo(scoped CommunityToolkit.HighPerformance.Span2D<T> destination) -> void

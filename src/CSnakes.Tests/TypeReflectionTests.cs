@@ -45,7 +45,9 @@ public class TypeReflectionTests
         // A "Coroutine" where send or yield types are not "None" becomes "PyObject"
         ("Coroutine[bool, int, str]", "PyObject"),
         ("Coroutine[None, int, str]", "PyObject"),
-        ("Coroutine[bool, None, str]", "PyObject"));
+        ("Coroutine[bool, None, str]", "PyObject"),
+        ("time", "TimeOnly"),
+        ("datetime.time", "TimeOnly"));
 
     [Theory]
     [MemberData(nameof(AsPredefinedTypeData))]

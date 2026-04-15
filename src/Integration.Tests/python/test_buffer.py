@@ -123,3 +123,11 @@ def sum_of_2d_array(n: int) -> Generator[Buffer, None, int]:
     arr = np.zeros((n, n), dtype=np.int32)
     yield arr
     return np.sum(arr).item()
+
+
+def test_float32_int_buffer() -> Buffer:
+    return np.array([1.0, 2.0, 3.0, 4.0, 5.0], dtype=np.float32)
+
+
+def test_float32_int_2d_buffer() -> Buffer:
+    return np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], dtype=np.float32)

@@ -6,6 +6,15 @@ CSnakes.Runtime.Python.IAwaitable.WaitAsync(System.Threading.CancellationToken c
 CSnakes.Runtime.Python.IAwaitable<T>.WaitAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T>!
 CSnakes.Runtime.Python.IPyObjectProxy
 CSnakes.Runtime.Python.IPyObjectProxy.DangerousInternalReference.get -> CSnakes.Runtime.Python.PyObject!
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.Do(CSnakes.Runtime.Python.Span2DAction<T>! action) -> void
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.Do<TArg>(TArg arg, CSnakes.Runtime.Python.Span2DAction<T, TArg>! action) -> void
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.Map<TArg, TResult>(TArg arg, CSnakes.Runtime.Python.ReadOnlySpan2DFunc<T, TArg, TResult>! function) -> TResult
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.Map<TResult>(CSnakes.Runtime.Python.ReadOnlySpan2DFunc<T, TResult>! function) -> TResult
+CSnakes.Runtime.Python.PyArrayBuffer<T>.Do(CSnakes.Runtime.Python.SpanAction<T>! action) -> void
+CSnakes.Runtime.Python.PyArrayBuffer<T>.Do<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3, CSnakes.Runtime.Python.SpanAction<T, TArg1, TArg2, TArg3>! action) -> void
+CSnakes.Runtime.Python.PyArrayBuffer<T>.Do<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, CSnakes.Runtime.Python.SpanAction<T, TArg1, TArg2>! action) -> void
+CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TArg1, TArg2, TArg3, TResult>(TArg1 arg1, TArg2 arg2, TArg3 arg3, CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, TResult>! function) -> TResult
+CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TArg1, TArg2, TResult>(TArg1 arg1, TArg2 arg2, CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TArg1, TArg2, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyObjectProxyExtensions
 CSnakes.Runtime.Python.PyArray2DBuffer<T>
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyFrom(scoped CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> source) -> void
@@ -32,8 +41,17 @@ CSnakes.Runtime.Python.PyBuffer<T>.IsReadOnly.get -> bool
 CSnakes.Runtime.Python.PyBuffer<T>.IsScalar.get -> bool
 CSnakes.Runtime.Python.PyBuffer<T>.ItemType.get -> System.Type!
 CSnakes.Runtime.Python.PyBuffer<T>.Length.get -> long
+CSnakes.Runtime.Python.ReadOnlySpan2DFunc<T, TArg, TResult>
+CSnakes.Runtime.Python.ReadOnlySpan2DFunc<T, TResult>
 CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TArg, TResult>
+CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, TResult>
+CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TArg1, TArg2, TResult>
 CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TResult>
+CSnakes.Runtime.Python.Span2DAction<T, TArg>
+CSnakes.Runtime.Python.Span2DAction<T>
+CSnakes.Runtime.Python.SpanAction<T, TArg1, TArg2, TArg3>
+CSnakes.Runtime.Python.SpanAction<T, TArg1, TArg2>
+CSnakes.Runtime.Python.SpanAction<T>
 CSnakes.Runtime.PythonEnvironmentOptions.CaptureLogs.get -> bool
 CSnakes.Runtime.PythonEnvironmentOptions.CaptureLogs.init -> void
 CSnakes.Runtime.PythonEnvironmentOptions.Deconstruct(out string! Home, out string![]! ExtraPaths, out bool InstallSignalHandlers, out bool CaptureLogs) -> void
@@ -51,8 +69,17 @@ static CSnakes.Runtime.Python.Awaitable.WaitAsync(CSnakes.Runtime.Python.PyObjec
 static CSnakes.Runtime.Python.Awaitable.WaitAsync<T>(this CSnakes.Runtime.Python.IAwaitable<T>! awaitable, bool dispose, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T>!
 static CSnakes.Runtime.Python.PyObject.From(System.ReadOnlySpan<byte> value) -> CSnakes.Runtime.Python.PyObject!
 static CSnakes.Runtime.Python.PyObjectProxyExtensions.GetPyObject(this CSnakes.Runtime.Python.IPyObjectProxy! proxy) -> CSnakes.Runtime.Python.PyObject!
+virtual CSnakes.Runtime.Python.ReadOnlySpan2DFunc<T, TArg, TResult>.Invoke(CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> span, TArg arg) -> TResult
+virtual CSnakes.Runtime.Python.ReadOnlySpan2DFunc<T, TResult>.Invoke(CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> span) -> TResult
 virtual CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TArg, TResult>.Invoke(System.ReadOnlySpan<T> span, TArg arg) -> TResult
+virtual CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, TResult>.Invoke(System.ReadOnlySpan<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3) -> TResult
+virtual CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TArg1, TArg2, TResult>.Invoke(System.ReadOnlySpan<T> span, TArg1 arg1, TArg2 arg2) -> TResult
 virtual CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TResult>.Invoke(System.ReadOnlySpan<T> span) -> TResult
+virtual CSnakes.Runtime.Python.Span2DAction<T, TArg>.Invoke(CommunityToolkit.HighPerformance.Span2D<T> span, TArg arg) -> void
+virtual CSnakes.Runtime.Python.Span2DAction<T>.Invoke(CommunityToolkit.HighPerformance.Span2D<T> span) -> void
+virtual CSnakes.Runtime.Python.SpanAction<T, TArg1, TArg2, TArg3>.Invoke(System.Span<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3) -> void
+virtual CSnakes.Runtime.Python.SpanAction<T, TArg1, TArg2>.Invoke(System.Span<T> span, TArg1 arg1, TArg2 arg2) -> void
+virtual CSnakes.Runtime.Python.SpanAction<T>.Invoke(System.Span<T> span) -> void
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Awaitable<T, TImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Optional<T, TImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<T, TImporter>

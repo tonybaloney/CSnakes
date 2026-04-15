@@ -122,9 +122,42 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
 }
 
 public delegate TResult ReadOnlySpanFunc<T, out TResult>(ReadOnlySpan<T> span);
+
 public delegate TResult ReadOnlySpanFunc<T, in TArg, out TResult>(ReadOnlySpan<T> span, TArg arg)
 #if NET9_0_OR_GREATER
     where TArg : allows ref struct
+#endif
+    ;
+
+public delegate TResult ReadOnlySpanFunc<T, in TArg1, in TArg2, out TResult>(ReadOnlySpan<T> span, TArg1 arg1, TArg2 arg2)
+#if NET9_0_OR_GREATER
+    where TArg1 : allows ref struct
+    where TArg2 : allows ref struct
+#endif
+    ;
+
+public delegate TResult ReadOnlySpanFunc<T, in TArg1, in TArg2, in TArg3, out TResult>(ReadOnlySpan<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
+#if NET9_0_OR_GREATER
+    where TArg1 : allows ref struct
+    where TArg2 : allows ref struct
+    where TArg3 : allows ref struct
+#endif
+    ;
+
+public delegate void SpanAction<T>(Span<T> span);
+
+public delegate void SpanAction<T, in TArg1, in TArg2>(Span<T> span, TArg1 arg1, TArg2 arg2)
+#if NET9_0_OR_GREATER
+    where TArg1 : allows ref struct
+    where TArg2 : allows ref struct
+#endif
+    ;
+
+public delegate void SpanAction<T, in TArg1, in TArg2, in TArg3>(Span<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
+#if NET9_0_OR_GREATER
+    where TArg1 : allows ref struct
+    where TArg2 : allows ref struct
+    where TArg3 : allows ref struct
 #endif
     ;
 
@@ -160,11 +193,43 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
 #endif
         => function(AsSpan(), arg);
 
+    public TResult Map<TArg1, TArg2, TResult>(TArg1 arg1, TArg2 arg2, ReadOnlySpanFunc<T, TArg1, TArg2, TResult> function)
+#if NET9_0_OR_GREATER
+        where TArg1 : allows ref struct
+        where TArg2 : allows ref struct
+#endif
+        => function(AsSpan(), arg1, arg2);
+
+    public TResult Map<TArg1, TArg2, TArg3, TResult>(TArg1 arg1, TArg2 arg2, TArg3 arg3, ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, TResult> function)
+#if NET9_0_OR_GREATER
+        where TArg1 : allows ref struct
+        where TArg2 : allows ref struct
+        where TArg3 : allows ref struct
+#endif
+        => function(AsSpan(), arg1, arg2, arg3);
+
     public void Do<TArg>(TArg arg, SpanAction<T, TArg> action)
 #if NET9_0_OR_GREATER
         where TArg : allows ref struct
 #endif
         => action(AsSpan(), arg);
+
+    public void Do<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, SpanAction<T, TArg1, TArg2> action)
+#if NET9_0_OR_GREATER
+        where TArg1 : allows ref struct
+        where TArg2 : allows ref struct
+#endif
+        => action(AsSpan(), arg1, arg2);
+
+    public void Do<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3, SpanAction<T, TArg1, TArg2, TArg3> action)
+#if NET9_0_OR_GREATER
+        where TArg1 : allows ref struct
+        where TArg2 : allows ref struct
+        where TArg3 : allows ref struct
+#endif
+        => action(AsSpan(), arg1, arg2, arg3);
+
+    public void Do(SpanAction<T> action) => action(AsSpan());
 
     public void CopyFrom(scoped ReadOnlySpan<T> source)
     {
@@ -222,6 +287,19 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
     }
 }
 
+public delegate TResult ReadOnlySpan2DFunc<T, out TResult>(ReadOnlySpan2D<T> span);
+public delegate TResult ReadOnlySpan2DFunc<T, in TArg, out TResult>(ReadOnlySpan2D<T> span, TArg arg)
+#if NET9_0_OR_GREATER
+    where TArg : allows ref struct
+#endif
+    ;
+public delegate void Span2DAction<T, in TArg>(Span2D<T> span, TArg arg)
+#if NET9_0_OR_GREATER
+    where TArg : allows ref struct
+#endif
+    ;
+public delegate void Span2DAction<T>(Span2D<T> span);
+
 public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
 {
     internal PyArray2DBuffer(in CPythonAPI.Py_buffer buffer) : base(Validate(buffer)) { }
@@ -251,6 +329,23 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
         set => AsSpan2D()[row, column] = value;
     }
 
+    public TResult Map<TResult>(ReadOnlySpan2DFunc<T, TResult> function) =>
+        function(AsSpan2D());
+
+    public TResult Map<TArg, TResult>(TArg arg, ReadOnlySpan2DFunc<T, TArg, TResult> function)
+#if NET9_0_OR_GREATER
+        where TArg : allows ref struct
+#endif
+        => function(AsSpan2D(), arg);
+
+    public void Do<TArg>(TArg arg, Span2DAction<T, TArg> action)
+#if NET9_0_OR_GREATER
+        where TArg : allows ref struct
+#endif
+        => action(AsSpan2D(), arg);
+
+    public void Do(Span2DAction<T> action) => action(AsSpan2D());
+
     public void CopyFrom(scoped ReadOnlySpan2D<T> source)
     {
         if (IsReadOnly)
@@ -274,6 +369,34 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
 }
 
 #if NET9_0_OR_GREATER
+
+public delegate TResult ReadOnlyTensorSpanFunc<T, out TResult>(ReadOnlyTensorSpan<T> span);
+
+public delegate TResult ReadOnlyTensorSpanFunc<T, in TArg, out TResult>(ReadOnlyTensorSpan<T> span, TArg arg)
+    where TArg : allows ref struct;
+
+public delegate TResult ReadOnlyTensorSpanFunc<T, in TArg1, in TArg2, out TResult>(ReadOnlyTensorSpan<T> span, TArg1 arg1, TArg2 arg2)
+    where TArg1 : allows ref struct
+    where TArg2 : allows ref struct;
+
+public delegate TResult ReadOnlyTensorSpanFunc<T, in TArg1, in TArg2, in TArg3, out TResult>(ReadOnlyTensorSpan<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
+    where TArg1 : allows ref struct
+    where TArg2 : allows ref struct
+    where TArg3 : allows ref struct;
+
+public delegate void TensorSpanAction<T, in TArg>(TensorSpan<T> span, TArg arg)
+    where TArg : allows ref struct;
+
+public delegate void TensorSpanAction<T, in TArg1, in TArg2>(TensorSpan<T> span, TArg1 arg1, TArg2 arg2)
+    where TArg1 : allows ref struct
+    where TArg2 : allows ref struct;
+
+public delegate void TensorSpanAction<T, in TArg1, in TArg2, in TArg3>(TensorSpan<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
+    where TArg1 : allows ref struct
+    where TArg2 : allows ref struct
+    where TArg3 : allows ref struct;
+
+public delegate void TensorSpanAction<T>(TensorSpan<T> span);
 
 public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
 {
@@ -328,6 +451,51 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
             return cachedLengths;
         }
     }
+
+    public TResult Map<TResult>(ReadOnlyTensorSpanFunc<T, TResult> function) =>
+        function(AsTensorSpan());
+
+    public TResult Map<TArg, TResult>(TArg arg, ReadOnlyTensorSpanFunc<T, TArg, TResult> function)
+        where TArg : allows ref struct =>
+        function(AsTensorSpan(), arg);
+
+    public TResult Map<TArg1, TArg2, TResult>(TArg1 arg1, TArg2 arg2, ReadOnlyTensorSpanFunc<T, TArg1, TArg2, TResult> function)
+        where TArg1 : allows ref struct
+        where TArg2 : allows ref struct =>
+        function(AsTensorSpan(), arg1, arg2);
+
+    public TResult Map<TArg1, TArg2, TArg3, TResult>(TArg1 arg1, TArg2 arg2, TArg3 arg3, ReadOnlyTensorSpanFunc<T, TArg1, TArg2, TArg3, TResult> function)
+        where TArg1 : allows ref struct
+        where TArg2 : allows ref struct
+        where TArg3 : allows ref struct =>
+        function(AsTensorSpan(), arg1, arg2, arg3);
+
+    public void Do<TArg>(TArg arg, TensorSpanAction<T, TArg> action)
+        where TArg : allows ref struct =>
+        action(AsTensorSpan(), arg);
+
+    public void Do<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, TensorSpanAction<T, TArg1, TArg2> action)
+        where TArg1 : allows ref struct
+        where TArg2 : allows ref struct =>
+        action(AsTensorSpan(), arg1, arg2);
+
+    public void Do<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3, TensorSpanAction<T, TArg1, TArg2, TArg3> action)
+        where TArg1 : allows ref struct
+        where TArg2 : allows ref struct
+        where TArg3 : allows ref struct =>
+        action(AsTensorSpan(), arg1, arg2, arg3);
+
+    public void Do(TensorSpanAction<T> action) => action(AsTensorSpan());
+
+    public void CopyFrom(scoped ReadOnlyTensorSpan<T> source)
+    {
+        if (IsReadOnly)
+            throw new InvalidOperationException("Buffer is read-only.");
+
+        source.CopyTo(AsTensorSpan());
+    }
+
+    public void CopyTo(scoped TensorSpan<T> destination) => AsTensorSpan().CopyTo(destination);
 
     // TODO Mark `PyTensorBuffer<T>.AsTensorSpan` private when `IPyBuffer<T>.AsTensorSpan<T>` is removed
     internal unsafe TensorSpan<T> AsTensorSpan() => UnsafeAsTensorSpan();

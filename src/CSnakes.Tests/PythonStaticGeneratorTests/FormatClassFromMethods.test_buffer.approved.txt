@@ -25,7 +25,7 @@ static partial class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "648fa64ee4e57f1215ea2d6c75e52f78"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "c63406f37b1efb279e014b2097a618d5"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -81,6 +81,8 @@ static partial class TestClassExtensions
         private PyObject __func_test_ndim_3d_float32_buffer;
         private PyObject __func_test_ndim_4d_buffer;
         private PyObject __func_sum_of_2d_array;
+        private PyObject __func_test_float32_int_buffer;
+        private PyObject __func_test_float32_int_2d_buffer;
 
         internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
@@ -123,6 +125,8 @@ static partial class TestClassExtensions
                 this.__func_test_ndim_3d_float32_buffer = module.GetAttr("test_ndim_3d_float32_buffer");
                 this.__func_test_ndim_4d_buffer = module.GetAttr("test_ndim_4d_buffer");
                 this.__func_sum_of_2d_array = module.GetAttr("sum_of_2d_array");
+                this.__func_test_float32_int_buffer = module.GetAttr("test_float32_int_buffer");
+                this.__func_test_float32_int_2d_buffer = module.GetAttr("test_float32_int_2d_buffer");
             }
         }
 
@@ -167,6 +171,8 @@ static partial class TestClassExtensions
                 this.__func_test_ndim_3d_float32_buffer.Dispose();
                 this.__func_test_ndim_4d_buffer.Dispose();
                 this.__func_sum_of_2d_array.Dispose();
+                this.__func_test_float32_int_buffer.Dispose();
+                this.__func_test_float32_int_2d_buffer.Dispose();
                 // Bind to new functions
                 this.__func_test_bool_buffer = module.GetAttr("test_bool_buffer");
                 this.__func_test_int8_buffer = module.GetAttr("test_int8_buffer");
@@ -202,6 +208,8 @@ static partial class TestClassExtensions
                 this.__func_test_ndim_3d_float32_buffer = module.GetAttr("test_ndim_3d_float32_buffer");
                 this.__func_test_ndim_4d_buffer = module.GetAttr("test_ndim_4d_buffer");
                 this.__func_sum_of_2d_array = module.GetAttr("sum_of_2d_array");
+                this.__func_test_float32_int_buffer = module.GetAttr("test_float32_int_buffer");
+                this.__func_test_float32_int_2d_buffer = module.GetAttr("test_float32_int_2d_buffer");
             }
         }
 
@@ -242,6 +250,8 @@ static partial class TestClassExtensions
             this.__func_test_ndim_3d_float32_buffer.Dispose();
             this.__func_test_ndim_4d_buffer.Dispose();
             this.__func_sum_of_2d_array.Dispose();
+            this.__func_test_float32_int_buffer.Dispose();
+            this.__func_test_float32_int_2d_buffer.Dispose();
             module.Dispose();
         }
 
@@ -653,6 +663,30 @@ static partial class TestClassExtensions
                 return __return;
             }
         }
+
+        public IPyBuffer TestFloat32IntBuffer()
+        {
+            using (GIL.Acquire())
+            {
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float32_int_buffer");
+                PyObject __underlyingPythonFunc = this.__func_test_float32_int_buffer;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
+                return __return;
+            }
+        }
+
+        public IPyBuffer TestFloat32Int2dBuffer()
+        {
+            using (GIL.Acquire())
+            {
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float32_int_2d_buffer");
+                PyObject __underlyingPythonFunc = this.__func_test_float32_int_2d_buffer;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
+                return __return;
+            }
+        }
     }
 }
 
@@ -932,6 +966,22 @@ public interface ITestClass : IReloadableModuleImport
     /// ]]></code>
     /// </summary>
     IGeneratorIterator<IPyBuffer, PyObject, long> SumOf2dArray(long n);
+
+    /// <summary>
+    /// Invokes the Python function <c>test_float32_int_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_float32_int_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
+    IPyBuffer TestFloat32IntBuffer();
+
+    /// <summary>
+    /// Invokes the Python function <c>test_float32_int_2d_buffer</c>:
+    /// <code><![CDATA[
+    /// def test_float32_int_2d_buffer() -> Buffer: ...
+    /// ]]></code>
+    /// </summary>
+    IPyBuffer TestFloat32Int2dBuffer();
 }
 
 file static class ThisModule

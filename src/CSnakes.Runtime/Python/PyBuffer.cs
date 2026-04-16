@@ -267,8 +267,9 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
             // will not move or collect it. The memory handle will point directly to the
             // buffer's data at the specified index.
 
-            fixed (void* pointer = buffer.AsSpan()[elementIndex..])
-                return new MemoryHandle(pointer);
+            ArgumentOutOfRangeException.ThrowIfNegative(elementIndex);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(elementIndex, buffer.ItemCount);
+            return new MemoryHandle((T*)buffer.Buffer.buf + elementIndex);
         }
 
         public override void Unpin()

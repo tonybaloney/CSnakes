@@ -19,7 +19,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     // ────────────────────────────────────────────────────────────
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void Sum_1D_Map()
     {
         // Map(func) – pure reduction over the buffer
@@ -32,7 +31,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void DotProduct_1D_MapWithArray()
     {
         // Map(TArg, func) – TArg is float[]
@@ -47,7 +45,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void InPlaceNegate_1D_Do()
     {
         // Do(func) – parameterless Do for in-place unary operation
@@ -64,7 +61,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void InPlaceScale_1D_DoWithScalar()
     {
         // Do(TArg, func) – TArg is a scalar value
@@ -81,7 +77,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void InPlaceAdd_1D_DoWithArray()
     {
         // Do(TArg, func) – TArg is float[]
@@ -99,7 +94,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void CopyTo_1D()
     {
         var module = Env.TestBuffer();
@@ -112,7 +106,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void CopyFrom_1D()
     {
         var module = Env.TestBuffer();
@@ -127,7 +120,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
 
 #if NET10_0_OR_GREATER
     [Fact]
-    [Trait("requires", "numpy")]
     public void Sum_1D_TensorPrimitives()
     {
         // Map(func) with TensorPrimitives.Sum
@@ -140,7 +132,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void DotProduct_1D_MapWithSpan()
     {
         // Map(TArg, func) where TArg is ReadOnlySpan<float> — exercises "allows ref struct"
@@ -154,7 +145,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void CosineSimilarity_1D_MapWithArray()
     {
         // Self-similarity should be 1.0
@@ -168,7 +158,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void InPlaceAdd_1D_DoWithSpan()
     {
         // Do(TArg, func) where TArg is ReadOnlySpan<float> — exercises "allows ref struct"
@@ -183,7 +172,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void DotProduct_1D_NestedMap()
     {
         // Two Python-backed buffers; nested Map passes outer span as ref-struct TArg
@@ -198,7 +186,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void WeightedDot_1D_MapWith2Args()
     {
         // Map(TArg1, TArg2, func) — pure expression: dot(buf, a) + dot(buf, b)
@@ -214,7 +201,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void WeightedDistance_1D_MapWith3Args()
     {
         // Map(TArg1, TArg2, TArg3, func) — pure expression using 3 extra spans
@@ -233,7 +219,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void FusedMultiplyAdd_1D_DoWith2Args()
     {
         // Do(TArg1, TArg2, action) — ternary in-place FMA: buf = buf * y + z
@@ -253,7 +238,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void AddMultiply_1D_DoWith2Args()
     {
         // Do(TArg1, TArg2, action) — ternary in-place AddMultiply: dest = (buf + y) * z
@@ -273,7 +257,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void Lerp_1D_DoWith2Args()
     {
         // Do(TArg1, TArg2, action) — ternary Lerp writing to an external destination
@@ -289,7 +272,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void SinCos_1D_DoWith2Args()
     {
         // Do(TArg1, TArg2, action) — multi-output: compute sin and cos simultaneously
@@ -308,7 +290,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void DivRem_1D_DoWith3Args()
     {
         // Do(TArg1, TArg2, TArg3, action) — binary op with 2 output destinations
@@ -338,7 +319,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     // ────────────────────────────────────────────────────────────
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void RowSums_2D_Map()
     {
         // Map(func) – compute per-row sums over a 2D buffer
@@ -363,7 +343,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void Clear_2D_Do()
     {
         // Do(func) – parameterless Do for in-place clear
@@ -379,7 +358,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void Fill_2D_DoWithScalar()
     {
         // Do(TArg, func) – fill entire matrix with a value
@@ -398,7 +376,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void Flatten_2D_Map()
     {
         // Map(func) – flatten to 1D array (row-major)
@@ -418,7 +395,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void CopyTo_2D()
     {
         var module = Env.TestBuffer();
@@ -436,7 +412,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
 
 #if NET10_0_OR_GREATER
     [Fact]
-    [Trait("requires", "numpy")]
     public void Sum_Tensor_Map()
     {
         // Map(func) – sum all elements of a 3D tensor
@@ -455,7 +430,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void InPlaceNegate_Tensor_Do()
     {
         // Do(func) – parameterless Do for in-place negate on tensor
@@ -469,7 +443,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void InPlaceScale_Tensor_DoWithScalar()
     {
         // Do(TArg, func) – multiply all elements by a scalar
@@ -483,7 +456,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void Sum_Tensor_MapWith1Arg()
     {
         // Map(TArg, func) — pass a scalar multiplier, return sum of scaled elements
@@ -496,7 +468,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void WeightedSum_Tensor_MapWith2Args()
     {
         // Map(TArg1, TArg2, func) — weighted sum: sum(tensor * weights) + bias
@@ -512,7 +483,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void TripleWeightedSum_Tensor_MapWith3Args()
     {
         // Map(TArg1, TArg2, TArg3, func) — sum(tensor * w1 * w2) + bias
@@ -530,7 +500,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void ScaleAddStore_Tensor_DoWith3Args()
     {
         // Do(TArg1, TArg2, TArg3, action) — compute (tensor + addend) * scale, write to dest
@@ -552,7 +521,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void CopyTo_Tensor()
     {
         var module = Env.TestBuffer();
@@ -567,7 +535,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void AddAndScale_Tensor_DoWith2Args()
     {
         // Do(TArg1, TArg2, action) — add a tensor then scale by a factor
@@ -588,7 +555,6 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
     }
 
     [Fact]
-    [Trait("requires", "numpy")]
     public void BinaryOpToSeparateDestination_Tensor_DoWith2Args()
     {
         // Do(TArg1, TArg2, action) — add two tensors, writing to a separate destination

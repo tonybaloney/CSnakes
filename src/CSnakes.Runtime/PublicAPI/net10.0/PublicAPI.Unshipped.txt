@@ -23,6 +23,7 @@ CSnakes.Runtime.Python.PyTensorBuffer<T>.Map<TArg, TResult>(TArg arg, CSnakes.Ru
 CSnakes.Runtime.Python.PyTensorBuffer<T>.Map<TArg1, TArg2, TArg3, TResult>(TArg1 arg1, TArg2 arg2, TArg3 arg3, CSnakes.Runtime.Python.ReadOnlyTensorSpanFunc<T, TArg1, TArg2, TArg3, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyTensorBuffer<T>.Map<TArg1, TArg2, TResult>(TArg1 arg1, TArg2 arg2, CSnakes.Runtime.Python.ReadOnlyTensorSpanFunc<T, TArg1, TArg2, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyTensorBuffer<T>.Map<TResult>(CSnakes.Runtime.Python.ReadOnlyTensorSpanFunc<T, TResult>! function) -> TResult
+CSnakes.Runtime.Python.PyArrayBuffer<T>.UnsafeMemoryOwner.get -> System.Buffers.IMemoryOwner<T>!
 CSnakes.Runtime.Python.ReadOnlySpan2DFunc<T, TArg, TResult>
 CSnakes.Runtime.Python.ReadOnlySpan2DFunc<T, TResult>
 CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, TResult>

@@ -17,6 +17,7 @@ CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TArg, TResult>(TArg arg, CSnakes.Run
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TArg1, TArg2, TArg3, TResult>(TArg1 arg1, TArg2 arg2, TArg3 arg3, CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TArg1, TArg2, TResult>(TArg1 arg1, TArg2 arg2, CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TArg1, TArg2, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TResult>(CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TResult>! function) -> TResult
+CSnakes.Runtime.Python.PyArrayBuffer<T>.UnsafeMemoryOwner.get -> System.Buffers.IMemoryOwner<T>!
 CSnakes.Runtime.Python.PyObjectProxyExtensions
 CSnakes.Runtime.Python.PyArray2DBuffer<T>
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyFrom(scoped CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> source) -> void

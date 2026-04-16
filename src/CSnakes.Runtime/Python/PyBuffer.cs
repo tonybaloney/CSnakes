@@ -161,7 +161,7 @@ public delegate void SpanAction<T, in TArg1, in TArg2, in TArg3>(Span<T> span, T
 #endif
     ;
 
-public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : unmanaged
+public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
 {
     private UnmanagedMemoryManager? _memoryManager;
 
@@ -250,12 +250,24 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
     /// </summary>
     /// <remarks>
     /// See <see
-    /// href="https://learn.microsoft.com/en-us/dotnet/standard/memory-and-spans/memory-t-usage-guidelines"><see
-    /// cref="Memory{T}"/> and <see cref="Span{T}"/> usage guidelines</see> for more information.
+    /// href="https://learn.microsoft.com/en-us/dotnet/standard/memory-and-spans/memory-t-usage-guidelines">
+    /// <see cref="Memory{T}"/> and <see cref="Span{T}"/> usage guidelines</see> for more
+    /// information.
     /// </remarks>
-    public Memory<T> UnsafeMemory => (_memoryManager ??= new UnmanagedMemoryManager(this)).Memory;
+    public Memory<T> UnsafeMemory => UnsafeMemoryOwner.Memory;
 
-    Memory<T> IMemoryOwner<T>.Memory => UnsafeMemory;
+    /// <summary>
+    /// Gets the memory owner that provides access to the memory directly underlying the buffer,
+    /// which is tied to the lifetime of the buffer. <em>Usage after disposing the buffer or the
+    /// memory owner will lead to corruption and crashes</em>.
+    /// </summary>
+    /// <remarks>
+    /// When the memory owner is disposed, the buffer will be disposed as well. See <see
+    /// href="https://learn.microsoft.com/en-us/dotnet/standard/memory-and-spans/memory-t-usage-guidelines">
+    /// <see cref="Memory{T}"/> and <see cref="Span{T}"/> usage guidelines</see> for more
+    /// information.
+    /// </remarks>
+    public IMemoryOwner<T> UnsafeMemoryOwner => _memoryManager ??= new UnmanagedMemoryManager(this);
 
     private sealed class UnmanagedMemoryManager(PyArrayBuffer<T> buffer) : MemoryManager<T>
     {

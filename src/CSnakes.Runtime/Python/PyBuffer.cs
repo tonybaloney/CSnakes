@@ -2,6 +2,7 @@ using CommunityToolkit.HighPerformance;
 using CSnakes.Runtime.CPython;
 using System.Buffers;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -82,6 +83,15 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
     public bool IsScalar => Buffer.ndim is 0 or 1;
 
     public bool IsReadOnly => Buffer.@readonly == 1;
+
+    private protected void ThrowIfReadOnly()
+    {
+        if (IsReadOnly)
+            Throw();
+
+        [DoesNotReturn]
+        static void Throw() => throw new InvalidOperationException("Buffer is read-only.");
+    }
 
     public int Dimensions => Buffer.ndim == 0 ? 1 : Buffer.ndim;
 
@@ -181,7 +191,11 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
     public T this[int index]
     {
         get => AsSpan()[index];
-        set => AsSpan()[index] = value;
+        set
+        {
+            ThrowIfReadOnly();
+            AsSpan()[index] = value;
+        }
     }
 
     public TResult Map<TResult>(ReadOnlySpanFunc<T, TResult> function) =>
@@ -212,14 +226,20 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
 #if NET9_0_OR_GREATER
         where TArg : allows ref struct
 #endif
-        => action(AsSpan(), arg);
+    {
+        ThrowIfReadOnly();
+        action(AsSpan(), arg);
+    }
 
     public void Do<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, SpanAction<T, TArg1, TArg2> action)
 #if NET9_0_OR_GREATER
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
 #endif
-        => action(AsSpan(), arg1, arg2);
+    {
+        ThrowIfReadOnly();
+        action(AsSpan(), arg1, arg2);
+    }
 
     public void Do<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3, SpanAction<T, TArg1, TArg2, TArg3> action)
 #if NET9_0_OR_GREATER
@@ -227,15 +247,20 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
         where TArg2 : allows ref struct
         where TArg3 : allows ref struct
 #endif
-        => action(AsSpan(), arg1, arg2, arg3);
+    {
+        ThrowIfReadOnly();
+        action(AsSpan(), arg1, arg2, arg3);
+    }
 
-    public void Do(SpanAction<T> action) => action(AsSpan());
+    public void Do(SpanAction<T> action)
+    {
+        ThrowIfReadOnly();
+        action(AsSpan());
+    }
 
     public void CopyFrom(scoped ReadOnlySpan<T> source)
     {
-        if (IsReadOnly)
-            throw new InvalidOperationException("Buffer is read-only.");
-
+        ThrowIfReadOnly();
         source.CopyTo(AsSpan());
     }
 
@@ -339,7 +364,11 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
     public T this[int row, int column]
     {
         get => AsSpan2D()[row, column];
-        set => AsSpan2D()[row, column] = value;
+        set
+        {
+            ThrowIfReadOnly();
+            AsSpan2D()[row, column] = value;
+        }
     }
 
     public TResult Map<TResult>(ReadOnlySpan2DFunc<T, TResult> function) =>
@@ -355,15 +384,20 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
 #if NET9_0_OR_GREATER
         where TArg : allows ref struct
 #endif
-        => action(AsSpan2D(), arg);
+    {
+        ThrowIfReadOnly();
+        action(AsSpan2D(), arg);
+    }
 
-    public void Do(Span2DAction<T> action) => action(AsSpan2D());
+    public void Do(Span2DAction<T> action)
+    {
+        ThrowIfReadOnly();
+        action(AsSpan2D());
+    }
 
     public void CopyFrom(scoped ReadOnlySpan2D<T> source)
     {
-        if (IsReadOnly)
-            throw new InvalidOperationException("Buffer is read-only.");
-
+        ThrowIfReadOnly();
         source.CopyTo(AsSpan2D());
     }
 
@@ -446,7 +480,11 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
     public T this[params scoped ReadOnlySpan<nint> indices]
     {
         get => AsTensorSpan()[indices];
-        set => AsTensorSpan()[indices] = value;
+        set
+        {
+            ThrowIfReadOnly();
+            AsTensorSpan()[indices] = value;
+        }
     }
 
     public ReadOnlySpan<nint> Lengths
@@ -484,27 +522,38 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
         function(AsTensorSpan(), arg1, arg2, arg3);
 
     public void Do<TArg>(TArg arg, TensorSpanAction<T, TArg> action)
-        where TArg : allows ref struct =>
+        where TArg : allows ref struct
+    {
+        ThrowIfReadOnly();
         action(AsTensorSpan(), arg);
+    }
 
     public void Do<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, TensorSpanAction<T, TArg1, TArg2> action)
         where TArg1 : allows ref struct
-        where TArg2 : allows ref struct =>
+        where TArg2 : allows ref struct
+    {
+        ThrowIfReadOnly();
         action(AsTensorSpan(), arg1, arg2);
+    }
 
     public void Do<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3, TensorSpanAction<T, TArg1, TArg2, TArg3> action)
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
-        where TArg3 : allows ref struct =>
+        where TArg3 : allows ref struct
+    {
+        ThrowIfReadOnly();
         action(AsTensorSpan(), arg1, arg2, arg3);
+    }
 
-    public void Do(TensorSpanAction<T> action) => action(AsTensorSpan());
+    public void Do(TensorSpanAction<T> action)
+    {
+        ThrowIfReadOnly();
+        action(AsTensorSpan());
+    }
 
     public void CopyFrom(scoped ReadOnlyTensorSpan<T> source)
     {
-        if (IsReadOnly)
-            throw new InvalidOperationException("Buffer is read-only.");
-
+        ThrowIfReadOnly();
         source.CopyTo(AsTensorSpan());
     }
 

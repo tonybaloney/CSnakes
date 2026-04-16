@@ -1,3 +1,4 @@
+using CommunityToolkit.HighPerformance;
 using System;
 using System.Collections.Generic;
 #if NET9_0_OR_GREATER
@@ -404,6 +405,63 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
         Assert.Equal((byte)'o', result[4]);
     }
 
+    private void TestMutatingReadOnlyBufferForbidden<T>(Func<ITestBuffer, T> f, Action<T> act) where T : IPyBuffer
+    {
+        var testModule = Env.TestBuffer();
+        using var buffer = f(testModule);
+        Assert.True(buffer.IsReadOnly);
+        var ex = Assert.Throws<InvalidOperationException>(() => act(buffer));
+        Assert.Equal("Buffer is read-only.", ex.Message);
+    }
+
+    [Fact]
+    public void ReadOnlyBuffer_IndexerSet_Throws() =>
+        TestMutatingReadOnlyBufferForbidden(
+            static module => (PyArrayBuffer<byte>)module.TestBytesAsBuffer(),
+            static buffer => buffer[0] = 0);
+
+    [Fact]
+    public void ReadOnlyBuffer_Do_Throws() =>
+        TestMutatingReadOnlyBufferForbidden(
+            static module => (PyArrayBuffer<byte>)module.TestBytesAsBuffer(),
+            static buffer => buffer.Do(span => span[0] = 0));
+
+    [Fact]
+    public void ReadOnlyBuffer_DoWithArg_Throws() =>
+        TestMutatingReadOnlyBufferForbidden(
+            static module => (PyArrayBuffer<byte>)module.TestBytesAsBuffer(),
+            static buffer => buffer.Do((byte)0, static (span, val) => span[0] = val));
+
+    [Fact]
+    public void ReadOnlyBuffer_CopyFrom_Throws() =>
+        TestMutatingReadOnlyBufferForbidden(
+            static module => (PyArrayBuffer<byte>)module.TestBytesAsBuffer(),
+            static buffer => buffer.CopyFrom([0, 0, 0, 0, 0]));
+
+    [Fact]
+    public void ReadOnly2DBuffer_IndexerSet_Throws() =>
+        TestMutatingReadOnlyBufferForbidden(
+            static module => (PyArray2DBuffer<float>)module.TestFloat322dBuffer(readOnly: true),
+            static buffer => buffer[0, 0] = 0f);
+
+    [Fact]
+    public void ReadOnly2DBuffer_Do_Throws() =>
+        TestMutatingReadOnlyBufferForbidden(
+            static module => (PyArray2DBuffer<float>)module.TestFloat322dBuffer(readOnly: true),
+            static buffer => buffer.Do(span => span[0, 0] = 0f));
+
+    [Fact]
+    public void ReadOnly2DBuffer_DoWithArg_Throws() =>
+        TestMutatingReadOnlyBufferForbidden(
+            static module => (PyArray2DBuffer<float>)module.TestFloat322dBuffer(readOnly: true),
+            static buffer => buffer.Do(0f, static (span, val) => span[0, 0] = val));
+
+    [Fact]
+    public void ReadOnly2DBuffer_CopyFrom_Throws() =>
+        TestMutatingReadOnlyBufferForbidden(
+            static module => (PyArray2DBuffer<float>)module.TestFloat322dBuffer(readOnly: true),
+            static buffer => buffer.CopyFrom(new ReadOnlySpan2D<float>(new float[,] { { 0, 0, 0 }, { 0, 0, 0 } })));
+
     [Fact]
     public void TestByteArrayAsBuffer()
     {
@@ -539,5 +597,22 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
         Assert.Equal(3, tensor[1, 2, 3, 4]);
     }
 
+    [Fact]
+    public void ReadOnlyTensorBuffer_IndexerSet_Throws() =>
+        TestMutatingReadOnlyBufferForbidden(
+            static module => (PyTensorBuffer<float>)module.TestNdim3dFloat32Buffer(readOnly: true),
+            static buffer => buffer[0, 0, 0] = 0f);
+
+    [Fact]
+    public void ReadOnlyTensorBuffer_Do_Throws() =>
+        TestMutatingReadOnlyBufferForbidden(
+            static module => (PyTensorBuffer<float>)module.TestNdim3dFloat32Buffer(readOnly: true),
+            static buffer => buffer.Do(span => span[0, 0, 0] = 0f));
+
+    [Fact]
+    public void ReadOnlyTensorBuffer_DoWithArg_Throws() =>
+        TestMutatingReadOnlyBufferForbidden(
+            static module => (PyTensorBuffer<float>)module.TestNdim3dFloat32Buffer(readOnly: true),
+            static buffer => buffer.Do(0f, static (span, val) => span[0, 0, 0] = val));
 #endif
 }

@@ -25,7 +25,7 @@ static partial class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "c63406f37b1efb279e014b2097a618d5"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "8e3c01f67971a83cdcf77232571c6a41"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -519,13 +519,14 @@ static partial class TestClassExtensions
             }
         }
 
-        public IPyBuffer TestFloat322dBuffer()
+        public IPyBuffer TestFloat322dBuffer(bool readOnly = false)
         {
             using (GIL.Acquire())
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_float32_2d_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_float32_2d_buffer;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                using PyObject readOnly_pyObject = PyObject.From(readOnly)!;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call(readOnly_pyObject);
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
                 return __return;
             }
@@ -627,13 +628,14 @@ static partial class TestClassExtensions
             }
         }
 
-        public IPyBuffer TestNdim3dFloat32Buffer()
+        public IPyBuffer TestNdim3dFloat32Buffer(bool readOnly = false)
         {
             using (GIL.Acquire())
             {
                 this.logger?.LogDebug("Invoking Python function: {FunctionName}", "test_ndim_3d_float32_buffer");
                 PyObject __underlyingPythonFunc = this.__func_test_ndim_3d_float32_buffer;
-                using PyObject __result_pyObject = __underlyingPythonFunc.Call();
+                using PyObject readOnly_pyObject = PyObject.From(readOnly)!;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call(readOnly_pyObject);
                 var __return = __result_pyObject.BareImportAs<IPyBuffer, global::CSnakes.Runtime.Python.PyObjectImporters.Buffer>();
                 return __return;
             }
@@ -874,10 +876,10 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>test_float32_2d_buffer</c>:
     /// <code><![CDATA[
-    /// def test_float32_2d_buffer() -> Buffer: ...
+    /// def test_float32_2d_buffer(read_only: bool = False) -> Buffer: ...
     /// ]]></code>
     /// </summary>
-    IPyBuffer TestFloat322dBuffer();
+    IPyBuffer TestFloat322dBuffer(bool readOnly = false);
 
     /// <summary>
     /// Invokes the Python function <c>test_float64_2d_buffer</c>:
@@ -946,10 +948,10 @@ public interface ITestClass : IReloadableModuleImport
     /// <summary>
     /// Invokes the Python function <c>test_ndim_3d_float32_buffer</c>:
     /// <code><![CDATA[
-    /// def test_ndim_3d_float32_buffer() -> Buffer: ...
+    /// def test_ndim_3d_float32_buffer(read_only: bool = False) -> Buffer: ...
     /// ]]></code>
     /// </summary>
-    IPyBuffer TestNdim3dFloat32Buffer();
+    IPyBuffer TestNdim3dFloat32Buffer(bool readOnly = false);
 
     /// <summary>
     /// Invokes the Python function <c>test_ndim_4d_buffer</c>:

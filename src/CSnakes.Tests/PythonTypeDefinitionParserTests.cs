@@ -51,6 +51,12 @@ public class PythonTypeDefinitionParserTests
         _ = TestParse<BufferType>(input);
 
     [Theory]
+    [InlineData("UUID")]
+    [InlineData("uuid.UUID")]
+    public void UuidTest(string input) =>
+        _ = TestParse<UuidType>(input);
+
+    [Theory]
     [InlineData("Optional[int]")]
     [InlineData("typing.Optional[int]")]
     public void OptionalTest(string input)

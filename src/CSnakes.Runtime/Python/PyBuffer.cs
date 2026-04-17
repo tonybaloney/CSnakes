@@ -314,17 +314,50 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
 }
 
 public delegate TResult ReadOnlySpan2DFunc<T, out TResult>(ReadOnlySpan2D<T> span);
+
 public delegate TResult ReadOnlySpan2DFunc<T, in TArg, out TResult>(ReadOnlySpan2D<T> span, TArg arg)
 #if NET9_0_OR_GREATER
     where TArg : allows ref struct
 #endif
     ;
+
+public delegate TResult ReadOnlySpan2DFunc<T, in TArg1, in TArg2, out TResult>(ReadOnlySpan2D<T> span, TArg1 arg1, TArg2 arg2)
+#if NET9_0_OR_GREATER
+    where TArg1 : allows ref struct
+    where TArg2 : allows ref struct
+#endif
+    ;
+
+public delegate TResult ReadOnlySpan2DFunc<T, in TArg1, in TArg2, in TArg3, out TResult>(ReadOnlySpan2D<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
+#if NET9_0_OR_GREATER
+    where TArg1 : allows ref struct
+    where TArg2 : allows ref struct
+    where TArg3 : allows ref struct
+#endif
+    ;
+
+public delegate void Span2DAction<T>(Span2D<T> span);
+
 public delegate void Span2DAction<T, in TArg>(Span2D<T> span, TArg arg)
 #if NET9_0_OR_GREATER
     where TArg : allows ref struct
 #endif
     ;
-public delegate void Span2DAction<T>(Span2D<T> span);
+
+public delegate void Span2DAction<T, in TArg1, in TArg2>(Span2D<T> span, TArg1 arg1, TArg2 arg2)
+#if NET9_0_OR_GREATER
+    where TArg1 : allows ref struct
+    where TArg2 : allows ref struct
+#endif
+    ;
+
+public delegate void Span2DAction<T, in TArg1, in TArg2, in TArg3>(Span2D<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
+#if NET9_0_OR_GREATER
+    where TArg1 : allows ref struct
+    where TArg2 : allows ref struct
+    where TArg3 : allows ref struct
+#endif
+    ;
 
 public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
 {
@@ -368,6 +401,21 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
 #endif
         => function(AsSpan2D(), arg);
 
+    public TResult Map<TArg1, TArg2, TResult>(TArg1 arg1, TArg2 arg2, ReadOnlySpan2DFunc<T, TArg1, TArg2, TResult> function)
+#if NET9_0_OR_GREATER
+        where TArg1 : allows ref struct
+        where TArg2 : allows ref struct
+#endif
+        => function(AsSpan2D(), arg1, arg2);
+
+    public TResult Map<TArg1, TArg2, TArg3, TResult>(TArg1 arg1, TArg2 arg2, TArg3 arg3, ReadOnlySpan2DFunc<T, TArg1, TArg2, TArg3, TResult> function)
+#if NET9_0_OR_GREATER
+        where TArg1 : allows ref struct
+        where TArg2 : allows ref struct
+        where TArg3 : allows ref struct
+#endif
+        => function(AsSpan2D(), arg1, arg2, arg3);
+
     public void Do<TArg>(TArg arg, Span2DAction<T, TArg> action)
 #if NET9_0_OR_GREATER
         where TArg : allows ref struct
@@ -375,6 +423,27 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
     {
         ThrowIfReadOnly();
         action(AsSpan2D(), arg);
+    }
+
+    public void Do<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, Span2DAction<T, TArg1, TArg2> action)
+#if NET9_0_OR_GREATER
+        where TArg1 : allows ref struct
+        where TArg2 : allows ref struct
+#endif
+    {
+        ThrowIfReadOnly();
+        action(AsSpan2D(), arg1, arg2);
+    }
+
+    public void Do<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3, Span2DAction<T, TArg1, TArg2, TArg3> action)
+#if NET9_0_OR_GREATER
+        where TArg1 : allows ref struct
+        where TArg2 : allows ref struct
+        where TArg3 : allows ref struct
+#endif
+    {
+        ThrowIfReadOnly();
+        action(AsSpan2D(), arg1, arg2, arg3);
     }
 
     public void Do(Span2DAction<T> action)

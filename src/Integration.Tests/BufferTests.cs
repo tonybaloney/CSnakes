@@ -457,6 +457,18 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
             static buffer => buffer.Do(0f, static (span, val) => span[0, 0] = val));
 
     [Fact]
+    public void ReadOnly2DBuffer_DoWith2Args_Throws() =>
+        TestMutatingReadOnlyBufferForbidden(
+            static module => (PyArray2DBuffer<float>)module.TestFloat322dBuffer(readOnly: true),
+            static buffer => buffer.Do(0f, 0f, static (span, a, b) => span[0, 0] = a + b));
+
+    [Fact]
+    public void ReadOnly2DBuffer_DoWith3Args_Throws() =>
+        TestMutatingReadOnlyBufferForbidden(
+            static module => (PyArray2DBuffer<float>)module.TestFloat322dBuffer(readOnly: true),
+            static buffer => buffer.Do(0f, 0f, 0f, static (span, a, b, c) => span[0, 0] = a + b + c));
+
+    [Fact]
     public void ReadOnly2DBuffer_CopyFrom_Throws() =>
         TestMutatingReadOnlyBufferForbidden(
             static module => (PyArray2DBuffer<float>)module.TestFloat322dBuffer(readOnly: true),

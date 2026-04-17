@@ -406,6 +406,106 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         Assert.Equal([1f, 2f, 3f, 4f, 5f, 6f], dest);
     }
 
+    [Fact]
+    public void WeightedSum_2D_MapWith1Arg()
+    {
+        // Map(TArg, func) – column-weighted sum of all elements
+        var module = Env.TestBuffer();
+        using var buffer = (PyArray2DBuffer<float>)module.TestFloat32Int2dBuffer(); // [[1,2,3],[4,5,6]]
+
+        float[] weights = [1, 2, 3];
+        // (1*1 + 2*2 + 3*3) + (4*1 + 5*2 + 6*3) = 14 + 32 = 46
+        var total = buffer.Map(weights, static (span, w) =>
+            span[0, 0] * w[0] + span[0, 1] * w[1] + span[0, 2] * w[2]
+          + span[1, 0] * w[0] + span[1, 1] * w[1] + span[1, 2] * w[2]);
+
+        Assert.Equal(46f, total);
+    }
+
+    [Fact]
+    public void BiasedWeightedSum_2D_MapWith2Args()
+    {
+        // Map(TArg1, TArg2, func) – column-weighted sum + per-row bias, summed
+        var module = Env.TestBuffer();
+        using var buffer = (PyArray2DBuffer<float>)module.TestFloat32Int2dBuffer(); // [[1,2,3],[4,5,6]]
+
+        float[] weights = [1, 2, 3];
+        float[] biases = [100, 200];
+        // row0: 1*1+2*2+3*3+100 = 114, row1: 4*1+5*2+6*3+200 = 232, total = 346
+        var total = buffer.Map(weights, biases, static (span, w, b) =>
+            (span[0, 0] * w[0] + span[0, 1] * w[1] + span[0, 2] * w[2] + b[0])
+          + (span[1, 0] * w[0] + span[1, 1] * w[1] + span[1, 2] * w[2] + b[1]));
+
+        Assert.Equal(346f, total);
+    }
+
+    [Fact]
+    public void ScaledBiasedWeightedSum_2D_MapWith3Args()
+    {
+        // Map(TArg1, TArg2, TArg3, func) – per-row: (weighted_sum + bias) * scale, summed
+        var module = Env.TestBuffer();
+        using var buffer = (PyArray2DBuffer<float>)module.TestFloat32Int2dBuffer(); // [[1,2,3],[4,5,6]]
+
+        float[] weights = [1, 2, 3];
+        float[] biases = [100, 200];
+        float[] scales = [2, 3];
+        // row0: (1*1+2*2+3*3+100)*2 = 228, row1: (4*1+5*2+6*3+200)*3 = 696, total = 924
+        var total = buffer.Map(weights, biases, scales, static (span, w, b, sc) =>
+            (span[0, 0] * w[0] + span[0, 1] * w[1] + span[0, 2] * w[2] + b[0]) * sc[0]
+          + (span[1, 0] * w[0] + span[1, 1] * w[1] + span[1, 2] * w[2] + b[1]) * sc[1]);
+
+        Assert.Equal(924f, total);
+    }
+
+    [Fact]
+    public void AddScalar_2D_DoWith2Args()
+    {
+        // Do(TArg1, TArg2, action) – add per-row bias then multiply by per-row scale
+        var module = Env.TestBuffer();
+        using var buffer = (PyArray2DBuffer<float>)module.TestFloat32Int2dBuffer(); // [[1,2,3],[4,5,6]]
+
+        float[] biases = [10, 20];
+        float[] scales = [2, 3];
+        // row0: (1+10)*2=22, (2+10)*2=24, (3+10)*2=26
+        // row1: (4+20)*3=72, (5+20)*3=75, (6+20)*3=78
+        buffer.Do(biases, scales, static (span, b, sc) =>
+        {
+            for (var row = 0; row < span.Height; row++)
+                for (var col = 0; col < span.Width; col++)
+                    span[row, col] = (span[row, col] + b[row]) * sc[row];
+        });
+
+        Assert.Equal(22f, buffer[0, 0]);
+        Assert.Equal(24f, buffer[0, 1]);
+        Assert.Equal(26f, buffer[0, 2]);
+        Assert.Equal(72f, buffer[1, 0]);
+        Assert.Equal(75f, buffer[1, 1]);
+        Assert.Equal(78f, buffer[1, 2]);
+    }
+
+    [Fact]
+    public void FusedMultiplyAddStore_2D_DoWith3Args()
+    {
+        // Do(TArg1, TArg2, TArg3, action) – FMA: dest[r,c] = buf[r,c] * mul[c] + add[c], scaled by per-row factor
+        var module = Env.TestBuffer();
+        using var buffer = (PyArray2DBuffer<float>)module.TestFloat32Int2dBuffer(); // [[1,2,3],[4,5,6]]
+
+        float[] multipliers = [2, 3, 4];
+        float[] addends = [10, 20, 30];
+        var dest = new float[6];
+        // row0: 1*2+10=12, 2*3+20=26, 3*4+30=42
+        // row1: 4*2+10=18, 5*3+20=35, 6*4+30=54
+        buffer.Do(multipliers, addends, dest, static (span, mul, add, d) =>
+        {
+            var idx = 0;
+            for (var row = 0; row < span.Height; row++)
+                for (var col = 0; col < span.Width; col++)
+                    d[idx++] = span[row, col] * mul[col] + add[col];
+        });
+
+        Assert.Equal([12f, 26f, 42f, 18f, 35f, 54f], dest);
+    }
+
     // ────────────────────────────────────────────────────────────
     //  Tensor  PyTensorBuffer<float>  — NET10+ only
     // ────────────────────────────────────────────────────────────

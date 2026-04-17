@@ -270,18 +270,6 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
     internal unsafe Span<T> AsSpan() => new((void*)Buffer.buf, ItemCount);
 
     /// <summary>
-    /// Gets the memory directly underlying the buffer, which is tied to the lifetime of the buffer.
-    /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
-    /// </summary>
-    /// <remarks>
-    /// See <see
-    /// href="https://learn.microsoft.com/en-us/dotnet/standard/memory-and-spans/memory-t-usage-guidelines">
-    /// <see cref="Memory{T}"/> and <see cref="Span{T}"/> usage guidelines</see> for more
-    /// information.
-    /// </remarks>
-    public Memory<T> UnsafeMemory => UnsafeMemoryOwner.Memory;
-
-    /// <summary>
     /// Gets the memory owner that provides access to the memory directly underlying the buffer,
     /// which is tied to the lifetime of the buffer. <em>Usage after disposing the buffer or the
     /// memory owner will lead to corruption and crashes</em>.

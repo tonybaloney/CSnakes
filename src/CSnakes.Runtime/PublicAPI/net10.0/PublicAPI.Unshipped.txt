@@ -417,7 +417,6 @@ CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TArg, TResult>(TArg arg, CSnakes.Run
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TResult>(CSnakes.Runtime.Python.ReadOnlySpanFunc<T, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyArrayBuffer<T>.this[int index].get -> T
 CSnakes.Runtime.Python.PyArrayBuffer<T>.this[int index].set -> void
-CSnakes.Runtime.Python.PyArrayBuffer<T>.UnsafeMemory.get -> System.Memory<T>
 CSnakes.Runtime.Python.IPyBuffer.IsReadOnly.get -> bool
 CSnakes.Runtime.Python.IPyBuffer.ItemType.get -> System.Type!
 CSnakes.Runtime.Python.IPyBuffer<T>

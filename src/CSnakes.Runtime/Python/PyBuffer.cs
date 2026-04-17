@@ -222,6 +222,12 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
 #endif
         => function(AsSpan(), arg1, arg2, arg3);
 
+    public void Do(SpanAction<T> action)
+    {
+        ThrowIfReadOnly();
+        action(AsSpan());
+    }
+
     public void Do<TArg>(TArg arg, SpanAction<T, TArg> action)
 #if NET9_0_OR_GREATER
         where TArg : allows ref struct
@@ -250,12 +256,6 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
     {
         ThrowIfReadOnly();
         action(AsSpan(), arg1, arg2, arg3);
-    }
-
-    public void Do(SpanAction<T> action)
-    {
-        ThrowIfReadOnly();
-        action(AsSpan());
     }
 
     public void CopyFrom(scoped ReadOnlySpan<T> source)

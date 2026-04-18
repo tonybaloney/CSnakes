@@ -7,22 +7,22 @@ namespace CSnakes.Runtime;
 
 // Delegates for "Span" and "ReadOnlySpan".
 
-public delegate TResult ReadOnlySpanFunc<T, out TResult>(ReadOnlySpan<T> span);
+public delegate TResult ReadOnlySpanFunc<T, out TResult>(scoped ReadOnlySpan<T> span);
 
-public delegate TResult ReadOnlySpanFunc<T, in TArg, out TResult>(ReadOnlySpan<T> span, TArg arg)
+public delegate TResult ReadOnlySpanFunc<T, in TArg, out TResult>(scoped ReadOnlySpan<T> span, TArg arg)
 #if NET9_0_OR_GREATER
     where TArg : allows ref struct
 #endif
     ;
 
-public delegate TResult ReadOnlySpanFunc<T, in TArg1, in TArg2, out TResult>(ReadOnlySpan<T> span, TArg1 arg1, TArg2 arg2)
+public delegate TResult ReadOnlySpanFunc<T, in TArg1, in TArg2, out TResult>(scoped ReadOnlySpan<T> span, TArg1 arg1, TArg2 arg2)
 #if NET9_0_OR_GREATER
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
 #endif
     ;
 
-public delegate TResult ReadOnlySpanFunc<T, in TArg1, in TArg2, in TArg3, out TResult>(ReadOnlySpan<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
+public delegate TResult ReadOnlySpanFunc<T, in TArg1, in TArg2, in TArg3, out TResult>(scoped ReadOnlySpan<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
 #if NET9_0_OR_GREATER
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
@@ -52,22 +52,22 @@ public delegate void SpanAction<T, in TArg1, in TArg2, in TArg3>(Span<T> span, T
 
 // Delegates for "Span2D" and "ReadOnlySpan2D" from "CommunityToolkit.HighPerformance".
 
-public delegate TResult ReadOnlySpan2DFunc<T, out TResult>(ReadOnlySpan2D<T> span);
+public delegate TResult ReadOnlySpan2DFunc<T, out TResult>(scoped ReadOnlySpan2D<T> span);
 
-public delegate TResult ReadOnlySpan2DFunc<T, in TArg, out TResult>(ReadOnlySpan2D<T> span, TArg arg)
+public delegate TResult ReadOnlySpan2DFunc<T, in TArg, out TResult>(scoped ReadOnlySpan2D<T> span, TArg arg)
 #if NET9_0_OR_GREATER
     where TArg : allows ref struct
 #endif
     ;
 
-public delegate TResult ReadOnlySpan2DFunc<T, in TArg1, in TArg2, out TResult>(ReadOnlySpan2D<T> span, TArg1 arg1, TArg2 arg2)
+public delegate TResult ReadOnlySpan2DFunc<T, in TArg1, in TArg2, out TResult>(scoped ReadOnlySpan2D<T> span, TArg1 arg1, TArg2 arg2)
 #if NET9_0_OR_GREATER
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
 #endif
     ;
 
-public delegate TResult ReadOnlySpan2DFunc<T, in TArg1, in TArg2, in TArg3, out TResult>(ReadOnlySpan2D<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
+public delegate TResult ReadOnlySpan2DFunc<T, in TArg1, in TArg2, in TArg3, out TResult>(scoped ReadOnlySpan2D<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
 #if NET9_0_OR_GREATER
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
@@ -102,16 +102,16 @@ public delegate void Span2DAction<T, in TArg1, in TArg2, in TArg3>(Span2D<T> spa
 
 // Delegates for "TensorSpan" and "ReadOnlyTensorSpan".
 
-public delegate TResult ReadOnlyTensorSpanFunc<T, out TResult>(ReadOnlyTensorSpan<T> span);
+public delegate TResult ReadOnlyTensorSpanFunc<T, out TResult>(scoped ReadOnlyTensorSpan<T> span);
 
-public delegate TResult ReadOnlyTensorSpanFunc<T, in TArg, out TResult>(ReadOnlyTensorSpan<T> span, TArg arg)
+public delegate TResult ReadOnlyTensorSpanFunc<T, in TArg, out TResult>(scoped ReadOnlyTensorSpan<T> span, TArg arg)
     where TArg : allows ref struct;
 
-public delegate TResult ReadOnlyTensorSpanFunc<T, in TArg1, in TArg2, out TResult>(ReadOnlyTensorSpan<T> span, TArg1 arg1, TArg2 arg2)
+public delegate TResult ReadOnlyTensorSpanFunc<T, in TArg1, in TArg2, out TResult>(scoped ReadOnlyTensorSpan<T> span, TArg1 arg1, TArg2 arg2)
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct;
 
-public delegate TResult ReadOnlyTensorSpanFunc<T, in TArg1, in TArg2, in TArg3, out TResult>(ReadOnlyTensorSpan<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
+public delegate TResult ReadOnlyTensorSpanFunc<T, in TArg1, in TArg2, in TArg3, out TResult>(scoped ReadOnlyTensorSpan<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
     where TArg3 : allows ref struct;

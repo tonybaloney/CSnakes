@@ -81,6 +81,12 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
         where TArg3 : allows ref struct =>
         function(AsTensorSpan(), arg1, arg2, arg3);
 
+    public void Do(TensorSpanAction<T> action)
+    {
+        ThrowIfReadOnly();
+        action(AsTensorSpan());
+    }
+
     public void Do<TArg>(TArg arg, TensorSpanAction<T, TArg> action)
         where TArg : allows ref struct
     {
@@ -103,12 +109,6 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
     {
         ThrowIfReadOnly();
         action(AsTensorSpan(), arg1, arg2, arg3);
-    }
-
-    public void Do(TensorSpanAction<T> action)
-    {
-        ThrowIfReadOnly();
-        action(AsTensorSpan());
     }
 
     public void CopyFrom(scoped ReadOnlyTensorSpan<T> source)

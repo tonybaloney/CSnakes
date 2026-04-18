@@ -60,6 +60,12 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
 #endif
         => function(AsSpan2D(), arg1, arg2, arg3);
 
+    public void Do(Span2DAction<T> action)
+    {
+        ThrowIfReadOnly();
+        action(AsSpan2D());
+    }
+
     public void Do<TArg>(TArg arg, Span2DAction<T, TArg> action)
 #if NET9_0_OR_GREATER
         where TArg : allows ref struct
@@ -88,12 +94,6 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
     {
         ThrowIfReadOnly();
         action(AsSpan2D(), arg1, arg2, arg3);
-    }
-
-    public void Do(Span2DAction<T> action)
-    {
-        ThrowIfReadOnly();
-        action(AsSpan2D());
     }
 
     public void CopyFrom(scoped ReadOnlySpan2D<T> source)

@@ -97,7 +97,7 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
     public Type ItemType => typeof(T);
 
     private protected unsafe ReadOnlySpan<nint> Shape =>
-        _buffer switch
+        Buffer switch
         {
             { shape: not null and var shape, strides: not null, ndim: var ndim } => new ReadOnlySpan<nint>(shape, ndim),
             _ => throw new InvalidOperationException("Buffer does not have shape and strides."),

@@ -5,34 +5,6 @@ using CSnakes.Runtime.CPython;
 
 namespace CSnakes.Runtime.Python;
 
-public delegate TResult ReadOnlyTensorSpanFunc<T, out TResult>(ReadOnlyTensorSpan<T> span);
-
-public delegate TResult ReadOnlyTensorSpanFunc<T, in TArg, out TResult>(ReadOnlyTensorSpan<T> span, TArg arg)
-    where TArg : allows ref struct;
-
-public delegate TResult ReadOnlyTensorSpanFunc<T, in TArg1, in TArg2, out TResult>(ReadOnlyTensorSpan<T> span, TArg1 arg1, TArg2 arg2)
-    where TArg1 : allows ref struct
-    where TArg2 : allows ref struct;
-
-public delegate TResult ReadOnlyTensorSpanFunc<T, in TArg1, in TArg2, in TArg3, out TResult>(ReadOnlyTensorSpan<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
-    where TArg1 : allows ref struct
-    where TArg2 : allows ref struct
-    where TArg3 : allows ref struct;
-
-public delegate void TensorSpanAction<T, in TArg>(TensorSpan<T> span, TArg arg)
-    where TArg : allows ref struct;
-
-public delegate void TensorSpanAction<T, in TArg1, in TArg2>(TensorSpan<T> span, TArg1 arg1, TArg2 arg2)
-    where TArg1 : allows ref struct
-    where TArg2 : allows ref struct;
-
-public delegate void TensorSpanAction<T, in TArg1, in TArg2, in TArg3>(TensorSpan<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
-    where TArg1 : allows ref struct
-    where TArg2 : allows ref struct
-    where TArg3 : allows ref struct;
-
-public delegate void TensorSpanAction<T>(TensorSpan<T> span);
-
 public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
 {
     private readonly nint[] strides;

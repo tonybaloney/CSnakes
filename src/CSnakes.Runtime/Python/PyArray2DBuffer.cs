@@ -3,52 +3,6 @@ using CSnakes.Runtime.CPython;
 
 namespace CSnakes.Runtime.Python;
 
-public delegate TResult ReadOnlySpan2DFunc<T, out TResult>(ReadOnlySpan2D<T> span);
-
-public delegate TResult ReadOnlySpan2DFunc<T, in TArg, out TResult>(ReadOnlySpan2D<T> span, TArg arg)
-#if NET9_0_OR_GREATER
-    where TArg : allows ref struct
-#endif
-    ;
-
-public delegate TResult ReadOnlySpan2DFunc<T, in TArg1, in TArg2, out TResult>(ReadOnlySpan2D<T> span, TArg1 arg1, TArg2 arg2)
-#if NET9_0_OR_GREATER
-    where TArg1 : allows ref struct
-    where TArg2 : allows ref struct
-#endif
-    ;
-
-public delegate TResult ReadOnlySpan2DFunc<T, in TArg1, in TArg2, in TArg3, out TResult>(ReadOnlySpan2D<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
-#if NET9_0_OR_GREATER
-    where TArg1 : allows ref struct
-    where TArg2 : allows ref struct
-    where TArg3 : allows ref struct
-#endif
-    ;
-
-public delegate void Span2DAction<T>(Span2D<T> span);
-
-public delegate void Span2DAction<T, in TArg>(Span2D<T> span, TArg arg)
-#if NET9_0_OR_GREATER
-    where TArg : allows ref struct
-#endif
-    ;
-
-public delegate void Span2DAction<T, in TArg1, in TArg2>(Span2D<T> span, TArg1 arg1, TArg2 arg2)
-#if NET9_0_OR_GREATER
-    where TArg1 : allows ref struct
-    where TArg2 : allows ref struct
-#endif
-    ;
-
-public delegate void Span2DAction<T, in TArg1, in TArg2, in TArg3>(Span2D<T> span, TArg1 arg1, TArg2 arg2, TArg3 arg3)
-#if NET9_0_OR_GREATER
-    where TArg1 : allows ref struct
-    where TArg2 : allows ref struct
-    where TArg3 : allows ref struct
-#endif
-    ;
-
 public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
 {
     internal PyArray2DBuffer(in CPythonAPI.Py_buffer buffer) : base(Validate(buffer)) { }

@@ -5,9 +5,20 @@ namespace CSnakes.Runtime.Python;
 
 public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
 {
-    internal PyArray2DBuffer(in CPythonAPI.Py_buffer buffer) : base(Validate(buffer)) { }
+    readonly int height;
+    readonly int width;
+    readonly int pitch;
 
-    private static ref readonly CPythonAPI.Py_buffer Validate(in CPythonAPI.Py_buffer buffer)
+    internal PyArray2DBuffer(in CPythonAPI.Py_buffer buffer) :
+        base(Validate(buffer, out var height, out var width, out var pitch))
+    {
+        this.height = height;
+        this.width = width;
+        this.pitch = pitch;
+    }
+
+    private static ref readonly CPythonAPI.Py_buffer Validate(in CPythonAPI.Py_buffer buffer,
+                                                              out int height, out int width, out int pitch)
     {
         _ = PyArrayBuffer<T>.Validate(buffer);
 
@@ -19,8 +30,13 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
             if (buffer is { shape: null } or { strides: null })
                 throw new InvalidOperationException("Buffer does not have shape and strides.");
 
-            if (buffer.shape[0] * buffer.shape[1] * ItemSize != buffer.len)
+            height = (int)buffer.shape[0];
+            width = (int)buffer.shape[1];
+
+            if (height * width * ItemSize != buffer.len)
                 throw new ArgumentException("Buffer length is not equal to shape.", nameof(buffer));
+
+            pitch = (int)(buffer.strides[0] - (width * buffer.itemsize)); // pitch = stride - (width * itemsize)
         }
 
         return ref buffer;
@@ -106,12 +122,5 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
     public void CopyTo(scoped in Span2D<T> destination) => AsSpan2D().CopyTo(destination);
 
     // TODO Mark `PyArray2DBuffer<T>.AsSpan` private when `IPyBuffer<T>.AsSpan2D<T>` is removed
-    internal unsafe Span2D<T> AsSpan2D()
-    {
-        ref readonly var buffer = ref Buffer;
-        return new((void*)buffer.buf,
-                   height: (int)buffer.shape[0],
-                   width: (int)buffer.shape[1],
-                   pitch: (int)((int)buffer.strides[0] - (buffer.shape[1] * buffer.itemsize))); // pitch = stride - (width * itemsize)
-    }
+    internal unsafe Span2D<T> AsSpan2D() => new((void*)Buffer.buf, height: this.height, width: this.width, pitch: this.pitch);
 }

@@ -126,11 +126,7 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
     /// Returns a span <em>directly</em> over the tensor buffer.
     /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
     /// </summary>
-    public unsafe TensorSpan<T> UnsafeAsTensorSpan()
-    {
-        ref readonly var buffer = ref Buffer;
-        return new((T*)buffer.buf, ItemCount, Shape, this.strides);
-    }
+    public unsafe TensorSpan<T> UnsafeAsTensorSpan() => new(Pointer, ItemCount, Shape, this.strides);
 }
 
 #endif // NET9_0_OR_GREATER

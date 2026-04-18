@@ -1,5 +1,7 @@
 using CSnakes.Runtime.CPython;
 using System.Buffers;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.Python;
 
@@ -99,7 +101,7 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
     public void CopyTo(scoped in Span<T> destination) => AsSpan().CopyTo(destination);
 
     // TODO Mark `PyArrayBuffer<T>.AsSpan` private when `IPyBuffer<T>.AsSpan<T>` is removed
-    internal unsafe Span<T> AsSpan() => new((void*)Buffer.buf, ItemCount);
+    internal unsafe Span<T> AsSpan() => MemoryMarshal.CreateSpan(ref TypedRef, ItemCount);
 
     /// <summary>
     /// Gets the memory owner that provides access to the memory directly underlying the buffer,
@@ -126,7 +128,7 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
 
             ArgumentOutOfRangeException.ThrowIfNegative(elementIndex);
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(elementIndex, buffer.ItemCount);
-            return new MemoryHandle((T*)buffer.Buffer.buf + elementIndex);
+            return new MemoryHandle(Unsafe.AsPointer(ref Unsafe.Add(ref buffer.TypedRef, elementIndex)));
         }
 
         public override void Unpin()

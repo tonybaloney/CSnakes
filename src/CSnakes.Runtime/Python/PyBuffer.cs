@@ -67,7 +67,7 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
         _buffer = default;
     }
 
-    private protected ref readonly CPythonAPI.Py_buffer Buffer
+    private ref readonly CPythonAPI.Py_buffer Buffer
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
@@ -76,6 +76,10 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
             return ref _buffer;
         }
     }
+
+    private protected unsafe ref T TypedRef => ref Unsafe.AsRef<T>(Pointer);
+
+    private protected unsafe T* Pointer => (T*)Buffer.buf.ToPointer();
 
     public long Length => Buffer.len;
 

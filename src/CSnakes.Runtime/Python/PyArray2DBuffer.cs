@@ -122,5 +122,5 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
     public void CopyTo(scoped in Span2D<T> destination) => AsSpan2D().CopyTo(destination);
 
     // TODO Mark `PyArray2DBuffer<T>.AsSpan` private when `IPyBuffer<T>.AsSpan2D<T>` is removed
-    internal unsafe Span2D<T> AsSpan2D() => new((void*)Buffer.buf, height: this.height, width: this.width, pitch: this.pitch);
+    internal unsafe Span2D<T> AsSpan2D() => new(Pointer, height: this.height, width: this.width, pitch: this.pitch);
 }

@@ -92,7 +92,7 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
         static void Throw() => throw new InvalidOperationException("Buffer is read-only.");
     }
 
-    public int Dimensions => Buffer.ndim == 0 ? 1 : Buffer.ndim;
+    public int Dimensions => Buffer.ndim switch { 0 => 1, var n => n };
 
     public Type ItemType => typeof(T);
 

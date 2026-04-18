@@ -96,14 +96,14 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
         action(AsSpan2D(), arg1, arg2, arg3);
     }
 
-    public void CopyFrom(scoped ReadOnlySpan2D<T> source)
+    public void CopyFrom(scoped in ReadOnlySpan2D<T> source)
     {
         ThrowIfReadOnly();
         source.CopyTo(AsSpan2D());
     }
 
-    public void CopyTo(scoped Span<T> destination) => AsSpan2D().CopyTo(destination);
-    public void CopyTo(scoped Span2D<T> destination) => AsSpan2D().CopyTo(destination);
+    public void CopyTo(scoped in Span<T> destination) => AsSpan2D().CopyTo(destination);
+    public void CopyTo(scoped in Span2D<T> destination) => AsSpan2D().CopyTo(destination);
 
     // TODO Mark `PyArray2DBuffer<T>.AsSpan` private when `IPyBuffer<T>.AsSpan2D<T>` is removed
     internal unsafe Span2D<T> AsSpan2D()

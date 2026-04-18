@@ -90,13 +90,13 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
         action(AsSpan(), arg1, arg2, arg3);
     }
 
-    public void CopyFrom(scoped ReadOnlySpan<T> source)
+    public void CopyFrom(scoped in ReadOnlySpan<T> source)
     {
         ThrowIfReadOnly();
         source.CopyTo(AsSpan());
     }
 
-    public void CopyTo(scoped Span<T> destination) => AsSpan().CopyTo(destination);
+    public void CopyTo(scoped in Span<T> destination) => AsSpan().CopyTo(destination);
 
     // TODO Mark `PyArrayBuffer<T>.AsSpan` private when `IPyBuffer<T>.AsSpan<T>` is removed
     internal unsafe Span<T> AsSpan() => new((void*)Buffer.buf, ItemCount);

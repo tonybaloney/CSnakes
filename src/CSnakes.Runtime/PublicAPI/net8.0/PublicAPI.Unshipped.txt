@@ -22,14 +22,14 @@ CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TArg1, TArg2, TResult>(TArg1 arg1, T
 CSnakes.Runtime.Python.PyArrayBuffer<T>.UnsafeMemoryOwner.get -> System.Buffers.IMemoryOwner<T>!
 CSnakes.Runtime.Python.PyObjectProxyExtensions
 CSnakes.Runtime.Python.PyArray2DBuffer<T>
-CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyFrom(scoped CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> source) -> void
-CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyTo(scoped CommunityToolkit.HighPerformance.Span2D<T> destination) -> void
-CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyTo(scoped System.Span<T> destination) -> void
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyFrom(scoped in CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> source) -> void
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyTo(scoped in CommunityToolkit.HighPerformance.Span2D<T> destination) -> void
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyTo(scoped in System.Span<T> destination) -> void
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.this[int row, int column].get -> T
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.this[int row, int column].set -> void
 CSnakes.Runtime.Python.PyArrayBuffer<T>
-CSnakes.Runtime.Python.PyArrayBuffer<T>.CopyFrom(scoped System.ReadOnlySpan<T> source) -> void
-CSnakes.Runtime.Python.PyArrayBuffer<T>.CopyTo(scoped System.Span<T> destination) -> void
+CSnakes.Runtime.Python.PyArrayBuffer<T>.CopyFrom(scoped in System.ReadOnlySpan<T> source) -> void
+CSnakes.Runtime.Python.PyArrayBuffer<T>.CopyTo(scoped in System.Span<T> destination) -> void
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Do<TArg>(TArg arg, System.Buffers.SpanAction<T, TArg>! action) -> void
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TArg, TResult>(TArg arg, CSnakes.Runtime.ReadOnlySpanFunc<T, TArg, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TResult>(CSnakes.Runtime.ReadOnlySpanFunc<T, TResult>! function) -> TResult

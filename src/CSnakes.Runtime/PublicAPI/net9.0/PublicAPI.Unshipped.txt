@@ -24,14 +24,14 @@ CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TResult>(CSnakes.Runtime.ReadOnlySpa
 CSnakes.Runtime.Python.PyArrayBuffer<T>.UnsafeMemoryOwner.get -> System.Buffers.IMemoryOwner<T>!
 CSnakes.Runtime.Python.PyObjectProxyExtensions
 CSnakes.Runtime.Python.PyArray2DBuffer<T>
-CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyFrom(scoped CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> source) -> void
-CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyTo(scoped CommunityToolkit.HighPerformance.Span2D<T> destination) -> void
-CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyTo(scoped System.Span<T> destination) -> void
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyFrom(scoped in CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> source) -> void
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyTo(scoped in CommunityToolkit.HighPerformance.Span2D<T> destination) -> void
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.CopyTo(scoped in System.Span<T> destination) -> void
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.this[int row, int column].get -> T
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.this[int row, int column].set -> void
 CSnakes.Runtime.Python.PyArrayBuffer<T>
-CSnakes.Runtime.Python.PyArrayBuffer<T>.CopyFrom(scoped System.ReadOnlySpan<T> source) -> void
-CSnakes.Runtime.Python.PyArrayBuffer<T>.CopyTo(scoped System.Span<T> destination) -> void
+CSnakes.Runtime.Python.PyArrayBuffer<T>.CopyFrom(scoped in System.ReadOnlySpan<T> source) -> void
+CSnakes.Runtime.Python.PyArrayBuffer<T>.CopyTo(scoped in System.Span<T> destination) -> void
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Do<TArg>(TArg arg, System.Buffers.SpanAction<T, TArg>! action) -> void
 CSnakes.Runtime.Python.PyArrayBuffer<T>.this[int index].get -> T
 CSnakes.Runtime.Python.PyArrayBuffer<T>.this[int index].set -> void
@@ -46,8 +46,8 @@ CSnakes.Runtime.Python.PyBuffer<T>.IsScalar.get -> bool
 CSnakes.Runtime.Python.PyBuffer<T>.ItemType.get -> System.Type!
 CSnakes.Runtime.Python.PyBuffer<T>.Length.get -> long
 CSnakes.Runtime.Python.PyTensorBuffer<T>
-CSnakes.Runtime.Python.PyTensorBuffer<T>.CopyFrom(scoped System.Numerics.Tensors.ReadOnlyTensorSpan<T> source) -> void
-CSnakes.Runtime.Python.PyTensorBuffer<T>.CopyTo(scoped System.Numerics.Tensors.TensorSpan<T> destination) -> void
+CSnakes.Runtime.Python.PyTensorBuffer<T>.CopyFrom(scoped in System.Numerics.Tensors.ReadOnlyTensorSpan<T> source) -> void
+CSnakes.Runtime.Python.PyTensorBuffer<T>.CopyTo(scoped in System.Numerics.Tensors.TensorSpan<T> destination) -> void
 CSnakes.Runtime.Python.PyTensorBuffer<T>.Do(CSnakes.Runtime.TensorSpanAction<T>! action) -> void
 CSnakes.Runtime.Python.PyTensorBuffer<T>.Do<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3, CSnakes.Runtime.TensorSpanAction<T, TArg1, TArg2, TArg3>! action) -> void
 CSnakes.Runtime.Python.PyTensorBuffer<T>.Do<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, CSnakes.Runtime.TensorSpanAction<T, TArg1, TArg2>! action) -> void

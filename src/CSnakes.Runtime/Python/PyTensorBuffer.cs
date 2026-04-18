@@ -111,13 +111,13 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
         action(AsTensorSpan(), arg1, arg2, arg3);
     }
 
-    public void CopyFrom(scoped ReadOnlyTensorSpan<T> source)
+    public void CopyFrom(scoped in ReadOnlyTensorSpan<T> source)
     {
         ThrowIfReadOnly();
         source.CopyTo(AsTensorSpan());
     }
 
-    public void CopyTo(scoped TensorSpan<T> destination) => AsTensorSpan().CopyTo(destination);
+    public void CopyTo(scoped in TensorSpan<T> destination) => AsTensorSpan().CopyTo(destination);
 
     // TODO Mark `PyTensorBuffer<T>.AsTensorSpan` private when `IPyBuffer<T>.AsTensorSpan<T>` is removed
     internal unsafe TensorSpan<T> AsTensorSpan() => UnsafeAsTensorSpan();

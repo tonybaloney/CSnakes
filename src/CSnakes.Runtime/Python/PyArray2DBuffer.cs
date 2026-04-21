@@ -55,20 +55,20 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
     public TResult Map<TResult>(ReadOnlySpan2DFunc<T, TResult> function) =>
         function(AsSpan2D());
 
-    public TResult Map<TArg, TResult>(TArg arg, ReadOnlySpan2DFunc<T, TArg, TResult> function)
+    public TResult Map<TArg, TResult>(in TArg arg, ReadOnlySpan2DFunc<T, TArg, TResult> function)
 #if NET9_0_OR_GREATER
         where TArg : allows ref struct
 #endif
         => function(AsSpan2D(), arg);
 
-    public TResult Map<TArg1, TArg2, TResult>(TArg1 arg1, TArg2 arg2, ReadOnlySpan2DFunc<T, TArg1, TArg2, TResult> function)
+    public TResult Map<TArg1, TArg2, TResult>(in TArg1 arg1, in TArg2 arg2, ReadOnlySpan2DFunc<T, TArg1, TArg2, TResult> function)
 #if NET9_0_OR_GREATER
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
 #endif
         => function(AsSpan2D(), arg1, arg2);
 
-    public TResult Map<TArg1, TArg2, TArg3, TResult>(TArg1 arg1, TArg2 arg2, TArg3 arg3, ReadOnlySpan2DFunc<T, TArg1, TArg2, TArg3, TResult> function)
+    public TResult Map<TArg1, TArg2, TArg3, TResult>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, ReadOnlySpan2DFunc<T, TArg1, TArg2, TArg3, TResult> function)
 #if NET9_0_OR_GREATER
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct

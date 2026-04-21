@@ -66,16 +66,16 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
     public TResult Map<TResult>(ReadOnlyTensorSpanFunc<T, TResult> function) =>
         function(AsTensorSpan());
 
-    public TResult Map<TArg, TResult>(TArg arg, ReadOnlyTensorSpanFunc<T, TArg, TResult> function)
+    public TResult Map<TArg, TResult>(in TArg arg, ReadOnlyTensorSpanFunc<T, TArg, TResult> function)
         where TArg : allows ref struct =>
         function(AsTensorSpan(), arg);
 
-    public TResult Map<TArg1, TArg2, TResult>(TArg1 arg1, TArg2 arg2, ReadOnlyTensorSpanFunc<T, TArg1, TArg2, TResult> function)
+    public TResult Map<TArg1, TArg2, TResult>(in TArg1 arg1, in TArg2 arg2, ReadOnlyTensorSpanFunc<T, TArg1, TArg2, TResult> function)
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct =>
         function(AsTensorSpan(), arg1, arg2);
 
-    public TResult Map<TArg1, TArg2, TArg3, TResult>(TArg1 arg1, TArg2 arg2, TArg3 arg3, ReadOnlyTensorSpanFunc<T, TArg1, TArg2, TArg3, TResult> function)
+    public TResult Map<TArg1, TArg2, TArg3, TResult>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, ReadOnlyTensorSpanFunc<T, TArg1, TArg2, TArg3, TResult> function)
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
         where TArg3 : allows ref struct =>
@@ -87,14 +87,14 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
         action(AsTensorSpan());
     }
 
-    public void Do<TArg>(TArg arg, TensorSpanAction<T, TArg> action)
+    public void Do<TArg>(in TArg arg, TensorSpanAction<T, TArg> action)
         where TArg : allows ref struct
     {
         ThrowIfReadOnly();
         action(AsTensorSpan(), arg);
     }
 
-    public void Do<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, TensorSpanAction<T, TArg1, TArg2> action)
+    public void Do<TArg1, TArg2>(in TArg1 arg1, in TArg2 arg2, TensorSpanAction<T, TArg1, TArg2> action)
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
     {
@@ -102,7 +102,7 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
         action(AsTensorSpan(), arg1, arg2);
     }
 
-    public void Do<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3, TensorSpanAction<T, TArg1, TArg2, TArg3> action)
+    public void Do<TArg1, TArg2, TArg3>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, TensorSpanAction<T, TArg1, TArg2, TArg3> action)
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
         where TArg3 : allows ref struct

@@ -39,7 +39,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
 
         float[] other = [5, 4, 3, 2, 1];
         // 1·5 + 2·4 + 3·3 + 4·2 + 5·1 = 35
-        var dot = buffer.Map(other, static (span, arr) => TensorPrimitives.Dot(span, arr));
+        var dot = buffer.Map(other, static (span, in arr) => TensorPrimitives.Dot(span, arr));
 
         Assert.Equal(35.0f, dot);
     }
@@ -67,7 +67,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var module = Env.TestBuffer();
         using var buffer = (PyArrayBuffer<float>)module.TestFloat32IntBuffer(); // [1,2,3,4,5]
 
-        buffer.Do(3.0f, static (span, factor) => TensorPrimitives.Multiply(span, factor, span));
+        buffer.Do(3.0f, static (span, in factor) => TensorPrimitives.Multiply(span, factor, span));
 
         Assert.Equal(3.0f,  buffer[0]);
         Assert.Equal(6.0f,  buffer[1]);
@@ -84,7 +84,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         using var buffer = (PyArrayBuffer<float>)module.TestFloat32IntBuffer(); // [1,2,3,4,5]
 
         float[] addends = [10, 20, 30, 40, 50];
-        buffer.Do(addends, static (span, arr) => TensorPrimitives.Add(span, arr, span));
+        buffer.Do(addends, static (span, in arr) => TensorPrimitives.Add(span, arr, span));
 
         Assert.Equal(11.0f, buffer[0]);
         Assert.Equal(22.0f, buffer[1]);
@@ -139,7 +139,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         using var buffer = (PyArrayBuffer<float>)module.TestFloat32IntBuffer(); // [1,2,3,4,5]
 
         ReadOnlySpan<float> other = [5, 4, 3, 2, 1];
-        var dot = buffer.Map(other, static (span, o) => TensorPrimitives.Dot(span, o));
+        var dot = buffer.Map(other, static (span, in o) => TensorPrimitives.Dot(span, o));
 
         Assert.Equal(35.0f, dot);
     }
@@ -152,7 +152,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         using var buffer = (PyArrayBuffer<float>)module.TestFloat32IntBuffer(); // [1,2,3,4,5]
 
         float[] same = [1, 2, 3, 4, 5];
-        var similarity = buffer.Map(same, static (span, arr) => TensorPrimitives.CosineSimilarity(span, arr));
+        var similarity = buffer.Map(same, static (span, in arr) => TensorPrimitives.CosineSimilarity(span, arr));
 
         Assert.Equal(1.0f, similarity, tolerance: 1e-6f);
     }
@@ -165,7 +165,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         using var buffer = (PyArrayBuffer<float>)module.TestFloat32IntBuffer(); // [1,2,3,4,5]
 
         ReadOnlySpan<float> addends = [10, 20, 30, 40, 50];
-        buffer.Do(addends, static (span, a) => TensorPrimitives.Add(span, a, span));
+        buffer.Do(addends, static (span, in a) => TensorPrimitives.Add(span, a, span));
 
         Assert.Equal(11.0f, buffer[0]);
         Assert.Equal(55.0f, buffer[4]);
@@ -180,7 +180,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         using var buffer2 = (PyArrayBuffer<float>)module.TestFloat32IntBuffer(); // [1,2,3,4,5]
 
         // [1,2,3,4,5] · [1,2,3,4,5] = 1+4+9+16+25 = 55
-        var dot = buffer1.Map(buffer2, static (span1, buffer2) => buffer2.Map(span1, TensorPrimitives.Dot));
+        var dot = buffer1.Map(buffer2, static (span1, in buffer2) => buffer2.Map(span1, static (a, in b) => TensorPrimitives.Dot(a, b)));
 
         Assert.Equal(55.0f, dot);
     }
@@ -194,7 +194,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
 
         ReadOnlySpan<float> a = [1, 0, 1, 0, 1]; // dot = 1+3+5 = 9
         ReadOnlySpan<float> b = [0, 1, 0, 1, 0]; // dot = 2+4 = 6
-        var result = buffer.Map(a, b, static (span, aa, bb) =>
+        var result = buffer.Map(a, b, static (span, in aa, in bb) =>
             TensorPrimitives.Dot(span, aa) + TensorPrimitives.Dot(span, bb));
 
         Assert.Equal(15.0f, result); // 9 + 6
@@ -211,7 +211,8 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         ReadOnlySpan<float> b = [0, 1, 0, 1, 0];
         ReadOnlySpan<float> c = [1, 1, 1, 1, 1];
         // dot(buf,a) + dot(buf,b) + dot(buf,c) = 9 + 6 + 15 = 30
-        var result = buffer.Map(a, b, c, static (span, a, b, c) => TensorPrimitives.Dot(span, a)
+        var result =
+            buffer.Map(a, b, c, static (span, in a, in b, in c) => TensorPrimitives.Dot(span, a)
                                                                  + TensorPrimitives.Dot(span, b)
                                                                  + TensorPrimitives.Dot(span, c));
 
@@ -228,7 +229,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         ReadOnlySpan<float> y = [2, 2, 2, 2, 2];
         ReadOnlySpan<float> z = [10, 20, 30, 40, 50];
         // FMA: [1*2+10, 2*2+20, 3*2+30, 4*2+40, 5*2+50] = [12, 24, 36, 48, 60]
-        buffer.Do(y, z, static (span, y, z) => TensorPrimitives.FusedMultiplyAdd(span, y, z, span));
+        buffer.Do(y, z, static (span, in y, in z) => TensorPrimitives.FusedMultiplyAdd(span, y, z, span));
 
         Assert.Equal(12.0f, buffer[0]);
         Assert.Equal(24.0f, buffer[1]);
@@ -247,7 +248,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         ReadOnlySpan<float> addend = [10, 20, 30, 40, 50];
         ReadOnlySpan<float> multiplier = [2, 2, 2, 2, 2];
         // AddMultiply: [(1+10)*2, (2+20)*2, (3+30)*2, (4+40)*2, (5+50)*2] = [22, 44, 66, 88, 110]
-        buffer.Do(addend, multiplier, static (span, a, m) => TensorPrimitives.AddMultiply(span, a, m, span));
+        buffer.Do(addend, multiplier, static (span, in a, in m) => TensorPrimitives.AddMultiply(span, a, m, span));
 
         Assert.Equal(22.0f, buffer[0]);
         Assert.Equal(44.0f, buffer[1]);
@@ -266,7 +267,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         ReadOnlySpan<float> y = [11, 12, 13, 14, 15];
         Span<float> result = new float[5];
         // Lerp at 0.5: midpoint between x and y = [6, 7, 8, 9, 10]
-        buffer.Do(y, result, static (span, y, dest) => TensorPrimitives.Lerp(span, y, 0.5f, dest));
+        buffer.Do(y, result, static (span, in y, in dest) => TensorPrimitives.Lerp(span, y, 0.5f, dest));
 
         Assert.Equal([6.0f, 7.0f, 8.0f, 9.0f, 10.0f], result.ToArray());
     }
@@ -280,7 +281,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
 
         Span<float> sin = new float[5];
         Span<float> cos = new float[5];
-        buffer.Do(sin, cos, static (span, sin, cos) => TensorPrimitives.SinCos(span, sin, cos));
+        buffer.Do(sin, cos, static (span, in sin, in cos) => TensorPrimitives.SinCos(span, sin, cos));
 
         for (var i = 0; i < 5; i++)
         {
@@ -299,7 +300,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         ReadOnlySpan<float> divisor = [3, 3, 3, 3, 3];
         Span<float> quotient = new float[5];
         Span<float> remainder = new float[5];
-        buffer.Do(divisor, quotient, remainder, static (span, div, quot, rem) =>
+        buffer.Do(divisor, quotient, remainder, static (span, in div, in quot, in rem) =>
         {
             for (var i = 0; i < span.Length; i++)
             {
@@ -325,7 +326,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var module = Env.TestBuffer();
         using var buffer = (PyArray2DBuffer<float>)module.TestFloat32Int2dBuffer(); // [[1,2,3],[4,5,6]]
 
-        var sums = buffer.Map(static span =>
+        var sums = buffer.Map(static (in span) =>
         {
             var result = new float[span.Height];
             for (var row = 0; row < span.Height; row++)
@@ -349,7 +350,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var module = Env.TestBuffer();
         using var buffer = (PyArray2DBuffer<float>)module.TestFloat32Int2dBuffer(); // [[1,2,3],[4,5,6]]
 
-        buffer.Do(static span => span.Clear());
+        buffer.Do(static (in span) => span.Clear());
 
         Assert.Equal(0f, buffer[0, 0]);
         Assert.Equal(0f, buffer[0, 2]);
@@ -364,7 +365,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var module = Env.TestBuffer();
         using var buffer = (PyArray2DBuffer<float>)module.TestFloat32Int2dBuffer(); // [[1,2,3],[4,5,6]]
 
-        buffer.Do(42.0f, static (span, val) =>
+        buffer.Do(42.0f, static (in span, in val) =>
         {
             for (var row = 0; row < span.Height; row++)
                 for (var col = 0; col < span.Width; col++)
@@ -382,7 +383,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var module = Env.TestBuffer();
         using var buffer = (PyArray2DBuffer<float>)module.TestFloat32Int2dBuffer(); // [[1,2,3],[4,5,6]]
 
-        var flat = buffer.Map(static span =>
+        var flat = buffer.Map(static (in span) =>
         {
             var result = new float[span.Height * span.Width];
             for (var row = 0; row < span.Height; row++)
@@ -415,7 +416,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
 
         float[] weights = [1, 2, 3];
         // (1*1 + 2*2 + 3*3) + (4*1 + 5*2 + 6*3) = 14 + 32 = 46
-        var total = buffer.Map(weights, static (span, w) =>
+        var total = buffer.Map(weights, static (in span, in w) =>
             span[0, 0] * w[0] + span[0, 1] * w[1] + span[0, 2] * w[2]
           + span[1, 0] * w[0] + span[1, 1] * w[1] + span[1, 2] * w[2]);
 
@@ -432,7 +433,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         float[] weights = [1, 2, 3];
         float[] biases = [100, 200];
         // row0: 1*1+2*2+3*3+100 = 114, row1: 4*1+5*2+6*3+200 = 232, total = 346
-        var total = buffer.Map(weights, biases, static (span, w, b) =>
+        var total = buffer.Map(weights, biases, static (in span, in w, in b) =>
             (span[0, 0] * w[0] + span[0, 1] * w[1] + span[0, 2] * w[2] + b[0])
           + (span[1, 0] * w[0] + span[1, 1] * w[1] + span[1, 2] * w[2] + b[1]));
 
@@ -450,7 +451,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         float[] biases = [100, 200];
         float[] scales = [2, 3];
         // row0: (1*1+2*2+3*3+100)*2 = 228, row1: (4*1+5*2+6*3+200)*3 = 696, total = 924
-        var total = buffer.Map(weights, biases, scales, static (span, w, b, sc) =>
+        var total = buffer.Map(weights, biases, scales, static (in span, in w, in b, in sc) =>
             (span[0, 0] * w[0] + span[0, 1] * w[1] + span[0, 2] * w[2] + b[0]) * sc[0]
           + (span[1, 0] * w[0] + span[1, 1] * w[1] + span[1, 2] * w[2] + b[1]) * sc[1]);
 
@@ -468,7 +469,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         float[] scales = [2, 3];
         // row0: (1+10)*2=22, (2+10)*2=24, (3+10)*2=26
         // row1: (4+20)*3=72, (5+20)*3=75, (6+20)*3=78
-        buffer.Do(biases, scales, static (span, b, sc) =>
+        buffer.Do(biases, scales, static (in span, in b, in sc) =>
         {
             for (var row = 0; row < span.Height; row++)
                 for (var col = 0; col < span.Width; col++)
@@ -495,7 +496,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var dest = new float[6];
         // row0: 1*2+10=12, 2*3+20=26, 3*4+30=42
         // row1: 4*2+10=18, 5*3+20=35, 6*4+30=54
-        buffer.Do(multipliers, addends, dest, static (span, mul, add, d) =>
+        buffer.Do(multipliers, addends, dest, static (in span, in mul, in add, in d) =>
         {
             var idx = 0;
             for (var row = 0; row < span.Height; row++)
@@ -519,7 +520,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var module = Env.TestBuffer();
         using var buffer = (PyTensorBuffer<float>)module.TestNdim3dFloat32Buffer();
 
-        var sum = buffer.Map(static span =>
+        var sum = buffer.Map(static (in span) =>
         {
             var flat = new float[span.FlattenedLength];
             span.FlattenTo(flat);
@@ -536,7 +537,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var module = Env.TestBuffer();
         using var buffer = (PyTensorBuffer<float>)module.TestNdim3dFloat32Buffer(); // all 1.0f
 
-        buffer.Do(static span => Tensor.Negate(span, span));
+        buffer.Do(static (in span) => Tensor.Negate(span, span));
 
         Assert.Equal(-1f, buffer[0, 0, 0]);
         Assert.Equal(-1f, buffer[2, 3, 4]);
@@ -549,7 +550,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var module = Env.TestBuffer();
         using var buffer = (PyTensorBuffer<float>)module.TestNdim3dFloat32Buffer(); // all 1.0f
 
-        buffer.Do(255f, static (span, factor) => Tensor.Multiply(span, factor, span));
+        buffer.Do(255f, static (in span, in factor) => Tensor.Multiply(span, factor, span));
 
         Assert.Equal(255f, buffer[0, 0, 0]);
         Assert.Equal(255f, buffer[2, 3, 4]);
@@ -562,7 +563,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var module = Env.TestBuffer();
         using var buffer = (PyTensorBuffer<float>)module.TestNdim3dFloat32Buffer(); // all 1.0f, shape (3,4,5)
 
-        var sum = buffer.Map(3.0f, static (span, factor) => Tensor.Sum<float>(Tensor.Multiply(span, factor)));
+        var sum = buffer.Map(3.0f, static (in span, in factor) => Tensor.Sum<float>(Tensor.Multiply(span, factor)));
 
         Assert.Equal(180f, sum); // 60 ones × 3
     }
@@ -577,7 +578,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var weights = Tensor.CreateFromShape<float>(buffer.Lengths);
         weights.AsTensorSpan().Fill(2.0f);
         var result = buffer.Map(weights.AsReadOnlyTensorSpan(), 10.0f,
-                                static (span, w, bias) =>  Tensor.Sum<float>(Tensor.Multiply(span, w)) + bias);
+                                static (in span, in w, in bias) =>  Tensor.Sum<float>(Tensor.Multiply(span, w)) + bias);
 
         Assert.Equal(130f, result); // 60 × (1×2) + 10 = 130
     }
@@ -593,8 +594,10 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var w2 = Tensor.CreateFromShape<float>(buffer.Lengths);
         w1.AsTensorSpan().Fill(2.0f);
         w2.AsTensorSpan().Fill(3.0f);
-        var result = buffer.Map(w1.AsReadOnlyTensorSpan(), w2.AsReadOnlyTensorSpan(), 5.0f, static (span, a, b, bias) =>
-            Tensor.Sum<float>(Tensor.Multiply(Tensor.Multiply(span, a), b)) + bias);
+        var result =
+            buffer.Map(w1.AsReadOnlyTensorSpan(), w2.AsReadOnlyTensorSpan(), 5.0f,
+                       static (in span, in a, in b, in bias) =>
+                           Tensor.Sum<float>(Tensor.Multiply(Tensor.Multiply(span, a), b)) + bias);
 
         Assert.Equal(365f, result); // 60 × (1×2×3) + 5 = 365
     }
@@ -610,7 +613,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var result = Tensor.CreateFromShape<float>(buffer.Lengths);
         addend.AsTensorSpan().Fill(4f);
         buffer.Do(addend.AsReadOnlyTensorSpan(), 2f, result.AsTensorSpan(),
-                  static (span, add, factor, dest) =>
+                  static (in span, in add, in factor, in dest) =>
                   {
                       Tensor.Add(span, add, dest);         // dest = 1 + 4 = 5
                       Tensor.Multiply(dest, factor, dest);  // dest = 5 * 2 = 10
@@ -644,7 +647,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
 
         var addend = Tensor.CreateFromShape<float>(buffer.Lengths);
         addend.AsTensorSpan().Fill(2f);
-        buffer.Do(addend.AsReadOnlyTensorSpan(), 3f, static (span, add, factor) =>
+        buffer.Do(addend.AsReadOnlyTensorSpan(), 3f, static (in span, in add, in factor) =>
         {
             Tensor.Add(span, add, span);      // span = 1 + 2 = 3
             Tensor.Multiply(span, factor, span); // span = 3 * 3 = 9
@@ -665,7 +668,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var result = Tensor.CreateFromShape<float>(buffer.Lengths);
         other.AsTensorSpan().Fill(4f);
         buffer.Do(other.AsReadOnlyTensorSpan(), result.AsTensorSpan(),
-                  static (span, o, dest) => Tensor.Add(span, o, dest)); // dest = 1 + 4 = 5
+                  static (in span, in o, in dest) => Tensor.Add(span, o, dest)); // dest = 1 + 4 = 5
 
         Assert.Equal(5f, result[0, 0, 0]);
         Assert.Equal(5f, result[2, 3, 4]);

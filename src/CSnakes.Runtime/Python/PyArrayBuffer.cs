@@ -35,20 +35,20 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
     public TResult Map<TResult>(ReadOnlySpanFunc<T, TResult> function) =>
         function(AsSpan());
 
-    public TResult Map<TArg, TResult>(TArg arg, ReadOnlySpanFunc<T, TArg, TResult> function)
+    public TResult Map<TArg, TResult>(in TArg arg, ReadOnlySpanFunc<T, TArg, TResult> function)
 #if NET9_0_OR_GREATER
         where TArg : allows ref struct
 #endif
         => function(AsSpan(), arg);
 
-    public TResult Map<TArg1, TArg2, TResult>(TArg1 arg1, TArg2 arg2, ReadOnlySpanFunc<T, TArg1, TArg2, TResult> function)
+    public TResult Map<TArg1, TArg2, TResult>(in TArg1 arg1, in TArg2 arg2, ReadOnlySpanFunc<T, TArg1, TArg2, TResult> function)
 #if NET9_0_OR_GREATER
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
 #endif
         => function(AsSpan(), arg1, arg2);
 
-    public TResult Map<TArg1, TArg2, TArg3, TResult>(TArg1 arg1, TArg2 arg2, TArg3 arg3, ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, TResult> function)
+    public TResult Map<TArg1, TArg2, TArg3, TResult>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, TResult> function)
 #if NET9_0_OR_GREATER
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
@@ -62,7 +62,7 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
         action(AsSpan());
     }
 
-    public void Do<TArg>(TArg arg, SpanAction<T, TArg> action)
+    public void Do<TArg>(in TArg arg, SpanAction<T, TArg> action)
 #if NET9_0_OR_GREATER
         where TArg : allows ref struct
 #endif
@@ -71,7 +71,7 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
         action(AsSpan(), arg);
     }
 
-    public void Do<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, SpanAction<T, TArg1, TArg2> action)
+    public void Do<TArg1, TArg2>(in TArg1 arg1, in TArg2 arg2, SpanAction<T, TArg1, TArg2> action)
 #if NET9_0_OR_GREATER
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
@@ -81,7 +81,7 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T> where T : unmanaged
         action(AsSpan(), arg1, arg2);
     }
 
-    public void Do<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3, SpanAction<T, TArg1, TArg2, TArg3> action)
+    public void Do<TArg1, TArg2, TArg3>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, SpanAction<T, TArg1, TArg2, TArg3> action)
 #if NET9_0_OR_GREATER
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct

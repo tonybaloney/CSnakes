@@ -430,19 +430,19 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void ReadOnlyBuffer_DoWithArg_Throws() =>
         TestMutatingReadOnlyBufferForbidden(
             static module => (PyArrayBuffer<byte>)module.TestBytesAsBuffer(),
-            static buffer => buffer.Do((byte)0, static (span, val) => span[0] = val));
+            static buffer => buffer.Do((byte)0, static (span, in val) => span[0] = val));
 
     [Fact]
     public void ReadOnlyBuffer_DoWith2Args_Throws() =>
         TestMutatingReadOnlyBufferForbidden(
             static module => (PyArrayBuffer<byte>)module.TestBytesAsBuffer(),
-            static buffer => buffer.Do((byte)0, (byte)0, static (span, a, b) => span[0] = (byte)(a + b)));
+            static buffer => buffer.Do((byte)0, (byte)0, static (span, in a, in b) => span[0] = (byte)(a + b)));
 
     [Fact]
     public void ReadOnlyBuffer_DoWith3Args_Throws() =>
         TestMutatingReadOnlyBufferForbidden(
             static module => (PyArrayBuffer<byte>)module.TestBytesAsBuffer(),
-            static buffer => buffer.Do((byte)0, (byte)0, (byte)0, static (span, a, b, c) => span[0] = (byte)(a + b + c)));
+            static buffer => buffer.Do((byte)0, (byte)0, (byte)0, static (span, in a, in b, in c) => span[0] = (byte)(a + b + c)));
 
     [Fact]
     public void ReadOnlyBuffer_CopyFrom_Throws() =>
@@ -460,25 +460,25 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void ReadOnly2DBuffer_Do_Throws() =>
         TestMutatingReadOnlyBufferForbidden(
             static module => (PyArray2DBuffer<float>)module.TestFloat322dBuffer(readOnly: true),
-            static buffer => buffer.Do(span => span[0, 0] = 0f));
+            static buffer => buffer.Do((in span) => span[0, 0] = 0f));
 
     [Fact]
     public void ReadOnly2DBuffer_DoWithArg_Throws() =>
         TestMutatingReadOnlyBufferForbidden(
             static module => (PyArray2DBuffer<float>)module.TestFloat322dBuffer(readOnly: true),
-            static buffer => buffer.Do(0f, static (span, val) => span[0, 0] = val));
+            static buffer => buffer.Do(0f, static (in span, in val) => span[0, 0] = val));
 
     [Fact]
     public void ReadOnly2DBuffer_DoWith2Args_Throws() =>
         TestMutatingReadOnlyBufferForbidden(
             static module => (PyArray2DBuffer<float>)module.TestFloat322dBuffer(readOnly: true),
-            static buffer => buffer.Do(0f, 0f, static (span, a, b) => span[0, 0] = a + b));
+            static buffer => buffer.Do(0f, 0f, static (in span, in a, in b) => span[0, 0] = a + b));
 
     [Fact]
     public void ReadOnly2DBuffer_DoWith3Args_Throws() =>
         TestMutatingReadOnlyBufferForbidden(
             static module => (PyArray2DBuffer<float>)module.TestFloat322dBuffer(readOnly: true),
-            static buffer => buffer.Do(0f, 0f, 0f, static (span, a, b, c) => span[0, 0] = a + b + c));
+            static buffer => buffer.Do(0f, 0f, 0f, static (in span, in a, in b, in c) => span[0, 0] = a + b + c));
 
     [Fact]
     public void ReadOnly2DBuffer_CopyFrom_Throws() =>
@@ -631,24 +631,24 @@ public class BufferTests(PythonEnvironmentFixture fixture) : IntegrationTestBase
     public void ReadOnlyTensorBuffer_Do_Throws() =>
         TestMutatingReadOnlyBufferForbidden(
             static module => (PyTensorBuffer<float>)module.TestNdim3dFloat32Buffer(readOnly: true),
-            static buffer => buffer.Do(span => span[0, 0, 0] = 0f));
+            static buffer => buffer.Do((in span) => span[0, 0, 0] = 0f));
 
     [Fact]
     public void ReadOnlyTensorBuffer_DoWithArg_Throws() =>
         TestMutatingReadOnlyBufferForbidden(
             static module => (PyTensorBuffer<float>)module.TestNdim3dFloat32Buffer(readOnly: true),
-            static buffer => buffer.Do(0f, static (span, val) => span[0, 0, 0] = val));
+            static buffer => buffer.Do(0f, static (in span, in val) => span[0, 0, 0] = val));
 
     [Fact]
     public void ReadOnlyTensorBuffer_DoWith2Args_Throws() =>
         TestMutatingReadOnlyBufferForbidden(
             static module => (PyTensorBuffer<float>)module.TestNdim3dFloat32Buffer(readOnly: true),
-            static buffer => buffer.Do(0f, 0f, static (span, a, b) => span[0, 0, 0] = a + b));
+            static buffer => buffer.Do(0f, 0f, static (in span, in a, in b) => span[0, 0, 0] = a + b));
 
     [Fact]
     public void ReadOnlyTensorBuffer_DoWith3Args_Throws() =>
         TestMutatingReadOnlyBufferForbidden(
             static module => (PyTensorBuffer<float>)module.TestNdim3dFloat32Buffer(readOnly: true),
-            static buffer => buffer.Do(0f, 0f, 0f, static (span, a, b, c) => span[0, 0, 0] = a + b + c));
+            static buffer => buffer.Do(0f, 0f, 0f, static (in span, in a, in b, in c) => span[0, 0, 0] = a + b + c));
 #endif
 }

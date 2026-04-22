@@ -9,20 +9,20 @@ namespace CSnakes.Runtime;
 
 public delegate TResult ReadOnlySpanFunc<T, out TResult>(scoped ReadOnlySpan<T> span);
 
-public delegate TResult ReadOnlySpanFunc<T, TArg, out TResult>(scoped ReadOnlySpan<T> span, in TArg arg)
+public delegate TResult ReadOnlySpanFunc<T, TArg, out TResult>(scoped ReadOnlySpan<T> span, scoped in TArg arg)
 #if NET9_0_OR_GREATER
     where TArg : allows ref struct
 #endif
     ;
 
-public delegate TResult ReadOnlySpanFunc<T, TArg1, TArg2, out TResult>(scoped ReadOnlySpan<T> span, in TArg1 arg1, in TArg2 arg2)
+public delegate TResult ReadOnlySpanFunc<T, TArg1, TArg2, out TResult>(scoped ReadOnlySpan<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2)
 #if NET9_0_OR_GREATER
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
 #endif
     ;
 
-public delegate TResult ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, out TResult>(scoped ReadOnlySpan<T> span, in TArg1 arg1, in TArg2 arg2, in TArg3 arg3)
+public delegate TResult ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, out TResult>(scoped ReadOnlySpan<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2, scoped in TArg3 arg3)
 #if NET9_0_OR_GREATER
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
@@ -30,22 +30,22 @@ public delegate TResult ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, out TResult>(sc
 #endif
     ;
 
-public delegate void SpanAction<T>(Span<T> span);
+public delegate void SpanAction<T>(scoped Span<T> span);
 
-public delegate void SpanAction<T, TArg>(Span<T> span, in TArg arg)
+public delegate void SpanAction<T, TArg>(scoped Span<T> span, scoped in TArg arg)
 #if NET9_0_OR_GREATER
     where TArg : allows ref struct
 #endif
 ;
 
-public delegate void SpanAction<T, TArg1, TArg2>(Span<T> span, in TArg1 arg1, in TArg2 arg2)
+public delegate void SpanAction<T, TArg1, TArg2>(scoped Span<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2)
 #if NET9_0_OR_GREATER
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
 #endif
     ;
 
-public delegate void SpanAction<T, TArg1, TArg2, TArg3>(Span<T> span, in TArg1 arg1, in TArg2 arg2, in TArg3 arg3)
+public delegate void SpanAction<T, TArg1, TArg2, TArg3>(scoped Span<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2, scoped in TArg3 arg3)
 #if NET9_0_OR_GREATER
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
@@ -57,20 +57,20 @@ public delegate void SpanAction<T, TArg1, TArg2, TArg3>(Span<T> span, in TArg1 a
 
 public delegate TResult ReadOnlySpan2DFunc<T, out TResult>(scoped in ReadOnlySpan2D<T> span);
 
-public delegate TResult ReadOnlySpan2DFunc<T, TArg, out TResult>(scoped in ReadOnlySpan2D<T> span, in TArg arg)
+public delegate TResult ReadOnlySpan2DFunc<T, TArg, out TResult>(scoped in ReadOnlySpan2D<T> span, scoped in TArg arg)
 #if NET9_0_OR_GREATER
     where TArg : allows ref struct
 #endif
     ;
 
-public delegate TResult ReadOnlySpan2DFunc<T, TArg1, TArg2, out TResult>(scoped in ReadOnlySpan2D<T> span, in TArg1 arg1, in TArg2 arg2)
+public delegate TResult ReadOnlySpan2DFunc<T, TArg1, TArg2, out TResult>(scoped in ReadOnlySpan2D<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2)
 #if NET9_0_OR_GREATER
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
 #endif
     ;
 
-public delegate TResult ReadOnlySpan2DFunc<T, TArg1, TArg2, TArg3, out TResult>(scoped in ReadOnlySpan2D<T> span, in TArg1 arg1, in TArg2 arg2, in TArg3 arg3)
+public delegate TResult ReadOnlySpan2DFunc<T, TArg1, TArg2, TArg3, out TResult>(scoped in ReadOnlySpan2D<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2, scoped in TArg3 arg3)
 #if NET9_0_OR_GREATER
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
@@ -78,22 +78,22 @@ public delegate TResult ReadOnlySpan2DFunc<T, TArg1, TArg2, TArg3, out TResult>(
 #endif
     ;
 
-public delegate void Span2DAction<T>(in Span2D<T> span);
+public delegate void Span2DAction<T>(scoped in Span2D<T> span);
 
-public delegate void Span2DAction<T, TArg>(in Span2D<T> span, in TArg arg)
+public delegate void Span2DAction<T, TArg>(scoped in Span2D<T> span, scoped in TArg arg)
 #if NET9_0_OR_GREATER
     where TArg : allows ref struct
 #endif
     ;
 
-public delegate void Span2DAction<T, TArg1, TArg2>(in Span2D<T> span, in TArg1 arg1, in TArg2 arg2)
+public delegate void Span2DAction<T, TArg1, TArg2>(scoped in Span2D<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2)
 #if NET9_0_OR_GREATER
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
 #endif
     ;
 
-public delegate void Span2DAction<T, TArg1, TArg2, TArg3>(in Span2D<T> span, in TArg1 arg1, in TArg2 arg2, in TArg3 arg3)
+public delegate void Span2DAction<T, TArg1, TArg2, TArg3>(scoped in Span2D<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2, scoped in TArg3 arg3)
 #if NET9_0_OR_GREATER
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
@@ -107,28 +107,28 @@ public delegate void Span2DAction<T, TArg1, TArg2, TArg3>(in Span2D<T> span, in 
 
 public delegate TResult ReadOnlyTensorSpanFunc<T, out TResult>(scoped in ReadOnlyTensorSpan<T> span);
 
-public delegate TResult ReadOnlyTensorSpanFunc<T, TArg, out TResult>(scoped in ReadOnlyTensorSpan<T> span, in TArg arg)
+public delegate TResult ReadOnlyTensorSpanFunc<T, TArg, out TResult>(scoped in ReadOnlyTensorSpan<T> span, scoped in TArg arg)
     where TArg : allows ref struct;
 
-public delegate TResult ReadOnlyTensorSpanFunc<T, TArg1, TArg2, out TResult>(scoped in ReadOnlyTensorSpan<T> span, in TArg1 arg1, in TArg2 arg2)
+public delegate TResult ReadOnlyTensorSpanFunc<T, TArg1, TArg2, out TResult>(scoped in ReadOnlyTensorSpan<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2)
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct;
 
-public delegate TResult ReadOnlyTensorSpanFunc<T, TArg1, TArg2, TArg3, out TResult>(scoped in ReadOnlyTensorSpan<T> span, in TArg1 arg1, in TArg2 arg2, in TArg3 arg3)
+public delegate TResult ReadOnlyTensorSpanFunc<T, TArg1, TArg2, TArg3, out TResult>(scoped in ReadOnlyTensorSpan<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2, scoped in TArg3 arg3)
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
     where TArg3 : allows ref struct;
 
-public delegate void TensorSpanAction<T>(in TensorSpan<T> span);
+public delegate void TensorSpanAction<T>(scoped in TensorSpan<T> span);
 
-public delegate void TensorSpanAction<T, TArg>(in TensorSpan<T> span, in TArg arg)
+public delegate void TensorSpanAction<T, TArg>(scoped in TensorSpan<T> span, scoped in TArg arg)
     where TArg : allows ref struct;
 
-public delegate void TensorSpanAction<T, TArg1, TArg2>(in TensorSpan<T> span, in TArg1 arg1, in TArg2 arg2)
+public delegate void TensorSpanAction<T, TArg1, TArg2>(scoped in TensorSpan<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2)
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct;
 
-public delegate void TensorSpanAction<T, TArg1, TArg2, TArg3>(in TensorSpan<T> span, in TArg1 arg1, in TArg2 arg2, in TArg3 arg3)
+public delegate void TensorSpanAction<T, TArg1, TArg2, TArg3>(scoped in TensorSpan<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2, scoped in TArg3 arg3)
     where TArg1 : allows ref struct
     where TArg2 : allows ref struct
     where TArg3 : allows ref struct;

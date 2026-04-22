@@ -78,22 +78,22 @@ static CSnakes.Runtime.Python.Awaitable.WaitAsync(CSnakes.Runtime.Python.PyObjec
 static CSnakes.Runtime.Python.Awaitable.WaitAsync<T>(this CSnakes.Runtime.Python.IAwaitable<T>! awaitable, bool dispose, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T>!
 static CSnakes.Runtime.Python.PyObject.From(System.ReadOnlySpan<byte> value) -> CSnakes.Runtime.Python.PyObject!
 static CSnakes.Runtime.Python.PyObjectProxyExtensions.GetPyObject(this CSnakes.Runtime.Python.IPyObjectProxy! proxy) -> CSnakes.Runtime.Python.PyObject!
-virtual CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg, TResult>.Invoke(scoped in CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> span, in TArg arg) -> TResult
-virtual CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg1, TArg2, TResult>.Invoke(scoped in CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> span, in TArg1 arg1, in TArg2 arg2) -> TResult
-virtual CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg1, TArg2, TArg3, TResult>.Invoke(scoped in CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> span, in TArg1 arg1, in TArg2 arg2, in TArg3 arg3) -> TResult
+virtual CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg, TResult>.Invoke(scoped in CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> span, scoped in TArg arg) -> TResult
+virtual CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg1, TArg2, TArg3, TResult>.Invoke(scoped in CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2, scoped in TArg3 arg3) -> TResult
+virtual CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg1, TArg2, TResult>.Invoke(scoped in CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2) -> TResult
 virtual CSnakes.Runtime.ReadOnlySpan2DFunc<T, TResult>.Invoke(scoped in CommunityToolkit.HighPerformance.ReadOnlySpan2D<T> span) -> TResult
-virtual CSnakes.Runtime.ReadOnlySpanFunc<T, TArg, TResult>.Invoke(scoped System.ReadOnlySpan<T> span, in TArg arg) -> TResult
-virtual CSnakes.Runtime.ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, TResult>.Invoke(scoped System.ReadOnlySpan<T> span, in TArg1 arg1, in TArg2 arg2, in TArg3 arg3) -> TResult
-virtual CSnakes.Runtime.ReadOnlySpanFunc<T, TArg1, TArg2, TResult>.Invoke(scoped System.ReadOnlySpan<T> span, in TArg1 arg1, in TArg2 arg2) -> TResult
+virtual CSnakes.Runtime.ReadOnlySpanFunc<T, TArg, TResult>.Invoke(scoped System.ReadOnlySpan<T> span, scoped in TArg arg) -> TResult
+virtual CSnakes.Runtime.ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, TResult>.Invoke(scoped System.ReadOnlySpan<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2, scoped in TArg3 arg3) -> TResult
+virtual CSnakes.Runtime.ReadOnlySpanFunc<T, TArg1, TArg2, TResult>.Invoke(scoped System.ReadOnlySpan<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2) -> TResult
 virtual CSnakes.Runtime.ReadOnlySpanFunc<T, TResult>.Invoke(scoped System.ReadOnlySpan<T> span) -> TResult
-virtual CSnakes.Runtime.Span2DAction<T, TArg1, TArg2, TArg3>.Invoke(in CommunityToolkit.HighPerformance.Span2D<T> span, in TArg1 arg1, in TArg2 arg2, in TArg3 arg3) -> void
-virtual CSnakes.Runtime.Span2DAction<T, TArg1, TArg2>.Invoke(in CommunityToolkit.HighPerformance.Span2D<T> span, in TArg1 arg1, in TArg2 arg2) -> void
-virtual CSnakes.Runtime.Span2DAction<T, TArg>.Invoke(in CommunityToolkit.HighPerformance.Span2D<T> span, in TArg arg) -> void
-virtual CSnakes.Runtime.Span2DAction<T>.Invoke(in CommunityToolkit.HighPerformance.Span2D<T> span) -> void
-virtual CSnakes.Runtime.SpanAction<T, TArg1, TArg2, TArg3>.Invoke(System.Span<T> span, in TArg1 arg1, in TArg2 arg2, in TArg3 arg3) -> void
-virtual CSnakes.Runtime.SpanAction<T, TArg1, TArg2>.Invoke(System.Span<T> span, in TArg1 arg1, in TArg2 arg2) -> void
-virtual CSnakes.Runtime.SpanAction<T, TArg>.Invoke(System.Span<T> span, in TArg arg) -> void
-virtual CSnakes.Runtime.SpanAction<T>.Invoke(System.Span<T> span) -> void
+virtual CSnakes.Runtime.Span2DAction<T, TArg1, TArg2, TArg3>.Invoke(scoped in CommunityToolkit.HighPerformance.Span2D<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2, scoped in TArg3 arg3) -> void
+virtual CSnakes.Runtime.Span2DAction<T, TArg1, TArg2>.Invoke(scoped in CommunityToolkit.HighPerformance.Span2D<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2) -> void
+virtual CSnakes.Runtime.Span2DAction<T, TArg>.Invoke(scoped in CommunityToolkit.HighPerformance.Span2D<T> span, scoped in TArg arg) -> void
+virtual CSnakes.Runtime.Span2DAction<T>.Invoke(scoped in CommunityToolkit.HighPerformance.Span2D<T> span) -> void
+virtual CSnakes.Runtime.SpanAction<T, TArg1, TArg2, TArg3>.Invoke(scoped System.Span<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2, scoped in TArg3 arg3) -> void
+virtual CSnakes.Runtime.SpanAction<T, TArg1, TArg2>.Invoke(scoped System.Span<T> span, scoped in TArg1 arg1, scoped in TArg2 arg2) -> void
+virtual CSnakes.Runtime.SpanAction<T, TArg>.Invoke(scoped System.Span<T> span, scoped in TArg arg) -> void
+virtual CSnakes.Runtime.SpanAction<T>.Invoke(scoped System.Span<T> span) -> void
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Awaitable<T, TImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.Optional<T, TImporter>
 [PRTEXP001]CSnakes.Runtime.Python.PyObjectImporters.OptionalValue<T, TImporter>

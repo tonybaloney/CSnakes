@@ -520,12 +520,7 @@ public class BufferOperationTests(PythonEnvironmentFixture fixture) : Integratio
         var module = Env.TestBuffer();
         using var buffer = (PyTensorBuffer<float>)module.TestNdim3dFloat32Buffer();
 
-        var sum = buffer.Map(static (in span) =>
-        {
-            var flat = new float[span.FlattenedLength];
-            span.FlattenTo(flat);
-            return TensorPrimitives.Sum(flat);
-        });
+        var sum = buffer.Map(Tensor.Sum);
 
         Assert.Equal(60f, sum); // 3×4×5 ones
     }

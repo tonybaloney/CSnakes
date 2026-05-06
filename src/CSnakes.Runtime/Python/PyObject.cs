@@ -38,12 +38,10 @@ public partial class PyObject : SafeHandle, ICloneable
         {
             // The Python environment has been disposed, and therefore Python has freed it's memory pools.
             // Don't run decref since the Python process isn't running and this pointer will point somewhere else.
-            handle = IntPtr.Zero;
             // TODO: Consider moving this to a logger.
             Debug.WriteLine($"Python object at 0x{handle:X} was released, but Python is no longer running.");
-            return true;
         }
-        if (GIL.IsAcquired)
+        else if (GIL.IsAcquired)
         {
             using (GIL.Acquire())
             {

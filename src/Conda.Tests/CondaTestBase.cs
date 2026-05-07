@@ -1,60 +1,51 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using CSnakes.Runtime.Tests;
 
 namespace Conda.Tests;
-public class CondaTestBase : IDisposable
+
+/// <seealso href="https://xunit.net/docs/shared-context.html#collection-fixture"/>
+[CollectionDefinition(Name)]
+public sealed class PythonEnvironmentCollection : ICollectionFixture<PythonEnvironmentFixture>
 {
-    private readonly IPythonEnvironment env;
-    private readonly IHost app;
+    public const string Name = "PythonEnvironment";
+}
 
-    public CondaTestBase()
+public class PythonEnvironmentFixture : PythonEnvironmentFixtureBase
+{
+    public PythonEnvironmentFixture() :
+        base(home: Path.Join(Environment.CurrentDirectory, "python"),
+             static context =>
+             {
+                 var condaEnv = Environment.GetEnvironmentVariable("CONDA") ?? string.Empty;
+                 var pythonVersion = Environment.GetEnvironmentVariable("PYTHON_VERSION");
+                 var isWindows = OperatingSystem.IsWindows();
+
+                 if (string.IsNullOrEmpty(condaEnv))
+                 {
+                     var basePath = isWindows
+                                  ? Environment.GetEnvironmentVariable("LOCALAPPDATA")
+                                  : Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+                     if (basePath is { } someBasePath)
+                     {
+                         IEnumerable<string> condaNames = ["anaconda3", "miniconda3"];
+                         condaEnv = condaNames.Select(condaName => Path.Join(someBasePath, condaName))
+                                              .FirstOrDefault(Directory.Exists) ?? condaEnv;
+                     }
+                 }
+
+                 var condaBinPath = isWindows ? Path.Join(condaEnv, "Scripts", "conda.exe") : Path.Join(condaEnv, "bin", "conda");
+                 var environmentSpecPath = Path.Join(Environment.CurrentDirectory, "python", "environment.yml");
+
+                 _ = context.Environment
+                            .FromConda(condaBinPath)
+                            .WithCondaEnvironment("csnakes_test", environmentSpecPath, true, pythonVersion);
+             })
     {
-        string condaEnv = Environment.GetEnvironmentVariable("CONDA") ?? string.Empty;
-        string? pythonVersion = Environment.GetEnvironmentVariable("PYTHON_VERSION");
-
-        if (string.IsNullOrEmpty(condaEnv))
-        {
-            string? basePath = null;
-            if (OperatingSystem.IsWindows())
-            {
-                basePath = Environment.GetEnvironmentVariable("LOCALAPPDATA");
-            }
-            else
-            {
-                basePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            }
-
-            if (basePath is not null)
-            {
-                condaEnv = new[] { "anaconda3", "miniconda3" }
-                    .Select(condaName => Path.Join(basePath, condaName))
-                    .FirstOrDefault(Directory.Exists) ?? condaEnv;
-            }
-
-        }
-
-        var condaBinPath = OperatingSystem.IsWindows() ? Path.Join(condaEnv, "Scripts", "conda.exe") : Path.Join(condaEnv, "bin", "conda");
-        var environmentSpecPath = Path.Join(Environment.CurrentDirectory, "python", "environment.yml");
-        var builder = Host.CreateApplicationBuilder();
-        var pb = builder.Services.WithPython();
-        pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
-
-        pb.FromConda(condaBinPath)
-          .WithCondaEnvironment("csnakes_test", environmentSpecPath, true, pythonVersion);
-
-        builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
-
-        app = builder.Build();
-
-        env = app.Services.GetRequiredService<IPythonEnvironment>();
     }
+}
 
-    public void Dispose()
-    {
-        GC.SuppressFinalize(this);
-        GC.Collect();
-    }
-
-    public IPythonEnvironment Env => env;
+[Collection(PythonEnvironmentCollection.Name)]
+public abstract class CondaTestBase(PythonEnvironmentFixture fixture)
+{
+    public IPythonEnvironment Env { get; } = fixture.Env;
 }

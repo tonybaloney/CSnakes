@@ -1,6 +1,6 @@
 namespace RedistributablePython.Tests;
 
-public class BasicTests: RedistributablePythonTestBase
+public class BasicTests(PythonEnvironmentFixture fixture) : RedistributablePythonTestBase(fixture)
 {
     [Fact]
     public void TestSimpleRedistributableImport()

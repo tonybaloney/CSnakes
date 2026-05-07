@@ -1,7 +1,7 @@
 namespace CSnakes.Runtime.Tests.Converter;
 
-public class FloatConverterTest :
-    ConverterTestBase<float, FloatConverterTest>,
+public class FloatConverterTest(PythonEnvironmentFixture fixture) :
+    ConverterTestBase<float, FloatConverterTest>(fixture),
     IConverterTestCasesContainer<float>
 {
     public static TheoryData<float> TestCases => new()

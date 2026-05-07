@@ -27,6 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\CSnakes.Runtime.Tests\PythonEnvironmentFixtures.cs" Link="PythonEnvironmentFixtures.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="python\requirements.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -2,10 +2,10 @@ using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Converter;
 
-public class DictionaryConverterTest :
+public class DictionaryConverterTest(PythonEnvironmentFixture fixture) :
     ConverterTestBase<IReadOnlyDictionary<string, string>,
                       PyObjectImporters.Dictionary<string, string, PyObjectImporters.String, PyObjectImporters.String>,
-                      DictionaryConverterTest>,
+                      DictionaryConverterTest>(fixture),
     IConverterTestCasesContainer<IReadOnlyDictionary<string, string>>
 {
     public static TheoryData<IReadOnlyDictionary<string, string>> TestCases => new()

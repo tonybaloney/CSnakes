@@ -1,7 +1,7 @@
 using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Python;
-public class PyObjectTests : RuntimeTestBase
+public class PyObjectTests(PythonEnvironmentFixture fixture) : RuntimeTestBase(fixture)
 {
     [Fact]
     public void TestToString()

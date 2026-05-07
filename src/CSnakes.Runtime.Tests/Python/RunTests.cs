@@ -1,19 +1,19 @@
 using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Python;
-public class RunTests : RuntimeTestBase
+public class RunTests(PythonEnvironmentFixture fixture) : RuntimeTestBase(fixture)
 {
     [Fact]
     public void TestSimpleString()
     {
-        using var result = env.ExecuteExpression("1+1");
+        using var result = Env.ExecuteExpression("1+1");
         Assert.Equal("2", result.ToString());
     }
 
     [Fact]
     public void TestBadString()
     {
-        Assert.Throws<PythonInvocationException>(() => env.ExecuteExpression("1+"));
+        Assert.Throws<PythonInvocationException>(() => Env.ExecuteExpression("1+"));
     }
 
     [Fact]
@@ -23,7 +23,7 @@ public class RunTests : RuntimeTestBase
         {
             ["a"] = PyObject.From(101)
         };
-        using var result = env.ExecuteExpression("a+1", locals);
+        using var result = Env.ExecuteExpression("a+1", locals);
         Assert.Equal("102", result.ToString());
     }
 
@@ -38,7 +38,7 @@ public class RunTests : RuntimeTestBase
         {
             ["b"] = PyObject.From(100)
         };
-        using var result = env.ExecuteExpression("a+b+1", locals, globals);
+        using var result = Env.ExecuteExpression("a+b+1", locals, globals);
         Assert.Equal("202", result.ToString());
     }
 
@@ -57,7 +57,7 @@ b = c + a
         {
             ["d"] = PyObject.From(100)
         };
-        using var result = env.Execute(c, locals, globals);
+        using var result = Env.Execute(c, locals, globals);
         Assert.Equal("None", result.ToString());
     }
 
@@ -73,7 +73,7 @@ b = c + a
         {
             ["b"] = PyObject.From(100)
         };
-        using var result = env.Execute(code, locals, globals);
+        using var result = Env.Execute(code, locals, globals);
         Assert.Equal("None", result.ToString());
         Assert.Equal(202, locals["c"].As<long>());
         Assert.Equal(101, locals["b"].As<long>());

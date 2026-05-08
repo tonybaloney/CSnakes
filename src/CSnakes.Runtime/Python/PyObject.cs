@@ -1,5 +1,4 @@
 using CSnakes.Runtime.CPython;
-using CSnakes.Runtime.Python.Interns;
 using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -703,6 +702,7 @@ public partial class PyObject : SafeHandle, ICloneable
                 var t when t == typeof(float) => (float)CPythonAPI.PyFloat_AsDouble(this),
                 var t when t == typeof(string) => CPythonAPI.PyUnicode_AsUTF8(this),
                 var t when t == typeof(BigInteger) => PyObjectTypeConverter.ConvertToBigInteger(this, t),
+                var t when t == typeof(TimeOnly) => PyObjectTypeConverter.ConvertToTimeOnly(this),
                 var t when t == typeof(byte[]) => CPythonAPI.PyBytes_AsByteArray(this),
                 var t when t.IsAssignableTo(typeof(ITuple)) => PyObjectTypeConverter.ConvertToTuple(this, t),
                 var t when t.IsAssignableTo(typeof(IGeneratorIterator)) => PyObjectTypeConverter.ConvertToGeneratorIterator(this, t),
@@ -782,6 +782,15 @@ public partial class PyObject : SafeHandle, ICloneable
                 using (GIL.Acquire())
                     return PyObjectTypeConverter.ConvertFromBigInteger(n);
         }
+    }
+
+    public static PyObject From(TimeOnly? value) =>
+        value switch { null => None, { } some => From(some) };
+
+    public static PyObject From(TimeOnly value)
+    {
+        using (GIL.Acquire())
+            return PyObjectTypeConverter.ConvertFromTimeOnly(value);
     }
 
     public static PyObject From(string? value)

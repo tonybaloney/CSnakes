@@ -20,7 +20,10 @@ public static class PythonLogger
     internal static IAsyncDisposable EnableGlobalLogging(IPythonEnvironment env, ILogger logger) =>
         Bridge.Create(GetModule(env), logger);
 
-    private static ICsnakesLogging GetModule(IPythonEnvironment env)
+    private static ICsnakesLogging GetModule(IPythonEnvironment env) =>
+        GetModule((PythonEnvironment)env);
+
+    private static ICsnakesLogging GetModule(PythonEnvironment env)
     {
         lock (ModuleLock)
         {
@@ -33,11 +36,14 @@ public static class PythonLogger
             else
             {
                 result = module = env.CsnakesLogging();
-                ((PythonEnvironment)env).AddDisposalListener(result, static (_, subscription, module) =>
+
+                void OnDisposing(object? sender, EventArgs args)
                 {
-                    module.Dispose();
-                    subscription.Dispose();
-                });
+                    result.Dispose();
+                    env.Disposing -= OnDisposing;
+                }
+
+                env.Disposing += OnDisposing;
             }
 
             return result;

@@ -101,7 +101,7 @@ internal class PythonEnvironment : IPythonEnvironment
         {
             if (logger is null)
                 throw new ArgumentNullException(nameof(logger), "Argument cannot be null when capturing Python logs.");
-            pythonCaptureLogger = PythonLogger.EnableGlobalLogging(logger);
+            pythonCaptureLogger = PythonLogger.EnableGlobalLogging(this, logger);
         }
     }
 
@@ -127,6 +127,7 @@ internal class PythonEnvironment : IPythonEnvironment
             if (disposing)
             {
                 pythonCaptureLogger?.DisposeAsync().GetAwaiter().GetResult();
+                this.disposal?.Fire();
                 api.Dispose();
                 if (pythonEnvironment is not null)
                 {
@@ -153,5 +154,64 @@ internal class PythonEnvironment : IPythonEnvironment
     public bool IsDisposed()
     {
         return disposedValue;
+    }
+
+    Event<IPythonEnvironment>? disposal;
+
+    public IDisposable AddDisposalListener<TArg>(TArg arg, Action<IPythonEnvironment, IDisposable, TArg> handler) =>
+        (disposal ??= new(this)).Subscribe(arg, handler);
+
+    sealed class Event<T>(T sender)
+    {
+        readonly List<Subscription?> subscriptions = new();
+        bool firing;
+
+        public IDisposable Subscribe<TArg>(TArg arg, Action<T, IDisposable, TArg> handler)
+        {
+            var subscription = new Subscription<TArg>(this, arg, handler);
+            subscriptions.Add(subscription);
+            return subscription;
+        }
+
+        void Remove(Subscription subscription)
+        {
+            if (firing)
+            {
+                if (subscriptions.IndexOf(subscription) is var index and >= 0)
+                    subscriptions[index] = null;
+            }
+            else
+            {
+                subscriptions.Remove(subscription);
+            }
+        }
+
+        public void Fire()
+        {
+            firing = true;
+
+            try
+            {
+                for (int i = 0; i < subscriptions.Count; i++)
+                    subscriptions[i]?.Fire(sender);
+            }
+            finally
+            {
+                firing = false;
+                subscriptions.RemoveAll(s => s is null);
+            }
+        }
+
+        abstract class Subscription(Event<T> @event) : IDisposable
+        {
+            public abstract void Fire(T sender);
+            public void Dispose() => @event.Remove(this);
+        }
+
+        sealed class Subscription<TArg>(Event<T> @event, TArg arg, Action<T, IDisposable, TArg> handler) :
+            Subscription(@event)
+        {
+            public override void Fire(T sender) => handler(sender, this, arg);
+        }
     }
 }

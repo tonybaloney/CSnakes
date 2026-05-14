@@ -7,6 +7,7 @@
     <NoWarn>$(NoWarn);SYSLIB5001</NoWarn>
     <!-- Suppress warnings related to use of own experimental API -->
     <NoWarn>$(NoWarn);PRTEXP001;PRTEXP002;PRTEXP003</NoWarn>
+    <EmbedPythonSources>true</EmbedPythonSources>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -31,7 +32,7 @@
 
   <ItemGroup>
     <!-- Reference the source generator purely for packaging purposes -->
-    <ProjectReference Include="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,4 +61,6 @@
 
   <Import Project="Packaging.targets" />
   <Import Project="TextTemplates.targets" />
+  <Import Project="..\CSnakes.SourceGeneration\NuGet\buildTransitive\net8.0\CSnakes.SourceGeneration.targets" />
+
 </Project>

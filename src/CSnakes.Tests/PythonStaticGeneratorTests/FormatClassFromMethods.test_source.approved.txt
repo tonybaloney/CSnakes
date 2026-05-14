@@ -97,7 +97,7 @@ static partial class TestClassExtensions
 /// <summary>
 /// Represents functions of the Python module <c>test</c>.
 /// </summary>
-public interface ITestClass : IReloadableModuleImport
+partial interface ITestClass : IReloadableModuleImport
 {
     /// <summary>
     /// Invokes the Python function <c>get_mad_string</c>:

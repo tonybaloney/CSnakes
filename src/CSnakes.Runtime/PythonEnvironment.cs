@@ -115,7 +115,8 @@ internal class PythonEnvironment : IPythonEnvironment
 
         var api = new CPythonAPI(pythonDll, pythonLocationMetadata.Version, pythonLocationMetadata.PythonBinaryPath, options.InstallSignalHandlers)
         {
-            PythonPath = pythonPath
+            PythonPath = pythonPath,
+            PythonPrefix = pythonLocationMetadata.Folder
         };
         return api;
     }

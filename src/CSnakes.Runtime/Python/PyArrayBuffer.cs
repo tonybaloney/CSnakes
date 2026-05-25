@@ -100,7 +100,7 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
 
     public void CopyTo(scoped in Span<T> destination) => AsSpan().CopyTo(destination);
 
-    // TODO Mark `PyArrayBuffer<T>.AsSpan` private when `IPyBuffer<T>.AsSpan<T>` is removed
+    // TODO Mark `PyArrayBuffer<T>.AsSpan` private when `IPyBuffer.AsSpan<T>` is removed
     internal unsafe Span<T> AsSpan() => MemoryMarshal.CreateSpan(ref TypedRef, ItemCount);
 
     /// <summary>

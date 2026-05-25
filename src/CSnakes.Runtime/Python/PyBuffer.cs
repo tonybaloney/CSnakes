@@ -113,7 +113,9 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
             : ((PyArrayBuffer<TItemType>)(IPyBuffer)this).AsSpan();
 
     ReadOnlySpan<TItemType> IPyBuffer.AsReadOnlySpan<TItemType>() =>
+#pragma warning disable CS0618 // Type or member is obsolete
         ((IPyBuffer)this).AsSpan<TItemType>();
+#pragma warning restore CS0618 // Type or member is obsolete
 
     Span2D<TItemType> IPyBuffer.AsSpan2D<TItemType>() =>
         typeof(TItemType) != typeof(T)
@@ -121,7 +123,9 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
             : ((PyArray2DBuffer<TItemType>)(IPyBuffer)this).AsSpan2D();
 
     ReadOnlySpan2D<TItemType> IPyBuffer.AsReadOnlySpan2D<TItemType>() =>
+#pragma warning disable CS0618 // Type or member is obsolete
         ((IPyBuffer)this).AsSpan2D<TItemType>();
+#pragma warning restore CS0618 // Type or member is obsolete
 
 #if NET9_0_OR_GREATER
     TensorSpan<TItemType> IPyBuffer.AsTensorSpan<TItemType>() =>
@@ -130,14 +134,17 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
             : ((PyTensorBuffer<TItemType>)(IPyBuffer)this).AsTensorSpan();
 
     ReadOnlyTensorSpan<TItemType> IPyBuffer.AsReadOnlyTensorSpan<TItemType>() =>
+#pragma warning disable CS0618 // Type or member is obsolete
         ((IPyBuffer)this).AsTensorSpan<TItemType>();
+#pragma warning restore CS0618 // Type or member is obsolete
 #endif // NET9_0_OR_GREATER
 }
 
 internal static class PyBuffer
 {
     /// <summary>
-    /// Struct byte order and offset type see https://docs.python.org/3/library/struct.html#byte-order-size-and-alignment
+    /// Struct byte order and offset type see
+    /// https://docs.python.org/3/library/struct.html#byte-order-size-and-alignment
     /// </summary>
     private enum ByteOrder
     {

@@ -110,7 +110,7 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
     Span<TItemType> IPyBuffer.AsSpan<TItemType>() =>
         typeof(TItemType) != typeof(T)
             ? throw new InvalidOperationException($"Cannot cast buffer of type {typeof(T)} to {typeof(TItemType)}.")
-            : ((PyArrayBuffer<TItemType>)(IPyBuffer)this).AsSpan();
+            : ((PyArrayBuffer<TItemType>)(IPyBuffer)this).UnsafeAsSpan();
 
     ReadOnlySpan<TItemType> IPyBuffer.AsReadOnlySpan<TItemType>() =>
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -120,7 +120,7 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
     Span2D<TItemType> IPyBuffer.AsSpan2D<TItemType>() =>
         typeof(TItemType) != typeof(T)
             ? throw new InvalidOperationException($"Cannot cast buffer of type {typeof(T)} to {typeof(TItemType)}.")
-            : ((PyArray2DBuffer<TItemType>)(IPyBuffer)this).AsSpan2D();
+            : ((PyArray2DBuffer<TItemType>)(IPyBuffer)this).UnsafeAsSpan2D();
 
     ReadOnlySpan2D<TItemType> IPyBuffer.AsReadOnlySpan2D<TItemType>() =>
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -131,7 +131,7 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
     TensorSpan<TItemType> IPyBuffer.AsTensorSpan<TItemType>() =>
         typeof(TItemType) != typeof(T)
             ? throw new InvalidOperationException($"Cannot cast buffer of type {typeof(T)} to {typeof(TItemType)}.")
-            : ((PyTensorBuffer<TItemType>)(IPyBuffer)this).AsTensorSpan();
+            : ((PyTensorBuffer<TItemType>)(IPyBuffer)this).UnsafeAsTensorSpan();
 
     ReadOnlyTensorSpan<TItemType> IPyBuffer.AsReadOnlyTensorSpan<TItemType>() =>
 #pragma warning disable CS0618 // Type or member is obsolete

@@ -12,12 +12,14 @@ CSnakes.Runtime.Python.PyArray2DBuffer<T>.Map<TArg, TResult>(in TArg arg, CSnake
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.Map<TArg1, TArg2, TResult>(in TArg1 arg1, in TArg2 arg2, CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg1, TArg2, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.Map<TArg1, TArg2, TArg3, TResult>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg1, TArg2, TArg3, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.Map<TResult>(CSnakes.Runtime.ReadOnlySpan2DFunc<T, TResult>! function) -> TResult
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.UnsafeAsSpan2D() -> CommunityToolkit.HighPerformance.Span2D<T>
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Do(CSnakes.Runtime.SpanAction<T>! action) -> void
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Do<TArg1, TArg2, TArg3>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, CSnakes.Runtime.SpanAction<T, TArg1, TArg2, TArg3>! action) -> void
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Do<TArg1, TArg2>(in TArg1 arg1, in TArg2 arg2, CSnakes.Runtime.SpanAction<T, TArg1, TArg2>! action) -> void
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Do<TArg>(in TArg arg, CSnakes.Runtime.SpanAction<T, TArg>! action) -> void
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TArg1, TArg2, TArg3, TResult>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, CSnakes.Runtime.ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TArg1, TArg2, TResult>(in TArg1 arg1, in TArg2 arg2, CSnakes.Runtime.ReadOnlySpanFunc<T, TArg1, TArg2, TResult>! function) -> TResult
+CSnakes.Runtime.Python.PyArrayBuffer<T>.UnsafeAsSpan() -> System.Span<T>
 CSnakes.Runtime.Python.PyArrayBuffer<T>.UnsafeMemory.get -> System.Memory<T>
 CSnakes.Runtime.Python.PyTensorBuffer<T>.CopyFrom(scoped in System.Numerics.Tensors.ReadOnlyTensorSpan<T> source) -> void
 CSnakes.Runtime.Python.PyTensorBuffer<T>.CopyTo(scoped in System.Numerics.Tensors.TensorSpan<T> destination) -> void

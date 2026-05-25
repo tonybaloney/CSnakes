@@ -39,11 +39,11 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
 
     public T this[params scoped ReadOnlySpan<nint> indices]
     {
-        get => AsTensorSpan()[indices];
+        get => UnsafeAsTensorSpan()[indices];
         set
         {
             ThrowIfReadOnly();
-            AsTensorSpan()[indices] = value;
+            UnsafeAsTensorSpan()[indices] = value;
         }
     }
 
@@ -64,34 +64,34 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
     }
 
     public TResult Map<TResult>(ReadOnlyTensorSpanFunc<T, TResult> function) =>
-        function(AsTensorSpan());
+        function(UnsafeAsTensorSpan());
 
     public TResult Map<TArg, TResult>(in TArg arg, ReadOnlyTensorSpanFunc<T, TArg, TResult> function)
         where TArg : allows ref struct =>
-        function(AsTensorSpan(), arg);
+        function(UnsafeAsTensorSpan(), arg);
 
     public TResult Map<TArg1, TArg2, TResult>(in TArg1 arg1, in TArg2 arg2, ReadOnlyTensorSpanFunc<T, TArg1, TArg2, TResult> function)
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct =>
-        function(AsTensorSpan(), arg1, arg2);
+        function(UnsafeAsTensorSpan(), arg1, arg2);
 
     public TResult Map<TArg1, TArg2, TArg3, TResult>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, ReadOnlyTensorSpanFunc<T, TArg1, TArg2, TArg3, TResult> function)
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
         where TArg3 : allows ref struct =>
-        function(AsTensorSpan(), arg1, arg2, arg3);
+        function(UnsafeAsTensorSpan(), arg1, arg2, arg3);
 
     public void Do(TensorSpanAction<T> action)
     {
         ThrowIfReadOnly();
-        action(AsTensorSpan());
+        action(UnsafeAsTensorSpan());
     }
 
     public void Do<TArg>(in TArg arg, TensorSpanAction<T, TArg> action)
         where TArg : allows ref struct
     {
         ThrowIfReadOnly();
-        action(AsTensorSpan(), arg);
+        action(UnsafeAsTensorSpan(), arg);
     }
 
     public void Do<TArg1, TArg2>(in TArg1 arg1, in TArg2 arg2, TensorSpanAction<T, TArg1, TArg2> action)
@@ -99,7 +99,7 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
         where TArg2 : allows ref struct
     {
         ThrowIfReadOnly();
-        action(AsTensorSpan(), arg1, arg2);
+        action(UnsafeAsTensorSpan(), arg1, arg2);
     }
 
     public void Do<TArg1, TArg2, TArg3>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, TensorSpanAction<T, TArg1, TArg2, TArg3> action)
@@ -108,19 +108,16 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
         where TArg3 : allows ref struct
     {
         ThrowIfReadOnly();
-        action(AsTensorSpan(), arg1, arg2, arg3);
+        action(UnsafeAsTensorSpan(), arg1, arg2, arg3);
     }
 
     public void CopyFrom(scoped in ReadOnlyTensorSpan<T> source)
     {
         ThrowIfReadOnly();
-        source.CopyTo(AsTensorSpan());
+        source.CopyTo(UnsafeAsTensorSpan());
     }
 
-    public void CopyTo(scoped in TensorSpan<T> destination) => AsTensorSpan().CopyTo(destination);
-
-    // TODO Mark `PyTensorBuffer<T>.AsTensorSpan` private when `IPyBuffer.AsTensorSpan<T>` is removed
-    internal TensorSpan<T> AsTensorSpan() => UnsafeAsTensorSpan();
+    public void CopyTo(scoped in TensorSpan<T> destination) => UnsafeAsTensorSpan().CopyTo(destination);
 
     /// <summary>
     /// Returns a span <em>directly</em> over the tensor buffer.

@@ -24,29 +24,29 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
 
     public T this[int index]
     {
-        get => AsSpan()[index];
+        get => UnsafeAsSpan()[index];
         set
         {
             ThrowIfReadOnly();
-            AsSpan()[index] = value;
+            UnsafeAsSpan()[index] = value;
         }
     }
 
     public TResult Map<TResult>(ReadOnlySpanFunc<T, TResult> function) =>
-        function(AsSpan());
+        function(UnsafeAsSpan());
 
     public TResult Map<TArg, TResult>(in TArg arg, ReadOnlySpanFunc<T, TArg, TResult> function)
 #if NET9_0_OR_GREATER
         where TArg : allows ref struct
 #endif
-        => function(AsSpan(), arg);
+        => function(UnsafeAsSpan(), arg);
 
     public TResult Map<TArg1, TArg2, TResult>(in TArg1 arg1, in TArg2 arg2, ReadOnlySpanFunc<T, TArg1, TArg2, TResult> function)
 #if NET9_0_OR_GREATER
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
 #endif
-        => function(AsSpan(), arg1, arg2);
+        => function(UnsafeAsSpan(), arg1, arg2);
 
     public TResult Map<TArg1, TArg2, TArg3, TResult>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, TResult> function)
 #if NET9_0_OR_GREATER
@@ -54,12 +54,12 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
         where TArg2 : allows ref struct
         where TArg3 : allows ref struct
 #endif
-        => function(AsSpan(), arg1, arg2, arg3);
+        => function(UnsafeAsSpan(), arg1, arg2, arg3);
 
     public void Do(SpanAction<T> action)
     {
         ThrowIfReadOnly();
-        action(AsSpan());
+        action(UnsafeAsSpan());
     }
 
     public void Do<TArg>(in TArg arg, SpanAction<T, TArg> action)
@@ -68,7 +68,7 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
 #endif
     {
         ThrowIfReadOnly();
-        action(AsSpan(), arg);
+        action(UnsafeAsSpan(), arg);
     }
 
     public void Do<TArg1, TArg2>(in TArg1 arg1, in TArg2 arg2, SpanAction<T, TArg1, TArg2> action)
@@ -78,7 +78,7 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
 #endif
     {
         ThrowIfReadOnly();
-        action(AsSpan(), arg1, arg2);
+        action(UnsafeAsSpan(), arg1, arg2);
     }
 
     public void Do<TArg1, TArg2, TArg3>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, SpanAction<T, TArg1, TArg2, TArg3> action)
@@ -89,19 +89,22 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
 #endif
     {
         ThrowIfReadOnly();
-        action(AsSpan(), arg1, arg2, arg3);
+        action(UnsafeAsSpan(), arg1, arg2, arg3);
     }
 
     public void CopyFrom(scoped in ReadOnlySpan<T> source)
     {
         ThrowIfReadOnly();
-        source.CopyTo(AsSpan());
+        source.CopyTo(UnsafeAsSpan());
     }
 
-    public void CopyTo(scoped in Span<T> destination) => AsSpan().CopyTo(destination);
+    public void CopyTo(scoped in Span<T> destination) => UnsafeAsSpan().CopyTo(destination);
 
-    // TODO Mark `PyArrayBuffer<T>.AsSpan` private when `IPyBuffer.AsSpan<T>` is removed
-    internal Span<T> AsSpan() => MemoryMarshal.CreateSpan(ref TypedRef, ItemCount);
+    /// <summary>
+    /// Returns a span <em>directly</em> over the buffer.
+    /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
+    /// </summary>
+    public Span<T> UnsafeAsSpan() => MemoryMarshal.CreateSpan(ref TypedRef, ItemCount);
 
     /// <summary>
     /// Gets the memory directly underlying the buffer, which is tied to the lifetime of the buffer.
@@ -118,7 +121,7 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
 
     private sealed class UnmanagedMemoryManager(PyArrayBuffer<T> buffer) : MemoryManager<T>
     {
-        public override Span<T> GetSpan() => buffer.AsSpan();
+        public override Span<T> GetSpan() => buffer.UnsafeAsSpan();
 
         public override unsafe MemoryHandle Pin(int elementIndex = 0)
         {

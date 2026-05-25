@@ -24,29 +24,25 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
 
     public T this[int index]
     {
-        get => UnsafeAsSpan()[index];
-        set
-        {
-            ThrowIfReadOnly();
-            UnsafeAsSpan()[index] = value;
-        }
+        get => UnsafeAsReadOnlySpan()[index];
+        set => UnsafeAsSpan()[index] = value;
     }
 
     public TResult Map<TResult>(ReadOnlySpanFunc<T, TResult> function) =>
-        function(UnsafeAsSpan());
+        function(UnsafeAsReadOnlySpan());
 
     public TResult Map<TArg, TResult>(in TArg arg, ReadOnlySpanFunc<T, TArg, TResult> function)
 #if NET9_0_OR_GREATER
         where TArg : allows ref struct
 #endif
-        => function(UnsafeAsSpan(), arg);
+        => function(UnsafeAsReadOnlySpan(), arg);
 
     public TResult Map<TArg1, TArg2, TResult>(in TArg1 arg1, in TArg2 arg2, ReadOnlySpanFunc<T, TArg1, TArg2, TResult> function)
 #if NET9_0_OR_GREATER
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
 #endif
-        => function(UnsafeAsSpan(), arg1, arg2);
+        => function(UnsafeAsReadOnlySpan(), arg1, arg2);
 
     public TResult Map<TArg1, TArg2, TArg3, TResult>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, TResult> function)
 #if NET9_0_OR_GREATER
@@ -54,32 +50,23 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
         where TArg2 : allows ref struct
         where TArg3 : allows ref struct
 #endif
-        => function(UnsafeAsSpan(), arg1, arg2, arg3);
+        => function(UnsafeAsReadOnlySpan(), arg1, arg2, arg3);
 
-    public void Do(SpanAction<T> action)
-    {
-        ThrowIfReadOnly();
+    public void Do(SpanAction<T> action) =>
         action(UnsafeAsSpan());
-    }
 
     public void Do<TArg>(in TArg arg, SpanAction<T, TArg> action)
 #if NET9_0_OR_GREATER
         where TArg : allows ref struct
 #endif
-    {
-        ThrowIfReadOnly();
-        action(UnsafeAsSpan(), arg);
-    }
+        => action(UnsafeAsSpan(), arg);
 
     public void Do<TArg1, TArg2>(in TArg1 arg1, in TArg2 arg2, SpanAction<T, TArg1, TArg2> action)
 #if NET9_0_OR_GREATER
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
 #endif
-    {
-        ThrowIfReadOnly();
-        action(UnsafeAsSpan(), arg1, arg2);
-    }
+        => action(UnsafeAsSpan(), arg1, arg2);
 
     public void Do<TArg1, TArg2, TArg3>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, SpanAction<T, TArg1, TArg2, TArg3> action)
 #if NET9_0_OR_GREATER
@@ -87,24 +74,31 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
         where TArg2 : allows ref struct
         where TArg3 : allows ref struct
 #endif
-    {
-        ThrowIfReadOnly();
-        action(UnsafeAsSpan(), arg1, arg2, arg3);
-    }
+        => action(UnsafeAsSpan(), arg1, arg2, arg3);
 
-    public void CopyFrom(scoped in ReadOnlySpan<T> source)
-    {
-        ThrowIfReadOnly();
-        source.CopyTo(UnsafeAsSpan());
-    }
-
-    public void CopyTo(scoped in Span<T> destination) => UnsafeAsSpan().CopyTo(destination);
+    public void CopyFrom(scoped in ReadOnlySpan<T> source) => source.CopyTo(UnsafeAsSpan());
+    public void CopyTo(scoped in Span<T> destination) => UnsafeAsReadOnlySpan().CopyTo(destination);
 
     /// <summary>
     /// Returns a span <em>directly</em> over the buffer.
     /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
     /// </summary>
-    public Span<T> UnsafeAsSpan() => MemoryMarshal.CreateSpan(ref TypedRef, ItemCount);
+    public Span<T> UnsafeAsSpan() => UnsafeAsSpan(writeable: true);
+
+    /// <summary>
+    /// Returns a read-only span <em>directly</em> over the buffer.
+    /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Underlying buffer is read-only.</exception>
+    public ReadOnlySpan<T> UnsafeAsReadOnlySpan() => UnsafeAsSpan(writeable: false);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private Span<T> UnsafeAsSpan(bool writeable)
+    {
+        if (writeable)
+            ThrowIfReadOnly();
+        return MemoryMarshal.CreateSpan(ref TypedRef, ItemCount);
+    }
 
     /// <summary>
     /// Gets the memory directly underlying the buffer, which is tied to the lifetime of the buffer.

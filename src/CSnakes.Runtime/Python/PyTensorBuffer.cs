@@ -1,7 +1,8 @@
 #if NET9_0_OR_GREATER
 
-using System.Numerics.Tensors;
 using CSnakes.Runtime.CPython;
+using System.Numerics.Tensors;
+using System.Runtime.CompilerServices;
 
 namespace CSnakes.Runtime.Python;
 
@@ -39,12 +40,8 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
 
     public T this[params scoped ReadOnlySpan<nint> indices]
     {
-        get => UnsafeAsTensorSpan()[indices];
-        set
-        {
-            ThrowIfReadOnly();
-            UnsafeAsTensorSpan()[indices] = value;
-        }
+        get => UnsafeAsReadOnlyTensorSpan()[indices];
+        set => UnsafeAsTensorSpan()[indices] = value;
     }
 
     public ReadOnlySpan<nint> Lengths
@@ -64,66 +61,64 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
     }
 
     public TResult Map<TResult>(ReadOnlyTensorSpanFunc<T, TResult> function) =>
-        function(UnsafeAsTensorSpan());
+        function(UnsafeAsReadOnlyTensorSpan());
 
     public TResult Map<TArg, TResult>(in TArg arg, ReadOnlyTensorSpanFunc<T, TArg, TResult> function)
         where TArg : allows ref struct =>
-        function(UnsafeAsTensorSpan(), arg);
+        function(UnsafeAsReadOnlyTensorSpan(), arg);
 
     public TResult Map<TArg1, TArg2, TResult>(in TArg1 arg1, in TArg2 arg2, ReadOnlyTensorSpanFunc<T, TArg1, TArg2, TResult> function)
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct =>
-        function(UnsafeAsTensorSpan(), arg1, arg2);
+        function(UnsafeAsReadOnlyTensorSpan(), arg1, arg2);
 
     public TResult Map<TArg1, TArg2, TArg3, TResult>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, ReadOnlyTensorSpanFunc<T, TArg1, TArg2, TArg3, TResult> function)
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
         where TArg3 : allows ref struct =>
-        function(UnsafeAsTensorSpan(), arg1, arg2, arg3);
+        function(UnsafeAsReadOnlyTensorSpan(), arg1, arg2, arg3);
 
-    public void Do(TensorSpanAction<T> action)
-    {
-        ThrowIfReadOnly();
+    public void Do(TensorSpanAction<T> action) =>
         action(UnsafeAsTensorSpan());
-    }
 
     public void Do<TArg>(in TArg arg, TensorSpanAction<T, TArg> action)
-        where TArg : allows ref struct
-    {
-        ThrowIfReadOnly();
+        where TArg : allows ref struct =>
         action(UnsafeAsTensorSpan(), arg);
-    }
 
     public void Do<TArg1, TArg2>(in TArg1 arg1, in TArg2 arg2, TensorSpanAction<T, TArg1, TArg2> action)
         where TArg1 : allows ref struct
-        where TArg2 : allows ref struct
-    {
-        ThrowIfReadOnly();
+        where TArg2 : allows ref struct =>
         action(UnsafeAsTensorSpan(), arg1, arg2);
-    }
 
     public void Do<TArg1, TArg2, TArg3>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, TensorSpanAction<T, TArg1, TArg2, TArg3> action)
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
-        where TArg3 : allows ref struct
-    {
-        ThrowIfReadOnly();
+        where TArg3 : allows ref struct =>
         action(UnsafeAsTensorSpan(), arg1, arg2, arg3);
-    }
 
-    public void CopyFrom(scoped in ReadOnlyTensorSpan<T> source)
-    {
-        ThrowIfReadOnly();
-        source.CopyTo(UnsafeAsTensorSpan());
-    }
-
-    public void CopyTo(scoped in TensorSpan<T> destination) => UnsafeAsTensorSpan().CopyTo(destination);
+    public void CopyFrom(scoped in ReadOnlyTensorSpan<T> source) => source.CopyTo(UnsafeAsTensorSpan());
+    public void CopyTo(scoped in TensorSpan<T> destination) => UnsafeAsReadOnlyTensorSpan().CopyTo(destination);
 
     /// <summary>
     /// Returns a span <em>directly</em> over the tensor buffer.
     /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
     /// </summary>
-    public unsafe TensorSpan<T> UnsafeAsTensorSpan() => new(Pointer, ItemCount, Shape, this.strides);
+    public unsafe TensorSpan<T> UnsafeAsTensorSpan() => UnsafeAsTensorSpan(writeable: true);
+
+    /// <summary>
+    /// Returns a read-only span <em>directly</em> over the tensor buffer.
+    /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Underlying buffer is read-only.</exception>
+    public ReadOnlyTensorSpan<T> UnsafeAsReadOnlyTensorSpan() => UnsafeAsTensorSpan(writeable: false);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private unsafe TensorSpan<T> UnsafeAsTensorSpan(bool writeable)
+    {
+        if (writeable)
+            ThrowIfReadOnly();
+        return new(Pointer, ItemCount, Shape, this.strides);
+    }
 }
 
 #endif // NET9_0_OR_GREATER

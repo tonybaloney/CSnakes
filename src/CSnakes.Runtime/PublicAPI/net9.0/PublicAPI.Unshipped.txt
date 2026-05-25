@@ -14,6 +14,7 @@ CSnakes.Runtime.Python.PyArray2DBuffer<T>.Map<TArg, TResult>(in TArg arg, CSnake
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.Map<TArg1, TArg2, TResult>(in TArg1 arg1, in TArg2 arg2, CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg1, TArg2, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.Map<TArg1, TArg2, TArg3, TResult>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg1, TArg2, TArg3, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.Map<TResult>(CSnakes.Runtime.ReadOnlySpan2DFunc<T, TResult>! function) -> TResult
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.UnsafeAsReadOnlySpan2D() -> CommunityToolkit.HighPerformance.ReadOnlySpan2D<T>
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.UnsafeAsSpan2D() -> CommunityToolkit.HighPerformance.Span2D<T>
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Do(CSnakes.Runtime.SpanAction<T>! action) -> void
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Do<TArg1, TArg2, TArg3>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, CSnakes.Runtime.SpanAction<T, TArg1, TArg2, TArg3>! action) -> void
@@ -23,6 +24,7 @@ CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TArg, TResult>(in TArg arg, CSnakes.
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TArg1, TArg2, TArg3, TResult>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, CSnakes.Runtime.ReadOnlySpanFunc<T, TArg1, TArg2, TArg3, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TArg1, TArg2, TResult>(in TArg1 arg1, in TArg2 arg2, CSnakes.Runtime.ReadOnlySpanFunc<T, TArg1, TArg2, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyArrayBuffer<T>.Map<TResult>(CSnakes.Runtime.ReadOnlySpanFunc<T, TResult>! function) -> TResult
+CSnakes.Runtime.Python.PyArrayBuffer<T>.UnsafeAsReadOnlySpan() -> System.ReadOnlySpan<T>
 CSnakes.Runtime.Python.PyArrayBuffer<T>.UnsafeAsSpan() -> System.Span<T>
 CSnakes.Runtime.Python.PyArrayBuffer<T>.UnsafeMemory.get -> System.Memory<T>
 CSnakes.Runtime.Python.PyObjectProxyExtensions
@@ -61,6 +63,7 @@ CSnakes.Runtime.Python.PyTensorBuffer<T>.Map<TArg1, TArg2, TResult>(in TArg1 arg
 CSnakes.Runtime.Python.PyTensorBuffer<T>.Map<TResult>(CSnakes.Runtime.ReadOnlyTensorSpanFunc<T, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyTensorBuffer<T>.this[params System.ReadOnlySpan<nint> indices].get -> T
 CSnakes.Runtime.Python.PyTensorBuffer<T>.this[params System.ReadOnlySpan<nint> indices].set -> void
+CSnakes.Runtime.Python.PyTensorBuffer<T>.UnsafeAsReadOnlyTensorSpan() -> System.Numerics.Tensors.ReadOnlyTensorSpan<T>
 CSnakes.Runtime.Python.PyTensorBuffer<T>.UnsafeAsTensorSpan() -> System.Numerics.Tensors.TensorSpan<T>
 CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg, TResult>
 CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg1, TArg2, TResult>

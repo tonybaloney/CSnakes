@@ -120,7 +120,7 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
     public void CopyTo(scoped in TensorSpan<T> destination) => AsTensorSpan().CopyTo(destination);
 
     // TODO Mark `PyTensorBuffer<T>.AsTensorSpan` private when `IPyBuffer.AsTensorSpan<T>` is removed
-    internal unsafe TensorSpan<T> AsTensorSpan() => UnsafeAsTensorSpan();
+    internal TensorSpan<T> AsTensorSpan() => UnsafeAsTensorSpan();
 
     /// <summary>
     /// Returns a span <em>directly</em> over the tensor buffer.

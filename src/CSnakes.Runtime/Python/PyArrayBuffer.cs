@@ -101,7 +101,7 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
     public void CopyTo(scoped in Span<T> destination) => AsSpan().CopyTo(destination);
 
     // TODO Mark `PyArrayBuffer<T>.AsSpan` private when `IPyBuffer.AsSpan<T>` is removed
-    internal unsafe Span<T> AsSpan() => MemoryMarshal.CreateSpan(ref TypedRef, ItemCount);
+    internal Span<T> AsSpan() => MemoryMarshal.CreateSpan(ref TypedRef, ItemCount);
 
     /// <summary>
     /// Gets the memory directly underlying the buffer, which is tied to the lifetime of the buffer.

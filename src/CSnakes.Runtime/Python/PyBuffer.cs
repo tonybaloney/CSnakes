@@ -178,9 +178,9 @@ internal static class PyBuffer
             if (GetByteOrder(format) is not ByteOrder.Native)
                 return new PyBuffer<Unknown>(buffer); // Return a generic buffer if byte order is not native
 
-            var bufferObject = buffer switch
+            var bufferObject = buffer.ndim switch
             {
-                { ndim: 0 or 1 } => // Treat scalar (ndim: 0) as a 1D array for simplicity
+                0 or 1 => // Treat scalar (ndim: 0) as a 1D array for simplicity
                     GetFormat(format) switch
                     {
                         Format.Half => new PyArrayBuffer<Half>(buffer),
@@ -203,7 +203,7 @@ internal static class PyBuffer
                         Format.SSizeT => new PyArrayBuffer<nint>(buffer),
                         _ => null,
                     },
-                { ndim: 2, HasShape: true, HasStrides: true } =>
+                2 =>
                     GetFormat(format) switch
                     {
                         Format.Half => new PyArray2DBuffer<Half>(buffer),
@@ -227,7 +227,7 @@ internal static class PyBuffer
                         _ => null,
                     },
 #if NET9_0_OR_GREATER
-                { ndim: > 2, HasShape: true, HasStrides: true } =>
+                > 2 =>
                     GetFormat(format) switch
                     {
                         Format.Half => new PyTensorBuffer<Half>(buffer),

@@ -17,20 +17,24 @@ internal unsafe partial class CPythonAPI
         AnyContiguous = 0x80 | Strides,
     }
 
+    /// <summary>
+    /// Represents <see href="https://github.com/python/cpython/blob/6280bb547840b609feedb78887c6491af75548e8/Include/pybuffer.h#L20-L33">
+    /// <c>Py_buffer</c> from CPython</see>.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct Py_buffer
     {
-        public nint buf;
-        public nint obj;
-        public nint len;
-        public nint itemsize;
-        public int @readonly;
-        public int ndim;
-        public nint format;
-        public nint* shape;
-        public nint* strides;
-        public nint* suboffsets;
-        public nint* @internal;
+        public void* /* void*       */ buf;
+        public void* /* PyObject*   */ obj;
+        public nint  /* Py_ssize_t  */ len;
+        public nint  /* Py_ssize_t  */ itemsize;
+        public int   /* int         */ @readonly;
+        public int   /* int         */ ndim;
+        public byte* /* char*       */ format;
+        public nint* /* Py_ssize_t* */ shape;
+        public nint* /* Py_ssize_t* */ strides;
+        public nint* /* Py_ssize_t* */ suboffsets;
+        public void* /* void*       */ @internal;
     }
 
     public static bool IsBuffer(PyObject p) => PyObject_CheckBuffer(p) == 1;

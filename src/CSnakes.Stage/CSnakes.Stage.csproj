@@ -7,9 +7,20 @@
     <PackageId>CSnakes.Stage</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <ToolCommandName>setup-python</ToolCommandName>
+    <DefaultTimeoutInSeconds>500</DefaultTimeoutInSeconds>
   </PropertyGroup>
 
   <ItemGroup>
+    <Constant Include="ToolCommandName" Value="$(ToolCommandName)" />
+    <Constant Include="DefaultTimeoutInSeconds" Value="$(DefaultTimeoutInSeconds)" Type="int" />
+    <Constant Include="DefaultTimeoutInSecondsString" Value="$(DefaultTimeoutInSeconds)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BuildConstants">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="docopt.net" />
   </ItemGroup>
 

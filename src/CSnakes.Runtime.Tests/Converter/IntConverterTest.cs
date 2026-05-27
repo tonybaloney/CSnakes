@@ -2,8 +2,8 @@ using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Converter;
 
-public class IntConverterTest :
-    ConverterTestBase<int, IntConverterTest>,
+public class IntConverterTest(PythonEnvironmentFixture fixture) :
+    ConverterTestBase<int, IntConverterTest>(fixture),
     IConverterTestCasesContainer<int>
 {
     public static TheoryData<int> TestCases => new()

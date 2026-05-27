@@ -10,6 +10,7 @@
    -->
   <ItemGroup>
     <PackageVersion Include="Basic.Reference.Assemblies" Version="1.8.4" />
+    <PackageVersion Include="BuildConstants" Version="1.1.0" />
     <PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
     <PackageVersion Include="docopt.net" Version="0.8.3" />
     <PackageVersion Include="Meziantou.Extensions.Logging.Xunit" Version="1.0.11" />

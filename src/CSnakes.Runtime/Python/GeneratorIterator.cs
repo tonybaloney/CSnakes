@@ -15,7 +15,6 @@ internal class GeneratorIterator<TYield, TSend, TReturn, TYieldImporter, TReturn
     where TReturnImporter : IPyObjectImporter<TReturn>
 {
     private bool _disposed = false;
-    private readonly PyObject generator = generator;
     private readonly PyObject nextPyFunction = generator.GetAttr("__next__");
     private readonly PyObject closePyFunction = generator.GetAttr("close");
     private readonly PyObject sendPyFunction = generator.GetAttr("send");

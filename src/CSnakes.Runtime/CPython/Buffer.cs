@@ -24,17 +24,17 @@ internal unsafe partial class CPythonAPI
     [StructLayout(LayoutKind.Sequential)]
     internal struct Py_buffer
     {
-        public nint  /* void*       */ buf;
-        public nint  /* PyObject*   */ obj;
+        public void* /* void*       */ buf;
+        public void* /* PyObject*   */ obj;
         public nint  /* Py_ssize_t  */ len;
         public nint  /* Py_ssize_t  */ itemsize;
         public int   /* int         */ @readonly;
         public int   /* int         */ ndim;
-        public nint  /* char*       */ format;
+        public byte* /* char*       */ format;
         public nint* /* Py_ssize_t* */ shape;
         public nint* /* Py_ssize_t* */ strides;
         public nint* /* Py_ssize_t* */ suboffsets;
-        public nint* /* void*       */ @internal;
+        public void* /* void*       */ @internal;
 
         public bool HasShape => shape is not null;
         public bool HasStrides => strides is not null;

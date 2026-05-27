@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 
 #if NET9_0_OR_GREATER
 using System.Numerics.Tensors;
@@ -41,7 +42,7 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
         GC.SuppressFinalize(this);
     }
 
-    private bool IsDisposed => _buffer.buf == 0;
+    private unsafe bool IsDisposed => _buffer.buf is null;
 
     private void Dispose(bool disposing)
     {
@@ -63,7 +64,7 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
             // If the GIL is not acquired, we should not release the buffer here
             // as it may lead to
             GIL.QueueForDisposal(ref _buffer);
-            Debug.Assert(_buffer.buf == 0);
+            unsafe { Debug.Assert(_buffer.buf is null); }
             return;
         }
 
@@ -82,7 +83,7 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
 
     private protected unsafe ref T TypedRef => ref Unsafe.AsRef<T>(Pointer);
 
-    private protected unsafe T* Pointer => (T*)Buffer.buf.ToPointer();
+    private protected unsafe T* Pointer => (T*)Buffer.buf;
 
     public long Length => Buffer.len;
 
@@ -174,7 +175,8 @@ internal static class PyBuffer
             CPythonAPI.GetBuffer(exporter, out buffer);
         }
 
-        var format = Marshal.PtrToStringUTF8(buffer.format) ?? "B";
+        string format;
+        unsafe { format = Utf8StringMarshaller.ConvertToManaged(buffer.format) ?? "B"; }
 
         if (GetByteOrder(format) is not ByteOrder.Native)
             return new PyBuffer<Unknown>(buffer); // Return a generic buffer if byte order is not native

@@ -313,7 +313,7 @@ public class PythonStaticGenerator : IIncrementalGenerator
             /// <summary>
             /// Represents functions of the Python module <c>{{moduleAbsoluteName}}</c>.
             /// </summary>
-            public interface I{{pascalFileName}} : IReloadableModuleImport
+            partial interface I{{pascalFileName}} : IReloadableModuleImport
             {
             {{  Lines(IndentationLevel.One,
                       Enumerable.Skip(count: 1, source:

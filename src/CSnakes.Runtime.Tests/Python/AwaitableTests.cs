@@ -1,14 +1,14 @@
 using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Python;
-public class AwaitableTests : RuntimeTestBase
+public class AwaitableTests(PythonEnvironmentFixture fixture) : RuntimeTestBase(fixture)
 {
     private PyObject AsyncIoSleep()
     {
         var locals = new Dictionary<string, PyObject>();
         var globals = new Dictionary<string, PyObject>();
 
-        using var result = env.Execute(locals: locals, globals: globals, code: """
+        using var result = Env.Execute(locals: locals, globals: globals, code: """
             import asyncio
             a = asyncio.sleep(0)
 
@@ -17,12 +17,12 @@ public class AwaitableTests : RuntimeTestBase
         return locals["a"];
     }
 
-    public class PyObjectWaitAsync : AwaitableTests
+    public class PyObjectWaitAsync(PythonEnvironmentFixture fixture) : AwaitableTests(fixture)
     {
         [Fact]
         public void WhenNotAwaitable_Throws()
         {
-            using var result = env.ExecuteExpression("42");
+            using var result = Env.ExecuteExpression("42");
 
             void Act() => Awaitable.WaitAsync(result, TestContext.Current.CancellationToken);
             var ex = Assert.Throws<ArgumentException>(Act);
@@ -54,7 +54,7 @@ public class AwaitableTests : RuntimeTestBase
         static abstract Task<PyObject> Invoke(T awaitable, CancellationToken cancellationToken);
     }
 
-    public abstract class WaitAsync<T, TWaitAsync> : AwaitableTests
+    public abstract class WaitAsync<T, TWaitAsync>(PythonEnvironmentFixture fixture) : AwaitableTests(fixture)
         where T : IAwaitable
         where TWaitAsync : IWaitAsync<TWaitAsync, T>
     {
@@ -95,7 +95,7 @@ public class AwaitableTests : RuntimeTestBase
 
             var locals = new Dictionary<string, PyObject>();
             var globals = new Dictionary<string, PyObject>();
-            using var result = env.Execute(code, locals, globals);
+            using var result = Env.Execute(code, locals, globals);
 
             (string BeforeAwait, string AfterAwait, string Deletion) expectedLog;
             using var log = PyObject.From(Array.Empty<string>());
@@ -125,14 +125,18 @@ public class AwaitableTests : RuntimeTestBase
         }
     }
 
-    public class NonGenericWaitAsync : WaitAsync<IAwaitable, NonGenericWaitAsync>, IWaitAsync<NonGenericWaitAsync, IAwaitable>
+    public class NonGenericWaitAsync(PythonEnvironmentFixture fixture) :
+        WaitAsync<IAwaitable, NonGenericWaitAsync>(fixture),
+        IWaitAsync<NonGenericWaitAsync, IAwaitable>
     {
         static Task<PyObject> IWaitAsync<NonGenericWaitAsync, IAwaitable>.Invoke(IAwaitable awaitable,
                                                                                  CancellationToken cancellationToken) =>
             awaitable.WaitAsync(cancellationToken);
     }
 
-    public class GenericWaitAsync : WaitAsync<IAwaitable<PyObject>, GenericWaitAsync>, IWaitAsync<GenericWaitAsync, IAwaitable<PyObject>>
+    public class GenericWaitAsync(PythonEnvironmentFixture fixture):
+        WaitAsync<IAwaitable<PyObject>, GenericWaitAsync>(fixture),
+        IWaitAsync<GenericWaitAsync, IAwaitable<PyObject>>
     {
         static Task<PyObject> IWaitAsync<GenericWaitAsync, IAwaitable<PyObject>>.Invoke(IAwaitable<PyObject> awaitable,
                                                                                         CancellationToken cancellationToken) =>

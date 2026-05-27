@@ -170,89 +170,98 @@ internal static class PyBuffer
             CPythonAPI.GetBuffer(exporter, out buffer);
         }
 
-        string format;
-        unsafe { format = Utf8StringMarshaller.ConvertToManaged(buffer.format) ?? "B"; }
-
-        if (GetByteOrder(format) is not ByteOrder.Native)
-            return new PyBuffer<Unknown>(buffer); // Return a generic buffer if byte order is not native
-
-        var bufferObject = buffer switch
+        try
         {
-            { ndim: 0 or 1 } => // Treat scalar (ndim: 0) as a 1D array for simplicity
-                GetFormat(format) switch
-                {
-                    Format.Half => new PyArrayBuffer<Half>(buffer),
-                    Format.Float => new PyArrayBuffer<float>(buffer),
-                    Format.Double => new PyArrayBuffer<double>(buffer),
-                    Format.Char => new PyArrayBuffer<sbyte>(buffer),
-                    Format.UChar => new PyArrayBuffer<byte>(buffer),
-                    Format.Short => new PyArrayBuffer<short>(buffer),
-                    Format.UShort => new PyArrayBuffer<ushort>(buffer),
-                    Format.Int => new PyArrayBuffer<int>(buffer),
-                    Format.UInt => new PyArrayBuffer<uint>(buffer),
-                    Format.Long when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyArrayBuffer<int>(buffer), // LLP64 (long is 32 bits)
-                    Format.ULong when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyArrayBuffer<uint>(buffer), // LLP64 (long is 32 bits)
-                    Format.Long => new PyArrayBuffer<long>(buffer), // LP64 (long is 64 bits)
-                    Format.ULong => new PyArrayBuffer<ulong>(buffer), // LP64 (long is 64 bits)
-                    Format.LongLong => new PyArrayBuffer<long>(buffer),
-                    Format.ULongLong => new PyArrayBuffer<ulong>(buffer),
-                    Format.Bool => new PyArrayBuffer<bool>(buffer),
-                    Format.SizeT => new PyArrayBuffer<nuint>(buffer),
-                    Format.SSizeT => new PyArrayBuffer<nint>(buffer),
-                    _ => null,
-                },
-            { ndim: 2, HasShape: true, HasStrides: true } =>
-                GetFormat(format) switch
-                {
-                    Format.Half => new PyArray2DBuffer<Half>(buffer),
-                    Format.Float => new PyArray2DBuffer<float>(buffer),
-                    Format.Double => new PyArray2DBuffer<double>(buffer),
-                    Format.Char => new PyArray2DBuffer<sbyte>(buffer),
-                    Format.UChar => new PyArray2DBuffer<byte>(buffer),
-                    Format.Short => new PyArray2DBuffer<short>(buffer),
-                    Format.UShort => new PyArray2DBuffer<ushort>(buffer),
-                    Format.Int => new PyArray2DBuffer<int>(buffer),
-                    Format.UInt => new PyArray2DBuffer<uint>(buffer),
-                    Format.Long when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyArray2DBuffer<int>(buffer), // LLP64 (long is 32 bits)
-                    Format.ULong when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyArray2DBuffer<uint>(buffer), // LLP64 (long is 32 bits)
-                    Format.Long => new PyArray2DBuffer<long>(buffer), // LP64 (long is 64 bits)
-                    Format.ULong => new PyArray2DBuffer<ulong>(buffer), // LP64 (long is 64 bits)
-                    Format.LongLong => new PyArray2DBuffer<long>(buffer),
-                    Format.ULongLong => new PyArray2DBuffer<ulong>(buffer),
-                    Format.Bool => new PyArray2DBuffer<bool>(buffer),
-                    Format.SizeT => new PyArray2DBuffer<nuint>(buffer),
-                    Format.SSizeT => new PyArray2DBuffer<nint>(buffer),
-                    _ => null,
-                },
-#if NET9_0_OR_GREATER
-            { ndim: > 2, HasShape: true, HasStrides: true } =>
-                GetFormat(format) switch
-                {
-                    Format.Half => new PyTensorBuffer<Half>(buffer),
-                    Format.Float => new PyTensorBuffer<float>(buffer),
-                    Format.Double => new PyTensorBuffer<double>(buffer),
-                    Format.Char => new PyTensorBuffer<sbyte>(buffer),
-                    Format.UChar => new PyTensorBuffer<byte>(buffer),
-                    Format.Short => new PyTensorBuffer<short>(buffer),
-                    Format.UShort => new PyTensorBuffer<ushort>(buffer),
-                    Format.Int => new PyTensorBuffer<int>(buffer),
-                    Format.UInt => new PyTensorBuffer<uint>(buffer),
-                    Format.Long when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyTensorBuffer<int>(buffer), // LLP64 (long is 32 bits)
-                    Format.ULong when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyTensorBuffer<uint>(buffer), // LLP64 (long is 32 bits)
-                    Format.Long => new PyTensorBuffer<long>(buffer), // LP64 (long is 64 bits)
-                    Format.ULong => new PyTensorBuffer<ulong>(buffer), // LP64 (long is 64 bits)
-                    Format.LongLong => new PyTensorBuffer<long>(buffer),
-                    Format.ULongLong => new PyTensorBuffer<ulong>(buffer),
-                    Format.Bool => new PyTensorBuffer<bool>(buffer),
-                    Format.SizeT => new PyTensorBuffer<nuint>(buffer),
-                    Format.SSizeT => new PyTensorBuffer<nint>(buffer),
-                    _ => null,
-                },
-#endif // NET9_0_OR_GREATER
-            _ => (IPyBuffer?)null,
-        };
+            string format;
+            unsafe { format = Utf8StringMarshaller.ConvertToManaged(buffer.format) ?? "B"; }
 
-        return bufferObject ?? new PyBuffer<Unknown>(buffer);
+            if (GetByteOrder(format) is not ByteOrder.Native)
+                return new PyBuffer<Unknown>(buffer); // Return a generic buffer if byte order is not native
+
+            var bufferObject = buffer switch
+            {
+                { ndim: 0 or 1 } => // Treat scalar (ndim: 0) as a 1D array for simplicity
+                    GetFormat(format) switch
+                    {
+                        Format.Half => new PyArrayBuffer<Half>(buffer),
+                        Format.Float => new PyArrayBuffer<float>(buffer),
+                        Format.Double => new PyArrayBuffer<double>(buffer),
+                        Format.Char => new PyArrayBuffer<sbyte>(buffer),
+                        Format.UChar => new PyArrayBuffer<byte>(buffer),
+                        Format.Short => new PyArrayBuffer<short>(buffer),
+                        Format.UShort => new PyArrayBuffer<ushort>(buffer),
+                        Format.Int => new PyArrayBuffer<int>(buffer),
+                        Format.UInt => new PyArrayBuffer<uint>(buffer),
+                        Format.Long when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyArrayBuffer<int>(buffer), // LLP64 (long is 32 bits)
+                        Format.ULong when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyArrayBuffer<uint>(buffer), // LLP64 (long is 32 bits)
+                        Format.Long => new PyArrayBuffer<long>(buffer), // LP64 (long is 64 bits)
+                        Format.ULong => new PyArrayBuffer<ulong>(buffer), // LP64 (long is 64 bits)
+                        Format.LongLong => new PyArrayBuffer<long>(buffer),
+                        Format.ULongLong => new PyArrayBuffer<ulong>(buffer),
+                        Format.Bool => new PyArrayBuffer<bool>(buffer),
+                        Format.SizeT => new PyArrayBuffer<nuint>(buffer),
+                        Format.SSizeT => new PyArrayBuffer<nint>(buffer),
+                        _ => null,
+                    },
+                { ndim: 2, HasShape: true, HasStrides: true } =>
+                    GetFormat(format) switch
+                    {
+                        Format.Half => new PyArray2DBuffer<Half>(buffer),
+                        Format.Float => new PyArray2DBuffer<float>(buffer),
+                        Format.Double => new PyArray2DBuffer<double>(buffer),
+                        Format.Char => new PyArray2DBuffer<sbyte>(buffer),
+                        Format.UChar => new PyArray2DBuffer<byte>(buffer),
+                        Format.Short => new PyArray2DBuffer<short>(buffer),
+                        Format.UShort => new PyArray2DBuffer<ushort>(buffer),
+                        Format.Int => new PyArray2DBuffer<int>(buffer),
+                        Format.UInt => new PyArray2DBuffer<uint>(buffer),
+                        Format.Long when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyArray2DBuffer<int>(buffer), // LLP64 (long is 32 bits)
+                        Format.ULong when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyArray2DBuffer<uint>(buffer), // LLP64 (long is 32 bits)
+                        Format.Long => new PyArray2DBuffer<long>(buffer), // LP64 (long is 64 bits)
+                        Format.ULong => new PyArray2DBuffer<ulong>(buffer), // LP64 (long is 64 bits)
+                        Format.LongLong => new PyArray2DBuffer<long>(buffer),
+                        Format.ULongLong => new PyArray2DBuffer<ulong>(buffer),
+                        Format.Bool => new PyArray2DBuffer<bool>(buffer),
+                        Format.SizeT => new PyArray2DBuffer<nuint>(buffer),
+                        Format.SSizeT => new PyArray2DBuffer<nint>(buffer),
+                        _ => null,
+                    },
+#if NET9_0_OR_GREATER
+                { ndim: > 2, HasShape: true, HasStrides: true } =>
+                    GetFormat(format) switch
+                    {
+                        Format.Half => new PyTensorBuffer<Half>(buffer),
+                        Format.Float => new PyTensorBuffer<float>(buffer),
+                        Format.Double => new PyTensorBuffer<double>(buffer),
+                        Format.Char => new PyTensorBuffer<sbyte>(buffer),
+                        Format.UChar => new PyTensorBuffer<byte>(buffer),
+                        Format.Short => new PyTensorBuffer<short>(buffer),
+                        Format.UShort => new PyTensorBuffer<ushort>(buffer),
+                        Format.Int => new PyTensorBuffer<int>(buffer),
+                        Format.UInt => new PyTensorBuffer<uint>(buffer),
+                        Format.Long when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyTensorBuffer<int>(buffer), // LLP64 (long is 32 bits)
+                        Format.ULong when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyTensorBuffer<uint>(buffer), // LLP64 (long is 32 bits)
+                        Format.Long => new PyTensorBuffer<long>(buffer), // LP64 (long is 64 bits)
+                        Format.ULong => new PyTensorBuffer<ulong>(buffer), // LP64 (long is 64 bits)
+                        Format.LongLong => new PyTensorBuffer<long>(buffer),
+                        Format.ULongLong => new PyTensorBuffer<ulong>(buffer),
+                        Format.Bool => new PyTensorBuffer<bool>(buffer),
+                        Format.SizeT => new PyTensorBuffer<nuint>(buffer),
+                        Format.SSizeT => new PyTensorBuffer<nint>(buffer),
+                        _ => null,
+                    },
+#endif // NET9_0_OR_GREATER
+                _ => (IPyBuffer?)null,
+            };
+
+            return bufferObject ?? new PyBuffer<Unknown>(buffer);
+        }
+        catch
+        {
+            using (GIL.Acquire())
+                CPythonAPI.ReleaseBuffer(ref buffer);
+            throw;
+        }
     }
 
     private static ByteOrder GetByteOrder(string format) =>

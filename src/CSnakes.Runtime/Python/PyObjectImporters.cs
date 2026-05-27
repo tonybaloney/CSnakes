@@ -274,6 +274,17 @@ public static partial class PyObjectImporters
             !obj.IsNone() ? TImporter.BareImport(obj) : null;
     }
 
+    public sealed class Uuid : IPyObjectImporter<Guid>
+    {
+        private Uuid() { }
+
+        static Guid IPyObjectImporter<Guid>.BareImport(PyObject obj)
+        {
+            GIL.Require();
+            return PyObjectTypeConverter.ConvertToGuid(obj);
+        }
+    }
+
     private static PyObject GetTupleItem(PyObject obj, int index) =>
         PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(obj, index));
 

@@ -1,5 +1,6 @@
 using CSnakes.Runtime.CPython;
 using System.Buffers;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -93,11 +94,11 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
     public ReadOnlySpan<T> UnsafeAsReadOnlySpan() => UnsafeAsSpan(writeable: false);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Span<T> UnsafeAsSpan(bool writeable)
+    private unsafe Span<T> UnsafeAsSpan(bool writeable)
     {
         if (writeable)
             ThrowIfReadOnly();
-        return MemoryMarshal.CreateSpan(ref TypedRef, ItemCount);
+        return new Span<T>(Pointer, ItemCount);
     }
 
     /// <summary>
@@ -125,7 +126,7 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
 
             ArgumentOutOfRangeException.ThrowIfNegative(elementIndex);
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(elementIndex, buffer.ItemCount);
-            return new MemoryHandle(Unsafe.AsPointer(ref Unsafe.Add(ref buffer.TypedRef, elementIndex)));
+            return new MemoryHandle(buffer.Pointer + elementIndex);
         }
 
         public override void Unpin()

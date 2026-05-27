@@ -81,8 +81,6 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
         }
     }
 
-    private protected unsafe ref T TypedRef => ref Unsafe.AsRef<T>(Pointer);
-
     private protected unsafe T* Pointer => (T*)Buffer.buf;
 
     public long Length => Buffer.len;

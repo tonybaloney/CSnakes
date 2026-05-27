@@ -274,6 +274,17 @@ public static partial class PyObjectImporters
             !obj.IsNone() ? TImporter.BareImport(obj) : null;
     }
 
+    public sealed class Date : IPyObjectImporter<DateOnly>
+    {
+        private Date() { }
+
+        static DateOnly IPyObjectImporter<DateOnly>.BareImport(PyObject obj)
+        {
+            GIL.Require();
+            return PyObjectTypeConverter.ConvertToDateOnly(obj);
+        }
+    }
+
     private static PyObject GetTupleItem(PyObject obj, int index) =>
         PyObject.Create(CPythonAPI.PyTuple_GetItemWithNewRef(obj, index));
 

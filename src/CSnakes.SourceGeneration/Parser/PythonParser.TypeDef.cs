@@ -34,6 +34,7 @@ public static partial class PythonParser
         public static readonly PythonTypeSpecParser Bool = Return((PythonTypeSpec)PythonTypeSpec.Bool);
         public static readonly PythonTypeSpecParser Bytes = Return((PythonTypeSpec)PythonTypeSpec.Bytes);
         public static readonly PythonTypeSpecParser Buffer = Return((PythonTypeSpec)PythonTypeSpec.Buffer);
+        public static readonly PythonTypeSpecParser Date = Return((PythonTypeSpec)PythonTypeSpec.Date);
 
         private static readonly PythonTypeSpecParser TypeDefinitionParser = Parse.Ref(() => PythonTypeDefinitionParser);
 
@@ -118,6 +119,7 @@ public static partial class PythonParser
                 "bool"                                                           => TypeDefinitionSubParsers.Bool,
                 "bytes"                                                          => TypeDefinitionSubParsers.Bytes,
                 "Buffer" or "collections.abc.Buffer"                             => TypeDefinitionSubParsers.Buffer,
+                "date" or "datetime.date"                                        => TypeDefinitionSubParsers.Date,
                 "Optional" or "typing.Optional"                                  => TypeDefinitionSubParsers.Optional,
                 "list" or "List" or "typing.List"                                => TypeDefinitionSubParsers.List,
                 "Sequence" or "collections.abc.Sequence" or "typing.Sequence"    => TypeDefinitionSubParsers.Sequence,

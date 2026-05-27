@@ -115,6 +115,7 @@ public class PythonTypeSpecTests
         _ = Assert.IsType<BoolType>(PythonTypeSpec.Bool);
         _ = Assert.IsType<BytesType>(PythonTypeSpec.Bytes);
         _ = Assert.IsType<BufferType>(PythonTypeSpec.Buffer);
+        _ = Assert.IsType<DateType>(PythonTypeSpec.Date);
         _ = Assert.IsType<AnyType>(Assert.IsType<VariadicTupleType>(PythonTypeSpec.Tuple).Of);
     }
 
@@ -180,6 +181,14 @@ public class PythonTypeSpecTests
         public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
         public static string ExpectedName => "Buffer";
         public static string ExpectedToString => "Buffer";
+    }
+
+    public class DateTypeTests : TestBase<DateType, DateTypeTests>, ITest<DateTypeTests, DateType>
+    {
+        public static DateType CreateInstance() => PythonTypeSpec.Date;
+        public static PythonTypeSpec CreateDifferentInstance() => PythonTypeSpec.Int;
+        public static string ExpectedName => "date";
+        public static string ExpectedToString => "date";
     }
 
     public class SequenceTypeTests : TestBase<SequenceType, SequenceTypeTests>, ITest<SequenceTypeTests, SequenceType>

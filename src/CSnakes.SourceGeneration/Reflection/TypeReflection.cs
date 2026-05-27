@@ -34,6 +34,7 @@ public static class TypeReflection
             (BytesType         , ConversionDirection.ToPython, RefSafetyContext.RefSafe) => [SyntaxFactory.ParseTypeName("ReadOnlySpan<byte>")],
             (BytesType         , _, _) => [SyntaxFactory.ParseTypeName("byte[]")],
             (BufferType        , ConversionDirection.FromPython, _) => [SyntaxFactory.ParseTypeName("IPyBuffer")],
+            (DateType          , _, _) => [SyntaxFactory.ParseTypeName("DateOnly")],
             _ => [SyntaxFactory.ParseTypeName("PyObject")],
         };
 

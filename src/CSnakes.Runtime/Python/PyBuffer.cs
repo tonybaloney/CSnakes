@@ -237,10 +237,10 @@ internal static class PyBuffer
                     Format.UShort => new PyTensorBuffer<ushort>(buffer),
                     Format.Int => new PyTensorBuffer<int>(buffer),
                     Format.UInt => new PyTensorBuffer<uint>(buffer),
-                    Format.Long when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyTensorBuffer<int>(buffer),
-                    Format.ULong when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyTensorBuffer<uint>(buffer),
-                    Format.Long => new PyTensorBuffer<long>(buffer),
-                    Format.ULong => new PyTensorBuffer<ulong>(buffer),
+                    Format.Long when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyTensorBuffer<int>(buffer), // LLP64 (long is 32 bits)
+                    Format.ULong when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => new PyTensorBuffer<uint>(buffer), // LLP64 (long is 32 bits)
+                    Format.Long => new PyTensorBuffer<long>(buffer), // LP64 (long is 64 bits)
+                    Format.ULong => new PyTensorBuffer<ulong>(buffer), // LP64 (long is 64 bits)
                     Format.LongLong => new PyTensorBuffer<long>(buffer),
                     Format.ULongLong => new PyTensorBuffer<ulong>(buffer),
                     Format.Bool => new PyTensorBuffer<bool>(buffer),

@@ -15,6 +15,9 @@ public interface IPyBuffer<T> : IPyBuffer where T : unmanaged;
 
 public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
 {
+    // TODO Reconsider using `sizeof(T)` when unsafe is evolved in C# to allow it
+    // See: https://github.com/dotnet/csharplang/blob/cd938182639870e8f8fa7c7a9cf0542a1eeeac5b/proposals/unsafe-evolution.md#sizeof
+
     private protected static readonly int ItemSize = Unsafe.SizeOf<T>();
 
     private protected readonly int ItemCount;

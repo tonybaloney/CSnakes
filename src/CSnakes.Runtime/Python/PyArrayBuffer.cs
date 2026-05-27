@@ -1,8 +1,6 @@
 using CSnakes.Runtime.CPython;
 using System.Buffers;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace CSnakes.Runtime.Python;
 

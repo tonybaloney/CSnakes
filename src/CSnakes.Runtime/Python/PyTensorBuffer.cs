@@ -103,13 +103,13 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
     /// Returns a span <em>directly</em> over the tensor buffer.
     /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
     /// </summary>
+    /// <exception cref="InvalidOperationException">Underlying buffer is read-only.</exception>
     public unsafe TensorSpan<T> UnsafeAsTensorSpan() => UnsafeAsTensorSpan(writeable: true);
 
     /// <summary>
     /// Returns a read-only span <em>directly</em> over the tensor buffer.
     /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Underlying buffer is read-only.</exception>
     public ReadOnlyTensorSpan<T> UnsafeAsReadOnlyTensorSpan() => UnsafeAsTensorSpan(writeable: false);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -82,13 +82,13 @@ public sealed class PyArrayBuffer<T> : PyBuffer<T>, IMemoryOwner<T> where T : un
     /// Returns a span <em>directly</em> over the buffer.
     /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
     /// </summary>
+    /// <exception cref="InvalidOperationException">Underlying buffer is read-only.</exception>
     public Span<T> UnsafeAsSpan() => UnsafeAsSpan(writeable: true);
 
     /// <summary>
     /// Returns a read-only span <em>directly</em> over the buffer.
     /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Underlying buffer is read-only.</exception>
     public ReadOnlySpan<T> UnsafeAsReadOnlySpan() => UnsafeAsSpan(writeable: false);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

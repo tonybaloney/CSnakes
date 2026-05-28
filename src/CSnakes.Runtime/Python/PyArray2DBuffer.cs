@@ -106,13 +106,13 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
     /// Returns a span <em>directly</em> over the buffer.
     /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
     /// </summary>
+    /// <exception cref="InvalidOperationException">Underlying buffer is read-only.</exception>
     public Span2D<T> UnsafeAsSpan2D() => UnsafeAsSpan2D(writeable: true);
 
     /// <summary>
     /// Returns a read-only span <em>directly</em> over the buffer.
     /// <em>Usage after disposing the buffer will lead to corruption and crashes</em>.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Underlying buffer is read-only.</exception>
     public ReadOnlySpan2D<T> UnsafeAsReadOnlySpan2D() => UnsafeAsSpan2D(writeable: false);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

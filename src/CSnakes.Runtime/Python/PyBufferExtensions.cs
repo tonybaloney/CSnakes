@@ -182,17 +182,17 @@ public static class PyBufferExtensions
     public static ReadOnlyTensorSpan<uint> AsUInt32ReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<uint>();
     [Obsolete($"Cast to '{nameof(PyArrayBuffer<>)}<long>' and use its '{nameof(PyArrayBuffer<>.Map)}' method instead.")]
     public static ReadOnlyTensorSpan<long> AsInt64ReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<long>();
-    [Obsolete($"Cast to '{nameof(PyArrayBuffer<>)}<ulong>' and use its '{nameof(PyArrayBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<ulong>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
     public static ReadOnlyTensorSpan<ulong> AsUInt64ReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<ulong>();
-    [Obsolete($"Cast to '{nameof(PyArrayBuffer<>)}<Half>' and use its '{nameof(PyArrayBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<Half>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
     public static ReadOnlyTensorSpan<Half> AsHalfReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<Half>();
-    [Obsolete($"Cast to '{nameof(PyArrayBuffer<>)}<float>' and use its '{nameof(PyArrayBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<float>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
     public static ReadOnlyTensorSpan<float> AsFloatReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<float>();
-    [Obsolete($"Cast to '{nameof(PyArrayBuffer<>)}<double>' and use its '{nameof(PyArrayBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<double>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
     public static ReadOnlyTensorSpan<double> AsDoubleReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<double>();
-    [Obsolete($"Cast to '{nameof(PyArrayBuffer<>)}<nint>' and use its '{nameof(PyArrayBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<nint>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
     public static ReadOnlyTensorSpan<nint> AsIntPtrReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<nint>();
-    [Obsolete($"Cast to '{nameof(PyArrayBuffer<>)}<nuint>' and use its '{nameof(PyArrayBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<nuint>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
     public static ReadOnlyTensorSpan<nuint> AsUIntPtrReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<nuint>();
     #endregion
 

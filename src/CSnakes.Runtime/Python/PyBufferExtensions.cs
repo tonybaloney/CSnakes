@@ -165,7 +165,7 @@ public static class PyBufferExtensions
     public static TensorSpan<nuint> AsUIntPtrTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<nuint>();
     #endregion
 
-    #region AsTensorSpan
+    #region AsReadOnlyTensorSpan
     [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<bool>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
     public static ReadOnlyTensorSpan<bool> AsBoolReadOnlyTensorSpan(this IPyBuffer buffer) => buffer.AsReadOnlyTensorSpan<bool>();
     [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<byte>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]

@@ -7,9 +7,9 @@ CSnakes.Runtime.Python.IAwaitable<T>.WaitAsync(System.Threading.CancellationToke
 CSnakes.Runtime.Python.IPyObjectProxy
 CSnakes.Runtime.Python.IPyObjectProxy.DangerousInternalReference.get -> CSnakes.Runtime.Python.PyObject!
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.Do(CSnakes.Runtime.Span2DAction<T>! action) -> void
-CSnakes.Runtime.Python.PyArray2DBuffer<T>.Do<TArg>(TArg arg, CSnakes.Runtime.Span2DAction<T, TArg>! action) -> void
-CSnakes.Runtime.Python.PyArray2DBuffer<T>.Do<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, CSnakes.Runtime.Span2DAction<T, TArg1, TArg2>! action) -> void
-CSnakes.Runtime.Python.PyArray2DBuffer<T>.Do<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3, CSnakes.Runtime.Span2DAction<T, TArg1, TArg2, TArg3>! action) -> void
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.Do<TArg>(in TArg arg, CSnakes.Runtime.Span2DAction<T, TArg>! action) -> void
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.Do<TArg1, TArg2>(in TArg1 arg1, in TArg2 arg2, CSnakes.Runtime.Span2DAction<T, TArg1, TArg2>! action) -> void
+CSnakes.Runtime.Python.PyArray2DBuffer<T>.Do<TArg1, TArg2, TArg3>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, CSnakes.Runtime.Span2DAction<T, TArg1, TArg2, TArg3>! action) -> void
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.Map<TArg, TResult>(in TArg arg, CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.Map<TArg1, TArg2, TResult>(in TArg1 arg1, in TArg2 arg2, CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg1, TArg2, TResult>! function) -> TResult
 CSnakes.Runtime.Python.PyArray2DBuffer<T>.Map<TArg1, TArg2, TArg3, TResult>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, CSnakes.Runtime.ReadOnlySpan2DFunc<T, TArg1, TArg2, TArg3, TResult>! function) -> TResult

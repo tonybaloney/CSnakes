@@ -76,20 +76,20 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
     public void Do(Span2DAction<T> action) =>
         action(UnsafeAsSpan2D());
 
-    public void Do<TArg>(TArg arg, Span2DAction<T, TArg> action)
+    public void Do<TArg>(in TArg arg, Span2DAction<T, TArg> action)
 #if NET9_0_OR_GREATER
         where TArg : allows ref struct
 #endif
         => action(UnsafeAsSpan2D(), arg);
 
-    public void Do<TArg1, TArg2>(TArg1 arg1, TArg2 arg2, Span2DAction<T, TArg1, TArg2> action)
+    public void Do<TArg1, TArg2>(in TArg1 arg1, in TArg2 arg2, Span2DAction<T, TArg1, TArg2> action)
 #if NET9_0_OR_GREATER
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct
 #endif
         => action(UnsafeAsSpan2D(), arg1, arg2);
 
-    public void Do<TArg1, TArg2, TArg3>(TArg1 arg1, TArg2 arg2, TArg3 arg3, Span2DAction<T, TArg1, TArg2, TArg3> action)
+    public void Do<TArg1, TArg2, TArg3>(in TArg1 arg1, in TArg2 arg2, in TArg3 arg3, Span2DAction<T, TArg1, TArg2, TArg3> action)
 #if NET9_0_OR_GREATER
         where TArg1 : allows ref struct
         where TArg2 : allows ref struct

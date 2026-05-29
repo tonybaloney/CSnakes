@@ -2,12 +2,12 @@ import logging
 import queue
 import threading
 
-from collections.abc import Generator, Iterator
+from collections.abc import Callable, Generator, Iterator
 from logging import LogRecord
 from typing import Any, Union
 
 
-class __csnakesMemoryHandler(logging.Handler):
+class _Handler(logging.Handler):
     def __init__(self) -> None:
         logging.Handler.__init__(self)
         self.queue = queue.Queue[Union[LogRecord, None]](200)
@@ -32,7 +32,7 @@ class __csnakesMemoryHandler(logging.Handler):
                     pass
         return False  # all attempts to put failed
 
-    def get_records(self) -> Iterator[tuple[int, int, str, Union[tuple[Any, Any, Any], None]]]:
+    def get_records(self) -> Generator[tuple[int, int, str, Union[tuple[Any, Any, Any], None]]]:
         while True:
             record = self.queue.get()
             self.queue.task_done()
@@ -48,18 +48,13 @@ class __csnakesMemoryHandler(logging.Handler):
         logging.Handler.close(self)
 
 
-def new_handler():
-    return __csnakesMemoryHandler()
+def monitor(name: Union[str, None] = None) -> tuple[Generator[tuple[int, int, str, Union[tuple[Any, Any, Any], None]], None, None], Callable[[], None]]:
+    handler = _Handler()
+    logger = logging.getLogger(name)
+    logger.addHandler(handler)
 
+    def close():
+        logger.removeHandler(handler)
+        handler.close()
 
-def get_records(handler) -> Generator[tuple[int, int, str, Union[tuple[Any, Any, Any], None]], None, None]:
-    return handler.get_records()
-
-
-def install_handler(handler, name: Union[str, None] = None) -> None:
-    logging.getLogger(name).addHandler(handler)
-
-
-def uninstall_handler(handler, name: Union[str, None] = None) -> None:
-    logging.getLogger(name).removeHandler(handler)
-    handler.close()
+    return (close, handler.get_records())

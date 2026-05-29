@@ -135,33 +135,33 @@ public static class PyBufferExtensions
 #if NET9_0_OR_GREATER
 
     #region AsTensorSpan
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<bool>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<bool>' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     public static TensorSpan<bool> AsBoolTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<bool>();
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<byte>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<byte>' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     public static TensorSpan<byte> AsByteTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<byte>();
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<sbyte>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<sbyte>' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     public static TensorSpan<sbyte> AsSByteTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<sbyte>();
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<short>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<short>' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     public static TensorSpan<short> AsInt16TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<short>();
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<ushort>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<ushort>' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     public static TensorSpan<ushort> AsUInt16TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<ushort>();
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<int>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<int>' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     public static TensorSpan<int> AsInt32TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<int>();
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<uint>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<uint>' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     public static TensorSpan<uint> AsUInt32TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<uint>();
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<long>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<long>' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     public static TensorSpan<long> AsInt64TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<long>();
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<ulong>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<ulong>' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     public static TensorSpan<ulong> AsUInt64TensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<ulong>();
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<Half>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<Half>' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     public static TensorSpan<Half> AsHalfTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<Half>();
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<float>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<float>' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     public static TensorSpan<float> AsFloatTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<float>();
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<double>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<double>' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     public static TensorSpan<double> AsDoubleTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<double>();
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<nint>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<nint>' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     public static TensorSpan<nint> AsIntPtrTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<nint>();
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<nuint>' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}<nuint>' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     public static TensorSpan<nuint> AsUIntPtrTensorSpan(this IPyBuffer buffer) => buffer.AsTensorSpan<nuint>();
     #endregion
 

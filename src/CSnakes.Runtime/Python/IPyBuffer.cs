@@ -43,17 +43,17 @@ public interface IPyBuffer : IDisposable
     [Obsolete($"Cast to '{nameof(PyArrayBuffer<>)}' and use its '{nameof(PyArrayBuffer<>.Map)}' method instead.")]
     ReadOnlySpan<T> AsReadOnlySpan<T>() where T : unmanaged;
 
-    [Obsolete($"Cast to '{nameof(PyArray2DBuffer<>)}' and use its '{nameof(PyArrayBuffer<>.Do)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyArray2DBuffer<>)}' and use its '{nameof(PyArray2DBuffer<>.Do)}' method instead.")]
     Span2D<T> AsSpan2D<T>() where T : unmanaged;
 
-    [Obsolete($"Cast to '{nameof(PyArray2DBuffer<>)}' and use its '{nameof(PyArrayBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyArray2DBuffer<>)}' and use its '{nameof(PyArray2DBuffer<>.Map)}' method instead.")]
     ReadOnlySpan2D<T> AsReadOnlySpan2D<T>() where T : unmanaged;
 
 #if NET9_0_OR_GREATER
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}' and use its '{nameof(PyArrayBuffer<>.Do)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}' and use its '{nameof(PyTensorBuffer<>.Do)}' method instead.")]
     TensorSpan<T> AsTensorSpan<T>() where T : unmanaged;
 
-    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}' and use its '{nameof(PyArrayBuffer<>.Map)}' method instead.")]
+    [Obsolete($"Cast to '{nameof(PyTensorBuffer<>)}' and use its '{nameof(PyTensorBuffer<>.Map)}' method instead.")]
     ReadOnlyTensorSpan<T> AsReadOnlyTensorSpan<T>() where T : unmanaged;
 #endif // NET9_0_OR_GREATER
 }

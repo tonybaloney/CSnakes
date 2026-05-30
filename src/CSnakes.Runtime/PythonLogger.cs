@@ -79,7 +79,7 @@ file sealed class Bridge(PyObject closeCallable, Task listenerTask) : IAsyncDisp
         {
             if (closeCallable is { } callable)
             {
-                callable.Call();
+                callable.Call().Dispose();
                 callable.Dispose();
             }
             throw;

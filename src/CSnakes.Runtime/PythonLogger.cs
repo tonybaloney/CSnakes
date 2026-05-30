@@ -40,6 +40,10 @@ public static class PythonLogger
                 void OnDisposing(object? sender, EventArgs args)
                 {
                     result.Dispose();
+                    lock (ModuleLock)
+                    {
+                        module = null;
+                    }
                     env.Disposing -= OnDisposing;
                 }
 

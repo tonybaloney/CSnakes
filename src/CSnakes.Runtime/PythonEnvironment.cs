@@ -156,5 +156,5 @@ internal class PythonEnvironment : IPythonEnvironment
         return disposedValue;
     }
 
-    public EventHandler? Disposing;
+    public event EventHandler? Disposing;
 }

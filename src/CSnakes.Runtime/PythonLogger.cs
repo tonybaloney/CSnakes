@@ -11,125 +11,83 @@ namespace CSnakes.Runtime;
 /// </summary>
 public static class PythonLogger
 {
-    public static IAsyncDisposable WithPythonLogging(this IPythonEnvironment env, ILogger logger, string? loggerName = null) =>
-        Bridge.Create(logger, loggerName);
+    static readonly Lock ModuleLock = new();
+    static ICsnakesLogging? module;
 
-    internal static IAsyncDisposable EnableGlobalLogging(ILogger logger) =>
-        Bridge.Create(logger);
+    public static IAsyncDisposable WithPythonLogging(this IPythonEnvironment env, ILogger logger, string? loggerName = null) =>
+        Bridge.Create(GetModule(env), logger, loggerName);
+
+    internal static IAsyncDisposable EnableGlobalLogging(IPythonEnvironment env, ILogger logger) =>
+        Bridge.Create(GetModule(env), logger);
+
+    private static ICsnakesLogging GetModule(IPythonEnvironment env) =>
+        GetModule((PythonEnvironment)env);
+
+    private static ICsnakesLogging GetModule(PythonEnvironment env)
+    {
+        lock (ModuleLock)
+        {
+            ICsnakesLogging result;
+
+            if (module is { } someModule)
+            {
+                result = someModule;
+            }
+            else
+            {
+                result = module = env.CsnakesLogging();
+
+                void OnDisposing(object? sender, EventArgs args)
+                {
+                    env.Disposing -= OnDisposing;
+
+                    lock (ModuleLock)
+                    {
+                        Debug.Assert(module == result);
+                        module = null;
+                    }
+
+                    result.Dispose();
+                }
+
+                env.Disposing += OnDisposing;
+            }
+
+            return result;
+        }
+    }
 }
 
-file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Task listenerTask) : IAsyncDisposable
+file sealed class Bridge(PyObject handler, ICsnakesLogging module, Task listenerTask) : IAsyncDisposable
 {
-    const string ModuleCode = """
-        import logging
-        import queue
-        import threading
-
-
-        class __csnakesMemoryHandler(logging.Handler):
-            def __init__(self):
-                logging.Handler.__init__(self)
-                self.queue = queue.Queue(200)
-                self.stats_lock = threading.Lock()
-                self.drop_count = 0
-
-            def emit(self, record):
-                _ = self._put(record)
-
-            def _put(self, record, attempts = 10):
-                for _ in range(attempts):  # attempts to try enqueue the record
-                    try:
-                        self.queue.put_nowait(record)
-                        return True  # successfully enqueued
-                    except queue.Full:
-                        try:
-                            _ = self.queue.get_nowait()  # drop the oldest record
-                            self.queue.task_done()
-                            with self.stats_lock:
-                                self.drop_count += 1
-                        except queue.Empty:
-                            pass
-                return False  # all attempts to put failed
-
-            def get_records(self):
-                while True:
-                    record = self.queue.get()
-                    self.queue.task_done()
-                    if record is None:
-                        break
-                    with self.stats_lock:
-                        drop_count = self.drop_count
-                        self.drop_count = 0
-                    yield (drop_count, record.levelno, record.getMessage(), record.exc_info)
-
-            def close(self):
-                _ = self._put(None)
-                logging.Handler.close(self)
-
-
-        def installCSnakesHandler(handler, name = None):
-            logging.getLogger(name).addHandler(handler)
-
-
-        def uninstallCSnakesHandler(handler, name = None):
-            logging.getLogger(name).removeHandler(handler)
-            handler.close()
-
-        """;
-
     private bool disposed;
 
-    internal static Bridge Create(ILogger logger, string? loggerName = null)
+    internal static Bridge Create(ICsnakesLogging module, ILogger logger, string? loggerName = null)
     {
         PyObject? handler = null;
-        PyObject? uninstallCSnakesHandler = null;
-
-        using var module = Import.ImportModule("_csnakesLoggingBridge", ModuleCode, "_csnakesLoggingBridge.py");
-        using var handlerClass = module.GetAttr("__csnakesMemoryHandler");
-        using var installCSnakesHandler = module.GetAttr("installCSnakesHandler");
-
         Task listenerTask;
 
         try
         {
             using (GIL.Acquire())
             {
-                handler = handlerClass.Call();
-                uninstallCSnakesHandler = module.GetAttr("uninstallCSnakesHandler");
-
-                using var loggerNameStr = PyObject.From(loggerName);
-                installCSnakesHandler.Call(handler, loggerNameStr).Dispose();
-
-                listenerTask = StartRecordListener(handler, logger);
+                handler = module.NewHandler();
+                module.InstallHandler(handler, loggerName);
+                listenerTask = StartRecordListener(module, handler, logger);
             }
         }
         catch
         {
             handler?.Dispose();
-            uninstallCSnakesHandler?.Dispose();
             throw;
         }
 
-        return new(handler, uninstallCSnakesHandler, listenerTask);
+        return new(handler, module, listenerTask);
     }
 
-    private static Task StartRecordListener(PyObject handler, ILogger logger)
+    private static Task StartRecordListener(ICsnakesLogging module, PyObject handler, ILogger logger)
     {
-        using PyObject getRecords = handler.GetAttr("get_records");
-        using PyObject getRecordsResult = getRecords.Call();
-        IGeneratorIterator<(long, long, string, ExceptionInfo?), PyObject, PyObject> generator =
-            getRecordsResult.ImportAs<IGeneratorIterator<(long, long, string, ExceptionInfo?), PyObject, PyObject>,
-                                                         PyObjectImporters.Generator<(long, long, string, ExceptionInfo?), PyObject, PyObject,
-                                                                                     PyObjectImporters.Tuple<long, long, string, ExceptionInfo?,
-                                                                                                             PyObjectImporters.Int64,
-                                                                                                             PyObjectImporters.Int64,
-                                                                                                             PyObjectImporters.String,
-                                                                                                             PyObjectImporters.OptionalValue<ExceptionInfo,
-                                                                                                                                             PyObjectImporters.Tuple<PyObject, PyObject, PyObject,
-                                                                                                                                                                     PyObjectImporters.Runtime<PyObject>,
-                                                                                                                                                                     PyObjectImporters.Runtime<PyObject>,
-                                                                                                                                                                     PyObjectImporters.Runtime<PyObject>>>>,
-                                                                                     PyObjectImporters.Runtime<PyObject>>>();
+        var generator = module.GetRecords(handler);
 
         return Task.Run(() =>
         {
@@ -202,7 +160,7 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
 
         try
         {
-            uninstallCSnakesHandler.Call(handler).Dispose();
+            module.UninstallHandler(handler);
             uninstalled = true;
         }
         catch (Exception ex)
@@ -238,6 +196,5 @@ file sealed class Bridge(PyObject handler, PyObject uninstallCSnakesHandler, Tas
         }
 
         handler.Dispose();
-        uninstallCSnakesHandler.Dispose();
     }
 }

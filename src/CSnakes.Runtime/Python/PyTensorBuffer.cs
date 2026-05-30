@@ -1,6 +1,7 @@
 #if NET9_0_OR_GREATER
 
 using CSnakes.Runtime.CPython;
+using System.Diagnostics;
 using System.Numerics.Tensors;
 using System.Runtime.CompilerServices;
 
@@ -31,8 +32,12 @@ public sealed class PyTensorBuffer<T> : PyBuffer<T> where T : unmanaged
 
         unsafe
         {
-            if (buffer is { shape: null } or { strides: null })
-                throw new InvalidOperationException("Buffer does not have shape and strides.");
+            // These assertions are also checked at run-time in "PyBuffer.Create" for all supported
+            // buffer types (see accompanying comment in that method) and therefore should never be
+            // null here.
+
+            Debug.Assert(buffer.shape is not null);
+            Debug.Assert(buffer.strides is not null);
         }
 
         return ref buffer;

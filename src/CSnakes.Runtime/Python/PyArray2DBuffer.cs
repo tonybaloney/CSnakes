@@ -1,5 +1,6 @@
 using CommunityToolkit.HighPerformance;
 using CSnakes.Runtime.CPython;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace CSnakes.Runtime.Python;
@@ -23,22 +24,28 @@ public sealed class PyArray2DBuffer<T> : PyBuffer<T> where T : unmanaged
     {
         _ = PyArrayBuffer<T>.Validate(buffer);
 
-        if (buffer.ndim != 2)
-            throw new ArgumentException("Buffer is not 2D.", nameof(buffer));
+        Debug.Assert(buffer.ndim is 2);
+
+        nint stride;
 
         unsafe
         {
-            if (buffer is { shape: null } or { strides: null })
-                throw new InvalidOperationException("Buffer does not have shape and strides.");
+            // These assertions are also checked at run-time in "PyBuffer.Create" for all supported
+            // buffer types (see accompanying comment in that method) and therefore should never be
+            // null here.
+
+            Debug.Assert(buffer.shape is not null);
+            Debug.Assert(buffer.strides is not null);
 
             height = (int)buffer.shape[0];
             width = (int)buffer.shape[1];
-
-            if (height * width * ItemSize != buffer.len)
-                throw new ArgumentException("Buffer length is not equal to shape.", nameof(buffer));
-
-            pitch = (int)(buffer.strides[0] - (width * buffer.itemsize)); // pitch = stride - (width * itemsize)
+            stride = buffer.strides[0];
         }
+
+        if (height * width * ItemSize != buffer.len)
+            throw new ArgumentException("Buffer length is not equal to shape.", nameof(buffer));
+
+        pitch = (int)(stride - (width * buffer.itemsize));
 
         return ref buffer;
     }

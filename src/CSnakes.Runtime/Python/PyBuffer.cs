@@ -99,12 +99,14 @@ public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
 
     public Type ItemType => typeof(T);
 
-    private protected unsafe ReadOnlySpan<nint> Shape =>
-        Buffer switch
+    private protected unsafe ReadOnlySpan<nint> Shape
+    {
+        get
         {
-            { shape: not null and var shape, strides: not null, ndim: var ndim } => new ReadOnlySpan<nint>(shape, ndim),
-            _ => throw new InvalidOperationException("Buffer does not have shape and strides."),
-        };
+            ref readonly var buffer = ref Buffer;
+            return new ReadOnlySpan<nint>(buffer.shape, buffer.ndim);
+        }
+    }
 
     Span<TItemType> IPyBuffer.AsSpan<TItemType>() =>
         typeof(TItemType) != typeof(T)
@@ -162,16 +164,28 @@ internal static class PyBuffer
         using (GIL.Acquire())
         {
             if (!CPythonAPI.IsBuffer(exporter))
-            {
-                throw new ArgumentException("The provided Python object does not support the buffer protocol.",
-                    nameof(exporter));
-            }
+                throw new ArgumentException("The provided Python object does not support the buffer protocol.", nameof(exporter));
 
             CPythonAPI.GetBuffer(exporter, out buffer);
         }
 
         try
         {
+            unsafe
+            {
+                // The shape and strides fields can never be null because "CPythonAPI.IsBuffer"
+                // requests the buffer with the "PyBUF_C_CONTIGUOUS" flag, which includes and
+                // implies "PyBUF_STRIDES":
+                //
+                //     #define PyBUF_C_CONTIGUOUS (0x0020 | PyBUF_STRIDES)
+                //
+                // Therefore per the buffer protocol, the exporter therefore must fill those even
+                // if they may not be used by a particular "PyBuffer<T>" subclass.
+
+                if (buffer is { shape: null } or { strides: null })
+                    throw new ArgumentException("Buffer does not have shape and strides.", nameof(exporter));
+            }
+
             string format;
             unsafe { format = Utf8StringMarshaller.ConvertToManaged(buffer.format) ?? "B"; }
 

@@ -58,42 +58,43 @@ public static class PythonLogger
     }
 }
 
-file sealed class Bridge(PyObject handler, ICsnakesLogging module, Task listenerTask) : IAsyncDisposable
+file sealed class Bridge(PyObject closeCallable, Task listenerTask) : IAsyncDisposable
 {
     private bool disposed;
 
     internal static Bridge Create(ICsnakesLogging module, ILogger logger, string? loggerName = null)
     {
-        PyObject? handler = null;
+        PyObject? closeCallable = null;
         Task listenerTask;
 
         try
         {
             using (GIL.Acquire())
             {
-                handler = module.NewHandler();
-                module.InstallHandler(handler, loggerName);
-                listenerTask = StartRecordListener(module, handler, logger);
+                (var generator, closeCallable) = module.Monitor(loggerName);
+                listenerTask = StartRecordListener(generator, logger);
             }
         }
         catch
         {
-            handler?.Dispose();
+            if (closeCallable is { } callable)
+            {
+                callable.Call().Dispose();
+                callable.Dispose();
+            }
             throw;
         }
 
-        return new(handler, module, listenerTask);
+        return new(closeCallable, listenerTask);
     }
 
-    private static Task StartRecordListener(ICsnakesLogging module, PyObject handler, ILogger logger)
+    private static Task StartRecordListener(IEnumerator<(long, long, string, ExceptionInfo?)> record, ILogger logger)
     {
-        var generator = module.GetRecords(handler);
-
         return Task.Run(() =>
         {
-            while (generator.MoveNext()) // TODO Restart log records reading loop on failure
+            while (record.MoveNext()) // TODO Restart log records reading loop on failure
             {
-                var (dropCount, level, message, exceptionInfo) = generator.Current;
+                var (dropCount, level, message, exceptionInfo) = record.Current;
 
                 if (dropCount > 0)
                 {
@@ -156,19 +157,19 @@ file sealed class Bridge(PyObject handler, ICsnakesLogging module, Task listener
 
         disposed = true;
 
-        var uninstalled = false;
+        var closed = false;
 
         try
         {
-            module.UninstallHandler(handler);
-            uninstalled = true;
+            closeCallable.Call();
+            closed = true;
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error during uninstallation of handler: {ex}");
         }
 
-        if (uninstalled)
+        if (closed)
         {
             var completed = false;
 
@@ -195,6 +196,6 @@ file sealed class Bridge(PyObject handler, ICsnakesLogging module, Task listener
             }
         }
 
-        handler.Dispose();
+        closeCallable.Dispose();
     }
 }

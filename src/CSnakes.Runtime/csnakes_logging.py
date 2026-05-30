@@ -57,4 +57,4 @@ def monitor(name: Union[str, None] = None) -> tuple[Generator[tuple[int, int, st
         logger.removeHandler(handler)
         handler.close()
 
-    return (close, handler.get_records())
+    return (handler.get_records(), close)

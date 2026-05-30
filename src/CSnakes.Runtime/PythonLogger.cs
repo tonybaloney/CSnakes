@@ -39,8 +39,15 @@ public static class PythonLogger
 
                 void OnDisposing(object? sender, EventArgs args)
                 {
-                    result.Dispose();
                     env.Disposing -= OnDisposing;
+
+                    lock (ModuleLock)
+                    {
+                        Debug.Assert(module == result);
+                        module = null;
+                    }
+
+                    result.Dispose();
                 }
 
                 env.Disposing += OnDisposing;

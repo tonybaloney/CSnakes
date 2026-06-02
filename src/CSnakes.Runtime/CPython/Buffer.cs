@@ -35,9 +35,6 @@ internal unsafe partial class CPythonAPI
         public nint* /* Py_ssize_t* */ strides;
         public nint* /* Py_ssize_t* */ suboffsets;
         public void* /* void*       */ @internal;
-
-        public bool HasShape => shape is not null;
-        public bool HasStrides => strides is not null;
     }
 
     public static bool IsBuffer(PyObject p) => PyObject_CheckBuffer(p) == 1;

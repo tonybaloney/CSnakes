@@ -15,6 +15,7 @@
 param(
     [Parameter(Mandatory)]
     [string]$PythonVersion,
+    [switch]$FreeThreaded,
     [switch]$NoBuild
 )
 
@@ -73,6 +74,7 @@ try {
         try {
             dotnet $stageAssembly `
                 $(if ($VerbosePreference -ne 'SilentlyContinue') { '--verbose' }) `
+                $(if ($FreeThreaded) { '--free-threaded' }) `
                 --python=$PythonVersion `
                 --venv=$venvPath `
                 --pip-requirements=requirements.txt

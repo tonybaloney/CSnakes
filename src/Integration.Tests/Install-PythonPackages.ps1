@@ -27,7 +27,7 @@ $stageProject = Join-Path $PSScriptRoot '..' 'CSnakes.Stage' 'CSnakes.Stage.cspr
 
 # Build the test project to ensure output directories and requirements.txt exist
 if (-not $NoBuild) {
-    Write-Host "Building $testProject..."
+    Write-Verbose "Building $testProject..."
     dotnet build $testProject
 }
 
@@ -38,7 +38,7 @@ if (-not $tfms) {
     throw "No target frameworks found in $testProject."
 }
 
-Write-Host "Target frameworks: $($tfms -join ', ')"
+Write-Verbose "Target frameworks: $($tfms -join ', ')"
 
 foreach ($tfm in $tfms) {
     # Query the output path for this TFM
@@ -50,9 +50,8 @@ foreach ($tfm in $tfms) {
     $venvName = ".venv-$PythonVersion"
     $venvPath = Join-Path $pythonHome $venvName
 
-    Write-Host ''
-    Write-Host "[$tfm] Python home: $pythonHome"
-    Write-Host "[$tfm] Venv path: $venvPath"
+    Write-Verbose "[$tfm] Python home: $pythonHome"
+    Write-Verbose "[$tfm] Venv path: $venvPath"
 
     Push-Location $pythonHome
     try {
@@ -65,6 +64,3 @@ foreach ($tfm in $tfms) {
         Pop-Location
     }
 }
-
-Write-Host ''
-Write-Host 'Python package pre-installation complete.'

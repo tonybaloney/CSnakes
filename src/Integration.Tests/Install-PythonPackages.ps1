@@ -32,13 +32,20 @@ if (-not $NoBuild) {
 }
 
 # Query target frameworks from the test project
-$tfms = (dotnet msbuild $testProject -getProperty:TargetFrameworks -nologo) -split ';'
+$tfms = (dotnet msbuild $testProject -getProperty:TargetFrameworks -nologo) -split ';' | Where-Object { $_ -ne '' }
+
+if (-not $tfms) {
+    throw "No target frameworks found in $testProject."
+}
 
 Write-Host "Target frameworks: $($tfms -join ', ')"
 
 foreach ($tfm in $tfms) {
     # Query the output path for this TFM
     $outputPath = dotnet msbuild $testProject -property:TargetFramework=$tfm -getProperty:OutputPath -nologo
+    if (-not $outputPath) {
+        throw "Failed to resolve OutputPath for target framework '$tfm'."
+    }
     $pythonHome = Join-Path $PSScriptRoot $outputPath 'python'
     $venvName = ".venv-$PythonVersion"
     $venvPath = Join-Path $pythonHome $venvName

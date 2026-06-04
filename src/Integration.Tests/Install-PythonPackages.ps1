@@ -25,11 +25,25 @@ $PSNativeCommandUseErrorActionPreference = $true
 $testProject = Join-Path $PSScriptRoot 'Integration.Tests.csproj'
 $stageProject = Join-Path $PSScriptRoot '..' 'CSnakes.Stage' 'CSnakes.Stage.csproj'
 
-# Build the test project to ensure output directories and requirements.txt exist
+# Determine the staging tool's target framework and build it (once)
+$stageTfm = ((dotnet msbuild $stageProject -getProperty:TargetFrameworks -nologo) -split ';')[0]
+if (-not $stageTfm) {
+    throw "No target frameworks found in $stageProject."
+}
+
 if (-not $NoBuild) {
     Write-Verbose "Building $testProject..."
     dotnet build $testProject
+    Write-Verbose "Building $stageProject ($stageTfm)..."
+    dotnet build $stageProject --framework $stageTfm
 }
+
+# Resolve the staging tool executable path
+$stageOutputPath = dotnet msbuild $stageProject -property:TargetFramework=$stageTfm -getProperty:OutputPath -nologo
+if (-not $stageOutputPath) {
+    throw "Failed to resolve OutputPath for staging tool ($stageTfm)."
+}
+$stageExe = Join-Path $PSScriptRoot '..' 'CSnakes.Stage' $stageOutputPath 'CSnakes.Stage'
 
 # Query target frameworks from the test project
 $tfms = (dotnet msbuild $testProject -getProperty:TargetFrameworks -nologo) -split ';' | Where-Object { $_ -ne '' }
@@ -55,7 +69,7 @@ foreach ($tfm in $tfms) {
 
     Push-Location $pythonHome
     try {
-        dotnet run --project $stageProject --framework net8.0 -- `
+        & $stageExe `
             --python=$PythonVersion `
             --venv=$venvPath `
             --pip-requirements=requirements.txt

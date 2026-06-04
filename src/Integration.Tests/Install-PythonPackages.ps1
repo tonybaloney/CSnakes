@@ -15,7 +15,6 @@
 param(
     [Parameter(Mandatory)]
     [string]$PythonVersion,
-
     [switch]$NoBuild
 )
 
@@ -26,7 +25,7 @@ $testProject = Join-Path $PSScriptRoot 'Integration.Tests.csproj'
 $stageProject = Join-Path $PSScriptRoot '..' 'CSnakes.Stage' 'CSnakes.Stage.csproj'
 
 # Determine the staging tool's target framework and build it (once)
-$stageTfm = ((dotnet msbuild $stageProject -getProperty:TargetFrameworks -nologo) -split ';')[0]
+$stageTfm = ((dotnet build $stageProject -getProperty:TargetFrameworks -tl:false) -split ';')[0]
 if (-not $stageTfm) {
     throw "No target frameworks found in $stageProject."
 }
@@ -39,13 +38,13 @@ if (-not $NoBuild) {
 }
 
 # Resolve the staging tool assembly path
-$stageAssembly = dotnet msbuild $stageProject -property:TargetFramework=$stageTfm -getProperty:TargetPath -nologo
+$stageAssembly = dotnet build $stageProject -property:TargetFramework=$stageTfm -getProperty:TargetPath -tl:false
 if (-not $stageAssembly) {
     throw "Failed to resolve TargetPath for staging tool ($stageTfm)."
 }
 
 # Query target frameworks from the test project
-$tfms = (dotnet msbuild $testProject -getProperty:TargetFrameworks -nologo) -split ';' | Where-Object { $_ -ne '' }
+$tfms = (dotnet build $testProject -getProperty:TargetFrameworks -tl:false) -split ';' | Where-Object { $_ -ne '' }
 
 if (-not $tfms) {
     throw "No target frameworks found in $testProject."
@@ -55,7 +54,7 @@ Write-Verbose "Target frameworks: $($tfms -join ', ')"
 
 foreach ($tfm in $tfms) {
     # Query the output path for this TFM
-    $outputPath = dotnet msbuild $testProject -property:TargetFramework=$tfm -getProperty:OutputPath -nologo
+    $outputPath = dotnet build $testProject -property:TargetFramework=$tfm -getProperty:OutputPath -tl:false
     if (-not $outputPath) {
         throw "Failed to resolve OutputPath for target framework '$tfm'."
     }

@@ -160,6 +160,10 @@ jobs:
         run: dotnet build --no-restore -bl:${{ github.workspace }}/build-${{ matrix.os }}-${{ matrix.python }}.binlog
         working-directory: src
 
+      - name: Pre-install Python packages
+        run: ./src/Integration.Tests/Install-PythonPackages.ps1 -PythonVersion ${{ matrix.python }}
+        shell: pwsh
+
       - name: Integration Tests
         run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog Integration.Tests ${{ matrix.os != 'windows-11-arm' && '--filter "FullyQualifiedName!~WindowsArm64Tests"' || '' }}
         working-directory: src

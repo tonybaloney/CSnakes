@@ -1,91 +1,103 @@
-from typing import Generator
+import sys
+from typing import Generator, TypeVar, cast
 
-try:
+if sys.version_info >= (3, 12):
     from collections.abc import Buffer
-except ImportError:
+else:
     from typing_extensions import Buffer
 
 import numpy as np
 
+_T = TypeVar("_T")
+
+if sys.version_info >= (3, 12):
+    def _as_buffer(val: _T) -> _T:
+        return val
+else:
+    # On Python < 3.12, numpy's stubs don't declare NDArray as implementing
+    # the Buffer protocol, so we cast to satisfy the type checker.
+    def _as_buffer(val: object) -> Buffer:
+        return cast(Buffer, val)
+
 def test_bool_buffer() -> Buffer:
-    return np.array([True, False, True, False, False], dtype=np.bool_)
+    return _as_buffer(np.array([True, False, True, False, False], dtype=np.bool_))
 
 def test_int8_buffer() -> Buffer:
-    return np.array([1, 2, 3, 4, 5], dtype=np.int8)
+    return _as_buffer(np.array([1, 2, 3, 4, 5], dtype=np.int8))
 
 def test_uint8_buffer() -> Buffer:
-    return np.array([1, 2, 3, 4, 5], dtype=np.uint8)
+    return _as_buffer(np.array([1, 2, 3, 4, 5], dtype=np.uint8))
 
 def test_int16_buffer() -> Buffer:
-    return np.array([1, 2, 3, 4, 5], dtype=np.int16)
+    return _as_buffer(np.array([1, 2, 3, 4, 5], dtype=np.int16))
 
 def test_uint16_buffer() -> Buffer:
-    return np.array([1, 2, 3, 4, 5], dtype=np.uint16)
+    return _as_buffer(np.array([1, 2, 3, 4, 5], dtype=np.uint16))
 
 def test_int32_buffer() -> Buffer:
-    return np.array([1, 2, 3, 4, 5], dtype=np.int32)
+    return _as_buffer(np.array([1, 2, 3, 4, 5], dtype=np.int32))
 
 def test_int64_buffer() -> Buffer:
-    return np.array([1, 2, 3, 4, 5], dtype=np.int64)
+    return _as_buffer(np.array([1, 2, 3, 4, 5], dtype=np.int64))
 
 def test_uint32_buffer() -> Buffer:
-    return np.array([1, 2, 3, 4, 5], dtype=np.uint32)
+    return _as_buffer(np.array([1, 2, 3, 4, 5], dtype=np.uint32))
 
 def test_uint64_buffer() -> Buffer:
-    return np.array([1, 2, 3, 4, 5], dtype=np.uint64)
+    return _as_buffer(np.array([1, 2, 3, 4, 5], dtype=np.uint64))
 
 def test_float16_buffer() -> Buffer:
-    return np.array([1.1, 2.2, 3.3, 4.4, 5.5], dtype=np.float16)
+    return _as_buffer(np.array([1.1, 2.2, 3.3, 4.4, 5.5], dtype=np.float16))
 
 def test_float32_buffer() -> Buffer:
-    return np.array([1.1, 2.2, 3.3, 4.4, 5.5], dtype=np.float32)
+    return _as_buffer(np.array([1.1, 2.2, 3.3, 4.4, 5.5], dtype=np.float32))
 
 def test_float64_buffer() -> Buffer:
-    return np.array([1.1, 2.2, 3.3, 4.4, 5.5], dtype=np.float64)
+    return _as_buffer(np.array([1.1, 2.2, 3.3, 4.4, 5.5], dtype=np.float64))
 
 def test_vector_buffer() -> Buffer:
     # create an array with 1532 floats between 0 and 1, similar to an embedding vector
-    return np.random.rand(1532).astype(np.float32)
+    return _as_buffer(np.random.rand(1532).astype(np.float32))
 
 def test_int8_2d_buffer() -> Buffer:
-    return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int8)
+    return _as_buffer(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int8))
 
 def test_uint8_2d_buffer() -> Buffer:
-    return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.uint8)
+    return _as_buffer(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.uint8))
 
 def test_int16_2d_buffer() -> Buffer:
-    return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int16)
+    return _as_buffer(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int16))
 
 def test_uint16_2d_buffer() -> Buffer:
-    return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.uint16)
+    return _as_buffer(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.uint16))
 
 def test_int32_2d_buffer() -> Buffer:
-    return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32)
+    return _as_buffer(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32))
 
 def test_uint32_2d_buffer() -> Buffer:
-    return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.uint32)
+    return _as_buffer(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.uint32))
 
 def test_int64_2d_buffer() -> Buffer:
-    return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int64)
+    return _as_buffer(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int64))
 
 def test_uint64_2d_buffer() -> Buffer:
-    return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.uint64)
+    return _as_buffer(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.uint64))
 
 def test_float16_2d_buffer() -> Buffer:
-    return np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float16)
+    return _as_buffer(np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float16))
 
 def test_float32_2d_buffer(read_only: bool = False) -> Buffer:
-    arr = np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float32)
+    arr = _as_buffer(np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float32))
     arr.flags.writeable = not read_only
     return arr
 
 def test_float64_2d_buffer() -> Buffer:
-    return np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float64)
+    return _as_buffer(np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float64))
 
 arr = np.zeros((2, 3), dtype=np.int32)
 
 def test_global_buffer() -> Buffer:
-    return arr
+    return _as_buffer(arr)
 
 def test_bytes_as_buffer() -> Buffer:
     return b"hello"
@@ -97,34 +109,34 @@ def test_non_buffer() -> Buffer:
     return "hello"  # type: ignore[return-value]
 
 def test_non_contiguous_buffer() -> Buffer:
-    return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32)[::2]
+    return _as_buffer(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32)[::2])
 
 def test_transposed_buffer() -> Buffer:
-    return np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32).T
+    return _as_buffer(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32).T)
 
 def test_ndim_3d_buffer() -> Buffer:
     arr =  np.zeros((2, 3, 4), dtype=np.int32)
     arr[0, 0, 0] = 1
     arr[0, 0, 1] = 2
     arr[1, 2, 3] = 3
-    return arr
+    return _as_buffer(arr)
 
 def test_ndim_3d_float32_buffer(read_only: bool = False) -> Buffer:
     arr = np.ones((3, 4, 5), dtype=np.float32)
     arr.flags.writeable = not read_only
-    return arr
+    return _as_buffer(arr)
 
 def test_ndim_4d_buffer() -> Buffer:
     arr = np.zeros((2, 3, 4, 5), dtype=np.int32)
     arr[0, 0, 0, 0] = 1
     arr[0, 0, 0, 1] = 2
     arr[1, 2, 3, 4] = 3
-    return arr
+    return _as_buffer(arr)
 
 
 def sum_of_2d_array(n: int) -> Generator[Buffer, None, int]:
     arr = np.zeros((n, n), dtype=np.int32)
-    yield arr
+    yield _as_buffer(arr)
     return np.sum(arr).item()
 
 

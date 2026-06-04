@@ -26,6 +26,10 @@ permissions:
 jobs:
   validate-python:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+      fail-fast: false
 
     steps:
       - uses: actions/checkout@v4
@@ -35,13 +39,13 @@ jobs:
         id: installpython
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "${{ matrix.python }}"
 
       - name: Run pyright on test Python code
         run: |
           python -m pip install pyright attrs
           python -m pip install -r src/Integration.Tests/python/requirements.txt
-          pyright src/*.Tests/**/*.py
+          pyright --pythonversion ${{ matrix.python }} src/*.Tests/**/*.py
   unit-test:
     permissions:
       contents: read

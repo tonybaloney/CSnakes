@@ -14,7 +14,9 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
-    [string]$PythonVersion
+    [string]$PythonVersion,
+
+    [switch]$NoBuild
 )
 
 $ErrorActionPreference = 'Stop'
@@ -24,8 +26,10 @@ $testProject = Join-Path $PSScriptRoot 'Integration.Tests.csproj'
 $stageProject = Join-Path $PSScriptRoot '..' 'CSnakes.Stage' 'CSnakes.Stage.csproj'
 
 # Build the test project to ensure output directories and requirements.txt exist
-Write-Host "Building $testProject..."
-dotnet build $testProject
+if (-not $NoBuild) {
+    Write-Host "Building $testProject..."
+    dotnet build $testProject
+}
 
 # Query target frameworks from the test project
 $tfms = (dotnet msbuild $testProject -getProperty:TargetFrameworks -nologo) -split ';'

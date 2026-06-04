@@ -14,7 +14,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
-    [string]$PythonVersion,
+    [version]$PythonVersion,
     [switch]$FreeThreaded,
     [switch]$NoBuild
 )
@@ -64,7 +64,7 @@ try {
             throw "Failed to resolve OutputPath for target framework '$tfm'."
         }
         $pythonHome = Join-Path $PSScriptRoot '..' $outputPath 'python'
-        $venvName = ".venv-$PythonVersion"
+        $venvName = ".venv-$($PythonVersion.Major).$($PythonVersion.Minor)$(if ($FreeThreaded) { 't' })"
         $venvPath = Join-Path $pythonHome $venvName
 
         Write-Verbose "[$tfm] Python home: $pythonHome"

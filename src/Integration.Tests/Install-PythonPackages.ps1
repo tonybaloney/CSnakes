@@ -69,6 +69,7 @@ foreach ($tfm in $tfms) {
     Push-Location $pythonHome
     try {
         dotnet $stageAssembly `
+            $(if ($VerbosePreference -ne 'SilentlyContinue') { '--verbose' }) `
             --python=$PythonVersion `
             --venv=$venvPath `
             --pip-requirements=requirements.txt

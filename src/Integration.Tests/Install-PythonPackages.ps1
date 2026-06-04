@@ -38,12 +38,11 @@ if (-not $NoBuild) {
     dotnet build $stageProject --framework $stageTfm
 }
 
-# Resolve the staging tool executable path
-$stageOutputPath = dotnet msbuild $stageProject -property:TargetFramework=$stageTfm -getProperty:OutputPath -nologo
-if (-not $stageOutputPath) {
-    throw "Failed to resolve OutputPath for staging tool ($stageTfm)."
+# Resolve the staging tool assembly path
+$stageAssembly = dotnet msbuild $stageProject -property:TargetFramework=$stageTfm -getProperty:TargetPath -nologo
+if (-not $stageAssembly) {
+    throw "Failed to resolve TargetPath for staging tool ($stageTfm)."
 }
-$stageExe = Join-Path $PSScriptRoot '..' 'CSnakes.Stage' $stageOutputPath 'CSnakes.Stage'
 
 # Query target frameworks from the test project
 $tfms = (dotnet msbuild $testProject -getProperty:TargetFrameworks -nologo) -split ';' | Where-Object { $_ -ne '' }
@@ -69,7 +68,7 @@ foreach ($tfm in $tfms) {
 
     Push-Location $pythonHome
     try {
-        & $stageExe `
+        dotnet $stageAssembly `
             --python=$PythonVersion `
             --venv=$venvPath `
             --pip-requirements=requirements.txt

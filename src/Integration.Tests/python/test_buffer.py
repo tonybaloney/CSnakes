@@ -1,8 +1,9 @@
+import sys
 from typing import Generator
 
-try:
+if sys.version_info >= (3, 12):
     from collections.abc import Buffer
-except ImportError:
+else:
     from typing_extensions import Buffer
 
 import numpy as np

@@ -26,8 +26,8 @@ $env:MSBUILDTERMINALLOGGER = 'off'
 
 try {
 
-$testProject = Join-Path $PSScriptRoot 'Integration.Tests.csproj'
-$stageProject = Join-Path $PSScriptRoot '..' 'CSnakes.Stage' 'CSnakes.Stage.csproj'
+$testProject = Join-Path $PSScriptRoot '..' 'Integration.Tests.csproj'
+$stageProject = Join-Path $PSScriptRoot '..' '..' 'CSnakes.Stage' 'CSnakes.Stage.csproj'
 
 # Determine the staging tool's target framework and build it (once)
 $stageTfm = ((dotnet build $stageProject -getProperty:TargetFrameworks) -split ';')[0]
@@ -63,7 +63,7 @@ foreach ($tfm in $tfms) {
     if (-not $outputPath) {
         throw "Failed to resolve OutputPath for target framework '$tfm'."
     }
-    $pythonHome = Join-Path $PSScriptRoot $outputPath 'python'
+    $pythonHome = Join-Path $PSScriptRoot '..' $outputPath 'python'
     $venvName = ".venv-$PythonVersion"
     $venvPath = Join-Path $pythonHome $venvName
 

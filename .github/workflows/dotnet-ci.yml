@@ -161,7 +161,7 @@ jobs:
         working-directory: src
 
       - name: Pre-install Python packages
-        run: ./src/Integration.Tests/Install-PythonPackages.ps1 -PythonVersion ${{ matrix.python }} -NoBuild -Verbose
+        run: ./src/Integration.Tests/python/install.ps1 -PythonVersion ${{ matrix.python }} -NoBuild -Verbose
         shell: pwsh
 
       - name: Integration Tests

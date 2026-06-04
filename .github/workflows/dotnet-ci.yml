@@ -32,12 +32,12 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: 'true'
       - name: Setup Python
         id: installpython
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "${{ matrix.python }}"
 
@@ -56,7 +56,7 @@ jobs:
       fail-fast: true
     runs-on: "${{ matrix.os }}"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: 'true'
       - name: Setup .NET
@@ -113,7 +113,7 @@ jobs:
     runs-on: "${{ matrix.os }}"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: 'true'
       - uses: conda-incubator/setup-miniconda@v3.1.0
@@ -225,12 +225,12 @@ jobs:
     runs-on: "${{ matrix.os }}"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: 'true'
       - name: Setup Python
         id: installpython
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "${{ matrix.python }}"
 

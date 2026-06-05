@@ -37,6 +37,7 @@ static async Task<int> Main(ProgramArguments args)
                        .WithPython()
                        .WithHome(home)
                        .FromRedistributable(version: pythonVersion,
+                                            freeThreaded: args.OptFreeThreaded,
                                             timeout: args.OptTimeout is { } timeout
                                                      ? int.Parse(timeout, NumberStyles.None, CultureInfo.InvariantCulture)
                                                      : BuildConstants.DefaultTimeoutInSeconds);
@@ -118,6 +119,7 @@ partial class ProgramArguments
         Usage:
           {BinName}
               [--verbose]
+              [--free-threaded]
               [--timeout=SECONDS]
               [--venv=PATH]
               [--pip-requirements=FILE | --uv-requirements=FILE]
@@ -129,6 +131,7 @@ partial class ProgramArguments
           -?, -h, --help           Show help and usage information
           --version                Show version information
           --verbose                Enable verbose output
+          --free-threaded          Use free-threaded Python build
           --python=VERSION         Python version to use (e.g., 3.12)
           --timeout=SECONDS        Timeout in seconds for downloading Python
                                      (default is {BuildConstants.DefaultTimeoutInSecondsString} seconds)

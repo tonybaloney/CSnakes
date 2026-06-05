@@ -87,9 +87,9 @@ def test_float16_2d_buffer() -> Buffer:
     return _as_buffer(np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float16))
 
 def test_float32_2d_buffer(read_only: bool = False) -> Buffer:
-    arr = _as_buffer(np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float32))
+    arr = np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float32)
     arr.flags.writeable = not read_only
-    return arr
+    return _as_buffer(arr)
 
 def test_float64_2d_buffer() -> Buffer:
     return _as_buffer(np.array([[1.1 , 2.2, 3.3], [4.4, 5.5, 6.6]], dtype=np.float64))
@@ -141,8 +141,8 @@ def sum_of_2d_array(n: int) -> Generator[Buffer, None, int]:
 
 
 def test_float32_int_buffer() -> Buffer:
-    return np.array([1.0, 2.0, 3.0, 4.0, 5.0], dtype=np.float32)
+    return _as_buffer(np.array([1.0, 2.0, 3.0, 4.0, 5.0], dtype=np.float32))
 
 
 def test_float32_int_2d_buffer() -> Buffer:
-    return np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], dtype=np.float32)
+    return _as_buffer(np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], dtype=np.float32))

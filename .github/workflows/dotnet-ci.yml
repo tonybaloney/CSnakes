@@ -32,12 +32,12 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: 'true'
       - name: Setup Python
         id: installpython
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "${{ matrix.python }}"
 
@@ -56,18 +56,18 @@ jobs:
       fail-fast: true
     runs-on: "${{ matrix.os }}"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: 'true'
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             8.0.x
             9.0.x
             10.0.x
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         name: Cache NuGet packages
         with:
           path: ~/.nuget/packages
@@ -113,7 +113,7 @@ jobs:
     runs-on: "${{ matrix.os }}"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: 'true'
       - uses: conda-incubator/setup-miniconda@v3.1.0
@@ -135,14 +135,14 @@ jobs:
           conda info
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             8.0.x
             9.0.x
             10.0.x
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         name: Cache NuGet packages
         with:
           path: ~/.nuget/packages
@@ -199,7 +199,7 @@ jobs:
           PYTHON_VERSION: ${{ matrix.python }}
           UV_NO_CACHE: 1
       - name: Upload logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: logs-${{ matrix.os }}-${{ matrix.python }}
@@ -207,7 +207,7 @@ jobs:
             ${{ github.workspace }}/*.binlog
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: test-results-${{ matrix.os }}-${{ matrix.python }}
@@ -225,17 +225,17 @@ jobs:
     runs-on: "${{ matrix.os }}"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: 'true'
       - name: Setup Python
         id: installpython
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "${{ matrix.python }}"
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             8.0.x

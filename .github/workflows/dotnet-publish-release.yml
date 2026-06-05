@@ -44,7 +44,7 @@ jobs:
         working-directory: src
 
       - name: Publish NuGet packages as artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: nuget-packages
           path: ./nuget

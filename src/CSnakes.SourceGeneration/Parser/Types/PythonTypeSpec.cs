@@ -12,6 +12,7 @@ public abstract record PythonTypeSpec(string Name, ValueArray<PythonConstant> Me
     public static readonly BoolType Bool = BoolType.Instance;
     public static readonly BytesType Bytes = BytesType.Instance;
     public static readonly BufferType Buffer = BufferType.Instance;
+    public static readonly TimeType Time = TimeType.Instance;
     public static readonly VariadicTupleType Tuple = new(Any);
 
     protected string Format(string? subscript = null)
@@ -81,6 +82,13 @@ public sealed record BufferType : PythonTypeSpec
 {
     public static readonly BufferType Instance = new();
     private BufferType() : base("Buffer") { }
+    public override string ToString() => Format();
+}
+
+public sealed record TimeType : PythonTypeSpec
+{
+    public static readonly TimeType Instance = new();
+    private TimeType() : base("time") { }
     public override string ToString() => Format();
 }
 

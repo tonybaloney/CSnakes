@@ -64,6 +64,22 @@ public class GeneratedSignatureTests
     [InlineData("def hello(a: str, b: int = 4, *, kw: str) -> None:\n ...\n", "void Hello(string a, string kw, long b = 4)")]
     [InlineData("def hello() -> str | int: \n  ...\n", "PyObject Hello()")]
     [InlineData("def escape(s: str, quote: bool = True) -> str: ...\n", "string Escape(string s, bool quote = true)")]
+    [InlineData("def hello() -> tuple[Annotated[int, '@X'], Annotated[int, '@Y']]: ...\n", "(long X, long Y) Hello()")]
+    [InlineData("""
+                def hello() -> tuple[Annotated[int, '@'],       # missing name
+                                     Annotated[int, '@Foo'],    # ok
+                                     Annotated[int, '@@'],      # invalid name
+                                     Annotated[int, ''],        # empty name
+                                     Annotated[int, '8eer'],    # invalid name (starts with digit)
+                                     Annotated[int, 'Foo'],     # does not start with @
+                                     Annotated[int, 'Foo',
+                                                    '@Bar',     # first valid name
+                                                    'Baz',
+                                                    '@Qux'],
+                                     int]: ...                  # no annotation
+
+                """,
+                "(long, long Foo, long, long, long, long, long Bar, long) Hello()")]
     [InlineData("""
 
         # csharp: ignore

@@ -25,7 +25,7 @@ static partial class TestClassExtensions
 {
     private static ITestClass? instance;
 
-    private static ReadOnlySpan<byte> HotReloadHash => "6c64fd97abd301f2df3bc4c42102abac"u8;
+    private static ReadOnlySpan<byte> HotReloadHash => "779689ac6274a20ded5c31cf5cf470fb"u8;
 
     public static ITestClass TestClass(this IPythonEnvironment env)
     {
@@ -64,6 +64,7 @@ static partial class TestClassExtensions
         private PyObject __func_tuple_15;
         private PyObject __func_tuple_16;
         private PyObject __func_tuple_17;
+        private PyObject __func_named_elements;
 
         internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
@@ -89,6 +90,7 @@ static partial class TestClassExtensions
                 this.__func_tuple_15 = module.GetAttr("tuple_15");
                 this.__func_tuple_16 = module.GetAttr("tuple_16");
                 this.__func_tuple_17 = module.GetAttr("tuple_17");
+                this.__func_named_elements = module.GetAttr("named_elements");
             }
         }
 
@@ -116,6 +118,7 @@ static partial class TestClassExtensions
                 this.__func_tuple_15.Dispose();
                 this.__func_tuple_16.Dispose();
                 this.__func_tuple_17.Dispose();
+                this.__func_named_elements.Dispose();
                 // Bind to new functions
                 this.__func_tuple_1 = module.GetAttr("tuple_1");
                 this.__func_tuple_2 = module.GetAttr("tuple_2");
@@ -134,6 +137,7 @@ static partial class TestClassExtensions
                 this.__func_tuple_15 = module.GetAttr("tuple_15");
                 this.__func_tuple_16 = module.GetAttr("tuple_16");
                 this.__func_tuple_17 = module.GetAttr("tuple_17");
+                this.__func_named_elements = module.GetAttr("named_elements");
             }
         }
 
@@ -157,6 +161,7 @@ static partial class TestClassExtensions
             this.__func_tuple_15.Dispose();
             this.__func_tuple_16.Dispose();
             this.__func_tuple_17.Dispose();
+            this.__func_named_elements.Dispose();
             module.Dispose();
         }
 
@@ -380,6 +385,19 @@ static partial class TestClassExtensions
                 return __return;
             }
         }
+
+        public (long X, long Y, long Z) NamedElements((long, long, long) a)
+        {
+            using (GIL.Acquire())
+            {
+                this.logger?.LogDebug("Invoking Python function: {FunctionName}", "named_elements");
+                PyObject __underlyingPythonFunc = this.__func_named_elements;
+                using PyObject a_pyObject = PyObject.From(a)!;
+                using PyObject __result_pyObject = __underlyingPythonFunc.Call(a_pyObject);
+                var __return = __result_pyObject.BareImportAs<(long, long, long), global::CSnakes.Runtime.Python.PyObjectImporters.Tuple<long, long, long, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.Int64, global::CSnakes.Runtime.Python.PyObjectImporters.Int64>>();
+                return __return;
+            }
+        }
     }
 }
 
@@ -523,6 +541,14 @@ partial interface ITestClass : IReloadableModuleImport
     /// ]]></code>
     /// </summary>
     (string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) Tuple17((string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string) a);
+
+    /// <summary>
+    /// Invokes the Python function <c>named_elements</c>:
+    /// <code><![CDATA[
+    /// def named_elements(a: tuple[int, int, int]) -> tuple[Annotated[int, '@X'], Annotated[int, '@Y'], Annotated[int, '@Z']]: ...
+    /// ]]></code>
+    /// </summary>
+    (long X, long Y, long Z) NamedElements((long, long, long) a);
 }
 
 file static class ThisModule

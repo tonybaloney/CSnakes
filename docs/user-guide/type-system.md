@@ -158,6 +158,54 @@ var (x, y, z) = module.GetCoordinates();
 Console.WriteLine($"Position: ({x}, {y}, {z})");
 ```
 
+#### Named tuple elements
+
+By default, tuple elements are positional and unnamed. You can give a C# tuple
+element a name by wrapping its Python type in `typing.Annotated` and supplying a
+metadata string that starts with `@` followed by the desired name:
+
+```python
+from typing import Annotated
+
+def get_location() -> tuple[Annotated[float, '@Latitude'],
+                            Annotated[float, '@Longitude']]:
+    return (12.34, 56.78)
+```
+
+The generated C# method returns a tuple with named elements:
+
+```csharp
+public (double Latitude, double Longitude) GetLocation();
+```
+
+so callers can access the elements by name:
+
+```csharp
+var location = module.GetLocation();
+Console.WriteLine($"{location.Latitude}, {location.Longitude}");
+```
+
+The following rules apply to the annotation:
+
+- The metadata string must start with `@` and the remainder must be a valid C#
+  identifier (for example, `'@Latitude'`).
+- If an element is annotated with more than one metadata string, the first valid
+  `@`-prefixed name is used.
+- An annotation that is missing, empty, does not start with `@`, or does not
+  contain a valid C# identifier is ignored, and the element remains positional.
+  This means named and unnamed elements can be freely mixed within the same
+  tuple:
+
+  ```python
+  def get_partial(
+  ) -> tuple[Annotated[int, '@Id'], int, Annotated[str, '@Name']]:
+      return (1, 2, "Alice")
+  ```
+
+  ```csharp
+  public (long Id, long, string Name) GetPartial();
+  ```
+
 ## Default Values
 
 Python default values for types which support compile-time constants in C# (string, int, float, bool) are preserved in the generated C# methods:

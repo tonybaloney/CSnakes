@@ -1,3 +1,5 @@
+--only-binary=numpy
+
 httpx==0.28.1
 numpy==2.0.2; python_version < '3.11'
 numpy==2.3.2; python_version >= '3.11'

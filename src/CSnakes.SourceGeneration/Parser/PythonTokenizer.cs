@@ -19,6 +19,7 @@ public static class PythonTokenizer
         .Match(Character.EqualTo(',').IgnoreThen(Character.In(' ', '\t', '\n').Many()).IgnoreThen(Character.EqualTo('*')), PythonToken.CommaStar)
         .Match(Character.EqualTo(',').IgnoreThen(Character.In(' ', '\t', '\n').Many()).IgnoreThen(Character.EqualTo('/')), PythonToken.CommaSlash)
         .Match(Character.EqualTo(',').IgnoreThen(Character.In(' ', '\t', '\n').Many()).IgnoreThen(Character.EqualTo(')')), PythonToken.CommaCloseParenthesis)
+        .Match(Character.EqualTo(',').IgnoreThen(Character.In(' ', '\t', '\n').Many()).IgnoreThen(Character.EqualTo(']')), PythonToken.CommaCloseBracket)
         .Match(Character.EqualTo(','), PythonToken.Comma)
         .Match(Character.EqualTo('*').IgnoreThen(Character.EqualTo('*')), PythonToken.DoubleAsterisk)
         .Match(Character.EqualTo('*'), PythonToken.Asterisk)

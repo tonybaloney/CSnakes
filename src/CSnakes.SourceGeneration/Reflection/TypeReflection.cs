@@ -14,7 +14,7 @@ public static class TypeReflection
         FromPython
     }
 
-    public static SyntaxToken? FindAnnotatedIdentifier(this PythonTypeSpec typeSpec)
+    private static SyntaxToken? FindAnnotatedIdentifier(this PythonTypeSpec typeSpec)
     {
         foreach (var md in typeSpec.Metadata)
         {

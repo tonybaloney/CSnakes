@@ -49,7 +49,7 @@ class _Handler(logging.Handler):
 
 
 def monitor(
-    name: Union[str, None] = None
+    name: Union[str, None] = None,
 ) -> tuple[
     Annotated[
         Generator[
@@ -62,19 +62,19 @@ def monitor(
                         tuple[
                             Annotated[Any, "@ExceptionType"],
                             Annotated[Any, "@Exception"],
-                            Annotated[Any, "@Traceback"]
+                            Annotated[Any, "@Traceback"],
                         ],
-                        None
+                        None,
                     ],
-                    "@ExceptionInfo"
-                ]
+                    "@ExceptionInfo",
+                ],
             ],
             None,
-            None
+            None,
         ],
-        "@Generator"
+        "@Generator",
     ],
-    Annotated[Callable[[], None], "@Close"]
+    Annotated[Callable[[], None], "@Close"],
 ]:
     handler = _Handler()
     logger = logging.getLogger(name)

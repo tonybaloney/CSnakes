@@ -152,6 +152,10 @@ public class PythonTypeDefinitionParserTests
     [InlineData("list[int]")]
     [InlineData("List[int]")]
     [InlineData("typing.List[int]")]
+    // Trailing comma in generic type argument list
+    [InlineData("list[int, ]")]
+    [InlineData("List[int, ]")]
+    [InlineData("typing.List[int, ]")]
     public void ListTest(string input)
     {
         var type = TestParse<ListType>(input);
@@ -162,6 +166,10 @@ public class PythonTypeDefinitionParserTests
     [InlineData("Sequence[str]")]
     [InlineData("typing.Sequence[str]")]
     [InlineData("collections.abc.Sequence[str]")]
+    // Trailing comma in generic type argument list
+    [InlineData("Sequence[str, ]")]
+    [InlineData("typing.Sequence[str, ]")]
+    [InlineData("collections.abc.Sequence[str, ]")]
     public void SequenceTest(string input)
     {
         var type = TestParse<SequenceType>(input);
@@ -172,6 +180,10 @@ public class PythonTypeDefinitionParserTests
     [InlineData("dict[str, int]")]
     [InlineData("Dict[str, int]")]
     [InlineData("typing.Dict[str, int]")]
+    // Trailing comma in generic type argument list
+    [InlineData("dict[str, int, ]")]
+    [InlineData("Dict[str, int, ]")]
+    [InlineData("typing.Dict[str, int, ]")]
     public void DictTest(string input)
     {
         var type = TestParse<DictType>(input);
@@ -183,6 +195,10 @@ public class PythonTypeDefinitionParserTests
     [InlineData("Mapping[str, float]")]
     [InlineData("typing.Mapping[str, float]")]
     [InlineData("collections.abc.Mapping[str, float]")]
+    // Trailing comma in generic type argument list
+    [InlineData("Mapping[str, float, ]")]
+    [InlineData("typing.Mapping[str, float, ]")]
+    [InlineData("collections.abc.Mapping[str, float, ]")]
     public void MappingTest(string input)
     {
         var type = TestParse<MappingType>(input);
@@ -194,6 +210,10 @@ public class PythonTypeDefinitionParserTests
     [InlineData("Generator[int, str, bool]")]
     [InlineData("typing.Generator[int, str, bool]")]
     [InlineData("collections.abc.Generator[int, str, bool]")]
+    // Trailing comma in generic type argument list
+    [InlineData("Generator[int, str, bool, ]")]
+    [InlineData("typing.Generator[int, str, bool, ]")]
+    [InlineData("collections.abc.Generator[int, str, bool, ]")]
     public void GeneratorTest(string input)
     {
         var type = TestParse<GeneratorType>(input);
@@ -206,6 +226,10 @@ public class PythonTypeDefinitionParserTests
     [InlineData("Awaitable[int]")]
     [InlineData("typing.Awaitable[int]")]
     [InlineData("collections.abc.Awaitable[int]")]
+    // Trailing comma in generic type argument list
+    [InlineData("Awaitable[int, ]")]
+    [InlineData("typing.Awaitable[int, ]")]
+    [InlineData("collections.abc.Awaitable[int, ]")]
     public void AwaitableTest(string input)
     {
         var type = TestParse<AwaitableType>(input);
@@ -216,6 +240,10 @@ public class PythonTypeDefinitionParserTests
     [InlineData("Coroutine[int, str, bool]")]
     [InlineData("typing.Coroutine[int, str, bool]")]
     [InlineData("collections.abc.Coroutine[int, str, bool]")]
+    // Trailing comma in generic type argument list
+    [InlineData("Coroutine[int, str, bool, ]")]
+    [InlineData("typing.Coroutine[int, str, bool, ]")]
+    [InlineData("collections.abc.Coroutine[int, str, bool, ]")]
     public void CoroutineTest(string input)
     {
         var type = TestParse<CoroutineType>(input);
@@ -228,6 +256,10 @@ public class PythonTypeDefinitionParserTests
     [InlineData("Callable[[int, str], bool]")]
     [InlineData("typing.Callable[[int, str], bool]")]
     [InlineData("collections.abc.Callable[[int, str], bool]")]
+    // Trailing comma in generic type argument list
+    [InlineData("Callable[[int, str], bool, ]")]
+    [InlineData("typing.Callable[[int, str], bool, ]")]
+    [InlineData("collections.abc.Callable[[int, str], bool, ]")]
     public void CallableTest(string input)
     {
         var type = TestParse<CallableType>(input);
@@ -240,6 +272,9 @@ public class PythonTypeDefinitionParserTests
     [Theory]
     [InlineData("Callable[[], None]")]
     [InlineData("typing.Callable[[], None]")]
+    // Trailing comma in generic type argument list
+    [InlineData("Callable[[], None, ]")]
+    [InlineData("typing.Callable[[], None, ]")]
     public void CallableNoParametersTest(string input)
     {
         var type = TestParse<CallableType>(input);
@@ -250,6 +285,7 @@ public class PythonTypeDefinitionParserTests
 
     [Theory]
     [InlineData("Callable[..., Any]")]
+    [InlineData("Callable[..., Any, ]")]
     public void CallableEllipsisParametersTest(string input)
     {
         var type = TestParse<CallableType>(input);
@@ -260,6 +296,9 @@ public class PythonTypeDefinitionParserTests
     [Theory]
     [InlineData("Literal[1]")]
     [InlineData("typing.Literal[1]")]
+    // Trailing comma in generic type argument list
+    [InlineData("Literal[1, ]")]
+    [InlineData("typing.Literal[1, ]")]
     public void LiteralIntTest(string input)
     {
         var type = TestParse<LiteralType>(input);
@@ -271,6 +310,9 @@ public class PythonTypeDefinitionParserTests
     [Theory]
     [InlineData("Literal['hello']")]
     [InlineData("typing.Literal['hello']")]
+    // Trailing comma in generic type argument list
+    [InlineData("Literal['hello', ]")]
+    [InlineData("typing.Literal['hello', ]")]
     public void LiteralStringTest(string input)
     {
         var type = TestParse<LiteralType>(input);
@@ -282,6 +324,9 @@ public class PythonTypeDefinitionParserTests
     [Theory]
     [InlineData("Literal[True, False]")]
     [InlineData("typing.Literal[True, False]")]
+    // Trailing comma in generic type argument list
+    [InlineData("Literal[True, False, ]")]
+    [InlineData("typing.Literal[True, False, ]")]
     public void LiteralMultipleTest(string input)
     {
         var type = TestParse<LiteralType>(input);
@@ -295,6 +340,9 @@ public class PythonTypeDefinitionParserTests
     [Theory]
     [InlineData("Union[int, str]")]
     [InlineData("typing.Union[int, str]")]
+    // Trailing comma in generic type argument list
+    [InlineData("Union[int, str, ]")]
+    [InlineData("typing.Union[int, str, ]")]
     public void UnionTest(string input)
     {
         var type = TestParse<UnionType>(input);
@@ -326,6 +374,10 @@ public class PythonTypeDefinitionParserTests
     [InlineData("tuple[int, str]")]
     [InlineData("Tuple[int, str]")]
     [InlineData("typing.Tuple[int, str]")]
+    // Trailing comma in generic type argument list
+    [InlineData("tuple[int, str, ]")]
+    [InlineData("Tuple[int, str, ]")]
+    [InlineData("typing.Tuple[int, str, ]")]
     public void TupleTest(string input)
     {
         var type = TestParse<TupleType>(input);
@@ -337,6 +389,11 @@ public class PythonTypeDefinitionParserTests
     [Theory]
     [InlineData("tuple[int]")]
     [InlineData("Tuple[int]")]
+    [InlineData("typing.Tuple[int]")]
+    // Trailing comma in generic type argument list
+    [InlineData("tuple[int, ]")]
+    [InlineData("Tuple[int, ]")]
+    [InlineData("typing.Tuple[int, ]")]
     public void TupleSingleParameterTest(string input)
     {
         var type = TestParse<TupleType>(input);
@@ -348,6 +405,10 @@ public class PythonTypeDefinitionParserTests
     [InlineData("tuple[int, ...]")]
     [InlineData("Tuple[int, ...]")]
     [InlineData("typing.Tuple[int, ...]")]
+    // Trailing comma in generic type argument list
+    [InlineData("tuple[int, ..., ]")]
+    [InlineData("Tuple[int, ..., ]")]
+    [InlineData("typing.Tuple[int, ..., ]")]
     public void VariadicTupleTest(string input)
     {
         var type = TestParse<VariadicTupleType>(input);
@@ -364,6 +425,8 @@ public class PythonTypeDefinitionParserTests
     [InlineData("tuple[str | None, ...]", "Optional[str]")]
     [InlineData("tuple[Union[int, str], ...]", "Union[int, str]")]
     [InlineData("tuple[int | str, ...]", "Union[int, str]")]
+    // Trailing comma in generic type argument list
+    [InlineData("tuple[str, ..., ]", "str")]
     public void VariadicTupleWithDifferentTypesTest(string input, string expectedElementType)
     {
         var type = TestParse<VariadicTupleType>(input);
@@ -400,6 +463,7 @@ public class PythonTypeDefinitionParserTests
 
     [Theory]
     [InlineData("MyGeneric[int, str]")]
+    [InlineData("MyGeneric[int, str, ]")]
     public void GenericTypeWithMultipleArgumentsTest(string input)
     {
         var type = TestParse<ParsedPythonTypeSpec>(input);
@@ -443,5 +507,12 @@ public class PythonTypeDefinitionParserTests
         var dictType = Assert.IsType<DictType>(unionType.Choices[1]);
         _ = Assert.IsType<IntType>(dictType.Key);
         _ = Assert.IsType<BoolType>(dictType.Value);
+    }
+
+    [Theory]
+    [InlineData("Annotated[int, 'a number', ]")]
+    public void TrailingCommaInAnnotatedMetadata(string input)
+    {
+        _ = PythonParser.PythonTypeDefinitionParser.Parse(Tokenize(input));
     }
 }

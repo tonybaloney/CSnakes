@@ -176,7 +176,11 @@ public static partial class PythonParser
     private static TokenListParser<PythonToken, T> Return<T>(T value) => Parse.Return<PythonToken, T>(value);
 
     private static TokenListParser<PythonToken, T> Subscript<T>(this TokenListParser<PythonToken, T> parser) =>
-        parser.Between(Token.EqualTo(PythonToken.OpenBracket), Token.EqualTo(PythonToken.CloseBracket));
+        parser.Between(Token.EqualTo(PythonToken.OpenBracket),
+                       Token.EqualTo(PythonToken.CloseBracket)
+                            .Or(Token.EqualTo(PythonToken.CommaCloseBracket))
+                            .Named("`]`"));
+
 
     private static TokenListParser<PythonToken, TResult>
         Subscript<T, TResult>(this TokenListParser<PythonToken, T> parser,

@@ -510,9 +510,11 @@ public class PythonTypeDefinitionParserTests
     }
 
     [Theory]
-    [InlineData("Annotated[int, 'a number', ]")]
+    [InlineData("Annotated[int, 'foobar', ]")]
     public void TrailingCommaInAnnotatedMetadata(string input)
     {
-        _ = PythonParser.PythonTypeDefinitionParser.Parse(Tokenize(input));
+        var type = TestParse<PythonTypeSpec>(input);
+        Assert.Single(type.Metadata);
+        Assert.Equal("'foobar'", type.Metadata[0].ToString());
     }
 }

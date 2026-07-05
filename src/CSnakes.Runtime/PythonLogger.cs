@@ -71,8 +71,24 @@ file sealed class Bridge(PyObject closeCallable, Task listenerTask) : IAsyncDisp
         {
             using (GIL.Acquire())
             {
-                (var generator, closeCallable) = module.Monitor(loggerName);
-                listenerTask = StartRecordListener(generator, logger);
+                var result = module.Monitor(loggerName);
+                closeCallable = result.Close;
+                listenerTask = StartRecordListener(result.Generator,
+                                                   static r =>
+                                                       (checked((int)r.DropCount),
+                                                        // https://docs.python.org/3/library/logging.html#levels
+                                                        (r.Level / 10) switch
+                                                        {
+                                                            1 => LogLevel.Debug,
+                                                            2 => LogLevel.Information,
+                                                            3 => LogLevel.Warning,
+                                                            4 => LogLevel.Error,
+                                                            >= 5 => LogLevel.Critical,
+                                                            _ => LogLevel.None,
+                                                        },
+                                                        r.Message,
+                                                        r.ExceptionInfo),
+                                                   logger);
             }
         }
         catch
@@ -88,15 +104,19 @@ file sealed class Bridge(PyObject closeCallable, Task listenerTask) : IAsyncDisp
         return new(closeCallable, listenerTask);
     }
 
-    private static Task StartRecordListener(IEnumerator<(long, long, string, ExceptionInfo?)> record, ILogger logger)
+    private static Task
+        StartRecordListener<T>(
+            IEnumerator<T> enumerator,
+            Func<T, (int DropCount, LogLevel Level, string Message, ExceptionInfo? ExceptionInfo)> selector,
+            ILogger logger)
     {
         return Task.Run(() =>
         {
-            while (record.MoveNext()) // TODO Restart log records reading loop on failure
+            while (enumerator.MoveNext()) // TODO Restart log records reading loop on failure
             {
-                var (dropCount, level, message, exceptionInfo) = record.Current;
+                var record = selector(enumerator.Current);
 
-                if (dropCount > 0)
+                if (record is { DropCount: > 0 and var dropCount })
                 {
                     // One could log a warning here:
                     //
@@ -111,7 +131,7 @@ file sealed class Bridge(PyObject closeCallable, Task listenerTask) : IAsyncDisp
 
                 try
                 {
-                    LogRecord(logger, level, message, exceptionInfo);
+                    LogRecord(logger, record.Level, record.Message, record.ExceptionInfo);
                 }
                 catch (Exception ex)
                 {
@@ -120,7 +140,7 @@ file sealed class Bridge(PyObject closeCallable, Task listenerTask) : IAsyncDisp
             }
         });
 
-        static void LogRecord(ILogger logger, long level, string message, ExceptionInfo? exceptionInfo)
+        static void LogRecord(ILogger logger, LogLevel level, string message, ExceptionInfo? exceptionInfo)
         {
             Exception? exception = null;
             if (exceptionInfo is { } info)
@@ -132,21 +152,10 @@ file sealed class Bridge(PyObject closeCallable, Task listenerTask) : IAsyncDisp
                 exception = new PythonInvocationException(name?.ToString() ?? "Exception", pyException, traceback, message);
             }
 
-            // https://docs.python.org/3/library/logging.html#levels
-            var mappedLevel = (level / 10) switch
-            {
-                1 => LogLevel.Debug,
-                2 => LogLevel.Information,
-                3 => LogLevel.Warning,
-                4 => LogLevel.Error,
-                >= 5 => LogLevel.Critical,
-                _ => LogLevel.None,
-            };
-
-            if (mappedLevel == LogLevel.None || !logger.IsEnabled(mappedLevel))
+            if (level == LogLevel.None || !logger.IsEnabled(level))
                 return;
 
-            logger.Log(mappedLevel, exception, message);
+            logger.Log(level, exception, message);
         }
     }
 

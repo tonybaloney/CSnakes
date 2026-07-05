@@ -4,7 +4,7 @@ import threading
 
 from collections.abc import Callable, Generator, Iterator
 from logging import LogRecord
-from typing import Any, Union
+from typing import Annotated, Any, Union
 
 
 class _Handler(logging.Handler):
@@ -48,7 +48,34 @@ class _Handler(logging.Handler):
         logging.Handler.close(self)
 
 
-def monitor(name: Union[str, None] = None) -> tuple[Generator[tuple[int, int, str, Union[tuple[Any, Any, Any], None]], None, None], Callable[[], None]]:
+def monitor(
+    name: Union[str, None] = None
+) -> tuple[
+    Annotated[
+        Generator[
+            tuple[
+                Annotated[int, "@DropCount"],
+                Annotated[int, "@Level"],
+                Annotated[str, "@Message"],
+                Annotated[
+                    Union[
+                        tuple[
+                            Annotated[Any, "@ExceptionType"],
+                            Annotated[Any, "@Exception"],
+                            Annotated[Any, "@Traceback"]
+                        ],
+                        None
+                    ],
+                    "@ExceptionInfo"
+                ]
+            ],
+            None,
+            None
+        ],
+        "@Generator"
+    ],
+    Annotated[Callable[[], None], "@Close"]
+]:
     handler = _Handler()
     logger = logging.getLogger(name)
     logger.addHandler(handler)

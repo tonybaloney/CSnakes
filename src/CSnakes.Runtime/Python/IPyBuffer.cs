@@ -4,7 +4,6 @@ using System.Numerics.Tensors;
 #endif
 
 namespace CSnakes.Runtime.Python;
-
 public interface IPyBuffer : IDisposable
 {
     /// <summary>

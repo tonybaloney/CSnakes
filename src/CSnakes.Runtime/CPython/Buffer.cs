@@ -39,23 +39,22 @@ internal unsafe partial class CPythonAPI
 
     public static bool IsBuffer(PyObject p) => PyObject_CheckBuffer(p) == 1;
 
-    internal static IPyBuffer GetBuffer(PyObject p) =>
-        PyObject_GetBuffer(p, out var buffer, (int)(PyBUF.Format | PyBUF.CContiguous)) == 0
-            ? buffer
-            : throw PyObject.ThrowPythonExceptionAsClrException();
+    internal static void GetBuffer(PyObject p, out Py_buffer buffer)
+    {
+        if (PyObject_GetBuffer(p, out buffer, (int)(PyBUF.Format | PyBUF.CContiguous)) != 0)
+        {
+            throw PyObject.ThrowPythonExceptionAsClrException();
+        }
+    }
 
     internal static void ReleaseBuffer(ref Py_buffer view) => PyBuffer_Release(ref view);
-    internal static void ReleaseBuffer(PyBuffer buffer) => PyBuffer_Release(buffer);
 
     [LibraryImport(PythonLibraryName)]
     private static partial int PyObject_CheckBuffer(PyObject ob);
 
     [LibraryImport(PythonLibraryName)]
-    private static partial int PyObject_GetBuffer(PyObject ob, out PyBuffer view, int flags);
+    private static partial int PyObject_GetBuffer(PyObject ob, out Py_buffer view, int flags);
 
     [LibraryImport(PythonLibraryName)]
     private static partial void PyBuffer_Release(ref Py_buffer view);
-
-    [LibraryImport(PythonLibraryName)]
-    private static partial void PyBuffer_Release(PyBuffer view);
 }

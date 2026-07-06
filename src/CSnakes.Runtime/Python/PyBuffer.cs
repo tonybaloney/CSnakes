@@ -12,50 +12,60 @@ using System.Numerics.Tensors;
 
 namespace CSnakes.Runtime.Python;
 
-[NativeMarshalling(typeof(Marshaller))]
-public abstract partial class PyBuffer : SafeHandle, IPyBuffer
+public interface IPyBuffer<T> : IPyBuffer where T : unmanaged;
+
+public class PyBuffer<T> : IPyBuffer<T> where T : unmanaged
 {
+    private protected static readonly unsafe int ItemSize = sizeof(T);
+
     private protected readonly int ItemCount;
 
     private CPythonAPI.Py_buffer _buffer;
 
-    internal PyBuffer(in CPythonAPI.Py_buffer buffer, int itemSize) : base(IntPtr.Zero, ownsHandle: true)
+    internal PyBuffer(in CPythonAPI.Py_buffer buffer)
     {
-        ItemCount = (int)(buffer.len / itemSize);
+        ItemCount = (int)(buffer.len / ItemSize);
         _buffer = buffer;
-        unsafe { SetHandle((nint)buffer.obj); }
     }
 
-    public override bool IsInvalid => handle == IntPtr.Zero;
-
-    protected override bool ReleaseHandle()
+    ~PyBuffer()
     {
-        if (IsInvalid)
-            return true;
+        Dispose(disposing: false);
+    }
 
-        if (!CPythonAPI.IsInitialized)
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    private unsafe bool IsDisposed => _buffer.buf is null;
+
+    private void Dispose(bool disposing)
+    {
+        if (IsDisposed)
+            return;
+
+        if (disposing)
         {
-            // The Python environment has been disposed, and therefore Python has freed its memory
-            // pools. Don't release buffer since the Python process isn't running and this pointer
-            // will point somewhere else.
-            // TODO: Consider moving this to a logger.
-            Debug.WriteLine($"Python buffer for exporter at 0x{handle:X} was released, but Python is no longer running.");
+            using (GIL.Acquire())
+                CPythonAPI.ReleaseBuffer(ref _buffer);
         }
         else if (GIL.IsAcquired)
         {
             // If the GIL is acquired, we can safely release the buffer without acquiring it again
-            CPythonAPI.ReleaseBuffer(this);
+            CPythonAPI.ReleaseBuffer(ref _buffer);
         }
         else
         {
-            // Probably in the GC finalizer thread, instead of causing GIL contention, put this on a
-            // queue to be processed later.
+            // If the GIL is not acquired, we should not release the buffer here
+            // as it may lead to
             GIL.QueueForDisposal(ref _buffer);
             unsafe { Debug.Assert(_buffer.buf is null); }
+            return;
         }
 
-        handle = IntPtr.Zero;
-        return true;
+        _buffer = default;
     }
 
     private ref readonly CPythonAPI.Py_buffer Buffer
@@ -63,12 +73,12 @@ public abstract partial class PyBuffer : SafeHandle, IPyBuffer
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
-            ObjectDisposedException.ThrowIf(IsInvalid, this);
+            ObjectDisposedException.ThrowIf(IsDisposed, this);
             return ref _buffer;
         }
     }
 
-    private protected unsafe T* Pointer<T>() where T : unmanaged => (T*)Buffer.buf;
+    private protected unsafe T* Pointer => (T*)Buffer.buf;
 
     public long Length => Buffer.len;
 
@@ -87,7 +97,7 @@ public abstract partial class PyBuffer : SafeHandle, IPyBuffer
 
     public int Dimensions => Buffer.ndim switch { 0 => 1, var n => n };
 
-    public abstract Type ItemType { get; }
+    public Type ItemType => typeof(T);
 
     private protected unsafe ReadOnlySpan<nint> Shape
     {
@@ -99,9 +109,9 @@ public abstract partial class PyBuffer : SafeHandle, IPyBuffer
     }
 
     Span<TItemType> IPyBuffer.AsSpan<TItemType>() =>
-        typeof(TItemType) != ItemType
-            ? throw new InvalidOperationException($"Cannot cast buffer of type {ItemType} to {typeof(TItemType)}.")
-            : ((PyArrayBuffer<TItemType>)this).UnsafeAsSpan();
+        typeof(TItemType) != typeof(T)
+            ? throw new InvalidOperationException($"Cannot cast buffer of type {typeof(T)} to {typeof(TItemType)}.")
+            : ((PyArrayBuffer<TItemType>)(IPyBuffer)this).UnsafeAsSpan();
 
     ReadOnlySpan<TItemType> IPyBuffer.AsReadOnlySpan<TItemType>() =>
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -109,9 +119,9 @@ public abstract partial class PyBuffer : SafeHandle, IPyBuffer
 #pragma warning restore CS0618 // Type or member is obsolete
 
     Span2D<TItemType> IPyBuffer.AsSpan2D<TItemType>() =>
-        typeof(TItemType) != ItemType
-            ? throw new InvalidOperationException($"Cannot cast buffer of type {ItemType} to {typeof(TItemType)}.")
-            : ((PyArray2DBuffer<TItemType>)this).UnsafeAsSpan2D();
+        typeof(TItemType) != typeof(T)
+            ? throw new InvalidOperationException($"Cannot cast buffer of type {typeof(T)} to {typeof(TItemType)}.")
+            : ((PyArray2DBuffer<TItemType>)(IPyBuffer)this).UnsafeAsSpan2D();
 
     ReadOnlySpan2D<TItemType> IPyBuffer.AsReadOnlySpan2D<TItemType>() =>
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -120,16 +130,19 @@ public abstract partial class PyBuffer : SafeHandle, IPyBuffer
 
 #if NET9_0_OR_GREATER
     TensorSpan<TItemType> IPyBuffer.AsTensorSpan<TItemType>() =>
-        typeof(TItemType) != ItemType
-            ? throw new InvalidOperationException($"Cannot cast buffer of type {ItemType} to {typeof(TItemType)}.")
-            : ((PyTensorBuffer<TItemType>)this).UnsafeAsTensorSpan();
+        typeof(TItemType) != typeof(T)
+            ? throw new InvalidOperationException($"Cannot cast buffer of type {typeof(T)} to {typeof(TItemType)}.")
+            : ((PyTensorBuffer<TItemType>)(IPyBuffer)this).UnsafeAsTensorSpan();
 
     ReadOnlyTensorSpan<TItemType> IPyBuffer.AsReadOnlyTensorSpan<TItemType>() =>
 #pragma warning disable CS0618 // Type or member is obsolete
         ((IPyBuffer)this).AsTensorSpan<TItemType>();
 #pragma warning restore CS0618 // Type or member is obsolete
 #endif // NET9_0_OR_GREATER
+}
 
+internal static class PyBuffer
+{
     /// <summary>
     /// Struct byte order and offset type see
     /// https://docs.python.org/3/library/struct.html#byte-order-size-and-alignment
@@ -145,50 +158,17 @@ public abstract partial class PyBuffer : SafeHandle, IPyBuffer
 
     struct Unknown;
 
-    internal static IPyBuffer Create(PyObject exporter)
+    public static IPyBuffer Create(PyObject exporter)
     {
+        CPythonAPI.Py_buffer buffer;
         using (GIL.Acquire())
         {
-            return CPythonAPI.IsBuffer(exporter)
-                 ? CPythonAPI.GetBuffer(exporter)
-                 : throw new ArgumentException("The provided Python object does not support the buffer protocol.", nameof(exporter));
-        }
-    }
+            if (!CPythonAPI.IsBuffer(exporter))
+                throw new ArgumentException("The provided Python object does not support the buffer protocol.", nameof(exporter));
 
-    [CustomMarshaller(typeof(PyBuffer), MarshalMode.ManagedToUnmanagedIn, typeof(ManagedToUnmanagedIn))]
-    [CustomMarshaller(typeof(PyBuffer), MarshalMode.ManagedToUnmanagedOut, typeof(ManagedToUnmanagedOut))]
-    internal static class Marshaller
-    {
-        public static class ManagedToUnmanagedIn
-        {
-            /// <remarks>
-            /// Required by the marshaller infrastructure, but never called/used.
-            /// </remarks>
-            public static nint ConvertToUnmanaged(PyBuffer buffer) =>
-                throw new NotSupportedException();
-
-            public static ref readonly CPythonAPI.Py_buffer GetPinnableReference(PyBuffer buffer) =>
-                ref buffer.Buffer;
+            CPythonAPI.GetBuffer(exporter, out buffer);
         }
 
-        public static class ManagedToUnmanagedOut
-        {
-            public static PyBuffer ConvertToManaged(in CPythonAPI.Py_buffer buffer)
-            {
-                // Assume that the caller never touches the working "buffer" and it is for this
-                // implementation to use as it pleases. In case of an error, "Create" will release
-                // the buffer before throwing an exception.
-
-                unsafe { return buffer.buf is null ? null! : Create(ref Unsafe.AsRef(in buffer)); }
-            }
-        }
-    }
-
-    /// <remarks>
-    /// This is a low-level API and assumes that the GIL is acquired!
-    /// </remarks>
-    internal static PyBuffer Create(ref CPythonAPI.Py_buffer buffer)
-    {
         try
         {
             unsafe
@@ -199,11 +179,11 @@ public abstract partial class PyBuffer : SafeHandle, IPyBuffer
                 //
                 //     #define PyBUF_C_CONTIGUOUS (0x0020 | PyBUF_STRIDES)
                 //
-                // Therefore per the buffer protocol, the exporter must fill those even if they may
-                // not be used by a particular "PyBuffer<T>" subclass.
+                // Therefore per the buffer protocol, the exporter therefore must fill those even
+                // if they may not be used by a particular "PyBuffer<T>" subclass.
 
                 if (buffer is { shape: null } or { strides: null })
-                    throw new NotSupportedException("Buffer does not have shape and strides.");
+                    throw new ArgumentException("Buffer does not have shape and strides.", nameof(exporter));
             }
 
             string format;
@@ -285,15 +265,15 @@ public abstract partial class PyBuffer : SafeHandle, IPyBuffer
                         _ => null,
                     },
 #endif // NET9_0_OR_GREATER
-                _ => (PyBuffer?)null,
+                _ => (IPyBuffer?)null,
             };
 
             return bufferObject ?? new PyBuffer<Unknown>(buffer);
         }
         catch
         {
-            GIL.Require();
-            CPythonAPI.ReleaseBuffer(ref buffer);
+            using (GIL.Acquire())
+                CPythonAPI.ReleaseBuffer(ref buffer);
             throw;
         }
     }
@@ -341,17 +321,4 @@ public abstract partial class PyBuffer : SafeHandle, IPyBuffer
 
         return null;
     }
-}
-
-public interface IPyBuffer<T> : IPyBuffer where T : unmanaged;
-
-public class PyBuffer<T> : PyBuffer, IPyBuffer<T> where T : unmanaged
-{
-    private protected static readonly unsafe int ItemSize = sizeof(T);
-
-    internal PyBuffer(in CPythonAPI.Py_buffer buffer) : base(buffer, ItemSize) { }
-
-    public override Type ItemType => typeof(T);
-
-    private protected unsafe T* Pointer => Pointer<T>();
 }

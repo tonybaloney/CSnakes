@@ -108,7 +108,7 @@ public static partial class PythonParser
             from name in Parse.OneOf(Token.EqualTo(PythonToken.None),
                                      Token.EqualTo(PythonToken.Identifier),
                                      Token.EqualTo(PythonToken.QualifiedIdentifier))
-            from type in name.CharSpan() switch
+            from type in name.Span.AsReadOnlySpan() switch
             {
                 "None"                                                           => TypeDefinitionSubParsers.None,
                 "Any"                                                            => TypeDefinitionSubParsers.Any,
@@ -154,7 +154,7 @@ public static partial class PythonParser
             //
             from id in Parse.OneOf(Token.EqualTo(PythonToken.QualifiedIdentifier),
                                    Token.EqualTo(PythonToken.Identifier))
-            where id.CharSpan() is "Annotated" or "typing.Annotated"
+            where id.Span.AsReadOnlySpan() is "Annotated" or "typing.Annotated"
             select id;
 
         var annotatedSubscriptionParser =

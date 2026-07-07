@@ -1,5 +1,4 @@
 using Superpower;
-using Superpower.Model;
 
 namespace CSnakes.Parser;
 

@@ -1,3 +1,6 @@
+from typing import Annotated
+
+
 def tuple_1(a: tuple[str]) -> tuple[str]:
     return a
 
@@ -47,4 +50,7 @@ def tuple_16(a: tuple[str, str, str, str, str, str, str, str, str, str, str, str
     return a
 
 def tuple_17(a: tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]) -> tuple[str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]:
+    return a
+
+def named_elements(a: tuple[int, int, int]) -> tuple[Annotated[int, '@X'], Annotated[int, '@Y'], Annotated[int, '@Z']]:
     return a

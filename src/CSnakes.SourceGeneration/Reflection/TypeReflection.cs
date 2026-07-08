@@ -1,4 +1,5 @@
 using CSnakes.Parser.Types;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
@@ -11,6 +12,20 @@ public static class TypeReflection
     {
         ToPython,
         FromPython
+    }
+
+    private static SyntaxToken? FindAnnotatedIdentifier(this PythonTypeSpec typeSpec)
+    {
+        foreach (var md in typeSpec.Metadata)
+        {
+            if (md is PythonConstant.String { Value: { Length: > 1 } and ['@', .. var name] }
+                && SyntaxFacts.IsValidIdentifier(name))
+            {
+                return SyntaxFactory.Identifier(name);
+            }
+        }
+
+        return null;
     }
 
     public static IEnumerable<TypeSyntax> AsPredefinedType(PythonTypeSpec pythonType, ConversionDirection direction, RefSafetyContext refSafetyContext = RefSafetyContext.Safe) =>
@@ -66,12 +81,16 @@ public static class TypeReflection
             yield break;
         }
 
-        var tupleTypeSpecs = tupleTypes.Select((x, i) => new { Index = i, Value = x })
-            .GroupBy(x => x.Index / 7)
-            .Select(x => x.Select(v => v.Value))
+        var tupleTypeSpecs =
+            from t in tupleTypes.Select(static (t, i) => (Index: i, Value: t))
+            group t.Value by t.Index / 7 into ts
+            from t in ts
             /* TODO: Iterate potential Tuple types */
-            .Select(typeSpecs => typeSpecs.Select(t => AsPredefinedType(t, direction).First()))
-            .SelectMany(item => item.Select(SyntaxFactory.TupleElement));
+            select (AsPredefinedType(t, direction).First(), t.FindAnnotatedIdentifier()) switch
+            {
+                (var typeSyntax, { } name) => SyntaxFactory.TupleElement(typeSyntax, name),
+                var (typeSyntax, _) => SyntaxFactory.TupleElement(typeSyntax),
+            };
 
         yield return SyntaxFactory.TupleType(
             SyntaxFactory.Token(SyntaxKind.OpenParenToken),

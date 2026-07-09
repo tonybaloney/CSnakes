@@ -46,7 +46,7 @@ Add the `CSnakes.Runtime` package reference to your `.csproj`:
 </Project>
 ```
 
-By default, CSnakes automatically discovers all `.py` and `.pyi` files in your project — no additional configuration is needed. See [Discovering Python files for Source Generation](configuration.md) if you need manual control over which files are included.
+By default, CSnakes automatically discovers `.py` and `.pyi` files in your project — no additional configuration is needed. However, files whose names start with an underscore (`_`) are by-convention considered private and excluded. See [Discovering Python files for Source Generation](configuration.md) if you need manual control over which files are included.
 
 ### 3. Initialize Python Environment
 

@@ -9,7 +9,7 @@ There are two options for configuring how CSnakes discovers Python files in your
 
 ### Automatic Example
 
-By default, CSnakes automatically finds any `.py` and `.pyi` files in your project and generates .NET classes. This is controlled by the `EnableDefaultPythonItems` setting, which is `true` by default:
+By default, CSnakes automatically finds `.py` and `.pyi` files in your project, except those whose names start with an underscore, (`_`). This is controlled by the `EnableDefaultPythonItems` setting, which is `true` by default:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -58,6 +58,8 @@ from a particular folder. Set the `EmbedPythonSources` property to `true` (defau
 For this option, the source of the Python file is embedded into the generated class by CSnakes and the `.WithHome` extension method for the Python environment doesn't need
 to contain the Python file.
 
+When embedding is disabled (the default), underscore-prefixed Python files discovered automatically (for example `__init__.py`) are copied to the output directory so package/module imports still work at runtime.
+
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -93,6 +95,8 @@ If the home were `python_src\`:
 - To import `library.py` you would `import library`
 - To import `utils\__init__.py` you would `import utils`
 - To import `utils\parser.py` you would `import utils.parser`
+
+Note: `__init__.py` participates in Python package imports, but underscore-prefixed files are excluded from source generation input by default.
 
 CSnakes will automatically generate these namespaces and import directives once you configure the root of the project using the `PythonRoot` property in your `.csproj`.
 

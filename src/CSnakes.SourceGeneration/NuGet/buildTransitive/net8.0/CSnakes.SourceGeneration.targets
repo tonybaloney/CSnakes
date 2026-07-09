@@ -2,11 +2,32 @@
 
   <Target Name="_InjectCSnakesAdditionalFiles" BeforeTargets="PrepareForBuild;CompileDesignTime;GenerateMSBuildEditorConfigFileShouldRun">
     <ItemGroup>
+      <!--
+      Promote loose "None" items to "AdditionalFiles" so the source generator can see the Python
+      sources. The condition only selects an item when all of the following hold:
+
+      * "EnableDefaultPythonItems" is "true" or unset/empty (i.e. enabled by default);
+      * the item's extension is ".py" or ".pyi"; and
+      * the item's file name does not begin with an underscore, which excludes files such as
+        "__init__.py" and "_private.py" by convention.
+      -->
       <AdditionalFiles Include="@(None)"
-                       Condition="('$(EnableDefaultPythonItems)' == 'true' Or '$(EnableDefaultPythonItems)' == '') And ($([System.Text.RegularExpressions.Regex]::IsMatch('%(Extension)', '.py$')) Or $([System.Text.RegularExpressions.Regex]::IsMatch('%(Extension)', '.pyi$')))"
+                       Condition="('$(EnableDefaultPythonItems)' == 'true' Or '$(EnableDefaultPythonItems)' == '')
+                                  And $([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '^[^_].*\.pyi?$'))"
                        SourceItemType="Python">
         <CopyToOutputDirectory Condition="'$(EmbedPythonSources)' != 'true'">Always</CopyToOutputDirectory>
       </AdditionalFiles>
+      <!--
+      Keep underscore-prefixed Python sources copied to output when default Python item handling is
+      enabled and sources are not being embedded. These files stay out of "AdditionalFiles" because
+      underscore-prefixed names are intentionally excluded from source generation input.
+      -->
+      <None Update="@(None)"
+            Condition="('$(EnableDefaultPythonItems)' == 'true' Or '$(EnableDefaultPythonItems)' == '')
+                       And '$(EmbedPythonSources)' != 'true'
+                       And $([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '^[_].*\.pyi?$'))">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
   </Target>
 

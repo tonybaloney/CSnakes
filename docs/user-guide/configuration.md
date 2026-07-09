@@ -9,7 +9,7 @@ There are two options for configuring how CSnakes discovers Python files in your
 
 ### Automatic Example
 
-By default, CSnakes automatically finds `.py` and `.pyi` files in your project, except those whose names start with an underscore, (`_`). This is controlled by the `EnableDefaultPythonItems` setting, which is `true` by default:
+By default, CSnakes automatically finds `.py` and `.pyi` files in your project, except those whose names start with an underscore (`_`). This is controlled by the `EnableDefaultPythonItems` setting, which is `true` by default:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">

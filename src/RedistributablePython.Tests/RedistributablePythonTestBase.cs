@@ -11,16 +11,15 @@ public sealed class PythonEnvironmentCollection : ICollectionFixture<PythonEnvir
 }
 
 /// <seealso href="https://xunit.net/docs/shared-context.html#collection-fixture"/>
-public sealed class PythonEnvironmentFixture() :
+public sealed class PythonEnvironmentFixture(RedistributablePythonSkuFixture sku) :
     RedistributablePythonEnvironmentFixture(
-        home: Path.Join(Environment.CurrentDirectory, "python"),
-        static (context, sku) =>
+        sku, home: Path.Join(Environment.CurrentDirectory, "python"),
+        context =>
         {
-            var venv = FormattableString.Invariant($".venv-{sku.VersionMajor}.{sku.VersionMinor}{(sku.FreeThreaded ? "t" : "")}{(sku.Debug ? "d" : "")}");
             _ = context.Environment
                        .DisableSignalHandlers()
                        .WithUvInstaller()
-                       .WithVirtualEnvironment(Path.Join(Environment.CurrentDirectory, "python", venv))
+                       .WithVirtualEnvironment(sku.VirtualEnvironmentPath)
                        .CapturePythonLogs();
 
             context.Logging

@@ -7,7 +7,8 @@ public sealed class PythonEnvironmentCollection : ICollectionFixture<PythonEnvir
     public const string Name = "PythonEnvironment";
 }
 
-public sealed class PythonEnvironmentFixture : RedistributablePythonEnvironmentFixture;
+public sealed class PythonEnvironmentFixture(RedistributablePythonSkuFixture sku) :
+    RedistributablePythonEnvironmentFixture(sku);
 
 [Collection(PythonEnvironmentCollection.Name)]
 public abstract class RuntimeTestBase(PythonEnvironmentFixture fixture)

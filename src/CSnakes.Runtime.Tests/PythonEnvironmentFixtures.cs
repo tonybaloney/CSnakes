@@ -50,7 +50,7 @@ public abstract class PythonEnvironmentFixtureBase : IDisposable
     protected IServiceProvider Services => app.Services;
 }
 
-public sealed class RedistributablePythonSkuFixture : IDisposable
+public sealed class RedistributablePythonSkuFixture
 {
     public RedistributablePythonSkuFixture()
     {
@@ -85,12 +85,10 @@ public sealed class RedistributablePythonSkuFixture : IDisposable
     public int VersionMajor { get; }
     public int VersionMinor { get; }
 
-    public bool Debug { get; init; }
-    public bool FreeThreaded { get; init; }
+    public bool Debug { get; }
+    public bool FreeThreaded { get; }
 
-    public string VirtualEnvironmentPath { get;}
-
-    public void Dispose() { }
+    public string VirtualEnvironmentPath { get; }
 }
 
 /// <seealso href="https://xunit.net/docs/shared-context.html#collection-fixture"/>

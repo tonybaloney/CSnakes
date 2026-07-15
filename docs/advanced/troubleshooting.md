@@ -100,12 +100,14 @@ This guide helps you diagnose and resolve common issues when working with CSnake
 
 1. **Check File Configuration**
 
-   By default, CSnakes automatically discovers `.py` and `.pyi` files in your project via `EnableDefaultPythonItems`, which is `true` by default — no additional configuration is needed. If generated code is missing, check whether this property has been explicitly set to `false` in your `.csproj`:
+   By default, CSnakes automatically discovers `.py` and `.pyi` files in your project via `EnableDefaultPythonItems`, which is `true` by default. Files whose names start with `_` are intentionally excluded from source generation input. If generated code is missing, check whether the `EnableDefaultPythonItems` property has been explicitly set to `false` in your `.csproj`:
 
    ```xml
    <!-- ❌ This disables automatic file discovery — remove or set to true -->
    <EnableDefaultPythonItems>false</EnableDefaultPythonItems>
    ```
+
+   Check also that the file name does not start with an underscore (`_`).
 
    If you need manual control over which files are included, keep `EnableDefaultPythonItems` set to `false` and explicitly add the Python files using `AdditionalFiles` (take care not to omit `SourceItemType="Python"`):
 

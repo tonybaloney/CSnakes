@@ -17,7 +17,7 @@ Note that any constructs which are not available will be typed as `PyObject`. Th
 | [Generic](https://docs.python.org/3/library/typing.html#typing.Generic) | No | Relies on class reflection | Base class for generic types. |
 | [TypeVar](https://docs.python.org/3/library/typing.html#typing.TypeVar) |  |  | Defines a generic type variable. |
 | [Callable](https://docs.python.org/3/library/typing.html#typing.Callable) | No | Callables would have to by Python objects, not C# functions | Represents a callable object (e.g., function). |
-| [Tuple](https://docs.python.org/3/library/typing.html#typing.Tuple) | Yes |  | Fixed-length, ordered collection of types. |
+| [Tuple](https://docs.python.org/3/library/typing.html#typing.Tuple) | Yes |  | Fixed- or variable-length, ordered collection of types. |
 | [List](https://docs.python.org/3/library/typing.html#typing.List) | Yes |  | Variable-length, ordered collection of types. |
 | [Dict](https://docs.python.org/3/library/typing.html#typing.Dict) | Yes |  | Dictionary mapping keys to values. |
 | [Set](https://docs.python.org/3/library/typing.html#typing.Set) |  | Usage of sets is quite niche, if you would like this feature please request it. | Unordered collection of unique elements. |
@@ -59,7 +59,7 @@ Note that any constructs which are not available will be typed as `PyObject`. Th
 | [Set (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Set) |  |  | Unordered collection of unique elements. |
 | [Sized (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized) |  |  | Has a length. |
 | [ValuesView (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.ValuesView) |  |  | View on dictionary's values. |
-| [Awaitable (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable) | No | Unlikely to be useful | Can be used in an await expression. |
+| [Awaitable (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable) | Yes | Rare in practice | Can be used in an await expression. |
 | [Coroutine (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.Coroutine) | Yes | See [Async Support](../user-guide/async.md) | Awaitable object with send(), throw(), and close(). |
 | [AsyncIterable (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.AsyncIterable) | No | [Issue](https://github.com/tonybaloney/CSnakes/issues/440) | Object capable of async iteration. |
 | [AsyncIterator (collections.abc)](https://docs.python.org/3/library/collections.abc.html#collections.abc.AsyncIterator) | No | [Issue](https://github.com/tonybaloney/CSnakes/issues/440) | Async iterator object. |

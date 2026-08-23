@@ -4,7 +4,7 @@ CSnakes comes with support for executing Python within a virtual environment and
 
 There are two main package management solutions for Python, `pip` and `conda`. `pip` is the default package manager for Python and is included with the Python installation. `conda` is a package manager that is included with the Anaconda distribution of Python. Both package managers can be used to install packages and manage dependencies.
 
-There are various ways to create "virtual" environments in Python, where the dependencies are isolated from the system Python installation. The most common way is to use the `venv` module that is included with Python. The `venv` module is used to create virtual environments and manage dependencies. 
+There are various ways to create "virtual" environments in Python, where the dependencies are isolated from the system Python installation. The most common way is to use the `venv` module that is included with Python. The `venv` module is used to create virtual environments and manage dependencies.
 
 Virtual Environment creation and package management are separate concerns in Python, but some tools (like conda) combine them into a single workflow. CSnakes separates these concerns to give you more flexibility in managing your Python environments.
 
@@ -29,7 +29,7 @@ services
 
 To use the `conda` package manager, you need to specify the path to the `conda` executable and the name of the environment you want to use:
 
-1. Add the `FromConda()` extension method the host builder. 
+1. Add the `FromConda()` extension method the host builder.
 1. Use the `.WithCondaEnvironment(name)` method to specify the name of the environment you want to use.
 
 ```csharp

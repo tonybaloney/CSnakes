@@ -4,18 +4,36 @@
 
 There are two options for configuring how CSnakes discovers Python files in your .NET project to build the C# bindings:
 
-1. [Manually, using `AdditionalFiles`](#manual-example)
-2. [Automatic using `DefaultPythonItems`](#automatic-example)
+1. [Automatic, using `EnableDefaultPythonItems`](#automatic-example) (default)
+2. [Manually, using `AdditionalFiles`](#manual-example)
 
-### Manual Example
+### Automatic Example
 
-If you want full control over which files in your project are source generated, use the `AdditionalFiles` group with `SourceItemType="Python"`.
+By default, CSnakes automatically finds `.py` and `.pyi` files in your project, except those whose names start with an underscore (`_`). This is controlled by the `EnableDefaultPythonItems` setting, which is `true` by default:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
+    <!-- EnableDefaultPythonItems is true by default, no need to set it -->
+  </PropertyGroup>
+</Project>
+```
+
+This works recursively, if you have nested modules in your project you may also need to configure the root directory for namespacing Python imports.
+
+### Manual Example
+
+If you want full control over which files in your project are source generated, you can disable the automatic detection and use the `AdditionalFiles` group with `SourceItemType="Python"`:
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <!-- Disable automatic detection -->
+    <EnableDefaultPythonItems>false</EnableDefaultPythonItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,30 +48,7 @@ If you want full control over which files in your project are source generated, 
 </Project>
 ```
 
-The file path supports expressions (glob), like `*.py` or `**/*.py` (recursive).
-
-```xml
-    <AdditionalFiles Include="python/*.py" SourceItemType="Python">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AdditionalFiles>
-```
-
-### Automatic Example
-
-CSnakes can automatically find any `.py` and `.pyi` files in your project and generated .NET classes using the `DefaultPythonItems` setting:
-
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <!-- use automatic detection -->
-    <DefaultPythonItems>true</DefaultPythonItems>
-  </PropertyGroup>
-</Project>
-```
-
-This works recursively, if you have nested modules in your project you may also need to configure the root directory for namespacing Python imports.
+Take care to not forget the `SourceItemType="Python"` bit.
 
 ## Embedding Sources (Optional)
 
@@ -62,6 +57,8 @@ from a particular folder. Set the `EmbedPythonSources` property to `true` (defau
 
 For this option, the source of the Python file is embedded into the generated class by CSnakes and the `.WithHome` extension method for the Python environment doesn't need
 to contain the Python file.
+
+When embedding is disabled (the default), underscore-prefixed Python files discovered automatically (for example `__init__.py`) are copied to the output directory so package/module imports still work at runtime.
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -93,17 +90,19 @@ Consider the following folder layout:
 
 In Python, this folder structure would be considered a namespaced project with modules and submodules.
 
-If the home were `python_src\`: 
+If the home were `python_src\`:
 
 - To import `library.py` you would `import library`
 - To import `utils\__init__.py` you would `import utils`
 - To import `utils\parser.py` you would `import utils.parser`
 
+Note: `__init__.py` participates in Python package imports, but underscore-prefixed files are excluded from source generation input by default.
+
 CSnakes will automatically generate these namespaces and import directives once you configure the root of the project using the `PythonRoot` property in your `.csproj`.
 
 ```xml
   <PropertyGroup>
-    <DefaultPythonItems>true</DefaultPythonItems>
+    <EnableDefaultPythonItems>true</EnableDefaultPythonItems>
     <PythonRoot>python_src</PythonRoot>
   </PropertyGroup>
 ```

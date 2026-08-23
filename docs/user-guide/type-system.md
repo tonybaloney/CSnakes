@@ -32,9 +32,12 @@ CSnakes supports the following typed scenarios:
 | `T | None`             | `T?`              |
 | `typing.Generator[TYield, TSend, TReturn]` | `IGeneratorIterator<TYield, TSend, TReturn>` |
 | `typing.Buffer`        | `IPyBuffer` [2](buffers.md) |
-| `typing.Coroutine[TYield, TSend, TReturn]` | `Task<TYield>` [3](async.md) |
+| `typing.Coroutine[None, None, T]` | `Task<T>` [3](async.md) |
+| `typing.Awaitable[T]` | `IAwaitable<T>` |
 | `typing.Union[T1, T2, ...] | [C# Overloads](#unions) |
 | `None` (Return)        | `void`            |
+
+Note that only coroutines where the yield and send types are `None` are supported.
 
 ## Optional Types
 
@@ -65,7 +68,7 @@ public void OptionalOldStyle(long? value = null);
 
 ## Unions
 
-Python has two ways of specifying type unions. 
+Python has two ways of specifying type unions.
 
 1. From Python 3.10, type unions can be written as `T1 | T2`
 1. Using the `typing.Union[T1, T2, ...]` syntax
@@ -154,6 +157,54 @@ Console.WriteLine($"{name} is {age} years old");
 var (x, y, z) = module.GetCoordinates();
 Console.WriteLine($"Position: ({x}, {y}, {z})");
 ```
+
+#### Named tuple elements
+
+By default, tuple elements are positional and unnamed. You can give a C# tuple
+element a name by wrapping its Python type in `typing.Annotated` and supplying a
+metadata string that starts with `@` followed by the desired name:
+
+```python
+from typing import Annotated
+
+def get_location() -> tuple[Annotated[float, '@Latitude'],
+                            Annotated[float, '@Longitude']]:
+    return (12.34, 56.78)
+```
+
+The generated C# method returns a tuple with named elements:
+
+```csharp
+public (double Latitude, double Longitude) GetLocation();
+```
+
+so callers can access the elements by name:
+
+```csharp
+var location = module.GetLocation();
+Console.WriteLine($"{location.Latitude}, {location.Longitude}");
+```
+
+The following rules apply to the annotation:
+
+- The metadata string must start with `@` and the remainder must be a valid C#
+  identifier (for example, `'@Latitude'`).
+- If an element is annotated with more than one metadata string, the first valid
+  `@`-prefixed name is used.
+- An annotation that is missing, empty, does not start with `@`, or does not
+  contain a valid C# identifier is ignored, and the element remains positional.
+  This means named and unnamed elements can be freely mixed within the same
+  tuple:
+
+  ```python
+  def get_partial(
+  ) -> tuple[Annotated[int, '@Id'], int, Annotated[str, '@Name']]:
+      return (1, 2, "Alice")
+  ```
+
+  ```csharp
+  public (long Id, long, string Name) GetPartial();
+  ```
 
 ## Default Values
 
@@ -299,7 +350,7 @@ def process_data(data: object) -> object:
 def get_analysis_results() -> dict[str, list[tuple[str, float]]]:
     """
     Returns analysis results.
-    
+
     Returns:
         Dictionary mapping category names to lists of (item_name, score) tuples.
     """

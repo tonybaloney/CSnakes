@@ -3,6 +3,7 @@ using CSnakes.Runtime.CPython;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.Marshalling;
 
 #if NET9_0_OR_GREATER
 using System.Numerics.Tensors;
@@ -48,14 +49,14 @@ internal sealed class PyBuffer : IPyBuffer
         SSizeT = 'N', // C ssize_t
     }
 
-    public PyBuffer(PyObject exporter)
+    public unsafe PyBuffer(PyObject exporter)
     {
         using (GIL.Acquire())
         {
             CPythonAPI.GetBuffer(exporter, out _buffer);
         }
         IsScalar = _buffer.ndim is 0 or 1;
-        _format = Marshal.PtrToStringUTF8(_buffer.format) ?? string.Empty;
+        _format = Utf8StringMarshaller.ConvertToManaged(_buffer.format) ?? string.Empty;
         _byteOrder = GetByteOrder();
     }
 
@@ -70,7 +71,7 @@ internal sealed class PyBuffer : IPyBuffer
         GC.SuppressFinalize(this);
     }
 
-    private bool IsDisposed => _buffer.buf == 0;
+    private unsafe bool IsDisposed => _buffer.buf is null;
 
     private void Dispose(bool disposing)
     {
@@ -92,7 +93,7 @@ internal sealed class PyBuffer : IPyBuffer
             // If the GIL is not acquired, we should not release the buffer here
             // as it may lead to
             GIL.QueueForDisposal(ref _buffer);
-            Debug.Assert(_buffer.buf == 0);
+            unsafe { Debug.Assert(_buffer.buf is null); }
             return;
         }
 

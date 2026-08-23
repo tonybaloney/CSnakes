@@ -1,7 +1,8 @@
 using Superpower;
 
 namespace CSnakes.Parser;
-static class ParserExtensions
+
+static class SuperpowerExtensions
 {
     /// <summary>
     /// Ignores the result of the second parser, returning the result of the first.

@@ -188,7 +188,7 @@ dotnet test --logger "console;verbosity=detailed"
 ## Testing Guidelines
 
 - Feature changes should have an integration test in the `Integration.Tests` project
-- Bug fixes should first have a unit/integration test demonstrating the bug then a fix in a different commit. 
+- Bug fixes should first have a unit/integration test demonstrating the bug then a fix in a different commit.
 
 ## Community
 

@@ -1,7 +1,7 @@
 using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Python;
-public class GILTests : RuntimeTestBase
+public class GILTests(PythonEnvironmentFixture fixture) : RuntimeTestBase(fixture)
 {
     [Fact]
     public void IsAcquired_WhenGilIsNotAcquired_ReturnsFalse()

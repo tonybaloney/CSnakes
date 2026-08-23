@@ -115,7 +115,7 @@ public class Arm64Benchmarks : BaseBenchmark
         var dotnetArch = RuntimeInformation.ProcessArchitecture.ToString();
         var osArch = RuntimeInformation.OSArchitecture.ToString();
         var pythonArch = mod!.RuntimeArchitectureDetection();
-        
+
         return $"{dotnetArch}-{pythonArch}-{osArch}";
     }
 
@@ -149,7 +149,7 @@ public class Arm64BenchmarkConfig : ManualConfig
             .WithRuntime(CoreRuntime.Core80)
             .WithPlatform(Platform.Arm64)
             .WithId("NET8-Arm64"));
-            
+
         AddJob(Job.Default
             .WithRuntime(CoreRuntime.Core90)
             .WithPlatform(Platform.Arm64)

@@ -78,4 +78,7 @@ public enum PythonToken
 
     [Token(Example = ", )")]
     CommaCloseParenthesis,
+
+    [Token(Example = ", ]")]
+    CommaCloseBracket,
 }

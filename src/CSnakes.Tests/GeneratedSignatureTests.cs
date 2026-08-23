@@ -57,12 +57,57 @@ public class GeneratedSignatureTests
     [InlineData("def hello(n: None = None) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
     [InlineData("def hello(val: bytes = b'hello', /) -> None:\n ...\n", "void Hello(byte[]? val = null)")]
     [InlineData("def hello(val: str = u'world', /) -> None:\n ...\n", "void Hello(string val = \"world\")")]
+    [InlineData("def hello() -> Awaitable[int]:\n ...\n", "IAwaitable<long> Hello()")]
     [InlineData("async def hello() -> None:\n ...\n", "Task Hello(CancellationToken cancellationToken = default)")]
     [InlineData("async def hello():\n ...\n", "Task<PyObject> Hello(CancellationToken cancellationToken = default)")]
     [InlineData("def hello(n: Foo = ...) -> None:\n ...\n", "void Hello(PyObject? n = null)")]
     [InlineData("def hello(a: str, b: int = 4, *, kw: str) -> None:\n ...\n", "void Hello(string a, string kw, long b = 4)")]
     [InlineData("def hello() -> str | int: \n  ...\n", "PyObject Hello()")]
     [InlineData("def escape(s: str, quote: bool = True) -> str: ...\n", "string Escape(string s, bool quote = true)")]
+    [InlineData("def hello() -> tuple[Annotated[int, '@X'], Annotated[int, '@Y']]: ...\n", "(long X, long Y) Hello()")]
+    [InlineData("""
+                def hello() -> tuple[Annotated[int, '@'],       # missing name
+                                     Annotated[int, '@Foo'],    # ok
+                                     Annotated[int, '@@'],      # invalid name
+                                     Annotated[int, ''],        # empty name
+                                     Annotated[int, '8eer'],    # invalid name (starts with digit)
+                                     Annotated[int, 'Foo'],     # does not start with @
+                                     Annotated[int, 'Foo',
+                                                    '@Bar',     # first valid name
+                                                    'Baz',
+                                                    '@Qux'],
+                                     int]: ...                  # no annotation
+
+                """,
+                "(long, long Foo, long, long, long, long, long Bar, long) Hello()")]
+    [InlineData("""
+
+        # csharp: ignore
+        def foo(bar):
+            pass
+
+        """,
+        "PyObject Foo(PyObject bar)",
+        Label = "C# ignore comment on line above")]
+    [InlineData("""
+
+        def foo(
+            bar  # csharp: ignore
+        ):
+            pass
+
+        """,
+        "PyObject Foo(PyObject bar)",
+        Label = "C# ignore comment in parameter list")]
+    [InlineData("""
+
+        def foo(bar):
+            # csharp: ignore
+            pass
+
+        """,
+        "PyObject Foo(PyObject bar)",
+        Label = "C# ignore comment inside function body")]
     public void TestGeneratedSignature(string code, string expected)
     {
         SourceText sourceText = SourceText.From(code);
@@ -95,6 +140,8 @@ public class GeneratedSignatureTests
             .WithReferenceAssemblies(ReferenceAssemblyKind.Net80)
 #elif NET9_0
             .WithReferences(Net90.References.All)
+#elif NET10_0
+            .WithReferences(Net100.References.All)
 #else
 #error Unsupported .NET tareget
 #endif
@@ -189,7 +236,7 @@ public class GeneratedSignatureTests
     [Fact]
     public void TestMultipleUnknownUnionOverloads()
     {
-        // Verify that multiple unknown types are reduced to a single PyObject. 
+        // Verify that multiple unknown types are reduced to a single PyObject.
         SourceText code = SourceText.From("def hello(a: Union[A, B, C]) -> Any:\n ...\n");
 
         // create a Python scope
@@ -225,5 +272,54 @@ public class GeneratedSignatureTests
         Assert.Empty(errors1);
         var module1 = ModuleReflection.MethodsFromFunctionDefinitions(functions1).ToImmutableArray();
         Assert.Single(module1);
+    }
+
+    [Theory]
+    [InlineData("""
+        def foo(  # csharp: ignore
+                bar,
+                baz,
+            ):
+            pass
+
+        """,
+        Label = "C# ignore comment - Multi lined function definition")]
+    [InlineData("""
+        def hello(): # csharp: ignore ...
+            pass
+
+        """,
+        Label = "C# ignore comment - Single line function definition")]
+    [InlineData("""
+        def foo():  # type: ignore # csharp: ignore
+            pass
+
+        """,
+        Label = "C# ignore comment - Embedded within a comment after")]
+    [InlineData("""
+        def bar():  # csharp: ignore # type: ignore
+            pass
+
+        """,
+        Label = "C# ignore comment - Embedded within a comment before")]
+    public void TestCSharpIgnoreCommentFunction(string code)
+    {
+        SourceText sourceText = SourceText.From(code);
+        Assert.True(PythonParser.TryParseFunctionDefinitions(sourceText, out var functions, out var errors));
+        Assert.Empty(errors);
+        Assert.Empty(functions);
+
+        // Verify that the source text is not indented. For more background on
+        // following assertions, see:
+        // - https://github.com/tonybaloney/CSnakes/pull/702#discussion_r2365595136
+        // - https://github.com/tonybaloney/CSnakes/pull/702#discussion_r2365597599
+
+        var indentations =
+            from line in sourceText.Lines
+            select line.ToString()
+            into line
+            where line.Length > 0
+            select line.TakeWhile(ch => ch == ' ').Count();
+        Assert.Equal(0, indentations.Min());
     }
 }

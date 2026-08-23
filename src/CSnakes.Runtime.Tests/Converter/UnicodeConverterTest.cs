@@ -2,8 +2,8 @@ using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Converter;
 
-public class UnicodeConverterTest :
-    ConverterTestBase<string, PyObjectImporters.String, UnicodeConverterTest>,
+public class UnicodeConverterTest(PythonEnvironmentFixture fixture) :
+    ConverterTestBase<string, PyObjectImporters.String, UnicodeConverterTest>(fixture),
     IConverterTestCasesContainer<string>
 {
     public static TheoryData<string> TestCases => new()

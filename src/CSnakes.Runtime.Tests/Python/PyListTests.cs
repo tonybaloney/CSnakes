@@ -1,7 +1,7 @@
 using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Python;
-public class PyListTests : RuntimeTestBase
+public class PyListTests(PythonEnvironmentFixture fixture) : RuntimeTestBase(fixture)
 {
     [Fact]
     public void TestGetEnumeratorFunctionsDespiteEarlyListDisposal()

@@ -12,8 +12,8 @@ internal unsafe partial class CPythonAPI
     }
 
     /// <summary>
-    /// Return 1 if the object provides the mapping protocol or supports slicing, and 0 otherwise. 
-    /// Note that it returns 1 for Python classes with a __getitem__() method, since in general 
+    /// Return 1 if the object provides the mapping protocol or supports slicing, and 0 otherwise.
+    /// Note that it returns 1 for Python classes with a __getitem__() method, since in general
     /// it is impossible to determine what type of keys the class supports. This function always succeeds.
     /// </summary>
     /// <param name="p"></param>
@@ -22,7 +22,7 @@ internal unsafe partial class CPythonAPI
     internal static partial int PyMapping_Check(PyObject ob);
 
     /// <summary>
-    /// Return the object from dictionary p which has a key `key`. 
+    /// Return the object from dictionary p which has a key `key`.
     /// </summary>
     /// <param name="dict">Dictionary Object</param>
     /// <param name="key">Key Object</param>
@@ -34,8 +34,8 @@ internal unsafe partial class CPythonAPI
     }
 
     /// <summary>
-    /// Insert val into the dictionary p with a key of key. 
-    /// key must be hashable; if it isn’t, TypeError will be raised.  
+    /// Insert val into the dictionary p with a key of key.
+    /// key must be hashable; if it isn’t, TypeError will be raised.
     /// This function adds a reference to val and key if successful.
     /// </summary>
     /// <param name="dict">PyDict object</param>
@@ -65,7 +65,7 @@ internal unsafe partial class CPythonAPI
     internal static partial nint PyMapping_Size(PyObject dict);
 
     /// <summary>
-    /// Return 1 if the mapping object has the key key and 0 otherwise. 
+    /// Return 1 if the mapping object has the key key and 0 otherwise.
     /// This is equivalent to the Python expression key in o. This function always succeeds.
     /// </summary>
     /// <param name="dict"></param>

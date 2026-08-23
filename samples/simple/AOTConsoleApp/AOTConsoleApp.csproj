@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PublishAot>true</PublishAot>
@@ -10,13 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-        <AdditionalFiles Include="*.py">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </AdditionalFiles>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
+    <PackageReference Include="CSnakes.Runtime" Version="2.*-*" />
   </ItemGroup>
 
 </Project>

@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using Superpower;
 using Superpower.Model;
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
 namespace CSnakes.Tests;
@@ -262,6 +263,43 @@ public class TokenizerTests
     }
 
     [Theory]
+    [InlineData("Annotated")]
+    [InlineData("typing.Annotated")]
+    public void ParseFunctionParameterWithAnnotatedTypeSpec(string annotated)
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize($"a: {annotated}[object, None, False, True, 42, 'foobar'] = None");
+        var param = PythonParser.OptionalPythonParameterParser.Parse(tokens);
+        Assert.Equal("a", param.Name);
+        var constant = Assert.IsType<PythonConstant.None>(param.DefaultValue);
+        Assert.Same(PythonConstant.None.Value, constant);
+        Assert.NotNull(param.TypeSpec);
+        Assert.Equal([PythonConstant.None.Value, false, true, 42, "foobar"], param.TypeSpec.Metadata);
+    }
+
+    [Fact]
+    public void ParseFunctionParameterWithComplexAnnotatedTypeSpec()
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize("a: Annotated[list[typing.Annotated[int, 'foo']], 'bar']");
+        var param = PythonParser.OptionalPythonParameterParser.Parse(tokens);
+        Assert.Equal("a", param.Name);
+        Assert.Null(param.DefaultValue);
+        Assert.NotNull(param.TypeSpec);
+        Assert.Equal(["bar"], param.TypeSpec.Metadata);
+        var typeArg = Assert.IsType<ListType>(param.TypeSpec).Of;
+        Assert.Equal("int", typeArg.Name);
+        Assert.Equal(["foo"], typeArg.Metadata);
+    }
+
+    [Fact]
+    public void ParseFunctionParameterDoesNotSupportNestedAnnotated()
+    {
+        var tokens = PythonTokenizer.Instance.Tokenize("a: Annotated[Annotated[object, 42], 'foobar']");
+        void Act() => _ = PythonParser.OptionalPythonParameterParser.Parse(tokens);
+        var ex = Assert.Throws<ParseException>(Act);
+        Assert.Equal("Syntax error (line 1, column 32): unexpected integer `42`, expected Type Definition.", ex.Message);
+    }
+
+    [Theory]
     [InlineData("args")]
     [InlineData("xs")]
     public void ParseFunctionVariadicPositionalParameter(string name)
@@ -484,20 +522,21 @@ public class TokenizerTests
     [Fact]
     public void ParseFullCode()
     {
-        var code = @"""
-import foo
+        var code = """
+            import foo
 
-def bar(a: int, b: str) -> None:
-    pass
+            def bar(a: int, b: str) -> None:
+                pass
 
-def baz(c: float, d: bool) -> None:
-    ...
+            def baz(c: float, d: bool) -> None:
+                ...
 
-a = 1
+            a = 1
 
-if __name__ == '__main__':
-  xyz  = 1
-        """;
+            if __name__ == '__main__':
+              xyz  = 1
+
+            """;
 
         SourceText sourceText = SourceText.From(code);
 
@@ -591,7 +630,8 @@ if __name__ == '__main__':
         Assert.Equal("opener", opener.Name);
         Assert.Equal("str", opener.ImpliedTypeSpec.Name);
         Assert.NotNull(opener.DefaultValue);
-        Assert.Equal("foo", opener.DefaultValue.ToString());
+        var defaultValue = Assert.IsType<PythonConstant.String>(opener.DefaultValue);
+        Assert.Equal("foo", defaultValue.Value);
     }
 
     [Fact]
@@ -601,7 +641,7 @@ if __name__ == '__main__':
         def a(    # this is a comment
             opener: str = 'foo', # type: ignore
             # a comment by itself
-            hash_in_literal: str = '#', 
+            hash_in_literal: str = '#',
         ) -> Any:
             pass
         """;
@@ -616,7 +656,8 @@ if __name__ == '__main__':
         Assert.Equal("opener", opener.Name);
         Assert.Equal("str", opener.ImpliedTypeSpec.Name);
         Assert.NotNull(opener.DefaultValue);
-        Assert.Equal("foo", opener.DefaultValue.ToString());
+        var defaultValue = Assert.IsType<PythonConstant.String>(opener.DefaultValue);
+        Assert.Equal("foo", defaultValue.Value);
     }
 
 
@@ -661,7 +702,7 @@ if __name__ == '__main__':
     {
         // This is common in Black-formatted code and has come up as a parser issue
         const string code = """
-        def a(    
+        def a(
             opener: str = 'foo',
         ) -> Any:
             pass
@@ -676,8 +717,8 @@ if __name__ == '__main__':
         var opener = parameters[0];
         Assert.Equal("opener", opener.Name);
         Assert.Equal("str", opener.ImpliedTypeSpec.Name);
-        Assert.NotNull(opener.DefaultValue);
-        Assert.Equal("foo", opener.DefaultValue.ToString());
+        var defaultValue = Assert.IsType<PythonConstant.String>(opener.DefaultValue);
+        Assert.Equal("foo", defaultValue.Value);
     }
 
     [Fact]

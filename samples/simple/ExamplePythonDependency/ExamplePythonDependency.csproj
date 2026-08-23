@@ -2,35 +2,12 @@
 
     <PropertyGroup>
         <ProductName>Example Python Dependency</ProductName>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="quick_demo.py" />
-        <None Remove="type_demos.py" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <AdditionalFiles Include="hello_world.py">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </AdditionalFiles>
-        <AdditionalFiles Include="quick_demo.py">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </AdditionalFiles>
-        <AdditionalFiles Include="type_demos.py">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </AdditionalFiles>
-        <AdditionalFiles Include="phi3_demo.py">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </AdditionalFiles>
-        <AdditionalFiles Include="kmeans_example.py">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </AdditionalFiles>
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="CSnakes.Runtime" Version="1.*-*" />
+        <PackageReference Include="CSnakes.Runtime" Version="2.*-*" />
     </ItemGroup>
 
 </Project>

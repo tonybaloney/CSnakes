@@ -1,4 +1,5 @@
 using CSnakes.Runtime.CPython;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 namespace CSnakes.Runtime.Python;
@@ -134,6 +135,26 @@ public static partial class PyObjectImporters
         }
     }
 
+    public sealed class VarTuple<T, TImporter> : IPyObjectImporter<ImmutableArray<T>>
+        where TImporter : IPyObjectImporter<T>
+    {
+        private VarTuple() { }
+
+        static ImmutableArray<T> IPyObjectImporter<ImmutableArray<T>>.BareImport(PyObject obj)
+        {
+            GIL.Require();
+            CheckTuple(obj);
+            var length = CPythonAPI.PyTuple_Size(obj);
+            var builder = ImmutableArray.CreateBuilder<T>(checked((int)length));
+            for (int i = 0; i < length; i++)
+            {
+                using var item = GetTupleItem(obj, i);
+                builder.Add(TImporter.BareImport(item));
+            }
+            return builder.MoveToImmutable();
+        }
+    }
+
     public sealed class Sequence<T, TImporter> : IPyObjectImporter<IReadOnlyList<T>>
         where TImporter : IPyObjectImporter<T>
     {
@@ -218,19 +239,18 @@ public static partial class PyObjectImporters
         }
     }
 
-    public sealed class Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter> :
-        IPyObjectImporter<ICoroutine<TYield, TSend, TReturn>>
-        where TYieldImporter : IPyObjectImporter<TYield>
-        where TReturnImporter : IPyObjectImporter<TReturn>
+    public sealed class Awaitable<T, TImporter> :
+        IPyObjectImporter<IAwaitable<T>>
+        where TImporter : IPyObjectImporter<T>
     {
-        private Coroutine() { }
+        private Awaitable() { }
 
-        static ICoroutine<TYield, TSend, TReturn> IPyObjectImporter<ICoroutine<TYield, TSend, TReturn>>.BareImport(PyObject obj)
+        static IAwaitable<T> IPyObjectImporter<IAwaitable<T>>.BareImport(PyObject obj)
         {
             GIL.Require();
-            return CPythonAPI.IsPyCoroutine(obj)
-                ? new Python.Coroutine<TYield, TSend, TReturn, TYieldImporter, TReturnImporter>(obj.Clone())
-                : throw InvalidCastException("coroutine", obj);
+            return CPythonAPI.IsPyAwaitable(obj)
+                ? new Python.Awaitable<T, TImporter>(obj.Clone())
+                : throw InvalidCastException("awaitable", obj);
         }
     }
 

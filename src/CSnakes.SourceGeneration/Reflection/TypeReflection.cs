@@ -1,4 +1,5 @@
 using CSnakes.Parser.Types;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
@@ -13,24 +14,41 @@ public static class TypeReflection
         FromPython
     }
 
+    private static SyntaxToken? FindAnnotatedIdentifier(this PythonTypeSpec typeSpec)
+    {
+        foreach (var md in typeSpec.Metadata)
+        {
+            if (md is PythonConstant.String { Value: { Length: > 1 } and ['@', .. var name] }
+                && SyntaxFacts.IsValidIdentifier(name))
+            {
+                return SyntaxFactory.Identifier(name);
+            }
+        }
+
+        return null;
+    }
+
     public static IEnumerable<TypeSyntax> AsPredefinedType(PythonTypeSpec pythonType, ConversionDirection direction, RefSafetyContext refSafetyContext = RefSafetyContext.Safe) =>
         (pythonType, direction, refSafetyContext) switch
         {
-            (ISequenceType { Of: var t }, _, _) => CreateListType(t, direction),
-            (TupleType     { Parameters: var ts }, _, _) => CreateTupleType(ts, direction),
-            (IMappingType  { Key: var kt, Value: var vt }, _, _) => CreateDictionaryType(kt, vt, direction),
-            (OptionalType  { Of: var t }, _, _) => AsPredefinedType(t, direction).Select(SyntaxFactory.NullableType),
-            (GeneratorType { Yield: var yt, Send: var st, Return: var rt }, _, _) => CreateGeneratorType(yt, st, rt, direction),
-            (CoroutineType { Yield: var yt, Send: var st, Return: var rt }, _, _) => CreateCoroutineType(yt, st, rt, direction),
-            (UnionType     { Choices: var ts }, ConversionDirection.ToPython, _) => [.. ts.SelectMany(t => AsPredefinedType(t, direction))],
+            (ISequenceType     { Of: var t }, _, _) => CreateListType(t, direction),
+            (TupleType         { Parameters: var ts }, _, _) => CreateTupleType(ts, direction),
+            (IMappingType      { Key: var kt, Value: var vt }, _, _) => CreateDictionaryType(kt, vt, direction),
+            (OptionalType      { Of: var t }, _, _) => AsPredefinedType(t, direction).Select(SyntaxFactory.NullableType),
+            (GeneratorType     { Yield: var yt, Send: var st, Return: var rt }, _, _) => CreateGeneratorType(yt, st, rt, direction),
+            (AwaitableType     { Of: var t }, _, _) => CreateAwaitableType(t, direction),
+            (CoroutineType     { Yield: NoneType, Send: NoneType, Return: var rt }, _, _) => CreateAwaitableType(rt, direction),
+            (UnionType         { Choices: var ts }, ConversionDirection.ToPython, _) => [.. ts.SelectMany(t => AsPredefinedType(t, direction))],
+            (VariadicTupleType { Of: var t }, ConversionDirection.FromPython, _) => from listType in AsPredefinedType(t, direction)
+                                                                                    select CreateGenericType("ImmutableArray", [listType]),
             // Todo more types... see https://docs.python.org/3/library/stdtypes.html#standard-generic-classes
-            (IntType       , _, _) => [SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword))],
-            (StrType       , _, _) => [SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword))],
-            (FloatType     , _, _) => [SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DoubleKeyword))],
-            (BoolType      , _, _) => [SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword))],
-            (BytesType     , ConversionDirection.ToPython, RefSafetyContext.RefSafe) => [SyntaxFactory.ParseTypeName("ReadOnlySpan<byte>")],
-            (BytesType     , _, _) => [SyntaxFactory.ParseTypeName("byte[]")],
-            (BufferType    , ConversionDirection.FromPython, _) => [SyntaxFactory.ParseTypeName("IPyBuffer")],
+            (IntType           , _, _) => [SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword))],
+            (StrType           , _, _) => [SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword))],
+            (FloatType         , _, _) => [SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DoubleKeyword))],
+            (BoolType          , _, _) => [SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword))],
+            (BytesType         , ConversionDirection.ToPython, RefSafetyContext.RefSafe) => [SyntaxFactory.ParseTypeName("ReadOnlySpan<byte>")],
+            (BytesType         , _, _) => [SyntaxFactory.ParseTypeName("byte[]")],
+            (BufferType        , ConversionDirection.FromPython, _) => [SyntaxFactory.ParseTypeName("IPyBuffer")],
             _ => [SyntaxFactory.ParseTypeName("PyObject")],
         };
 
@@ -48,12 +66,10 @@ public static class TypeReflection
                select CreateGenericType("IGeneratorIterator", [yieldTypeI, sendTypeI, returnTypeI]);
     }
 
-    private static IEnumerable<TypeSyntax> CreateCoroutineType(PythonTypeSpec yieldType, PythonTypeSpec sendType, PythonTypeSpec returnType, ConversionDirection direction)
+    private static IEnumerable<TypeSyntax> CreateAwaitableType(PythonTypeSpec resultType, ConversionDirection direction)
     {
-        return from yieldTypeI in AsPredefinedType(yieldType, direction)
-               from sendTypeI in AsPredefinedType(sendType, direction)
-               from returnTypeI in AsPredefinedType(returnType, direction)
-               select CreateGenericType("ICoroutine", [yieldTypeI, sendTypeI, returnTypeI]);
+        return from returnTypeI in AsPredefinedType(resultType, direction)
+               select CreateGenericType("IAwaitable", [returnTypeI]);
     }
 
     private static IEnumerable<TypeSyntax> CreateTupleType(ImmutableArray<PythonTypeSpec> tupleTypes, ConversionDirection direction)
@@ -65,12 +81,16 @@ public static class TypeReflection
             yield break;
         }
 
-        var tupleTypeSpecs = tupleTypes.Select((x, i) => new { Index = i, Value = x })
-            .GroupBy(x => x.Index / 7)
-            .Select(x => x.Select(v => v.Value))
+        var tupleTypeSpecs =
+            from t in tupleTypes.Select(static (t, i) => (Index: i, Value: t))
+            group t.Value by t.Index / 7 into ts
+            from t in ts
             /* TODO: Iterate potential Tuple types */
-            .Select(typeSpecs => typeSpecs.Select(t => AsPredefinedType(t, direction).First()))
-            .SelectMany(item => item.Select(SyntaxFactory.TupleElement));
+            select (AsPredefinedType(t, direction).First(), t.FindAnnotatedIdentifier()) switch
+            {
+                (var typeSyntax, { } name) => SyntaxFactory.TupleElement(typeSyntax, name),
+                var (typeSyntax, _) => SyntaxFactory.TupleElement(typeSyntax),
+            };
 
         yield return SyntaxFactory.TupleType(
             SyntaxFactory.Token(SyntaxKind.OpenParenToken),

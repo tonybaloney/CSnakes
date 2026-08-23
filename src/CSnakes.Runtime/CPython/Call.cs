@@ -7,7 +7,7 @@ internal unsafe partial class CPythonAPI
 {
     internal static IntPtr Call(PyObject callable, ReadOnlySpan<IntPtr> args)
     {
-        // These options are used for efficiency. Don't create a tuple if its not required. 
+        // These options are used for efficiency. Don't create a tuple if its not required.
         if (args.Length == 0)
         {
             return PyObject_CallNoArgs(callable);
@@ -32,9 +32,9 @@ internal unsafe partial class CPythonAPI
         }
     }
 
-    internal static IntPtr Call(PyObject callable, ReadOnlySpan<IntPtr> args, ReadOnlySpan<string> kwnames, ReadOnlySpan<IntPtr> kwvalues)
+    internal static IntPtr Call(PyObject callable, ReadOnlySpan<IntPtr> args, ReadOnlySpan<IntPtr> kwnames, ReadOnlySpan<IntPtr> kwvalues)
     {
-        // These options are used for efficiency. Don't create a tuple if its not required. 
+        // These options are used for efficiency. Don't create a tuple if its not required.
         if (false /* TODO: Implement vectorcall for kwargs*/ &&
             PythonVersion.Major == 3 && PythonVersion.Minor > 10)
         {

@@ -19,7 +19,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
         {
             return; // Skip test on non-Windows platforms
         }
-        
+
         if (RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return; // Skip test on non-Arm64 platforms
@@ -34,7 +34,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanRunBasicPythonCodeOnWindowsArm64()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return; // Skip test on non-Windows Arm64 platforms
@@ -58,7 +58,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void WindowsArm64SupportedPythonVersionsWork(string pythonVersion)
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return; // Skip test on non-Windows Arm64 platforms
@@ -93,7 +93,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanImportNativeExtensionsOnWindowsArm64()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return; // Skip test on non-Windows Arm64 platforms
@@ -101,7 +101,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
 
         // Test that we can import modules that typically have native extensions
         var testModule = Env.TestWindowsArm64();
-        
+
         // Test importing json (built-in but has C extensions)
         var jsonResult = testModule.TestJsonDumps();
         Assert.Equal("{\"test\": \"value\"}", jsonResult);
@@ -109,7 +109,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
         // Test importing _hashlib (native extension)
         var hashlibResult = testModule.TestHashlibImport();
         Assert.True(hashlibResult);
-        
+
         // Test importing datetime (has C extensions)
         var datetimeResult = testModule.GetDatetimeNowIso();
         Assert.NotNull(datetimeResult);
@@ -119,7 +119,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanVerifyPythonLibraryPath()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return; // Skip test on non-Windows Arm64 platforms
@@ -140,7 +140,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestNativeCryptographyModules()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -168,7 +168,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestNumericAndMathModules()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -197,7 +197,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestBasicPlatformDetection()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -229,7 +229,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestBasicSubprocessOperations()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -252,7 +252,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestBasicMemoryOperations()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -276,7 +276,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestBasicUnicodeProcessing()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -297,7 +297,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestBasicEdgeCases()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -325,7 +325,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestBasicIOOperations()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -344,7 +344,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestArm64SpecificWorkarounds()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -376,7 +376,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestArm64CpuFeatures()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -384,7 +384,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
 
         var testModule = Env.TestWindowsArm64();
         var cpuFeatures = testModule.TestArm64CpuFeatures();
-        
+
         Assert.NotNull(cpuFeatures);
         Assert.Contains("Arm64", cpuFeatures["machine"].As<string>(), StringComparison.OrdinalIgnoreCase);
         Assert.Equal("Windows", cpuFeatures["system"].As<string>());
@@ -395,7 +395,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestArm64MemoryAlignment()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -403,7 +403,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
 
         var testModule = Env.TestWindowsArm64();
         var alignments = testModule.TestMemoryAlignmentArm64();
-        
+
         // Verify ARM64-specific alignments
         Assert.Equal(1, alignments["char"]); // char is 1 byte
         Assert.Equal(2, alignments["short"]); // short is 2 bytes
@@ -417,7 +417,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestArm64SimdAvailability()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -425,7 +425,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
 
         var testModule = Env.TestWindowsArm64();
         var simdAvailable = testModule.TestArm64SimdAvailability();
-        
+
         // SIMD operations should be available on ARM64
         Assert.True(simdAvailable);
     }
@@ -434,7 +434,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestArm64ProcessInformation()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -442,7 +442,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
 
         var testModule = Env.TestWindowsArm64();
         var processInfo = testModule.TestArm64ProcessInformation();
-        
+
         Assert.True(processInfo["pid"].As<int>() > 0);
         Assert.NotEmpty(processInfo["executable"].As<string>());
         Assert.Equal("little", processInfo["byteorder"].As<string>());
@@ -455,7 +455,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestArm64ThreadingPerformance()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -463,7 +463,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
 
         var testModule = Env.TestWindowsArm64();
         var threadingResults = testModule.TestArm64ThreadingPerformance();
-        
+
         Assert.True(threadingResults["thread_creation_time"] > 0);
         Assert.True(threadingResults["lock_contention_time"] > 0);
         Assert.Equal(4000, threadingResults["final_counter"]); // 4 threads * 1000 increments
@@ -473,7 +473,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestArm64MultiprocessingSupport()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -481,7 +481,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
 
         var testModule = Env.TestWindowsArm64();
         var multiprocessingWorks = testModule.TestArm64MultiprocessingSupport();
-        
+
         // Multiprocessing should work on Windows ARM64
         Assert.True(multiprocessingWorks);
     }
@@ -490,7 +490,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestArm64FileSystemPerformance()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -498,7 +498,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
 
         var testModule = Env.TestWindowsArm64();
         var fsResults = testModule.TestArm64FileSystemPerformance();
-        
+
         Assert.True(fsResults["file_creation_time"] > 0);
         Assert.True(fsResults["file_reading_time"] > 0);
         Assert.True(fsResults["total_bytes_read"] > 0);
@@ -508,7 +508,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestArm64NetworkStack()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -516,7 +516,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
 
         var testModule = Env.TestWindowsArm64();
         var networkResults = testModule.TestArm64NetworkStack();
-        
+
         Assert.True(networkResults.ContainsKey("hostname_resolution"));
         Assert.True(networkResults.ContainsKey("supported_families"));
         Assert.True(networkResults["supported_families"].As<int>() >= 1); // At least IPv4
@@ -526,7 +526,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestArm64GarbageCollection()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -534,7 +534,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
 
         var testModule = Env.TestWindowsArm64();
         var gcResults = testModule.TestArm64GarbageCollection();
-        
+
         Assert.True(gcResults["gc_time"].As<double>() >= 0);
         Assert.True(gcResults["objects_collected"].As<int>() >= 0);
         Assert.True(gcResults["object_creation_time"].As<double>() > 0);
@@ -545,7 +545,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestArm64UuidGeneration()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -553,7 +553,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
 
         var testModule = Env.TestWindowsArm64();
         var uuidResults = testModule.TestArm64UuidGeneration();
-        
+
         Assert.True(uuidResults["generation_time"].As<double>() > 0);
         Assert.Equal(1000, uuidResults["total_generated"].As<int>());
         Assert.True(uuidResults["all_unique"].As<bool>()); // All UUIDs should be unique
@@ -564,7 +564,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestArm64ExceptionHandling()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -572,7 +572,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
 
         var testModule = Env.TestWindowsArm64();
         var exceptionResults = testModule.TestArm64ExceptionHandling();
-        
+
         Assert.True(exceptionResults["basic_exception_handling"]);
         Assert.True(exceptionResults["nested_exception_handling"]);
         Assert.True(exceptionResults["deep_stack_exception"]);
@@ -582,7 +582,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestArm64WarningSystem()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -590,7 +590,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
 
         var testModule = Env.TestWindowsArm64();
         var warningResults = testModule.TestArm64WarningSystem();
-        
+
         Assert.Equal(2, warningResults["warnings_captured"].As<int>());
         Assert.True(warningResults["warning_filter_works"].As<bool>());
     }
@@ -599,7 +599,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
     public void CanTestArm64MemoryUsagePatterns()
     {
         // Skip if not on Windows Arm64
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
             RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
         {
             return;
@@ -607,7 +607,7 @@ public sealed class WindowsArm64Tests(PythonEnvironmentFixture fixture) : Integr
 
         var testModule = Env.TestWindowsArm64();
         var memoryResults = testModule.TestArm64MemoryUsagePatterns();
-        
+
         // Verify memory sizes are reasonable for ARM64
         Assert.True(memoryResults["int_size"] >= 28); // Python int object overhead
         Assert.True(memoryResults["float_size"] >= 24); // Python float object overhead

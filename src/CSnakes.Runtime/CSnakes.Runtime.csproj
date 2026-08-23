@@ -7,24 +7,10 @@
     <NoWarn>$(NoWarn);SYSLIB5001</NoWarn>
     <!-- Suppress warnings related to use of own experimental API -->
     <NoWarn>$(NoWarn);PRTEXP001;PRTEXP002;PRTEXP003</NoWarn>
+    <EmbedPythonSources>true</EmbedPythonSources>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
-    <IsAotCompatible>True</IsAotCompatible>
-    <IsTrimmable>True</IsTrimmable>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0|AnyCPU'">
-    <IsAotCompatible>True</IsAotCompatible>
-    <IsTrimmable>True</IsTrimmable>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
-    <IsAotCompatible>True</IsAotCompatible>
-    <IsTrimmable>True</IsTrimmable>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0|AnyCPU'">
+  <PropertyGroup>
     <IsAotCompatible>True</IsAotCompatible>
     <IsTrimmable>True</IsTrimmable>
   </PropertyGroup>
@@ -40,13 +26,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Numerics.Tensors" Condition="'$(TargetFramework)' == 'net9.0'" />
+    <PackageReference Include="System.Numerics.Tensors" Condition="'$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net10.0'" />
     <PackageReference Include="ZstdSharp.Port" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- Reference the source generator purely for packaging purposes -->
-    <ProjectReference Include="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\CSnakes.SourceGeneration\CSnakes.SourceGeneration.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>
@@ -75,4 +61,6 @@
 
   <Import Project="Packaging.targets" />
   <Import Project="TextTemplates.targets" />
+  <Import Project="..\CSnakes.SourceGeneration\NuGet\buildTransitive\net8.0\CSnakes.SourceGeneration.targets" />
+
 </Project>

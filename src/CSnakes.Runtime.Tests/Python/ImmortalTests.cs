@@ -8,7 +8,8 @@ public interface IImmortalFromTestCasesContainer<T>
     static abstract TheoryData<T> TestCases { get; }
 }
 
-public abstract class ImmortalTestsBase<T, TTestCases>(string repr) : RuntimeTestBase
+public abstract class ImmortalTestsBase<T, TTestCases>(PythonEnvironmentFixture fixture, string repr) :
+    RuntimeTestBase(fixture)
     where TTestCases : IImmortalFromTestCasesContainer<T>
 {
     protected abstract PyObject Subject { get; }
@@ -48,8 +49,8 @@ public abstract class ImmortalTestsBase<T, TTestCases>(string repr) : RuntimeTes
     }
 }
 
-public class ImmortalZeroTests() :
-    ImmortalTestsBase<object, ImmortalZeroTests>("0"),
+public class ImmortalZeroTests(PythonEnvironmentFixture fixture) :
+    ImmortalTestsBase<object, ImmortalZeroTests>(fixture, "0"),
     IImmortalFromTestCasesContainer<object>
 {
     protected override PyObject Subject => PyObject.Zero;
@@ -57,8 +58,8 @@ public class ImmortalZeroTests() :
     static TheoryData<object> IImmortalFromTestCasesContainer<object>.TestCases => new() { 0, 0L, new BigInteger(0) };
 }
 
-public class ImmortalOneTests() :
-    ImmortalTestsBase<object, ImmortalOneTests>("1"),
+public class ImmortalOneTests(PythonEnvironmentFixture fixture) :
+    ImmortalTestsBase<object, ImmortalOneTests>(fixture, "1"),
     IImmortalFromTestCasesContainer<object>
 {
     protected override PyObject Subject => PyObject.One;
@@ -66,8 +67,8 @@ public class ImmortalOneTests() :
     static TheoryData<object> IImmortalFromTestCasesContainer<object>.TestCases => new() { 1, 1L, new BigInteger(1) };
 }
 
-public class ImmortalNegativeOneTests() :
-    ImmortalTestsBase<object, ImmortalNegativeOneTests>("-1"),
+public class ImmortalNegativeOneTests(PythonEnvironmentFixture fixture) :
+    ImmortalTestsBase<object, ImmortalNegativeOneTests>(fixture, "-1"),
     IImmortalFromTestCasesContainer<object>
 {
     protected override PyObject Subject => PyObject.NegativeOne;
@@ -75,8 +76,8 @@ public class ImmortalNegativeOneTests() :
     static TheoryData<object> IImmortalFromTestCasesContainer<object>.TestCases => new() { -1, -1L, new BigInteger(-1) };
 }
 
-public class ImmortalTrueTests() :
-    ImmortalTestsBase<bool, ImmortalTrueTests>("True"),
+public class ImmortalTrueTests(PythonEnvironmentFixture fixture) :
+    ImmortalTestsBase<bool, ImmortalTrueTests>(fixture, "True"),
     IImmortalFromTestCasesContainer<bool>
 {
     protected override PyObject Subject => PyObject.True;
@@ -84,8 +85,8 @@ public class ImmortalTrueTests() :
     static TheoryData<bool> IImmortalFromTestCasesContainer<bool>.TestCases => new() { true };
 }
 
-public class ImmortalFalseTests() :
-    ImmortalTestsBase<bool, ImmortalFalseTests>("False"),
+public class ImmortalFalseTests(PythonEnvironmentFixture fixture) :
+    ImmortalTestsBase<bool, ImmortalFalseTests>(fixture, "False"),
     IImmortalFromTestCasesContainer<bool>
 {
     protected override PyObject Subject => PyObject.False;

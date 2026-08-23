@@ -22,7 +22,7 @@ public interface IPyBuffer : IDisposable
     bool IsScalar { get; }
 
     /// <summary>
-    /// Gets the item type of the values in the buffer. 
+    /// Gets the item type of the values in the buffer.
     /// </summary>
     /// <returns></returns>
     Type GetItemType();

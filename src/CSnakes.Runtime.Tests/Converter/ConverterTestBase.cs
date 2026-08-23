@@ -6,7 +6,8 @@ public interface IConverterTestCasesContainer<T>
     static abstract TheoryData<T> TestCases { get; }
 }
 
-public abstract class ConverterTestBase<T, TTestCases> : RuntimeTestBase
+public abstract class ConverterTestBase<T, TTestCases>(PythonEnvironmentFixture fixture) :
+    RuntimeTestBase(fixture)
     where TTestCases : IConverterTestCasesContainer<T>
 {
     public static TheoryData<T> SubTestCases => TTestCases.TestCases;
@@ -27,8 +28,8 @@ public abstract class ConverterTestBase<T, TTestCases> : RuntimeTestBase
         TestRoundtrip(input, static obj => obj.As<T>());
 }
 
-public abstract class ConverterTestBase<T, TImporter, TTestCases> :
-    ConverterTestBase<T, TTestCases>
+public abstract class ConverterTestBase<T, TImporter, TTestCases>(PythonEnvironmentFixture fixture) :
+    ConverterTestBase<T, TTestCases>(fixture)
     where TImporter : IPyObjectImporter<T>
     where TTestCases : IConverterTestCasesContainer<T>
 {

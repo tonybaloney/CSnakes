@@ -261,4 +261,13 @@ public class TupleTests(PythonEnvironmentFixture fixture) : IntegrationTestBase(
         Assert.Equal("p", p);
         Assert.Equal("q", q);
     }
+
+    [Fact]
+    public void NamedTupleElements()
+    {
+        var pt = TestTuples.NamedElements((123, 456, 789));
+        Assert.Equal(123, pt.X);
+        Assert.Equal(456, pt.Y);
+        Assert.Equal(789, pt.Z);
+    }
 }

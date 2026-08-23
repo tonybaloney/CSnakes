@@ -2,8 +2,8 @@ using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Converter;
 
-public class BytesConverterTest :
-    ConverterTestBase<byte[], PyObjectImporters.ByteArray, BytesConverterTest>,
+public class BytesConverterTest(PythonEnvironmentFixture fixture) :
+    ConverterTestBase<byte[], PyObjectImporters.ByteArray, BytesConverterTest>(fixture),
     IConverterTestCasesContainer<byte[]>
 {
     public static TheoryData<byte[]> TestCases => new()

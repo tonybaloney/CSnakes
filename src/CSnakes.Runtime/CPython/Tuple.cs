@@ -54,7 +54,7 @@ internal unsafe partial class CPythonAPI
         int result = PyTuple_SetItem_(ob, pos, o);
         if (result != -1)
         {
-            // Add reference to the new item as it belongs to tuple now. 
+            // Add reference to the new item as it belongs to tuple now.
             Py_IncRefRaw(o);
         }
         return result;

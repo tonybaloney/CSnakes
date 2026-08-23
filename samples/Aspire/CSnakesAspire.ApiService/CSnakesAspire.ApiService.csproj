@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <AdditionalFiles Include="..\python\weather.py" Link="python\weather.py" />
+      <AdditionalFiles Include="..\python\weather.py" Link="python\weather.py" SourceItemType="Python" />
       <None Include="..\python\requirements.txt" Link="python\requirements.txt" />
     </ItemGroup>
 
@@ -26,10 +26,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.3.*" />
-        <PackageReference Include="CSnakes.Runtime" Version="1.*" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.*" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.*">
+        <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.2.0" />
+        <PackageReference Include="CSnakes.Runtime" Version="2.*-*" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.5">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

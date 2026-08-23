@@ -1,7 +1,7 @@
 using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Python;
-public class PyDictionaryTests : RuntimeTestBase
+public class PyDictionaryTests(PythonEnvironmentFixture fixture) : RuntimeTestBase(fixture)
 {
     [Fact]
     public void TestIndex()
@@ -16,7 +16,7 @@ public class PyDictionaryTests : RuntimeTestBase
         Assert.NotNull(pyDict);
         Assert.Equal("World?", pyDict["Hello"]);
         Assert.Equal("Bar", pyDict["Foo"]);
-        // Try twice 
+        // Try twice
         Assert.Equal("World?", pyDict["Hello"]);
     }
 

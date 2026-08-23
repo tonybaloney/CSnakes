@@ -1,8 +1,8 @@
 using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Converter;
-public class LongConverterTest :
-    ConverterTestBase<long, PyObjectImporters.Int64, LongConverterTest>,
+public class LongConverterTest(PythonEnvironmentFixture fixture) :
+    ConverterTestBase<long, PyObjectImporters.Int64, LongConverterTest>(fixture),
     IConverterTestCasesContainer<long>
 {
     public static TheoryData<long> TestCases => new()

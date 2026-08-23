@@ -1,8 +1,6 @@
-using CSnakes.Runtime.Locators;
 using CSnakes.Runtime.PackageManagement;
+using CSnakes.Runtime.Tests;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 
@@ -16,56 +14,24 @@ public sealed class PythonEnvironmentCollection : ICollectionFixture<PythonEnvir
 }
 
 /// <seealso href="https://xunit.net/docs/shared-context.html#collection-fixture"/>
-public sealed class PythonEnvironmentFixture : IDisposable
+public sealed class PythonEnvironmentFixture : RedistributablePythonEnvironmentFixture
 {
-    private readonly IPythonEnvironment env;
-    private readonly IPythonPackageInstaller installer;
-    private readonly IHost app;
-
-    public PythonEnvironmentFixture()
+    public PythonEnvironmentFixture(RedistributablePythonSkuFixture skuFixture) :
+        base(skuFixture, home: Path.Join(Environment.CurrentDirectory, "python"),
+             context => context.Environment
+                               .WithVirtualEnvironment(skuFixture.VirtualEnvironmentPath)
+                               .WithPipInstaller())
     {
-        Version pythonVersionToTest = ServiceCollectionExtensions.ParsePythonVersion(Environment.GetEnvironmentVariable("PYTHON_VERSION") ?? "3.12.9");
-        bool freeThreaded = Environment.GetEnvironmentVariable("PYTHON_FREETHREADED") == "1";
-        bool debugPython = Environment.GetEnvironmentVariable("PYTHON_DEBUG") == "1";
-        string venvPath = Path.Join(Environment.CurrentDirectory, "python", $".venv-{pythonVersionToTest}{(freeThreaded ? "t": "")}{(debugPython ? "d": "")}");
-
-        RedistributablePythonVersion redistributableVersion = pythonVersionToTest.Minor switch
-        {
-            9 => RedistributablePythonVersion.Python3_9,
-            10 => RedistributablePythonVersion.Python3_10,
-            11 => RedistributablePythonVersion.Python3_11,
-            12 => RedistributablePythonVersion.Python3_12,
-            13 => RedistributablePythonVersion.Python3_13,
-            14 => RedistributablePythonVersion.Python3_14,
-            _ => throw new NotSupportedException($"Python version {pythonVersionToTest} is not supported.")
-        };
-
-        var builder = Host.CreateApplicationBuilder();
-        var pb = builder.Services.WithPython();
-        pb.WithHome(Path.Join(Environment.CurrentDirectory, "python"));
-
-        pb.FromRedistributable(version: redistributableVersion, debug: debugPython, freeThreaded: freeThreaded)
-          .WithVirtualEnvironment(venvPath)
-          .WithPipInstaller();
-
-        builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddXUnit());
-        
-        app = builder.Build();
-
-        env = app.Services.GetRequiredService<IPythonEnvironment>();
-        installer = app.Services.GetRequiredService<IPythonPackageInstaller>();
+        Installer = Services.GetRequiredService<IPythonPackageInstaller>();
+        VirtualEnvironmentPath = skuFixture.VirtualEnvironmentPath;
     }
 
-    public void Dispose()
-    {
-        env.Dispose();
-        app.Dispose();
-        GC.SuppressFinalize(this);
-        GC.Collect();
-    }
+    /// <summary>The Python home directory shared by all tests in the collection.</summary>
+    public string Home { get; } = Path.Join(Environment.CurrentDirectory, "python");
 
-    public IPythonEnvironment Env => env;
-    public IPythonPackageInstaller Installer => installer;
+    public string VirtualEnvironmentPath { get; }
+
+    public IPythonPackageInstaller Installer { get; }
 }
 
 [Collection(PythonEnvironmentCollection.Name)]

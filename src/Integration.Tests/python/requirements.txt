@@ -1,4 +1,7 @@
-httpx
-numpy
-typing-extensions
+--only-binary=numpy
+
+httpx==0.28.1
+numpy==2.0.2; python_version < '3.11'
+numpy==2.3.2; python_version >= '3.11'
+typing-extensions==4.15.0
 pybind11-numpy-example==1.0.1

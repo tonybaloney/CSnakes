@@ -4,8 +4,8 @@ CSnakes is being used in various projects to integrate Python code into C# appli
 
 ## TransformersSharp
 
-**Project:** [TransformersSharp](https://tonybaloney.github.io/TransformersSharp/)  
-**Repository:** [GitHub - TransformersSharp](https://github.com/tonybaloney/TransformersSharp)  
+**Project:** [TransformersSharp](https://tonybaloney.github.io/TransformersSharp/)
+**Repository:** [GitHub - TransformersSharp](https://github.com/tonybaloney/TransformersSharp)
 **Author:** Tony Baloney
 
 TransformersSharp is a C# wrapper for Hugging Face Transformers that demonstrates the power of CSnakes for AI/ML integration. This project provides a .NET-friendly interface to the popular Python transformers library, enabling C# developers to leverage state-of-the-art machine learning models without leaving the .NET ecosystem.

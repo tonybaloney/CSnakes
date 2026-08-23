@@ -1,7 +1,7 @@
 using CSnakes.Runtime.Python;
 
 namespace CSnakes.Runtime.Tests.Python;
-public class PyObjectTests : RuntimeTestBase
+public class PyObjectTests(PythonEnvironmentFixture fixture) : RuntimeTestBase(fixture)
 {
     [Fact]
     public void TestToString()
@@ -201,5 +201,17 @@ public class PyObjectTests : RuntimeTestBase
         using var obj = PyObject.From(input);
         var result = !obj;
         Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void CallWithNonStringKeywordThrowsException()
+    {
+        using var str = PyObject.From("Hello, World!");
+        using var encode = str.GetAttr("encode");
+        using var encoding = PyObject.From("utf-8");
+        void Act() => encode.Call([], [new KeywordArg(PyObject.Zero, encoding)]).Dispose();
+        var invocationException = Assert.Throws<PythonInvocationException>(Act);
+        var runtimeException = Assert.IsType<PythonRuntimeException>(invocationException.InnerException);
+        Assert.Equal("keywords must be strings", runtimeException.Message);
     }
 }

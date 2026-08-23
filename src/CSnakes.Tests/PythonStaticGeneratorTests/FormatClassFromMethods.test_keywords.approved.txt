@@ -8,6 +8,7 @@ using CSnakes.Runtime.Python;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Reflection.Metadata;
 using System.Text;
@@ -20,7 +21,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Python.Generated.Tests;
 
-public static class TestClassExtensions
+static partial class TestClassExtensions
 {
     private static ITestClass? instance;
 
@@ -48,6 +49,10 @@ public static class TestClassExtensions
 
         private PyObject __func_test_keyword_only;
         private PyObject __func_test_named_keyword_only;
+
+        private PyObject? __kwfld_b;
+
+        private PyObject __kw_b => this.__kwfld_b ??= PyObject.From("b");
 
         internal TestClassInternal(ILogger<IPythonEnvironment>? logger)
         {
@@ -78,6 +83,7 @@ public static class TestClassExtensions
 
         public void Dispose()
         {
+            this.__kwfld_b?.Dispose();
             logger?.LogDebug("Disposing module {ModuleName}", "test");
             this.__func_test_keyword_only.Dispose();
             this.__func_test_named_keyword_only.Dispose();
@@ -92,7 +98,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_keyword_only;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
-                _ = __underlyingPythonFunc.Call([a_pyObject], default, [new("b", b_pyObject)], default);
+                _ = __underlyingPythonFunc.Call([a_pyObject], default, [new(this.__kw_b, b_pyObject)], default);
                 return;
             }
         }
@@ -105,7 +111,7 @@ public static class TestClassExtensions
                 PyObject __underlyingPythonFunc = this.__func_test_named_keyword_only;
                 using PyObject a_pyObject = PyObject.From(a)!;
                 using PyObject b_pyObject = PyObject.From(b)!;
-                _ = __underlyingPythonFunc.Call([a_pyObject], args, [new("b", b_pyObject)], default);
+                _ = __underlyingPythonFunc.Call([a_pyObject], args, [new(this.__kw_b, b_pyObject)], default);
                 return;
             }
         }
@@ -115,7 +121,7 @@ public static class TestClassExtensions
 /// <summary>
 /// Represents functions of the Python module <c>test</c>.
 /// </summary>
-public interface ITestClass : IReloadableModuleImport
+partial interface ITestClass : IReloadableModuleImport
 {
     /// <summary>
     /// Invokes the Python function <c>test_keyword_only</c>:

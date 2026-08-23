@@ -1,3 +1,4 @@
+using CSnakes.Runtime.Python;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,62 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
         }
         var r = await Task.WhenAll(tasks);
         Assert.All(r, x => Assert.Equal(5, x));
+    }
+
+    [Fact]
+    public async Task SequentialCoroutinesWithCompletedCancellation()
+    {
+        var mod = Env.TestCoroutines();
+
+        using CancellationTokenSource cts = new();
+
+        Task RunAsync() => mod.TestCoroutine(seconds: 0, cancellationToken: cts.Token)
+                              .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+
+        // First call should complete successfully.
+
+        await RunAsync();
+
+        cts.Cancel();
+
+        // Second call should be cancelled immediately (implicitly tests that
+        // the event loop is still functional).
+
+        var ex = await Assert.ThrowsAsync<TaskCanceledException>(() => RunAsync());
+        Assert.Equal(cts.Token, ex.CancellationToken);
+    }
+
+    [Fact]
+    public async Task SequentialCoroutinesWithErrorCancellation()
+    {
+        var mod = Env.TestCoroutines();
+
+        using CancellationTokenSource cts = new();
+
+        Task RunAsync() => mod.TestCoroutineRaisesException(cancellationToken: cts.Token)
+                              .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+
+        // First call should throw an error.
+
+        await Assert.ThrowsAsync<PythonInvocationException>(() => RunAsync());
+
+        cts.Cancel();
+
+        // Second call should be cancelled immediately (implicitly tests that
+        // the event loop is still functional).
+
+        var ex = await Assert.ThrowsAsync<TaskCanceledException>(() => RunAsync());
+        Assert.Equal(cts.Token, ex.CancellationToken);
+    }
+
+    [Fact]
+    public async Task CoroutineThatSelfCancels()
+    {
+        var mod = Env.TestCoroutines();
+        var task = mod.TestCoroutineSelfCanceling(TestContext.Current.CancellationToken);
+        var ex = await Assert.ThrowsAsync<TaskCanceledException>(() => task);
+        Assert.Equal(CancellationToken.None, ex.CancellationToken);
+        Assert.Equal(TaskStatus.Canceled, task.Status);
     }
 
     [Fact]
@@ -74,5 +131,22 @@ public class CoroutineTests(PythonEnvironmentFixture fixture) : IntegrationTestB
     {
         var mod = Env.TestCoroutines();
         await mod.TestCoroutineReturnsNothing(cancellationToken: TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task BareCoroutine()
+    {
+        var mod = Env.TestCoroutines();
+        long result = await mod.TestCoroutineBare(cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Equal(5, result);
+    }
+
+    [Fact]
+    public void GeneratorBasedCoroutineIsNotSupported()
+    {
+        var mod = Env.TestCoroutines();
+        using var coro = mod.TestGeneratorBasedCoroutine();
+        void Act() => _ = coro.As<IAwaitable<PyObject>>();
+        Assert.Throws<InvalidCastException>(Act);
     }
 }

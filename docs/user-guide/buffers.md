@@ -124,7 +124,7 @@ The Numpy dtypes are mapped to C# types as follows:
 | `float32`   | `float`  | `AsFloatSpan`  | `AsFloatReadOnlySpan`  | `AsFloatSpan2D`  | `AsFloatReadOnlySpan2D`  | `AsFloatTensorSpan`  | `AsFloatReadOnlyTensorSpan`  |
 | `float64`   | `double` | `AsDoubleSpan` | `AsDoubleReadOnlySpan` | `AsDoubleSpan2D` | `AsDoubleReadOnlySpan2D` | `AsDoubleTensorSpan` | `AsDoubleReadOnlyTensorSpan` |
 
-The `GetItemType()` method can be used to get the C# type of the buffer contents. 
+The `GetItemType()` method can be used to get the C# type of the buffer contents.
 
 You can also use generic methods such as `AsSpan<T>` and `AsReadOnlySpan<T>` to get a Span of the buffer contents with the specified type. If the requested type does not match the buffer contents, an exception will be thrown.
 

@@ -27,9 +27,9 @@ internal unsafe partial class CPythonAPI
 
     // https://docs.python.org/3.10/c-api/exceptions.html#c.PyErr_Fetch
     /// <summary>
-    /// Retrieve the error indicator into three variables whose addresses are passed. 
-    /// If the error indicator is not set, set all three variables to NULL. 
-    /// If it is set, it will be cleared and you own a reference to each object retrieved. 
+    /// Retrieve the error indicator into three variables whose addresses are passed.
+    /// If the error indicator is not set, set all three variables to NULL.
+    /// If it is set, it will be cleared and you own a reference to each object retrieved.
     /// The value and traceback object may be NULL even when the type object is not.
     /// </summary>
     /// <param name="ptype"></param>

@@ -1,6 +1,6 @@
 namespace Conda.Tests;
 
-public class BasicTests : CondaTestBase
+public class BasicTests(PythonEnvironmentFixture fixture) : CondaTestBase(fixture)
 {
     [Fact]
     public void TestSimpleImport()

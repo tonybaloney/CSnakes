@@ -101,7 +101,7 @@ internal class PythonEnvironment : IPythonEnvironment
         {
             if (logger is null)
                 throw new ArgumentNullException(nameof(logger), "Argument cannot be null when capturing Python logs.");
-            pythonCaptureLogger = PythonLogger.EnableGlobalLogging(logger);
+            pythonCaptureLogger = PythonLogger.EnableGlobalLogging(this, logger);
         }
     }
 
@@ -127,6 +127,7 @@ internal class PythonEnvironment : IPythonEnvironment
             if (disposing)
             {
                 pythonCaptureLogger?.DisposeAsync().GetAwaiter().GetResult();
+                this.Disposing?.Invoke(this, EventArgs.Empty);
                 api.Dispose();
                 if (pythonEnvironment is not null)
                 {
@@ -154,4 +155,6 @@ internal class PythonEnvironment : IPythonEnvironment
     {
         return disposedValue;
     }
+
+    public event EventHandler? Disposing;
 }

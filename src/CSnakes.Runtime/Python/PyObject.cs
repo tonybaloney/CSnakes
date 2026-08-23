@@ -43,10 +43,7 @@ public partial class PyObject : SafeHandle, ICloneable
         }
         else if (GIL.IsAcquired)
         {
-            using (GIL.Acquire())
-            {
-                CPythonAPI.Py_DecRefRaw(handle);
-            }
+            CPythonAPI.Py_DecRefRaw(handle);
         }
         else
         {

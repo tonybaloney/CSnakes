@@ -116,7 +116,7 @@ public static partial class PyObjectImporters
         {
             GIL.Require();
             return CPythonAPI.IsBuffer(obj)
-                ? new PyBuffer(obj)
+                ? PyBuffer.Create(obj)
                 : throw InvalidCastException("buffer", obj);
         }
     }

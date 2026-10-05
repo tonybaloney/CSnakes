@@ -49,8 +49,19 @@ jobs:
           name: nuget-packages
           path: ./nuget
 
-      - name: Publish to GitHub packages
-        run: dotnet nuget push ./nuget/*.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_API_KEY }}
+      - name: NuGet login (OIDC)
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Publish to NuGet
+        run: |
+          for pkg in ./nuget/*.nupkg; do
+            # TODO: restore publishing of CSnakes.Stage
+            case "$(basename "$pkg")" in CSnakes.Stage.*) continue;; esac
+            dotnet nuget push "$pkg" --source "https://api.nuget.org/v3/index.json" --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
+          done
 
       - name: Publish to GitHub packages
         run: dotnet nuget push ./nuget/*.nupkg --source "https://nuget.pkg.github.com/tonybaloney/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}

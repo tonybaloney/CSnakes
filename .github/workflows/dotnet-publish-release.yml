@@ -58,8 +58,6 @@ jobs:
       - name: Publish to NuGet
         run: |
           for pkg in ./nuget/*.nupkg; do
-            # TODO: restore publishing of CSnakes.Stage
-            case "$(basename "$pkg")" in CSnakes.Stage.*) continue;; esac
             dotnet nuget push "$pkg" --source "https://api.nuget.org/v3/index.json" --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
           done
 

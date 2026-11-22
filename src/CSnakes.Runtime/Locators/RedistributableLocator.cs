@@ -148,11 +148,7 @@ internal class RedistributableLocator(ILogger<RedistributableLocator>? logger, R
 
             try
             {
-                // TODO: Find a better way to determine the OS platform enum at runtime.
-                OSPlatform osPlatform = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? OSPlatform.Windows :
-                    RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OSPlatform.OSX :
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? OSPlatform.Linux :
-                    throw new PlatformNotSupportedException($"Unsupported platform: '{RuntimeInformation.OSDescription}'.");
+                OSPlatform osPlatform = PlatformDetector.GetCurrentPlatform();
 
                 string downloadUrl = GetDownloadUrl(osPlatform, RuntimeInformation.ProcessArchitecture, freeThreaded, debug, version);
 

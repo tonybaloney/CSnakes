@@ -214,4 +214,19 @@ public class PyObjectTests(PythonEnvironmentFixture fixture) : RuntimeTestBase(f
         var runtimeException = Assert.IsType<PythonRuntimeException>(invocationException.InnerException);
         Assert.Equal("keywords must be strings", runtimeException.Message);
     }
+
+    [Fact]
+    public void TestObjectGetAttrOfAPythonName()
+    {
+        using PyObject pyObj = PyObject.From("Hello, World!");
+        using PyObject name = PyObject.From("upper");
+        using PyObject missing = PyObject.From("no_such_attribute");
+        Assert.True(pyObj.HasAttr(name));
+        Assert.False(pyObj.HasAttr(missing));
+        using PyObject upper = pyObj.GetAttr(name);
+        using PyObject result = upper.Call();
+        Assert.Equal("HELLO, WORLD!", result.ToString());
+        var invocationException = Assert.Throws<PythonInvocationException>(() => pyObj.GetAttr(missing));
+        Assert.Equal("AttributeError", invocationException.PythonExceptionType);
+    }
 }

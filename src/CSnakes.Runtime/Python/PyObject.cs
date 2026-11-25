@@ -143,6 +143,36 @@ public partial class PyObject : SafeHandle, ICloneable
         }
     }
 
+    /// <summary>
+    /// Get the attribute of the object with name. This is equivalent to obj.name in Python.
+    /// </summary>
+    /// <remarks>
+    /// The name is a Python <c>str</c>, which a caller reading the same attribute often can keep, instead of a new one
+    /// made from a <see cref="string"/> for each read.
+    /// </remarks>
+    /// <param name="name">Attribute name, a Python <c>str</c></param>
+    /// <returns>Attribute object (new ref)</returns>
+    public PyObject GetAttr(PyObject name)
+    {
+        RaiseOnPythonNotInitialized();
+        using (GIL.Acquire())
+        {
+            return Create(CPythonAPI.PyObject_GetAttr(this, name));
+        }
+    }
+
+    /// <summary>
+    /// Whether the object has an attribute of that name, a Python <c>str</c> a caller can keep (see <see cref="GetAttr(PyObject)"/>).
+    /// </summary>
+    /// <param name="name">Attribute name, a Python <c>str</c></param>
+    public bool HasAttr(PyObject name)
+    {
+        RaiseOnPythonNotInitialized();
+        using (GIL.Acquire())
+        {
+            return CPythonAPI.PyObject_HasAttr(this, name) == 1;
+        }
+    }
 
     internal virtual PyObject GetIter()
     {

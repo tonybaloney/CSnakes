@@ -34,13 +34,25 @@ internal unsafe partial class CPythonAPI
 
     internal static IntPtr Call(PyObject callable, ReadOnlySpan<IntPtr> args, ReadOnlySpan<IntPtr> kwnames, ReadOnlySpan<IntPtr> kwvalues)
     {
-        // These options are used for efficiency. Don't create a tuple if its not required.
-        if (false /* TODO: Implement vectorcall for kwargs*/ &&
-            PythonVersion.Major == 3 && PythonVersion.Minor > 10)
+        // Vectorcall takes the keyword values after the positional ones and their names as a tuple: no tuple of the
+        // arguments and no dictionary of the keywords, which a function made for vectorcall would only unpack again.
+        if (args.Length + kwvalues.Length <= MaxVectorcallArgs && PythonVersion.Major == 3 && PythonVersion.Minor > 10
+            && AreVectorcallKeywords(kwnames))
         {
-            fixed (IntPtr* argsPtr = args)
+            Span<IntPtr> all = stackalloc IntPtr[MaxVectorcallArgs];
+            args.CopyTo(all);
+            kwvalues.CopyTo(all[args.Length..]);
+            var kwnamesTuple = PackTuple(kwnames);
+            try
             {
-                return PyObject_Vectorcall(callable, argsPtr, (nuint)args.Length, IntPtr.Zero);
+                fixed (IntPtr* argsPtr = all)
+                {
+                    return PyObject_Vectorcall(callable, argsPtr, (nuint)args.Length, kwnamesTuple);
+                }
+            }
+            finally
+            {
+                Py_DecRefRaw(kwnamesTuple);
             }
         }
         else
@@ -52,6 +64,34 @@ internal unsafe partial class CPythonAPI
             Py_DecRefRaw(kwargsDict);
             return result;
         }
+    }
+
+    /// <summary>
+    /// The most arguments, positional and keyword ones together, that a call with keywords passes by vectorcall; more go
+    /// in a tuple and a dictionary, as each name is compared with the others.
+    /// </summary>
+    private const int MaxVectorcallArgs = 16;
+
+    /// <summary>
+    /// Whether vectorcall takes these keyword names: it needs them to be of type <c>str</c> exactly, not a subclass, and
+    /// each name once. Anything else goes in a dictionary, which says what's wrong as Python does, or keeps the last of
+    /// two values of one name.
+    /// </summary>
+    private static bool AreVectorcallKeywords(ReadOnlySpan<IntPtr> kwnames)
+    {
+        for (int i = 0; i < kwnames.Length; i++)
+        {
+            var type = GetTypeRaw(kwnames[i]);
+            Py_DecRefRaw(type);
+            if (type != PyUnicodeType)
+                return false;
+            for (int j = 0; j < i; j++)
+            {
+                if (kwnames[i] == kwnames[j] || PyUnicode_Compare(kwnames[i], kwnames[j]) == 0)
+                    return false;
+            }
+        }
+        return true;
     }
 
     /// <summary>

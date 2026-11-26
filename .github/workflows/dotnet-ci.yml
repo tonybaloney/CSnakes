@@ -25,7 +25,7 @@ permissions:
 
 jobs:
   validate-python:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
@@ -95,13 +95,17 @@ jobs:
         run: dotnet test --no-build --blame --verbosity m --logger "console;verbosity=detailed" --collect "XPlat Code Coverage" --results-directory test-results /p:TrxLogFileNameSuffix=${{ matrix.os }}-${{ matrix.python }} -bl:${{ github.workspace }}/tests-${{ matrix.os }}-${{ matrix.python }}.binlog StdLib.Tests
         working-directory: src
   integration-test:
+    env:
+      # TODO Remove VSTest ARM64 workaround when SDK includes the fix
+      # See: https://github.com/microsoft/vstest/pull/16656.
+      VSTEST_DISABLE_ARTIFACTS_DIRECTORY_VERIFICATION: ${{ matrix.os == 'ubuntu-24.04-arm' && '1' || '0' }}
     permissions:
       contents: read
       actions: write # For actions/cache and upload-artifact
     needs: unit-test
     strategy:
       matrix:
-        os: [windows-latest, windows-11-arm, ubuntu-latest, macos-latest, ubuntu-24.04-arm]
+        os: [windows-latest, windows-11-arm, ubuntu-24.04, macos-latest, ubuntu-24.04-arm]
         python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
         exclude:
           # WoA doesn't support Python 3.9 and 3.10 according to the redistributable locator

@@ -47,6 +47,10 @@ jobs:
           python -m pip install -r src/Integration.Tests/python/requirements.txt
           pyright --pythonversion ${{ matrix.python }} src/*.Tests/**/*.py
   unit-test:
+    env:
+      # TODO Remove VSTest ARM64 workaround when SDK includes the fix
+      # See: https://github.com/microsoft/vstest/pull/16656.
+      VSTEST_DISABLE_ARTIFACTS_DIRECTORY_VERIFICATION: ${{ matrix.os == 'ubuntu-24.04-arm' && '1' || '0' }}
     permissions:
       contents: read
       actions: write # For actions/cache

@@ -349,3 +349,5 @@ static CSnakes.Runtime.Python.PyBufferExtensions.AsBoolSpan(this CSnakes.Runtime
 static CSnakes.Runtime.Python.PyBufferExtensions.AsByteSpan(this CSnakes.Runtime.Python.IPyBuffer! buffer) -> System.Span<byte>
 CSnakes.Runtime.Python.PyObject.Call(params CSnakes.Runtime.Python.PyObject![]! args) -> CSnakes.Runtime.Python.PyObject!
 CSnakes.Runtime.IReloadableModuleImport.ReloadModule() -> void
+CSnakes.Runtime.Python.PyObject.GetAttr(CSnakes.Runtime.Python.PyObject! name) -> CSnakes.Runtime.Python.PyObject!
+CSnakes.Runtime.Python.PyObject.HasAttr(CSnakes.Runtime.Python.PyObject! name) -> bool

@@ -128,6 +128,10 @@ internal unsafe partial class CPythonAPI
     [LibraryImport(PythonLibraryName)]
     internal static partial IntPtr PyObject_GetAttr(PyObject ob, IntPtr attr);
 
+    /// <inheritdoc cref="PyObject_GetAttr(PyObject, IntPtr)"/>
+    [LibraryImport(PythonLibraryName)]
+    internal static partial IntPtr PyObject_GetAttr(PyObject ob, PyObject attr);
+
     [LibraryImport(PythonLibraryName, EntryPoint = "PyObject_GetAttr")]
     private static partial IntPtr PyObject_GetAttrRaw(IntPtr ob, IntPtr attr);
 
@@ -139,6 +143,10 @@ internal unsafe partial class CPythonAPI
     /// <returns>1 on success, 0 if the attr does not exist</returns>
     [LibraryImport(PythonLibraryName)]
     internal static partial int PyObject_HasAttr(PyObject ob, IntPtr attr);
+
+    /// <inheritdoc cref="PyObject_HasAttr(PyObject, IntPtr)"/>
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int PyObject_HasAttr(PyObject ob, PyObject attr);
 
     [LibraryImport(PythonLibraryName)]
     private static partial int PyObject_SetAttr(PyObject ob, IntPtr attr, PyObject value);

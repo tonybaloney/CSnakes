@@ -89,3 +89,5 @@ static readonly CSnakes.Runtime.Locators.RedistributablePythonVersion.Python3_9 
 *REMOVED*CSnakes.Runtime.Python.ICoroutine
 *REMOVED*CSnakes.Runtime.Python.ICoroutine<TYield, TSend, TReturn>
 *REMOVED*CSnakes.Runtime.Python.ICoroutine<TYield, TSend, TReturn>.AsTask(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TYield>!
+CSnakes.Runtime.Python.PyObject.GetAttr(CSnakes.Runtime.Python.PyObject! name) -> CSnakes.Runtime.Python.PyObject!
+CSnakes.Runtime.Python.PyObject.HasAttr(CSnakes.Runtime.Python.PyObject! name) -> bool

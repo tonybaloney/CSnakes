@@ -9,6 +9,7 @@ internal unsafe partial class CPythonAPI : IDisposable
 {
     private const string PythonLibraryName = "csnakes_python";
     public string PythonPath { get; internal set; } = string.Empty;
+    public string PythonPrefix { get; internal set; } = string.Empty;
 
     private static string? pythonLibraryPath = null;
     private static Version PythonVersion = new("0.0.0");
@@ -175,6 +176,8 @@ internal unsafe partial class CPythonAPI : IDisposable
             EnsureFutureFunction = PyObject.Create(CPythonAPI.GetAttr(AsyncioModule, "ensure_future"));
             if (pythonExecutablePath is not null)
                 SetSysExecutable(pythonExecutablePath);
+            if (!string.IsNullOrEmpty(PythonPrefix))
+                SetSysPaths(PythonPrefix);
         }
 
         return tstate;
@@ -209,6 +212,17 @@ internal unsafe partial class CPythonAPI : IDisposable
         using var sysModule = Import("sys");
         using var sysPath = PyObject.Create(AsPyUnicodeObject(executablePath));
         SetAttr(sysModule, "executable", sysPath);
+    }
+
+    protected void SetSysPaths(string path)
+    {
+        using var sysModule = Import("sys");
+        using var sysPath = PyObject.Create(AsPyUnicodeObject(path));
+        SetAttr(sysModule, "exec_prefix", sysPath);
+        SetAttr(sysModule, "base_exec_prefix", sysPath);
+        SetAttr(sysModule, "prefix", sysPath);
+        SetAttr(sysModule, "base_prefix", sysPath);
+        // if site.py finds that a virtual environment is in use, the values of prefix and exec_prefix will be changed to point to the virtual environment
     }
 
     protected void FinalizeEmbeddedPython(nint initializationTState)

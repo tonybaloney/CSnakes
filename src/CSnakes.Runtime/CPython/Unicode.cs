@@ -18,6 +18,13 @@ internal unsafe partial class CPythonAPI
     internal static partial nint PyUnicode_DecodeUTF16(char* str, nint size, IntPtr errors, IntPtr byteorder);
 
     /// <summary>
+    /// Compare two strings: -1, 0 or 1 for less than, equal and greater than. Only for objects of type str; for others,
+    /// -1 and an exception set.
+    /// </summary>
+    [LibraryImport(PythonLibraryName)]
+    internal static partial int PyUnicode_Compare(nint left, nint right);
+
+    /// <summary>
     /// Calls PyUnicode_AsUTF8 and throws a Python Exception if an error occurs.
     /// </summary>
     /// <param name="s"></param>

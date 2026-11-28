@@ -214,4 +214,88 @@ public class PyObjectTests(PythonEnvironmentFixture fixture) : RuntimeTestBase(f
         var runtimeException = Assert.IsType<PythonRuntimeException>(invocationException.InnerException);
         Assert.Equal("keywords must be strings", runtimeException.Message);
     }
+
+    [Fact]
+    public void CallWithKeywordsPassesEachToItsParameter()
+    {
+        const string source = "def f(a, b=0, *, c=0, **rest):\n    return f'{a} {b} {c} {sorted(rest.items())}'\n";
+        using var module = Import.ImportModule("call_with_keywords", source, Environment.CurrentDirectory);
+        using var f = module.GetAttr("f");
+        using var one = PyObject.From(1);
+        using var two = PyObject.From(2);
+        using var three = PyObject.From(3);
+        using var four = PyObject.From(4);
+        using var b = PyObject.From("b");
+        using var c = PyObject.From("c");
+        using var d = PyObject.From("d");
+        using var result = f.Call([one], [new KeywordArg(c, three), new KeywordArg(b, two), new KeywordArg(d, four)]);
+        Assert.Equal("1 2 3 [('d', 4)]", result.ToString());
+    }
+
+    [Fact]
+    public void CallWithKeywordsOfABuiltin()
+    {
+        using var builtins = Import.ImportModule("builtins");
+        using var sorted = builtins.GetAttr("sorted");
+        using var items = PyObject.From(new long[] { 2, 3, 1 });
+        using var reverse = PyObject.From("reverse");
+        using var result = sorted.Call([items], [new KeywordArg(reverse, PyObject.True)]);
+        Assert.Equal("[3, 2, 1]", result.ToString());
+    }
+
+    [Fact]
+    public void CallWithKeywordsOfAType()
+    {
+        using var builtins = Import.ImportModule("builtins");
+        using var dict = builtins.GetAttr("dict");
+        using var a = PyObject.From("a");
+        using var b = PyObject.From("bee");
+        using var result = dict.Call([], [new KeywordArg(a, PyObject.One), new KeywordArg(b, PyObject.Zero)]);
+        Assert.Equal("{'a': 1, 'bee': 0}", result.ToString());
+    }
+
+    [Theory]
+    [InlineData("a")]   // one character: the same str object each time
+    [InlineData("key")] // two str objects of one value
+    public void CallWithAKeywordTwiceKeepsTheLastValue(string name)
+    {
+        using var builtins = Import.ImportModule("builtins");
+        using var dict = builtins.GetAttr("dict");
+        using var first = PyObject.From(name);
+        using var second = PyObject.From(name);
+        using var result = dict.Call([], [new KeywordArg(first, PyObject.One), new KeywordArg(second, PyObject.Zero)]);
+        Assert.Equal($"{{'{name}': 0}}", result.ToString());
+    }
+
+    [Fact]
+    public void CallWithManyKeywords()
+    {
+        using var builtins = Import.ImportModule("builtins");
+        using var dict = builtins.GetAttr("dict");
+        var names = Enumerable.Range(0, 20).Select(i => PyObject.From($"k{i}")).ToArray();
+        var values = Enumerable.Range(0, 20).Select(i => PyObject.From((long)i)).ToArray();
+        try
+        {
+            using var result = dict.Call([], [.. names.Zip(values, (n, v) => new KeywordArg(n, v))]);
+            Assert.Equal(20, result.As<IReadOnlyDictionary<string, long>>().Count);
+            Assert.Equal(19, result.As<IReadOnlyDictionary<string, long>>()["k19"]);
+        }
+        finally
+        {
+            foreach (var o in names.Concat(values))
+                o.Dispose();
+        }
+    }
+
+    [Fact]
+    public void CallWithAKeywordGivenByPositionToo()
+    {
+        const string source = "def f(a, b=0):\n    return a + b\n";
+        using var module = Import.ImportModule("call_with_keyword_twice", source, Environment.CurrentDirectory);
+        using var f = module.GetAttr("f");
+        using var a = PyObject.From("a");
+        void Act() => f.Call([PyObject.One], [new KeywordArg(a, PyObject.One)]).Dispose();
+        var invocationException = Assert.Throws<PythonInvocationException>(Act);
+        Assert.Contains("multiple values for argument 'a'", invocationException.InnerException!.Message);
+    }
 }
